@@ -1,5 +1,6 @@
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.gradle.internal.tasks.factory.dependsOn
+import com.ichi2.anki.gradle.ForkIdentity
 
 plugins {
     id("ankidroid.android.api")
@@ -21,11 +22,14 @@ configure<LibraryExtension> {
             libs.versions.apiMinSdk
                 .get()
                 .toInt()
-        buildConfigField("String", "ANKI_PACKAGE_NAME", "\"com.ichi2.anki\"")
+        // The API talks to the Fork, not the Official App, so that the two do not collide.
+        buildConfigField("String", "ANKI_PACKAGE_NAME", "\"${ForkIdentity.APPLICATION_ID}\"")
+        manifestPlaceholders["ankiPackageName"] = ForkIdentity.APPLICATION_ID
+        manifestPlaceholders["ankiDebugPackageName"] = ForkIdentity.DEBUG_APPLICATION_ID
     }
     buildTypes {
         debug {
-            buildConfigField("String", "ANKI_PACKAGE_NAME", "\"com.ichi2.anki.debug\"")
+            buildConfigField("String", "ANKI_PACKAGE_NAME", "\"${ForkIdentity.DEBUG_APPLICATION_ID}\"")
         }
         release {
             isMinifyEnabled = false

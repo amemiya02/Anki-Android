@@ -2,14 +2,14 @@
     <!--
     In Anki-Android:AndroidManifest.xml 'applicationId' defines the permission/authority for the API
 
-    (com.ichi2.anki.permission.xxx)       - live    (Anki-Android)
-    (com.ichi2.anki.debug.permission.xxx) - disabled (Anki-Android:Dev)
-    (com.ichi2.anki.a.permission.xxx)     - disabled (Anki-Android:Parallel.A)
+    (com.ichi2.anki.redesign.permission.xxx)       - live    (the Fork)
+    (com.ichi2.anki.redesign.debug.permission.xxx) - disabled (the Fork:Dev)
+    (com.ichi2.anki.redesign.a.permission.xxx)     - disabled (the Fork:Parallel.A)
 
     This caused a problem with integration test builds (androidTest)
     These run under '.debug', but require a working API where we can test permissions
 
-    We need <uses-permission> to grant 'com.ichi2.anki.debug.permission.READ_WRITE_DATABASE'
+    We need <uses-permission> to grant '${ankiDebugPackageName}.permission.READ_WRITE_DATABASE'
 
     The permission should not be in a 'release' build.
     We can't define an 'androidTest' only manifest:
@@ -17,5 +17,5 @@
 
     So this exists in a 'debug' manifest, which is used by androidTest
     -->
-    <uses-permission android:name="com.ichi2.anki.debug.permission.READ_WRITE_DATABASE"/>
+    <uses-permission android:name="${ankiDebugPackageName}.permission.READ_WRITE_DATABASE"/>
 </manifest>

@@ -2,6 +2,7 @@
 @file:Suppress("DEPRECATION")
 
 import com.android.build.api.variant.FilterConfiguration.FilterType
+import com.ichi2.anki.gradle.ForkIdentity
 import com.ichi2.anki.gradle.VersionCodeTasks
 import com.ichi2.anki.gradle.WriteReleaseMetadata
 import com.ichi2.anki.gradle.isCoverageEnabled
@@ -110,7 +111,8 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.ichi2.anki"
+        // The Fork installs beside the Official App, so it has its own application ID and name.
+        applicationId = ForkIdentity.APPLICATION_ID
         buildConfigField("Boolean", "CI", (System.getenv("CI") == "true").toString())
         buildConfigField("String", "ACRA_URL", "\"https://ankidroid.org/acra/report\"")
         buildConfigField("String", "BACKEND_VERSION", "\"${libs.versions.ankiBackend.get()}\"")
@@ -119,7 +121,7 @@ android {
         buildConfigField("long", "BUILD_TIME", buildTimeMillis.get())
         // whether UI elements linking to external donation pages are shown ('play' hides them)
         buildConfigField("Boolean", "SHOW_DONATE_LINKS", "true")
-        resValue("string", "app_name", "AnkiDroid")
+        resValue("string", "app_name", ForkIdentity.WORKING_NAME)
 
         // The version number is of the form:
         // <major>.<minor>.<maintenance>[dev|alpha<build>|beta<build>|]
@@ -196,7 +198,7 @@ android {
         named("debug") {
             versionNameSuffix = "-debug"
             isDebuggable = true
-            applicationIdSuffix = ".debug"
+            applicationIdSuffix = ForkIdentity.DEBUG_SUFFIX
             splits.abi.isUniversalApk = true // Build universal APK for debug always
             // Check Crash Reports page on developer wiki for info on ACRA testing
             // buildConfigField "String", "ACRA_URL", '"https://918f7f55-f238-436c-b34f-c8b5f1331fe5-bluemix.cloudant.com/acra-ankidroid/_design/acra-storage/_update/report"'
