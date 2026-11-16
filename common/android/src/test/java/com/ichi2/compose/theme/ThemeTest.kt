@@ -8,7 +8,6 @@ import android.view.ContextThemeWrapper
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
 import com.ichi2.anki.common.android.R
@@ -22,7 +21,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
 /**
- * Verifies that the four AnkiDroid XML themes (light, plain, dark, black) are
+ * Verifies that the three AnkiDroid XML themes (light, dark, black) are
  * correctly bridged into a Material3 [androidx.compose.material3.ColorScheme]
  * by [toMaterial3ColorScheme].
  *
@@ -65,17 +64,6 @@ class ThemeTest {
         val scheme = themed(R.style.Theme_Dark).toMaterial3ColorScheme()
         val expected = ContextCompat.getColor(appContext, R.color.material_blue_400)
         assertEquals(expected, scheme.primary.toArgb())
-    }
-
-    @Test
-    fun `plain theme produces a different primary than light theme`() {
-        val light = themed(R.style.Theme_Light).toMaterial3ColorScheme()
-        val plain = themed(R.style.Theme_Light_Plain).toMaterial3ColorScheme()
-        assertNotEquals(
-            light.primary.toArgb(),
-            plain.primary.toArgb(),
-            "Plain theme should have its own brand color distinct from Light theme",
-        )
     }
 
     @Test
@@ -147,6 +135,5 @@ class ThemeTest {
     @Test
     fun `study screen elevation follows the theme`() {
         assertEquals(0.8f, themed(R.style.Theme_Light).toAnkiDroidDimensions().studyScreenElevation.value, absoluteTolerance = 0.001f)
-        assertEquals(0.dp, themed(R.style.Theme_Light_Eink).toAnkiDroidDimensions().studyScreenElevation)
     }
 }

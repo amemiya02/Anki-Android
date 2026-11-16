@@ -396,10 +396,10 @@ open class Reviewer :
         val answerButtonsAtBottom = answerButtonsPosition == "bottom"
         val immersive = fullscreenMode.isFullScreenReview()
         enableEdgeToEdge(
-            // the status bar sits over the app bar, which is dark in every theme except E-Ink
+            // the status bar sits over the app bar, which is the page colour
             statusBarStyle =
                 SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) {
-                    currentTheme != DayTheme.EINK
+                    Themes.isNightTheme
                 },
             navigationBarStyle =
                 if (answerButtonsAtBottom) {

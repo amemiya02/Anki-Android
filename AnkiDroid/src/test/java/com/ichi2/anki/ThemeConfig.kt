@@ -7,18 +7,16 @@ import com.ichi2.anki.settings.enums.DayTheme
 import com.ichi2.anki.settings.enums.NightTheme
 import com.ichi2.anki.settings.enums.Theme
 
-/** A theme that screenshot tests can be run with */
+/** A theme that screenshot tests can be run with: the three themes the app offers */
 enum class ThemeConfig(
     val theme: Theme,
 ) {
     LIGHT(DayTheme.LIGHT),
-    PLAIN(DayTheme.PLAIN),
     DARK(NightTheme.DARK),
     BLACK(NightTheme.BLACK),
-    EINK(DayTheme.EINK),
     ;
 
-    val isNight get() = this == DARK || this == BLACK
+    val isNight get() = theme is NightTheme
 }
 
 /** Provides the themes selected with `-Ptheme`: a comma-separated list, or `all` */

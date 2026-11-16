@@ -9,9 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.ichi2.anki.noteeditor.data.ToolbarPreferences
-import com.ichi2.anki.settings.enums.DayTheme
 import com.ichi2.compose.theme.AnkiDroidTheme
-import com.ichi2.themes.Themes
 
 private const val STATE_TOOLBAR_LAYOUT_DIALOG = "toolbarLayoutDialog"
 
@@ -42,7 +40,6 @@ internal class ToolbarLayoutDialogHost {
                             onChanged()
                         },
                         onDismiss = { isShowing = false },
-                        showSelectionBackground = Themes.currentTheme != DayTheme.EINK,
                     )
                 }
             }

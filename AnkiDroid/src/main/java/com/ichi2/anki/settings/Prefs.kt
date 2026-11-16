@@ -21,7 +21,6 @@ import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.preferences.SharedPreferencesProvider
 import com.ichi2.anki.preferences.TimeboxTimeLimit
 import com.ichi2.anki.settings.enums.AppTheme
-import com.ichi2.anki.settings.enums.DayTheme
 import com.ichi2.anki.settings.enums.FrameStyle
 import com.ichi2.anki.settings.enums.HideSystemBars
 import com.ichi2.anki.settings.enums.NightTheme
@@ -413,8 +412,9 @@ open class PrefsRepository protected constructor(
     //region Appearance
 
     var appTheme: AppTheme by enumPref(R.string.app_theme_key, AppTheme.FOLLOW_SYSTEM)
-    var dayTheme: DayTheme by enumPref(R.string.day_theme_key, DayTheme.LIGHT)
-    var nightTheme: NightTheme by enumPref(R.string.night_theme_key, NightTheme.BLACK)
+
+    /** The theme for the night side. Black is an explicit choice. */
+    var nightTheme: NightTheme by enumPref(R.string.night_theme_key, NightTheme.DARK)
 
     //endregion
 

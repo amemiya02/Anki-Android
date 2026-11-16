@@ -18,8 +18,8 @@ import com.google.android.material.R as MaterialR
 /**
  * Every theme attribute declared by `:common:android` must have a value in every app theme.
  *
- * An attribute that a theme doesn't set fails to resolve where it's used: Plain and E-ink inherit
- * Light, and Black inherits Dark, but Light and Dark don't share a parent.
+ * An attribute that a theme doesn't set fails to resolve where it's used: Black inherits Dark, but
+ * Light and Dark don't share a parent.
  */
 @RunWith(RobolectricTestRunner::class)
 class ThemeAttributesTest {

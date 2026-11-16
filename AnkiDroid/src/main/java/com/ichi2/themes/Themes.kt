@@ -81,9 +81,8 @@ object Themes {
 
     /**
      * Updates [currentTheme] value based on preferences.
-     * If `Follow system` is selected, it's updated to the theme set
-     * on `Day` or `Night` theme according to system's current mode
-     * Otherwise, updates to the selected theme.
+     * The day side is always Light. The night side (Dark or Black) is used when `Night` is selected,
+     * or when `Follow system` (the default) is selected and the system is in dark mode.
      */
     fun updateCurrentTheme(context: Context) {
         val prefs = PrefsRepository(context)
@@ -94,7 +93,7 @@ object Themes {
             if (themeIsDark) {
                 prefs.nightTheme
             } else {
-                prefs.dayTheme
+                DayTheme.LIGHT
             }
         val defaultNightMode =
             when (appTheme) {

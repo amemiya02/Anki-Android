@@ -11,7 +11,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.test.core.app.ApplicationProvider
 import com.ichi2.anki.ComposeScreenshotTest
-import com.ichi2.anki.ThemeConfig
 import com.ichi2.anki.noteeditor.presentation.ToolbarLayoutMode
 import org.junit.Test
 import org.robolectric.annotation.Config
@@ -61,7 +60,6 @@ class ToolbarLayoutDialogThemeScreenshotTest : ComposeScreenshotTest() {
                 selected = selected,
                 onSelect = {},
                 onDismiss = {},
-                showSelectionBackground = theme != ThemeConfig.EINK,
             )
         }
     }

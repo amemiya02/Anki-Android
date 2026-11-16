@@ -41,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -57,7 +56,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.noteeditor.presentation.ToolbarLayoutMode
-import com.ichi2.anki.settings.enums.DayTheme
 import com.ichi2.anki.settings.enums.Theme
 import com.ichi2.compose.theme.widgetBorder
 import com.ichi2.compose.ui.dialogs.AnkiDroidDialog
@@ -71,7 +69,6 @@ fun ToolbarLayoutDialog(
     selected: ToolbarLayoutMode,
     onSelect: (ToolbarLayoutMode) -> Unit,
     onDismiss: () -> Unit,
-    showSelectionBackground: Boolean = true,
 ) {
     // Read outside the dialog: its window replaces LocalContext, which the border is read from
     val border = MaterialTheme.widgetBorder
@@ -80,7 +77,7 @@ fun ToolbarLayoutDialog(
         modifier = Modifier.widthIn(max = 560.dp).fillMaxWidth(),
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
-        ToolbarLayoutDialogCard(selected, onSelect, showSelectionBackground, border)
+        ToolbarLayoutDialogCard(selected, onSelect, border)
     }
 }
 
@@ -89,7 +86,6 @@ fun ToolbarLayoutDialog(
 private fun ToolbarLayoutDialogCard(
     selected: ToolbarLayoutMode,
     onSelect: (ToolbarLayoutMode) -> Unit,
-    showSelectionBackground: Boolean,
     border: BorderStroke?,
 ) {
     Surface(
@@ -117,7 +113,6 @@ private fun ToolbarLayoutDialogCard(
                                 selected,
                                 onSelect,
                                 horizontal = true,
-                                showSelectionBackground = showSelectionBackground,
                                 modifier = Modifier.fillMaxWidth(),
                             )
                         }
@@ -130,7 +125,6 @@ private fun ToolbarLayoutDialogCard(
                                 selected,
                                 onSelect,
                                 horizontal = false,
-                                showSelectionBackground = showSelectionBackground,
                                 modifier = Modifier.weight(1f).fillMaxHeight(),
                             )
                         }
@@ -148,14 +142,11 @@ private fun ToolbarLayoutChoice(
     selected: ToolbarLayoutMode,
     onSelect: (ToolbarLayoutMode) -> Unit,
     horizontal: Boolean,
-    showSelectionBackground: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val isSelected = layout == selected
-    var isFocused by remember { mutableStateOf(false) }
-    val showFocusBorder = isFocused && !showSelectionBackground
     val selectionBackground =
-        if (isSelected && showSelectionBackground) MaterialTheme.colorScheme.primary.copy(alpha = 0.08f) else Color.Transparent
+        if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.08f) else Color.Transparent
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     var isPositioned by remember { mutableStateOf(false) }
     // Scroll to the selected choice if needed, after layout has determined its position.
@@ -168,16 +159,14 @@ private fun ToolbarLayoutChoice(
             .onGloballyPositioned { isPositioned = true }
             .clip(MaterialTheme.shapes.small)
             .background(selectionBackground)
-            // A thicker border distinguishes keyboard focus from selection without grey shading.
             .border(
-                width = if (showFocusBorder) 4.dp else 2.dp,
-                color = if (isSelected || showFocusBorder) MaterialTheme.colorScheme.primary else Color.Transparent,
+                width = 2.dp,
+                color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
                 shape = MaterialTheme.shapes.small,
-            ).onFocusChanged { isFocused = it.isFocused }
-            .selectable(
+            ).selectable(
                 selected = isSelected,
                 interactionSource = null,
-                indication = if (showSelectionBackground) LocalIndication.current else null,
+                indication = LocalIndication.current,
                 role = Role.Button,
                 onClick = { onSelect(layout) },
             ).padding(12.dp)
@@ -294,7 +283,6 @@ private fun ToolbarLayoutDialogPreview(
             selected = ToolbarLayoutMode.SCROLL,
             onSelect = {},
             onDismiss = {},
-            showSelectionBackground = theme != DayTheme.EINK,
         )
     }
 }
@@ -309,7 +297,6 @@ private fun ToolbarLayoutDialogStackPreview(
             selected = ToolbarLayoutMode.STACK,
             onSelect = {},
             onDismiss = {},
-            showSelectionBackground = theme != DayTheme.EINK,
         )
     }
 }
@@ -324,7 +311,6 @@ private fun ToolbarLayoutDialogHiddenPreview(
             selected = ToolbarLayoutMode.HIDDEN,
             onSelect = {},
             onDismiss = {},
-            showSelectionBackground = theme != DayTheme.EINK,
         )
     }
 }
@@ -339,7 +325,6 @@ private fun ToolbarLayoutDialogLargeTextPreview(
             selected = ToolbarLayoutMode.HIDDEN,
             onSelect = {},
             onDismiss = {},
-            showSelectionBackground = theme != DayTheme.EINK,
         )
     }
 }

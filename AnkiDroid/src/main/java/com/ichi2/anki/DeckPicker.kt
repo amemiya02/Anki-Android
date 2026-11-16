@@ -181,7 +181,6 @@ import com.ichi2.anki.reviewreminders.ReviewRemindersDatabase
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
 import com.ichi2.anki.servicelayer.ScopedStorageService
 import com.ichi2.anki.settings.Prefs
-import com.ichi2.anki.settings.enums.DayTheme
 import com.ichi2.anki.settings.uiConfigPrefs
 import com.ichi2.anki.shareddeck.SharedDecksActivity
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
@@ -510,9 +509,7 @@ open class DeckPicker :
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
             statusBarStyle =
-                SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) {
-                    Themes.currentTheme != DayTheme.EINK
-                },
+                SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme },
             navigationBarStyle = BottomFadeFrameLayout.navigationBarStyle(),
         )
 

@@ -14,6 +14,7 @@ import com.ichi2.anki.StudyOptionsActivity
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.settings.PrefsRepository
 import com.ichi2.anki.settings.enums.AppTheme
+import com.ichi2.anki.settings.enums.DayTheme
 import com.ichi2.anki.settings.enums.NightTheme
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsString
@@ -83,6 +84,33 @@ class ThemesTest : RobolectricTest() {
     fun `recreated activity with an existing decor view does not fail - issue 21548`() {
         Robolectric.buildActivity(EarlyDecorViewInitActivity::class.java).use { controller ->
             controller.create(Bundle())
+        }
+    }
+
+    @Test
+    fun `the app follows the system's light or dark setting by default`() {
+        Themes.updateCurrentTheme(targetContext)
+        assertThat(Themes.currentTheme, equalTo(DayTheme.LIGHT))
+
+        RuntimeEnvironment.setQualifiers("+night")
+        Themes.updateCurrentTheme(targetContext)
+        assertThat("Black is an explicit choice", Themes.currentTheme, equalTo(NightTheme.DARK))
+    }
+
+    @Test
+    fun `the three themes are Light, Dark and Black`() {
+        assertThat((DayTheme.entries + NightTheme.entries).map { it.name }, equalTo(listOf("LIGHT", "BLACK", "DARK")))
+    }
+
+    @Test
+    fun `someone who had Plain or E-ink selected lands on Light`() {
+        for (removedTheme in listOf("2", "3")) {
+            targetContext.sharedPrefs().edit {
+                putString("appTheme", "1")
+                putString("dayTheme", removedTheme)
+            }
+            Themes.updateCurrentTheme(targetContext)
+            assertThat("dayTheme = $removedTheme", Themes.currentTheme, equalTo(DayTheme.LIGHT))
         }
     }
 

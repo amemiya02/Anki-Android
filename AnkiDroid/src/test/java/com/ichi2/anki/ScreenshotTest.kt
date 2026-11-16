@@ -23,7 +23,6 @@ import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider
 import com.ichi2.anki.settings.PrefsRepository
 import com.ichi2.anki.settings.enums.AppTheme
-import com.ichi2.anki.settings.enums.DayTheme
 import com.ichi2.anki.settings.enums.NightTheme
 import org.junit.Before
 import org.junit.experimental.categories.Category
@@ -120,20 +119,14 @@ abstract class ScreenshotTest : RobolectricTest() {
         }
     }
 
-    // ./gradlew :AnkiDroid:recordRoborazziPlayDebug -Pscreenshot -Ptheme=black,plain
+    // ./gradlew :AnkiDroid:recordRoborazziPlayDebug -Pscreenshot -Ptheme=dark,black
     protected open fun applyThemeConfig() {
         if (theme != ThemeConfig.LIGHT) {
             fileNamePrefix += "${theme.name.lowercase()}_"
         }
         val prefs = PrefsRepository(targetContext)
         prefs.appTheme = if (theme.isNight) AppTheme.NIGHT else AppTheme.DAY
-        when (theme) {
-            ThemeConfig.LIGHT -> prefs.dayTheme = DayTheme.LIGHT
-            ThemeConfig.PLAIN -> prefs.dayTheme = DayTheme.PLAIN
-            ThemeConfig.EINK -> prefs.dayTheme = DayTheme.EINK
-            ThemeConfig.DARK -> prefs.nightTheme = NightTheme.DARK
-            ThemeConfig.BLACK -> prefs.nightTheme = NightTheme.BLACK
-        }
+        (theme.theme as? NightTheme)?.let { prefs.nightTheme = it }
     }
 
     // ./gradlew :AnkiDroid:recordRoborazziPlayDebug -Pscreenshot -Planguage=ja,ar

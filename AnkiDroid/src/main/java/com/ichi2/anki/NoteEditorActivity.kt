@@ -27,7 +27,6 @@ import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.noteeditor.NoteEditorFragmentDelegate
 import com.ichi2.anki.previewer.TemplatePreviewerArguments
 import com.ichi2.anki.previewer.TemplatePreviewerFragment
-import com.ichi2.anki.settings.enums.DayTheme
 import com.ichi2.anki.settings.uiConfigPrefs
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
 import com.ichi2.anki.snackbar.SnackbarBuilder
@@ -132,9 +131,7 @@ class NoteEditorActivity :
 
         enableEdgeToEdge(
             statusBarStyle =
-                SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) {
-                    Themes.currentTheme != DayTheme.EINK
-                },
+                SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme },
             navigationBarStyle =
                 SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme },
         )

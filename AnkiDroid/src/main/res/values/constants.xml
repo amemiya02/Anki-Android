@@ -53,11 +53,6 @@
         <item>@string/add_to_deck_use_current_deck</item>
         <item>@string/add_to_deck_decide_by_note_type</item>
     </string-array>
-    <string-array name="day_theme_labels">
-        <item>@string/day_theme_light</item>
-        <item>@string/day_theme_plain</item>
-        <item>@string/day_theme_eink</item>
-    </string-array>
     <string-array name="night_theme_labels">
         <item>@string/night_theme_black</item>
         <item>@string/night_theme_dark</item>
@@ -152,7 +147,7 @@
     <!-- Themes -->
     <string-array name="app_theme_labels">
         <item>@string/theme_follow_system</item>
-        <item>@string/theme_day</item>
+        <item>@string/day_theme_light</item>
         <item>@string/theme_night</item>
     </string-array>
 

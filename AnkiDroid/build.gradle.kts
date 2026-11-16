@@ -297,7 +297,7 @@ android {
                                 )
                             }
                         }
-                        validateInput(theme, listOf("light", "plain", "dark", "black", "eink", "all"))
+                        validateInput(theme, listOf("light", "dark", "black", "all"))
                         validateInput(device, listOf("phone", "tablet", "foldable", "desktop", "all"))
                         validateInput(language, listOf("en", "zh-cn", "ja", "ar", "all"))
                         validateInput(fontSize, listOf("normal", "200", "all"))
