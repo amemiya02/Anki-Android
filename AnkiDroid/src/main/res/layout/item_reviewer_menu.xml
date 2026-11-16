@@ -34,7 +34,7 @@
             android:paddingBottom="4dp"
             app:maxWidth="48dp"
             app:maxHeight="48dp"
-            tools:srcCompat="@drawable/ic_star" />
+            tools:srcCompat="@drawable/symbol_star" />
 
         <com.ichi2.ui.FixedTextView
             android:id="@+id/title"
@@ -53,6 +53,6 @@
             android:padding="8dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            app:srcCompat="@drawable/ic_drag_indicator_24" />
+            app:srcCompat="@drawable/symbol_drag_indicator" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

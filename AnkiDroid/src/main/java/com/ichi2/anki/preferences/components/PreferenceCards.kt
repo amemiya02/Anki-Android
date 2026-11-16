@@ -380,7 +380,7 @@ fun PreferenceHelpSection(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Icon(
-            painter = painterResource(R.drawable.ic_outline_info_24),
+            painter = painterResource(R.drawable.symbol_info),
             contentDescription = null,
             tint = preferenceCardContentColor(),
             modifier = Modifier.size(24.dp),

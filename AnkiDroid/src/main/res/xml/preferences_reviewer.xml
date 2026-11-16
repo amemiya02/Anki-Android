@@ -62,14 +62,14 @@
             android:key="@string/show_progress_preference"
             tools:title="Show remaining card count"
             android:defaultValue="true"
-            android:icon="@drawable/ic_numbers"
+            android:icon="@drawable/symbol_numbers"
             />
 
         <SwitchPreferenceCompat
             android:key="@string/show_audio_play_buttons_key"
             android:defaultValue="true"
             tools:title="Show play buttons on cards with audio"
-            android:icon="@drawable/ic_play_circle_white"
+            android:icon="@drawable/symbol_play_circle"
             />
 
     </PreferenceCategory>
@@ -79,7 +79,7 @@
         <Preference
             android:title="@string/toolbar_actions"
             android:key="@string/reviewer_menu_settings_key"
-            android:icon="@drawable/ic_widgets"
+            android:icon="@drawable/symbol_widgets"
             android:fragment="com.ichi2.anki.preferences.reviewer.ReviewerMenuSettingsFragment"
             />
         <ListPreference
@@ -87,7 +87,7 @@
             android:entries="@array/reviewer_toolbar_position_entries"
             android:entryValues="@array/reviewer_toolbar_position_values"
             android:key="@string/reviewer_toolbar_position_key"
-            android:icon="@drawable/ic_toolbar"
+            android:icon="@drawable/symbol_toolbar"
             android:title="@string/toolbar_position"
             app:useSimpleSummaryProvider="true"/>
     </PreferenceCategory>
@@ -99,12 +99,12 @@
             android:defaultValue="true"
             android:key="@string/show_answer_buttons_key"
             android:title="@string/show_answer_buttons"
-            android:icon="@drawable/ic_shelf_auto_hide"
+            android:icon="@drawable/symbol_shelf_auto_hide"
             />
 
         <SwitchPreferenceCompat
             android:key="@string/show_estimates_preference"
-            android:icon="@drawable/ic_running_clock"
+            android:icon="@drawable/symbol_acute"
             android:dependency="@string/show_answer_buttons_key"
             tools:title="Show next review time above answer buttons"/>
 
@@ -112,7 +112,7 @@
             android:defaultValue="false"
             android:key="@string/hide_hard_and_easy_key"
             android:title="@string/hide_hard_and_easy"
-            android:icon="@drawable/ic_remove_done"
+            android:icon="@drawable/symbol_remove_done"
             android:dependency="@string/show_answer_buttons_key"
             app:allowDividerBelow="false"
             />

@@ -187,7 +187,7 @@ class AudioRecordingController(
         saveButton =
             layout.findViewById<MaterialButton?>(R.id.action_save_recording)?.apply {
                 isEnabled = false
-                setIconResource(R.drawable.ic_save_white)
+                setIconResource(R.drawable.symbol_save)
                 setOnClickListener {
                     Timber.i("'save' button clicked")
                     isAudioRecordingSaved = false

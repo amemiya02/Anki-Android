@@ -12,39 +12,39 @@
     <item
         android:id="@+id/action_clear"
         android:title="@string/clear_whiteboard"
-        android:icon="@drawable/ic_clear_white"
+        android:icon="@drawable/symbol_delete_sweep"
         app:showAsAction="never"
         />
     <item
         android:id="@+id/action_hide_toolbar"
         android:title="@string/hide_toolbar"
-        android:icon="@drawable/ic_hide"
+        android:icon="@drawable/symbol_visibility_off"
         app:showAsAction="never"
         />
     <item
         android:id="@+id/action_toggle_stylus"
         android:title="@string/stylus_mode"
         android:checkable="true"
-        android:icon="@drawable/ic_mode_edit_white"
+        android:icon="@drawable/symbol_stylus"
         app:showAsAction="never"
         />
     <item
         android:id="@+id/action_align"
         android:title="@string/toolbar_position"
-        android:icon="@drawable/ic_align"
+        android:icon="@drawable/symbol_open_with"
         app:showAsAction="never">
         <menu>
             <item
                 android:id="@+id/action_align_left"
-                android:icon="@drawable/ic_align_left"
+                android:icon="@drawable/symbol_align_horizontal_left"
                 android:title="@string/whiteboard_align_left"/>
             <item
                 android:id="@+id/action_align_bottom"
-                android:icon="@drawable/ic_align_bottom"
+                android:icon="@drawable/symbol_align_vertical_bottom"
                 android:title="@string/whiteboard_align_bottom"/>
             <item
                 android:id="@+id/action_align_right"
-                android:icon="@drawable/ic_align_right"
+                android:icon="@drawable/symbol_align_horizontal_right"
                 android:title="@string/whiteboard_align_right"/>
         </menu>
     </item>

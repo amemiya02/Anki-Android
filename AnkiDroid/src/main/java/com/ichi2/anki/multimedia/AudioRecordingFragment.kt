@@ -187,7 +187,7 @@ class AudioRecordingFragment : MultimediaFragment(R.layout.fragment_audio_record
                 }
             },
         )
-        actionSaveRecording.setIconResource(R.drawable.ic_save_white)
+        actionSaveRecording.setIconResource(R.drawable.symbol_save)
         actionSaveRecording.setOnClickListener {
             Timber.i("'save' clicked")
             saveRecording()

@@ -14,7 +14,7 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginStart="12dp"
-        tools:src="@drawable/ic_mode_edit_white"
+        tools:src="@drawable/symbol_edit"
         />
 
     <com.google.android.material.textview.MaterialTextView

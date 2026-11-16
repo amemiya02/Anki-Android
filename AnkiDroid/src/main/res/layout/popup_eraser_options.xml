@@ -28,7 +28,7 @@
                 android:layout_weight="1"
                 android:backgroundTint="@color/selector_tool_background"
                 android:text="@string/whiteboard_ink_eraser"
-                app:icon="@drawable/eraser"
+                app:icon="@drawable/symbol_ink_eraser"
                 app:iconGravity="textStart" />
 
             <com.google.android.material.button.MaterialButton
@@ -39,7 +39,7 @@
                 android:layout_weight="1"
                 android:backgroundTint="@color/selector_tool_background"
                 android:text="@string/whiteboard_stroke_eraser"
-                app:icon="@drawable/ic_edit_off"
+                app:icon="@drawable/symbol_edit_off"
                 app:iconGravity="textStart" />
         </com.google.android.material.button.MaterialButtonToggleGroup>
 

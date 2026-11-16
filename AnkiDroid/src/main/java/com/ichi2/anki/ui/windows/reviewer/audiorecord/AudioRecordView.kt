@@ -362,7 +362,7 @@ class AudioRecordView : ConstraintLayout {
         lastY = 0f
         chronometerBase = 0
 
-        binding.recordIcon.setImageResource(R.drawable.ic_action_mic)
+        binding.recordIcon.setImageResource(R.drawable.symbol_mic)
         binding.recordButton.setOnClickListener(null)
         binding.recordButton.setOnTouchListener(gestureListener)
 

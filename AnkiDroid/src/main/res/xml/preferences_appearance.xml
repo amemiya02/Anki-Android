@@ -21,7 +21,7 @@
             android:entryValues="@array/app_theme_values"
             android:key="@string/app_theme_key"
             android:title="@string/app_theme"
-            android:icon="@drawable/ic_color_lens_white_24dp"
+            android:icon="@drawable/symbol_palette"
             app:useSimpleSummaryProvider="true"/>
         <ListPreference
             android:defaultValue="@string/theme_dark_value"

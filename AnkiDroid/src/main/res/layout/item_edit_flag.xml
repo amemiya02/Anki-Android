@@ -30,7 +30,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/action_edit_flag"
             style="@style/Widget.Material3.Button.IconButton"
-            app:icon="@drawable/ic_mode_edit_white"
+            app:icon="@drawable/symbol_edit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 

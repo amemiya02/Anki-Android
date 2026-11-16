@@ -307,11 +307,11 @@ class ChangeNoteTypeDialog : AnalyticsDialogFragment(R.layout.dialog_change_note
             val binding = ViewTabLayoutIconOnStartBinding.inflate(LayoutInflater.from(tabLayout.context), tabLayout, false)
             when (position) {
                 0 -> {
-                    binding.tabIcon.setImageResource(R.drawable.ic_mode_edit_white)
+                    binding.tabIcon.setImageResource(R.drawable.symbol_edit)
                     binding.tabText.text = TR.changeNotetypeFields()
                 }
                 1 -> {
-                    binding.tabIcon.setImageResource(R.drawable.ic_card_question)
+                    binding.tabIcon.setImageResource(R.drawable.symbol_question_mark)
                     binding.tabText.text = TR.changeNotetypeTemplates()
                 }
             }

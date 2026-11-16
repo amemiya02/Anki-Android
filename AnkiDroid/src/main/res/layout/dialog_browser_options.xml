@@ -167,7 +167,7 @@
 
                 <ImageView
                 android:layout_width="wrap_content"
-                android:src="@drawable/ic_flag_transparent"
+                android:src="@drawable/symbol_flag"
                 android:layout_height="match_parent"/>
 
                 <com.ichi2.ui.FixedTextView

@@ -1181,9 +1181,9 @@ open class Reviewer :
         val alpha = Themes.ALPHA_ICON_ENABLED_LIGHT
         val markCardIcon = menu.findItem(R.id.action_mark_card)
         if (currentCard != null && isMarked(getColUnsafe, currentCard!!.note(getColUnsafe))) {
-            markCardIcon.setTitle(CommonString.menu_unmark_note).setIcon(R.drawable.ic_star_white)
+            markCardIcon.setTitle(CommonString.menu_unmark_note).setIcon(R.drawable.symbol_star)
         } else {
-            markCardIcon.setTitle(TR.sentenceCase.markNote).setIcon(R.drawable.ic_star_border_white)
+            markCardIcon.setTitle(TR.sentenceCase.markNote).setIcon(R.drawable.symbol_star)
         }
         markCardIcon.iconAlpha = alpha
 
@@ -1226,7 +1226,7 @@ open class Reviewer :
         val whiteboardIsShownAndHasStrokes = showWhiteboard && whiteboard?.undoEmpty() == false
         val undoStatus = if (colIsOpenUnsafe()) getColUnsafe.undoStatus() else null
         if (whiteboardIsShownAndHasStrokes) {
-            undoIconId = R.drawable.ic_arrow_u_left_top
+            undoIconId = R.drawable.symbol_u_turn_left
             undoEnabled = true
         } else {
             undoIconId = R.drawable.symbol_undo
@@ -1314,10 +1314,10 @@ open class Reviewer :
             if (!actionButtons.status.whiteboardPenColorIsDisabled()) {
                 changePenColorIcon.isVisible = true
             }
-            val whiteboardIcon = ContextCompat.getDrawable(applicationContext, R.drawable.ic_gesture_white)!!.mutate()
-            val stylusIcon = ContextCompat.getDrawable(this, R.drawable.ic_gesture_stylus)!!.mutate()
-            val whiteboardColorPaletteIcon = ContextCompat.getDrawable(applicationContext, R.drawable.ic_color_lens_white_24dp)!!.mutate()
-            val eraserIcon = ContextCompat.getDrawable(applicationContext, R.drawable.ic_eraser)!!.mutate()
+            val whiteboardIcon = ContextCompat.getDrawable(applicationContext, R.drawable.symbol_gesture)!!.mutate()
+            val stylusIcon = ContextCompat.getDrawable(this, R.drawable.symbol_stylus)!!.mutate()
+            val whiteboardColorPaletteIcon = ContextCompat.getDrawable(applicationContext, R.drawable.symbol_palette)!!.mutate()
+            val eraserIcon = ContextCompat.getDrawable(applicationContext, R.drawable.symbol_ink_eraser)!!.mutate()
             if (showWhiteboard) {
                 // "hide whiteboard" icon
                 whiteboardIcon.alpha = Themes.ALPHA_ICON_ENABLED_LIGHT

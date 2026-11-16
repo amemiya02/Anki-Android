@@ -34,7 +34,7 @@
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="@drawable/ic_flag_transparent" />
+        tools:src="@drawable/symbol_flag" />
 
     <com.ichi2.ui.FixedTextView
         android:id="@+id/text"

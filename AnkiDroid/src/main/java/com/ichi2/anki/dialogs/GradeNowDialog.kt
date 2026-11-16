@@ -111,8 +111,8 @@ private enum class Grade(
     @DrawableRes val iconRes: Int,
     val getLabel: () -> String,
 ) {
-    Again(Rating.AGAIN, R.drawable.ic_ease_again, { TR.studyingAgain() }),
-    Hard(Rating.HARD, R.drawable.ic_ease_hard, { TR.studyingHard() }),
-    Good(Rating.GOOD, R.drawable.ic_ease_good, { TR.studyingGood() }),
-    Easy(Rating.EASY, R.drawable.ic_ease_easy, { TR.studyingEasy() }),
+    Again(Rating.AGAIN, R.drawable.symbol_close_again, { TR.studyingAgain() }),
+    Hard(Rating.HARD, R.drawable.symbol_check_small_hard, { TR.studyingHard() }),
+    Good(Rating.GOOD, R.drawable.symbol_check_good, { TR.studyingGood() }),
+    Easy(Rating.EASY, R.drawable.symbol_done_all_easy, { TR.studyingEasy() }),
 }

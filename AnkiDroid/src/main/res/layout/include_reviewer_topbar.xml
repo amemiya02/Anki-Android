@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/top_bar"
     android:layout_width="match_parent"
@@ -74,16 +75,17 @@
             android:layout_height="wrap_content"
             android:visibility="invisible"
             android:layout_gravity="center"
-            tools:src="@drawable/ic_flag_red"
+            tools:src="@drawable/symbol_flag_red"
             tools:visibility="visible"
             />
         <ImageView
             android:id="@+id/mark_icon"
+                    app:tint="?attr/foundationEmphasis"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="invisible"
             android:layout_gravity="center"
-            tools:src="@drawable/ic_star_white_bordered_24dp"
+            tools:src="@drawable/symbol_star"
             tools:visibility="visible"
             />
         </LinearLayout>

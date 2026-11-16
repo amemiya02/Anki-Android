@@ -300,7 +300,7 @@ class InstantNoteEditorActivity : AnkiActivity(R.layout.activity_instant_note_ed
                     clozeEditTextField.hideKeyboard()
                     textBox.setText(clozeFieldText)
                     viewModel.setEditorMode(EditMode.SINGLE_TAP)
-                    dialogBinding.switchEditModeButton.setIconResource(R.drawable.ic_mode_edit_white)
+                    dialogBinding.switchEditModeButton.setIconResource(R.drawable.symbol_edit)
 
                     dialogBinding.singleTapLayout.visibility = View.VISIBLE
                     setupChipGroup(viewModel, dialogBinding.clozeTextChipGroup)

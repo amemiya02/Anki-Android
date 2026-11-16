@@ -11,18 +11,18 @@
         android:visible="false"
         android:id="@+id/action_edit_note"
         android:title="@string/cardeditor_title_edit_card"
-        android:icon="@drawable/ic_mode_edit_white"/>
+        android:icon="@drawable/symbol_edit"/>
 
     <item
         android:id="@+id/action_view_card_info"
-        android:icon="@drawable/ic_dialog_info"
+        android:icon="@drawable/symbol_info"
         tools:title="Card info" />
 
     <item
         ankidroid:showAsAction="ifRoom"
         android:id="@+id/action_flag"
         tools:title="Flag card"
-        android:icon="@drawable/ic_flag_transparent">
+        android:icon="@drawable/symbol_flag">
       <menu>
           <!-- flags are dynamically added -->
       </menu>
@@ -31,20 +31,20 @@
     <item
         ankidroid:showAsAction="ifRoom"
         android:id="@+id/action_mark_card"
-        android:icon="@drawable/ic_star_border_white"
+        android:icon="@drawable/symbol_star"
         tools:title="Toggle Mark"/>
 
 
     <item
         ankidroid:showAsAction="ifRoom"
         android:id="@+id/action_suspend_card"
-        android:icon="@drawable/ic_suspend"
+        android:icon="@drawable/symbol_pause_circle"
         tools:title="Toggle suspend" />
 
     <item
         ankidroid:showAsAction="ifRoom"
         android:id="@+id/action_toggle_bury"
-        android:icon="@drawable/ic_flip_to_back_white"
+        android:icon="@drawable/symbol_flip_to_back"
         tools:title="Toggle bury" />
 
     <item
@@ -64,12 +64,12 @@
 
     <item
         android:id="@+id/action_reschedule_cards"
-        android:icon="@drawable/ic_reschedule"
+        android:icon="@drawable/symbol_edit_calendar"
         tools:title="Set due date" />
 
     <item
         android:id="@+id/action_edit_tags"
-        android:icon="@drawable/ic_tag"
+        android:icon="@drawable/symbol_label"
         android:title="@string/menu_edit_tags"/>
 
     <item
@@ -79,7 +79,7 @@
 
     <item
         android:id="@+id/action_reset_cards_progress"
-        android:icon="@drawable/ic_backup_restore"
+        android:icon="@drawable/symbol_restart_alt"
         android:title="@string/card_editor_reset_card"/>
 
     <!-- TODO: ankidroid:showAsAction="ifRoom" once 'no hamburger' padding issues are resolved -->

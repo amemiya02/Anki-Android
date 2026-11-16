@@ -86,7 +86,7 @@
                     android:layout_height="24dp"
                     android:layout_marginBottom="12dp"
                     android:importantForAccessibility="no"
-                    android:src="@drawable/ic_outline_info_24"
+                    android:src="@drawable/symbol_info"
                     android:tint="?android:attr/textColorTertiary"
                     tools:ignore="UseAppTint" />
 

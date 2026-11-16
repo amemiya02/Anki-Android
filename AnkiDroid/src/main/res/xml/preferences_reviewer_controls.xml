@@ -11,32 +11,32 @@
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/show_answer_command_key"
             android:title="@string/show_answer"
-            android:icon="@drawable/ic_card_answer"
+            android:icon="@drawable/symbol_exclamation"
             app:cardSide="question"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/answer_again_command_key"
             tools:title="Answer again"
-            android:icon="@drawable/ic_ease_again"
+            android:icon="@drawable/symbol_close_again"
             app:cardSide="answer"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/answer_hard_command_key"
             tools:title="Answer hard"
-            android:icon="@drawable/ic_ease_hard"
+            android:icon="@drawable/symbol_check_small_hard"
             app:cardSide="answer"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/answer_good_command_key"
             tools:title="Answer good"
-            android:icon="@drawable/ic_ease_good"
+            android:icon="@drawable/symbol_check_good"
             app:cardSide="answer"
             />
         <!-- 'Answer easy' is not provided by the backend -->
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/answer_easy_command_key"
             android:title="@string/answer_easy"
-            android:icon="@drawable/ic_ease_easy"
+            android:icon="@drawable/symbol_done_all_easy"
             app:cardSide="answer"
             />
     </PreferenceCategory>
@@ -45,42 +45,42 @@
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/flag_red_command_key"
             android:title="@string/gesture_flag_red"
-            android:icon="@drawable/ic_flag_red"
+            android:icon="@drawable/symbol_flag_red"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/flag_orange_command_key"
             android:title="@string/gesture_flag_orange"
-            android:icon="@drawable/ic_flag_orange"
+            android:icon="@drawable/symbol_flag_orange"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/flag_green_command_key"
             android:title="@string/gesture_flag_green"
-            android:icon="@drawable/ic_flag_green"
+            android:icon="@drawable/symbol_flag_green"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/flag_blue_command_key"
             android:title="@string/gesture_flag_blue"
-            android:icon="@drawable/ic_flag_blue"
+            android:icon="@drawable/symbol_flag_blue"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/flag_pink_command_key"
             android:title="@string/gesture_flag_pink"
-            android:icon="@drawable/ic_flag_pink"
+            android:icon="@drawable/symbol_flag_pink"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/flag_turquoise_command_key"
             android:title="@string/gesture_flag_turquoise"
-            android:icon="@drawable/ic_flag_turquoise"
+            android:icon="@drawable/symbol_flag_turquoise"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/flag_purple_command_key"
             android:title="@string/gesture_flag_purple"
-            android:icon="@drawable/ic_flag_purple"
+            android:icon="@drawable/symbol_flag_purple"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/remove_flag_command_key"
             android:title="@string/gesture_flag_remove"
-            android:icon="@drawable/ic_flag_transparent"
+            android:icon="@drawable/symbol_flag"
             />
     </PreferenceCategory>
 
@@ -88,27 +88,27 @@
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/bury_card_command_key"
             tools:title="Bury card"
-            android:icon="@drawable/ic_flip_to_back_white"
+            android:icon="@drawable/symbol_flip_to_back"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/suspend_card_command_key"
             tools:title="Suspend card"
-            android:icon="@drawable/ic_suspend"
+            android:icon="@drawable/symbol_pause_circle"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/reschedule_command_key"
             tools:title="Set due date"
-            android:icon="@drawable/ic_reschedule"
+            android:icon="@drawable/symbol_edit_calendar"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/card_info_command_key"
             tools:title="Card info"
-            android:icon="@drawable/ic_dialog_info"
+            android:icon="@drawable/symbol_info"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/previous_card_info_command_key"
             tools:title="Previous card info"
-            android:icon="@drawable/ic_outline_info_24"
+            android:icon="@drawable/symbol_history"
             />
     </PreferenceCategory>
 
@@ -116,12 +116,12 @@
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/bury_note_command_key"
             tools:title="Bury note"
-            android:icon="@drawable/ic_flip_to_back_white"
+            android:icon="@drawable/symbol_flip_to_back"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/suspend_note_command_key"
             tools:title="Suspend note"
-            android:icon="@drawable/ic_suspend"
+            android:icon="@drawable/symbol_pause_circle"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/delete_command_key"
@@ -131,17 +131,17 @@
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/mark_command_key"
             tools:title="Mark note"
-            android:icon="@drawable/ic_star_border_white"
+            android:icon="@drawable/symbol_star"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/edit_command_key"
             android:title="@string/cardeditor_title_edit_card"
-            android:icon="@drawable/ic_popup_menu_item_editor"
+            android:icon="@drawable/symbol_edit"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/tag_command_key"
             android:title="@string/menu_edit_tags"
-            android:icon="@drawable/ic_tag"
+            android:icon="@drawable/symbol_label"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/add_note_command_key"
@@ -154,12 +154,12 @@
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/page_up_command_key"
             android:title="@string/gesture_page_up"
-            android:icon="@drawable/ic_double_arrow_up"
+            android:icon="@drawable/symbol_keyboard_double_arrow_up"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/page_down_command_key"
             android:title="@string/gesture_page_down"
-            android:icon="@drawable/ic_double_arrow_down"
+            android:icon="@drawable/symbol_keyboard_double_arrow_down"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/browse_command_key"
@@ -176,7 +176,7 @@
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/abort_command_key"
             android:title="@string/gesture_abort_learning"
-            android:icon="@drawable/symbol_close"
+            android:icon="@drawable/symbol_cancel"
             />
     </PreferenceCategory>
 
@@ -184,12 +184,12 @@
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/play_media_command_key"
             android:title="@string/replay_media"
-            android:icon="@drawable/ic_play_circle_white"
+            android:icon="@drawable/symbol_play_circle"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/record_voice_command_key"
             android:title="@string/record_voice"
-            android:icon="@drawable/ic_action_mic"
+            android:icon="@drawable/symbol_mic"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/replay_voice_command_key"
@@ -206,13 +206,13 @@
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/toggle_whiteboard_command_key"
             android:title="@string/gesture_toggle_whiteboard"
-            android:icon="@drawable/ic_enable_whiteboard"
+            android:icon="@drawable/symbol_draw"
             />
         <!-- New study screen -->
         <com.ichi2.preferences.WhiteboardControlPreference
             android:key="@string/pref_key_whiteboard_toggle_eraser"
             android:title="@string/gesture_toggle_eraser"
-            android:icon="@drawable/ic_eraser"
+            android:icon="@drawable/symbol_ink_eraser"
             />
         <com.ichi2.preferences.WhiteboardControlPreference
             android:key="@string/pref_key_whiteboard_undo"
@@ -222,28 +222,28 @@
         <com.ichi2.preferences.WhiteboardControlPreference
             android:key="@string/pref_key_whiteboard_redo"
             android:title="@string/redo"
-            android:icon="@drawable/ic_redo_2"
+            android:icon="@drawable/symbol_redo"
             />
         <com.ichi2.preferences.WhiteboardControlPreference
             android:key="@string/pref_key_whiteboard_clear"
             android:title="@string/clear_whiteboard"
-            android:icon="@drawable/ic_clear_white"
+            android:icon="@drawable/symbol_delete_sweep"
             />
         <!-- Legacy study screen -->
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/toggle_eraser_command_key"
             android:title="@string/gesture_toggle_eraser"
-            android:icon="@drawable/ic_eraser"
+            android:icon="@drawable/symbol_ink_eraser"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/clear_whiteboard_command_key"
             android:title="@string/clear_whiteboard"
-            android:icon="@drawable/ic_clear_white"
+            android:icon="@drawable/symbol_delete_sweep"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/change_whiteboard_pen_color_command_key"
             android:title="@string/title_whiteboard_editor"
-            android:icon="@drawable/ic_color_lens_white_24dp"
+            android:icon="@drawable/symbol_palette"
             />
     </PreferenceCategory>
 
@@ -256,22 +256,22 @@
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/redo_command_key"
             android:title="@string/redo"
-            android:icon="@drawable/ic_redo"
+            android:icon="@drawable/symbol_redo"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/toggle_auto_advance_command_key"
             android:title="@string/toggle_auto_advance"
-            android:icon="@drawable/ic_fast_forward"
+            android:icon="@drawable/symbol_fast_forward"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/show_hint_command_key"
             android:title="@string/gesture_show_hint"
-            android:icon="@drawable/ic_lightbulb"
+            android:icon="@drawable/symbol_lightbulb"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/show_all_hints_command_key"
             android:title="@string/gesture_show_all_hints"
-            android:icon="@drawable/ic_lightbulb_stars"
+            android:icon="@drawable/symbol_lightbulb_circle"
             />
     </PreferenceCategory>
 
@@ -284,47 +284,47 @@
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/user_action_1_key"
             android:title="@string/user_action_1"
-            android:icon="@drawable/user_action_1"
+            android:icon="@drawable/symbol_counter_1"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/user_action_2_key"
             android:title="@string/user_action_2"
-            android:icon="@drawable/user_action_2"
+            android:icon="@drawable/symbol_counter_2"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/user_action_3_key"
             android:title="@string/user_action_3"
-            android:icon="@drawable/user_action_3"
+            android:icon="@drawable/symbol_counter_3"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/user_action_4_key"
             android:title="@string/user_action_4"
-            android:icon="@drawable/user_action_4"
+            android:icon="@drawable/symbol_counter_4"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/user_action_5_key"
             android:title="@string/user_action_5"
-            android:icon="@drawable/user_action_5"
+            android:icon="@drawable/symbol_counter_5"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/user_action_6_key"
             android:title="@string/user_action_6"
-            android:icon="@drawable/user_action_6"
+            android:icon="@drawable/symbol_counter_6"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/user_action_7_key"
             android:title="@string/user_action_7"
-            android:icon="@drawable/user_action_7"
+            android:icon="@drawable/symbol_counter_7"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/user_action_8_key"
             android:title="@string/user_action_8"
-            android:icon="@drawable/user_action_8"
+            android:icon="@drawable/symbol_counter_8"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/user_action_9_key"
             android:title="@string/user_action_9"
-            android:icon="@drawable/user_action_9"
+            android:icon="@drawable/symbol_counter_9"
             />
     </com.ichi2.anki.preferences.ExtendedPreferenceCategory>
 

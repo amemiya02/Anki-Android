@@ -40,10 +40,10 @@ class AnswerFeedbackView : AppCompatImageView {
     fun show(rating: Rating) {
         setImageResource(
             when (rating) {
-                Rating.AGAIN -> R.drawable.ic_ease_again
-                Rating.HARD -> R.drawable.ic_ease_hard
-                Rating.GOOD -> R.drawable.ic_ease_good
-                Rating.EASY -> R.drawable.ic_ease_easy
+                Rating.AGAIN -> R.drawable.symbol_close_again
+                Rating.HARD -> R.drawable.symbol_check_small_hard
+                Rating.GOOD -> R.drawable.symbol_check_good
+                Rating.EASY -> R.drawable.symbol_done_all_easy
                 Rating.UNRECOGNIZED -> throw IllegalArgumentException("Invalid rating")
             },
         )

@@ -5,11 +5,11 @@
     xmlns:tools="http://schemas.android.com/tools">
     <item
         android:id="@+id/front_edit"
-        android:icon="@drawable/ic_card_question"
+        android:icon="@drawable/symbol_question_mark"
         tools:title="Front" />
     <item
         android:id="@+id/back_edit"
-        android:icon="@drawable/ic_card_answer"
+        android:icon="@drawable/symbol_exclamation"
         android:title="@string/back_field_name" />
     <item
         android:id="@+id/styling_edit"

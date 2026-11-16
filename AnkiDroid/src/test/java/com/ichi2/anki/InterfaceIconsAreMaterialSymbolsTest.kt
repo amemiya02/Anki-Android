@@ -222,20 +222,6 @@ class InterfaceIconsAreMaterialSymbolsTest {
         /** Icons not yet drawn as Material Symbols: emptied area by area, then removed */
         private val NOT_YET_SYMBOLS =
             """
-                // B: study screens
-                ic_ease_again ic_ease_hard ic_ease_good ic_ease_easy ic_flag_red ic_flag_orange ic_flag_green
-                ic_flag_blue ic_flag_pink ic_flag_turquoise ic_flag_purple ic_flag_transparent ic_flag_lightgrey
-                ic_redo ic_redo_2 ic_eraser eraser ic_clear_white ic_gesture_white ic_color_lens_white_24dp
-                ic_palette ic_gesture_stylus ic_save_white ic_enable_whiteboard ic_draw_filled ic_mode_edit_white
-                ic_popup_menu_item_editor ic_dialog_info ic_outline_info_24 ic_tag ic_flip_to_back_white ic_suspend
-                ic_star_border_white ic_star ic_star_white ic_star_white_bordered_24dp ic_mark ic_reschedule
-                ic_play_circle_white ic_action_mic ic_mic_outlined ic_language_white ic_tune_white ic_fast_forward
-                ic_fast_forward_outlined ic_arrow_u_left_top ic_hide ic_align ic_align_left ic_align_bottom
-                ic_align_right ic_edit_off ic_card_answer ic_card_question ic_baseline_chevron_left_24
-                ic_double_arrow_up ic_double_arrow_down ic_lightbulb ic_lightbulb_stars ic_refresh_white
-                ic_build_white ic_backup_restore ic_numbers ic_running_clock ic_remove_done ic_shelf_auto_hide
-                ic_toolbar ic_widgets ic_drag_indicator_24 user_action_1 user_action_2 user_action_3 user_action_4
-                user_action_5 user_action_6 user_action_7 user_action_8 user_action_9
                 // C: card browser
                 ic_remove_red_eye_white ic_select_all_white ic_deselect_white ic_change_notetype ic_change_deck
                 ic_reposition ic_grading ic_export_notes ic_find_replace ic_label_outline ic_sort ic_sort_24

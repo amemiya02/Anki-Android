@@ -246,7 +246,7 @@ class MultimediaImageFragment :
                             when (selectedImageOptions) {
                                 ImageOptions.GALLERY -> R.drawable.ic_photo_library
                                 ImageOptions.CAMERA -> R.drawable.ic_camera
-                                ImageOptions.DRAWING -> R.drawable.ic_draw_filled
+                                ImageOptions.DRAWING -> R.drawable.symbol_draw
                             },
                         onReplace = ::replaceImage,
                         onCrop = {

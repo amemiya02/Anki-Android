@@ -172,6 +172,6 @@ class FlagsBottomSheetFragment : BottomSheetDialogFragment(R.layout.fragment_bot
 val Flag?.iconRes
     get() =
         when (this) {
-            null -> R.drawable.ic_flag_transparent
+            null -> R.drawable.symbol_flag
             else -> this.drawableRes
         }

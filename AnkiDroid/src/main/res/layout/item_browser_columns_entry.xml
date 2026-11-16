@@ -65,5 +65,5 @@
         android:padding="8dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        app:srcCompat="@drawable/ic_drag_indicator_24" />
+        app:srcCompat="@drawable/symbol_drag_indicator" />
 </LinearLayout>

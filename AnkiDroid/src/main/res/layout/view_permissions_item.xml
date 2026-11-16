@@ -20,7 +20,7 @@
         app:layout_constraintEnd_toStartOf="@id/guideline_front"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="@drawable/ic_action_mic"
+        tools:src="@drawable/symbol_mic"
         tools:tint="?attr/colorControlNormal"/>
 
     <com.ichi2.ui.FixedTextView

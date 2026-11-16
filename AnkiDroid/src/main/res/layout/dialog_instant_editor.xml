@@ -59,7 +59,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:tooltipText="@string/change_editor_mode"
-            app:icon="@drawable/ic_mode_edit_white" />
+            app:icon="@drawable/symbol_edit" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/increment_cloze_button"

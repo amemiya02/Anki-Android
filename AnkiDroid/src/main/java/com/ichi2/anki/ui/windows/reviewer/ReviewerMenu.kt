@@ -43,10 +43,10 @@ fun ReviewerMenuView.setup(
             .flowWithLifecycle(lifecycle)
             .onEach { isMarked ->
                 if (isMarked) {
-                    markItem.setPaddedIcon(context, R.drawable.ic_star)
+                    markItem.setPaddedIcon(context, R.drawable.symbol_star)
                     markItem.setTitle(CommonString.menu_unmark_note)
                 } else {
-                    markItem.setPaddedIcon(context, R.drawable.ic_star_border_white)
+                    markItem.setPaddedIcon(context, R.drawable.symbol_star)
                     markItem.title = with(context) { TR.sentenceCase.markNote }
                 }
             }.launchIn(lifecycle.coroutineScope)
@@ -114,10 +114,10 @@ fun ReviewerMenuView.setup(
         recordVoiceFlow
             .onEach { isEnabled ->
                 if (isEnabled) {
-                    recordVoiceItem.setPaddedIcon(context, R.drawable.ic_action_mic)
+                    recordVoiceItem.setPaddedIcon(context, R.drawable.symbol_mic)
                     recordVoiceItem.setTitle(CommonString.disable_voice_recording)
                 } else {
-                    recordVoiceItem.setPaddedIcon(context, R.drawable.ic_mic_outlined)
+                    recordVoiceItem.setPaddedIcon(context, R.drawable.symbol_mic)
                     recordVoiceItem.setTitle(CommonString.enable_voice_recording)
                 }
             }.launchIn(lifecycle.coroutineScope)
@@ -128,10 +128,10 @@ fun ReviewerMenuView.setup(
         toggleWhiteboardFlow
             .onEach { isEnabled ->
                 if (isEnabled) {
-                    toggleWhiteboardItem.setPaddedIcon(context, R.drawable.ic_draw_filled)
+                    toggleWhiteboardItem.setPaddedIcon(context, R.drawable.symbol_draw)
                     toggleWhiteboardItem.setTitle(CommonString.disable_whiteboard)
                 } else {
-                    toggleWhiteboardItem.setPaddedIcon(context, R.drawable.ic_enable_whiteboard)
+                    toggleWhiteboardItem.setPaddedIcon(context, R.drawable.symbol_draw)
                     toggleWhiteboardItem.setTitle(CommonString.enable_whiteboard)
                 }
             }.launchIn(lifecycle.coroutineScope)
@@ -142,10 +142,10 @@ fun ReviewerMenuView.setup(
         isAutoAdvancedEnabledFlow
             .onEach { isEnabled ->
                 if (isEnabled) {
-                    autoAdvanceItem.setPaddedIcon(context, R.drawable.ic_fast_forward)
+                    autoAdvanceItem.setPaddedIcon(context, R.drawable.symbol_fast_forward)
                     autoAdvanceItem.setTitle(CommonString.disable_auto_advance)
                 } else {
-                    autoAdvanceItem.setPaddedIcon(context, R.drawable.ic_fast_forward_outlined)
+                    autoAdvanceItem.setPaddedIcon(context, R.drawable.symbol_fast_forward)
                     autoAdvanceItem.setTitle(CommonString.enable_auto_advance)
                 }
             }.launchIn(lifecycle.coroutineScope)

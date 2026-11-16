@@ -119,10 +119,10 @@ class PreviewerFragment :
         viewModel.isMarked.collectInViewLifecycle { isMarked ->
             with(menu.findItem(R.id.action_mark)) {
                 if (isMarked) {
-                    setIcon(R.drawable.ic_star)
+                    setIcon(R.drawable.symbol_star)
                     setTitle(CommonString.menu_unmark_note)
                 } else {
-                    setIcon(R.drawable.ic_star_border_white)
+                    setIcon(R.drawable.symbol_star)
                     title = TR.sentenceCase.markNote
                 }
             }
@@ -259,10 +259,10 @@ class PreviewerFragment :
     ) {
         menu.findItem(R.id.action_back_side_only).apply {
             if (isBackSideOnly) {
-                setIcon(R.drawable.ic_card_answer)
+                setIcon(R.drawable.symbol_exclamation)
                 setTitle(CommonString.card_side_answer)
             } else {
-                setIconRes(requireContext(), R.drawable.ic_card_question)
+                setIconRes(requireContext(), R.drawable.symbol_question_mark)
                 setTitle(CommonString.card_side_both)
             }
         }

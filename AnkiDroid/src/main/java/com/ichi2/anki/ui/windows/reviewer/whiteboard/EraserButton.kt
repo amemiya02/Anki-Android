@@ -33,8 +33,8 @@ class EraserButton : MaterialButton {
         this.isChecked = isChecked
         text = strokeWidth.roundToInt().toString()
         when (mode) {
-            EraserMode.STROKE -> setIconResource(R.drawable.ic_edit_off)
-            EraserMode.INK -> setIconResource(R.drawable.eraser)
+            EraserMode.STROKE -> setIconResource(R.drawable.symbol_edit_off)
+            EraserMode.INK -> setIconResource(R.drawable.symbol_ink_eraser)
         }
     }
 }

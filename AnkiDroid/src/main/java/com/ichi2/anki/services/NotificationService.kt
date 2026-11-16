@@ -434,7 +434,7 @@ class NotificationService : AnkiBroadcastReceiver() {
         private fun NotificationCompat.Builder.addAction(
             title: String,
             intent: PendingIntent?,
-        ): NotificationCompat.Builder = addAction(R.drawable.ic_fast_forward, title, intent)
+        ): NotificationCompat.Builder = addAction(R.drawable.symbol_fast_forward, title, intent)
 
         /**
          * Method for getting an intent for this service.

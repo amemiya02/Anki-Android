@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Material Symbols Outlined: keyboard_double_arrow_down
+  From google/material-design-icons (Apache-2.0), drawn by tools/material-symbols/symbol.py. Do not edit by hand.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:tint="?attr/colorControlNormal">
+    <group android:translateY="960">
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M480-214.62 253.85-440.77 296-482.92l184 183.38 184-183.38 42.15 42.15L480-214.62Zm0-239.23L253.85-680 296-722.15l184 183.38 184-183.38L706.15-680 480-453.85Z" />
+    </group>
+</vector>

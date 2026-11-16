@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Material Symbols Outlined: fast_forward
+  From google/material-design-icons (Apache-2.0), drawn by tools/material-symbols/symbol.py. Do not edit by hand.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:tint="?attr/colorControlNormal">
+    <group android:translateY="960">
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M131.93-267.69v-424.62L450.38-480 131.93-267.69Zm377.69 0v-424.62L828.07-480 509.62-267.69ZM191.92-480Zm377.69 0ZM191.92-380l150.62-100-150.62-100v200Zm377.69 0 150.62-100-150.62-100v200Z" />
+    </group>
+</vector>

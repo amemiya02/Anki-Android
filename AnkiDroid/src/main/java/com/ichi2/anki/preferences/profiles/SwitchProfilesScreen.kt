@@ -215,7 +215,7 @@ private fun ProfileRow(
         )
         IconButton(onClick = onEditClick) {
             Icon(
-                painterResource(R.drawable.ic_popup_menu_item_editor),
+                painterResource(R.drawable.symbol_edit),
                 contentDescription = stringResource(CommonString.edit_profile),
             )
         }

@@ -102,7 +102,7 @@
             android:paddingStart="11dp"
 
             app:backgroundTint="@color/transparent"
-            app:icon="@drawable/ic_clear_white"
+            app:icon="@drawable/symbol_close"
             app:iconTint="?attr/editTextColor"
             app:iconSize="24dp"
             />

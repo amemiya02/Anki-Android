@@ -45,7 +45,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="middle"
                 android:maxLines="1"
-                app:chipIcon="@drawable/ic_flag_transparent"
+                app:chipIcon="@drawable/symbol_flag"
 
                 android:text="Flags" />
 
@@ -55,7 +55,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="middle"
                 android:maxLines="1"
-                app:chipIcon="@drawable/ic_tag"
+                app:chipIcon="@drawable/symbol_label"
 
                 android:text="Tags" />
 
@@ -81,7 +81,7 @@
         android:layout_height="48dp"
         android:layout_marginEnd="2dp"
         android:background="?attr/selectableItemBackground"
-        android:src="@drawable/ic_tune_white"
+        android:src="@drawable/symbol_tune"
         android:contentDescription="Toggle advanced search"
         app:tint="?attr/colorPrimary"
         app:layout_constraintBottom_toBottomOf="@+id/chip_group"

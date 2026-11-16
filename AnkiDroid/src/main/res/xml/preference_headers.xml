@@ -72,7 +72,7 @@
     <com.ichi2.preferences.HeaderPreference
         android:fragment="com.ichi2.anki.preferences.AppearanceSettingsFragment"
         android:key="@string/pref_appearance_screen_key"
-        android:icon="@drawable/ic_color_lens_white_24dp"
+        android:icon="@drawable/symbol_palette"
         app:summaryEntries="@array/appearance_summary_entries">
     </com.ichi2.preferences.HeaderPreference>
 
@@ -105,7 +105,7 @@
     <com.ichi2.preferences.HeaderPreference
         android:fragment="com.ichi2.anki.preferences.BackupLimitsSettingsFragment"
         android:key="@string/pref_backup_limits_screen_key"
-        android:icon="@drawable/ic_backup_restore"
+        android:icon="@drawable/symbol_settings_backup_restore"
         app:summaryEntries="@array/backup_limits_summary_entries"
         tools:title="Backups"/>
 
@@ -114,7 +114,7 @@
         android:fragment="com.ichi2.anki.preferences.AdvancedSettingsFragment"
         android:key="@string/pref_advanced_screen_key"
         android:title="@string/pref_cat_advanced"
-        android:icon="@drawable/ic_tune_white"
+        android:icon="@drawable/symbol_tune"
         app:summaryEntries="@array/advanced_summary_entries">
     </com.ichi2.preferences.HeaderPreference>
 
@@ -128,7 +128,7 @@
     <!-- About -->
     <com.ichi2.preferences.HeaderPreference
         android:key="@string/about_screen_key"
-        android:icon="@drawable/ic_outline_info_24"
+        android:icon="@drawable/symbol_info"
         android:title="@string/pref_cat_about_title"
         android:fragment="com.ichi2.anki.preferences.AboutFragment"/>
 </PreferenceScreen>

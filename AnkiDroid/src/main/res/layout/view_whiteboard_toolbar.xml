@@ -37,7 +37,7 @@
                 style="@android:style/Widget.ActionButton"
                 android:layout_width="?minTouchTargetSize"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_redo_2"
+                android:src="@drawable/symbol_redo"
                 android:contentDescription="@string/redo"
                 android:tooltipText="@string/redo"/>
 
@@ -51,7 +51,7 @@
                 android:textColor="?attr/colorControlNormal"
                 android:textAppearance="@style/TextAppearance.Foundation.Label"
                 android:tooltipText="@string/eraser"
-                app:icon="@drawable/eraser"
+                app:icon="@drawable/symbol_ink_eraser"
                 app:backgroundTint="@color/selector_tool_background"
                 app:iconGravity="top"
                 tools:text="30" />

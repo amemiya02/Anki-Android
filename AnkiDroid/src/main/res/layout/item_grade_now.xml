@@ -21,7 +21,7 @@
         android:background="?android:attr/selectableItemBackground"
         android:textAppearance="?attr/textAppearanceBodyLarge"
 
-        tools:drawableStart="@drawable/ic_ease_again"
+        tools:drawableStart="@drawable/symbol_close_again"
         tools:text="Again"
         />
 

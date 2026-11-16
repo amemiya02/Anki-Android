@@ -18,7 +18,7 @@ class CardMarker(
     fun displayMark(markStatus: Boolean) {
         if (markStatus) {
             markView.visibility = View.VISIBLE
-            markView.setImageResource(R.drawable.ic_star_white_bordered_24dp)
+            markView.setImageResource(R.drawable.symbol_star)
         } else {
             markView.visibility = View.INVISIBLE
         }
