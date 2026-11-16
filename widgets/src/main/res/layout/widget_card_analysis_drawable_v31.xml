@@ -20,9 +20,8 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="85"
-            android:textColor="@color/flag_reviewer_blue"
-            android:textSize="24sp"
-            android:textStyle="bold"
+            android:textColor="?attr/foundationCountNew"
+            android:textAppearance="@style/TextAppearance.Foundation.Count"
             tools:ignore="HardcodedText" />
 
         <TextView
@@ -31,9 +30,8 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="38"
-            android:textColor="@color/flag_reviewer_red"
-            android:textSize="24sp"
-            android:textStyle="bold"
+            android:textColor="?attr/foundationCountLearning"
+            android:textAppearance="@style/TextAppearance.Foundation.Count"
             tools:ignore="HardcodedText" />
 
         <TextView
@@ -42,9 +40,8 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="84"
-            android:textColor="@color/flag_reviewer_green"
-            android:textSize="24sp"
-            android:textStyle="bold"
+            android:textColor="?attr/foundationCountDue"
+            android:textAppearance="@style/TextAppearance.Foundation.Count"
             tools:ignore="HardcodedText" />
     </LinearLayout>
 
@@ -56,6 +53,6 @@
         android:paddingBottom="5dp"
         android:text="@string/deck1Name_deck_picker_widget"
         android:textColor="?android:attr/textColorPrimary"
-        android:textSize="24sp" />
+        android:textAppearance="@style/TextAppearance.Foundation.DeckName" />
 
 </LinearLayout>

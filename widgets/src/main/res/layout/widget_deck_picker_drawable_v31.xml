@@ -23,7 +23,7 @@
             android:paddingTop="10dp"
             android:text="@string/deck1Name_deck_picker_widget"
             android:textColor="?android:attr/textColorPrimary"
-            android:textSize="22sp" />
+            android:textAppearance="@style/TextAppearance.Foundation.DeckName" />
 
         <TextView
             android:layout_width="0dp"
@@ -31,8 +31,8 @@
             android:layout_weight="1"
             android:paddingEnd="5dp"
             android:text="50"
-            android:textColor="@color/flag_reviewer_blue"
-            android:textSize="20sp"
+            android:textColor="?attr/foundationCountNew"
+            android:textAppearance="@style/TextAppearance.Foundation.Count"
             tools:ignore="HardcodedText" />
 
         <TextView
@@ -41,8 +41,8 @@
             android:layout_weight="1"
             android:paddingEnd="5dp"
             android:text="52"
-            android:textColor="@color/material_red_A700"
-            android:textSize="20sp"
+            android:textColor="?attr/foundationCountLearning"
+            android:textAppearance="@style/TextAppearance.Foundation.Count"
             tools:ignore="HardcodedText" />
 
         <TextView
@@ -51,8 +51,8 @@
             android:layout_weight="1"
             android:paddingEnd="5dp"
             android:text="50"
-            android:textColor="@color/flag_reviewer_green"
-            android:textSize="20sp"
+            android:textColor="?attr/foundationCountDue"
+            android:textAppearance="@style/TextAppearance.Foundation.Count"
             tools:ignore="HardcodedText" />
 
     </LinearLayout>
@@ -72,7 +72,7 @@
             android:paddingTop="10dp"
             android:text="@string/deck2Name_deck_picker_widget"
             android:textColor="?android:attr/textColorPrimary"
-            android:textSize="22sp" />
+            android:textAppearance="@style/TextAppearance.Foundation.DeckName" />
 
         <TextView
             android:layout_width="0dp"
@@ -80,8 +80,8 @@
             android:layout_weight="1"
             android:paddingEnd="5dp"
             android:text="30"
-            android:textColor="@color/flag_reviewer_blue"
-            android:textSize="20sp"
+            android:textColor="?attr/foundationCountNew"
+            android:textAppearance="@style/TextAppearance.Foundation.Count"
             tools:ignore="HardcodedText" />
 
         <TextView
@@ -90,8 +90,8 @@
             android:layout_weight="1"
             android:paddingEnd="5dp"
             android:text="20"
-            android:textColor="@color/material_red_A700"
-            android:textSize="20sp"
+            android:textColor="?attr/foundationCountLearning"
+            android:textAppearance="@style/TextAppearance.Foundation.Count"
             tools:ignore="HardcodedText" />
 
         <TextView
@@ -100,8 +100,8 @@
             android:layout_weight="1"
             android:paddingEnd="5dp"
             android:text="10"
-            android:textColor="@color/flag_reviewer_green"
-            android:textSize="20sp"
+            android:textColor="?attr/foundationCountDue"
+            android:textAppearance="@style/TextAppearance.Foundation.Count"
             tools:ignore="HardcodedText" />
 
     </LinearLayout>
@@ -121,7 +121,7 @@
             android:paddingTop="10dp"
             android:text="@string/deck3Name_deck_picker_widget"
             android:textColor="?android:attr/textColorPrimary"
-            android:textSize="22sp" />
+            android:textAppearance="@style/TextAppearance.Foundation.DeckName" />
 
         <TextView
             android:layout_width="0dp"
@@ -129,8 +129,8 @@
             android:layout_weight="1"
             android:paddingEnd="5dp"
             android:text="25"
-            android:textColor="@color/flag_reviewer_blue"
-            android:textSize="20sp"
+            android:textColor="?attr/foundationCountNew"
+            android:textAppearance="@style/TextAppearance.Foundation.Count"
             tools:ignore="HardcodedText" />
 
         <TextView
@@ -139,8 +139,8 @@
             android:layout_weight="1"
             android:paddingEnd="5dp"
             android:text="15"
-            android:textColor="@color/material_red_A700"
-            android:textSize="20sp"
+            android:textColor="?attr/foundationCountLearning"
+            android:textAppearance="@style/TextAppearance.Foundation.Count"
             tools:ignore="HardcodedText" />
 
         <TextView
@@ -149,8 +149,8 @@
             android:layout_weight="1"
             android:paddingEnd="5dp"
             android:text="58"
-            android:textColor="@color/flag_reviewer_green"
-            android:textSize="20sp"
+            android:textColor="?attr/foundationCountDue"
+            android:textAppearance="@style/TextAppearance.Foundation.Count"
             tools:ignore="HardcodedText" />
 
     </LinearLayout>

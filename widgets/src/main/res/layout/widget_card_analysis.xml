@@ -11,7 +11,7 @@
 
     <TextView
         android:id="@+id/empty_widget"
-        style="@style/TextAppearance.AppCompat.Medium"
+        android:textAppearance="@style/TextAppearance.Foundation.Lead"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -38,9 +38,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:textColor="@color/flag_reviewer_blue"
-            android:textSize="24sp"
-            android:textStyle="bold"
+            android:textColor="?attr/foundationCountNew"
+            android:textAppearance="@style/TextAppearance.Foundation.Count"
             tools:text="50" />
 
         <TextView
@@ -49,9 +48,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:textColor="@color/flag_reviewer_red"
-            android:textSize="24sp"
-            android:textStyle="bold"
+            android:textColor="?attr/foundationCountLearning"
+            android:textAppearance="@style/TextAppearance.Foundation.Count"
             tools:text="12" />
 
         <TextView
@@ -60,9 +58,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:textColor="@color/flag_reviewer_green"
-            android:textSize="24sp"
-            android:textStyle="bold"
+            android:textColor="?attr/foundationCountDue"
+            android:textAppearance="@style/TextAppearance.Foundation.Count"
             tools:text="57" />
     </LinearLayout>
 
@@ -75,8 +72,7 @@
         android:paddingVertical="8dp"
         android:paddingHorizontal="16dp"
         android:textColor="?android:attr/textColorPrimary"
-        android:textSize="24sp"
-        android:textStyle="bold"
+        android:textAppearance="@style/TextAppearance.Foundation.DeckName"
         tools:text="Default" />
 
 </RelativeLayout>

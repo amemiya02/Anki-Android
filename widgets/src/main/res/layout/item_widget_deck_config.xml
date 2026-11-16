@@ -15,7 +15,7 @@
         android:paddingStart="10dp"
         tools:text="Deck Name"
         android:textColor="?android:attr/textColorPrimary"
-        android:textSize="18sp" />
+        android:textAppearance="@style/TextAppearance.Foundation.RowTitle" />
 
     <ImageButton
         android:id="@+id/remove_deck_button"

@@ -4,8 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
+    android:theme="@style/Theme.Widget"
     android:focusable="false"
-    android:background="#00FFFFFF"
+    android:background="@android:color/transparent"
     tools:layout_width="100dp"
     tools:layout_height="100dp">
 
@@ -14,7 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="#00FFFFFF"
+        android:background="@android:color/transparent"
         android:clickable="false"
         android:contentDescription="@string/app_name"
         android:focusable="false"
@@ -42,8 +43,8 @@
             android:background="@drawable/widget_bg_number"
             android:gravity="center"
             android:singleLine="true"
-            android:textColor="#ffffff"
-            android:textSize="18sp"
+            android:textColor="?attr/foundationOnPrimary"
+            android:textAppearance="@style/TextAppearance.Foundation.Count"
             android:visibility="invisible"
             tools:visibility="visible" />
 
@@ -56,8 +57,8 @@
             android:background="@drawable/widget_bg_time"
             android:gravity="center"
             android:singleLine="true"
-            android:textColor="#ffffff"
-            android:textSize="16sp"
+            android:textColor="?attr/foundationOnPrimary"
+            android:textAppearance="@style/TextAppearance.Foundation.Caption"
             android:visibility="invisible"
             tools:visibility="visible"/>
     </RelativeLayout>
@@ -67,7 +68,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="#00FFFFFF"
+        android:background="@android:color/transparent"
         android:clickable="false"
         android:focusable="false"
         android:scaleType="fitCenter"
