@@ -12,6 +12,7 @@ import com.github.takahirom.roborazzi.captureRoboImage
 import com.github.takahirom.roborazzi.provideRoborazziContext
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.ichi2.anki.settings.enums.NightTheme
+import com.ichi2.anki.settings.enums.Theme
 import com.ichi2.compose.ui.preview.AnkiDroidPreview
 import com.ichi2.testutils.EmptyApplication
 import org.junit.Rule
@@ -26,7 +27,9 @@ import org.robolectric.annotation.GraphicsMode
  * Captures Compose content with an AnkiDroid XML theme, without starting an app screen.
  *
  * Subclasses call [capture] with their content. For a dialog, pass `node = isDialog()`.
- * Each test runs with the themes selected with `-Ptheme`, as [ScreenshotTest] does.
+ * Each test runs with the themes, languages and font sizes selected with `-Ptheme`, `-Planguage`
+ * and `-PfontSize`, plus those its class declares with [IncludeLanguages] and [IncludeFontSizes],
+ * as [ScreenshotTest] does. A `fontScale` passed to [capture] overrides the font size.
  * Use [capture]'s `beforeCapture` callback to interact with the content before capturing it.
  * Screenshots participate in the root `recordScreenshots`, `compareScreenshots` and
  * `verifyScreenshots` tasks with `-Pscreenshot`.
@@ -42,15 +45,22 @@ abstract class ComposeScreenshotTest {
     @TestParameter(valuesProvider = ThemeProvider::class)
     lateinit var theme: ThemeConfig
 
+    @TestParameter(valuesProvider = LanguageProvider::class)
+    lateinit var language: LanguageConfig
+
+    @TestParameter(valuesProvider = FontSizeProvider::class)
+    lateinit var fontSize: FontSizeConfig
+
     @OptIn(ExperimentalRoborazziApi::class)
     protected fun capture(
         name: String,
         node: SemanticsMatcher = isRoot(),
-        fontScale: Float = 1f,
+        fontScale: Float = fontSize.scale,
         beforeCapture: () -> Unit = {},
         content: @Composable () -> Unit,
     ) {
         val theme = theme.theme
+        RuntimeEnvironment.setQualifiers("+${language.qualifiers}")
         if (theme is NightTheme) RuntimeEnvironment.setQualifiers("+night")
         RuntimeEnvironment.setFontScale(fontScale)
         composeRule.setContent {
@@ -62,8 +72,19 @@ abstract class ComposeScreenshotTest {
         val classDir = "build/outputs/roborazzi/${javaClass.simpleName}"
         val options = provideRoborazziContext().options
         composeRule.onNode(node).assertIsDisplayed().captureRoboImage(
-            filePath = "$classDir/${name}_${theme.toString().lowercase()}.png",
+            filePath = "$classDir/${fileName(name, theme)}.png",
             roborazziOptions = options.copy(compareOptions = options.compareOptions.copy(outputDirectoryPath = "$classDir/diffs")),
         )
     }
+
+    /** `<name>_<theme>`, then the language and font size when they are not the defaults */
+    private fun fileName(
+        name: String,
+        theme: Theme,
+    ) = listOfNotNull(
+        name,
+        theme.toString().lowercase(),
+        language.option.takeIf { language != LanguageConfig.ENGLISH },
+        fontSize.fileNameComponent.takeIf { fontSize != FontSizeConfig.NORMAL },
+    ).joinToString("_")
 }
