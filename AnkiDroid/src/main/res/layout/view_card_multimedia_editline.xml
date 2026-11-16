@@ -25,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="end|center_vertical"
-        android:background="@drawable/ic_baseline_push_pin_24"
+        android:background="@drawable/symbol_keep"
         android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toStartOf="@id/media_button"
         app:layout_constraintTop_toTopOf="parent"/>
@@ -37,7 +37,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="end|center_vertical"
-        android:background="@drawable/ic_attachment"
+        android:background="@drawable/symbol_attach_file"
         android:tooltipText="@string/multimedia_editor_attach_tooltip"
         android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toStartOf="@id/expand_button"

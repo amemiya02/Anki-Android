@@ -24,7 +24,7 @@
 
         <ImageView
             android:layout_width="wrap_content"
-            app:srcCompat="@drawable/ic_popup_menu_item_image"
+            app:srcCompat="@drawable/symbol_image"
             android:layout_marginEnd="24dp"
             android:layout_marginStart="8dp"
             android:layout_height="match_parent" />
@@ -47,7 +47,7 @@
 
         <ImageView
             android:layout_width="wrap_content"
-            app:srcCompat="@drawable/ic_camera_filled"
+            app:srcCompat="@drawable/symbol_photo_camera"
             android:layout_marginEnd="24dp"
             android:layout_marginStart="8dp"
             android:layout_height="match_parent" />
@@ -94,7 +94,7 @@
 
         <ImageView
             android:layout_width="wrap_content"
-            app:srcCompat="@drawable/ic_popup_menu_item_record"
+            app:srcCompat="@drawable/symbol_record_voice_over"
             android:layout_marginEnd="24dp"
             android:layout_marginStart="8dp"
             android:layout_height="match_parent" />
@@ -117,7 +117,7 @@
 
         <ImageView
             android:layout_width="wrap_content"
-            app:srcCompat="@drawable/ic_popup_menu_item_audio"
+            app:srcCompat="@drawable/symbol_music_note"
             android:layout_marginEnd="24dp"
             android:layout_marginStart="8dp"
             android:layout_height="match_parent" />
@@ -140,7 +140,7 @@
 
         <ImageView
             android:layout_width="wrap_content"
-            app:srcCompat="@drawable/ic_popup_menu_item_video"
+            app:srcCompat="@drawable/symbol_video_library"
             android:layout_marginEnd="24dp"
             android:layout_marginStart="8dp"
             android:layout_height="match_parent" />

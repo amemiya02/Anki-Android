@@ -29,7 +29,7 @@
         app:layout_constraintTop_toTopOf="@id/recordButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:src="@drawable/ic_record"
+        android:src="@drawable/symbol_radio_button_checked"
         app:tint="?attr/foundationOnBackgroundMuted"
         android:visibility="visible"
         />
@@ -105,7 +105,7 @@
                 android:layout_height="20dp"
                 android:layout_marginTop="18dp"
                 android:layout_gravity="center_horizontal"
-                android:src="@drawable/ic_lock_open" />
+                android:src="@drawable/symbol_lock_open" />
 
             <ImageView
                 android:id="@+id/lock_arrow_icon"

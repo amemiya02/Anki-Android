@@ -1971,14 +1971,14 @@ class NoteEditorFragment :
             newEditText.setCapitalize(prefs.getBoolean(PREF_NOTE_EDITOR_CAPITALIZE, true))
             val mediaButton = editLineView.binding.mediaButton
             val toggleStickyButton = editLineView.binding.toggleSticky
-            mediaButton.setBackgroundResource(R.drawable.ic_attachment)
+            mediaButton.setBackgroundResource(R.drawable.symbol_attach_file)
             mediaButton.setOnClickListener {
                 showMultimediaBottomSheet()
                 multimediaController.handleActions(i)
             }
             if (addNote) {
                 // toggle sticky button
-                toggleStickyButton.setBackgroundResource(R.drawable.ic_baseline_push_pin_24)
+                toggleStickyButton.setBackgroundResource(R.drawable.symbol_keep)
                 setToggleStickyButtonListener(toggleStickyButton, i)
             } else {
                 toggleStickyButton.setBackgroundResource(0)
@@ -2349,12 +2349,12 @@ class NoteEditorFragment :
         toolbar.clearCustomItems()
         if (editorNote!!.notetype.isCloze) {
             addClozeButton(
-                drawableRes = R.drawable.ic_cloze_new_card,
+                drawableRes = R.drawable.symbol_post_add,
                 description = TR.editingClozeDeletion(),
                 type = AddClozeType.INCREMENT_NUMBER,
             )
             addClozeButton(
-                drawableRes = R.drawable.ic_cloze_same_card,
+                drawableRes = R.drawable.symbol_data_array,
                 description = TR.editingClozeDeletionRepeat(),
                 type = AddClozeType.SAME_NUMBER,
             )
@@ -2389,7 +2389,7 @@ class NoteEditorFragment :
 
         // Let the user add more buttons (always at the end).
         // Sets the add custom tag icon color.
-        val drawable = ResourcesCompat.getDrawable(resources, NoteEditorR.drawable.ic_add_toolbar_icon, null)
+        val drawable = ResourcesCompat.getDrawable(resources, NoteEditorR.drawable.symbol_add_box, null)
         drawable!!.setTint(MaterialColors.getColor(requireContext(), MaterialR.attr.colorOnSurface, 0))
         val addButton = toolbar.insertItem(0, drawable) { displayAddToolbarDialog() }
         addButton.contentDescription = resources.getString(CommonString.add_toolbar_item)

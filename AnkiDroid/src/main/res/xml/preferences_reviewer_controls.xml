@@ -194,7 +194,7 @@
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/replay_voice_command_key"
             android:title="@string/replay_voice"
-            app:icon="@drawable/ic_replay"
+            app:icon="@drawable/symbol_replay"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/save_voice_command_key"

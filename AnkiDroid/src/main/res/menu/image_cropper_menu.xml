@@ -7,14 +7,14 @@
     <item
         android:id="@+id/action_rotate"
         android:title="@string/image_cropper_action_rotate"
-        android:icon="@drawable/ic_rotate_right"
+        android:icon="@drawable/symbol_rotate_right"
         app:showAsAction="always" />
 
     <!-- Flip parent with submenu -->
     <item
         android:id="@+id/action_flip"
         android:title="@string/image_cropper_action_flip"
-        android:icon="@drawable/ic_flip_horizontal"
+        android:icon="@drawable/symbol_flip"
         app:showAsAction="always">
 
         <menu>

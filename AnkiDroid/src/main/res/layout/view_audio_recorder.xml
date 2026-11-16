@@ -64,7 +64,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:insetRight="1dp"
-                app:icon="@drawable/ic_audio_wave" />
+                app:icon="@drawable/symbol_graphic_eq" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/content_button"
@@ -72,7 +72,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:insetLeft="1dp"
-                app:icon="@drawable/ic_notes" />
+                app:icon="@drawable/symbol_notes" />
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
         <com.google.android.material.button.MaterialButton
@@ -102,7 +102,7 @@
                 android:layout_height="24dp"
                 android:layout_gravity="center"
                 android:layout_marginEnd="8dp"
-                android:src="@drawable/ic_record"
+                android:src="@drawable/symbol_radio_button_checked"
                 app:tint="?attr/colorError" />
 
             <com.google.android.material.textview.MaterialTextView
@@ -129,7 +129,7 @@
                 android:layout_margin="4dp"
                 android:layout_weight="1"
                 android:text="@string/start_recording"
-                app:icon="@drawable/ic_record"
+                app:icon="@drawable/symbol_radio_button_checked"
                 app:iconGravity="textStart"
                 app:iconPadding="8dp" />
 
@@ -141,7 +141,7 @@
                 android:layout_margin="4dp"
                 android:layout_weight="1"
                 android:text="@string/stop_recording"
-                app:icon="@drawable/ic_stop"
+                app:icon="@drawable/symbol_stop"
                 app:iconGravity="textStart"
                 app:iconPadding="8dp" />
         </LinearLayout>

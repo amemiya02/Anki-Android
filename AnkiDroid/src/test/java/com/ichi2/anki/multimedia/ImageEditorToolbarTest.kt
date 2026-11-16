@@ -32,7 +32,7 @@ class ImageEditorToolbarTest : RobolectricTest() {
                 ImageEditorToolbar(
                     hasImage = true,
                     hasExternalEditor = true,
-                    replaceIcon = R.drawable.ic_photo_library,
+                    replaceIcon = R.drawable.symbol_photo_library,
                     onReplace = { actions.add("replace") },
                     onCrop = { actions.add("crop") },
                     onEditExternally = { actions.add("external") },
@@ -53,7 +53,7 @@ class ImageEditorToolbarTest : RobolectricTest() {
                 ImageEditorToolbar(
                     hasImage = hasImage.value,
                     hasExternalEditor = true,
-                    replaceIcon = R.drawable.ic_photo_library,
+                    replaceIcon = R.drawable.symbol_photo_library,
                     onReplace = {},
                     onCrop = {},
                     onEditExternally = {},
@@ -76,7 +76,7 @@ class ImageEditorToolbarTest : RobolectricTest() {
                 ImageEditorToolbar(
                     hasImage = true,
                     hasExternalEditor = hasExternalEditor.value,
-                    replaceIcon = R.drawable.ic_photo_library,
+                    replaceIcon = R.drawable.symbol_photo_library,
                     onReplace = {},
                     onCrop = {},
                     onEditExternally = {},

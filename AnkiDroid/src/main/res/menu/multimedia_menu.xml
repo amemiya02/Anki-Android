@@ -16,6 +16,6 @@
         android:id="@+id/action_crop"
         android:title="@string/crop_button"
         app:showAsAction="always"
-        android:icon="@drawable/ic_crop"/>
+        android:icon="@drawable/symbol_crop"/>
 
 </menu>

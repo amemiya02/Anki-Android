@@ -340,8 +340,8 @@ class InstantNoteEditorActivity : AnkiActivity(R.layout.activity_instant_note_ed
         lifecycleScope.launch {
             viewModel.currentClozeMode.collectLatest { mode ->
                 when (mode) {
-                    ClozeMode.INCREMENT -> clozeButton.setIconResource(R.drawable.ic_cloze_new_card)
-                    ClozeMode.NO_INCREMENT -> clozeButton.setIconResource(R.drawable.ic_cloze_same_card)
+                    ClozeMode.INCREMENT -> clozeButton.setIconResource(R.drawable.symbol_post_add)
+                    ClozeMode.NO_INCREMENT -> clozeButton.setIconResource(R.drawable.symbol_data_array)
                 }
             }
         }

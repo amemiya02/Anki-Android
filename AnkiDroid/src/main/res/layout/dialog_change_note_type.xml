@@ -116,7 +116,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_gravity="center"
-                    android:src="@drawable/ic_arrow_right_alt_24"
+                    android:src="@drawable/symbol_arrow_right_alt"
                     app:tint="?android:attr/textColorSecondary"
                     android:importantForAccessibility="no" />
             </FrameLayout>

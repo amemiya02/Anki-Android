@@ -318,7 +318,7 @@ class AudioRecordView : ConstraintLayout {
         state = ViewState.LOCKED
         stopTrackingAction = true
 
-        binding.recordIcon.setImageResource(R.drawable.ic_stop)
+        binding.recordIcon.setImageResource(R.drawable.symbol_stop)
         binding.recordButton.animate().cancel()
         binding.recordButton.scaleX = 1f
         binding.recordButton.scaleY = 1f

@@ -76,7 +76,7 @@ class AudioVideoFragment : MultimediaFragment(R.layout.fragment_audio_video) {
             onCreateMenuCondition = { menu ->
                 setMenuItemIcon(
                     menu.findItem(R.id.action_restart),
-                    if (selectedMediaOptions == AUDIO_CLIP) R.drawable.ic_replace_audio else R.drawable.ic_replace_video,
+                    if (selectedMediaOptions == AUDIO_CLIP) R.drawable.symbol_replace_audio else R.drawable.symbol_replace_video,
                 )
                 menu.findItem(R.id.action_crop).isVisible = false
             },
@@ -167,7 +167,7 @@ class AudioVideoFragment : MultimediaFragment(R.layout.fragment_audio_video) {
         if (selectedMediaOptions == AUDIO_CLIP) {
             Timber.d("Media file is of audio type, setting default artwork")
             binding.playerView.defaultArtwork =
-                ContextCompat.getDrawable(requireContext(), R.drawable.round_audio_file_24)
+                ContextCompat.getDrawable(requireContext(), R.drawable.symbol_audio_file)
         }
     }
 

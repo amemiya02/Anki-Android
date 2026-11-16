@@ -244,8 +244,8 @@ class MultimediaImageFragment :
                         enabled = externalEdit == null,
                         replaceIcon =
                             when (selectedImageOptions) {
-                                ImageOptions.GALLERY -> R.drawable.ic_photo_library
-                                ImageOptions.CAMERA -> R.drawable.ic_camera
+                                ImageOptions.GALLERY -> R.drawable.symbol_photo_library
+                                ImageOptions.CAMERA -> R.drawable.symbol_photo_camera
                                 ImageOptions.DRAWING -> R.drawable.symbol_draw
                             },
                         onReplace = ::replaceImage,
@@ -712,7 +712,7 @@ class MultimediaImageFragment :
 
     /** Shows an error image along with an error text **/
     private fun showErrorInWebView() {
-        val base64Image = getBitmapDrawable(R.drawable.ic_image_not_supported).toBase64Png()
+        val base64Image = getBitmapDrawable(R.drawable.symbol_hide_image).toBase64Png()
 
         val errorHtml =
             """

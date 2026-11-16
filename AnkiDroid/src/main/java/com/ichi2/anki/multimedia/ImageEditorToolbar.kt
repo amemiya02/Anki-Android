@@ -71,7 +71,7 @@ internal fun ImageEditorToolbar(
                 ImageEditorDivider()
                 ImageEditorAction(
                     stringResource(CommonString.crop_button),
-                    R.drawable.ic_crop,
+                    R.drawable.symbol_crop,
                     onCrop,
                     Modifier.weight(1f),
                     enabled = enabled && hasImage,
@@ -142,7 +142,7 @@ private fun ImageEditorToolbarPreviewContent(hasImage: Boolean) {
         ImageEditorToolbar(
             hasImage = hasImage,
             hasExternalEditor = hasImage,
-            replaceIcon = R.drawable.ic_photo_library,
+            replaceIcon = R.drawable.symbol_photo_library,
             onReplace = {},
             onCrop = {},
             onEditExternally = {},

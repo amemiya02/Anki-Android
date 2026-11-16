@@ -222,16 +222,6 @@ class InterfaceIconsAreMaterialSymbolsTest {
         /** Icons not yet drawn as Material Symbols: emptied area by area, then removed */
         private val NOT_YET_SYMBOLS =
             """
-                // D: note editor, multimedia
-                ic_format_bold_black_24dp ic_format_italic_black_24dp ic_format_underlined_black_24dp
-                ic_format_title_black_24dp ic_format_font_size_24dp ic_horizontal_rule_black_24dp
-                ic_add_equation_black_24dp ic_add_toolbar_icon ic_cloze_new_card ic_cloze_same_card
-                ic_baseline_push_pin_24 ic_attachment ic_camera ic_camera_filled ic_image ic_popup_menu_item_image
-                ic_photo_library ic_image_not_supported ic_paste ic_crop ic_rotate_right ic_flip_horizontal
-                ic_popup_menu_item_audio ic_popup_menu_item_record ic_popup_menu_item_video ic_replace_audio
-                ic_replace_video round_audio_file_24 ic_record ic_stop ic_play round_play_arrow_24 round_pause_24
-                ic_replay ic_skip_next baseline_forward_5_24 baseline_replay_5_24 ic_audio_wave ic_notes
-                ic_lock_open ic_arrow_right_alt_24
                 // E: settings and the rest
                 ic_accessibility_24 ic_code ic_dark_mode_24 wallpaper_icon ic_keyboard ic_videogame ic_touch
                 ic_switch_profile ic_notifications outline_notifications_off_24 ic_add_bell ic_outline_troubleshoot

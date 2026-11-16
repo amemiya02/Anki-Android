@@ -79,7 +79,7 @@
             android:paddingStart="10dp"
 
             app:backgroundTint="?attr/foundationBackground"
-            app:icon="@drawable/ic_record"
+            app:icon="@drawable/symbol_radio_button_checked"
             app:iconGravity="textStart"
             app:iconSize="24dp"
             app:iconTint="?attr/foundationEmphasis"
@@ -123,7 +123,7 @@
             android:layout_marginVertical="2dp"
             android:minHeight="300px"
             android:paddingVertical="6dp"
-            android:src="@drawable/round_audio_file_24"
+            android:src="@drawable/symbol_audio_file"
             android:tint="?attr/foundationOnBackgroundMuted" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -142,7 +142,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:enabled="false"
-                app:icon="@drawable/baseline_replay_5_24"
+                app:icon="@drawable/symbol_replay_5"
                 app:iconPadding="0dp"
                 app:iconSize="22dp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -159,7 +159,7 @@
                 android:focusable="true"
                 android:padding="10dp"
                 app:backgroundTint="?attr/foundationBackground"
-                app:icon="@drawable/round_play_arrow_24"
+                app:icon="@drawable/symbol_play_arrow"
                 app:iconPadding="0dp"
                 app:iconSize="50dp"
                 app:iconTint="?attr/foundationEmphasis"
@@ -179,7 +179,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:enabled="false"
-                app:icon="@drawable/baseline_forward_5_24"
+                app:icon="@drawable/symbol_forward_5"
                 app:iconPadding="0dp"
                 app:iconSize="22dp"
                 app:layout_constraintBottom_toBottomOf="parent"

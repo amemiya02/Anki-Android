@@ -205,14 +205,14 @@ private fun ToolbarLayoutSample(
     val shape = RoundedCornerShape(6.dp)
     val icons =
         listOf(
-            R.drawable.ic_format_bold_black_24dp,
-            R.drawable.ic_format_italic_black_24dp,
-            R.drawable.ic_format_underlined_black_24dp,
-            R.drawable.ic_horizontal_rule_black_24dp,
-            R.drawable.ic_format_title_black_24dp,
-            R.drawable.ic_format_font_size_24dp,
-            R.drawable.ic_add_equation_black_24dp,
-            R.drawable.ic_add_toolbar_icon,
+            R.drawable.symbol_format_bold,
+            R.drawable.symbol_format_italic,
+            R.drawable.symbol_format_underlined,
+            R.drawable.symbol_horizontal_rule,
+            R.drawable.symbol_title,
+            R.drawable.symbol_format_size,
+            R.drawable.symbol_functions,
+            R.drawable.symbol_add_box,
         )
     Column(
         modifier

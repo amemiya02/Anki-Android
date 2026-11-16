@@ -115,7 +115,7 @@ class CheckPronunciationFragment : Fragment(R.layout.fragment_check_pronunciatio
             binding.playView.setPlaybackProgressBarMax(max)
         }
         viewModel.isPlayingFlow.collectInViewLifecycle { isPlaying ->
-            val iconRes = if (isPlaying) R.drawable.ic_replay else R.drawable.ic_play
+            val iconRes = if (isPlaying) R.drawable.symbol_replay else R.drawable.symbol_play_arrow
             binding.playView.changePlayIcon(iconRes)
         }
         viewModel.replayFlow.collectInViewLifecycle {

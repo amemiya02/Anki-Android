@@ -43,7 +43,7 @@ class AudioPlayViewTest {
 
     @Test
     fun `changing to the replay icon updates the label for TalkBack`() {
-        audioPlayView.changePlayIcon(R.drawable.ic_replay)
+        audioPlayView.changePlayIcon(R.drawable.symbol_replay)
         shadowOf(Looper.getMainLooper()).idle()
 
         assertEquals(context.getString(CommonString.replay_voice), binding.playButton.contentDescription)

@@ -301,13 +301,13 @@ class AudioRecordingFragment : MultimediaFragment(R.layout.fragment_audio_record
         actionCancelRecording.isEnabled = isRecordingOrPaused
         actionSaveRecording.isEnabled = isRecordingOrPaused
         actionStartRecording.setIconResource(
-            if (recorderState == RecorderState.Recording) R.drawable.round_pause_24 else R.drawable.ic_record,
+            if (recorderState == RecorderState.Recording) R.drawable.symbol_pause else R.drawable.symbol_radio_button_checked,
         )
         if (!isRecordingOrPaused) audioWaveformView.clear()
 
         actionRewind.isEnabled = isPlaying
         actionForward.isEnabled = isPlaying
-        actionPlayRecording.setIconResource(if (isPlaying) R.drawable.round_pause_24 else R.drawable.round_play_arrow_24)
+        actionPlayRecording.setIconResource(if (isPlaying) R.drawable.symbol_pause else R.drawable.symbol_play_arrow)
         val playTint =
             ContextCompat.getColorStateList(requireContext(), if (isPlaying) R.color.audio_recorder_green else R.color.audio_recorder_red)
         actionPlayRecording.iconTint = playTint

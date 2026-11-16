@@ -377,7 +377,7 @@ class AudioRecordingController(
                 recordButton.apply {
                     iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
                     strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
-                    setIconResource(R.drawable.ic_record)
+                    setIconResource(R.drawable.symbol_radio_button_checked)
                     contentDescription = context.getString(CommonString.start_recording)
                 }
                 audioWaveform.clear()
@@ -388,7 +388,7 @@ class AudioRecordingController(
                 recordButton.apply {
                     iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
                     strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
-                    setIconResource(R.drawable.ic_stop)
+                    setIconResource(R.drawable.symbol_stop)
                     contentDescription = context.getString(CommonString.stop_recording)
                 }
                 cancelAudioRecordingButton.isEnabled = true
@@ -398,7 +398,7 @@ class AudioRecordingController(
                 recordButton.apply {
                     iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_grey)
                     strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_grey)
-                    setIconResource(R.drawable.ic_skip_next)
+                    setIconResource(R.drawable.symbol_skip_next)
                     contentDescription = context.getString(CommonString.next_recording)
                 }
                 cancelAudioRecordingButton.isEnabled = true
@@ -409,7 +409,7 @@ class AudioRecordingController(
                 recordButton.apply {
                     iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_grey)
                     strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_grey)
-                    setIconResource(R.drawable.ic_play)
+                    setIconResource(R.drawable.symbol_play_arrow)
                     contentDescription = context.getString(CommonString.play_recording)
                 }
                 cancelAudioRecordingButton.isEnabled = true
@@ -421,10 +421,10 @@ class AudioRecordingController(
                 recordButton.apply {
                     iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
                     strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
-                    setIconResource(R.drawable.ic_record)
+                    setIconResource(R.drawable.symbol_radio_button_checked)
                 }
                 playAudioButton.apply {
-                    setIconResource(R.drawable.round_play_arrow_24)
+                    setIconResource(R.drawable.symbol_play_arrow)
                     iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
                     strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
                 }
@@ -438,12 +438,12 @@ class AudioRecordingController(
             AppendToRecording.RECORDING_IN_PROGRESS -> {
                 cancelAudioRecordingButton.isEnabled = true
                 saveButton?.isEnabled = true
-                recordButton.setIconResource(R.drawable.round_pause_24)
+                recordButton.setIconResource(R.drawable.symbol_pause)
                 playAudioButtonLayout.visibility = View.GONE
                 recordAudioButtonLayout.visibility = View.VISIBLE
             }
             AppendToRecording.RECORDING_PAUSED -> {
-                recordButton.setIconResource(R.drawable.ic_record)
+                recordButton.setIconResource(R.drawable.symbol_radio_button_checked)
                 playAudioButtonLayout.visibility = View.GONE
                 recordAudioButtonLayout.visibility = View.VISIBLE
             }
@@ -460,14 +460,14 @@ class AudioRecordingController(
                 playAudioButton.apply {
                     iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
                     strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
-                    setIconResource(R.drawable.round_play_arrow_24)
+                    setIconResource(R.drawable.symbol_play_arrow)
                 }
             }
             AppendToRecording.PLAYBACK_PAUSED -> {
                 rewindAudioButton.isEnabled = false
                 forwardAudioButton.isEnabled = false
                 playAudioButton.apply {
-                    setIconResource(R.drawable.round_play_arrow_24)
+                    setIconResource(R.drawable.symbol_play_arrow)
                     iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
                     strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
                 }
@@ -476,7 +476,7 @@ class AudioRecordingController(
                 rewindAudioButton.isEnabled = true
                 forwardAudioButton.isEnabled = true
                 playAudioButton.apply {
-                    setIconResource(R.drawable.round_pause_24)
+                    setIconResource(R.drawable.symbol_pause)
                     iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_green)
                     strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_green)
                 }

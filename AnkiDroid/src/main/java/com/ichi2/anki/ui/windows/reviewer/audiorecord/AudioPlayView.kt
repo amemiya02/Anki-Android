@@ -68,7 +68,7 @@ class AudioPlayView : ConstraintLayout {
         @DrawableRes iconRes: Int,
     ) {
         binding.playButton.contentDescription =
-            context.getString(if (iconRes == R.drawable.ic_replay) CommonString.replay_voice else CommonString.play_recording)
+            context.getString(if (iconRes == R.drawable.symbol_replay) CommonString.replay_voice else CommonString.play_recording)
         binding.playIconView
             .animate()
             .alpha(0f)
