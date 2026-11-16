@@ -54,7 +54,7 @@ enum class ViewerAction(
     TOGGLE_WHITEBOARD(R.id.action_toggle_whiteboard, R.drawable.symbol_draw, MENU_ONLY),
 
     // Disabled
-    BROWSE(R.id.action_browse, R.drawable.symbol_cards, DISABLED),
+    BROWSE(R.id.action_browse, CommonR.drawable.symbol_search, DISABLED),
     STATISTICS(R.id.action_statistics, R.drawable.symbol_bar_chart, DISABLED),
     DECK_OPTIONS(R.id.action_deck_options, R.drawable.symbol_tune, DISABLED),
     CARD_INFO(R.id.action_card_info, R.drawable.symbol_info, DISABLED),

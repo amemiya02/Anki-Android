@@ -37,7 +37,7 @@
         android:fragment="com.ichi2.anki.preferences.ReviewingSettingsFragment"
         android:key="@string/pref_reviewing_screen_key"
         android:title="@string/pref_cat_reviewing"
-        android:icon="@drawable/symbol_cards"
+        android:icon="@drawable/symbol_event_repeat"
         app:summaryEntries="@array/reviewing_summary_entries">
     </com.ichi2.preferences.HeaderPreference>
 
