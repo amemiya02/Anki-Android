@@ -120,7 +120,7 @@
         <item quantity="one">%1$d मिनट</item>
         <item quantity="other">मिनट %1$d</item>
     </plurals>
-    <string name="fact_adder_intent_title" comment="Label of the \'Add Note\' window. This title can\'t be seen in AnkiDroid directly.">AnkiDroid कार्ड</string>
+    <string name="fact_adder_intent_title" comment="Label of the \'Add Note\' window. This title can\'t be seen in AnkiDroid directly.">Hayaki कार्ड</string>
     <string name="note_editor_copy_note" maxLength="28">नोट कॉपी करें</string>
     <string name="card_editor_reposition_card" comment="reposition a card in the new queue" maxLength="28">स्थानांतरित करे</string>
     <string name="card_editor_reset_card" maxLength="28">प्रगति को रीसेट</string>
@@ -143,7 +143,7 @@
     <string name="import_error_handle_exception">फ़ाइल आयात करने में विफल\n\n%s</string>
     <string name="import_error_not_apkg_extension">फ़ाइल नाम \"%s\" में .apkg या .colpkg एक्सटेंशन नहीं है</string>
     <string name="import_error_load_imported_database">अन्कि डाटाबेस (.anki2) प्रतिस्थापन अभीतक सहारा नहीं दिया जाता हैं । कृपया पुस्तिका प्रतिस्थापन के शिक्षण के लिये देखिये ।</string>
-    <string name="import_error_content_provider">The selected file couldn’t be imported automatically by AnkiDroid. Please see the user manual for how to manually import Anki files: \n%s</string>
+    <string name="import_error_content_provider">The selected file couldn’t be imported automatically by Hayaki. Please see the user manual for how to manually import Anki files: \n%s</string>
     <string name="import_error_copy_to_cache_title">फ़ाइल कैश करने में विफल</string>
     <string name="import_error_copy_to_cache_explanation" comment="The substitution is a list of suggested fixes in bullet point form">This is often caused by a bug in the app you used to select the file. Please try the following fixes:\n\n%s</string>
     <string name="import_interrupted">आयात बाधित हुआ</string>
@@ -152,11 +152,11 @@
     <string name="export_save_apkg_successful">सफलतापूर्वक Anki पैकेज को सहेजा गया</string>
     <string name="export_save_apkg_unsuccessful">Anki पैकेज सहेजना विफल रहा</string>
     <string name="export_share_title">Anki पैकेज का उपयोग करके भेजें</string>
-    <string name="export_email_subject">AnkiDroid निर्यात किए गए स्पैनिश: %s</string>
+    <string name="export_email_subject">Hayaki निर्यात किए गए स्पैनिश: %s</string>
     <string name="export_email_text"><![CDATA[
         नमस्ते!
         <br/><br/>
-        यह AnkiDroid[1] से भेजा गया Anki फ़्लैशकार्ड डेक है।
+        यह Hayaki[1] से भेजा गया Anki फ़्लैशकार्ड डेक है।
         उपलब्ध Anki वितरणों में से किसी एक का उपयोग करके इसे खोलने का प्रयास करें[2] और आसान और कुशल सीखने का आनंद लें!<br/><br/>
         [1] %1$s<br/>
         [2] %2$s
@@ -215,8 +215,8 @@
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">खोज डेक</string>
     <string name="ankidroid_init_failed_webview_title">Fatal error</string>
-    <string name="ankidroid_init_failed_webview">AnkiDroid सिस्टम WebView पर निर्भर करता है जो अनुपलब्ध है। यह तब हो सकता है जब सिस्टम अपडेट स्थापित कर रहा है। कृपया कुछ मिनटों में पुन: प्रयास करें। \n\n%s</string>
-    <string name="ankidroid_init_failed_storage">AnkiDroid cannot access storage due to an Android error.\n\n%s</string>
+    <string name="ankidroid_init_failed_webview">Hayaki सिस्टम WebView पर निर्भर करता है जो अनुपलब्ध है। यह तब हो सकता है जब सिस्टम अपडेट स्थापित कर रहा है। कृपया कुछ मिनटों में पुन: प्रयास करें। \n\n%s</string>
+    <string name="ankidroid_init_failed_storage">Hayaki cannot access storage due to an Android error.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
     <string name="menu_font_size" maxLength="28">फ़ॉन्ट आकार</string>
     <string name="note_editor_toolbar_layout" maxLength="28">Toolbar layout</string>
@@ -245,9 +245,9 @@
     <string name="note_editor_video_too_large">वीडियो फ़ाइल बहुत बड़ी है, कृपया वीडियो को मैन्युअल रूप से डालें</string>
     <string name="note_editor_audio_too_large">ऑडियो फ़ाइल बहुत बड़ी है, कृपया ऑडियो मैन्युअल रूप से डालें</string>
     <string name="ankidroid_cannot_open_after_backup_try_again" comment="After an Android backup is restored, AnkiDroid opens and shows this message.         Opening AnkiDroid again will work correctly">Android backup in progress. Please try again</string>
-    <string name="create_shortcut_error_vivo" comment="iManager is an app on Vivo phones">अंकीड्रॉइड को शॉर्टकट जोड़ने की अनुमति देने के लिए आपको  आईमैनेजर का उपयोग करने की आवश्यकता हो सकती है</string>
+    <string name="create_shortcut_error_vivo" comment="iManager is an app on Vivo phones">Hayaki को शॉर्टकट जोड़ने की अनुमति देने के लिए आपको  आईमैनेजर का उपयोग करने की आवश्यकता हो सकती है</string>
     <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Allow ‘Home screen shortcuts’ in system settings for %s to add shortcuts</string>
-    <string name="create_shortcut_failed" comment="home screen == launcher">आपकी होम स्क्रीन अंकीड्रॉइड को शॉर्टकट जोड़ने की अनुमति नहीं देती है</string>
+    <string name="create_shortcut_failed" comment="home screen == launcher">आपकी होम स्क्रीन Hayaki को शॉर्टकट जोड़ने की अनुमति नहीं देती है</string>
     <string name="create_shortcut_error">शॉर्टकट जोड़ने में त्रुटि: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">वाक्यों को बड़े अक्षरों में लिखें</string>
     <!-- Dialog hints -->
@@ -316,7 +316,7 @@
     <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">AnkiWeb से सिंक करें</string>
     <!-- IntentHandler -->
-    <string name="app_not_initialized_new">AnkiDroid अभी प्रारंभ नहीं हुआ है। कृपया AnkiDroid खोलें और पुनः प्रयास करें</string>
+    <string name="app_not_initialized_new">Hayaki अभी प्रारंभ नहीं हुआ है। कृपया Hayaki खोलें और पुनः प्रयास करें</string>
     <!-- Deck Creation -->
     <string name="deck_created">बनाया गया डेक</string>
     <string name="deck_renamed">नाम बदला हुआ डेक</string>
@@ -336,7 +336,7 @@
     <string name="tts_voices_chip_filter_to_internet" comment="     Filters a list of text to speech voices, to enable/disable voices which require the internet to     function.     This is on a chip control, so keep the text short, ideally one word">Internet</string>
     <string name="tts_voices_chip_filter_to_installable_audio" comment="     Displays a list of Text to Speech voices which should be downloaded/installed before use     This is on a chip control, so keep the text short, ideally one word">Install</string>
     <string name="tts_voices_failed_opening_tts_system_settings" comment="error message if opening the system text to speech settings fails">Failed to open text to speech settings</string>
-    <string name="shared_decks_ankiweb_login_limit">Shared decks are hosted on AnkiWeb, a free service separate from AnkiDroid. AnkiWeb asks you to log in to continue.</string>
+    <string name="shared_decks_ankiweb_login_limit">Shared decks are hosted on AnkiWeb, a free service separate from Hayaki. AnkiWeb asks you to log in to continue.</string>
     <string name="deck_description_field_hint">विवरण</string>
     <string name="deck_description_saved">Description updated</string>
     <string name="format_deck_description_as_markdown">Format as Markdown</string>

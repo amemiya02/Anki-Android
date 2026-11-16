@@ -123,7 +123,7 @@
         <item quantity="few">%1$d minutes</item>
         <item quantity="other">%1$d minute</item>
     </plurals>
-    <string name="fact_adder_intent_title" comment="Label of the \'Add Note\' window. This title can\'t be seen in AnkiDroid directly.">Cartonaș AnkiDroid</string>
+    <string name="fact_adder_intent_title" comment="Label of the \'Add Note\' window. This title can\'t be seen in AnkiDroid directly.">Cartonaș Hayaki</string>
     <string name="note_editor_copy_note" maxLength="28">Copie nota</string>
     <string name="card_editor_reposition_card" comment="reposition a card in the new queue" maxLength="28">Repoziționare</string>
     <string name="card_editor_reset_card" maxLength="28">Resetare progres</string>
@@ -146,20 +146,20 @@
     <string name="import_error_handle_exception">Nu s-a putut importa fișierul\n\n%s</string>
     <string name="import_error_not_apkg_extension">Numele fișierului „%s” nu are extensia .apkg sau .colpkg</string>
     <string name="import_error_load_imported_database">Înlocuirile bazei de date Anki (.anki2) nu sunt încă posibile. Verifică manualul de utilizare pentru instrucțiuni despre înlocuire.</string>
-    <string name="import_error_content_provider">Fișierul selectat nu a putut fi importat automat de AnkiDroid. Verifică manualul de utilizare pentru a importa manual fișiere Anki: \n%s</string>
+    <string name="import_error_content_provider">Fișierul selectat nu a putut fi importat automat de Hayaki. Verifică manualul de utilizare pentru a importa manual fișiere Anki: \n%s</string>
     <string name="import_error_copy_to_cache_title">Stocarea cache a fișierului a eșuat</string>
     <string name="import_error_copy_to_cache_explanation" comment="The substitution is a list of suggested fixes in bullet point form">De obicei, asta este cauzată de o eroare în aplicația pe care ați folosi-to pentru a selecta fișierul. Încearcă următoarele soluții: \n\n%s</string>
-    <string name="import_interrupted">Importarea a fost întreruptă: AnkiDroid a fost închis</string>
+    <string name="import_interrupted">Importarea a fost întreruptă: Hayaki a fost închis</string>
     <string name="export_ready_title">Exportarea este gata</string>
     <string name="export_send_no_handlers">Nicio aplicație nu este valabilă pentru a opera apkg. Se salvează&#8230;</string>
     <string name="export_save_apkg_successful">Pachetul Anki a fost salvat cu succes</string>
     <string name="export_save_apkg_unsuccessful">Nu s-a putut salva pachetul Anki</string>
     <string name="export_share_title">Trimite pachetul Anki cu</string>
-    <string name="export_email_subject">Flashcardurile AnkiDroid exportate: %s</string>
+    <string name="export_email_subject">Flashcardurile Hayaki exportate: %s</string>
     <string name="export_email_text"><![CDATA[
         Bună!
         <br/><br/>
-        Acesta este un folder de flashcarduri Anki trimisă de la AnkiDroid[1].
+        Acesta este un folder de flashcarduri Anki trimisă de la Hayaki[1].
         Încearcă să o deschizi folosind una dintre opțiunile Anki disponibile[2] și bucură-te de învățare ușoară și eficientă!<br/><br/>
         [1] %1$s<br/>
         [2] %2$s
@@ -218,8 +218,8 @@
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">Caută foldere</string>
     <string name="ankidroid_init_failed_webview_title">Eroare fatală</string>
-    <string name="ankidroid_init_failed_webview">AnkiDroid de bazează pe System WebView, care nu este valabil. Asta se poate întâmpla dacă sistemul se actualizează. Încearcă din nou peste câteva minute.\n\n%s</string>
-    <string name="ankidroid_init_failed_storage">AnkiDroid nu are acces la stocare din cauza unei erori Android.\n\n%s</string>
+    <string name="ankidroid_init_failed_webview">Hayaki de bazează pe System WebView, care nu este valabil. Asta se poate întâmpla dacă sistemul se actualizează. Încearcă din nou peste câteva minute.\n\n%s</string>
+    <string name="ankidroid_init_failed_storage">Hayaki nu are acces la stocare din cauza unei erori Android.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
     <string name="menu_font_size" maxLength="28">Mărime font</string>
     <string name="note_editor_toolbar_layout" maxLength="28">Aspect bară de instrumente</string>
@@ -248,9 +248,9 @@
     <string name="note_editor_video_too_large">Fișierul video este prea mare, inserează-l manual</string>
     <string name="note_editor_audio_too_large">The audio file is too large, please insert the audio manually</string>
     <string name="ankidroid_cannot_open_after_backup_try_again" comment="After an Android backup is restored, AnkiDroid opens and shows this message.         Opening AnkiDroid again will work correctly">Backup Android în progres, încearcă din nou</string>
-    <string name="create_shortcut_error_vivo" comment="iManager is an app on Vivo phones">You may need to use iManager to allow AnkiDroid to add shortcuts</string>
+    <string name="create_shortcut_error_vivo" comment="iManager is an app on Vivo phones">You may need to use iManager to allow Hayaki to add shortcuts</string>
     <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Allow ‘Home screen shortcuts’ in system settings for %s to add shortcuts</string>
-    <string name="create_shortcut_failed" comment="home screen == launcher">Your home screen does not allow AnkiDroid to add shortcuts</string>
+    <string name="create_shortcut_failed" comment="home screen == launcher">Your home screen does not allow Hayaki to add shortcuts</string>
     <string name="create_shortcut_error">Error adding shortcut: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">Propoziții cu literă mare</string>
     <!-- Dialog hints -->
@@ -321,7 +321,7 @@
     <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Începe</string>
     <string name="intro_sync_from_ankiweb">Sincronizează din AnkiWeb</string>
     <!-- IntentHandler -->
-    <string name="app_not_initialized_new">AnkiDroid nu s-a inițializat încă. Deschide AnkiDroid iar și încearcă din nou</string>
+    <string name="app_not_initialized_new">Hayaki nu s-a inițializat încă. Deschide Hayaki iar și încearcă din nou</string>
     <!-- Deck Creation -->
     <string name="deck_created">Folder creat</string>
     <string name="deck_renamed">Folderul a fost redenumit</string>
@@ -341,7 +341,7 @@
     <string name="tts_voices_chip_filter_to_internet" comment="     Filters a list of text to speech voices, to enable/disable voices which require the internet to     function.     This is on a chip control, so keep the text short, ideally one word">Internet</string>
     <string name="tts_voices_chip_filter_to_installable_audio" comment="     Displays a list of Text to Speech voices which should be downloaded/installed before use     This is on a chip control, so keep the text short, ideally one word">Instalează</string>
     <string name="tts_voices_failed_opening_tts_system_settings" comment="error message if opening the system text to speech settings fails">Failed to open text to speech settings</string>
-    <string name="shared_decks_ankiweb_login_limit">Shared decks are hosted on AnkiWeb, a free service separate from AnkiDroid. AnkiWeb asks you to log in to continue.</string>
+    <string name="shared_decks_ankiweb_login_limit">Shared decks are hosted on AnkiWeb, a free service separate from Hayaki. AnkiWeb asks you to log in to continue.</string>
     <string name="deck_description_field_hint">Descriere</string>
     <string name="deck_description_saved">Descriere actualizată</string>
     <string name="format_deck_description_as_markdown">Formatează ca MarkDown</string>

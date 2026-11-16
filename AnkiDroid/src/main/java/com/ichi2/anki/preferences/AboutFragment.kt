@@ -43,22 +43,14 @@ class AboutFragment : Fragment(R.layout.fragment_about) {
     @VisibleForTesting
     val binding by viewBinding(FragmentAboutBinding::bind)
 
-    private val aboutContributorsSpannable: CharSequence
-        get() {
-            val contributorsLink = getString(R.string.link_contributors)
-            val contributingGuideLink = getString(R.string.link_contribution)
-            val strRes =
-                if (BuildConfig.SHOW_DONATE_LINKS) {
-                    CommonString.about_contributors_description
-                } else {
-                    CommonString.about_contributors_description_no_donate
-                }
-            return getString(
-                strRes,
-                contributorsLink,
-                contributingGuideLink,
+    /** Says the app is an unofficial fork of AnkiDroid and credits Upstream */
+    private val forkCreditSpannable: CharSequence
+        get() =
+            getString(
+                CommonString.about_fork_description,
+                getString(R.string.link_source),
+                getString(R.string.link_contributors),
             ).parseAsHtml()
-        }
 
     override fun onViewCreated(
         view: View,
@@ -80,16 +72,16 @@ class AboutFragment : Fragment(R.layout.fragment_about) {
         // Logo secret
         binding.appLogo.setOnClickListener(DeveloperOptionsSecretClickListener(this))
 
-        // Contributors text
+        // Unofficial fork of AnkiDroid, crediting Upstream
         binding.contributorsDescription.apply {
-            text = aboutContributorsSpannable
+            text = forkCreditSpannable
             movementMethod = LinkMovementMethod.getInstance()
         }
 
         // License text
         val gplLicenseLink = getString(R.string.licence_wiki)
         val agplLicenseLink = getString(R.string.link_agpl_wiki)
-        val sourceCodeLink = getString(R.string.link_source)
+        val sourceCodeLink = getString(R.string.link_fork_source)
         val dependencyLicenseLink = getString(R.string.dependency_license_wiki)
         binding.licenseDescription.apply {
             text =

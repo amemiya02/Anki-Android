@@ -75,7 +75,7 @@
     <string name="card_browser_font_size" maxLength="41">نسبة تضخيم حجم خط متصفح البطاقات</string>
     <string name="card_browser_hide_media" maxLength="41">عرض أسماء الملفات في متصفح البطاقات</string>
     <string name="card_browser_hide_media_summary">عرض أسماء الملفات الصوتية في حقول السؤال والجواب في متصفح البطاقات</string>
-    <string name="col_path" maxLength="41">مجلد آنكي درويد</string>
+    <string name="col_path" maxLength="41">مجلد Hayaki</string>
     <string name="fullscreen_review" maxLength="41">وضع ملء الشاشة</string>
     <string name="full_screen_off" comment="Value of the fullscreen mode preference meaning fullscreen is not used">غير مفعل</string>
     <string name="full_screen_system">إخفاء أشرطة النظام</string>
@@ -197,7 +197,7 @@
     <string name="pref_keep_screen_on" maxLength="41">إبقاء الشاشة مضيئة</string>
     <string name="pref_keep_screen_on_summ">تعطيل مهلة الشاشة</string>
     <string name="enable_api_title" maxLength="41">تفعيل واجهة برمجة آنكي درويد</string>
-    <string name="enable_api_summary">يسمح للتطبيقات الأخرى بالاتصال بآنكي درويد وقراءة أو كتابة البيانات دون تدخلك</string>
+    <string name="enable_api_summary">يسمح للتطبيقات الأخرى بالاتصال بHayaki وقراءة أو كتابة البيانات دون تدخلك</string>
     <string name="custom_buttons" maxLength="41">أزرار شريط التطبيق</string>
     <string name="custom_buttons_summary">تخصيص الإجراءات التي تظهر في شريط التطبيق</string>
     <string name="custom_buttons_setting_always_show">إظهار دائمًا</string>
@@ -334,12 +334,9 @@
     <!-- About -->
     <string name="open_changelog">فتح سجل التغييرات</string>
     <string name="pref_cat_about_title" maxLength="41">حول</string>
-    <string name="contributors_title">مساهمون</string>
-    <string name="about_contributors_description"><![CDATA[هؤلاء هم <a href=\"%1$s\">متطوعونا</a> الرائعون. تستطيع مساعدة آنكي درويد أيضًا بالبرمجة والترجمة والتبرع و<a href=\"%2$s\">المزيد</a>!]]></string>
-    <string name="about_contributors_description_no_donate"><![CDATA[هؤلاء هم <a href=\"%1$s\">متطوعونا</a> الرائعون. تستطيع مساعدة آنكي درويد أيضًا بالبرمجة والترجمة والتبرع و<a href=\"%2$s\">المزيد</a>!]]></string>
     <string name="license">الرخصة</string>
-    <string name="license_description"><![CDATA[آنكي درويد مرخص تحت رخصتي <a href=\"%1$s\">GPL-3.0</a> و<a href=\"%2$s\">AGPL-3.0</a>، وتتوفر الشفرة المصدرية على <a href=\"%3$s\">GitHub</a>]]></string>
-    <string name="other_licenses"><![CDATA[يستخدم آنكي درويد أيضًا مكتبات وأيقونات من طرف ثالث وهي مرخصة تحت <a href=\"%1$s\">رخص</a> متنوعة مفتوحة المصدر.]]></string>
+    <string name="license_description"><![CDATA[Hayaki مرخص تحت رخصتي <a href=\"%1$s\">GPL-3.0</a> و<a href=\"%2$s\">AGPL-3.0</a>، وتتوفر الشفرة المصدرية على <a href=\"%3$s\">GitHub</a>]]></string>
+    <string name="other_licenses"><![CDATA[يستخدم Hayaki أيضًا مكتبات وأيقونات من طرف ثالث وهي مرخصة تحت <a href=\"%1$s\">رخص</a> متنوعة مفتوحة المصدر.]]></string>
     <string name="donate_description"><![CDATA[تستطيع دعم تطوير آنكي درويد من خلال <a href=\"%1$s\">التبرع</a>. نُقَدِّر أي مبلغ.]]></string>
     <!-- Controls -->
     <string name="binding_add_gesture">إضافة إيماءة</string>
@@ -375,7 +372,7 @@
     <string name="bindings_already_bound">مربوط بالفعل بـ %s</string>
     <!-- Advanced -->
     <string name="pref_cat_experimental" maxLength="41" tools:ignore="UnusedResources">تجريبي</string>
-    <string name="readtext_deprecation_warn">يوفر آنكي درويد الآن طريقة جديدة لتحويل النص إلى كلام متوافقة مع برامج آنكي الأخرى وتتضمن أصوات أكثر وتحسينات للتشغيل!\n\nيرجى التحديث بأسرع وقت ممكن لأن هذا الخيار سَيُزال قريبًا</string>
+    <string name="readtext_deprecation_warn">يوفر Hayaki الآن طريقة جديدة لتحويل النص إلى كلام متوافقة مع برامج آنكي الأخرى وتتضمن أصوات أكثر وتحسينات للتشغيل!\n\nيرجى التحديث بأسرع وقت ممكن لأن هذا الخيار سَيُزال قريبًا</string>
     <string name="readtext_reviewer_warn" tools:ignore="UnusedResources">يرجى التحديث إلى الصيغة الجديدة لتحويل النص إلى كلام</string>
     <string name="allow_templates_to_record_audio" maxLength="41">السماح للقوالب بتسجيل الصوت</string>
     <string name="template_is_trying_to_record_audio">يحاول هذا القالب تسجيل الصوت</string>
@@ -387,9 +384,9 @@
     <!-- #######################################################################################
          #################################### Backup options ###################################
          ####################################################################################### -->
-    <string name="pref__backups_help__summary"><![CDATA[        يأخذ آنكي درويد نسخة احتياطية من مجموعتك بشكل دوري.
+    <string name="pref__backups_help__summary"><![CDATA[        يأخذ Hayaki نسخة احتياطية من مجموعتك بشكل دوري.
         بعد مضي يومين على أخذ نسخة،
-        يبدأ آنكي درويد بحذف بعض النسخ لإخلاء المساحة.
+        يبدأ Hayaki بحذف بعض النسخ لإخلاء المساحة.
         <br><br>
         لاحظ أن الوسائط لا يتم أخذ نسخ منها.
         للضمانة، يرجى مزامنة مجموعتك دوريًا أو تصدير نسخ منها.

@@ -120,7 +120,7 @@
         <item quantity="one">%1$d 𐌼𐌹𐌽𐌿𐍄𐌿𐍃</item>
         <item quantity="other">%1$d 𐌼𐌹𐌽𐌿𐍄𐌾𐌿𐍃</item>
     </plurals>
-    <string name="fact_adder_intent_title" comment="Label of the \'Add Note\' window. This title can\'t be seen in AnkiDroid directly.">𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 𐌺𐌰𐍂𐍄𐌰</string>
+    <string name="fact_adder_intent_title" comment="Label of the \'Add Note\' window. This title can\'t be seen in AnkiDroid directly.">Hayaki 𐌺𐌰𐍂𐍄𐌰</string>
     <string name="note_editor_copy_note" maxLength="28">𐌼𐌴𐌻𐌴𐌹𐌽𐌰𐌹 𐌲𐌰𐌲𐌰𐌻𐌴𐌹𐌺𐍉𐌽</string>
     <string name="card_editor_reposition_card" comment="reposition a card in the new queue" maxLength="28">𐌰𐍆𐍄𐍂𐌰𐌻𐌰𐌲𐌴𐌹𐌽𐍃</string>
     <string name="card_editor_reset_card" maxLength="28">𐍆𐍂𐌰𐌼𐌲𐌰𐌷𐍄 𐌰𐍆𐍄𐍂𐌰𐌻𐌰𐌲𐌾𐌰𐌽</string>
@@ -143,20 +143,20 @@
     <string name="import_error_handle_exception">𐌽𐌹 𐌼𐌰𐌷𐍄𐌰 𐌹𐌽𐌽𐌰𐍄𐌱𐌰𐌹𐍂𐌰𐌽 𐍆𐌰𐌾𐌻\n\n%s</string>
     <string name="import_error_not_apkg_extension">𐌽𐌰𐌼𐍉 𐍆𐌰𐌾𐌻𐌹𐍃 \"%s\" 𐌽𐌹 𐌷𐌰𐌱𐌰𐌹𐌸 .apkg þau .colpkg 𐌿𐍆𐌸𐌰𐌽𐌴𐌹𐌽</string>
     <string name="import_error_load_imported_database">Anki Database (.anki2) replacements are not yet supported. Please see the manual for replacement instructions.</string>
-    <string name="import_error_content_provider">𐌸𐌰𐍄𐌰 𐍆𐌰𐌾𐌻 𐌲𐌰𐍅𐌰𐌻𐌹𐌳𐍉 𐌽𐌹 𐌼𐌰𐌷𐍄𐌰 𐌹𐌽𐌽𐌰𐍄𐌱𐌰𐌹𐍂𐌰𐌽 𐍆𐍂𐌰𐌼 𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 𐍃𐌹𐌻𐌱𐌰𐍄𐌰𐌿𐌾𐌰𐌽𐌳𐍉. 𐌱𐌹𐌳𐌾𐌰𐌼 𐌸𐌿𐌺, 𐍃𐌰𐌹 𐌸𐌹𐍃 𐌱𐍂𐌿𐌺𐌾𐌹𐌽𐍃 𐌷𐌰𐌽𐌳𐌿𐌱𐍉𐌺𐍉𐍃 𐍅𐌹𐍄𐌰𐌽 𐍈𐌰𐌹𐍅𐌰 𐌹𐌽𐌽𐌰𐍄𐌱𐌰𐌹𐍂𐌰𐌽 𐌰𐌽𐌺𐌴𐌹 𐍆𐌰𐌾𐌻𐌰 𐌼𐌰𐌷𐍄𐌴𐌹𐌲 𐌹𐍃𐍄: \n%s</string>
+    <string name="import_error_content_provider">𐌸𐌰𐍄𐌰 𐍆𐌰𐌾𐌻 𐌲𐌰𐍅𐌰𐌻𐌹𐌳𐍉 𐌽𐌹 𐌼𐌰𐌷𐍄𐌰 𐌹𐌽𐌽𐌰𐍄𐌱𐌰𐌹𐍂𐌰𐌽 𐍆𐍂𐌰𐌼 Hayaki 𐍃𐌹𐌻𐌱𐌰𐍄𐌰𐌿𐌾𐌰𐌽𐌳𐍉. 𐌱𐌹𐌳𐌾𐌰𐌼 𐌸𐌿𐌺, 𐍃𐌰𐌹 𐌸𐌹𐍃 𐌱𐍂𐌿𐌺𐌾𐌹𐌽𐍃 𐌷𐌰𐌽𐌳𐌿𐌱𐍉𐌺𐍉𐍃 𐍅𐌹𐍄𐌰𐌽 𐍈𐌰𐌹𐍅𐌰 𐌹𐌽𐌽𐌰𐍄𐌱𐌰𐌹𐍂𐌰𐌽 𐌰𐌽𐌺𐌴𐌹 𐍆𐌰𐌾𐌻𐌰 𐌼𐌰𐌷𐍄𐌴𐌹𐌲 𐌹𐍃𐍄: \n%s</string>
     <string name="import_error_copy_to_cache_title">Failed to cache file</string>
     <string name="import_error_copy_to_cache_explanation" comment="The substitution is a list of suggested fixes in bullet point form">This is often caused by a bug in the app you used to select the file. Please try the following fixes:\n\n%s</string>
-    <string name="import_interrupted">Import interrupted: AnkiDroid was closed</string>
+    <string name="import_interrupted">Import interrupted: Hayaki was closed</string>
     <string name="export_ready_title">𐌿𐍄𐌱𐌰𐌿𐍂 𐌼𐌰𐌽𐍅𐌹𐌸 𐌹𐍃𐍄</string>
     <string name="export_send_no_handlers">𐌽𐌹 𐍃𐌹𐌽𐌳 𐌰𐍀𐍀𐌻𐌴𐌹𐌺𐌰𐍄𐌾𐍉𐌽𐍃 𐌰𐍀𐌺𐌲 𐌳𐌿 𐍅𐌰𐌿𐍂𐌺𐌾𐌰𐌽. 𐌲𐌰𐍆𐌰𐍃𐍄𐌰𐌽𐌳𐍃&#8230;</string>
     <string name="export_save_apkg_successful">𐌲𐌰𐍆𐌰𐍃𐍄𐌰𐌹𐌳𐌰 𐍀𐌰𐌺𐌺𐌿 𐌰𐌽𐌺𐌴𐌹𐌽𐍃 𐍅𐌰𐌹𐌻𐌰</string>
     <string name="export_save_apkg_unsuccessful">𐌽𐌹 𐌼𐌰𐌷𐍄𐌰 𐍀𐌰𐌺𐌺𐌿 𐌰𐌽𐌺𐌴𐌹𐌽𐍃 𐌲𐌰𐍆𐌰𐍃𐍄𐌰𐌽</string>
     <string name="export_share_title">𐍀𐌰𐌺𐌺𐌿 𐌰𐌽𐌺𐌴𐌹𐌽𐍃 𐍃𐌰𐌽𐌳𐌾𐌰𐌽 𐌱𐍂𐌿𐌺𐌾𐌰𐌽𐌳𐍃</string>
-    <string name="export_email_subject">𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 𐌿𐍄𐌱𐌰𐍂 𐌻𐌰𐌿𐌷𐌰𐍄𐌴𐌹𐌽𐌰𐌹𐍃 𐍇𐌰𐍂𐍄𐍉𐍃: %s</string>
+    <string name="export_email_subject">Hayaki 𐌿𐍄𐌱𐌰𐍂 𐌻𐌰𐌿𐌷𐌰𐍄𐌴𐌹𐌽𐌰𐌹𐍃 𐍇𐌰𐍂𐍄𐍉𐍃: %s</string>
     <string name="export_email_text"><![CDATA[
         Hi!
         <br/><br/>
-        This is an Anki flashcards deck sent from AnkiDroid[1].
+        This is an Anki flashcards deck sent from Hayaki[1].
         Try to open it using one of the available Anki distributions[2] and enjoy easy and efficient learning!<br/><br/>
         [1] %1$s<br/>
         [2] %2$s
@@ -215,8 +215,8 @@
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳𐌰 𐍃𐍉𐌺𐌾𐌰𐌽</string>
     <string name="ankidroid_init_failed_webview_title">Fatal error</string>
-    <string name="ankidroid_init_failed_webview">AnkiDroid relies on the System WebView which is unavailable. This can happen if the system is installing updates. Please try again in a few minutes.\n\n%s</string>
-    <string name="ankidroid_init_failed_storage">AnkiDroid cannot access storage due to an Android error.\n\n%s</string>
+    <string name="ankidroid_init_failed_webview">Hayaki relies on the System WebView which is unavailable. This can happen if the system is installing updates. Please try again in a few minutes.\n\n%s</string>
+    <string name="ankidroid_init_failed_storage">Hayaki cannot access storage due to an Android error.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
     <string name="menu_font_size" maxLength="28">𐌼𐌹𐌺𐌹𐌻𐌴𐌹 𐍆𐌰𐌿𐌽𐍄𐌹𐍃</string>
     <string name="note_editor_toolbar_layout" maxLength="28">Toolbar layout</string>
@@ -245,9 +245,9 @@
     <string name="note_editor_video_too_large">𐌸𐌰𐍄𐌰 𐍆𐌰𐌾𐌻 𐌵𐌹𐍅𐌰𐍆𐍂𐌹𐍃𐌰𐌷𐍄𐌰𐌹𐍃 𐌿𐍆𐌰𐍂𐌼𐌹𐌺𐌹𐌻 𐌹𐍃𐍄, 𐌱𐌹𐌳𐌾𐌰𐌼 𐌸𐌿𐌺 𐌹𐌽𐌻𐌰𐌲𐌾𐌰𐌽 𐌵𐌹𐍅𐌰𐍆𐍂𐌹𐍃𐌰𐌷𐍄 𐌷𐌰𐌽𐌳𐌿𐍅𐌰𐌿𐍂𐌷𐍄𐌰𐌱𐌰</string>
     <string name="note_editor_audio_too_large">𐌸𐌰𐍄𐌰 𐍆𐌰𐌾𐌻 𐌰𐍅𐌳𐌾𐍉𐌽𐍃 𐌿𐍆𐌰𐍂𐌼𐌹𐌺𐌹𐌻 𐌹𐍃𐍄, 𐌱𐌹𐌳𐌾𐌰𐌼 𐌸𐌿𐌺 𐌹𐌽𐌻𐌰𐌲𐌾𐌰𐌽 𐌰𐍅𐌳𐌾𐍉𐌽 𐌷𐌰𐌽𐌳𐌿𐍅𐌰𐌿𐍂𐌷𐍄𐌰𐌱𐌰</string>
     <string name="ankidroid_cannot_open_after_backup_try_again" comment="After an Android backup is restored, AnkiDroid opens and shows this message.         Opening AnkiDroid again will work correctly">𐌰𐌽𐌳𐍂𐌰𐌿𐌳 𐌱𐌰𐌹𐌺-𐌰𐍀 𐌹𐌽 𐍆𐍂𐌰𐌼𐌲𐌰𐌷𐍄𐌰𐌹. 𐌱𐌹𐌳𐌾𐌰𐌼 𐌸𐌿𐌺, 𐍃𐍉𐌺𐌴𐌹 𐌰𐍆𐍄𐍂𐌰.</string>
-    <string name="create_shortcut_error_vivo" comment="iManager is an app on Vivo phones">You may need to use iManager to allow AnkiDroid to add shortcuts</string>
+    <string name="create_shortcut_error_vivo" comment="iManager is an app on Vivo phones">You may need to use iManager to allow Hayaki to add shortcuts</string>
     <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Allow ‘Home screen shortcuts’ in system settings for %s to add shortcuts</string>
-    <string name="create_shortcut_failed" comment="home screen == launcher">𐌲𐌰𐍂𐌳𐌰𐍃𐌺𐌰𐌹𐍂𐌼𐍃 𐌸𐌴𐌹𐌽𐍃 𐌽𐌹 𐌰𐌽𐌳𐌻𐌴𐍄𐌹𐌸 𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 𐌱𐌹𐌰𐌿𐌺𐌰𐌽 𐌼𐌰𐌿𐍂𐌲𐌹𐍅𐌹𐌲𐌰𐌽𐍃</string>
+    <string name="create_shortcut_failed" comment="home screen == launcher">𐌲𐌰𐍂𐌳𐌰𐍃𐌺𐌰𐌹𐍂𐌼𐍃 𐌸𐌴𐌹𐌽𐍃 𐌽𐌹 𐌰𐌽𐌳𐌻𐌴𐍄𐌹𐌸 Hayaki 𐌱𐌹𐌰𐌿𐌺𐌰𐌽 𐌼𐌰𐌿𐍂𐌲𐌹𐍅𐌹𐌲𐌰𐌽𐍃</string>
     <string name="create_shortcut_error">𐌰𐌹𐍂𐌶𐌴𐌹 𐍅𐌰𐍂𐌸 𐌱𐌹𐌰𐌿𐌺𐌰𐌽 𐌼𐌰𐌿𐍂𐌲𐌿𐍅𐌹𐌲: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">Capitalize sentences</string>
     <!-- Dialog hints -->
@@ -316,7 +316,7 @@
     <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">𐌲𐌰𐌲𐌰𐌻𐌴𐌹𐌺𐍉 𐍆𐍂𐌰𐌼 𐌰𐌽𐌺𐌴𐌹𐍅𐌰𐌱𐌾𐌰</string>
     <!-- IntentHandler -->
-    <string name="app_not_initialized_new">AnkiDroid is not initialized yet. Please open AnkiDroid and try again</string>
+    <string name="app_not_initialized_new">Hayaki is not initialized yet. Please open Hayaki and try again</string>
     <!-- Deck Creation -->
     <string name="deck_created">𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳 𐌲𐌰𐍃𐌺𐌰𐍀𐌰𐌽</string>
     <string name="deck_renamed">𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳 𐌰𐍆𐍄𐍂𐌰𐌷𐌰𐌹𐍄𐌰𐌽</string>
@@ -336,7 +336,7 @@
     <string name="tts_voices_chip_filter_to_internet" comment="     Filters a list of text to speech voices, to enable/disable voices which require the internet to     function.     This is on a chip control, so keep the text short, ideally one word">𐌲𐌰𐌽𐌰𐍄𐌹</string>
     <string name="tts_voices_chip_filter_to_installable_audio" comment="     Displays a list of Text to Speech voices which should be downloaded/installed before use     This is on a chip control, so keep the text short, ideally one word">𐌲𐌰𐍃𐌿𐌻𐌾𐌰𐌽</string>
     <string name="tts_voices_failed_opening_tts_system_settings" comment="error message if opening the system text to speech settings fails">𐌽𐌹 𐌼𐌰𐌷𐍄𐌰 𐌱𐍉𐌺𐍉-𐌳𐌿-𐍃𐍄𐌹𐌱𐌽𐌰𐌹 𐌻𐌰𐌲𐌴𐌹𐌽𐌹𐌽𐍃 𐌿𐍃𐌻𐌿𐌺𐌰𐌽</string>
-    <string name="shared_decks_ankiweb_login_limit">Shared decks are hosted on AnkiWeb, a free service separate from AnkiDroid. AnkiWeb asks you to log in to continue.</string>
+    <string name="shared_decks_ankiweb_login_limit">Shared decks are hosted on AnkiWeb, a free service separate from Hayaki. AnkiWeb asks you to log in to continue.</string>
     <string name="deck_description_field_hint">𐌲𐌰𐍃𐌺𐌴𐌹𐍂𐌴𐌹𐌽𐍃</string>
     <string name="deck_description_saved">Description updated</string>
     <string name="format_deck_description_as_markdown">Format as Markdown</string>

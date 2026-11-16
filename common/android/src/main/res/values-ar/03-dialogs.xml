@@ -47,12 +47,12 @@
         <item quantity="other">تم تصفير %d بطاقة</item>
     </plurals>
     <string name="answering_error_title">خطأ في قاعدة البيانات</string>
-    <string name="answering_error_message">فشلت الكتابة إلى المجموعة. قد تكون قاعدة البيانات تالفة أو قد لا تكون هناك مساحة كافية على القرص.\n\nإذا تكرر حدوث هذا، جرب فحص قاعدة البيانات أو إصلاح المجموعة أو استرجاعها من نسخة احتياطية. انقر «خيارات» لفعل ذلك. \nأو قد يكون هذا عطلًا في آنكي درويد؛ الرجاء الإبلاغ عن هذا لنتحقق منه.</string>
+    <string name="answering_error_message">فشلت الكتابة إلى المجموعة. قد تكون قاعدة البيانات تالفة أو قد لا تكون هناك مساحة كافية على القرص.\n\nإذا تكرر حدوث هذا، جرب فحص قاعدة البيانات أو إصلاح المجموعة أو استرجاعها من نسخة احتياطية. انقر «خيارات» لفعل ذلك. \nأو قد يكون هذا عطلًا في Hayaki؛ الرجاء الإبلاغ عن هذا لنتحقق منه.</string>
     <string name="answering_error_report">إبلاغ عن الخطأ</string>
-    <string name="storage_full_message">لا توجد مساحة تخزين كافية لفتح آنكي درويد. أخلِ بعض المساحة لتستمر.</string>
+    <string name="storage_full_message">لا توجد مساحة تخزين كافية لفتح Hayaki. أخلِ بعض المساحة لتستمر.</string>
     <string name="repair_deck_dialog">هل تريد حقًا إصلاح قاعدة البيانات؟\n\nقبل بدء هذه المحاولة، ستُنشَأ نسخة في المجلد الفرعي “%s”.</string>
     <string name="intent_aedict_empty">الصنف «default» فارغ</string>
-    <string name="intent_aedict_category">لإضافة بطاقات إلى آنكي درويد، أزل كل تصنيفات المذكرة أو أضف تصنيفًا باسم «default»</string>
+    <string name="intent_aedict_category">لإضافة بطاقات إلى Hayaki، أزل كل تصنيفات المذكرة أو أضف تصنيفًا باسم «default»</string>
     <string name="custom_study_extend_limits_title">تمديد الحد اليومي</string>
     <string name="custom_study_increase">زيادة</string>
     <string name="custom_study_forgotten">راجع البطاقات المنسية في آخر س يوم:</string>
@@ -62,7 +62,7 @@
     <string name="storage_full_title">ذاكرة التخزين ممتلئة</string>
     <string name="storage_almost_full_title">ذاكرة التخزين ممتلئة تقريبًا</string>
     <string name="no_space_to_downgrade_title" tools:ignore="UnusedResources">لا توجد مساحة</string>
-    <string name="no_space_to_downgrade_content" tools:ignore="UnusedResources">يحتاج آنكي درويد %s من مساحة التخزين الخالية ليستمر. فضلًا أخلِ بعض المساحة</string>
+    <string name="no_space_to_downgrade_content" tools:ignore="UnusedResources">يحتاج Hayaki %s من مساحة التخزين الخالية ليستمر. فضلًا أخلِ بعض المساحة</string>
     <string name="restore_backup_title">هل تريد استرجاع النسخة الاحتياطية؟</string>
     <string name="restore_backup">ستُستبدل نسخة أقدم بمجموعتك. ستضيع تعديلاتك إن لم تحفظها.</string>
     <string name="restore_backup_choose_another">اختيار نسخة أخرى</string>
@@ -131,7 +131,7 @@
     <string name="database_locked_title">تم قفل قاعدة البيانات</string>
     <string name="database_locked_summary_new" comment="%s is the name of the \'AnkiDroid directory\' setting">يستخدم تطبيق آنكي درويد آخر هذه المجموعة. هذا الخلاف يمكن أن يقع حتى إن لم يكن قيد التشغيل.\n\nلتتمكن من استخدام كلا التطبيقين قم بتغيير «%s» في الخيارات المتقدمة لأحد التطبيقين.\n\n لتستخدم هذا التطبيق حاليًا، أجبر إغلاق التطبيق المخالف.</string>
     <string name="incompatible_database_version_title">إصدار قاعدة بيانات غير متوافق</string>
-    <string name="incompatible_database_version_summary">إصدار قاعدة البيانات يفوق أعلى إصدار يعمل مع آنكي دوريد. حدِّث آنكي درويد أو خفِّض إصدار قاعدة البيانات لفتحها.\n\nالإصدار المدعوم: %1$d\nإصدار قاعدة البيانات: %2$d\n\nخيارات الاسترجاع التالية يحتمل أن تستبدل بمجموعتك الحالية نسخةً ذات إصدار قاعدة بيانات متوافق:</string>
+    <string name="incompatible_database_version_summary">إصدار قاعدة البيانات يفوق أعلى إصدار يعمل مع آنكي دوريد. حدِّث Hayaki أو خفِّض إصدار قاعدة البيانات لفتحها.\n\nالإصدار المدعوم: %1$d\nإصدار قاعدة البيانات: %2$d\n\nخيارات الاسترجاع التالية يحتمل أن تستبدل بمجموعتك الحالية نسخةً ذات إصدار قاعدة بيانات متوافق:</string>
     <!-- Deck Picker Background-->
     <string name="background_image_applied">تم تطبيق صورة الخلفية</string>
     <string name="background_image_removed">تمت إزالة صورة الخلفية</string>
@@ -153,7 +153,7 @@
     <string name="locale_selection_dialog_summary">بعض لوحات المفاتيح متعددة اللغات مثل «GBoard» تدعم تغيير اللغة عند تحرير النص\n\nيرجى طلب ميزة «setImeHintLocales» من مُصنّع لوحة المفاتيح الخاصة بك إذا كانت لوحة المفاتيح لا تغيّر اللغة.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">لغة مجهولة [%1$s]</string>
     <!-- Help Dialog -->
-    <string name="help_title_using_ankidroid">استخدام آنكي درويد</string>
+    <string name="help_title_using_ankidroid">استخدام Hayaki</string>
     <string name="help_item_ankidroid_manual">دليل آنكي درويد</string>
     <string name="help_item_anki_manual">دليل آنكي</string>
     <string name="help_item_ankidroid_faq">أسئلة متكررة عن آنكي درويد</string>
@@ -258,7 +258,7 @@
     <string name="change_cloze_mode">تغيير وضع الفراغات</string>
     <!-- Outdated WebView dialog -->
     <string name="webview_update_message">إصدار ويب فيو لهذا النظام قديم. لن تعمل بعض الميزات بشكل صحيح. حدثه رجاءًا.\n\nالإصدار المنصب: %1$d\nالإصدار الأدنى المطلوب: %2$d</string>
-    <string name="webview_unsupported_message">الـ WebView خاصتك غير متطابق مع آنكي درويد. لن تعمل بعض المزايا بشكل صحيح. حدثه رجاءًا.</string>
+    <string name="webview_unsupported_message">الـ WebView خاصتك غير متطابق مع Hayaki. لن تعمل بعض المزايا بشكل صحيح. حدثه رجاءًا.</string>
     <string name="compress">ضغط</string>
     <!-- Tts playback error dialog -->
     <string name="tts_no_engine_title">ما من محرك مثبت لتحويل النص إلى كلام</string>

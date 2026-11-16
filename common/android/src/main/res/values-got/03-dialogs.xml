@@ -39,12 +39,12 @@
         <item quantity="other">%d 𐌺𐌰𐍂𐍄𐍉𐍃 𐌰𐍆𐍄𐍂𐌰𐌻𐌰𐌲𐌹𐌳𐍉𐍃</item>
     </plurals>
     <string name="answering_error_title">𐌰𐌹𐍂𐌶𐌴𐌹 𐌳𐌰𐍄𐌰𐌷𐌿𐌶𐌳𐌹𐍃</string>
-    <string name="answering_error_message">Writing to the collection failed. The database could be corrupt or there may not to be enough empty space on disk.\n\nIf this happens more often, try checking the database, repairing the collection or restoring it from a backup. Touch “options” for that.\n\Or it could be an AnkiDroid bug as well; please report the error so that we can check this.</string>
+    <string name="answering_error_message">Writing to the collection failed. The database could be corrupt or there may not to be enough empty space on disk.\n\nIf this happens more often, try checking the database, repairing the collection or restoring it from a backup. Touch “options” for that.\n\Or it could be an Hayaki bug as well; please report the error so that we can check this.</string>
     <string name="answering_error_report">𐌰𐌹𐍂𐌶𐌴𐌹𐌽 𐌼𐌴𐍂𐌾𐌰𐌽</string>
-    <string name="storage_full_message">𐌽𐌹𐍃𐍄 𐌲𐌰𐌽𐍉𐌷 𐍂𐌿𐌼𐌹𐍃 𐌹𐌽 𐍃𐍄𐌰𐌳𐌰 𐌳𐌿 𐌿𐍃𐌻𐌿𐌺𐌰𐌽 𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳. 𐌿𐍆𐌰𐍂𐌸𐌴𐌹𐌷𐌰𐌹 𐍂𐌿𐌼 𐌳𐌿 𐌸𐌰𐌹𐍂𐌷𐍅𐌹𐍃𐌰𐌽.</string>
+    <string name="storage_full_message">𐌽𐌹𐍃𐍄 𐌲𐌰𐌽𐍉𐌷 𐍂𐌿𐌼𐌹𐍃 𐌹𐌽 𐍃𐍄𐌰𐌳𐌰 𐌳𐌿 𐌿𐍃𐌻𐌿𐌺𐌰𐌽 Hayaki. 𐌿𐍆𐌰𐍂𐌸𐌴𐌹𐌷𐌰𐌹 𐍂𐌿𐌼 𐌳𐌿 𐌸𐌰𐌹𐍂𐌷𐍅𐌹𐍃𐌰𐌽.</string>
     <string name="repair_deck_dialog">𐍅𐌹𐌻𐌴𐌹𐌶𐌿 𐌱𐌹 𐍃𐌿𐌽𐌾𐌰𐌹 𐌳𐌰𐍄𐌰𐌷𐌿𐌶𐌳 𐌲𐌰𐌱𐍉𐍄𐌾𐌰𐌽?\n\n𐍆𐌰𐌿𐍂𐌸𐌹𐌶𐌴𐌹 𐌳𐌿𐌲𐌹𐌽𐌽𐌰𐌹𐍃 𐍃𐍉𐌺𐌽, 𐌲𐌰𐌲𐌰𐌻𐌴𐌹𐌺𐍉𐌸 𐌹𐌽 𐌿𐍆𐍃𐍄𐌰𐌳𐌰 “%s”.</string>
     <string name="intent_aedict_empty">𐌺𐌿𐌽𐌹 “𐌱𐌹𐌿𐌷𐍄” 𐌻𐌰𐌿𐍃 𐌹𐍃𐍄</string>
-    <string name="intent_aedict_category">To add cards to AnkiDroid remove all Notepad categories or add one named “default”</string>
+    <string name="intent_aedict_category">To add cards to Hayaki remove all Notepad categories or add one named “default”</string>
     <string name="custom_study_extend_limits_title">Extend daily limits</string>
     <string name="custom_study_increase">Increase</string>
     <string name="custom_study_forgotten">Review cards forgotten in last x days:</string>
@@ -54,7 +54,7 @@
     <string name="storage_full_title">𐍂𐌿𐌼 𐌹𐍃𐍄 𐍆𐌿𐌻𐌻</string>
     <string name="storage_almost_full_title">𐌻𐌹𐍃𐌰 𐌽𐌴𐍈𐌰 𐍆𐌿𐌻𐌻𐌰</string>
     <string name="no_space_to_downgrade_title" tools:ignore="UnusedResources">𐌽𐌹𐍃𐍄 𐍂𐌿𐌼𐌹𐍃</string>
-    <string name="no_space_to_downgrade_content" tools:ignore="UnusedResources">𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 𐌸𐌰𐍂𐍆 %s 𐍆𐍂𐌴𐌹𐍃 𐍂𐌿𐌼𐌹𐍃 𐌳𐌿 𐌸𐌰𐌹𐍂𐌷𐍅𐌹𐍃𐌰𐌽. 𐌱𐌹𐌳𐌾𐌰𐌼 𐌸𐌿𐌺, 𐌰𐍆𐌷𐍂𐌰𐌹𐌽𐌴𐌹 𐍂𐌿𐌼.</string>
+    <string name="no_space_to_downgrade_content" tools:ignore="UnusedResources">Hayaki 𐌸𐌰𐍂𐍆 %s 𐍆𐍂𐌴𐌹𐍃 𐍂𐌿𐌼𐌹𐍃 𐌳𐌿 𐌸𐌰𐌹𐍂𐌷𐍅𐌹𐍃𐌰𐌽. 𐌱𐌹𐌳𐌾𐌰𐌼 𐌸𐌿𐌺, 𐌰𐍆𐌷𐍂𐌰𐌹𐌽𐌴𐌹 𐍂𐌿𐌼.</string>
     <string name="restore_backup_title">𐌱𐌰𐌹𐌺-𐌰𐍀 𐌲𐌰𐌽𐌰𐍃𐌾𐌰𐌽?</string>
     <string name="restore_backup">𐌷𐌿𐌶𐌳 𐌸𐌴𐌹𐌽 𐌼𐌹𐌸𐍃𐌰𐍄𐌾𐌰𐌳𐌰 𐌼𐌹𐌸 𐌲𐌰𐌲𐌰𐌻𐌴𐌹𐌺𐍉𐌽𐌰𐌹 𐍆𐌰𐌹𐍂𐌽𐌾𐌰𐌹. 𐍆𐍂𐌰𐌼𐌲𐌰𐌷𐍄𐌰𐌹 𐌿𐌽𐌲𐌰𐍆𐌰𐍃𐍄𐌰𐌽𐌰𐌹 𐍆𐍂𐌰𐌻𐌹𐌿𐍃𐌰𐌳𐌰.</string>
     <string name="restore_backup_choose_another">𐌰𐌽𐌸𐌰𐍂 𐍅𐌰𐌻𐌾𐌰𐌽</string>
@@ -119,7 +119,7 @@
     <string name="database_locked_title">𐌳𐌰𐍄𐌰𐌷𐌿𐌶𐌳 𐌻𐌿𐌺𐌰𐌽</string>
     <string name="database_locked_summary_new" comment="%s is the name of the \'AnkiDroid directory\' setting">Another AnkiDroid app is using this collection. It may conflict even when it is not visibly running.\n\nTo keep using both apps, change the ‘%s’ in one app\'s Advanced settings.\n\nTo use this app now, force-stop the conflicting app.</string>
     <string name="incompatible_database_version_title">𐌿𐌽𐌲𐌰𐍄𐌹𐌻 𐌳𐌰𐍄𐌰𐌷𐌿𐌶𐌳𐌹𐍃 𐌿𐍃𐌼𐌴𐍂𐌹</string>
-    <string name="incompatible_database_version_summary">The database is a more advanced version than this version of AnkiDroid can work with. Upgrade AnkiDroid or downgrade the database to open it\n\nSupported version: %1$d\nDatabase version: %2$d\n\nThe following restore options will overwrite your current collection, possibly with a compatible database version:</string>
+    <string name="incompatible_database_version_summary">The database is a more advanced version than this version of Hayaki can work with. Upgrade Hayaki or downgrade the database to open it\n\nSupported version: %1$d\nDatabase version: %2$d\n\nThe following restore options will overwrite your current collection, possibly with a compatible database version:</string>
     <!-- Deck Picker Background-->
     <string name="background_image_applied">𐌷𐌹𐌽𐌳𐌰𐍂𐌲𐍂𐌿𐌽𐌳𐌰𐌿𐍃 𐍆𐍂𐌹𐍃𐌰𐌷𐍄𐍃 𐌱𐍂𐌿𐌷𐍄𐌰</string>
     <string name="background_image_removed">𐌷𐌹𐌽𐌳𐌰𐍂𐌲𐍂𐌿𐌽𐌳𐌰𐌿𐍃 𐍆𐍂𐌹𐍃𐌰𐌷𐍄𐍃 𐌿𐍃𐌽𐌿𐌼𐌰𐌽𐌰</string>
@@ -141,7 +141,7 @@
     <string name="locale_selection_dialog_summary">Some multilingual keyboards, such as GBoard support changing language when editing text\n\nPlease request the “setImeHintLocales” feature from your keyboard manufacturer if your keyboard does not change language.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">Unknown language [%1$s]</string>
     <!-- Help Dialog -->
-    <string name="help_title_using_ankidroid">𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳𐍃 𐌱𐍂𐌿𐌺𐌴𐌹𐌸</string>
+    <string name="help_title_using_ankidroid">Hayaki𐍃 𐌱𐍂𐌿𐌺𐌴𐌹𐌸</string>
     <string name="help_item_ankidroid_manual">𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 𐌷𐌰𐌽𐌳𐌿𐌱𐍉𐌺𐍉𐍃</string>
     <string name="help_item_anki_manual">𐌰𐌽𐌺𐌴𐌹 𐌷𐌰𐌽𐌳𐌿𐌱𐍉𐌺𐍉𐍃</string>
     <string name="help_item_ankidroid_faq">𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 FAQ</string>
@@ -162,7 +162,6 @@
     <string name="help_item_twitter">𐍄𐍅𐌹𐍄𐍄𐌰𐌹𐍂</string>
     <string name="help_title_privacy">𐍃𐌿𐌽𐌳𐍂𐌰𐌻𐌴𐌹𐌺𐌴𐌹</string>
     <string name="help_item_ankidroid_privacy_policy">𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳𐍃 𐌲𐌰𐍂𐌴𐌳𐌴𐌹𐌽𐍃 𐍃𐌿𐌽𐌳𐍂𐌰𐌻𐌴𐌹𐌺𐌴𐌹𐌽𐍃</string>
-    <string name="help_item_ankiweb_privacy_policy">𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳𐍃 𐌲𐌰𐍂𐌴𐌳𐌴𐌹𐌽𐍃 𐍃𐌿𐌽𐌳𐍂𐌰𐌻𐌴𐌹𐌺𐌴𐌹𐌽𐍃</string>
     <string name="help_item_ankiweb_terms_and_conditions">AnkiWeb terms and conditions</string>
     <string name="help_title_send_exception">Send troubleshooting report</string>
     <string name="help_dialog_exception_report_debounce">𐌼𐌴𐍂𐌹𐌸𐌰 𐌾𐌿 𐌹𐌽𐍃𐌰𐌽𐌳𐌹𐌳𐌰 𐌹𐍃𐍄</string>
@@ -191,8 +190,8 @@
     <string name="button_backup_later" comment="dismiss the \'Backup\' dialog for around 2 weeks">𐌱𐌹𐌸𐌴</string>
     <string name="button_do_not_show_again" comment="permanently dismisses a dialog">𐌽𐌹 𐌰𐍆𐍄𐍂𐌰 𐌱𐌰𐌽𐌳𐍅𐌾𐌰𐌽</string>
     <string name="dismiss_backup_warning_title">𐍈𐍉𐍄𐌰 𐍆𐍂𐌰𐌻𐌿𐍃𐍄𐌰𐌹𐍃 𐌳𐌰𐍄𐍉𐍃</string>
-    <string name="dismiss_backup_warning_new_user">𐌹𐌽 𐌹𐌽𐌼𐌰𐌹𐌳𐌴𐌹𐌽𐍉 𐍃𐌿𐌽𐌳𐍂𐌰𐌻𐌴𐌹𐌺𐌴𐌹𐌽𐍃 𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳𐍃, 𐌳𐌰𐍄𐌰𐌼 𐌸𐌴𐌹𐌽𐌰𐌹𐌼 𐌾𐌰𐌷 𐌱𐌰𐌹𐌺-𐌰𐍀𐌰𐌼 𐍃𐌹𐌻𐌱𐌰𐍄𐍉𐌾𐌰𐌽𐌳𐌰𐌼 𐌿𐍃𐌵𐌹𐍃𐍄𐌾𐌰𐌽𐌳𐌰 𐍆𐍂𐌰𐌼 𐍆𐍉𐌽 𐌸𐌴𐌹𐌽𐌰𐌼𐌼𐌰 𐌾𐌰𐌱𐌰𐌹 𐌸𐌰𐍄𐌰 𐌰𐍀𐍀 𐌿𐌽𐍄𐌹𐌼𐍂𐌾𐌰𐌳𐌰</string>
-    <string name="dismiss_backup_warning_upgrade">𐌹𐌽 𐌹𐌽𐌼𐌰𐌹𐌳𐌴𐌹𐌽𐍉 𐍃𐌿𐌽𐌳𐍂𐌰𐌻𐌴𐌹𐌺𐌴𐌹𐌽𐍃 𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳𐍃, 𐌳𐌰𐍄𐌰 𐌸𐌴𐌹𐌽𐌰 𐌾𐌰𐌷 𐌱𐌰𐌹𐌺-𐌰𐍀𐌰 𐍃𐌹𐌻𐌱𐌰𐍄𐍉𐌾𐌰𐌽𐌳𐍉𐌽𐌰 𐌿𐌽𐌰𐍄𐌲𐌰𐌷𐍄𐌰 𐍅𐌰𐌹𐍂𐌸𐌰𐌽𐌳 𐌾𐌰𐌱𐌰𐌹 𐌸𐌰𐍄𐌰 𐌰𐍀𐍀 𐌿𐌽𐍄𐌹𐌼𐍂𐌾𐌰𐌳𐌰</string>
+    <string name="dismiss_backup_warning_new_user">𐌹𐌽 𐌹𐌽𐌼𐌰𐌹𐌳𐌴𐌹𐌽𐍉 𐍃𐌿𐌽𐌳𐍂𐌰𐌻𐌴𐌹𐌺𐌴𐌹𐌽𐍃 Hayaki𐍃, 𐌳𐌰𐍄𐌰𐌼 𐌸𐌴𐌹𐌽𐌰𐌹𐌼 𐌾𐌰𐌷 𐌱𐌰𐌹𐌺-𐌰𐍀𐌰𐌼 𐍃𐌹𐌻𐌱𐌰𐍄𐍉𐌾𐌰𐌽𐌳𐌰𐌼 𐌿𐍃𐌵𐌹𐍃𐍄𐌾𐌰𐌽𐌳𐌰 𐍆𐍂𐌰𐌼 𐍆𐍉𐌽 𐌸𐌴𐌹𐌽𐌰𐌼𐌼𐌰 𐌾𐌰𐌱𐌰𐌹 𐌸𐌰𐍄𐌰 𐌰𐍀𐍀 𐌿𐌽𐍄𐌹𐌼𐍂𐌾𐌰𐌳𐌰</string>
+    <string name="dismiss_backup_warning_upgrade">𐌹𐌽 𐌹𐌽𐌼𐌰𐌹𐌳𐌴𐌹𐌽𐍉 𐍃𐌿𐌽𐌳𐍂𐌰𐌻𐌴𐌹𐌺𐌴𐌹𐌽𐍃 Hayaki𐍃, 𐌳𐌰𐍄𐌰 𐌸𐌴𐌹𐌽𐌰 𐌾𐌰𐌷 𐌱𐌰𐌹𐌺-𐌰𐍀𐌰 𐍃𐌹𐌻𐌱𐌰𐍄𐍉𐌾𐌰𐌽𐌳𐍉𐌽𐌰 𐌿𐌽𐌰𐍄𐌲𐌰𐌷𐍄𐌰 𐍅𐌰𐌹𐍂𐌸𐌰𐌽𐌳 𐌾𐌰𐌱𐌰𐌹 𐌸𐌰𐍄𐌰 𐌰𐍀𐍀 𐌿𐌽𐍄𐌹𐌼𐍂𐌾𐌰𐌳𐌰</string>
     <string name="create_deck_numeric_hint">If you have deck ordering issues (e.g. ‘10’ appears before ‘2’), replace ‘2’ with ‘02’</string>
     <!-- Set Due Date -->
     <string name="set_due_date_match_interval" comment="when setting a card\'s due date, this checkbox also changes the interval of the card">𐌼𐌹𐌸𐍂𐌿𐌼 𐌻𐌰𐌲𐌾𐌰𐌽 𐌳𐌿 𐍃𐌰𐌼𐌹𐌽 𐍅𐌰𐌹𐍂𐌸𐌰</string>
@@ -226,7 +225,7 @@
     <string name="change_cloze_mode">Change cloze mode</string>
     <!-- Outdated WebView dialog -->
     <string name="webview_update_message">The system WebView is outdated. Some features won’t work correctly. Please update it.\n\nInstalled version: %1$d\nMinimum required version: %2$d</string>
-    <string name="webview_unsupported_message">Your WebView is incompatible with AnkiDroid. Some features won’t work correctly. Please update it.</string>
+    <string name="webview_unsupported_message">Your WebView is incompatible with Hayaki. Some features won’t work correctly. Please update it.</string>
     <string name="compress">𐌲𐌰𐌸𐍂𐌿𐌺𐌾𐌰𐌽</string>
     <!-- Tts playback error dialog -->
     <string name="tts_no_engine_title">No text-to-speech engine installed</string>

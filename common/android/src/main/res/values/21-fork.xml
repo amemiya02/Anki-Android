@@ -24,4 +24,8 @@
 
     <!-- First-run screen -->
     <string name="intro_import" comment="First-run action which imports a collection or deck package from a file">Import a collection or deck</string>
+
+    <!-- About screen: the Fork is not the Official App (ADR-0001) -->
+    <string name="about_fork_title">Based on AnkiDroid</string>
+    <string name="about_fork_description" comment="%1$s is the address of AnkiDroid's source code, %2$s the list of its contributors"><![CDATA[Hayaki is an unofficial fork of <a href="%1$s">AnkiDroid</a>. It is not made or endorsed by the AnkiDroid team or by the makers of Anki, and is built on the work of AnkiDroid\'s <a href="%2$s">contributors</a>.]]></string>
 </resources>

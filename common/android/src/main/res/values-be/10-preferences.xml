@@ -73,7 +73,7 @@
     <string name="card_browser_font_size" maxLength="41">Маштаб шрыфту аглядальніка картак</string>
     <string name="card_browser_hide_media" maxLength="41">Адлюстроўваць назвы файлаў</string>
     <string name="card_browser_hide_media_summary">Адлюстроўваць назвы аўдыяфайлаў у аглядальніку картак у палях пытанні/адказы</string>
-    <string name="col_path" maxLength="41">Каталог AnkiDroid</string>
+    <string name="col_path" maxLength="41">Каталог Hayaki</string>
     <string name="fullscreen_review" maxLength="41">Поўнаэкранны рэжым</string>
     <string name="full_screen_off" comment="Value of the fullscreen mode preference meaning fullscreen is not used">Выключаны</string>
     <string name="full_screen_system">Схаваць сістэмную панэль</string>
@@ -191,7 +191,7 @@
     <string name="pref_keep_screen_on" maxLength="41">Не выключаць экран</string>
     <string name="pref_keep_screen_on_summ">Адключыць час чакання экрана</string>
     <string name="enable_api_title" maxLength="41">Уключыць AnkiDroid API</string>
-    <string name="enable_api_summary">Дазваляе іншым праграмам падключацца да AnkiDroid для чытання / запісу даных без вашага ўдзелу</string>
+    <string name="enable_api_summary">Дазваляе іншым праграмам падключацца да Hayaki для чытання / запісу даных без вашага ўдзелу</string>
     <string name="custom_buttons" maxLength="41">Панэль кнопак праграмы</string>
     <string name="custom_buttons_summary">Налада кнопак на панэлі праграмы</string>
     <string name="custom_buttons_setting_always_show">Заўсёды паказваць</string>
@@ -327,12 +327,9 @@
     <!-- About -->
     <string name="open_changelog">Адкрыць спіс змен</string>
     <string name="pref_cat_about_title" maxLength="41">Аб праграме</string>
-    <string name="contributors_title">Удзельнікі</string>
-    <string name="about_contributors_description"><![CDATA[Гэта нашы ашаламляльныя <a href=\"%1$s\">ўдзельнікі</a>. Вы таксама можаце дапамагчы AnkiDroid з праграмаваннем, перакладамі, ахвяраваннямі і <a href=\"%2$s\">іншымі рэчамі</a>!]]></string>
-    <string name="about_contributors_description_no_donate"><![CDATA[Гэта нашы ашаламляльныя <a href=\"%1$s\">ўдзельнікі</a>. Вы таксама можаце дапамагчы AnkiDroid з праграмаваннем, перакладамі і <a href=\"%2$s\">іншымі рэчамі</a>!]]></string>
     <string name="license">Ліцэнзія</string>
-    <string name="license_description"><![CDATA[AnkiDroid выпушчаны на ўмовах ліцэнзій <a href=\"%1$s\">GPL-3.0</a> і <a href=\"%2$s\">AGPL-3.0</a>, а таксама зыходным кодам, які даступны <a href=\"%3$s\">на GitHub</a>]]></string>
-    <string name="other_licenses"><![CDATA[AnkiDroid таксама выкарыстоўвае староннія бібліятэкі і значкі, якія ліцэнзуюцца пад рознымі <a href=\"%1$s\">ліцэнзіямі</a> з адкрытым зыходным кодам]]></string>
+    <string name="license_description"><![CDATA[Hayaki выпушчаны на ўмовах ліцэнзій <a href=\"%1$s\">GPL-3.0</a> і <a href=\"%2$s\">AGPL-3.0</a>, а таксама зыходным кодам, які даступны <a href=\"%3$s\">на GitHub</a>]]></string>
+    <string name="other_licenses"><![CDATA[Hayaki таксама выкарыстоўвае староннія бібліятэкі і значкі, якія ліцэнзуюцца пад рознымі <a href=\"%1$s\">ліцэнзіямі</a> з адкрытым зыходным кодам]]></string>
     <string name="donate_description"><![CDATA[Вы можаце падтрымаць распрацоўку AnkiDroid <a href=\"%1$s\">ахвяраваннем</a>. Мы будзем удзячныя за любую суму.]]></string>
     <!-- Controls -->
     <string name="binding_add_gesture">Дадаць жэст</string>
@@ -368,7 +365,7 @@
     <string name="bindings_already_bound">Ужо прызначана «%s»</string>
     <!-- Advanced -->
     <string name="pref_cat_experimental" maxLength="41" tools:ignore="UnusedResources">Эксперыментальныя</string>
-    <string name="readtext_deprecation_warn">У AnkiDroid з\'явіўся палепшаны механізм сінтэзу маўлення (TTS), які сумяшчальны з іншымі кліентамі Anki і ўключае больш галасоў і паляпшэнні пры ўзнаўленні мовы!\n\nЗнайдзіце час для абнаўлення праграмы, бо гэта налада будзе неўзабаве выдалена.</string>
+    <string name="readtext_deprecation_warn">У Hayaki з\'явіўся палепшаны механізм сінтэзу маўлення (TTS), які сумяшчальны з іншымі кліентамі Anki і ўключае больш галасоў і паляпшэнні пры ўзнаўленні мовы!\n\nЗнайдзіце час для абнаўлення праграмы, бо гэта налада будзе неўзабаве выдалена.</string>
     <string name="readtext_reviewer_warn" tools:ignore="UnusedResources">Абнавіце праграму да новага сінтэзу маўлення</string>
     <string name="allow_templates_to_record_audio" maxLength="41">Дазволіць шаблонам запісваць аўдыя</string>
     <string name="template_is_trying_to_record_audio">Гэты шаблон спрабуе запісаць аўдыя</string>
@@ -381,7 +378,7 @@
          #################################### Backup options ###################################
          ####################################################################################### -->
     <string name="pref__backups_help__summary"><![CDATA[
-        AnkiDroid перыядычна робіць рэзервовыя копіі вашай калекцыі.
+        Hayaki перыядычна робіць рэзервовыя копіі вашай калекцыі.
         Праграма таксама выдаляе рэзервовыя копіі, якія старэйшыя за два дні, 
         каб вызваліць месца на дыску.
         <br><br>

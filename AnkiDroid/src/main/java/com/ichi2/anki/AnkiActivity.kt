@@ -706,7 +706,7 @@ open class AnkiActivity(
                 .setHtmlText(
                     getString(
                         CommonString.export_email_text,
-                        getString(R.string.link_manual),
+                        getString(R.string.link_fork_source),
                         getString(R.string.link_distributions),
                     ),
                 ).intent

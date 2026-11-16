@@ -73,7 +73,7 @@
     <string name="card_browser_font_size" maxLength="41">Kortelių naršyklės šrifto dydis</string>
     <string name="card_browser_hide_media" maxLength="41">Rodyti failų pavadinimus kortelių naršyklėje</string>
     <string name="card_browser_hide_media_summary">Display audio filenames in the card browser question/answer fields</string>
-    <string name="col_path" maxLength="41">„AnkiDroid“ katalogas</string>
+    <string name="col_path" maxLength="41">„Hayaki“ katalogas</string>
     <string name="fullscreen_review" maxLength="41">Viso ekrano režimas</string>
     <string name="full_screen_off" comment="Value of the fullscreen mode preference meaning fullscreen is not used">Išjungta</string>
     <string name="full_screen_system">Slėpti sistemines juostas</string>
@@ -191,7 +191,7 @@
     <string name="pref_keep_screen_on" maxLength="41">Laikyti ekraną įjungtą</string>
     <string name="pref_keep_screen_on_summ">Išjungti ekrano užgesimui skirtą laiką</string>
     <string name="enable_api_title" maxLength="41">Įjungti „AnkiDroid“ programų sąsają</string>
-    <string name="enable_api_summary">Leisti kitoms programoms jungtis prie „AnkiDroid“ ir nuskaityti/įrašyti duomenis be jūsų leidimo</string>
+    <string name="enable_api_summary">Leisti kitoms programoms jungtis prie „Hayaki“ ir nuskaityti/įrašyti duomenis be jūsų leidimo</string>
     <string name="custom_buttons" maxLength="41">Programos juostos mygtukai</string>
     <string name="custom_buttons_summary">Nurodykite, kokius veiksmus bus leidžiama atlikti programos juostoje</string>
     <string name="custom_buttons_setting_always_show">Visada rodyti</string>
@@ -327,12 +327,9 @@
     <!-- About -->
     <string name="open_changelog">Atviras pakeitimų sąrašas</string>
     <string name="pref_cat_about_title" maxLength="41">Apie</string>
-    <string name="contributors_title">Bendraautoriai</string>
-    <string name="about_contributors_description"><![CDATA[These are our awesome <a href=\"%1$s\">contributors</a>. You can help AnkiDroid too by programming, translating, donating and <a href=\"%2$s\">more</a>!]]></string>
-    <string name="about_contributors_description_no_donate"><![CDATA[These are our awesome <a href=\"%1$s\">contributors</a>. You can help AnkiDroid too by programming, translating and <a href=\"%2$s\">more</a>!]]></string>
     <string name="license">Licencija</string>
-    <string name="license_description"><![CDATA[AnkiDroid is released under the <a href=\"%1$s\">GPL-3.0</a> and <a href=\"%2$s\">AGPL-3.0</a> licenses, with the source code available <a href=\"%3$s\">on GitHub</a>]]></string>
-    <string name="other_licenses"><![CDATA["AnkiDroid" taip pat naudoja trečiųjų šalių bibliotekas ir piktogramas, kurios licencijuojamos pagal įvairias atvirojo kodo <a href=\"%1$s\">licencijas</a>.]]></string>
+    <string name="license_description"><![CDATA[Hayaki is released under the <a href=\"%1$s\">GPL-3.0</a> and <a href=\"%2$s\">AGPL-3.0</a> licenses, with the source code available <a href=\"%3$s\">on GitHub</a>]]></string>
+    <string name="other_licenses"><![CDATA["Hayaki" taip pat naudoja trečiųjų šalių bibliotekas ir piktogramas, kurios licencijuojamos pagal įvairias atvirojo kodo <a href=\"%1$s\">licencijas</a>.]]></string>
     <string name="donate_description"><![CDATA[Galite paremti AnkiDroid plėtrą <a href=\"%1$s\">aukodami</a>. Bet kokia suma yra labai vertinama.]]></string>
     <!-- Controls -->
     <string name="binding_add_gesture">Pridėti gestą</string>
@@ -368,7 +365,7 @@
     <string name="bindings_already_bound">Already bound to ‘%s’</string>
     <!-- Advanced -->
     <string name="pref_cat_experimental" maxLength="41" tools:ignore="UnusedResources">Eksperimentinis</string>
-    <string name="readtext_deprecation_warn">\"AnkiDroid\" įdiegtas geresnis TTS mechanizmas, suderinamas su kitais \"Anki\" klientais, jame yra daugiau balsų ir patobulintas kalbų atkūrimas!\n\nPrašome kuo greičiau atnaujinti, nes šis nustatymas netrukus bus pašalintas.</string>
+    <string name="readtext_deprecation_warn">\"Hayaki\" įdiegtas geresnis TTS mechanizmas, suderinamas su kitais \"Anki\" klientais, jame yra daugiau balsų ir patobulintas kalbų atkūrimas!\n\nPrašome kuo greičiau atnaujinti, nes šis nustatymas netrukus bus pašalintas.</string>
     <string name="readtext_reviewer_warn" tools:ignore="UnusedResources">Atnaujinkite naują teksto į kalbą formatą</string>
     <string name="allow_templates_to_record_audio" maxLength="41">Allow templates to record audio</string>
     <string name="template_is_trying_to_record_audio">This template is trying to record audio</string>
@@ -380,9 +377,9 @@
     <!-- #######################################################################################
          #################################### Backup options ###################################
          ####################################################################################### -->
-    <string name="pref__backups_help__summary"><![CDATA[        "AnkiDroid" periodiškai daro atsargines kolekcijos kopijas.
+    <string name="pref__backups_help__summary"><![CDATA[        "Hayaki" periodiškai daro atsargines kolekcijos kopijas.
         Po to, kai atsarginės kopijos yra daugiau nei dviejų dienų senumo,
-        "AnkiDroid" pradės šalinti kai kurias iš jų, kad atlaisvintų vietą diske.
+        "Hayaki" pradės šalinti kai kurias iš jų, kad atlaisvintų vietą diske.
         <br><br>
         Atkreipkite dėmesį, kad medijos failų atsarginės kopijos nedaromos.
         Norėdami būti saugūs, periodiškai sinchronizuokite savo kolekciją arba darykite atsargines jos eksporto kopijas.

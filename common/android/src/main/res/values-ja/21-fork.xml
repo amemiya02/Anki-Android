@@ -10,4 +10,7 @@
     <string name="sync_server_login_message">コレクションを同期するには、同期サーバーにログインしてください。</string>
 
     <string name="intro_import">コレクションまたはデッキをインポート</string>
+
+    <string name="about_fork_title">AnkiDroid の派生版</string>
+    <string name="about_fork_description"><![CDATA[Hayaki は <a href="%1$s">AnkiDroid</a> の非公式フォークです。AnkiDroid チームや Anki の開発者が作成・承認したものではなく、AnkiDroid の<a href="%2$s">貢献者</a>の成果をもとに作られています。]]></string>
 </resources>

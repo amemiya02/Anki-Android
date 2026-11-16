@@ -43,12 +43,12 @@
         <item quantity="other">%d картки скинуті</item>
     </plurals>
     <string name="answering_error_title">Помилка бази даних</string>
-    <string name="answering_error_message">Під час запису в колекцію сталася помилка. Причиною може бути пошкоджена база даних або відсутність місця на диску.\n\nЯкщо це трапляється частіше, будь ласка, спробуйте перевірити базу даних, полагодити колекцію, або відновити її з резервної копії. Для цього натисніть на «налаштування».\n\nОднак, це також може бути недолік AnkiDroid; будь ласка, надішліть звіт для перевірки цього.</string>
+    <string name="answering_error_message">Під час запису в колекцію сталася помилка. Причиною може бути пошкоджена база даних або відсутність місця на диску.\n\nЯкщо це трапляється частіше, будь ласка, спробуйте перевірити базу даних, полагодити колекцію, або відновити її з резервної копії. Для цього натисніть на «налаштування».\n\nОднак, це також може бути недолік Hayaki; будь ласка, надішліть звіт для перевірки цього.</string>
     <string name="answering_error_report">Повідомити про помилку</string>
-    <string name="storage_full_message">Недостатньо вільного місця, щоб відкрити AnkiDroid. Звільніть трохи пам\'яті, аби продовжити.</string>
+    <string name="storage_full_message">Недостатньо вільного місця, щоб відкрити Hayaki. Звільніть трохи пам\'яті, аби продовжити.</string>
     <string name="repair_deck_dialog">Ви дійсно бажаєте спробувати відновити базу даних?\n\nПеред початком спроби в підкаталозі \'%s\' буде створена копія.</string>
     <string name="intent_aedict_empty">Категорія  \"стандартна\"  порожня</string>
-    <string name="intent_aedict_category">Щоб додати картки до AnkiDroid, видаліть всі категорії Notepad або додайте категорію \'default\'</string>
+    <string name="intent_aedict_category">Щоб додати картки до Hayaki, видаліть всі категорії Notepad або додайте категорію \'default\'</string>
     <string name="custom_study_extend_limits_title">Збільшити денний ліміт</string>
     <string name="custom_study_increase">Збільшити</string>
     <string name="custom_study_forgotten">Повторити картки забуті за останні x днів:</string>
@@ -58,7 +58,7 @@
     <string name="storage_full_title">Сховище заповнено</string>
     <string name="storage_almost_full_title">Сховище майже заповнено</string>
     <string name="no_space_to_downgrade_title" tools:ignore="UnusedResources">Пам\'ять заповнена</string>
-    <string name="no_space_to_downgrade_content" tools:ignore="UnusedResources">AnkiDroid потрібно %s вільного місця, щоб продовжити. Будь ласка, очистіть трохи пам\'ять</string>
+    <string name="no_space_to_downgrade_content" tools:ignore="UnusedResources">Hayaki потрібно %s вільного місця, щоб продовжити. Будь ласка, очистіть трохи пам\'ять</string>
     <string name="restore_backup_title">Відновити резервну копію?</string>
     <string name="restore_backup">Вашу колекцію замінить стара копія. Будь-який незбережений прогрес буде втрачено.</string>
     <string name="restore_backup_choose_another">Вибрати інший</string>
@@ -125,7 +125,7 @@
     <string name="database_locked_title">База даних заблокована</string>
     <string name="database_locked_summary_new" comment="%s is the name of the \'AnkiDroid directory\' setting">Інший додаток AnkiDroid використовує цю колекцію. Конфлікт може виникнути, навіть якщо він не запущений візуально.\n\nЩоб і надалі користуватися обома додатками, змініть ‘%s’ у розширених налаштуваннях одного з них.\n\nЩоб користуватися цим додатком зараз, примусово зупиніть конфліктуючий додаток.</string>
     <string name="incompatible_database_version_title">Несумісна версія бази даних</string>
-    <string name="incompatible_database_version_summary">Версія бази даних занадто нова, і ця версія AnkiDroid несумісна з нею. Оновіть AnkiDroid або скористайтеся більш старою версією бази даних, щоб відкрити її\n\nПідтримувана версія: %1$d\nВерсія бази даних: %2$d\n\nНаступні варіанти відновлення перезапишуть поточну колекцію,, можливо, з сумісною версією бази даних:</string>
+    <string name="incompatible_database_version_summary">Версія бази даних занадто нова, і ця версія Hayaki несумісна з нею. Оновіть Hayaki або скористайтеся більш старою версією бази даних, щоб відкрити її\n\nПідтримувана версія: %1$d\nВерсія бази даних: %2$d\n\nНаступні варіанти відновлення перезапишуть поточну колекцію,, можливо, з сумісною версією бази даних:</string>
     <!-- Deck Picker Background-->
     <string name="background_image_applied">Фонове зображення встановлено</string>
     <string name="background_image_removed">Фонове зображення видалено</string>
@@ -147,7 +147,7 @@
     <string name="locale_selection_dialog_summary">Деякі багатомовні клавіатури, такі як GBoard, підтримують зміну мови під час редагування тексту\n\nБудь ласка, попросіть функцію \"setImeHintLocals\" від виробника клавіатури, якщо ваша клавіатура не змінює мову.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">Невідома мова [%1$s]</string>
     <!-- Help Dialog -->
-    <string name="help_title_using_ankidroid">Використання AnkiDroid</string>
+    <string name="help_title_using_ankidroid">Використання Hayaki</string>
     <string name="help_item_ankidroid_manual">Інструкція для AnkiDroid</string>
     <string name="help_item_anki_manual">Інструкція для Anki</string>
     <string name="help_item_ankidroid_faq">AnkiDroid FAQ</string>
@@ -242,7 +242,7 @@
     <string name="change_cloze_mode">Змінити режим Cloze</string>
     <!-- Outdated WebView dialog -->
     <string name="webview_update_message">Системний WebView застарілий. Деякі функції не будуть правильно працювати. Оновіть його, будь ласка.\n\nВстановлена версія: %1$d\nЯк мінімум потрібна версія: %2$d</string>
-    <string name="webview_unsupported_message">Ваш WebView несумісний з AnkiDroid. Деякі функції не працюватимуть належним чином. Будь ласка, оновіть його.</string>
+    <string name="webview_unsupported_message">Ваш WebView несумісний з Hayaki. Деякі функції не працюватимуть належним чином. Будь ласка, оновіть його.</string>
     <string name="compress">Стиснути</string>
     <!-- Tts playback error dialog -->
     <string name="tts_no_engine_title">Не встановлено синтез мовлення (TTS)</string>

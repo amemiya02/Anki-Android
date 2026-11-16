@@ -41,10 +41,10 @@
     <string name="answering_error_title">डेटाबेस त्रुटि</string>
     <string name="answering_error_message">संग्रह में लेखन विफल रहा। डेटाबेस दूषित हो सकता है या डिस्क पर पर्याप्त खाली स्थान नहीं हो सकता है। \n\n यदि यह अधिक बार होता है, तो डेटाबेस की जाँच करने, संग्रह की मरम्मत करने या इसे बैकअप से पुनर्स्थापित करने का प्रयास करें। इसके लिए \"विकल्प\" स्पर्श करें। \n या यह एक एंकॉइड बग भी हो सकता है; कृपया त्रुटि रिपोर्ट करें ताकि हम इसकी जांच कर सकें।</string>
     <string name="answering_error_report">त्रुटि की सूचना दें</string>
-    <string name="storage_full_message">There is not enough free storage space to open AnkiDroid. Free up some space to continue.</string>
+    <string name="storage_full_message">There is not enough free storage space to open Hayaki. Free up some space to continue.</string>
     <string name="repair_deck_dialog">क्या आप वास्तव में डेटाबेस को सुधारने का प्रयास करना चाहते हैं? \n\nBefore प्रयास प्रारंभ कर रहा है, एक प्रतिलिपि सबफ़ोल्डर \"%s\" में बनाया जाएगा ।</string>
     <string name="intent_aedict_empty">श्रेणी \"डिफ़ॉल्ट\" रिक्त है</string>
-    <string name="intent_aedict_category">AnkiDroid में कार्ड जोड़ने के लिए सभी नोटपैड श्रेणियों को हटाएँ या एक \"डिफ़ॉल्ट\" नामक पत्ता जोड़ें</string>
+    <string name="intent_aedict_category">Hayaki में कार्ड जोड़ने के लिए सभी नोटपैड श्रेणियों को हटाएँ या एक \"डिफ़ॉल्ट\" नामक पत्ता जोड़ें</string>
     <string name="custom_study_extend_limits_title">Extend daily limits</string>
     <string name="custom_study_increase">Increase</string>
     <string name="custom_study_forgotten">पिछले x दिनों में भूल गए कार्ड की समीक्षा करें:</string>
@@ -54,7 +54,7 @@
     <string name="storage_full_title">स्टोरेज भर गया</string>
     <string name="storage_almost_full_title">स्टोरेज लगभग पूर्ण</string>
     <string name="no_space_to_downgrade_title" tools:ignore="UnusedResources">कोई जगह नहीं</string>
-    <string name="no_space_to_downgrade_content" tools:ignore="UnusedResources">AnkiDroid को जारी रखने के लिए %s मुफ्त संग्रहण स्थान की आवश्यकता है। कृपया कुछ जगह खाली करें</string>
+    <string name="no_space_to_downgrade_content" tools:ignore="UnusedResources">Hayaki को जारी रखने के लिए %s मुफ्त संग्रहण स्थान की आवश्यकता है। कृपया कुछ जगह खाली करें</string>
     <string name="restore_backup_title">बैकअप रिस्टोर करें</string>
     <string name="restore_backup">आपका संग्रह किसी पुरानी प्रतिलिपि से बदल दिया जाएगा । कोई भी न सहेजा गया प्रगति खो जाएगी ।</string>
     <string name="restore_backup_choose_another">दुसरे का चयन करें</string>
@@ -119,7 +119,7 @@
     <string name="database_locked_title">डेटाबेस लॉक है</string>
     <string name="database_locked_summary_new" comment="%s is the name of the \'AnkiDroid directory\' setting">Another AnkiDroid app is using this collection. It may conflict even when it is not visibly running.\n\nTo keep using both apps, change the ‘%s’ in one app\'s Advanced settings.\n\nTo use this app now, force-stop the conflicting app.</string>
     <string name="incompatible_database_version_title">असंगत डेटाबेस संस्करण</string>
-    <string name="incompatible_database_version_summary">डेटाबेस AnkiDroid के इस संस्करण की तुलना में अधिक उन्नत संस्करण है, जिसके साथ काम कर सकते हैं। AnkiDroid को अपग्रेड करें या डेटाबेस को डाउनग्रेड करने के लिए इसे खोलें \n\n अद्यतन संस्करण: %1$d\n Database संस्करण:%2$d\n\n निम्नलिखित पुनर्स्थापना विकल्प आपके वर्तमान संग्रह को अधिलेखित करेंगे, संभवतः एक संगत डेटाबेस संस्करण के साथ:</string>
+    <string name="incompatible_database_version_summary">डेटाबेस Hayaki के इस संस्करण की तुलना में अधिक उन्नत संस्करण है, जिसके साथ काम कर सकते हैं। Hayaki को अपग्रेड करें या डेटाबेस को डाउनग्रेड करने के लिए इसे खोलें \n\n अद्यतन संस्करण: %1$d\n Database संस्करण:%2$d\n\n निम्नलिखित पुनर्स्थापना विकल्प आपके वर्तमान संग्रह को अधिलेखित करेंगे, संभवतः एक संगत डेटाबेस संस्करण के साथ:</string>
     <!-- Deck Picker Background-->
     <string name="background_image_applied">पृष्ठभूमि छवि लागू की गई</string>
     <string name="background_image_removed">पृष्ठभूमि छवि हटा दी गई है</string>
@@ -141,7 +141,7 @@
     <string name="locale_selection_dialog_summary">कुछ बहुभाषी कीबोर्ड, जैसे कि GBoard टेक्स्ट को बदलते समय भाषा का समर्थन करते हैं, जब टेक्स्ट का \n\n कृपया संपादन करें, तो यदि आपका कीबोर्ड भाषा नहीं बदलता है, तो अपने कीबोर्ड निर्माता से \"setImeHintLocales\" सुविधा का अनुरोध करें।</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">Unknown language [%1$s]</string>
     <!-- Help Dialog -->
-    <string name="help_title_using_ankidroid">AnkiDroid का उपयोग करने में</string>
+    <string name="help_title_using_ankidroid">Hayaki का उपयोग करने में</string>
     <string name="help_item_ankidroid_manual">AnkiDroid नियम पुस्तिका</string>
     <string name="help_item_anki_manual">Anki नियम पुस्तिका</string>
     <string name="help_item_ankidroid_faq">AnkiDroid सवाल जवाब</string>
@@ -226,7 +226,7 @@
     <string name="change_cloze_mode">क्लोज़ मोड बदलें</string>
     <!-- Outdated WebView dialog -->
     <string name="webview_update_message">सिस्टम WebView पुराना हो चुका है. कुछ सुविधाएं ठीक से काम नहीं करेंगी. कृपया इसे अपडेट करें।\n\nस्थापित संस्करण: %1$d\nन्यूनतम आवश्यक संस्करण: %2$d</string>
-    <string name="webview_unsupported_message">Your WebView is incompatible with AnkiDroid. Some features won’t work correctly. Please update it.</string>
+    <string name="webview_unsupported_message">Your WebView is incompatible with Hayaki. Some features won’t work correctly. Please update it.</string>
     <string name="compress">संकुचित करें</string>
     <!-- Tts playback error dialog -->
     <string name="tts_no_engine_title">No text-to-speech engine installed</string>

@@ -71,7 +71,7 @@
     <string name="card_browser_font_size" maxLength="41">Lettertypegrootte van de kaartenbrowser</string>
     <string name="card_browser_hide_media" maxLength="41">Bestandsnamen in kaartenbrowser weergeven</string>
     <string name="card_browser_hide_media_summary">Namen van audiobestanden in de vraag/antwoord velden van de kaartenbrowser weergeven</string>
-    <string name="col_path" maxLength="41">AnkiDroid directory</string>
+    <string name="col_path" maxLength="41">Hayaki directory</string>
     <string name="fullscreen_review" maxLength="41">Volledig schermmodus</string>
     <string name="full_screen_off" comment="Value of the fullscreen mode preference meaning fullscreen is not used">Uit</string>
     <string name="full_screen_system">De systeembalken verbergen</string>
@@ -184,7 +184,7 @@
     <string name="pref_keep_screen_on" maxLength="41">Scherm aanlaten</string>
     <string name="pref_keep_screen_on_summ">Schermtimeout uitschakelen</string>
     <string name="enable_api_title" maxLength="41">AnkiDroid API inschakelen</string>
-    <string name="enable_api_summary">Laat andere apps verbinding maken met AnkiDroid en gegevens zonder uw tussenkomst lezen/schrijven</string>
+    <string name="enable_api_summary">Laat andere apps verbinding maken met Hayaki en gegevens zonder uw tussenkomst lezen/schrijven</string>
     <string name="custom_buttons" maxLength="41">App bar knoppen</string>
     <string name="custom_buttons_summary">Aanpassen welke acties worden weergegeven in de app-balk</string>
     <string name="custom_buttons_setting_always_show">Altijd tonen</string>
@@ -317,12 +317,9 @@
     <!-- About -->
     <string name="open_changelog">Wijzigingslogboek openen</string>
     <string name="pref_cat_about_title" maxLength="41">Over</string>
-    <string name="contributors_title">Bijdragers</string>
-    <string name="about_contributors_description"><![CDATA[Dit zijn onze geweldige <a href=\"%1$s\">medewerkers</a>. U kunt AnkiDroid ook helpen door te programmeren, te vertalen, te doneren en <a href=\"%2$s\">meer</a>!]]></string>
-    <string name="about_contributors_description_no_donate"><![CDATA[These are our awesome <a href=\"%1$s\">contributors</a>. You can help AnkiDroid too by programming, translating and <a href=\"%2$s\">more</a>!]]></string>
     <string name="license">Licentie</string>
-    <string name="license_description"><![CDATA[AnkiDroid is vrijgegeven onder de <a href=\"%1$s\">GPL-3.0</a> en <a href=\"%2$s\">AGPL-3.0</a> licenties, met de broncode beschikbaar <a href=\"%3$s\">op GitHub</a>]]></string>
-    <string name="other_licenses"><![CDATA[AnkiDroid gebruikt ook bibliotheken en pictogrammen van derden, die zijn gelicentieerd onder verschillende open-source <a href=\"%1$s\">licenties</a>]]></string>
+    <string name="license_description"><![CDATA[Hayaki is vrijgegeven onder de <a href=\"%1$s\">GPL-3.0</a> en <a href=\"%2$s\">AGPL-3.0</a> licenties, met de broncode beschikbaar <a href=\"%3$s\">op GitHub</a>]]></string>
+    <string name="other_licenses"><![CDATA[Hayaki gebruikt ook bibliotheken en pictogrammen van derden, die zijn gelicentieerd onder verschillende open-source <a href=\"%1$s\">licenties</a>]]></string>
     <string name="donate_description"><![CDATA[U kunt de ontwikkeling van AnkiDroid steunen door te <a href="%1$s">doneren</a>. Elk bedrag wordt zeer op prijs gesteld.]]></string>
     <!-- Controls -->
     <string name="binding_add_gesture">Gebaar toevoegen</string>
@@ -358,7 +355,7 @@
     <string name="bindings_already_bound">Reeds gekoppeld aan %s</string>
     <!-- Advanced -->
     <string name="pref_cat_experimental" maxLength="41" tools:ignore="UnusedResources">Experimenteel</string>
-    <string name="readtext_deprecation_warn">AnkiDroid heeft een beter TTS-mechanisme geïntroduceerd dat compatibel is met andere Anki-clients en meer stemmen en verbeteringen in het afspelen van talen bevat!nnUpgrade zo snel mogelijk, want deze instelling wordt binnenkort verwijderd</string>
+    <string name="readtext_deprecation_warn">Hayaki heeft een beter TTS-mechanisme geïntroduceerd dat compatibel is met andere Anki-clients en meer stemmen en verbeteringen in het afspelen van talen bevat!nnUpgrade zo snel mogelijk, want deze instelling wordt binnenkort verwijderd</string>
     <string name="readtext_reviewer_warn" tools:ignore="UnusedResources">Upgrade naar de nieuwe tekst-naar-spraak-indeling</string>
     <string name="allow_templates_to_record_audio" maxLength="41">Allow templates to record audio</string>
     <string name="template_is_trying_to_record_audio">This template is trying to record audio</string>
@@ -370,9 +367,9 @@
     <!-- #######################################################################################
          #################################### Backup options ###################################
          ####################################################################################### -->
-    <string name="pref__backups_help__summary"><![CDATA[        AnkiDroid maakt periodiek een back-up van uw verzameling.
+    <string name="pref__backups_help__summary"><![CDATA[        Hayaki maakt periodiek een back-up van uw verzameling.
         Nadat back-ups meer dan twee dagen oud zijn,
-        zal AnkiDroid beginnen met het verwijderen van een aantal van hen om schijfruimte vrij te maken.
+        zal Hayaki beginnen met het verwijderen van een aantal van hen om schijfruimte vrij te maken.
         <br><br>
         Houd er rekening mee dat er geen back-up van mediabestanden wordt gemaakt.
         Synchroniseer voor de zekerheid regelmatig uw collectie of maak een back-up van de export ervan.

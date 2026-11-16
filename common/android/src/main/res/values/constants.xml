@@ -3,5 +3,8 @@
   ~ SPDX-License-Identifier: GPL-3.0-or-later
   -->
 <resources>
-    <string name="app_name" translatable="false">AnkiDroid</string>
+    <!-- The launcher's name. The app replaces it with the working name in debug builds (ForkIdentity). -->
+    <string name="app_name" translatable="false">Hayaki</string>
+    <!-- The Fork's name in every build, written the same way in every language -->
+    <string name="fork_name" translatable="false">Hayaki</string>
 </resources>

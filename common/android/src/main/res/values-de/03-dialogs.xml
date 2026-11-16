@@ -39,12 +39,12 @@
         <item quantity="other">%d Karten zurücksetzen</item>
     </plurals>
     <string name="answering_error_title">Datenbankfehler</string>
-    <string name="answering_error_message">Es konnte nicht in die Sammlung geschrieben werden. Dies kann an einer beschädigten Datenbank oder an unzureichendem Speicherplatz liegen.\n\nFalls dies häufiger vorkommt, versuchen Sie bitte, die Datenbank zu überprüfen, die Sammlung zu reparieren oder sie von einer Sicherung wiederherzustellen. Tippen Sie hierfür auf »Optionen«.\n\nEs könnte aber auch ein Fehler in AnkiDroid vorliegen. Damit wird dies überprüfen können, bitten wir Sie, den Fehler zu melden.</string>
+    <string name="answering_error_message">Es konnte nicht in die Sammlung geschrieben werden. Dies kann an einer beschädigten Datenbank oder an unzureichendem Speicherplatz liegen.\n\nFalls dies häufiger vorkommt, versuchen Sie bitte, die Datenbank zu überprüfen, die Sammlung zu reparieren oder sie von einer Sicherung wiederherzustellen. Tippen Sie hierfür auf »Optionen«.\n\nEs könnte aber auch ein Fehler in Hayaki vorliegen. Damit wird dies überprüfen können, bitten wir Sie, den Fehler zu melden.</string>
     <string name="answering_error_report">Fehler melden</string>
-    <string name="storage_full_message">Es gibt nicht genug freien Speicherplatz, um AnkiDroid zu öffnen. Geben Sie ein wenig Speicherplatz frei, um fortzufahren.</string>
+    <string name="storage_full_message">Es gibt nicht genug freien Speicherplatz, um Hayaki zu öffnen. Geben Sie ein wenig Speicherplatz frei, um fortzufahren.</string>
     <string name="repair_deck_dialog">Möchten Sie wirklich versuchen, die Datenbank zu reparieren?\n\nBevor der Versuch startet, wird eine Kopie im Unterordner »%s« angelegt.</string>
     <string name="intent_aedict_empty">Kategorie »Standard« ist leer</string>
-    <string name="intent_aedict_category">Entfernen Sie alle Notepad-Kategorien um Karten zu AnkiDroid hinzuzufügen oder fügen Sie die Kategorie »Standard« hinzu</string>
+    <string name="intent_aedict_category">Entfernen Sie alle Notepad-Kategorien um Karten zu Hayaki hinzuzufügen oder fügen Sie die Kategorie »Standard« hinzu</string>
     <string name="custom_study_extend_limits_title">Extend daily limits</string>
     <string name="custom_study_increase">Increase</string>
     <string name="custom_study_forgotten">Karten wiederholen, die in den letzten x Tagen vergessen wurden:</string>
@@ -54,7 +54,7 @@
     <string name="storage_full_title">Speicher voll</string>
     <string name="storage_almost_full_title">Speicher fast voll</string>
     <string name="no_space_to_downgrade_title" tools:ignore="UnusedResources">Kein Speicherplatz</string>
-    <string name="no_space_to_downgrade_content" tools:ignore="UnusedResources">AnkiDroid benötigt %s freien Speicherplatz um fortzufahren. Bitte leeren Sie etwas Speicherplatz</string>
+    <string name="no_space_to_downgrade_content" tools:ignore="UnusedResources">Hayaki benötigt %s freien Speicherplatz um fortzufahren. Bitte leeren Sie etwas Speicherplatz</string>
     <string name="restore_backup_title">Sicherung wiederherstellen?</string>
     <string name="restore_backup">Ihre Sammlung wird durch eine ältere Kopie ersetzt. Nicht gespeicherte Lernfortschritte gehen verloren.</string>
     <string name="restore_backup_choose_another">Eine andere auswählen</string>
@@ -119,7 +119,7 @@
     <string name="database_locked_title">Datenbank gesperrt</string>
     <string name="database_locked_summary_new" comment="%s is the name of the \'AnkiDroid directory\' setting">Eine weitere AnkiDroid-App verwendet diese Sammlung. Es kann zu Konflikten kommen, selbst wenn diese scheinbar nicht ausgeführt wird. Um beide Apps weiterhin nutzen zu können, ändern das %s in den erweiterten Einstellungen einer der Apps. Um diese App jetzt nutzen zu können, die in Konflikt App stopp erzwingen.</string>
     <string name="incompatible_database_version_title">Inkompatible Datenbankversion</string>
-    <string name="incompatible_database_version_summary">Die Datenbank ist eine fortgeschrittenere Version, als diese Version von AnkiDroid verwenden kann. Aktualisieren Sie AnkiDroid oder downgraden Sie die Datenbank um sie zu öffnen\n\nUnterstützte Version: %1$d\nDatenbankversion: %2$d\n\nDie folgenden Wiederherstellungsmöglichkeiten überschreiben Ihre aktuelle Sammlung, möglicherweise mit einer kompatiblen Datenbankversion:</string>
+    <string name="incompatible_database_version_summary">Die Datenbank ist eine fortgeschrittenere Version, als diese Version von Hayaki verwenden kann. Aktualisieren Sie Hayaki oder downgraden Sie die Datenbank um sie zu öffnen\n\nUnterstützte Version: %1$d\nDatenbankversion: %2$d\n\nDie folgenden Wiederherstellungsmöglichkeiten überschreiben Ihre aktuelle Sammlung, möglicherweise mit einer kompatiblen Datenbankversion:</string>
     <!-- Deck Picker Background-->
     <string name="background_image_applied">Hintergrundbild übernommen</string>
     <string name="background_image_removed">Hintergrundbild entfernt</string>
@@ -141,7 +141,7 @@
     <string name="locale_selection_dialog_summary">Einige mehrsprachige Tastaturen, wie zum Beispiel GBoard unterstützten das Ändern der Sprache beim Bearbeiten von Text\n\nBitte fordern Sie die „setImeHintLocales“-Funktion Ihres Tastatur-Herstellers an, falls Ihre Tastatur keine Sprache ändert.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">Unbekannte Sprache [%1$s]</string>
     <!-- Help Dialog -->
-    <string name="help_title_using_ankidroid">Verwendung von AnkiDroid</string>
+    <string name="help_title_using_ankidroid">Verwendung von Hayaki</string>
     <string name="help_item_ankidroid_manual">AnkiDroid-Handbuch</string>
     <string name="help_item_anki_manual">Anki-Handbuch</string>
     <string name="help_item_ankidroid_faq">AnkiDroid-FAQ</string>
@@ -226,7 +226,7 @@
     <string name="change_cloze_mode">Lückentext-Modus ändern</string>
     <!-- Outdated WebView dialog -->
     <string name="webview_update_message">Das System-WebView ist veraltet. Einige Funktionen werden nicht korrekt funktionieren. Bitte aktualisieren Sie es.\n\nInstallierte Version: %1$d\nMindestanforderung: %2$d</string>
-    <string name="webview_unsupported_message">Your WebView is incompatible with AnkiDroid. Some features won’t work correctly. Please update it.</string>
+    <string name="webview_unsupported_message">Your WebView is incompatible with Hayaki. Some features won’t work correctly. Please update it.</string>
     <string name="compress">Komprimieren</string>
     <!-- Tts playback error dialog -->
     <string name="tts_no_engine_title">No text-to-speech engine installed</string>

@@ -70,7 +70,7 @@
     <string name="card_browser_font_size" maxLength="41">Thẻ trình duyệt font rộng</string>
     <string name="card_browser_hide_media" maxLength="41">Hiển thị tên tệp trong trình duyệt thẻ</string>
     <string name="card_browser_hide_media_summary">Display audio filenames in the card browser question/answer fields</string>
-    <string name="col_path" maxLength="41">Thư mục AnkiDroid</string>
+    <string name="col_path" maxLength="41">Thư mục Hayaki</string>
     <string name="fullscreen_review" maxLength="41">Chế độ toàn màn hình</string>
     <string name="full_screen_off" comment="Value of the fullscreen mode preference meaning fullscreen is not used">Tắt</string>
     <string name="full_screen_system">Ẩn các thanh hệ thống</string>
@@ -181,7 +181,7 @@
     <string name="pref_keep_screen_on" maxLength="41">Luôn bật màn hình</string>
     <string name="pref_keep_screen_on_summ">Tắt thời gian chờ của màn hình</string>
     <string name="enable_api_title" maxLength="41">Bật AnkiDroid API</string>
-    <string name="enable_api_summary">Cho phép các ứng dụng khác kết nối với AnkiDroid và đọc / ghi dữ liệu mà không cần sự can thiệp của bạn</string>
+    <string name="enable_api_summary">Cho phép các ứng dụng khác kết nối với Hayaki và đọc / ghi dữ liệu mà không cần sự can thiệp của bạn</string>
     <string name="custom_buttons" maxLength="41">Các nút trên thanh ứng dụng</string>
     <string name="custom_buttons_summary">Tùy chỉnh những hành động nào xuất hiện trên thanh ứng dụng</string>
     <string name="custom_buttons_setting_always_show">Luôn luôn hiển thị</string>
@@ -312,12 +312,9 @@
     <!-- About -->
     <string name="open_changelog">Mở nhật ký thay đổi</string>
     <string name="pref_cat_about_title" maxLength="41">Giới thiệu</string>
-    <string name="contributors_title">Những người đóng góp</string>
-    <string name="about_contributors_description"><![CDATA[Đây là <a href=\"%1$s\">cộng tác viên tuyệt vời của chúng tôi</a>. Bạn có thể hỗ trợ AnkiDroid bằng cách lập trình, dịch thuật, quyên góp và <a href=\"%2$s\">hơn thế nữa</a>!]]></string>
-    <string name="about_contributors_description_no_donate"><![CDATA[These are our awesome <a href=\"%1$s\">contributors</a>. You can help AnkiDroid too by programming, translating and <a href=\"%2$s\">more</a>!]]></string>
     <string name="license">Giấy phép</string>
-    <string name="license_description"><![CDATA[AnkiDroid được phát hành theo giấy phép <a href=\"%1$s\">GPL-3.0</a> và <a href=\"%2$s\">AGPL-3.0</a>, với mã nguồn có sẵn <a href=\"%3$s\">trên GitHub</a>]]></string>
-    <string name="other_licenses"><![CDATA[AnkiDroid cũng sử dụng các thư viện và biểu tượng từ bên thứ ba, được cấp phép theo nhiều <a href=\"%1$s\">giấy phép mã nguồn mở</a> khác nhau.]]></string>
+    <string name="license_description"><![CDATA[Hayaki được phát hành theo giấy phép <a href=\"%1$s\">GPL-3.0</a> và <a href=\"%2$s\">AGPL-3.0</a>, với mã nguồn có sẵn <a href=\"%3$s\">trên GitHub</a>]]></string>
+    <string name="other_licenses"><![CDATA[Hayaki cũng sử dụng các thư viện và biểu tượng từ bên thứ ba, được cấp phép theo nhiều <a href=\"%1$s\">giấy phép mã nguồn mở</a> khác nhau.]]></string>
     <string name="donate_description"><![CDATA[Bạn có thể hỗ trợ sự phát triển của AnkiDroid bằng cách <a href=\"%1$s\">quyên góp</a>. Bất kỳ số tiền nào cũng được đánh giá cao.]]></string>
     <!-- Controls -->
     <string name="binding_add_gesture">Add gesture</string>
@@ -353,7 +350,7 @@
     <string name="bindings_already_bound">Already bound to %s</string>
     <!-- Advanced -->
     <string name="pref_cat_experimental" maxLength="41" tools:ignore="UnusedResources">Tính năng thử nghiệm</string>
-    <string name="readtext_deprecation_warn">AnkiDroid đã giới thiệu cơ chế TTS tốt hơn, tương thích với các ứng dụng khách Anki khác và bao gồm nhiều giọng nói hơn cũng như cải tiến về phát lại ngôn ngữ!\n\nVui lòng nâng cấp càng sớm càng tốt vì cài đặt này sẽ sớm bị xóa</string>
+    <string name="readtext_deprecation_warn">Hayaki đã giới thiệu cơ chế TTS tốt hơn, tương thích với các ứng dụng khách Anki khác và bao gồm nhiều giọng nói hơn cũng như cải tiến về phát lại ngôn ngữ!\n\nVui lòng nâng cấp càng sớm càng tốt vì cài đặt này sẽ sớm bị xóa</string>
     <string name="readtext_reviewer_warn" tools:ignore="UnusedResources">Vui lòng nâng cấp lên định dạng văn bản thành giọng nói mới</string>
     <string name="allow_templates_to_record_audio" maxLength="41">Allow templates to record audio</string>
     <string name="template_is_trying_to_record_audio">This template is trying to record audio</string>
@@ -365,9 +362,9 @@
     <!-- #######################################################################################
          #################################### Backup options ###################################
          ####################################################################################### -->
-    <string name="pref__backups_help__summary"><![CDATA[        AnkiDroid sao lưu định kỳ bộ sưu tập của bạn.
+    <string name="pref__backups_help__summary"><![CDATA[        Hayaki sao lưu định kỳ bộ sưu tập của bạn.
         Sau khi bản sao lưu cũ hơn hai ngày,
-        AnkiDroid sẽ bắt đầu xóa một số bản sao lưu để giải phóng dung lượng đĩa.
+        Hayaki sẽ bắt đầu xóa một số bản sao lưu để giải phóng dung lượng đĩa.
         <br><br>
         Lưu ý rằng các đa phương tiện không được sao lưu
         Để an toàn, vui lòng đồng bộ bộ sưu tập của bạn định kỳ hoặc sao lưu bản xuất của nó.

@@ -71,7 +71,7 @@
     <string name="card_browser_font_size" maxLength="41">Dimensionamentu de sos caràteres de su navigadore de cartas</string>
     <string name="card_browser_hide_media" maxLength="41">Ammustra sos nùmenes de sos documentos in su navigadore de cartas</string>
     <string name="card_browser_hide_media_summary">Display audio filenames in the card browser question/answer fields</string>
-    <string name="col_path" maxLength="41">Cartella de AnkiDroid</string>
+    <string name="col_path" maxLength="41">Cartella de Hayaki</string>
     <string name="fullscreen_review" maxLength="41">Modalidade a ischermu intreu</string>
     <string name="full_screen_off" comment="Value of the fullscreen mode preference meaning fullscreen is not used">Istudadu</string>
     <string name="full_screen_system">Cua sas barras de sistema</string>
@@ -184,7 +184,7 @@
     <string name="pref_keep_screen_on" maxLength="41">Mantene s\'ischermu allutu</string>
     <string name="pref_keep_screen_on_summ">Disabìlita s\'istudadura automàtica de s\'ischermu</string>
     <string name="enable_api_title" maxLength="41">Abìlita s\'API de AnkiDroid</string>
-    <string name="enable_api_summary">Permite a àteras aplicatziones de si connètere a AnkiDroid e lèghere / iscrìere datos chene s\'interventu tuo</string>
+    <string name="enable_api_summary">Permite a àteras aplicatziones de si connètere a Hayaki e lèghere / iscrìere datos chene s\'interventu tuo</string>
     <string name="custom_buttons" maxLength="41">Butones de sa barra de s\'aplicatzione</string>
     <string name="custom_buttons_summary">Personaliza sas atziones de sa barra de s\'aplicatzione</string>
     <string name="custom_buttons_setting_always_show">Ammustra semper</string>
@@ -318,12 +318,9 @@
     <!-- About -->
     <string name="open_changelog">Aberi su registru de sas modìficas</string>
     <string name="pref_cat_about_title" maxLength="41">Informatziones</string>
-    <string name="contributors_title">Contribuidores</string>
-    <string name="about_contributors_description"><![CDATA[Custos sunt sos <a href=\"%1$s\">contribuidores</a> istravanados nostros. Fintzas tue podes agiudare AnkiDroid programmende, bortende, donende e  <a href=\"%2$s\">àteru galu</a>!]]></string>
-    <string name="about_contributors_description_no_donate"><![CDATA[These are our awesome <a href=\"%1$s\">contributors</a>. You can help AnkiDroid too by programming, translating and <a href=\"%2$s\">more</a>!]]></string>
     <string name="license">Litzèntzia</string>
-    <string name="license_description"><![CDATA[AnkiDroid est publicadu suta de sas litzèntzias <a href=\"%1$s\">GPL-3.0</a> e <a href=\"%2$s\">AGPL-3.0</a>, cun su còdighe de orìgine a disponimentu <a href=\"%3$s\">in GitHub</a>]]></string>
-    <string name="other_licenses"><![CDATA[AnkiDroid also uses third-party libraries and icons, which are licensed under various open source <a href=\"%1$s\">licenses</a>]]></string>
+    <string name="license_description"><![CDATA[Hayaki est publicadu suta de sas litzèntzias <a href=\"%1$s\">GPL-3.0</a> e <a href=\"%2$s\">AGPL-3.0</a>, cun su còdighe de orìgine a disponimentu <a href=\"%3$s\">in GitHub</a>]]></string>
+    <string name="other_licenses"><![CDATA[Hayaki also uses third-party libraries and icons, which are licensed under various open source <a href=\"%1$s\">licenses</a>]]></string>
     <string name="donate_description"><![CDATA[Podes suportare s\'isvilupu de AnkiDroid <a href=\"%1$s\">cun una donatzione</a>. Cale si siat tantu est apretziadu meda.]]></string>
     <!-- Controls -->
     <string name="binding_add_gesture">Annanghe unu gestu</string>
@@ -359,7 +356,7 @@
     <string name="bindings_already_bound">Giai assotziadu a %s</string>
     <!-- Advanced -->
     <string name="pref_cat_experimental" maxLength="41" tools:ignore="UnusedResources">Isperimentale</string>
-    <string name="readtext_deprecation_warn">AnkiDroid at introduidu unu mecanismu de sìntesi vocale (TTS) megioradu chi est cumpatìbile cun àteros clientes de Anki e includet prus boghes e megioros a sa riprodutzione de limbas!\n\nAtualiza in su primu momentu chi podes, ca custa impostatzione at a èssere bogada luego</string>
+    <string name="readtext_deprecation_warn">Hayaki at introduidu unu mecanismu de sìntesi vocale (TTS) megioradu chi est cumpatìbile cun àteros clientes de Anki e includet prus boghes e megioros a sa riprodutzione de limbas!\n\nAtualiza in su primu momentu chi podes, ca custa impostatzione at a èssere bogada luego</string>
     <string name="readtext_reviewer_warn" tools:ignore="UnusedResources">Pro praghere atualiza a su formadu nou de sìntesi vocale</string>
     <string name="allow_templates_to_record_audio" maxLength="41">Allow templates to record audio</string>
     <string name="template_is_trying_to_record_audio">This template is trying to record audio</string>
@@ -372,9 +369,9 @@
          #################################### Backup options ###################################
          ####################################################################################### -->
     <string name="pref__backups_help__summary"><![CDATA[
-        AnkiDroid creat còpias de seguresa periòdicas de sa colletzione tua.
+        Hayaki creat còpias de seguresa periòdicas de sa colletzione tua.
         Cando sas còpias tenent duas dies,
-        AnkiDroid at a incumintzare a nde bogare calicuna pro liberare ispàtziu in su discu.
+        Hayaki at a incumintzare a nde bogare calicuna pro liberare ispàtziu in su discu.
         <br><br>
         Tene in contu chi sos documentos multimediales non benint sarvados in custas còpias.
         Pro abarrare seguru, sincroniza sa colletzione tua in manera periòdica o archìvia·ti·nde esportatziones.

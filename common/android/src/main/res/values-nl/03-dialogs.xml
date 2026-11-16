@@ -39,12 +39,12 @@
         <item quantity="other">%d kaarten gereset</item>
     </plurals>
     <string name="answering_error_title">Fout in database</string>
-    <string name="answering_error_message">Het schrijven naar de collectie is mislukt. De database kan corrupt zijn of er is onvoldoende opslagruimte op de schijf.\n\nAls dit vaker gebeurt, probeer de database te controleren, de collectie te herstellen of terug te zetten vanaf een back-up. Klik hiervoor op \'instellingen\'.\n\nHet kan ook een fout in AnkiDroid zijn. Gelieve de fout te melden zodat we dit kunnen controleren.</string>
+    <string name="answering_error_message">Het schrijven naar de collectie is mislukt. De database kan corrupt zijn of er is onvoldoende opslagruimte op de schijf.\n\nAls dit vaker gebeurt, probeer de database te controleren, de collectie te herstellen of terug te zetten vanaf een back-up. Klik hiervoor op \'instellingen\'.\n\nHet kan ook een fout in Hayaki zijn. Gelieve de fout te melden zodat we dit kunnen controleren.</string>
     <string name="answering_error_report">Fout melden</string>
-    <string name="storage_full_message">Er is niet genoeg opslagruimte vrij om AnkiDroid te openen. Maak ruimte vrij om door te gaan.</string>
+    <string name="storage_full_message">Er is niet genoeg opslagruimte vrij om Hayaki te openen. Maak ruimte vrij om door te gaan.</string>
     <string name="repair_deck_dialog">Weet u zeker dat wilt proberen de database te repareren?\n\nVoordat dit wordt geprobeerd, wordt een kopie gemaakt in de submap \'%s\'.</string>
     <string name="intent_aedict_empty">Categorie \'standaard\' is leeg</string>
-    <string name="intent_aedict_category">Om kaarten aan AnkiDroid toe te voegen verwijder je alle Notepad categorieën of voeg een toe met de naam \'standaard\'</string>
+    <string name="intent_aedict_category">Om kaarten aan Hayaki toe te voegen verwijder je alle Notepad categorieën of voeg een toe met de naam \'standaard\'</string>
     <string name="custom_study_extend_limits_title">Extend daily limits</string>
     <string name="custom_study_increase">Increase</string>
     <string name="custom_study_forgotten">Herhaal kaarten vergeten in de laatste x dagen:</string>
@@ -54,7 +54,7 @@
     <string name="storage_full_title">Opslag vol</string>
     <string name="storage_almost_full_title">Opslag is bijna vol</string>
     <string name="no_space_to_downgrade_title" tools:ignore="UnusedResources">Geen ruimte</string>
-    <string name="no_space_to_downgrade_content" tools:ignore="UnusedResources">AnkiDroid vereist %s vrije ruimte om door te gaan.  Gelieve ruimte vrij maken</string>
+    <string name="no_space_to_downgrade_content" tools:ignore="UnusedResources">Hayaki vereist %s vrije ruimte om door te gaan.  Gelieve ruimte vrij maken</string>
     <string name="restore_backup_title">Back-up herstellen?</string>
     <string name="restore_backup">Uw collectie zal worden vervangen door een oudere kopie. Alle niet-opgeslagen vooruitgang zal verloren gaan.</string>
     <string name="restore_backup_choose_another">Kies een ander</string>
@@ -119,7 +119,7 @@
     <string name="database_locked_title">Database vergrendeld</string>
     <string name="database_locked_summary_new" comment="%s is the name of the \'AnkiDroid directory\' setting">Another AnkiDroid app is using this collection. It may conflict even when it is not visibly running.\n\nTo keep using both apps, change the ‘%s’ in one app\'s Advanced settings.\n\nTo use this app now, force-stop the conflicting app.</string>
     <string name="incompatible_database_version_title">Incompatibele databaseversie</string>
-    <string name="incompatible_database_version_summary">De database is een meer geavanceerde versie dan deze versie van AnkiDroid mee kan werken. Upgrade AnkiDroid of downgrade de database om het te openen\n\nOndersteunde versie: %1$d\nDatabaseversie: %2$d\n\nDe volgende herstelopties zullen uw huidige collectie overschrijven, eventueel met een compatibele databaseversie:</string>
+    <string name="incompatible_database_version_summary">De database is een meer geavanceerde versie dan deze versie van Hayaki mee kan werken. Upgrade Hayaki of downgrade de database om het te openen\n\nOndersteunde versie: %1$d\nDatabaseversie: %2$d\n\nDe volgende herstelopties zullen uw huidige collectie overschrijven, eventueel met een compatibele databaseversie:</string>
     <!-- Deck Picker Background-->
     <string name="background_image_applied">Achtergrondafbeelding toegepast</string>
     <string name="background_image_removed">Achtergrondafbeelding verwijderd</string>
@@ -141,7 +141,7 @@
     <string name="locale_selection_dialog_summary">Sommige meertalige toetsenborden, zoals GBoard, ondersteunen het veranderen van taal bij het bewerken van tekst\n\nVraag de \"setImeHintLocales\"-functie aan bij uw toetsenbordfabrikant als uw toetsenbord niet van taal verandert.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">Onbekende taal [%1$s]</string>
     <!-- Help Dialog -->
-    <string name="help_title_using_ankidroid">Gebruik van AnkiDroid</string>
+    <string name="help_title_using_ankidroid">Gebruik van Hayaki</string>
     <string name="help_item_ankidroid_manual">AnkiDroid-handleiding</string>
     <string name="help_item_anki_manual">Anki-handleiding</string>
     <string name="help_item_ankidroid_faq">Veelgestelde vragen AnkiDroid</string>
@@ -226,7 +226,7 @@
     <string name="change_cloze_mode">Wijzig het cloze nummer</string>
     <!-- Outdated WebView dialog -->
     <string name="webview_update_message">De systeem WebView is verouderd. Sommige functies zullen niet correct werken. Gelieve te updaten.\n\nGeïnstalleerde versie: %1$d\nMinimale vereiste versie: %2$d</string>
-    <string name="webview_unsupported_message">Your WebView is incompatible with AnkiDroid. Some features won’t work correctly. Please update it.</string>
+    <string name="webview_unsupported_message">Your WebView is incompatible with Hayaki. Some features won’t work correctly. Please update it.</string>
     <string name="compress">Comprimeren</string>
     <!-- Tts playback error dialog -->
     <string name="tts_no_engine_title">No text-to-speech engine installed</string>

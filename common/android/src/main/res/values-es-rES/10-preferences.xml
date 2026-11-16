@@ -71,7 +71,7 @@
     <string name="card_browser_font_size" maxLength="41">Escalado de fuentes del explorador</string>
     <string name="card_browser_hide_media" maxLength="41">Mostrar nombres de archivo en el navegador de tarjetas</string>
     <string name="card_browser_hide_media_summary">Mostrar nombres de archivos de audio en los campos de pregunta/respuesta del navegador de tarjetas</string>
-    <string name="col_path" maxLength="41">Carpeta de AnkiDroid</string>
+    <string name="col_path" maxLength="41">Carpeta de Hayaki</string>
     <string name="fullscreen_review" maxLength="41">Pantalla completa</string>
     <string name="full_screen_off" comment="Value of the fullscreen mode preference meaning fullscreen is not used">Desactivado</string>
     <string name="full_screen_system">Ocultar las barras de sistema</string>
@@ -184,7 +184,7 @@
     <string name="pref_keep_screen_on" maxLength="41">Mantener la pantalla encendida</string>
     <string name="pref_keep_screen_on_summ">Desactivar el tiempo de espera de pantalla</string>
     <string name="enable_api_title" maxLength="41">Habilitar API de AnkiDroid</string>
-    <string name="enable_api_summary">Permitir que otras aplicaciones conecten a AnkiDroid y lean / escriban datos sin tu intervención</string>
+    <string name="enable_api_summary">Permitir que otras aplicaciones conecten a Hayaki y lean / escriban datos sin tu intervención</string>
     <string name="custom_buttons" maxLength="41">Botones de la barra de la aplicación</string>
     <string name="custom_buttons_summary">Personalizar qué acciones aparecen en la barra de la aplicación</string>
     <string name="custom_buttons_setting_always_show">Mostrar siempre</string>
@@ -318,12 +318,9 @@
     <!-- About -->
     <string name="open_changelog">Abrir registro de cambios</string>
     <string name="pref_cat_about_title" maxLength="41">Acerca de</string>
-    <string name="contributors_title">Colaboradores</string>
-    <string name="about_contributors_description"><![CDATA[Estos son nuestros increíbles <a href=\"%1$s\">colaboradores</a>. ¡También puedes ayudar a AnkiDroid programando, traduciendo, donando y <a href=\"%2$s\">más</a>!]]></string>
-    <string name="about_contributors_description_no_donate"><![CDATA[These are our awesome <a href=\"%1$s\">contributors</a>. You can help AnkiDroid too by programming, translating and <a href=\"%2$s\">more</a>!]]></string>
     <string name="license">Licencia</string>
-    <string name="license_description"><![CDATA[AnkiDroid se publica bajo las licencias <a href=\"%1$s\">GPL-3.0</a> y <a href=\"%2$s\">AGPL-3.0</a> con el código fuente <a href=\"%3$s\">disponible en GitHub</a>]]></string>
-    <string name="other_licenses"><![CDATA[AnkiDroid también utiliza bibliotecas e íconos de terceros, que tienen licencia de varias <a href=\"%1$s\">licencias</a> de código abierto.]]></string>
+    <string name="license_description"><![CDATA[Hayaki se publica bajo las licencias <a href=\"%1$s\">GPL-3.0</a> y <a href=\"%2$s\">AGPL-3.0</a> con el código fuente <a href=\"%3$s\">disponible en GitHub</a>]]></string>
+    <string name="other_licenses"><![CDATA[Hayaki también utiliza bibliotecas e íconos de terceros, que tienen licencia de varias <a href=\"%1$s\">licencias</a> de código abierto.]]></string>
     <string name="donate_description"><![CDATA[Puedes apoyar el desarrollo de AnkiDroid <a href=\"%1$s\">donando</a>. Cualquier cantidad es profundamente apreciada.]]></string>
     <!-- Controls -->
     <string name="binding_add_gesture">Agregar gesto</string>
@@ -359,7 +356,7 @@
     <string name="bindings_already_bound">Ya vinculado a %s</string>
     <!-- Advanced -->
     <string name="pref_cat_experimental" maxLength="41" tools:ignore="UnusedResources">Experimental</string>
-    <string name="readtext_deprecation_warn">¡AnkiDroid ha introducido un mecanismo texto a voz mejor que es compatible con otros clientes Anki y que incluye más voces y mejoras de reproducción de idioma!\n\nPor favor actualice lo antes posible, ya que pronto se quitará esta configuración.</string>
+    <string name="readtext_deprecation_warn">¡Hayaki ha introducido un mecanismo texto a voz mejor que es compatible con otros clientes Anki y que incluye más voces y mejoras de reproducción de idioma!\n\nPor favor actualice lo antes posible, ya que pronto se quitará esta configuración.</string>
     <string name="readtext_reviewer_warn" tools:ignore="UnusedResources">Por favor actualice al formato de texto a voz nuevo.</string>
     <string name="allow_templates_to_record_audio" maxLength="41">Allow templates to record audio</string>
     <string name="template_is_trying_to_record_audio">This template is trying to record audio</string>
@@ -371,9 +368,9 @@
     <!-- #######################################################################################
          #################################### Backup options ###################################
          ####################################################################################### -->
-    <string name="pref__backups_help__summary"><![CDATA[AnkiDroid crea copias de seguridad de tu colección periódicamente.
+    <string name="pref__backups_help__summary"><![CDATA[Hayaki crea copias de seguridad de tu colección periódicamente.
 Si las copias tienen más de dos días de edad,
-AnkiDroid empezará a eliminar algunas de ellas para liberar espacio de almacenamiento.
+Hayaki empezará a eliminar algunas de ellas para liberar espacio de almacenamiento.
 <br><br>
 Ten en cuenta que los archivos multimedia no son respaldados.
 Para estar seguro, por favor sincroniza tu colección periódicamente o crea copias de seguridad de su exportación.

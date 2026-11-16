@@ -39,12 +39,12 @@
         <item quantity="other">%d كارتا ئەسلىگە قايتۇرۇلدى</item>
     </plurals>
     <string name="answering_error_title">ساندان خاتالىقى</string>
-    <string name="answering_error_message">توپلامغا يازالمىدى. ساندان بۇزۇلغان بولۇشى ياكى دىسكىدا يېتەرلىك بوشلۇق بولماسلىقى مۇمكىن.\n\nئەگەر بۇ خىل ئەھۋال دائىم يۈز بەرسە، سانداننى تەكشۈرۈڭ، توپلامنى ئوڭشاڭ ياكى زاپاستىن ئەسلىگە كەلتۈرۈڭ. بۇنىڭ ئۈچۈن «تاللانما» نى چېكىڭ.\n\ياكى AnkiDroid كەمتۈكى بولۇشى مۇمكىن؛ خاتالىقنى مەلۇم قىلسىڭىز بىز ئۇنى تەكشۈرەلەيمىز.</string>
+    <string name="answering_error_message">توپلامغا يازالمىدى. ساندان بۇزۇلغان بولۇشى ياكى دىسكىدا يېتەرلىك بوشلۇق بولماسلىقى مۇمكىن.\n\nئەگەر بۇ خىل ئەھۋال دائىم يۈز بەرسە، سانداننى تەكشۈرۈڭ، توپلامنى ئوڭشاڭ ياكى زاپاستىن ئەسلىگە كەلتۈرۈڭ. بۇنىڭ ئۈچۈن «تاللانما» نى چېكىڭ.\n\ياكى Hayaki كەمتۈكى بولۇشى مۇمكىن؛ خاتالىقنى مەلۇم قىلسىڭىز بىز ئۇنى تەكشۈرەلەيمىز.</string>
     <string name="answering_error_report">خاتالىق مەلۇم قىل</string>
-    <string name="storage_full_message">AnkiDroid نى ئېچىشقا يېتەرلىك دىسكا بوشلۇقى يوق. داۋاملاشتۇرۇش ئۈچۈن ئارزاق بوشلۇق بوشىتىڭ.</string>
+    <string name="storage_full_message">Hayaki نى ئېچىشقا يېتەرلىك دىسكا بوشلۇقى يوق. داۋاملاشتۇرۇش ئۈچۈن ئارزاق بوشلۇق بوشىتىڭ.</string>
     <string name="repair_deck_dialog">سانداننى ھەقىقەتەن ئوڭشامسىز؟\n\nباشلاشتىن ئىلگىرى، بىر نۇسخا كۆچۈرۈلمىسى «%s» تارماق قىسقۇچقا قۇرۇلىدۇ.</string>
     <string name="intent_aedict_empty">سەھىپە «كۆڭۈلدىكى» بوش</string>
-    <string name="intent_aedict_category">AnkiDroid قا كارتا قوشۇشتا بارلىق خاتىرە دەپتەر سەھىپىنى چىقىرىۋېتىدۇ ياكى «كۆڭۈلدىكى» ئاتىدا بىرنى قوشىدۇ</string>
+    <string name="intent_aedict_category">Hayaki قا كارتا قوشۇشتا بارلىق خاتىرە دەپتەر سەھىپىنى چىقىرىۋېتىدۇ ياكى «كۆڭۈلدىكى» ئاتىدا بىرنى قوشىدۇ</string>
     <string name="custom_study_extend_limits_title">Extend daily limits</string>
     <string name="custom_study_increase">Increase</string>
     <string name="custom_study_forgotten">ئۆتكەن x كۈندە ئۇنتۇلغان كارتىنى تەكرارلايدۇ:</string>
@@ -54,7 +54,7 @@
     <string name="storage_full_title">ساقلىغۇچ لىق</string>
     <string name="storage_almost_full_title">ساقلىغۇچ ئاساسەن لىق</string>
     <string name="no_space_to_downgrade_title" tools:ignore="UnusedResources">بوشلۇق يوق</string>
-    <string name="no_space_to_downgrade_content" tools:ignore="UnusedResources">داۋاملاشتۇرۇش ئۈچۈن AnkiDroid قا %s ئەركىن دىسكا بوشلۇقى لازىم. ئازراق بوشلۇق بىكارلاڭ</string>
+    <string name="no_space_to_downgrade_content" tools:ignore="UnusedResources">داۋاملاشتۇرۇش ئۈچۈن Hayaki قا %s ئەركىن دىسكا بوشلۇقى لازىم. ئازراق بوشلۇق بىكارلاڭ</string>
     <string name="restore_backup_title">زاپاسنى ئەسلىگە كەلتۈرەمدۇ؟</string>
     <string name="restore_backup">توپلىمىڭىز كونا نۇسخىسىغا ئالماشتۇرۇلىدۇ. ساقلانمىغان جەرياننىڭ ھەممىسى يوقىلىدۇ.</string>
     <string name="restore_backup_choose_another">باشقىسى تاللىنىدۇ</string>
@@ -119,7 +119,7 @@
     <string name="database_locked_title">ساندان قۇلۇپلانغان</string>
     <string name="database_locked_summary_new" comment="%s is the name of the \'AnkiDroid directory\' setting">باشقا AnkiDroid ئەپ بۇ توپلامنى ئىشلىتىۋاتىدۇ. ئۇ كۆرۈنمەي ئىجرا قىلىۋاتقان بولسىمۇ توقۇنۇش كېلىپ چىقىشى مۇمكىن.\n\nبۇ ئىككى ئەپنى ئىشلىتىشنى داۋاملاشتۇرۇش ئۈچۈن، بىر ئەپنىڭ ئالىي تەڭشىكىدە «%s» نى ئۆزگەرتىڭ.\n\nبۇ ئەپنى ھازىر ئىشلىتىشتە، توقۇنۇشقان ئەپنى مەجبۇرىي توختىتىڭ.</string>
     <string name="incompatible_database_version_title">ماسلاشمايدىغان ساندان نەشرى</string>
-    <string name="incompatible_database_version_summary">بۇ ساندان AnkiDroid تا ئىشلەيدىغان نەشرىدىن ئالىي نەشرى ئىكەن. ئۇنى ئېچىش ئۈچۈن AnkiDroid نى يۈكسەلتىڭ ياكى ساندان نەشرىنى تۆۋەنلىتىڭ\n\nقوللايدىغان نەشرى: %1$d\nساندان نەشرى: %2$d\n\nتۆۋەندىكى ئەسلىگە كەلتۈرۈش تاللانمىسى نۆۋەتتىكى توپلامنى قاپلىۋېتىدۇ، ماسلىشىشى مۇمكىن بولغان ساندان نەشرى:</string>
+    <string name="incompatible_database_version_summary">بۇ ساندان Hayaki تا ئىشلەيدىغان نەشرىدىن ئالىي نەشرى ئىكەن. ئۇنى ئېچىش ئۈچۈن Hayaki نى يۈكسەلتىڭ ياكى ساندان نەشرىنى تۆۋەنلىتىڭ\n\nقوللايدىغان نەشرى: %1$d\nساندان نەشرى: %2$d\n\nتۆۋەندىكى ئەسلىگە كەلتۈرۈش تاللانمىسى نۆۋەتتىكى توپلامنى قاپلىۋېتىدۇ، ماسلىشىشى مۇمكىن بولغان ساندان نەشرى:</string>
     <!-- Deck Picker Background-->
     <string name="background_image_applied">تەگلىك سۈرەت قوللىنىلدى</string>
     <string name="background_image_removed">تەگلىك سۈرەت چىقىرىۋېتىلدى</string>
@@ -141,7 +141,7 @@
     <string name="locale_selection_dialog_summary">بەزى GBoard قا ئوخشاش كۆپ تىللىق ھەرپتاختا تېكىست تەھرىرلەۋاتقاندا تىل ئالماشتۇرۇشنى قوللايدۇ\n\nئەگەر ھەرپتاختىڭىز تىل ئالماشتۇرۇشنى قوللىمىسا ھەرپتاختا تارقاتقۇچىغا «كىرگۈزگۈچ تەھرىرلىگۈچنىڭ يەرلىك ئەسكەرتىش تەڭشەك» ئىقتىدارىنى ئىلتىماس قىلىڭ.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">يوچۇن تىل [%1$s]</string>
     <!-- Help Dialog -->
-    <string name="help_title_using_ankidroid">AnkiDroid نى ئىشلىتىش</string>
+    <string name="help_title_using_ankidroid">Hayaki نى ئىشلىتىش</string>
     <string name="help_item_ankidroid_manual">AnkiDroid قوللانمىسى</string>
     <string name="help_item_anki_manual">Anki قوللانمىسى</string>
     <string name="help_item_ankidroid_faq">AnkiDroid كۆپ سورالغان سوئاللار</string>
@@ -226,7 +226,7 @@
     <string name="change_cloze_mode">بوش ئورۇننى تولدۇرۇش ھالىتىنى ئۆزگەرتىدۇ</string>
     <!-- Outdated WebView dialog -->
     <string name="webview_update_message">سىستېما WebView نىڭ ۋاقتى ئۆتكەن. بەزى ئىقتىدارلار نورمال ئىشلىمەيدۇ. يېڭىلاڭ.\n\nئورنىتىلغان نەشرى: %1$d\nزۆرۈر بولغان ئەڭ تۆۋەن نەشرى: %2$d</string>
-    <string name="webview_unsupported_message">Your WebView is incompatible with AnkiDroid. Some features won’t work correctly. Please update it.</string>
+    <string name="webview_unsupported_message">Your WebView is incompatible with Hayaki. Some features won’t work correctly. Please update it.</string>
     <string name="compress">پىرېس</string>
     <!-- Tts playback error dialog -->
     <string name="tts_no_engine_title">No text-to-speech engine installed</string>

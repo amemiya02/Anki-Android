@@ -132,7 +132,7 @@
         <item quantity="many">%1$d دقيقة</item>
         <item quantity="other">%1$d دقيقة</item>
     </plurals>
-    <string name="fact_adder_intent_title" comment="Label of the \'Add Note\' window. This title can\'t be seen in AnkiDroid directly.">بطاقة آنكي درويد</string>
+    <string name="fact_adder_intent_title" comment="Label of the \'Add Note\' window. This title can\'t be seen in AnkiDroid directly.">بطاقة Hayaki</string>
     <string name="note_editor_copy_note" maxLength="28">نسخ الملحوظة</string>
     <string name="card_editor_reposition_card" comment="reposition a card in the new queue" maxLength="28">تغيير الموضع</string>
     <string name="card_editor_reset_card" maxLength="28">إعادة ضبط التقدم</string>
@@ -155,20 +155,20 @@
     <string name="import_error_handle_exception">فشِل استيراد الملف\n\n%s</string>
     <string name="import_error_not_apkg_extension">لا يحتوي اسم الملف «%s» على ملحق «.apkg» أو «.colpkg»</string>
     <string name="import_error_load_imported_database">استبدالات قاعدة بيانات آنكي «.anki2» ليست مدعومة بعد. الرجاء الاطلاع على الدليل حول تعليمات الاستبدال.</string>
-    <string name="import_error_content_provider">تعذر استيراد المِلَفّ المحدد تلقائيًا بواسطة آنكي درويد. الرجاء الاطّلاع على دليل المستخدم لكيفية استيراد ملفات آنكي يدويًا: \n%s</string>
+    <string name="import_error_content_provider">تعذر استيراد المِلَفّ المحدد تلقائيًا بواسطة Hayaki. الرجاء الاطّلاع على دليل المستخدم لكيفية استيراد ملفات آنكي يدويًا: \n%s</string>
     <string name="import_error_copy_to_cache_title">فشل تخزين الملف مؤقتًا</string>
     <string name="import_error_copy_to_cache_explanation" comment="The substitution is a list of suggested fixes in bullet point form">غالباً ما يحدث هذا نتيجة لخلل في التطبيق الذي استعملته لاختيار الملف. جرب الحلول التالية رجاءاً:\n\n%s</string>
-    <string name="import_interrupted">تمت مقاطعة الاستيراد: لقد أُغلق آنكي درويد</string>
+    <string name="import_interrupted">تمت مقاطعة الاستيراد: لقد أُغلق Hayaki</string>
     <string name="export_ready_title">المُصَدَّر مُعدّ</string>
     <string name="export_send_no_handlers">لا توجد تطبيقات متاحة للتعامل مع «apkg». يتم الحفظ&#8230;</string>
     <string name="export_save_apkg_successful">تم حفظ حزمة آنكي بنجاح</string>
     <string name="export_save_apkg_unsuccessful">فشل حفظ حزمة آنكي</string>
     <string name="export_share_title">إرسال حُزْمَة آنكي باستخدام</string>
-    <string name="export_email_subject">بطاقات مُصَدَّرة من قبل آنكي درويد: %s</string>
+    <string name="export_email_subject">بطاقات مُصَدَّرة من قبل Hayaki: %s</string>
     <string name="export_email_text"><![CDATA[
         مرحبًا!
         <br/><br/>
-        هذه رزمة بطاقات استذكار آنكي مرسلة من آنكي درويد[١].
+        هذه رزمة بطاقات استذكار آنكي مرسلة من Hayaki[١].
         جرب فتحها باستخدام برنامج من برامج آنكي المتوفرة[٢] واستمتع بتعلم سهل وفعال!<br/><br/>
         [١] %1$s<br/>
         [٢] %2$s
@@ -227,8 +227,8 @@
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">بحث في الرزم</string>
     <string name="ankidroid_init_failed_webview_title">خلل فادح</string>
-    <string name="ankidroid_init_failed_webview">يعتمد آنكي درويد على الويب فيو الخاص بالنظام وهو غير متوفر. يمكن أن يَحدث هذا إذا كان النظام قيد التحديث. الرجاء المحاولة مرةً أخرى بعد بضع دقائق.\n\n%s</string>
-    <string name="ankidroid_init_failed_storage">لم يتمكن آنكي درويد من الوصول إلى التخزين نتيجة لخلل في نظام الآندرويد.\n\n%s</string>
+    <string name="ankidroid_init_failed_webview">يعتمد Hayaki على الويب فيو الخاص بالنظام وهو غير متوفر. يمكن أن يَحدث هذا إذا كان النظام قيد التحديث. الرجاء المحاولة مرةً أخرى بعد بضع دقائق.\n\n%s</string>
+    <string name="ankidroid_init_failed_storage">لم يتمكن Hayaki من الوصول إلى التخزين نتيجة لخلل في نظام الآندرويد.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
     <string name="menu_font_size" maxLength="28">حجم الخط</string>
     <string name="note_editor_toolbar_layout" maxLength="28">نمط شريط الأدوات</string>
@@ -257,9 +257,9 @@
     <string name="note_editor_video_too_large">مِلَفّ الفيديو كبير جدًا، يرجى إدخال الفيديو يدويًا</string>
     <string name="note_editor_audio_too_large">المِلَفّ الصوتي كبير جدًا، يرجى إدخال الصوت يدويًا</string>
     <string name="ankidroid_cannot_open_after_backup_try_again" comment="After an Android backup is restored, AnkiDroid opens and shows this message.         Opening AnkiDroid again will work correctly">يتم نسخ أندرويد الإحتياطي. من فضلك حاول مجددًا</string>
-    <string name="create_shortcut_error_vivo" comment="iManager is an app on Vivo phones">قد تحتاج إلى استخدام «iManager» للسماح لآنكي درويد بإضافة اختصارات</string>
+    <string name="create_shortcut_error_vivo" comment="iManager is an app on Vivo phones">قد تحتاج إلى استخدام «iManager» للسماح لHayaki بإضافة اختصارات</string>
     <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">اسمح لـ«إختصارات الشاشة الرئيسية» في إعدادات النظام ليتمكن %s من إنشاء الاختصارات</string>
-    <string name="create_shortcut_failed" comment="home screen == launcher">لا تسمح شاشتك الرئيسة لآنكي درويد بإضافة اختصارات</string>
+    <string name="create_shortcut_failed" comment="home screen == launcher">لا تسمح شاشتك الرئيسة لHayaki بإضافة اختصارات</string>
     <string name="create_shortcut_error">خلل في إضافة الاختصار: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">ضع الجمل في حروف كبيرة</string>
     <!-- Dialog hints -->
@@ -336,7 +336,7 @@
     <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">ابدأ</string>
     <string name="intro_sync_from_ankiweb">مزامنة مع آنكي ويب</string>
     <!-- IntentHandler -->
-    <string name="app_not_initialized_new">لم يتم تمهيد آنكي درويد بعد. من فضلك إفتح آنكي درويد وحاول مجددًا</string>
+    <string name="app_not_initialized_new">لم يتم تمهيد Hayaki بعد. من فضلك إفتح Hayaki وحاول مجددًا</string>
     <!-- Deck Creation -->
     <string name="deck_created">تم إنشاء الرِزمة</string>
     <string name="deck_renamed">أُعيدت تسمية الرِزمة</string>
@@ -356,7 +356,7 @@
     <string name="tts_voices_chip_filter_to_internet" comment="     Filters a list of text to speech voices, to enable/disable voices which require the internet to     function.     This is on a chip control, so keep the text short, ideally one word">الإنترنت</string>
     <string name="tts_voices_chip_filter_to_installable_audio" comment="     Displays a list of Text to Speech voices which should be downloaded/installed before use     This is on a chip control, so keep the text short, ideally one word">تنصيب</string>
     <string name="tts_voices_failed_opening_tts_system_settings" comment="error message if opening the system text to speech settings fails">فشل فتح إعدادات تحويل النص إلى كلام</string>
-    <string name="shared_decks_ankiweb_login_limit">تبث الرزم المنشورة على AnkiWeb وهي خدمة مجانية مستقلة عن آنكي درويد. تطلب AnkiWeb منك تسجيل الدخول للاستمرار.</string>
+    <string name="shared_decks_ankiweb_login_limit">تبث الرزم المنشورة على AnkiWeb وهي خدمة مجانية مستقلة عن Hayaki. تطلب AnkiWeb منك تسجيل الدخول للاستمرار.</string>
     <string name="deck_description_field_hint">الوصف</string>
     <string name="deck_description_saved">تم تعديل الوصف</string>
     <string name="format_deck_description_as_markdown">تنسيق كـ Markdown</string>

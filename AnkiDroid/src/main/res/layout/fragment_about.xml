@@ -42,14 +42,15 @@
                     android:id="@+id/app_logo"
                     android:layout_width="96dp"
                     android:layout_height="96dp"
-                    app:srcCompat="@drawable/ankidroid_logo" />
+                    app:srcCompat="@mipmap/ic_launcher" />
 
-                <ImageView
+                <TextView
                     android:id="@+id/about_app_name"
-                    android:layout_width="80dp"
+                    style="?attr/textAppearanceHeadlineSmall"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ankidroid_txt"
-                    app:tint="?android:attr/textColor" />
+                    android:layout_marginTop="8dp"
+                    android:text="@string/fork_name" />
 
                 <TextView
                     android:id="@+id/version"
@@ -86,7 +87,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:text="@string/contributors_title"
+                    android:text="@string/about_fork_title"
                     android:textSize="16sp" />
 
                 <TextView
@@ -95,7 +96,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginVertical="4dp"
                     android:textColor="?android:attr/textColorSecondary"
-                    tools:text="These are our awesome contributors. You can help AnkiDroid too by programming, translating and more!"
+                    tools:text="Hayaki is an unofficial fork of AnkiDroid."
                     />
 
                 <TextView
@@ -113,7 +114,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginVertical="4dp"
                     android:textColor="?android:attr/textColorSecondary"
-                    tools:text="AnkiDroid is released under the GPL-3.0 and AGPL-3.0 licenses, with the source code available on GitHub" />
+                    tools:text="Hayaki is released under the GPL-3.0 and AGPL-3.0 licenses, with the source code available on GitHub" />
 
                 <TextView
                     android:id="@+id/about_donate_title"

@@ -39,12 +39,12 @@
         <item quantity="other">%d alusta kortit</item>
     </plurals>
     <string name="answering_error_title">Tietokantavirhe</string>
-    <string name="answering_error_message">Kirjoittaminen kokoelmaan epäonnistui. Tietokanta voi olla vioittunut tai levyllä ei ole tarpeeksi tyhjää tilaa.\n\nJos näin tapahtuu useammin, tarkista tietokanta, korjaa kokoelma tai palauta se varmuuskopiosta. Löydät tämän asetuksista.\n\Mahdollisesti kyseessä voi olla myös AnkiDroidin virhe; ilmoita virheestä, jotta voimme tarkistaa sen.</string>
+    <string name="answering_error_message">Kirjoittaminen kokoelmaan epäonnistui. Tietokanta voi olla vioittunut tai levyllä ei ole tarpeeksi tyhjää tilaa.\n\nJos näin tapahtuu useammin, tarkista tietokanta, korjaa kokoelma tai palauta se varmuuskopiosta. Löydät tämän asetuksista.\n\Mahdollisesti kyseessä voi olla myös Hayakiin virhe; ilmoita virheestä, jotta voimme tarkistaa sen.</string>
     <string name="answering_error_report">Ilmoita viasta</string>
-    <string name="storage_full_message">AnkiDroidin avaamiseen ei ole riittävästi vapaata tallennustilaa. Vapauta tilaa jatkaaksesi.</string>
+    <string name="storage_full_message">Hayakiin avaamiseen ei ole riittävästi vapaata tallennustilaa. Vapauta tilaa jatkaaksesi.</string>
     <string name="repair_deck_dialog">Haluatko varmasti yrittää korjata tietokannan?\n\nEnnen yritystä kopio tietokannasta luodaan alihakemistoon ”%s”.</string>
     <string name="intent_aedict_empty">Oletus-luokka on tyhjä</string>
-    <string name="intent_aedict_category">Lisätäksesi kortteja AnkiDroidiin poista kaikki Notepad-kategoriat tai lisää uusi nimellä ”default”</string>
+    <string name="intent_aedict_category">Lisätäksesi kortteja Hayakiiin poista kaikki Notepad-kategoriat tai lisää uusi nimellä ”default”</string>
     <string name="custom_study_extend_limits_title">Extend daily limits</string>
     <string name="custom_study_increase">Increase</string>
     <string name="custom_study_forgotten">Kortteja unohdettu edellisenä x päivänä:</string>
@@ -54,7 +54,7 @@
     <string name="storage_full_title">Tallennustila on täynnä</string>
     <string name="storage_almost_full_title">Tallennustila on melkein täynnä</string>
     <string name="no_space_to_downgrade_title" tools:ignore="UnusedResources">Ei tilaa</string>
-    <string name="no_space_to_downgrade_content" tools:ignore="UnusedResources">AnkiDroid tarvitsee %s vapaata tallennustilaa jatkaakseen. Vapauta tilaa ennen kuin jatkat</string>
+    <string name="no_space_to_downgrade_content" tools:ignore="UnusedResources">Hayaki tarvitsee %s vapaata tallennustilaa jatkaakseen. Vapauta tilaa ennen kuin jatkat</string>
     <string name="restore_backup_title">Palauta varmuuskopio?</string>
     <string name="restore_backup">Kokoelmasi korvataan vanhemmalla kopiolla. Mahdolliset tallentamattomat tiedot menetetään.</string>
     <string name="restore_backup_choose_another">Valitse toinen</string>
@@ -119,7 +119,7 @@
     <string name="database_locked_title">Tietokanta lukittu</string>
     <string name="database_locked_summary_new" comment="%s is the name of the \'AnkiDroid directory\' setting">Another AnkiDroid app is using this collection. It may conflict even when it is not visibly running.\n\nTo keep using both apps, change the ‘%s’ in one app\'s Advanced settings.\n\nTo use this app now, force-stop the conflicting app.</string>
     <string name="incompatible_database_version_title">Yhteensopimaton tietokannan versio</string>
-    <string name="incompatible_database_version_summary">Tietokanta on edistyneempi versio kuin mitä tämä AnkiDroid-versio voi käyttää. Päivitä AnkiDroid tai siirry vanhempaan tietokantaversioon avataksesi sen\n\nTuettu versio: %1$d\nTietokannan versio: %2$d\n\n\nSeuraavat palautusvaihtoehdot korvaavat nykyisen kokoelmasi, mahdollisesti yhteensopivalla tietokannan versiolla:</string>
+    <string name="incompatible_database_version_summary">Tietokanta on edistyneempi versio kuin mitä tämä Hayaki-versio voi käyttää. Päivitä Hayaki tai siirry vanhempaan tietokantaversioon avataksesi sen\n\nTuettu versio: %1$d\nTietokannan versio: %2$d\n\n\nSeuraavat palautusvaihtoehdot korvaavat nykyisen kokoelmasi, mahdollisesti yhteensopivalla tietokannan versiolla:</string>
     <!-- Deck Picker Background-->
     <string name="background_image_applied">Taustakuva asetettu</string>
     <string name="background_image_removed">Taustakuva poistettu</string>
@@ -141,7 +141,7 @@
     <string name="locale_selection_dialog_summary">Jotkin monikieliset näppäimistöt, kuten Gboard, tukevat kielen vaihtamista tekstiä muokattaessa\n\nPyydä käyttämäsi näppäimistön tekijältä tukea \"setImeHintLocales\"-ominaisuudelle, jos näppäimistösi ei vaihda kieltä.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">Unknown language [%1$s]</string>
     <!-- Help Dialog -->
-    <string name="help_title_using_ankidroid">AnkiDroidin käyttäminen</string>
+    <string name="help_title_using_ankidroid">Hayakiin käyttäminen</string>
     <string name="help_item_ankidroid_manual">AnkiDroidin käyttöopas</string>
     <string name="help_item_anki_manual">Ankin käyttöopas</string>
     <string name="help_item_ankidroid_faq">AnkiDroidin FAQ</string>
@@ -226,7 +226,7 @@
     <string name="change_cloze_mode">Vaihda aukkotehtävätilaa</string>
     <!-- Outdated WebView dialog -->
     <string name="webview_update_message">Järjestelmän WebView on vanhentunut. Jotkin ominaisuudet eivät toimi oikein. Päivitä se.\n\nAsennettu versio: %1$d\nVähimmäinen vaadittu versio: %2$d</string>
-    <string name="webview_unsupported_message">Your WebView is incompatible with AnkiDroid. Some features won’t work correctly. Please update it.</string>
+    <string name="webview_unsupported_message">Your WebView is incompatible with Hayaki. Some features won’t work correctly. Please update it.</string>
     <string name="compress">Pakkaa</string>
     <!-- Tts playback error dialog -->
     <string name="tts_no_engine_title">No text-to-speech engine installed</string>

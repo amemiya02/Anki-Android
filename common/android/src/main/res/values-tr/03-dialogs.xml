@@ -39,12 +39,12 @@
         <item quantity="other">%d kart sıfırlandı</item>
     </plurals>
     <string name="answering_error_title">Veritabanı hatası</string>
-    <string name="answering_error_message">Koleksiyona yazılamadı. Veritabanı bozuk olabilir veya diskte yeterli boş alan olmayabilir.\n\nBu daha sık oluyorsa, veritabanını kontrol etmeyi, koleksiyonu onarmayı veya bir yedekten geri yüklemeyi deneyin. Bunun için \"seçenekler\"e dokunun.\n\Veya bu bir AnkiDroid hatası da olabilir; Bunu kontrol edebilmemiz için lütfen hatayı bildirin.</string>
+    <string name="answering_error_message">Koleksiyona yazılamadı. Veritabanı bozuk olabilir veya diskte yeterli boş alan olmayabilir.\n\nBu daha sık oluyorsa, veritabanını kontrol etmeyi, koleksiyonu onarmayı veya bir yedekten geri yüklemeyi deneyin. Bunun için \"seçenekler\"e dokunun.\n\Veya bu bir Hayaki hatası da olabilir; Bunu kontrol edebilmemiz için lütfen hatayı bildirin.</string>
     <string name="answering_error_report">Hatayı bildir</string>
-    <string name="storage_full_message">AnkiDroid\'i açmaya yetecek boş depolama alanı yok. Devam etmek için biraz alan boşaltın.</string>
+    <string name="storage_full_message">Hayaki\'i açmaya yetecek boş depolama alanı yok. Devam etmek için biraz alan boşaltın.</string>
     <string name="repair_deck_dialog">Veritabanını onarmayı gerçekten denemek istiyor musunuz?\n\nGirişime başlamadan önce, \"%s\" altklasöründe bir kopya oluşturulacak.</string>
     <string name="intent_aedict_empty">\"Varsayılan\" kategorisi boş</string>
-    <string name="intent_aedict_category">AnkiDroid\'e kart eklemek için bütün Not Defteri kategorilerini kaldırın veya \"default\" isminde bir tane ekleyin</string>
+    <string name="intent_aedict_category">Hayaki\'e kart eklemek için bütün Not Defteri kategorilerini kaldırın veya \"default\" isminde bir tane ekleyin</string>
     <string name="custom_study_extend_limits_title">Günlük sınırları yükselt</string>
     <string name="custom_study_increase">Yükselt</string>
     <string name="custom_study_forgotten">Son x gündeki unutulan kartları izle:</string>
@@ -54,7 +54,7 @@
     <string name="storage_full_title">Depolama alanı dolu</string>
     <string name="storage_almost_full_title">Depolama alanı nerdeyse dolu</string>
     <string name="no_space_to_downgrade_title" tools:ignore="UnusedResources">Hiç alan yok</string>
-    <string name="no_space_to_downgrade_content" tools:ignore="UnusedResources">AnkiDroid\'in devam etmesi için %s boş depolama alanına ihtiyacı var. Lütfen biraz yer açın.</string>
+    <string name="no_space_to_downgrade_content" tools:ignore="UnusedResources">Hayaki\'in devam etmesi için %s boş depolama alanına ihtiyacı var. Lütfen biraz yer açın.</string>
     <string name="restore_backup_title">Yedek geri yüklensin mi?</string>
     <string name="restore_backup">Koleksiyonunuz eski bir kopyayla değiştirilecek. Kaydedilmemiş ilerlemeler kaybolacak.</string>
     <string name="restore_backup_choose_another">Başka seç</string>
@@ -119,7 +119,7 @@
     <string name="database_locked_title">Veritabanı kilitli</string>
     <string name="database_locked_summary_new" comment="%s is the name of the \'AnkiDroid directory\' setting">Başka bir AnkiDroid uygulaması bu koleksiyonu kullanıyor. Görünür şekilde çalışıyor olmadığında bile çatışma meydana gelebilir.\n\nİki uygulamayı da kullanmaya devam etmek için, bir uygulamanın İleri düzey ayarlarından \"%s\" ayarını değiştirin.\n\nBu uygulamayı şimdi kullanmak için, çatışan uygulamayı durmaya zorlayın.</string>
     <string name="incompatible_database_version_title">Uyumsuz Veritabanı Sürümü</string>
-    <string name="incompatible_database_version_summary">Veritabanı, AnkiDroid\'in bu sürümünün çalışabileceğinden daha gelişmiş bir sürümdür. Açmak için AnkiDroid\'i yükseltin veya veritabanını düşürün\n\nDesteklenen sürüm: %1$d\nVeritabanı sürümü: %2$d\n\nAşağıdaki geri yükleme seçenekleri, muhtemelen uyumlu bir veritabanı sürümüyle mevcut koleksiyonunuzun üzerine yazacaktır:</string>
+    <string name="incompatible_database_version_summary">Veritabanı, Hayaki\'in bu sürümünün çalışabileceğinden daha gelişmiş bir sürümdür. Açmak için Hayaki\'i yükseltin veya veritabanını düşürün\n\nDesteklenen sürüm: %1$d\nVeritabanı sürümü: %2$d\n\nAşağıdaki geri yükleme seçenekleri, muhtemelen uyumlu bir veritabanı sürümüyle mevcut koleksiyonunuzun üzerine yazacaktır:</string>
     <!-- Deck Picker Background-->
     <string name="background_image_applied">Arka plan görüntüsü uygulandı</string>
     <string name="background_image_removed">Arka plan görüntüsü kaldırıldı</string>
@@ -141,7 +141,7 @@
     <string name="locale_selection_dialog_summary">GBoard gibi bazı çok dilli klavyeler, metin düzenlerken dil değiştirmeyi destekler\n\nKlavyeniz dili değiştirmiyorsa lütfen klavye üreticinizden “setImeHintLocales” özelliğini isteyin.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">Bilinmeyen dil [%1$s]</string>
     <!-- Help Dialog -->
-    <string name="help_title_using_ankidroid">AnkiDroid kullanımı</string>
+    <string name="help_title_using_ankidroid">Hayaki kullanımı</string>
     <string name="help_item_ankidroid_manual">AnkiDroid kullanım kılavuzu</string>
     <string name="help_item_anki_manual">Anki kullanım kılavuzu</string>
     <string name="help_item_ankidroid_faq">AnkiDroid SSS</string>
@@ -226,7 +226,7 @@
     <string name="change_cloze_mode">Boşluk modunu değiştir</string>
     <!-- Outdated WebView dialog -->
     <string name="webview_update_message">Sistem WebView\'su güncel değil. Bazı özellikler doğru çalışmayacak. Lütfen güncelleyin.\n\nYüklü sürüm: %1$d\nGereken en düşük sürüm: %2$d</string>
-    <string name="webview_unsupported_message">WebView\'iniz AnkiDroid ile uyumlu değil. Bazı işlevler doğru bir şekilde çalışmayabilir. Lütfen güncelleyin.</string>
+    <string name="webview_unsupported_message">WebView\'iniz Hayaki ile uyumlu değil. Bazı işlevler doğru bir şekilde çalışmayabilir. Lütfen güncelleyin.</string>
     <string name="compress">Sıkıştır</string>
     <!-- Tts playback error dialog -->
     <string name="tts_no_engine_title">Yüklü metin okuma motoru yok</string>

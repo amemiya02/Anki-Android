@@ -82,12 +82,12 @@
     <string name="menu_disable_voice_playback">𐍃𐍄𐌹𐌱𐌽𐍉𐍃 𐌰𐍆𐍄𐍂𐌰𐍃𐍀𐌹𐌻𐍉𐌽 𐌿𐌽𐌲𐌰𐌻𐌰𐌲𐌾𐌰𐌽</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
     <string name="new_dynamic_deck">𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳 𐌼𐌹𐌸 𐍆𐌹𐌻𐍄𐍂𐌰 𐍃𐌺𐌰𐍀𐌾𐌰𐌽</string>
-    <string name="directory_inaccessible">𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 𐍃𐍄𐌰𐌸 𐌰𐍄𐌲𐌰𐌲𐌲𐌰𐌽 𐌼𐌰𐌷𐍄𐍃 𐌽𐌹𐍃𐍄</string>
+    <string name="directory_inaccessible">Hayaki 𐍃𐍄𐌰𐌸 𐌰𐍄𐌲𐌰𐌲𐌲𐌰𐌽 𐌼𐌰𐌷𐍄𐍃 𐌽𐌹𐍃𐍄</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.
     The user is taken to the "App Info" screen, and needs to click "Permissions" and
     grant AnkiDroid the \'Storage\' permission. This needs to be a fairly generic message as implementations
     of the permissions/app info screen will differ between devices. -->
-    <string name="startup_no_storage_permission">𐌱𐌹𐌳𐌾𐌰𐌼 𐌸𐌿𐌺, 𐌲𐌹𐍆 𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 \'𐍂𐌿𐌼\' 𐌰𐌽𐌳𐌻𐌴𐍄 𐌳𐌿 𐌸𐌰𐌹𐍂𐌷𐍅𐌹𐍃𐌰𐌽</string>
+    <string name="startup_no_storage_permission">𐌱𐌹𐌳𐌾𐌰𐌼 𐌸𐌿𐌺, 𐌲𐌹𐍆 Hayaki \'𐍂𐌿𐌼\' 𐌰𐌽𐌳𐌻𐌴𐍄 𐌳𐌿 𐌸𐌰𐌹𐍂𐌷𐍅𐌹𐍃𐌰𐌽</string>
     <string name="rebuild_filtered_deck">𐌰𐍆𐍄𐍂𐌰𐌲𐌰𐍄𐌹𐌼𐍂𐌾𐌰𐌳𐌰 𐍆𐌹𐌻𐌻𐌾𐌹𐌽𐍃 𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳&#8230;</string>
     <string name="empty_cram_label" maxLength="28">𐌻𐌰𐌿𐍃</string>
     <string name="create_subdeck">𐌿𐍆𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳 𐍃𐌺𐌰𐍀𐌾𐌰𐌽</string>
@@ -124,33 +124,33 @@
     <string name="card_template_editor_save_error">𐌽𐌹 𐌼𐌰𐌷𐍄𐌰 𐌲𐌰𐍆𐌰𐍃𐍄𐌰𐌽 𐌹𐌽𐌼𐌰𐌹𐌳𐌴𐌹𐌽𐌹𐌽𐍃 𐌺𐌰𐍂𐍄𐌰𐍆𐌰𐌿𐍂𐌰𐌼𐌴𐌻𐌴𐌹𐌽𐌴: %s</string>
     <string name="template_for_current_card_deleted">𐌷𐌰𐌹𐌳𐌿𐍃 𐌺𐌰𐍂𐍄𐍉 𐌺𐌰𐍂𐍄𐌰𐌹 𐌰𐌽𐌳𐍅𐌰𐌹𐍂𐌸𐌰𐌹 𐌿𐍃𐌵𐌹𐍃𐍄𐌹𐌸𐍃 𐌹𐍃𐍄.</string>
     <!-- Permissions -->
-    <string name="read_write_permission_label">𐌳𐌿 𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 𐌳𐌰𐍄𐌰𐌱𐌿𐍃𐌰 𐌰𐌽𐌰𐌺𐌿𐌽𐌽𐌰𐌽 𐌾𐌰𐌷 𐌼𐌴𐌻𐌾𐌰𐌽</string>
+    <string name="read_write_permission_label">𐌳𐌿 Hayaki 𐌳𐌰𐍄𐌰𐌱𐌿𐍃𐌰 𐌰𐌽𐌰𐌺𐌿𐌽𐌽𐌰𐌽 𐌾𐌰𐌷 𐌼𐌴𐌻𐌾𐌰𐌽</string>
     <string name="read_write_permission_description">𐌰𐍄𐌲𐌰𐌲𐌲 𐌹𐌽 𐍅𐌹𐍃𐌰𐌽𐌳𐌴𐌹𐌽𐍃 𐌼𐌴𐌻𐌴𐌹𐌽𐌹𐌽𐍃, 𐌺𐌰𐍂𐍄𐍉𐍃, 𐌷𐌰𐌹𐌳𐌿𐌽𐍃 𐌼𐌴𐌻𐌴𐌹𐌽𐍉, 𐌾𐌰𐌷 𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳𐌰, 𐌾𐌰𐌷 𐌽𐌹𐌿𐌾𐌰 𐍃𐌺𐌰𐍀𐌾𐌰𐌽</string>
     <!-- Context Menu -->
     <string name="card_browser_context_menu" comment="The value which appears in the system context menu.">Card browser</string>
     <string name="context_menu_anki_card_label">Anki card</string>
     <!-- Sync conflict -->
     <string name="sync_conflict_message_new">𐌷𐌿𐌶𐌳𐌰 𐌽𐌹 𐌼𐌰𐌲𐌿𐌽 𐌱𐌻𐌰𐌽𐌳𐌰𐌽.\n𐍈𐌹𐌻𐌴𐌹𐌺 𐌷𐌿𐌶𐌳 𐍅𐌹𐌻𐌴𐌹𐍃 𐌲𐌰𐍆𐌰𐍃𐍄𐌰𐌽?</string>
-    <string name="sync_conflict_keep_local_new" comment="Select AnkiDroid files to keep while syncing">𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳</string>
+    <string name="sync_conflict_keep_local_new" comment="Select AnkiDroid files to keep while syncing">Hayaki</string>
     <string name="sync_conflict_keep_remote_new" comment="Select AnkiWeb files to keep while syncing">𐌰𐌽𐌺𐌴𐌹𐍅𐌰𐌱𐌹</string>
-    <string name="sync_conflict_remote_confirm_new">𐌷𐌿𐌶𐌳 𐌸𐌴𐌹𐌽 𐌼𐌹𐌸𐍃𐌰𐍄𐌾𐌰𐌽 𐌰𐌽𐌰 𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 𐌼𐌹𐌸 𐌷𐌿𐌶𐌳𐌰 𐌸𐌴𐌹𐌽𐌰𐌼𐌼𐌰 𐍆𐍂𐌰𐌼 𐌰𐌽𐌺𐌹𐍅𐌰𐌱𐌾𐌰?</string>
-    <string name="sync_conflict_local_confirm_new">𐌷𐌿𐌶𐌳 𐌸𐌴𐌹𐌽 𐌼𐌹𐌸𐍃𐌰𐍄𐌾𐌰𐌽 𐌰𐌽𐌰 𐌰𐌽𐌺𐌴𐌹𐍅𐌰𐌱𐌾𐌰 𐌼𐌹𐌸 𐌷𐌿𐌶𐌳𐌰 𐌸𐌴𐌹𐌽𐌰𐌼𐌼𐌰 𐍆𐍂𐌰𐌼 𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳?</string>
+    <string name="sync_conflict_remote_confirm_new">𐌷𐌿𐌶𐌳 𐌸𐌴𐌹𐌽 𐌼𐌹𐌸𐍃𐌰𐍄𐌾𐌰𐌽 𐌰𐌽𐌰 Hayaki 𐌼𐌹𐌸 𐌷𐌿𐌶𐌳𐌰 𐌸𐌴𐌹𐌽𐌰𐌼𐌼𐌰 𐍆𐍂𐌰𐌼 𐌰𐌽𐌺𐌹𐍅𐌰𐌱𐌾𐌰?</string>
+    <string name="sync_conflict_local_confirm_new">𐌷𐌿𐌶𐌳 𐌸𐌴𐌹𐌽 𐌼𐌹𐌸𐍃𐌰𐍄𐌾𐌰𐌽 𐌰𐌽𐌰 𐌰𐌽𐌺𐌴𐌹𐍅𐌰𐌱𐌾𐌰 𐌼𐌹𐌸 𐌷𐌿𐌶𐌳𐌰 𐌸𐌴𐌹𐌽𐌰𐌼𐌼𐌰 𐍆𐍂𐌰𐌼 Hayaki?</string>
     <string name="sync_conflict_title_new">𐌷𐌿𐌶𐌳 𐍅𐌰𐌻𐌾𐌰𐌽 𐌳𐌿 𐌲𐌰𐍆𐌰𐍃𐍄𐌰𐌽</string>
     <string name="sync_conflict_replace_title">𐌷𐌿𐌶𐌳 𐌼𐌹𐌸𐍃𐌰𐍄𐌾𐌰𐌽</string>
     <!-- Generic errors -->
     <string name="error__etc__cannot_write_to_or_create_file">𐌽𐌹 𐌼𐌰𐌲 𐌼𐌴𐌻𐌾𐌰𐌽 𐌳𐌿 𐌸𐌰𐌿 𐍃𐌺𐌰𐍀𐌾𐌰𐌽 𐍆𐌰𐌾𐌻 %s</string>
     <string name="directory_inaccessible_after_uninstall" comment="Dialog title if AnkiDroid can\'t access the collection once the app is installed">𐌿𐌽𐌰𐍄𐌲𐌰𐌷𐍄 𐌷𐌿𐌶𐌳</string>
-    <string name="directory_inaccessible_after_uninstall_summary" comment="the parameter is the path to the AnkiDroid folder. Typically /storage/emulated/0/AnkiDroid">𐌽𐌹 𐌼𐌰𐌲𐌿𐌼 𐌰𐍄𐌲𐌰𐌲𐌲𐌰𐌽 𐌷𐌿𐌶𐌳 𐌸𐌴𐌹𐌽 𐌰𐍆𐌰𐍂 𐌿𐍃𐌽𐌿𐌼𐍄𐌰𐌹 𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳𐍃 𐌹𐌽 𐌹𐌽𐌼𐌰𐌹𐌳𐌴𐌹𐌽𐌰𐌹𐍃 𐍀𐌻𐌴 𐍃𐍄𐌰𐌿𐍂 𐌱𐌹𐌻𐌰𐌲𐌴𐌹𐌽𐌰𐌹𐍃\n\n𐌳𐌰𐍄𐌰 𐌸𐌴𐌹𐌽𐌰 𐌰𐍂𐌽𐌾𐌰 𐍃𐌹𐌽𐌳 𐌾𐌰𐌷 𐌽𐌰𐍃𐌾𐌰𐌽 𐌼𐌰𐌷𐍄𐌴𐌹𐌲 𐌹𐍃𐍄. 𐌳𐌰𐍄𐌰 𐍃𐌹𐌽𐌳 𐌰𐍄\n%s\n\n𐍅𐌰𐌻𐌴𐌹 𐌼𐌰𐌷𐍄 𐌳𐌿 𐌽𐌰𐍃𐌾𐌰𐌽 𐌿𐍆:</string>
-    <string name="directory_revoked_after_inactivity" comment="the first parameter is WRITE_EXTERNAL_STORAGE the second parameter is the path to the AnkiDroid folder. Typically /storage/emulated/0/AnkiDroid">𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 𐌿𐍃𐌽𐌰𐌼 𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳𐍃 %1$s 𐌰𐌽𐌳𐌻𐌴𐍄 𐌿𐌽𐍄𐌴 𐌱𐍂𐌿𐌷𐍄 𐌽𐌹𐍃𐍄 𐌸𐌰𐍄𐌰 𐌰𐍀𐍀 𐌻𐌰𐌲𐌲 𐌼𐌴𐌻.\n\n𐌳𐌰𐍄𐌰 𐌸𐌴𐌹𐌽𐌰 𐌰𐍂𐌽𐌾𐌰 𐍃𐌹𐌽𐌳 𐌾𐌰𐌷 𐌸𐍉 𐌽𐌰𐍃𐌾𐌰𐌽 𐌼𐌰𐌷𐍄𐌴𐌹𐌲 𐌹𐍃𐍄. 𐌳𐌰𐍄𐌰 𐍃𐌹𐌽𐌳 𐌰𐍄\n%2$s\n\n𐍅𐌰𐌻𐌴𐌹 𐌼𐌰𐌷𐍄 𐌳𐌿 𐌽𐌰𐍃𐌾𐌰𐌽 𐌿𐍆:</string>
+    <string name="directory_inaccessible_after_uninstall_summary" comment="the parameter is the path to the AnkiDroid folder. Typically /storage/emulated/0/AnkiDroid">𐌽𐌹 𐌼𐌰𐌲𐌿𐌼 𐌰𐍄𐌲𐌰𐌲𐌲𐌰𐌽 𐌷𐌿𐌶𐌳 𐌸𐌴𐌹𐌽 𐌰𐍆𐌰𐍂 𐌿𐍃𐌽𐌿𐌼𐍄𐌰𐌹 Hayaki𐍃 𐌹𐌽 𐌹𐌽𐌼𐌰𐌹𐌳𐌴𐌹𐌽𐌰𐌹𐍃 𐍀𐌻𐌴 𐍃𐍄𐌰𐌿𐍂 𐌱𐌹𐌻𐌰𐌲𐌴𐌹𐌽𐌰𐌹𐍃\n\n𐌳𐌰𐍄𐌰 𐌸𐌴𐌹𐌽𐌰 𐌰𐍂𐌽𐌾𐌰 𐍃𐌹𐌽𐌳 𐌾𐌰𐌷 𐌽𐌰𐍃𐌾𐌰𐌽 𐌼𐌰𐌷𐍄𐌴𐌹𐌲 𐌹𐍃𐍄. 𐌳𐌰𐍄𐌰 𐍃𐌹𐌽𐌳 𐌰𐍄\n%s\n\n𐍅𐌰𐌻𐌴𐌹 𐌼𐌰𐌷𐍄 𐌳𐌿 𐌽𐌰𐍃𐌾𐌰𐌽 𐌿𐍆:</string>
+    <string name="directory_revoked_after_inactivity" comment="the first parameter is WRITE_EXTERNAL_STORAGE the second parameter is the path to the AnkiDroid folder. Typically /storage/emulated/0/AnkiDroid">Hayaki 𐌿𐍃𐌽𐌰𐌼 Hayaki𐍃 %1$s 𐌰𐌽𐌳𐌻𐌴𐍄 𐌿𐌽𐍄𐌴 𐌱𐍂𐌿𐌷𐍄 𐌽𐌹𐍃𐍄 𐌸𐌰𐍄𐌰 𐌰𐍀𐍀 𐌻𐌰𐌲𐌲 𐌼𐌴𐌻.\n\n𐌳𐌰𐍄𐌰 𐌸𐌴𐌹𐌽𐌰 𐌰𐍂𐌽𐌾𐌰 𐍃𐌹𐌽𐌳 𐌾𐌰𐌷 𐌸𐍉 𐌽𐌰𐍃𐌾𐌰𐌽 𐌼𐌰𐌷𐍄𐌴𐌹𐌲 𐌹𐍃𐍄. 𐌳𐌰𐍄𐌰 𐍃𐌹𐌽𐌳 𐌰𐍄\n%2$s\n\n𐍅𐌰𐌻𐌴𐌹 𐌼𐌰𐌷𐍄 𐌳𐌿 𐌽𐌰𐍃𐌾𐌰𐌽 𐌿𐍆:</string>
     <string name="restore_data_from_ankiweb">𐍆𐍂𐌰𐌼 𐌰𐌽𐌺𐌴𐌹𐍅𐌰𐌱𐌾𐌰 𐌲𐌰𐌽𐌰𐍃𐌾𐌰𐌽 (𐌰𐌽𐌰𐍆𐌹𐌻𐌷𐌰𐌽 𐌹𐍃𐍄)</string>
     <string name="install_non_play_store_ankidroid_recommended">𐌽𐌰𐍃𐌾𐌰𐌽 𐌰𐍄𐌲𐌰𐌲𐌲 𐌳𐌿 𐍃𐍄𐌰𐌳𐌰 (𐌰𐌽𐌰𐍆𐌹𐌻𐌷𐌰𐌽)</string>
     <string name="install_non_play_store_ankidroid">𐌽𐌰𐍃𐌾𐌰𐌽 𐌰𐍄𐌲𐌰𐌲𐌲 𐌳𐌿 𐍃𐍄𐌰𐌳𐌰 (𐍆𐍂𐌰𐌼𐌲𐌰𐌷𐍄)</string>
     <string name="restore_data_from_backup">𐌽𐌰𐍃𐌾𐌰𐌽 𐍆𐍂𐌰𐌼 .colpkg</string>
     <string name="create_new_collection">𐌷𐌿𐌶𐌳 𐌽𐌹𐌿𐌾𐌰𐍄𐌰 𐍃𐌺𐌰𐍀𐌾𐌰𐌽</string>
-    <string name="new_unsafe_collection">𐌸𐌰𐌼𐌼𐌰 𐌷𐌿𐌶𐌳𐌰 𐌽𐌹𐌿𐌾𐌰𐌼𐌼𐌰 𐌿𐍃𐌵𐌹𐍃𐍄𐌾𐌰𐌳𐌰 𐍆𐍂𐌰𐌼 𐍆𐌰𐌹𐍂𐍂𐌰𐍃𐍄𐌹𐌱𐌽𐌰𐌹 𐌸𐌴𐌹𐌽𐌰𐌹 𐌾𐌰𐌱𐌰𐌹 𐌿𐍃𐌽𐌹𐌼𐌹𐍃 𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳</string>
+    <string name="new_unsafe_collection">𐌸𐌰𐌼𐌼𐌰 𐌷𐌿𐌶𐌳𐌰 𐌽𐌹𐌿𐌾𐌰𐌼𐌼𐌰 𐌿𐍃𐌵𐌹𐍃𐍄𐌾𐌰𐌳𐌰 𐍆𐍂𐌰𐌼 𐍆𐌰𐌹𐍂𐍂𐌰𐍃𐍄𐌹𐌱𐌽𐌰𐌹 𐌸𐌴𐌹𐌽𐌰𐌹 𐌾𐌰𐌱𐌰𐌹 𐌿𐍃𐌽𐌹𐌼𐌹𐍃 Hayaki</string>
     <!-- Permissions screen -->
-    <string name="permissions_screen_headline">𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 𐌸𐌰𐍂𐍆 𐌰𐌽𐌳𐌻𐌴𐍄𐌴 𐌳𐌿 𐍅𐌰𐌿𐍂𐌺𐌾𐌰𐌽</string>
-    <string name="permissions_screen_optional_headline" comment="Explains that there are optional permissions that can be granted to AnkiDroid.">𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 𐍅𐌰𐌿𐍂𐌺𐌴𐌹𐌸 𐍅𐌰𐌹𐌻𐌰 𐌼𐌹𐌸 𐌸𐌰𐌹𐌼 𐌰𐌽𐌳𐌻𐌴𐍄𐌰𐌼</string>
+    <string name="permissions_screen_headline">Hayaki 𐌸𐌰𐍂𐍆 𐌰𐌽𐌳𐌻𐌴𐍄𐌴 𐌳𐌿 𐍅𐌰𐌿𐍂𐌺𐌾𐌰𐌽</string>
+    <string name="permissions_screen_optional_headline" comment="Explains that there are optional permissions that can be granted to AnkiDroid.">Hayaki 𐍅𐌰𐌿𐍂𐌺𐌴𐌹𐌸 𐍅𐌰𐌹𐌻𐌰 𐌼𐌹𐌸 𐌸𐌰𐌹𐌼 𐌰𐌽𐌳𐌻𐌴𐍄𐌰𐌼</string>
     <string name="storage_access_title">𐌰𐍄𐌲𐌰𐌲𐌲 𐌷𐌿𐌶𐌳𐌹𐍃</string>
     <string name="storage_access_summary">𐌲𐌰𐍆𐌰𐍃𐍄𐌰𐌹𐌸 𐌷𐌿𐌶𐌳 𐌸𐌴𐌹𐌽 𐌹𐌽 𐍃𐍄𐌰𐌳𐌰 𐌰𐍂𐌽𐌹𐌱𐌰 𐌸𐌰𐌼𐌼𐌴𐌹 𐌽𐌹 𐌿𐍃𐌵𐌹𐍃𐍄𐌾𐌰𐌳𐌰 𐌾𐌰𐌱𐌰𐌹 𐌸𐌰𐍄𐌰 𐌰𐍀𐍀 𐌿𐍃𐌽𐌹𐌼𐌰𐌳𐌰</string>
     <string name="all_files_access_title" comment="Name of the “All files access” permission from Android 10 and after. See [android.permission.MANAGE_EXTERNAL_STORAGE] on https://developer.android.com/training/data-storage/manage-all-files for context.">𐌰𐌽𐌳𐌻𐌴𐍄 𐌰𐌻𐌻𐌰𐌹𐌼 𐍆𐌰𐌾𐌻𐌰𐌼</string>

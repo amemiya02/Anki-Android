@@ -71,7 +71,7 @@
     <string name="card_browser_font_size" maxLength="41">அட்டை உலாவி எழுத்துரு அளவிடுதல்</string>
     <string name="card_browser_hide_media" maxLength="41">அட்டை உலாவியில் கோப்புப் பெயர்களைக் காண்பி</string>
     <string name="card_browser_hide_media_summary">Display audio filenames in the card browser question/answer fields</string>
-    <string name="col_path" maxLength="41">AnkiDroid அடைவு</string>
+    <string name="col_path" maxLength="41">Hayaki அடைவு</string>
     <string name="fullscreen_review" maxLength="41">முழு திரை பயன்முறை</string>
     <string name="full_screen_off" comment="Value of the fullscreen mode preference meaning fullscreen is not used">ஆஃப்</string>
     <string name="full_screen_system">சிஸ்டம் பார்களை மறை</string>
@@ -184,7 +184,7 @@
     <string name="pref_keep_screen_on" maxLength="41">திரையை இயக்கவும்</string>
     <string name="pref_keep_screen_on_summ">திரையின் காலாவதியை முடக்கு</string>
     <string name="enable_api_title" maxLength="41">AnkiDroid API ஐ இயக்கவும்</string>
-    <string name="enable_api_summary">பிற பயன்பாடுகளை AnkiDroid உடன் இணைக்க மற்றும் உங்கள் தலையீடு இல்லாமல் தரவைப் படிக்க / எழுத அனுமதிக்கவும்</string>
+    <string name="enable_api_summary">பிற பயன்பாடுகளை Hayaki உடன் இணைக்க மற்றும் உங்கள் தலையீடு இல்லாமல் தரவைப் படிக்க / எழுத அனுமதிக்கவும்</string>
     <string name="custom_buttons" maxLength="41">ஆப் பார் பொத்தான்கள்</string>
     <string name="custom_buttons_summary">Customize which actions appear in the app bar</string>
     <string name="custom_buttons_setting_always_show">எப்போதும் காட்டு</string>
@@ -318,12 +318,9 @@
     <!-- About -->
     <string name="open_changelog">சேஞ்ச்லாக்கைத் திறக்கவும்</string>
     <string name="pref_cat_about_title" maxLength="41">பற்றி</string>
-    <string name="contributors_title">பங்களிப்பாளர்கள்</string>
-    <string name="about_contributors_description"><![CDATA[இவர்கள் எங்கள் அற்புதமான <a href=\"%1$s\">பங்களிப்பாளர்கள்</a>. நிரலாக்கம், மொழியாக்கம், நன்கொடை மற்றும் <a href=\"%2$s\">மேலும்</a> மூலம் நீங்கள் AnkiDroid க்கு உதவலாம்!]]></string>
-    <string name="about_contributors_description_no_donate"><![CDATA[These are our awesome <a href=\"%1$s\">contributors</a>. You can help AnkiDroid too by programming, translating and <a href=\"%2$s\">more</a>!]]></string>
     <string name="license">உரிமம்</string>
-    <string name="license_description"><![CDATA[AnkiDroid ஆனது <a href=\"%1$s\">GPL-3.0</a> மற்றும் <a href=\"%2$s\">AGPL-3.0</a> உரிமங்களின் கீழ் வெளியிடப்பட்டது. மூலக் குறியீடு <a href=\"%3$s\">GitHub இல்</a> கிடைக்கிறது]]></string>
-    <string name="other_licenses"><![CDATA[AnkiDroid also uses third-party libraries and icons, which are licensed under various open source <a href=\"%1$s\">licenses</a>]]></string>
+    <string name="license_description"><![CDATA[Hayaki ஆனது <a href=\"%1$s\">GPL-3.0</a> மற்றும் <a href=\"%2$s\">AGPL-3.0</a> உரிமங்களின் கீழ் வெளியிடப்பட்டது. மூலக் குறியீடு <a href=\"%3$s\">GitHub இல்</a> கிடைக்கிறது]]></string>
+    <string name="other_licenses"><![CDATA[Hayaki also uses third-party libraries and icons, which are licensed under various open source <a href=\"%1$s\">licenses</a>]]></string>
     <string name="donate_description"><![CDATA[நீங்கள் <a href=\"%1$s\">நன்கொடை அளிப்பதன் மூலம்</a> AnkiDroid இன் வளர்ச்சியை ஆதரிக்கலாம். எந்தத் தொகையும் ஆழமாகப் பாராட்டப்படுகிறது.]]></string>
     <!-- Controls -->
     <string name="binding_add_gesture">சைகையைச் சேர்க்கவும்</string>
@@ -359,7 +356,7 @@
     <string name="bindings_already_bound">ஏற்கனவே \'%s\' உடன் பிணைக்கப்பட்டுள்ளது</string>
     <!-- Advanced -->
     <string name="pref_cat_experimental" maxLength="41" tools:ignore="UnusedResources">பரிசோதனை</string>
-    <string name="readtext_deprecation_warn">AnkiDroid ஒரு சிறந்த TTS பொறிமுறையை அறிமுகப்படுத்தியுள்ளது, இது மற்ற Anki கிளையண்டுகளுடன் இணக்கமானது மேலும் மேலும் குரல்கள் மற்றும் மொழி பின்னணி மேம்பாடுகளை உள்ளடக்கியது!\n\nஇந்த அமைப்பு விரைவில் அகற்றப்படும் என்பதால், கூடிய விரைவில் மேம்படுத்தவும்.</string>
+    <string name="readtext_deprecation_warn">Hayaki ஒரு சிறந்த TTS பொறிமுறையை அறிமுகப்படுத்தியுள்ளது, இது மற்ற Anki கிளையண்டுகளுடன் இணக்கமானது மேலும் மேலும் குரல்கள் மற்றும் மொழி பின்னணி மேம்பாடுகளை உள்ளடக்கியது!\n\nஇந்த அமைப்பு விரைவில் அகற்றப்படும் என்பதால், கூடிய விரைவில் மேம்படுத்தவும்.</string>
     <string name="readtext_reviewer_warn" tools:ignore="UnusedResources">புதிய உரையை பேச்சு வடிவத்திற்கு மாற்றவும்</string>
     <string name="allow_templates_to_record_audio" maxLength="41">Allow templates to record audio</string>
     <string name="template_is_trying_to_record_audio">This template is trying to record audio</string>
@@ -372,9 +369,9 @@
          #################################### Backup options ###################################
          ####################################################################################### -->
     <string name="pref__backups_help__summary"><![CDATA[
-        AnkiDroid உங்கள் சேகரிப்பை அவ்வப்போது காப்புப் பிரதி எடுக்கும்.
+        Hayaki உங்கள் சேகரிப்பை அவ்வப்போது காப்புப் பிரதி எடுக்கும்.
         காப்புப்பிரதிகள் இரண்டு நாட்களுக்கு மேல் பழமையான பிறகு,
-        AnkiDroid வட்டு இடத்தை விடுவிக்க அவற்றில் சிலவற்றை அகற்றத் தொடங்கும்.
+        Hayaki வட்டு இடத்தை விடுவிக்க அவற்றில் சிலவற்றை அகற்றத் தொடங்கும்.
         <br><br>
         மீடியா கோப்புகள் காப்புப் பிரதி எடுக்கப்படவில்லை என்பதை நினைவில் கொள்ளவும்.
         பாதுகாப்பாக இருக்க, உங்கள் சேகரிப்பை அவ்வப்போது ஒத்திசைக்கவும் அல்லது அதன் ஏற்றுமதிகளை காப்புப் பிரதி எடுக்கவும்.
