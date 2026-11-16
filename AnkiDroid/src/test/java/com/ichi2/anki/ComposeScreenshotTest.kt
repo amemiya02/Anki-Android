@@ -9,6 +9,7 @@ import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.github.takahirom.roborazzi.checkRoboAccessibility
 import com.github.takahirom.roborazzi.provideRoborazziContext
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.ichi2.anki.settings.enums.NightTheme
@@ -30,6 +31,7 @@ import org.robolectric.annotation.GraphicsMode
  * Each test runs with the themes, languages and font sizes selected with `-Ptheme`, `-Planguage`
  * and `-PfontSize`, plus those its class declares with [IncludeLanguages] and [IncludeFontSizes],
  * as [ScreenshotTest] does. A `fontScale` passed to [capture] overrides the font size.
+ * A class annotated with [CheckAccessibility] fails on contrast and touch-target problems.
  * Use [capture]'s `beforeCapture` callback to interact with the content before capturing it.
  * Screenshots participate in the root `recordScreenshots`, `compareScreenshots` and
  * `verifyScreenshots` tasks with `-Pscreenshot`.
@@ -75,6 +77,9 @@ abstract class ComposeScreenshotTest {
             filePath = "$classDir/${fileName(name, theme)}.png",
             roborazziOptions = options.copy(compareOptions = options.compareOptions.copy(outputDirectoryPath = "$classDir/diffs")),
         )
+        if (checksAccessibility) {
+            qualityBarAccessibilityChecks().forEach { composeRule.onNode(node).checkRoboAccessibility(it, options) }
+        }
     }
 
     /** `<name>_<theme>`, then the language and font size when they are not the defaults */
