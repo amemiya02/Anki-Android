@@ -1,5 +1,4 @@
-<!-- JPG type of file used in previewImage property because the SVG and Vector format is not supported on all devices.
-     The widths and heights parameters are determined as follows:
+<!-- The widths and heights parameters are determined as follows:
      The default size is 3 cells wide and 2 cells high, but the grid layout typically determines the final dimensions.
      Following https://developer.android.com/develop/ui/views/appwidgets/layouts#anatomy_determining_size
      we used the portrait mode cell size for the width and the landscape mode cell size for the height. Leading to:
@@ -17,7 +16,6 @@
     android:minResizeHeight="56dp"
     android:maxResizeWidth="800dp"
     android:maxResizeHeight="800dp"
-    android:previewImage="@drawable/widget_card_analysis_drawable"
     android:previewLayout="@layout/widget_card_analysis_drawable_v31"
     android:resizeMode="horizontal|vertical"
     android:targetCellHeight="2"

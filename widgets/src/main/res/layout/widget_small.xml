@@ -20,7 +20,7 @@
         android:contentDescription="@string/app_name"
         android:focusable="false"
         android:scaleType="fitCenter"
-        android:src="@drawable/widget_bg_small"/>
+        android:src="@drawable/widget_small_mark"/>
 
     <RelativeLayout
         android:id="@+id/ankidroid_widget_text_layout"
@@ -40,7 +40,11 @@
             android:id="@+id/widget_due"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/widget_bg_number"
+            android:minWidth="24sp"
+            android:minHeight="24sp"
+            android:padding="3sp"
+            android:background="@drawable/circle_background"
+            android:backgroundTint="?attr/foundationPrimary"
             android:gravity="center"
             android:singleLine="true"
             android:textColor="?attr/foundationOnPrimary"
@@ -54,7 +58,11 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
-            android:background="@drawable/widget_bg_time"
+            android:minWidth="24sp"
+            android:minHeight="24sp"
+            android:padding="3sp"
+            android:background="@drawable/circle_background"
+            android:backgroundTint="?attr/foundationPrimary"
             android:gravity="center"
             android:singleLine="true"
             android:textColor="?attr/foundationOnPrimary"
@@ -73,5 +81,5 @@
         android:focusable="false"
         android:scaleType="fitCenter"
         android:visibility="gone"
-        android:src="@drawable/widget_bg_small_finish"/>
+        android:src="@drawable/widget_small_mark_done"/>
 </FrameLayout>

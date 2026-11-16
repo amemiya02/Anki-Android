@@ -20,7 +20,6 @@
     android:minResizeHeight="50dp"
     android:maxResizeWidth="800dp"
     android:maxResizeHeight="800dp"
-    android:previewImage="@drawable/widget_deck_picker_drawable"
     android:previewLayout="@layout/widget_deck_picker_drawable_v31"
     android:resizeMode="horizontal|vertical"
     android:targetCellHeight="2"

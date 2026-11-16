@@ -3,4 +3,5 @@
     android:layout_height="wrap_content"
     android:contentDescription="@string/widget_add_note_button"
     android:scaleType="fitCenter"
-    android:src="@drawable/ic_widget_add_note" />
+    android:theme="@style/Theme.Widget"
+    android:src="@drawable/widget_add_note_mark" />

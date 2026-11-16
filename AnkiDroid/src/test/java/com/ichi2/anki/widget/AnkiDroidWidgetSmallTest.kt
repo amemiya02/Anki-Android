@@ -25,16 +25,16 @@ import kotlin.test.assertEquals
 class AnkiDroidWidgetSmallTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.S])
-    fun `initial widget uses the fixed blue icon on Android 12`() =
+    fun `initial widget shows Hayaki's mark on Android 12`() =
         withSmallWidget {
-            assertEquals(R.drawable.ic_anki_unthemed, shadowOf(ankidroidWidgetSmallButton.drawable).createdFromResId)
+            assertEquals(R.drawable.widget_small_mark, shadowOf(ankidroidWidgetSmallButton.drawable).createdFromResId)
         }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
-    fun `initial widget keeps the legacy icon before Android 12`() =
+    fun `initial widget shows Hayaki's mark before Android 12`() =
         withSmallWidget {
-            assertEquals(R.drawable.widget_bg_small, shadowOf(ankidroidWidgetSmallButton.drawable).createdFromResId)
+            assertEquals(R.drawable.widget_small_mark, shadowOf(ankidroidWidgetSmallButton.drawable).createdFromResId)
         }
 }
 
