@@ -27,7 +27,8 @@ import com.ichi2.anki.common.android.R as CommonR
  * characters in the face of the interface language, even inside one Deck name.
  *
  * Each check compares with the expected face alone drawing the same text at the same weight; a
- * Deck name is bold.
+ * Deck name is in the type scale's DeckName style, weight 500, which Chinese and Japanese draw in
+ * their regular face.
  */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -39,7 +40,7 @@ class InterfaceTypefaceDeckListTest : RobolectricTest() {
         addDeck(DECK_NAME)
         withDeckPicker(deckCount = 0) { deckPicker ->
             val deckName = deckPicker.textView(DECK_NAME)
-            assertDrawnLike(CommonR.font.klee_one_semibold, deckName, SHARED_HAN)
+            assertDrawnLike(CommonR.font.klee_one_regular, deckName, SHARED_HAN)
             assertDrawnLike(CommonR.font.newsreader, deckName, LATIN)
         }
     }
@@ -50,7 +51,7 @@ class InterfaceTypefaceDeckListTest : RobolectricTest() {
         addDeck(DECK_NAME)
         withDeckPicker(deckCount = 0) { deckPicker ->
             val deckName = deckPicker.textView(DECK_NAME)
-            assertDrawnLike(CommonR.font.lxgw_wenkai_medium, deckName, SHARED_HAN)
+            assertDrawnLike(CommonR.font.lxgw_wenkai_regular, deckName, SHARED_HAN)
             assertDrawnLike(CommonR.font.newsreader, deckName, LATIN)
         }
     }
@@ -78,10 +79,13 @@ class InterfaceTypefaceDeckListTest : RobolectricTest() {
         @FontRes face: Int,
         view: TextView,
         text: String,
-        weight: Int = BOLD,
+        weight: Int = DECK_NAME_WEIGHT,
     ) {
         val name = targetContext.resources.getResourceEntryName(face)
-        assertTrue(draw(view.typeface, text).sameAs(draw(only(face, weight), text)), "'$text' should be drawn in $name")
+        assertTrue(
+            draw(view.typeface, text).sameAs(draw(only(face, weight), text)),
+            "'$text' should be drawn in $name at $weight (view: ${view.typeface.weight})",
+        )
     }
 
     /** [face] alone at [weight]; Newsreader at its text optical size */
@@ -117,7 +121,7 @@ class InterfaceTypefaceDeckListTest : RobolectricTest() {
     }
 
     companion object {
-        const val BOLD = 700
+        const val DECK_NAME_WEIGHT = 500
 
         /** Drawn differently in Japanese and Chinese */
         const val SHARED_HAN = "骨直"

@@ -11,7 +11,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.withStyledAttributes
 import com.google.android.material.theme.MaterialComponentsViewInflater
+import com.ichi2.anki.common.android.R
 import java.lang.reflect.Constructor
 import java.util.WeakHashMap
 
@@ -22,53 +24,57 @@ import java.util.WeakHashMap
  * A layout can only name one font file per weight, so its text would show Latin in the Chinese or
  * Japanese face, or Chinese and Japanese in the system font. Set as each theme's `viewInflaterClass`.
  *
+ * The weight comes from the view's Foundation type style (`foundationTextWeight`): the themes set a
+ * font family, which the platform and AppCompat apply over the type style's `textFontWeight`.
+ * A heavier weight the view already has (bold set on the view, a medium font family) is kept.
+ *
  * Monospaced text keeps its typeface. Code that sets a typeface after inflation still wins.
  */
 class FoundationViewInflater : MaterialComponentsViewInflater() {
     override fun createTextView(
         context: Context,
         attrs: AttributeSet?,
-    ) = super.createTextView(context, attrs).withInterfaceTypeface()
+    ) = super.createTextView(context, attrs).withInterfaceTypeface(foundationWeight(context, attrs))
 
     override fun createButton(
         context: Context,
         attrs: AttributeSet,
-    ) = super.createButton(context, attrs).withInterfaceTypeface()
+    ) = super.createButton(context, attrs).withInterfaceTypeface(foundationWeight(context, attrs))
 
     override fun createEditText(
         context: Context,
         attrs: AttributeSet?,
-    ) = super.createEditText(context, attrs).withInterfaceTypeface()
+    ) = super.createEditText(context, attrs).withInterfaceTypeface(foundationWeight(context, attrs))
 
     override fun createCheckBox(
         context: Context,
         attrs: AttributeSet,
-    ) = super.createCheckBox(context, attrs).withInterfaceTypeface()
+    ) = super.createCheckBox(context, attrs).withInterfaceTypeface(foundationWeight(context, attrs))
 
     override fun createRadioButton(
         context: Context,
         attrs: AttributeSet,
-    ) = super.createRadioButton(context, attrs).withInterfaceTypeface()
+    ) = super.createRadioButton(context, attrs).withInterfaceTypeface(foundationWeight(context, attrs))
 
     override fun createCheckedTextView(
         context: Context,
         attrs: AttributeSet?,
-    ) = super.createCheckedTextView(context, attrs).withInterfaceTypeface()
+    ) = super.createCheckedTextView(context, attrs).withInterfaceTypeface(foundationWeight(context, attrs))
 
     override fun createAutoCompleteTextView(
         context: Context,
         attrs: AttributeSet?,
-    ) = super.createAutoCompleteTextView(context, attrs).withInterfaceTypeface()
+    ) = super.createAutoCompleteTextView(context, attrs).withInterfaceTypeface(foundationWeight(context, attrs))
 
     override fun createMultiAutoCompleteTextView(
         context: Context,
         attrs: AttributeSet?,
-    ) = super.createMultiAutoCompleteTextView(context, attrs).withInterfaceTypeface()
+    ) = super.createMultiAutoCompleteTextView(context, attrs).withInterfaceTypeface(foundationWeight(context, attrs))
 
     override fun createToggleButton(
         context: Context,
         attrs: AttributeSet?,
-    ) = super.createToggleButton(context, attrs).withInterfaceTypeface()
+    ) = super.createToggleButton(context, attrs).withInterfaceTypeface(foundationWeight(context, attrs))
 
     /**
      * Text views the AppCompat inflater leaves to the platform: those named in full in a layout
@@ -83,7 +89,7 @@ class FoundationViewInflater : MaterialComponentsViewInflater() {
     ): View? {
         val constructor = constructorFor(name, context.classLoader) ?: return null
         return when (val view = constructor.newInstance(context, attrs)) {
-            is TextView -> view.withInterfaceTypeface()
+            is TextView -> view.withInterfaceTypeface(foundationWeight(context, attrs))
             is Toolbar -> view.apply { setOnHierarchyChangeListener(TitleTypeface) }
             else -> view
         }
@@ -126,14 +132,34 @@ class FoundationViewInflater : MaterialComponentsViewInflater() {
 
 /**
  * Replaces the typeface the view's style gave it with the interface typeface's fallback chain at
- * the same weight. Before Android 10 the style's font is already the language's own face.
+ * the same weight, or at [weight] when that is heavier. Before Android 10 the style's font is already the
+ * language's own face.
  */
-fun <T : TextView> T.withInterfaceTypeface(): T {
+fun <T : TextView> T.withInterfaceTypeface(weight: Int? = null): T {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return this
     val current = typeface ?: Typeface.DEFAULT
     if (current.isMonospace) return this
-    typeface = Typeface.create(context.interfaceTypeface(), current.weight, current.isItalic)
+    val drawnWeight = maxOf(current.weight, weight ?: 0)
+    typeface = Typeface.create(context.interfaceTypeface(), drawnWeight, current.isItalic)
     return this
+}
+
+/**
+ * The weight of the Foundation type style a layout gives a view (`android:textAppearance`, directly
+ * or through its `style`, else the theme's), or null when that is not a Foundation type style.
+ */
+private fun foundationWeight(
+    context: Context,
+    attrs: AttributeSet?,
+): Int? {
+    var appearance = 0
+    context.withStyledAttributes(attrs, intArrayOf(android.R.attr.textAppearance)) { appearance = getResourceId(0, 0) }
+    if (appearance == 0) return null
+    var weight: Int? = null
+    context.withStyledAttributes(appearance, intArrayOf(R.attr.foundationTextWeight)) {
+        if (hasValue(0)) weight = getInt(0, 0)
+    }
+    return weight
 }
 
 private val monospace = WeakHashMap<Typeface, Boolean>()
