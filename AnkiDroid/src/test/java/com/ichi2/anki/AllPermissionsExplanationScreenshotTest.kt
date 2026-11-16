@@ -12,6 +12,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type.displayCutout
 import androidx.core.view.WindowInsetsCompat.Type.navigationBars
 import androidx.core.view.WindowInsetsCompat.Type.statusBars
+import com.ichi2.anki.FontSizeConfig.PERCENT_200
+import com.ichi2.anki.LanguageConfig.ARABIC
+import com.ichi2.anki.LanguageConfig.JAPANESE
+import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.ui.windows.permissions.AllPermissionsExplanationActivity
 import com.ichi2.testutils.insetsOf
@@ -22,7 +26,13 @@ import org.robolectric.RuntimeEnvironment
  * Screenshot tests for [AllPermissionsExplanationActivity]
  *
  * `./gradlew :AnkiDroid:verifyRoborazziPlayDebug -Pscreenshot --tests "com.ichi2.anki.AllPermissionsExplanationScreenshotTest"`
+ *
+ * Also the proof that the harness covers every language and font size: its rows have a leading
+ * icon and a trailing switch, so the pictures show the right-to-left mirroring.
+ * Add `-Ptheme=light,dark,black` for the themes of the Quality Bar.
  */
+@IncludeLanguages(SIMPLIFIED_CHINESE, JAPANESE, ARABIC)
+@IncludeFontSizes(PERCENT_200)
 class AllPermissionsExplanationScreenshotTest : ScreenshotTest() {
     @Test
     fun allPermissionsExplanation() =
