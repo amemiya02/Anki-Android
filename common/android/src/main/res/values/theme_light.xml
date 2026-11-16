@@ -189,7 +189,8 @@
         <item name="easyButtonBackground">?attr/foundationBackground</item>
         <item name="topBarColor">?attr/foundationBackground</item>
         <item name="maxTimerColor">?attr/foundationEmphasis</item>
-        <item name="showAnswerTextColor">?attr/foundationOnPrimary</item>
+        <!-- the old study screen's Show answer bar and the strip below its answer buttons are paper, like the buttons -->
+        <item name="showAnswerTextColor">?attr/foundationOnBackground</item>
         <item name="againButtonTextColor">?attr/foundationAnswerAgain</item>
         <item name="hardButtonTextColor">?attr/foundationAnswerHard</item>
         <item name="goodButtonTextColor">?attr/foundationAnswerGood</item>
@@ -208,7 +209,7 @@
         <item name="easyIconColor">?easyTextColor</item>
         <!-- Study Screen button drawables -->
         <item name="showAnswerButtonBackground">?attr/foundationPrimary</item>
-        <item name="showAnswerColor">?attr/foundationPrimary</item>
+        <item name="showAnswerColor">?attr/foundationBackground</item>
         <item name="answerButtonRef">@drawable/footer_button</item>
         <item name="answerButtonRippleRef">@drawable/footer_button_ripple</item>
         <!-- Card Browser Colors -->

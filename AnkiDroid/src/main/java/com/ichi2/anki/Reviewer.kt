@@ -411,10 +411,7 @@ open class Reviewer :
                     Themes.isNightTheme
                 },
             navigationBarStyle =
-                if (answerButtonsAtBottom) {
-                    // The answer area is `showAnswerColor` (dark) in every theme.
-                    SystemBarStyle.dark(Color.TRANSPARENT)
-                } else if (immersive) {
+                if (immersive && !answerButtonsAtBottom) {
                     // use a translucent scrim if there are no answer buttons
                     // auto() draws nothing over gesture navigation, so use dark/light.
                     if (Themes.isNightTheme) {
@@ -423,9 +420,9 @@ open class Reviewer :
                         SystemBarStyle.light(pageScrim(EDGE_TO_EDGE_LIGHT_SCRIM_ALPHA), darkPageScrim())
                     }
                 } else {
-                    // the navigation bar sits over an empty window-background strip below the
-                    // card. The dark scrim is only used below API 26, where light navigation
-                    // icons are unsupported
+                    // the navigation bar sits over the answer area (`showAnswerColor`, the page
+                    // colour), or over an empty window-background strip below the card. The dark
+                    // scrim is only used below API 26, where light navigation icons are unsupported
                     SystemBarStyle.auto(Color.TRANSPARENT, darkPageScrim()) {
                         Themes.isNightTheme
                     }
@@ -501,9 +498,8 @@ open class Reviewer :
             val bars = insets.bars()
             container.updatePadding(left = bars.left, top = bars.top, right = bars.right)
             if (answerButtonsAtBottom && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // SystemBarStyle.dark suits a bottom bar over the dark answer area, but a
-                // side bar sits over the window background, where light icons would be
-                // unreadable in day themes: have the system draw its contrasting scrim there
+                // a bottom bar sits over the answer area and needs no scrim, but a side bar
+                // sits over the window background: have the system draw its contrasting scrim there
                 val nav = insets.getInsets(navigationBars())
                 window.isNavigationBarContrastEnforced = nav.left > 0 || nav.right > 0
             }
