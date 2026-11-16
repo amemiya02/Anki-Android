@@ -37,7 +37,7 @@ class AppNameInStringsTest {
                     LITERAL_TEXT_ATTRIBUTE
                         .findAll(file.readText())
                         .map { it.groupValues[1] }
-                        .filter { UPSTREAM_NAME.containsMatchIn(it) && !it.startsWith("/storage/") }
+                        .filter { UPSTREAM_NAME.containsMatchIn(it.replace(PATH, "")) }
                         .map { "${file.parentFile?.name}/${file.name}: $it" }
                 }
         assertEquals(emptyList(), offending)
@@ -45,12 +45,9 @@ class AppNameInStringsTest {
 
     @Test
     fun `Hayaki is written the same way in every language`() {
-        val names =
-            interfaceText()
-                .filter { it.name == "app_name" || it.name == "fork_name" }
-                .map { it.toString() }
-                .sorted()
-        assertEquals(listOf("en/app_name: $FORK_NAME", "en/fork_name: $FORK_NAME"), names, "the name is not translated")
+        val names = interfaceText().filter { it.name == "app_name" || it.name == "fork_name" }
+        assertEquals(emptyList(), names.filter { it.language != DEFAULT_LANGUAGE }.map { it.toString() }, "the name is translated")
+        assertEquals(listOf(FORK_NAME), names.filter { it.name == "fork_name" }.map { it.text })
     }
 
     /** One piece of interface text (a string, a plural form or an array item) in one language */
@@ -72,7 +69,7 @@ class AppNameInStringsTest {
             res
                 .listFiles { dir -> dir.name == "values" || dir.name.startsWith("values-") }
                 .orEmpty()
-                .flatMap { dir -> parseValues(dir, dir.name.removePrefix("values-").ifEmpty { DEFAULT_LANGUAGE }) }
+                .flatMap { dir -> parseValues(dir, if (dir.name == "values") DEFAULT_LANGUAGE else dir.name.removePrefix("values-")) }
                 .filter { it.name in defaultNames && !it.name.startsWith("link_") && !ADDRESS.matches(it.text.trim()) }
         }
 
@@ -142,6 +139,9 @@ class AppNameInStringsTest {
             )
 
         private val ADDRESS = Regex("(https?|market)://\\S*")
+
+        /** A folder on the device, such as `/storage/emulated/0/AnkiDroid`, is not the app's name */
+        private val PATH = Regex("/\\S+")
 
         private val LITERAL_TEXT_ATTRIBUTE = Regex("android:(?:text|title|summary|label|contentDescription|hint)=\"([^@?\"][^\"]*)\"")
 
