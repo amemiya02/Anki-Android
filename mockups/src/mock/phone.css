@@ -1,0 +1,967 @@
+/*
+ * Phone screens for the three Directions.
+ *
+ * Every Direction uses the same markup and the same shadcn/ui components.
+ * A Direction is a set of design values (custom properties) chosen by the
+ * `data-direction` attribute, plus a few rules for the places where shape or
+ * density differs. The selectors use :where() so that choosing a Direction
+ * never raises specificity.
+ *
+ * Sizes are in px on purpose: a phone screen here is a fixed-scale picture of
+ * a device, where 1px stands for 1dp.
+ */
+
+/* ---------- Icons: Material Symbols, in the style the Direction picks ---------- */
+
+.msym {
+  font-family: var(--f-icon);
+  font-size: var(--icon-size, 24px);
+  font-style: normal;
+  font-weight: normal;
+  font-variation-settings: var(--icon-axes);
+  font-feature-settings: "liga";
+  font-size-adjust: none;
+  line-height: 1;
+  letter-spacing: normal;
+  white-space: nowrap;
+  direction: ltr;
+  display: inline-block;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- The device ---------- */
+
+.phone {
+  position: relative;
+  width: 380px;
+  height: 820px;
+  overflow: hidden;
+  border-radius: 46px;
+  background: var(--background);
+  color: var(--foreground);
+  box-shadow:
+    0 0 0 10px #17171b,
+    0 0 0 11px rgb(0 0 0 / 0.55),
+    0 44px 60px -34px rgb(0 0 0 / 0.5);
+  font-family: var(--f-latin), var(--f-zh), var(--f-ja), var(--f-fallback);
+  font-size: 15px;
+  line-height: 1.4;
+  /* font-size-adjust is deliberately not used here. It matches faces by
+     x-height, which is a Latin measure: tried on these stacks it shrank
+     Chinese and Japanese text by about a tenth beside the Latin face. Each
+     Direction instead pairs faces whose natural sizes already agree. */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Japanese text gets Japanese glyph forms, wherever it appears. */
+.phone :lang(ja) {
+  font-family: var(--f-latin), var(--f-ja), var(--f-zh), var(--f-fallback);
+}
+
+.phone::after {
+  content: "";
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  width: 118px;
+  height: 4px;
+  margin-left: -59px;
+  border-radius: 4px;
+  background: var(--foreground);
+  opacity: 0.32;
+}
+
+.screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.statusbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 44px;
+  padding: 8px 28px 0;
+  font:
+    600 13px/1 system-ui,
+    sans-serif;
+  font-size-adjust: none;
+}
+
+.statusbar-icons {
+  display: flex;
+  gap: 4px;
+}
+
+.statusbar .msym {
+  --icon-size: 16px;
+  font-variation-settings:
+    "FILL" 1,
+    "wght" 500,
+    "GRAD" 0,
+    "opsz" 20;
+}
+
+.iconbtn {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-ctl);
+  color: var(--foreground);
+}
+
+/* ---------- Deck list ---------- */
+
+.appbar {
+  flex: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: var(--appbar-pad);
+}
+
+.appbar-date {
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+
+.appbar-title {
+  font-size: var(--title-size);
+  font-weight: var(--title-weight);
+  line-height: 1.15;
+}
+
+.appbar-actions {
+  display: flex;
+}
+
+.today {
+  flex: none;
+  gap: 10px;
+  margin: var(--today-m);
+  padding: var(--today-pad);
+  border-radius: var(--r-card);
+  background: var(--today-bg);
+  color: var(--today-fg);
+  box-shadow: none;
+}
+
+.today-text {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.today-main {
+  font-size: var(--today-size);
+  font-weight: var(--today-weight);
+}
+
+.today-sub {
+  font-size: 13px;
+  color: var(--today-sub);
+}
+
+.today-progress,
+.study-progress {
+  height: var(--bar-h);
+  background: var(--bar-track);
+}
+
+.today-progress [data-slot="progress-indicator"],
+.study-progress [data-slot="progress-indicator"] {
+  background: var(--bar-fill);
+  border-radius: inherit;
+}
+
+.colhead {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(3, var(--count-w));
+  justify-content: end;
+  padding: 0 var(--list-pad) 6px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  text-align: center;
+}
+
+.colhead-rule {
+  flex: none;
+  width: auto;
+  margin: 0 var(--list-pad);
+  background: var(--rule);
+}
+
+.decks {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: var(--decks-pad);
+}
+
+.deck-row {
+  display: flex;
+  align-items: center;
+  min-height: var(--row-h);
+}
+
+.deck-chevron {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--chevron-w);
+  color: var(--muted-foreground);
+}
+
+.deck-chevron .msym {
+  --icon-size: 22px;
+}
+
+.deck-avatar {
+  display: none;
+}
+
+.deck-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--deck-size);
+  font-weight: var(--deck-weight);
+}
+
+.deck-child {
+  padding-left: var(--indent);
+}
+
+.deck-child .deck-name {
+  font-size: var(--child-size);
+  font-weight: var(--child-weight);
+}
+
+.counts {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(3, var(--count-w));
+  justify-items: center;
+}
+
+.count {
+  width: auto;
+  min-width: var(--pill-w, 0);
+  height: var(--pill-h, auto);
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--f-num);
+  font-size: var(--count-size);
+  font-weight: var(--count-weight);
+  font-variant-numeric: tabular-nums lining-nums;
+  line-height: 1.2;
+}
+
+.count-new {
+  color: var(--c-new);
+  background: var(--pill-new, transparent);
+}
+
+.count-learn {
+  color: var(--c-learn);
+  background: var(--pill-learn, transparent);
+}
+
+.count-due {
+  color: var(--c-due);
+  background: var(--pill-due, transparent);
+}
+
+/* Nothing to do is said with weight, not with a faint colour, so it still
+   meets the contrast bar. */
+.count-zero {
+  color: var(--muted-foreground);
+  background: transparent;
+  font-weight: 400;
+}
+
+.deck-done {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  color: var(--c-due);
+}
+
+.deck-done .msym {
+  --icon-size: 18px;
+}
+
+.fab {
+  position: absolute;
+  right: 20px;
+  bottom: var(--fab-bottom);
+  min-width: 56px;
+  height: 56px;
+  gap: 6px;
+  padding: 0 16px;
+  border-radius: var(--r-fab);
+  background: var(--fab-bg);
+  color: var(--fab-fg);
+  box-shadow: var(--fab-shadow);
+  font-size: 16px;
+  font-weight: var(--fab-weight, 600);
+}
+
+.fab-label {
+  display: var(--fab-label, none);
+}
+
+.bottombar {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  height: var(--nav-h);
+  margin: var(--nav-m, 0);
+  padding-bottom: var(--nav-pad-b, 16px);
+  border-top: var(--nav-border);
+  border-radius: var(--nav-r, 0);
+  background: var(--nav-bg);
+  box-shadow: var(--nav-shadow, none);
+}
+
+.bottombar-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+.bottombar-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 30px;
+  border-radius: 999px;
+}
+
+.bottombar-item.is-current {
+  color: var(--nav-current);
+  font-weight: 600;
+}
+
+/* ---------- Study screen ---------- */
+
+.studybar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: 2px 6px 6px;
+}
+
+.studybar-titles {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 6px;
+}
+
+.studybar-deck {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--study-title-size);
+  font-weight: var(--study-title-weight);
+}
+
+.studybar-sep {
+  color: var(--muted-foreground);
+  font-weight: 400;
+}
+
+.studybar .counts {
+  display: flex;
+  gap: var(--study-count-gap);
+}
+
+.studybar .count {
+  font-size: var(--study-count-size);
+}
+
+.study-progress {
+  flex: none;
+  width: auto;
+  margin: 0 var(--bar-inset);
+  border-radius: var(--bar-r);
+}
+
+/* The Card Content: drawn as Anki's default Card Template styles it. */
+.sheet {
+  flex: 1;
+  min-height: 0;
+  gap: 0;
+  margin: var(--sheet-m);
+  padding: 0;
+  border: var(--sheet-border);
+  border-radius: var(--r-sheet);
+  background: #fff;
+  color: #000;
+  box-shadow: var(--sheet-shadow);
+}
+
+.card-content {
+  padding: 22px 20px;
+  font:
+    20px/1.4 Arial,
+    "Noto Sans SC",
+    sans-serif;
+  font-size-adjust: none;
+  text-align: center;
+}
+
+.card-content hr {
+  margin: 16px 0;
+  border: 0;
+  border-top: 1px solid #8b8b8b;
+}
+
+.answer-area {
+  flex: none;
+  padding: var(--answer-pad);
+}
+
+.show-answer {
+  width: 100%;
+  height: var(--btn-h);
+  border-radius: var(--r-show);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: var(--show-shadow, none);
+  font-size: 17px;
+  font-weight: var(--show-weight, 600);
+}
+
+.answer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--ans-gap);
+}
+
+.answer {
+  flex-direction: column;
+  gap: 1px;
+  height: var(--ans-h);
+  padding: 0;
+  border-radius: var(--r-btn);
+  color: var(--foreground);
+}
+
+.answer-again {
+  --a: var(--a-again);
+  --a-bg: var(--a-again-bg);
+}
+.answer-hard {
+  --a: var(--a-hard);
+  --a-bg: var(--a-hard-bg);
+}
+.answer-good {
+  --a: var(--a-good);
+  --a-bg: var(--a-good-bg);
+}
+.answer-easy {
+  --a: var(--a-easy);
+  --a-bg: var(--a-easy-bg);
+}
+
+.answer-time {
+  font-family: var(--f-num);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ans-time, var(--muted-foreground));
+}
+
+.answer-label {
+  font-size: var(--ans-size);
+  font-weight: var(--ans-weight);
+}
+
+/* ======================================================================
+   Quiet paper
+   ====================================================================== */
+
+:where([data-direction="paper"]) {
+  --background: #f5f0e6;
+  --foreground: #211e19;
+  --primary: #a63d25;
+  --primary-foreground: #fff9f2;
+  --muted-foreground: #675f53;
+  --border: #d8cfbe;
+  --rule: #d8cfbe;
+
+  --f-latin: "Newsreader Variable";
+  --f-zh: "LXGW WenKai";
+  --f-ja: "Klee One";
+  --f-fallback: serif;
+  --f-num: var(--f-latin), var(--f-zh);
+  --f-icon: "Material Symbols Outlined Variable";
+  --icon-axes: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
+
+  --r-ctl: 999px;
+  --r-card: 0;
+  --r-fab: 16px;
+  --r-btn: 6px;
+  --r-show: 6px;
+  --r-sheet: 4px;
+
+  --appbar-pad: 6px 12px 10px 20px;
+  --title-size: 38px;
+  --title-weight: 500;
+
+  --today-m: 0 20px 16px;
+  --today-pad: 4px 0 0;
+  --today-bg: transparent;
+  --today-fg: var(--foreground);
+  --today-sub: var(--muted-foreground);
+  --today-size: 18px;
+  --today-weight: 500;
+  --bar-h: 3px;
+  --bar-r: 0;
+  --bar-track: #ddd4c3;
+  --bar-fill: #211e19;
+  --bar-inset: 16px;
+
+  --list-pad: 20px;
+  --decks-pad: 0 20px;
+  --row-h: 58px;
+  --chevron-w: 26px;
+  --indent: 26px;
+  --deck-size: 20px;
+  --deck-weight: 500;
+  --child-size: 17.5px;
+  --child-weight: 400;
+  --count-w: 46px;
+  --count-size: 17px;
+  --count-weight: 600;
+  --c-new: #2f4a6b;
+  --c-learn: #a63d25;
+  --c-due: #3e5b34;
+
+  --fab-bottom: 96px;
+  --fab-bg: var(--primary);
+  --fab-fg: var(--primary-foreground);
+  --fab-shadow: 0 8px 18px -8px rgb(120 44 26 / 0.55);
+
+  --nav-h: 78px;
+  --nav-bg: #f5f0e6;
+  --nav-border: 1px solid #d8cfbe;
+  --nav-current: #211e19;
+
+  --study-title-size: 17px;
+  --study-title-weight: 500;
+  --study-count-gap: 12px;
+  --study-count-size: 14.5px;
+  --sheet-m: 14px 16px 2px;
+  --sheet-border: 1px solid #d8cfbe;
+  --sheet-shadow: none;
+  --answer-pad: 14px 16px 30px;
+  --btn-h: 56px;
+  --show-weight: 500;
+  --ans-h: 66px;
+  --ans-gap: 8px;
+  --ans-size: 16.5px;
+  --ans-weight: 600;
+  --a-again: #a63d25;
+  --a-hard: #9a6a14;
+  --a-good: #3e5b34;
+  --a-easy: #2f4a6b;
+}
+
+:where([data-direction="paper"]) .deck-group + .deck-group {
+  border-top: 1px solid var(--rule);
+}
+
+:where([data-direction="paper"]) .deck-child {
+  min-height: 48px;
+}
+
+:where([data-direction="paper"]) .deck-active .deck-chevron::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+:where([data-direction="paper"]) .bottombar-item.is-current::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  width: 28px;
+  height: 2px;
+  background: var(--primary);
+}
+
+:where([data-direction="paper"]) .answer {
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--a);
+  background: transparent;
+}
+
+/* ======================================================================
+   Crisp tool
+   ====================================================================== */
+
+:where([data-direction="crisp"]) {
+  --background: #ffffff;
+  --foreground: #0d1117;
+  --primary: #0d1117;
+  --primary-foreground: #ffffff;
+  --muted-foreground: #57606a;
+  --border: #e1e4e8;
+  --rule: #e1e4e8;
+  --vivid: #4338f5;
+
+  --f-latin: "IBM Plex Sans";
+  --f-zh: "IBM Plex Sans SC";
+  --f-ja: "IBM Plex Sans JP";
+  --f-fallback: sans-serif;
+  --f-num: "IBM Plex Mono", var(--f-latin), var(--f-zh);
+  --f-icon: "Material Symbols Sharp Variable";
+  --icon-axes: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+
+  --r-ctl: 8px;
+  --r-card: 10px;
+  --r-fab: 12px;
+  --r-btn: 8px;
+  --r-show: 8px;
+  --r-sheet: 8px;
+
+  --appbar-pad: 2px 8px 8px 16px;
+  --title-size: 22px;
+  --title-weight: 600;
+
+  --today-m: 0 16px 14px;
+  --today-pad: 12px 14px;
+  --today-bg: #f4f5f7;
+  --today-fg: var(--foreground);
+  --today-sub: var(--muted-foreground);
+  --today-size: 15px;
+  --today-weight: 600;
+  --bar-h: 4px;
+  --bar-r: 0;
+  --bar-track: #e1e4e8;
+  --bar-fill: var(--vivid);
+  --bar-inset: 0px;
+
+  --list-pad: 16px;
+  --decks-pad: 0 8px;
+  --row-h: 46px;
+  --chevron-w: 26px;
+  --indent: 22px;
+  --deck-size: 15.5px;
+  --deck-weight: 600;
+  --child-size: 15px;
+  --child-weight: 400;
+  --count-w: 50px;
+  --count-size: 13.5px;
+  --count-weight: 600;
+  --c-new: #1d4ed8;
+  --c-learn: #c2410c;
+  --c-due: #15803d;
+
+  --fab-bottom: 88px;
+  --fab-bg: var(--vivid);
+  --fab-fg: #ffffff;
+  --fab-shadow: 0 8px 16px -8px rgb(67 56 245 / 0.6);
+
+  --nav-h: 72px;
+  --nav-bg: #ffffff;
+  --nav-border: 1px solid #e1e4e8;
+  --nav-current: var(--vivid);
+
+  --study-title-size: 15px;
+  --study-title-weight: 600;
+  --study-count-gap: 10px;
+  --study-count-size: 12.5px;
+  --sheet-m: 12px 12px 0;
+  --sheet-border: 1px solid #e1e4e8;
+  --sheet-shadow: none;
+  --answer-pad: 12px 12px 30px;
+  --btn-h: 48px;
+  --ans-h: 56px;
+  --ans-gap: 6px;
+  --ans-size: 14.5px;
+  --ans-weight: 600;
+  --a-again: #dc2626;
+  --a-hard: #d97706;
+  --a-good: #16a34a;
+  --a-easy: #2563eb;
+}
+
+:where([data-direction="crisp"][data-screen="study"]) {
+  --background: #f4f5f7;
+}
+
+:where([data-direction="crisp"]) .appbar {
+  align-items: center;
+}
+
+:where([data-direction="crisp"]) .appbar-date {
+  font-size: 12px;
+}
+
+:where([data-direction="crisp"]) .today {
+  border: 1px solid var(--border);
+}
+
+:where([data-direction="crisp"]) .today-main {
+  font-variant-numeric: tabular-nums;
+}
+
+:where([data-direction="crisp"]) .deck-row {
+  padding-right: 8px;
+  border-radius: 6px;
+}
+
+:where([data-direction="crisp"]) .deck-group + .deck-group {
+  border-top: 1px solid #eef0f2;
+}
+
+:where([data-direction="crisp"]) .deck-active {
+  background: #f1f0fe;
+  box-shadow: inset 2px 0 0 var(--vivid);
+}
+
+:where([data-direction="crisp"]) .bottombar-item.is-current::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  width: 100%;
+  height: 2px;
+  background: var(--vivid);
+}
+
+:where([data-direction="crisp"]) .studybar {
+  background: #fff;
+}
+
+:where([data-direction="crisp"]) .answer {
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+:where([data-direction="crisp"]) .answer-label::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 6px;
+  border-radius: 2px;
+  background: var(--a);
+  vertical-align: 1px;
+}
+
+/* ======================================================================
+   Soft and friendly
+   ====================================================================== */
+
+:where([data-direction="soft"]) {
+  --background: #f3f0fb;
+  --foreground: #2a2440;
+  --primary: #6447e8;
+  --primary-foreground: #ffffff;
+  --muted-foreground: #5f5979;
+  --border: #e2dcf3;
+  --rule: transparent;
+
+  --f-latin: "Nunito Variable";
+  --f-zh: "Noto Sans SC";
+  --f-ja: "Zen Maru Gothic";
+  --f-fallback: sans-serif;
+  --f-num: var(--f-latin), var(--f-zh);
+  --f-icon: "Material Symbols Rounded Variable";
+  --icon-axes: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
+
+  --r-ctl: 999px;
+  --r-card: 24px;
+  --r-fab: 999px;
+  --r-btn: 20px;
+  --r-show: 999px;
+  --r-sheet: 28px;
+
+  --appbar-pad: 4px 10px 10px 22px;
+  --title-size: 32px;
+  --title-weight: 800;
+
+  --today-m: 0 16px 12px;
+  --today-pad: 16px 18px 18px;
+  --today-bg: #6447e8;
+  --today-fg: #ffffff;
+  --today-sub: #e7e1ff;
+  --today-size: 17px;
+  --today-weight: 800;
+  --bar-h: 8px;
+  --bar-r: 999px;
+  --bar-track: rgb(255 255 255 / 0.28);
+  --bar-fill: #ffffff;
+  --bar-inset: 18px;
+
+  --list-pad: 26px;
+  --decks-pad: 2px 16px 0;
+  --row-h: 58px;
+  --chevron-w: 24px;
+  --indent: 70px;
+  --deck-size: 17.5px;
+  --deck-weight: 800;
+  --child-size: 16px;
+  --child-weight: 600;
+  --count-w: 47px;
+  --count-size: 14px;
+  --count-weight: 800;
+  --pill-w: 34px;
+  --pill-h: 28px;
+  --c-new: #0b4ea2;
+  --c-learn: #a8370f;
+  --c-due: #0f6a31;
+  --pill-new: #dcebff;
+  --pill-learn: #ffe3d8;
+  --pill-due: #d7f3df;
+
+  --fab-bottom: 104px;
+  --fab-bg: var(--primary);
+  --fab-fg: #ffffff;
+  --fab-shadow: 0 12px 22px -10px rgb(70 44 190 / 0.7);
+  --fab-label: inline;
+  --fab-weight: 800;
+
+  --nav-h: 68px;
+  --nav-m: 0 14px 22px;
+  --nav-pad-b: 0px;
+  --nav-r: 26px;
+  --nav-bg: #ffffff;
+  --nav-border: 0;
+  --nav-shadow: 0 10px 28px -14px rgb(60 40 140 / 0.45);
+  --nav-current: var(--primary);
+
+  --study-title-size: 17px;
+  --study-title-weight: 800;
+  --study-count-gap: 6px;
+  --study-count-size: 13px;
+  --sheet-m: 14px 16px 4px;
+  --sheet-border: 0;
+  --sheet-shadow: 0 16px 34px -20px rgb(60 40 140 / 0.45);
+  --answer-pad: 14px 16px 30px;
+  --btn-h: 60px;
+  --show-weight: 800;
+  --show-shadow: 0 12px 22px -12px rgb(70 44 190 / 0.75);
+  --ans-h: 74px;
+  --ans-gap: 8px;
+  --ans-size: 16px;
+  --ans-weight: 800;
+  --a-again: #9b1c2e;
+  --a-again-bg: #ffe1e4;
+  --a-hard: #8a4b00;
+  --a-hard-bg: #ffe8cf;
+  --a-good: #0f6a31;
+  --a-good-bg: #d7f3df;
+  --a-easy: #0b4ea2;
+  --a-easy-bg: #dcebff;
+}
+
+:where([data-direction="soft"]) .study-progress {
+  --bar-track: #e2dcf3;
+  --bar-fill: var(--primary);
+}
+
+:where([data-direction="soft"]) .colhead {
+  padding-bottom: 8px;
+}
+
+:where([data-direction="soft"]) .colhead-rule {
+  display: none;
+}
+
+:where([data-direction="soft"]) .deck-group {
+  margin-bottom: 8px;
+  padding: 2px 10px 2px 4px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 8px 20px -16px rgb(60 40 140 / 0.5);
+}
+
+:where([data-direction="soft"]) .deck-avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  margin-right: 10px;
+  border-radius: 14px;
+  background: var(--av-bg);
+  color: var(--av-fg);
+  font-size: 17px;
+  font-weight: 800;
+}
+
+:where([data-direction="soft"]) .deck-group:nth-child(4n + 1) {
+  --av-bg: #ffecc2;
+  --av-fg: #6f4500;
+}
+:where([data-direction="soft"]) .deck-group:nth-child(4n + 2) {
+  --av-bg: #dcebff;
+  --av-fg: #0b4ea2;
+}
+:where([data-direction="soft"]) .deck-group:nth-child(4n + 3) {
+  --av-bg: #ffdce6;
+  --av-fg: #8f1a40;
+}
+:where([data-direction="soft"]) .deck-group:nth-child(4n + 4) {
+  --av-bg: #d7f3df;
+  --av-fg: #0f6a31;
+}
+
+:where([data-direction="soft"]) .deck-child {
+  min-height: 46px;
+}
+
+:where([data-direction="soft"]) .deck-child .deck-chevron {
+  display: none;
+}
+
+:where([data-direction="soft"]) .is-current .bottombar-icon {
+  background: #e9e4f8;
+}
+
+:where([data-direction="soft"]) .is-current .msym {
+  font-variation-settings:
+    "FILL" 1,
+    "wght" 500,
+    "GRAD" 0,
+    "opsz" 24;
+}
+
+:where([data-direction="soft"]) .studybar .iconbtn:first-child {
+  background: #fff;
+}
+
+:where([data-direction="soft"]) .studybar .count {
+  padding: 0 4px;
+}
+
+:where([data-direction="soft"]) .answer {
+  border: 0;
+  background: var(--a-bg);
+  color: var(--a);
+  --ans-time: var(--a);
+}

@@ -6,9 +6,9 @@
 
 **Status:** ready-for-agent
 
-- [ ] Mockups are web pages at phone size built with React, Tailwind and shadcn/ui, following the modern-web-guidance skill.
-- [ ] All three Directions use the same components, themed differently, and the same sample Decks as the "before" pictures.
-- [ ] Each Direction shows its own font pairing for Latin, Chinese and Japanese text, using only openly licensed fonts.
-- [ ] Each Direction shows the study screen on both the question and the answer side.
-- [ ] Hierarchy in every Mockup uses size and weight only.
+- [x] Mockups are web pages at phone size built with React, Tailwind and shadcn/ui, following the modern-web-guidance skill.
+- [x] All three Directions use the same components, themed differently, and the same sample Decks as the "before" pictures.
+- [x] Each Direction shows its own font pairing for Latin, Chinese and Japanese text, using only openly licensed fonts.
+- [x] Each Direction shows the study screen on both the question and the answer side.
+- [x] Hierarchy in every Mockup uses size and weight only.
 - [ ] The owner has picked one Direction, and the choice is recorded as an ADR.
