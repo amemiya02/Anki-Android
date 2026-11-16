@@ -92,6 +92,8 @@
         -->
         <item name="android:fontFamily">@font/foundation_interface</item>
         <item name="fontFamily">@font/foundation_interface</item>
+        <!-- Redraws inflated text in the interface typeface: Newsreader, then the Chinese or Japanese face -->
+        <item name="viewInflaterClass">com.ichi2.anki.common.android.themes.FoundationViewInflater</item>
         <item name="textAppearanceDisplayLarge">@style/TextAppearance.Foundation.ScreenTitle</item>
         <item name="textAppearanceDisplayMedium">@style/TextAppearance.Foundation.ScreenTitle</item>
         <item name="textAppearanceDisplaySmall">@style/TextAppearance.Foundation.ScreenTitle</item>
