@@ -8,7 +8,8 @@
   XML reads the colour roles as theme attributes (?attr/foundationPrimary); each theme in
   theme_light.xml, theme_dark.xml and theme_black.xml points them at the colours below, and maps
   the Material 3 colour roles onto them. Compose reads the same attributes through AnkiDroidTheme
-  (MaterialTheme.foundation). Shapes and spacing are plain dimensions read by both.
+  (MaterialTheme.foundation). Shapes and spacing are plain dimensions read by both; the type scale is a
+  set of TextAppearance styles read by both.
 -->
 <resources>
     <!-- Colour roles, as theme attributes -->
@@ -128,4 +129,157 @@
     <dimen name="foundation_elevation_flat">0dp</dimen>
     <dimen name="foundation_elevation_add_button">8dp</dimen>
     <item name="foundation_elevation_add_button_shadow_alpha" format="float" type="dimen">0.55</item>
+
+    <!--
+      Type: the type scale. Each role is a TextAppearance; Compose reads the same styles
+      (MaterialTheme.foundation.type). Hierarchy is carried by size and weight only: no style is
+      italic, set in capitals or letter-spaced. The line height is the size times the role's
+      lineHeight, roomy enough for Chinese and Japanese. Weights 600 and above are also marked bold,
+      the only weight Android 7 and 8 can show.
+
+      Every style sets the interface typeface (@font/foundation_interface). On Android 10 and later,
+      text inflated from a layout is redrawn in InterfaceTypeface.kt's fallback chain at the same weight.
+    -->
+    <!-- How Compose reads a type role (Foundation.kt) -->
+    <declare-styleable name="FoundationTextAppearance">
+        <attr name="android:textSize" />
+        <attr name="android:textFontWeight" />
+        <attr name="android:lineHeight" />
+        <attr name="android:fontFeatureSettings" />
+    </declare-styleable>
+
+    <style name="TextAppearance.Foundation" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/foundation_interface</item>
+        <item name="fontFamily">@font/foundation_interface</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="textAllCaps">false</item>
+    </style>
+
+    <!-- The title of a top-level screen -->
+    <style name="TextAppearance.Foundation.ScreenTitle">
+        <item name="android:textSize">38sp</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:lineHeight">43.7sp</item>
+        <item name="lineHeight">43.7sp</item>
+    </style>
+
+    <!-- The heading of the finished screen and of an empty screen -->
+    <style name="TextAppearance.Foundation.PageTitle">
+        <item name="android:textSize">30sp</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:lineHeight">36sp</item>
+        <item name="lineHeight">36sp</item>
+    </style>
+
+    <!-- A top-level Deck in the deck list -->
+    <style name="TextAppearance.Foundation.DeckName">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:lineHeight">26sp</item>
+        <item name="lineHeight">26sp</item>
+    </style>
+
+    <!-- A Deck inside another Deck -->
+    <style name="TextAppearance.Foundation.DeckNameNested">
+        <item name="android:textSize">17.5sp</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:lineHeight">22.75sp</item>
+        <item name="lineHeight">22.75sp</item>
+    </style>
+
+    <!-- The line that says what is due today -->
+    <style name="TextAppearance.Foundation.Summary">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:lineHeight">25.2sp</item>
+        <item name="lineHeight">25.2sp</item>
+    </style>
+
+    <!-- A new, learning or due count; a zero count uses weight 400 -->
+    <style name="TextAppearance.Foundation.Count">
+        <item name="android:textSize">17sp</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineHeight">20.4sp</item>
+        <item name="lineHeight">20.4sp</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <!-- The Deck name on the study screen -->
+    <style name="TextAppearance.Foundation.StudyTitle">
+        <item name="android:textSize">17sp</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:lineHeight">23.8sp</item>
+        <item name="lineHeight">23.8sp</item>
+    </style>
+
+    <!-- The label of a primary button -->
+    <style name="TextAppearance.Foundation.Button">
+        <item name="android:textSize">17sp</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:lineHeight">23.8sp</item>
+        <item name="lineHeight">23.8sp</item>
+    </style>
+
+    <!-- The title of a row in a list of actions or destinations (More, the finished screen) -->
+    <style name="TextAppearance.Foundation.RowTitle">
+        <item name="android:textSize">17sp</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:lineHeight">23.8sp</item>
+        <item name="lineHeight">23.8sp</item>
+    </style>
+
+    <!-- The explanation under a page title -->
+    <style name="TextAppearance.Foundation.Lead">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:lineHeight">24.8sp</item>
+        <item name="lineHeight">24.8sp</item>
+    </style>
+
+    <!-- Again, Hard, Good and Easy -->
+    <style name="TextAppearance.Foundation.Answer">
+        <item name="android:textSize">16.5sp</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineHeight">23.1sp</item>
+        <item name="lineHeight">23.1sp</item>
+    </style>
+
+    <!-- Ordinary interface text -->
+    <style name="TextAppearance.Foundation.Body">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:lineHeight">21sp</item>
+        <item name="lineHeight">21sp</item>
+    </style>
+
+    <!-- Remaining counts on the study screen -->
+    <style name="TextAppearance.Foundation.StudyCount">
+        <item name="android:textSize">14.5sp</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineHeight">17.4sp</item>
+        <item name="lineHeight">17.4sp</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <!-- Dates and secondary lines -->
+    <style name="TextAppearance.Foundation.Caption">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:lineHeight">18.2sp</item>
+        <item name="lineHeight">18.2sp</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+    </style>
+
+    <!-- Column headers, bottom bar labels, answer times; the current bottom bar label uses weight 600 -->
+    <style name="TextAppearance.Foundation.Label">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:lineHeight">16.8sp</item>
+        <item name="lineHeight">16.8sp</item>
+    </style>
 </resources>

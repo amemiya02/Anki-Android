@@ -3,16 +3,22 @@
 package com.ichi2.anki.common.android.themes
 
 import android.content.Context
+import android.graphics.Typeface
 import android.util.TypedValue
 import android.view.ContextThemeWrapper
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Typography
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.test.core.app.ApplicationProvider
 import com.ichi2.anki.common.android.R
 import com.ichi2.compose.theme.toAnkiDroidDimensions
 import com.ichi2.compose.theme.toFoundation
+import com.ichi2.compose.theme.toMaterialTypography
 import org.json.JSONObject
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -20,6 +26,7 @@ import org.robolectric.RobolectricTestRunner
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import com.google.android.material.R as MaterialR
 
 /**
  * The Foundation must not drift from the chosen Direction's design values.
@@ -163,6 +170,187 @@ class FoundationTest {
         assertEquals(emptyList(), mismatches.toList())
     }
 
+    @Test
+    fun `every type style in XML matches the design value`() {
+        val mismatches =
+            typeRoles().flatMap { role ->
+                val name = role.getString("role")
+                val style = styleNamed("TextAppearance_Foundation_" + name.replaceFirstChar { it.uppercase() })
+                if (style == null) return@flatMap listOf("$name: no style")
+                val size = role.getDouble("size").toFloat()
+                val expected =
+                    mapOf(
+                        "size" to "${size}sp",
+                        "weight" to role.getInt("weight").toString(),
+                        "lineHeight" to "%.2fsp".format(size * role.getDouble("lineHeight")),
+                        "materialLineHeight" to "%.2fsp".format(size * role.getDouble("lineHeight")),
+                        "font" to "foundation_interface",
+                        "figures" to if (role.optString("figures") == "tabular") "tnum" else "null",
+                    )
+                val actual =
+                    mapOf(
+                        "size" to
+                            styleValue(style, android.R.attr.textSize) {
+                                "${TypedValue.complexToFloat(data)}sp".takeIf {
+                                    complexUnit ==
+                                        TypedValue.COMPLEX_UNIT_SP
+                                }
+                            },
+                        "weight" to styleValue(style, android.R.attr.textFontWeight) { data.toString() },
+                        "lineHeight" to
+                            styleValue(style, android.R.attr.lineHeight) {
+                                "%.2fsp".format(TypedValue.complexToFloat(data)).takeIf {
+                                    complexUnit ==
+                                        TypedValue.COMPLEX_UNIT_SP
+                                }
+                            },
+                        "materialLineHeight" to
+                            styleValue(style, MaterialR.attr.lineHeight) {
+                                "%.2fsp".format(TypedValue.complexToFloat(data)).takeIf {
+                                    complexUnit ==
+                                        TypedValue.COMPLEX_UNIT_SP
+                                }
+                            },
+                        "font" to styleValue(style, android.R.attr.fontFamily) { appContext.resources.getResourceEntryName(resourceId) },
+                        "figures" to (styleValue(style, android.R.attr.fontFeatureSettings) { string.toString() } ?: "null"),
+                    )
+                expected.keys.mapNotNull { key ->
+                    if (expected[key] ==
+                        actual[key]
+                    ) {
+                        null
+                    } else {
+                        "$name.$key: expected ${expected[key]}, was ${actual[key]}"
+                    }
+                }
+            }
+        assertEquals(emptyList(), mismatches)
+    }
+
+    @Test
+    fun `Compose reads the same type scale`() {
+        val type = appContext.toFoundation().type
+        val styles =
+            mapOf(
+                "screenTitle" to type.screenTitle,
+                "pageTitle" to type.pageTitle,
+                "deckName" to type.deckName,
+                "deckNameNested" to type.deckNameNested,
+                "summary" to type.summary,
+                "count" to type.count,
+                "studyTitle" to type.studyTitle,
+                "button" to type.button,
+                "rowTitle" to type.rowTitle,
+                "lead" to type.lead,
+                "answer" to type.answer,
+                "body" to type.body,
+                "studyCount" to type.studyCount,
+                "caption" to type.caption,
+                "label" to type.label,
+            )
+        assertEquals(typeRoles().map { it.getString("role") }.sorted(), styles.keys.sorted(), "Compose type roles")
+        val mismatches =
+            typeRoles().flatMap { role ->
+                val name = role.getString("role")
+                val style = styles.getValue(name)
+                val size = role.getDouble("size").toFloat()
+                val expected =
+                    listOf(
+                        "${size}sp",
+                        FontWeight(role.getInt("weight")).toString(),
+                        "%.2fsp".format(size * role.getDouble("lineHeight")),
+                        if (role.optString("figures") == "tabular") "tnum" else "null",
+                    )
+                val actual =
+                    listOf(
+                        "${style.fontSize.value}sp",
+                        style.fontWeight.toString(),
+                        "%.2fsp".format(style.lineHeight.value),
+                        style.fontFeatureSettings.toString(),
+                    )
+                if (expected == actual) emptyList() else listOf("$name: expected $expected, was $actual")
+            }
+        assertEquals(emptyList(), mismatches)
+    }
+
+    @Test
+    fun `no type style relies on italics, capitals or letter-spacing`() {
+        val foundation = appContext.toFoundation()
+        val compose = foundation.type.all + foundation.toMaterialTypography().all()
+        for (style in compose) {
+            assertEquals(FontStyle.Normal, style.fontStyle, "$style")
+            assertEquals(0f, style.letterSpacing.value, "$style")
+            assertTrue(style.fontFamily != null, "$style has no typeface")
+        }
+        for (name in materialTextAppearances) {
+            for ((theme, styleRes) in themes) {
+                val value = TypedValue()
+                assertTrue(
+                    ContextThemeWrapper(appContext, styleRes).theme.resolveAttribute(attrNamedMaterial(name), value, true),
+                    "$theme.$name",
+                )
+                val style = value.resourceId
+                val styleName = appContext.resources.getResourceEntryName(style)
+                assertTrue(styleName.startsWith("TextAppearance.Foundation."), "$theme.$name is $styleName, not a Foundation style")
+                assertEquals(
+                    "false",
+                    styleValue(style, android.R.attr.textAllCaps) { coerceToString().toString() } ?: "false",
+                    "$theme.$name",
+                )
+                assertEquals(0f, styleValue(style, android.R.attr.letterSpacing) { float } ?: 0f, "$theme.$name")
+                assertEquals(0, (styleValue(style, android.R.attr.textStyle) { data } ?: 0) and Typeface.ITALIC, "$theme.$name")
+            }
+        }
+    }
+
+    @Test
+    fun `interface text falls back to the type scale's typeface in every theme`() {
+        for ((theme, styleRes) in themes) {
+            val value = TypedValue()
+            ContextThemeWrapper(appContext, styleRes).theme.resolveAttribute(android.R.attr.fontFamily, value, true)
+            assertEquals(R.font.foundation_interface, value.resourceId, theme)
+        }
+    }
+
+    private fun typeRoles(): List<JSONObject> {
+        val type = values.getJSONArray("type")
+        return (0 until type.length()).map { type.getJSONObject(it) }
+    }
+
+    private fun styleNamed(name: String): Int? = runCatching { R.style::class.java.getField(name).getInt(null) }.getOrNull()
+
+    private fun attrNamedMaterial(name: String): Int = MaterialR.attr::class.java.getField(name).getInt(null)
+
+    /** The value of [attr] in [style], or null when the style doesn't set it */
+    private fun <T> styleValue(
+        style: Int,
+        attr: Int,
+        read: TypedValue.() -> T?,
+    ): T? =
+        appContext.obtainStyledAttributes(style, intArrayOf(attr)).use { array ->
+            val value = TypedValue()
+            if (!array.getValue(0, value)) null else value.read()
+        }
+
+    private fun Typography.all(): List<TextStyle> =
+        listOf(
+            displayLarge,
+            displayMedium,
+            displaySmall,
+            headlineLarge,
+            headlineMedium,
+            headlineSmall,
+            titleLarge,
+            titleMedium,
+            titleSmall,
+            bodyLarge,
+            bodyMedium,
+            bodySmall,
+            labelLarge,
+            labelMedium,
+            labelSmall,
+        )
+
     private fun attrNamed(name: String): Int? = runCatching { R.attr::class.java.getField(name).getInt(null) }.getOrNull()
 
     private fun dimenDp(name: String): Float? {
@@ -179,6 +367,26 @@ class FoundationTest {
                 "light" to R.style.Theme_Light,
                 "dark" to R.style.Theme_Dark,
                 "black" to R.style.Theme_Dark_Black,
+            )
+
+        /** Material 3's type slots, each of which a theme maps onto a Foundation style */
+        val materialTextAppearances =
+            listOf(
+                "textAppearanceDisplayLarge",
+                "textAppearanceDisplayMedium",
+                "textAppearanceDisplaySmall",
+                "textAppearanceHeadlineLarge",
+                "textAppearanceHeadlineMedium",
+                "textAppearanceHeadlineSmall",
+                "textAppearanceTitleLarge",
+                "textAppearanceTitleMedium",
+                "textAppearanceTitleSmall",
+                "textAppearanceBodyLarge",
+                "textAppearanceBodyMedium",
+                "textAppearanceBodySmall",
+                "textAppearanceLabelLarge",
+                "textAppearanceLabelMedium",
+                "textAppearanceLabelSmall",
             )
 
         /** Stand-ins for how Card Content is drawn today; the Redesign does not restyle Card Content */

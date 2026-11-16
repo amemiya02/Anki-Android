@@ -7,7 +7,8 @@
         "chinese": "LXGW WenKai",
         "japanese": "Klee One",
         "licence": "SIL Open Font License 1.1",
-        "rule": "The Latin face comes first in every stack, so Latin letters and figures are always Newsreader. Chinese text falls to LXGW WenKai and Japanese text to Klee One, chosen by the language of the text. Hierarchy uses size and weight only."
+        "rule": "The Latin face comes first in every stack, so Latin letters and figures are always Newsreader. Chinese text falls to LXGW WenKai and Japanese text to Klee One, chosen by the language of the text. Hierarchy uses size and weight only.",
+        "lineHeight": "Each style's lineHeight is a multiple of its size, the same in every script: roomy enough for Chinese and Japanese, whose characters fill the whole em square, and tight only on titles, which rarely wrap. Figures marked tabular are drawn at one width, so counts line up."
     },
 
     "icons": {
@@ -24,70 +25,107 @@
             "role": "screenTitle",
             "size": 38,
             "weight": 500,
+            "lineHeight": 1.15,
             "use": "The title of a top-level screen"
         },
         {
             "role": "pageTitle",
             "size": 30,
             "weight": 500,
+            "lineHeight": 1.2,
             "use": "The heading of the finished screen and of an empty screen"
         },
         {
             "role": "deckName",
             "size": 20,
             "weight": 500,
+            "lineHeight": 1.3,
             "use": "A top-level Deck in the deck list"
         },
         {
             "role": "deckNameNested",
             "size": 17.5,
             "weight": 400,
+            "lineHeight": 1.3,
             "use": "A Deck inside another Deck"
         },
         {
             "role": "summary",
             "size": 18,
             "weight": 500,
+            "lineHeight": 1.4,
             "use": "The line that says what is due today"
         },
         {
             "role": "count",
             "size": 17,
             "weight": 600,
+            "lineHeight": 1.2,
+            "figures": "tabular",
             "use": "A new, learning or due count; a zero count uses weight 400"
         },
         {
             "role": "studyTitle",
             "size": 17,
             "weight": 500,
+            "lineHeight": 1.4,
             "use": "The Deck name on the study screen"
         },
-        { "role": "button", "size": 17, "weight": 500, "use": "The label of a primary button" },
+        {
+            "role": "button",
+            "size": 17,
+            "weight": 500,
+            "lineHeight": 1.4,
+            "use": "The label of a primary button"
+        },
         {
             "role": "rowTitle",
             "size": 17,
             "weight": 500,
+            "lineHeight": 1.4,
             "use": "The title of a row in a list of actions or destinations (More, the finished screen)"
         },
         {
             "role": "lead",
             "size": 16,
             "weight": 400,
-            "use": "The explanation under a page title; line height 1.55"
+            "lineHeight": 1.55,
+            "use": "The explanation under a page title"
         },
-        { "role": "answer", "size": 16.5, "weight": 600, "use": "Again, Hard, Good and Easy" },
-        { "role": "body", "size": 15, "weight": 400, "use": "Ordinary interface text" },
+        {
+            "role": "answer",
+            "size": 16.5,
+            "weight": 600,
+            "lineHeight": 1.4,
+            "use": "Again, Hard, Good and Easy"
+        },
+        {
+            "role": "body",
+            "size": 15,
+            "weight": 400,
+            "lineHeight": 1.4,
+            "use": "Ordinary interface text"
+        },
         {
             "role": "studyCount",
             "size": 14.5,
             "weight": 600,
+            "lineHeight": 1.2,
+            "figures": "tabular",
             "use": "Remaining counts on the study screen"
         },
-        { "role": "caption", "size": 13, "weight": 400, "use": "Dates and secondary lines" },
+        {
+            "role": "caption",
+            "size": 13,
+            "weight": 400,
+            "lineHeight": 1.4,
+            "use": "Dates and secondary lines"
+        },
         {
             "role": "label",
             "size": 12,
             "weight": 400,
+            "lineHeight": 1.4,
             "use": "Column headers, bottom bar labels, answer times; the current bottom bar label uses weight 600"
         }
     ],

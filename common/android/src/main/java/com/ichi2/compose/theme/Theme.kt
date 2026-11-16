@@ -49,7 +49,12 @@ fun AnkiDroidTheme(content: @Composable () -> Unit) {
         LocalAnkiDroidDimensions provides ankiDimensions,
         LocalAnkiDroidColors provides ankiColors,
     ) {
-        MaterialTheme(colorScheme = colorScheme, shapes = foundation.toMaterialShapes(), content = content)
+        MaterialTheme(
+            colorScheme = colorScheme,
+            shapes = foundation.toMaterialShapes(),
+            typography = foundation.toMaterialTypography(),
+            content = content,
+        )
     }
 }
 

@@ -86,6 +86,35 @@
         <item name="android:textColorTertiary">@color/text_color_secondary</item>
         <item name="android:textColorHighlight">?attr/foundationProgressTrack</item>
 
+        <!--
+          Foundation type: interface text falls back to the interface typeface, and Material 3's type
+          slots are the Foundation's styles (foundation.xml). Keep Light and Dark in step.
+        -->
+        <item name="android:fontFamily">@font/foundation_interface</item>
+        <item name="fontFamily">@font/foundation_interface</item>
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.Foundation.ScreenTitle</item>
+        <item name="textAppearanceDisplayMedium">@style/TextAppearance.Foundation.ScreenTitle</item>
+        <item name="textAppearanceDisplaySmall">@style/TextAppearance.Foundation.ScreenTitle</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.Foundation.ScreenTitle</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.Foundation.PageTitle</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.Foundation.DeckName</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.Foundation.DeckName</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.Foundation.RowTitle</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.Foundation.RowTitle</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.Foundation.Lead</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.Foundation.Body</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.Foundation.Caption</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.Foundation.Button</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.Foundation.Label</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.Foundation.Label</item>
+        <item name="android:textAppearance">@style/TextAppearance.Foundation.Body</item>
+        <item name="android:textAppearanceSmall">@style/TextAppearance.Foundation.Body</item>
+        <item name="android:textAppearanceMedium">@style/TextAppearance.Foundation.Lead</item>
+        <item name="android:textAppearanceLarge">@style/TextAppearance.Foundation.DeckName</item>
+        <item name="android:textAppearanceListItem">@style/TextAppearance.Foundation.Lead</item>
+        <item name="android:textAppearanceListItemSmall">@style/TextAppearance.Foundation.Body</item>
+        <item name="android:textAppearanceListItemSecondary">@style/TextAppearance.Foundation.Caption</item>
+
         <!-- Foundation shapes and elevation -->
         <item name="shapeCornerSizeExtraSmall">@dimen/foundation_shape_card_sheet</item>
         <item name="shapeCornerSizeSmall">@dimen/foundation_shape_button</item>

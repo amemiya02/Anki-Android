@@ -3,31 +3,45 @@
 package com.ichi2.compose.theme
 
 import android.content.Context
+import android.util.TypedValue
 import androidx.annotation.DimenRes
+import androidx.annotation.StyleRes
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.Typeface
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.content.withStyledAttributes
 import com.ichi2.anki.common.android.R
+import com.ichi2.anki.common.android.themes.interfaceTypeface
 
 /**
- * The Foundation as Compose reads it: the chosen Direction's colour roles, shapes, spacing and
- * elevation. Read it like the Material 3 slots: `MaterialTheme.foundation.colors.countNew`.
+ * The Foundation as Compose reads it: the chosen Direction's colour roles, shapes, spacing,
+ * elevation and type scale. Read it like the Material 3 slots: `MaterialTheme.foundation.colors.countNew`,
+ * `MaterialTheme.foundation.type.deckName`.
  *
  * Nothing here holds a value of its own. Colours come from the active XML theme's
  * `foundation*` attributes and sizes from the `foundation_*` dimensions (res/values/foundation.xml),
- * so Compose and the remaining XML screens always show the same look.
+ * and type from the `TextAppearance.Foundation.*` styles, so Compose and the remaining XML screens
+ * always show the same look.
  */
 @Immutable
 data class Foundation(
@@ -35,7 +49,51 @@ data class Foundation(
     val shapes: FoundationShapes,
     val spacing: FoundationSpacing,
     val elevation: FoundationElevation,
+    val type: FoundationType,
 )
+
+/**
+ * The type scale. Each role is the XML TextAppearance of the same name (`TextAppearance.Foundation.*`
+ * in res/values/foundation.xml), drawn in the interface typeface. Hierarchy is size and weight only.
+ */
+@Immutable
+data class FoundationType(
+    val screenTitle: TextStyle,
+    val pageTitle: TextStyle,
+    val deckName: TextStyle,
+    val deckNameNested: TextStyle,
+    val summary: TextStyle,
+    val count: TextStyle,
+    val studyTitle: TextStyle,
+    val button: TextStyle,
+    val rowTitle: TextStyle,
+    val lead: TextStyle,
+    val answer: TextStyle,
+    val body: TextStyle,
+    val studyCount: TextStyle,
+    val caption: TextStyle,
+    val label: TextStyle,
+) {
+    val all: List<TextStyle>
+        get() =
+            listOf(
+                screenTitle,
+                pageTitle,
+                deckName,
+                deckNameNested,
+                summary,
+                count,
+                studyTitle,
+                button,
+                rowTitle,
+                lead,
+                answer,
+                body,
+                studyCount,
+                caption,
+                label,
+            )
+}
 
 /** The Foundation's colour roles. Names match `docs/redesign/quiet-paper.values.json`. */
 @Immutable
@@ -188,8 +246,80 @@ fun Context.toFoundation(): Foundation {
                         alpha = ResourcesCompat.getFloat(resources, R.dimen.foundation_elevation_add_button_shadow_alpha),
                     ),
             ),
+        type =
+            FoundationType(
+                screenTitle = textStyle(R.style.TextAppearance_Foundation_ScreenTitle),
+                pageTitle = textStyle(R.style.TextAppearance_Foundation_PageTitle),
+                deckName = textStyle(R.style.TextAppearance_Foundation_DeckName),
+                deckNameNested = textStyle(R.style.TextAppearance_Foundation_DeckNameNested),
+                summary = textStyle(R.style.TextAppearance_Foundation_Summary),
+                count = textStyle(R.style.TextAppearance_Foundation_Count),
+                studyTitle = textStyle(R.style.TextAppearance_Foundation_StudyTitle),
+                button = textStyle(R.style.TextAppearance_Foundation_Button),
+                rowTitle = textStyle(R.style.TextAppearance_Foundation_RowTitle),
+                lead = textStyle(R.style.TextAppearance_Foundation_Lead),
+                answer = textStyle(R.style.TextAppearance_Foundation_Answer),
+                body = textStyle(R.style.TextAppearance_Foundation_Body),
+                studyCount = textStyle(R.style.TextAppearance_Foundation_StudyCount),
+                caption = textStyle(R.style.TextAppearance_Foundation_Caption),
+                label = textStyle(R.style.TextAppearance_Foundation_Label),
+            ),
     )
 }
+
+/**
+ * Reads a type role from its XML TextAppearance. Newsreader is drawn at the optical size of the
+ * text, as the Mockups' browser does.
+ */
+private fun Context.textStyle(
+    @StyleRes style: Int,
+): TextStyle {
+    var textStyle: TextStyle? = null
+    withStyledAttributes(style, R.styleable.FoundationTextAppearance) {
+        fun sp(index: Int): TextUnit {
+            val value = TypedValue()
+            check(getValue(index, value) && value.complexUnit == TypedValue.COMPLEX_UNIT_SP) { "type sizes are in sp" }
+            return TypedValue.complexToFloat(value.data).sp
+        }
+        val size = sp(R.styleable.FoundationTextAppearance_android_textSize)
+        textStyle =
+            TextStyle(
+                fontFamily = FontFamily(Typeface(interfaceTypeface(opticalSize = size.value))),
+                fontSize = size,
+                fontWeight = FontWeight(getInt(R.styleable.FoundationTextAppearance_android_textFontWeight, 400)),
+                fontStyle = FontStyle.Normal,
+                lineHeight = sp(R.styleable.FoundationTextAppearance_android_lineHeight),
+                // Half the extra line height above the text and half below, as on the web
+                lineHeightStyle = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.None),
+                letterSpacing = 0.sp,
+                fontFeatureSettings = getString(R.styleable.FoundationTextAppearance_android_fontFeatureSettings),
+            )
+    }
+    return checkNotNull(textStyle)
+}
+
+/**
+ * Material 3's type slots, set from the type scale. The XML themes map the same slots
+ * (`textAppearanceBodyMedium` and so on, in theme_light.xml and theme_dark.xml).
+ */
+fun Foundation.toMaterialTypography() =
+    Typography(
+        displayLarge = type.screenTitle,
+        displayMedium = type.screenTitle,
+        displaySmall = type.screenTitle,
+        headlineLarge = type.screenTitle,
+        headlineMedium = type.pageTitle,
+        headlineSmall = type.deckName,
+        titleLarge = type.deckName,
+        titleMedium = type.rowTitle,
+        titleSmall = type.rowTitle,
+        bodyLarge = type.lead,
+        bodyMedium = type.body,
+        bodySmall = type.caption,
+        labelLarge = type.button,
+        labelMedium = type.label,
+        labelSmall = type.label,
+    )
 
 /** Material 3's corner scale, set from the Foundation: small corners everywhere but the add button. */
 internal fun Foundation.toMaterialShapes() =
