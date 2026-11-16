@@ -4,7 +4,7 @@
 
 **Blocked by:** 07 (Foundation: colours, shape and the three themes); 08 (Foundation: bundled typefaces and the type scale)
 
-**Status:** ready-for-agent
+**Status:** done (layouts and styles; leftover blue in graphics moved to ticket 12)
 
 - [x] No layout sets a colour directly; each uses a Foundation colour role.
 - [x] No layout sets a fixed text size; each uses a Foundation type style.
