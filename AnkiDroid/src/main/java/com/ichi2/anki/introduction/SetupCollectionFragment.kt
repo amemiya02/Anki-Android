@@ -14,7 +14,7 @@ import androidx.fragment.app.setFragmentResult
 import com.ichi2.anki.R
 import com.ichi2.anki.databinding.FragmentIntroductionBinding
 import com.ichi2.anki.introduction.SetupCollectionFragment.CollectionSetupOption.DeckPickerWithNewCollection
-import com.ichi2.anki.introduction.SetupCollectionFragment.CollectionSetupOption.SyncFromExistingAccount
+import com.ichi2.anki.introduction.SetupCollectionFragment.CollectionSetupOption.ImportPackage
 import com.ichi2.anki.utils.bottomCornerClearance
 import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.parcelize.Parcelize
@@ -23,7 +23,8 @@ import kotlinx.parcelize.Parcelize
  * Allows a user multiple choices for setting up the collection:
  *
  * * Starting normally
- * * Syncing from AnkiWeb - this allows the user to log in and performs a sync when the DeckPicker is loaded
+ * * Importing a collection or deck package - the DeckPicker offers the import when it is loaded.
+ *   This is offered where Upstream offers to sync from AnkiWeb, which the Fork never does (ADR-0001)
  *
  * This exists for two reasons:
  * 1) Ensuring that a user does not create two profiles: one for Anki Desktop and one for AnkiDroid
@@ -42,7 +43,7 @@ class SetupCollectionFragment : Fragment(R.layout.fragment_introduction) {
         setupEdgeToEdge(view)
 
         binding.getStarted.setOnClickListener { setResult(DeckPickerWithNewCollection) }
-        binding.syncProfile.setOnClickListener { setResult(SyncFromExistingAccount) }
+        binding.importPackage.setOnClickListener { setResult(ImportPackage) }
     }
 
     /** Applies edge-to-edge insets for the screen */
@@ -72,8 +73,8 @@ class SetupCollectionFragment : Fragment(R.layout.fragment_introduction) {
         /** Continues to the DeckPicker with a new collection */
         DeckPickerWithNewCollection,
 
-        /** Syncs an existing profile from AnkiWeb */
-        SyncFromExistingAccount,
+        /** Continues to the DeckPicker, which offers to import a collection or deck package */
+        ImportPackage,
     }
 
     companion object {

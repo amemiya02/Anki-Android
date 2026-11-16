@@ -9,4 +9,6 @@
     <string name="sync_server_sign_in_to">登录到 %s</string>
     <string name="sync_server_not_logged_in_title">登录到你的同步服务器</string>
     <string name="sync_server_login_message">登录到你的同步服务器以同步你的集合。</string>
+
+    <string name="intro_import">导入集合或牌组</string>
 </resources>

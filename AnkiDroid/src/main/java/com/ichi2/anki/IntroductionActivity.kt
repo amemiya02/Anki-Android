@@ -9,12 +9,9 @@ import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.edit
 import androidx.core.os.BundleCompat
-import com.ichi2.anki.account.AccountActivity
-import com.ichi2.anki.account.LoginFragment
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.introduction.CollectionPermissionScreenLauncher
@@ -29,7 +26,8 @@ import timber.log.Timber
 /**
  * App introduction for new users.
  *
- * Links to [AccountActivity]/[LoginFragment] ("Sync from AnkiWeb") or [DeckPicker] ("Get Started")
+ * Links to [DeckPicker], either to import a collection or deck package ("Import") or to start
+ * with a new collection ("Get Started"). Upstream's "Sync from AnkiWeb" is not offered (ADR-0001).
  *
  * @see SetupCollectionFragment
  */
@@ -41,18 +39,7 @@ class IntroductionActivity :
     override val permissionScreenLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (hasCollectionStoragePermissions()) {
-                openLoginDialog()
-            }
-        }
-
-    @NeedsTest("ensure this is called when the activity ends")
-    private val onLoginResult =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-            if (result.resultCode == RESULT_OK) {
-                Timber.i("login successful, opening deck picker to sync")
-                startDeckPicker(RESULT_SYNC_PROFILE)
-            } else {
-                Timber.i("login was not successful")
+                openImport()
             }
         }
 
@@ -68,25 +55,24 @@ class IntroductionActivity :
                 BundleCompat.getParcelable(bundle, RESULT_KEY, CollectionSetupOption::class.java) ?: error("Missing introduction option!")
             when (option) {
                 CollectionSetupOption.DeckPickerWithNewCollection -> startDeckPicker()
-                CollectionSetupOption.SyncFromExistingAccount -> openLoginDialog()
+                CollectionSetupOption.ImportPackage -> openImport()
             }
         }
     }
 
-    private fun openLoginDialog() {
+    private fun openImport() {
         if (collectionPermissionScreenWasOpened()) return
-        Timber.i("Opening login screen")
-        val intent = AccountActivity.getIntent(context = this, forResult = true)
-        onLoginResult.launch(intent)
+        Timber.i("Opening deck picker to import")
+        startDeckPicker(RESULT_IMPORT)
     }
 
     private fun startDeckPicker(result: Int = RESULT_START_NEW) {
-        Timber.i("Opening deck picker, login: %b", result == RESULT_SYNC_PROFILE)
+        Timber.i("Opening deck picker, import: %b", result == RESULT_IMPORT)
         this.sharedPrefs().edit { putBoolean(PREF_INTRODUCTION_SLIDES_SHOWN, true) }
         val deckPicker = Intent(this, DeckPicker::class.java)
         deckPicker.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-        if (result == RESULT_SYNC_PROFILE) {
-            deckPicker.putExtra(DeckPicker.EXTRA_SYNC_FROM_LOGIN, true)
+        if (result == RESULT_IMPORT) {
+            deckPicker.putExtra(DeckPicker.EXTRA_IMPORT, true)
         }
 
         startActivity(deckPicker)
@@ -95,11 +81,11 @@ class IntroductionActivity :
 
     companion object {
         const val RESULT_START_NEW = 1
-        const val RESULT_SYNC_PROFILE = 2
+        const val RESULT_IMPORT = 2
 
         /**
          * Key for the preference recording that the slide "Study less/ Remember more" offering to
-         * get started or sync from ankiweb, was displayed. If so don't display it again.
+         * get started or import, was displayed. If so don't display it again.
          */
         const val PREF_INTRODUCTION_SLIDES_SHOWN = "IntroductionSlidesShown"
     }

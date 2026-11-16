@@ -8,13 +8,11 @@ import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.View
+import androidx.annotation.StringRes
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.SingleFragmentActivity.Companion.EXTRA_FRAGMENT_NAME
-import com.ichi2.anki.account.AccountActivity
-import com.ichi2.anki.account.LoginFragment
 import com.ichi2.anki.introduction.SetupCollectionFragment
 import com.ichi2.anki.introduction.SetupCollectionFragment.CollectionSetupOption.DeckPickerWithNewCollection
-import com.ichi2.anki.introduction.SetupCollectionFragment.CollectionSetupOption.SyncFromExistingAccount
 import com.ichi2.anki.ui.windows.permissions.PermissionsActivity
 import com.ichi2.testutils.withDeniedPermissions
 import kotlinx.coroutines.test.runTest
@@ -24,22 +22,32 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
-import kotlin.reflect.jvm.jvmName
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /** Tests [IntroductionActivity] */
 @RunWith(AndroidJUnit4::class)
 class IntroductionActivityTest : RobolectricTest() {
+    @Test
+    fun `the first-run screen offers import in place of AnkiWeb sync`() =
+        runTest {
+            val activity = startRegularActivity<IntroductionActivity>(Intent())
+
+            assertTrue(activity.hasVisibleText(CommonString.intro_import), "import is offered")
+            assertFalse(activity.hasVisibleText("AnkiWeb"), "AnkiWeb sync is not offered")
+        }
+
     // At API 29, selectStoragePermissions returns StoragePermissionSet.LEGACY_ACCESS, which can be denied.
     // StoragePermissionSet.APP_PRIVATE requires no permission
     @Config(sdk = [Build.VERSION_CODES.Q])
     @Test
-    fun `Sync without storage permission opens PermissionsActivity`() =
+    fun `Import without storage permission opens PermissionsActivity`() =
         runTest {
             withDeniedPermissions(READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE) {
                 val activity = startRegularActivity<IntroductionActivity>(Intent())
 
-                activity.clickSync()
+                activity.clickText(CommonString.intro_import)
 
                 val intent = assertNotNull(shadowOf(activity).nextStartedActivity)
                 assertThat(
@@ -50,23 +58,16 @@ class IntroductionActivityTest : RobolectricTest() {
         }
 
     @Test
-    fun `Sync with storage permission opens the login screen`() =
+    fun `Import opens the deck list ready to import`() =
         runTest {
             val activity = startRegularActivity<IntroductionActivity>(Intent())
 
-            activity.clickSync()
+            activity.clickText(CommonString.intro_import)
 
             val intent = assertNotNull(shadowOf(activity).nextStartedActivity)
-            assertThat(
-                "host activity is AccountActivity",
-                intent.component?.shortClassName,
-                equalTo(AccountActivity::class.java.name),
-            )
-            assertThat(
-                "hosted fragment is LoginFragment",
-                intent.getStringExtra(EXTRA_FRAGMENT_NAME),
-                equalTo(LoginFragment::class.jvmName),
-            )
+            assertThat(intent.component?.className, equalTo(DeckPicker::class.java.name))
+            assertTrue(intent.getBooleanExtra(DeckPicker.EXTRA_IMPORT, false), "the deck list is asked to import")
+            assertFalse(intent.getBooleanExtra(DeckPicker.EXTRA_SYNC_FROM_LOGIN, false), "the deck list is not asked to sync")
         }
 
     @Test
@@ -96,10 +97,23 @@ class IntroductionActivityTest : RobolectricTest() {
             )
         }
 
-    private fun IntroductionActivity.clickSync() {
-        supportFragmentManager.setFragmentResult(
-            SetupCollectionFragment.REQUEST_COLLECTION_SETUP,
-            Bundle().apply { putParcelable(SetupCollectionFragment.RESULT_KEY, SyncFromExistingAccount) },
-        )
+    private fun IntroductionActivity.hasVisibleText(
+        @StringRes text: Int,
+    ) = hasVisibleText(getString(text))
+
+    /** Whether a shown view's text contains [text], ignoring case */
+    private fun IntroductionActivity.hasVisibleText(text: String): Boolean {
+        val views = ArrayList<View>()
+        window.decorView.findViewsWithText(views, text, View.FIND_VIEWS_WITH_TEXT)
+        return views.any { it.isShown }
+    }
+
+    private fun IntroductionActivity.clickText(
+        @StringRes text: Int,
+    ) {
+        val views = ArrayList<View>()
+        window.decorView.findViewsWithText(views, getString(text), View.FIND_VIEWS_WITH_TEXT)
+        views.single { it.isShown }.performClick()
+        advanceRobolectricLooper()
     }
 }
