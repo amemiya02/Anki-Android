@@ -6,13 +6,14 @@ import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.TypedValue
+import androidx.core.content.edit
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.StudyOptionsActivity
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.settings.PrefsRepository
 import com.ichi2.anki.settings.enums.AppTheme
-import com.ichi2.anki.settings.enums.DayTheme
 import com.ichi2.anki.settings.enums.NightTheme
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsString
@@ -86,18 +87,8 @@ class ThemesTest : RobolectricTest() {
     }
 
     @Test
-    fun `Material You developer option applies the dynamic colors`() {
-        PrefsRepository(targetContext).devMaterialYouEnabled = true
-        assertThat(primaryColorResourceName(), containsString("dynamic"))
-    }
-
-    @Test
-    fun `Material You developer option is not applied to E-Ink`() {
-        PrefsRepository(targetContext).apply {
-            devMaterialYouEnabled = true
-            appTheme = AppTheme.DAY
-            dayTheme = DayTheme.EINK
-        }
+    fun `wallpaper colours are not applied, even if the old developer option was on`() {
+        targetContext.sharedPrefs().edit { putBoolean("devMaterialYou", true) }
         assertThat(primaryColorResourceName(), not(containsString("dynamic")))
     }
 

@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@drawable/widget_deck_picker_rounded_background"
-    android:theme="@style/Theme.Material3.DynamicColors.DayNight">
+    android:theme="@style/Theme.Widget">
 
     <LinearLayout
         android:layout_width="match_parent"

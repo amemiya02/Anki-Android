@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!--
+  Home-screen widgets follow the system's light or dark setting with the Foundation's fixed palette,
+  never wallpaper-derived dynamic colour. The night variant is in values-night/theme_widget.xml.
+-->
+<resources>
+    <style name="Theme.Widget" parent="Theme_Light" />
+</resources>

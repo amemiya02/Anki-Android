@@ -7,7 +7,7 @@
     android:clipToOutline="true"
     android:clickable="true"
     android:focusable="false"
-    android:theme="@style/Theme.Material3.DynamicColors.DayNight">
+    android:theme="@style/Theme.Widget">
 
     <TextView
         android:id="@+id/empty_widget"

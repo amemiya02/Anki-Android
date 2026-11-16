@@ -9,7 +9,7 @@
     android:baselineAligned="false"
     android:paddingHorizontal="12dp"
     android:paddingVertical="6dp"
-    android:theme="@style/Theme.Material3.DynamicColors.DayNight">
+    android:theme="@style/Theme.Widget">
 
     <TextView
         android:id="@+id/deckName"

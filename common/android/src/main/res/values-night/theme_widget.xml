@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- Home-screen widgets in the system's dark mode: the Dark theme. See values/theme_widget.xml. -->
+<resources>
+    <style name="Theme.Widget" parent="Theme_Dark" />
+</resources>
