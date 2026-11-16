@@ -36,6 +36,10 @@ _Avoid_: Web screen, Svelte page, backend page
 Matching an Anki Page's colours and typeface to the Redesign without changing its content or arrangement.
 _Avoid_: Restyle, theming
 
+**Engine**:
+The part of the app that stores the collection, schedules Cards and syncs with AnkiWeb. It is never redesigned and stays identical to Upstream.
+_Avoid_: Backend, core, libanki
+
 **Card Content**:
 What a Card Template renders for a Card: the question and answer as their author styled them.
 _Avoid_: Card body, card HTML

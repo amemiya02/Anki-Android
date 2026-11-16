@@ -13,5 +13,5 @@ The Redesign changes the look, navigation and task flows of the whole app at onc
 
 ## Consequences
 
-- Upstream changes arrive only by merging at milestone boundaries; the fork stays pinned to a known upstream commit in between, and conflicts in redesigned screens are ours to resolve.
+- The Fork follows Upstream for the Engine only. Upstream's interface changes are ignored; Engine updates are taken whenever sync requires it or a few times a year, because an Engine frozen in time would eventually stop syncing with AnkiWeb and newer desktop Anki. (This replaces the first plan, which merged all of Upstream at Milestone boundaries; see ADR-0003.)
 - The fork installs beside the official app with its own data, so Decks reach it through AnkiWeb sync or an import, not by sharing storage.
