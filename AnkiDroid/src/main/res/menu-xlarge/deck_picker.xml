@@ -3,14 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/deck_picker_action_filter"
-        android:icon="@drawable/ic_search_white"
+        android:icon="@drawable/symbol_search"
         android:title="@string/search_decks"
         android:visible="false"
         app:actionViewClass="com.ichi2.ui.AccessibleSearchView"
         app:showAsAction="always|collapseActionView"/>
     <item
         android:id="@+id/action_sync"
-        android:icon="@drawable/ic_sync"
+        android:icon="@drawable/symbol_sync"
         android:title="@string/button_sync"
         app:actionProviderClass="com.ichi2.anki.SyncActionProvider"
         app:showAsAction="always"/>
@@ -21,12 +21,12 @@
         app:showAsAction="always"/>
     <item
         android:id="@+id/action_deck_delete"
-        android:icon="@drawable/ic_delete_white"
+        android:icon="@drawable/symbol_delete"
         tools:title="Delete deck"
         app:showAsAction="always"/>
     <item
         android:id="@+id/action_undo"
-        android:icon="@drawable/ic_undo_white"
+        android:icon="@drawable/symbol_undo"
         app:showAsAction="never"
         android:visible="false"
         tools:title="Undo X"/>

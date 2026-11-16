@@ -20,7 +20,7 @@
         android:id="@+id/expand_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/ic_chevron_right_black"
+        android:background="@drawable/symbol_chevron_right"
         android:clickable="false" />
 
     <TextView

@@ -56,7 +56,7 @@
         android:layout_height="?minTouchTargetSize"
         style="@android:style/Widget.ActionButton"
         android:padding="8dp"
-        tools:srcCompat="@drawable/ic_add"
+        tools:srcCompat="@drawable/symbol_add"
         />
 
     <androidx.appcompat.widget.AppCompatImageView

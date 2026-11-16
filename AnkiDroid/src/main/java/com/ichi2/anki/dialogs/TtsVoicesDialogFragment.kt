@@ -205,7 +205,7 @@ class TtsVoicesDialogFragment : DialogFragment(R.layout.dialog_tts_voices) {
                 )
                 if (voice.unavailable()) {
                     binding.actionButton.setOnClickListener { openTtsSettings() }
-                    binding.actionButton.setIconResource(R.drawable.ic_file_download_white)
+                    binding.actionButton.setIconResource(R.drawable.symbol_download)
                 } else {
                     binding.actionButton.setOnClickListener { viewModel.copyToClipboard(voice) }
                     binding.actionButton.setIconResource(R.drawable.baseline_content_copy_24)

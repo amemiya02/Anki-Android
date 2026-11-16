@@ -160,7 +160,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Manage saved searches"
             android:clickable="false"
-            android:src="@drawable/ic_settings_black" />
+            android:src="@drawable/symbol_settings" />
     </FrameLayout>
 
     <ListView

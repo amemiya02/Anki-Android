@@ -43,7 +43,7 @@ class DeckPickerConfirmDeleteDeckDialog : AnalyticsDialogFragment() {
                     message,
                     HtmlCompat.FROM_HTML_MODE_LEGACY,
                 ),
-            ).setIcon(R.drawable.ic_warning)
+            ).setIcon(R.drawable.symbol_warning)
             .setPositiveButton(CommonString.dialog_positive_delete) { _, _ ->
                 (activity as DeckPicker).deleteDeck(deckId)
                 activity?.dismissAllDialogFragments()

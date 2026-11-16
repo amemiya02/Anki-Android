@@ -1229,7 +1229,7 @@ open class Reviewer :
             undoIconId = R.drawable.ic_arrow_u_left_top
             undoEnabled = true
         } else {
-            undoIconId = R.drawable.ic_undo_white
+            undoIconId = R.drawable.symbol_undo
             undoEnabled = undoStatus?.undoAvailable == true
             this.isEraserMode = false
         }

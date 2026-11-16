@@ -57,7 +57,7 @@
             android:id="@+id/btn_delete_selection"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:icon="@drawable/ic_delete"
+            app:icon="@drawable/symbol_delete"
             style="@style/Widget.Material3.Button.IconButton"
             app:iconTint="?attr/actionBarTextColor"/>
 
@@ -78,7 +78,7 @@
         android:layout_marginBottom="32dp"
         android:layout_marginEnd="32dp"
         app:fabSize="normal"
-        app:srcCompat="@drawable/ic_add"
+        app:srcCompat="@drawable/symbol_add"
         android:contentDescription="@string/cd_manage_notetypes_add"
         app:backgroundTint="?attr/fabNormalColor"
         app:tint="?attr/foundationOnPrimary"/>

@@ -12,7 +12,7 @@
     <com.ichi2.preferences.ControlPreference
         android:key="@string/previewer_next_key"
         android:title="@string/previewer_next"
-        android:icon="@drawable/ic_baseline_chevron_right_24"
+        android:icon="@drawable/symbol_chevron_right"
         />
     <com.ichi2.preferences.ControlPreference
         android:key="@string/previewer_mark_key"

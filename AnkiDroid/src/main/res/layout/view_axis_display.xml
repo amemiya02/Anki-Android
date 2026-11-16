@@ -20,7 +20,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
 
-        app:icon="@drawable/ic_add"
+        app:icon="@drawable/symbol_add"
         app:iconSize="24dp"
         app:iconPadding="0dp"
         app:iconGravity="textStart"
@@ -50,7 +50,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
 
-        app:icon="@drawable/ic_add"
+        app:icon="@drawable/symbol_add"
         app:iconSize="24dp"
         app:iconPadding="0dp"
         app:iconGravity="textStart"

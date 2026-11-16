@@ -40,14 +40,14 @@ private fun GroupedListSample() {
     ) {
         GroupedList {
             item(
-                leadingContent = { RowIcon(R.drawable.ic_settings_black) },
-                trailingContent = { RowIcon(CommonR.drawable.ic_chevron_right) },
+                leadingContent = { RowIcon(R.drawable.symbol_settings) },
+                trailingContent = { RowIcon(CommonR.drawable.symbol_chevron_right) },
             ) { Text("Option 1") }
         }
         GroupedList {
-            item(leadingContent = { RowIcon(R.drawable.ic_manual_black_24dp) }) { Text("Option 2") }
+            item(leadingContent = { RowIcon(R.drawable.symbol_menu_book) }) { Text("Option 2") }
             item(
-                leadingContent = { RowIcon(R.drawable.ic_sync) },
+                leadingContent = { RowIcon(R.drawable.symbol_sync) },
                 trailingContent = { Switch(checked = true, onCheckedChange = null) },
             ) { Text("Switch 1") }
             item(

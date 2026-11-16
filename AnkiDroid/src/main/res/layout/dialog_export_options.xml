@@ -186,7 +186,7 @@
             android:layout_gravity="center"
             android:paddingStart="8dp"
             android:paddingEnd="12dp"
-            android:drawableEnd="@drawable/id_arrow_drop_down"
+            android:drawableEnd="@drawable/symbol_arrow_drop_down"
             android:background="?attr/selectableItemBackground"
             android:focusable="true"
             android:gravity="center_vertical" />

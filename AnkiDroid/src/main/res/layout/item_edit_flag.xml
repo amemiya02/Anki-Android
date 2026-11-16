@@ -58,14 +58,14 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/action_cancel_flag_rename"
             style="@style/Widget.Material3.Button.IconButton"
-            app:icon="@drawable/close_icon"
+            app:icon="@drawable/symbol_close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/action_save_flag_name"
             style="@style/Widget.Material3.Button.IconButton"
-            app:icon="@drawable/ic_done"
+            app:icon="@drawable/symbol_check"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>

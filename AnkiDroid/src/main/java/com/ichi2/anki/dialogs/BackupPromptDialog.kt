@@ -232,7 +232,7 @@ class BackupPromptDialog private constructor(
             AlertDialog.Builder(context).show {
                 title(CommonString.dismiss_backup_warning_title)
                 message(message)
-                setIcon(R.drawable.ic_warning)
+                setIcon(R.drawable.symbol_warning)
                 positiveButton(CommonString.dialog_cancel) { onCancel() }
                 negativeButton(CommonString.button_disable_reminder) { onDisableReminder() }
             }

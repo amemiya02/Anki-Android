@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:drawableEnd="@drawable/id_arrow_drop_down"
+                android:drawableEnd="@drawable/symbol_arrow_drop_down"
                 android:background="?attr/selectableItemBackground"
                 android:textAppearance="?attr/textAppearanceListItem"
                 tools:text="Deck name here"

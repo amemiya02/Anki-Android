@@ -101,7 +101,7 @@
         android:id="@+id/advanced_help"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:src="@drawable/help_outline"
+        android:src="@drawable/symbol_help"
         android:background="?attr/selectableItemBackground"
         android:padding="12dp"
         app:layout_constraintEnd_toEndOf="parent" />

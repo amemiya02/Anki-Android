@@ -42,6 +42,7 @@ import com.ichi2.compose.ui.components.AnkiDroidExtendedFab
 import com.ichi2.compose.ui.dialogs.MessageDialog
 import com.ichi2.compose.ui.preview.ThemePreviews
 import androidx.appcompat.R as AppCompatR
+import com.ichi2.anki.common.android.R as CommonR
 
 /**
  * Stateless screen listing the user's profiles, with a FAB to add a new one.
@@ -79,7 +80,7 @@ fun SwitchProfilesScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
                         Icon(
-                            painterResource(R.drawable.ic_baseline_arrow_back_24),
+                            painterResource(CommonR.drawable.symbol_arrow_back),
                             contentDescription = stringResource(AppCompatR.string.abc_action_bar_up_description),
                         )
                     }
@@ -220,7 +221,7 @@ private fun ProfileRow(
         }
         IconButton(onClick = onDeleteClick) {
             Icon(
-                painterResource(R.drawable.ic_delete),
+                painterResource(CommonR.drawable.symbol_delete),
                 contentDescription = stringResource(CommonString.delete_profile),
             )
         }

@@ -420,7 +420,7 @@ private fun InfoCard() {
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.ic_done),
+                    painter = painterResource(R.drawable.symbol_check),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onTertiary,
                 )

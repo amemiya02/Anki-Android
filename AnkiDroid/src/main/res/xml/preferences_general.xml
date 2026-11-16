@@ -17,7 +17,7 @@
         <ListPreference
             android:defaultValue="@string/empty_string"
             android:key="@string/pref_language_key"
-            android:icon="@drawable/ic_language_black_24dp"
+            android:icon="@drawable/symbol_language"
             android:title="@string/language"
             app:useSimpleSummaryProvider="true"/>
         <SwitchPreferenceCompat

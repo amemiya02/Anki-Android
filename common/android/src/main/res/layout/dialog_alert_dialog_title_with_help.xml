@@ -17,7 +17,7 @@
         android:layout_height="24dp"
         style="?attr/materialAlertDialogTitleIconStyle"
         android:visibility="gone"
-        tools:src="@drawable/ic_sync_problem"
+        tools:src="@drawable/symbol_sync_problem"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@android:id/title"
         app:layout_constraintBottom_toBottomOf="@android:id/title"/>
@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
         android:padding="8dp"
-        android:src="@drawable/ic_help_black_24dp"
+        android:src="@drawable/symbol_help"
         android:contentDescription="@string/help"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@android:id/title"

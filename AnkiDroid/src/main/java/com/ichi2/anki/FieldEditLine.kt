@@ -23,6 +23,7 @@ import com.ichi2.ui.AnimationUtil.collapseView
 import com.ichi2.ui.AnimationUtil.expandView
 import kotlinx.parcelize.Parcelize
 import java.util.Locale
+import com.ichi2.anki.common.android.R as CommonR
 
 @KotlinCleanup("replace _name with `field`")
 class FieldEditLine : FrameLayout {
@@ -79,8 +80,8 @@ class FieldEditLine : FrameLayout {
 
     private fun setExpanderBackgroundImage() {
         when (expansionState) {
-            ExpansionState.COLLAPSED -> binding.expandButton.background = getBackgroundImage(R.drawable.ic_expand_more_black_24dp_xml)
-            ExpansionState.EXPANDED -> binding.expandButton.background = getBackgroundImage(R.drawable.ic_expand_less_black_24dp)
+            ExpansionState.COLLAPSED -> binding.expandButton.background = getBackgroundImage(CommonR.drawable.symbol_expand_more)
+            ExpansionState.EXPANDED -> binding.expandButton.background = getBackgroundImage(R.drawable.symbol_expand_less)
         }
     }
 

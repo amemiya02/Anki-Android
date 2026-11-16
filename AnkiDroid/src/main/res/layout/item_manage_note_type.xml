@@ -61,7 +61,7 @@
             android:id="@+id/more_actions_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:icon="@drawable/ic_more_vertical"
+            app:icon="@drawable/symbol_more_vert"
             style="@style/Widget.Material3.Button.IconButton"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"

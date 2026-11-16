@@ -168,14 +168,14 @@ class ReminderTroubleshootingFragment : Fragment(R.layout.fragment_reminder_trou
 
                     SummaryStatus.Warning ->
                         Triple(
-                            R.drawable.ic_warning_24,
+                            R.drawable.symbol_warning,
                             getColorFromAttr(context, CommonR.attr.reminderTroubleshootingWarning),
                             context.getString(CommonString.reminder_troubleshooting_summary_warning),
                         )
 
                     SummaryStatus.Ok ->
                         Triple(
-                            R.drawable.ic_check_circle_24,
+                            R.drawable.symbol_check_circle,
                             getColorFromAttr(context, CommonR.attr.reminderTroubleshootingOk),
                             context.getString(CommonString.reminder_troubleshooting_summary_ok),
                         )
@@ -419,10 +419,10 @@ private fun TroubleshootingCheck.explanation(): String? {
 
 private fun CheckResult.iconRes(): Int =
     when (this) {
-        is CheckResult.Loading -> R.drawable.ic_sync
-        is CheckResult.Passed -> R.drawable.ic_check_circle_24
+        is CheckResult.Loading -> R.drawable.symbol_sync
+        is CheckResult.Passed -> R.drawable.symbol_check_circle
         is CheckResult.Failed -> R.drawable.ic_cancel_24
-        is CheckResult.Warning -> R.drawable.ic_warning_24
+        is CheckResult.Warning -> R.drawable.symbol_warning
         is CheckResult.Unavailable -> R.drawable.ic_error_outline
         is CheckResult.Error -> R.drawable.ic_error_outline
     }

@@ -157,6 +157,9 @@
         <item name="navDrawerItemColor">@color/drawer_item_text</item>
         <item name="navDrawerItemBackground">@drawable/drawer_item_background_dark</item>
         <!-- Menu -->
+        <!-- Icons the platform draws: the up arrow and the overflow menu -->
+        <item name="homeAsUpIndicator">@drawable/symbol_arrow_back</item>
+        <item name="actionOverflowButtonStyle">@style/Widget.Foundation.OverflowButton</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenuStyle</item>
         <item name="popupMenuStyle">@style/PopupMenuStyle</item>
         <item name="spinnerStyle">@style/SpinnerStyle</item>

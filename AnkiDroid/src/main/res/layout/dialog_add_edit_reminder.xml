@@ -87,7 +87,7 @@
                         android:minHeight="?minTouchTargetSize"
                         android:maxLines="1"
                         android:gravity="center_vertical"
-                        android:drawableEnd="@drawable/id_arrow_drop_down"
+                        android:drawableEnd="@drawable/symbol_arrow_drop_down"
                         android:background="?attr/selectableItemBackground"
                         android:ellipsize="end"
                         android:layout_marginStart="12dp"

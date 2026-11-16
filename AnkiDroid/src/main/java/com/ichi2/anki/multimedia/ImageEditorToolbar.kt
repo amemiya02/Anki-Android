@@ -80,7 +80,7 @@ internal fun ImageEditorToolbar(
                     ImageEditorDivider()
                     ImageEditorAction(
                         tr().studyingEdit(),
-                        R.drawable.ic_round_open_in_new,
+                        R.drawable.symbol_open_in_new,
                         onEditExternally,
                         Modifier.weight(1f),
                         enabled = enabled && hasImage,

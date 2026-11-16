@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize"
-        app:navigationIcon="@drawable/close_icon"
+        app:navigationIcon="@drawable/symbol_close"
         app:titleTextAppearance="@style/TextAppearance.AnkiDroid.TopAppBar.Title"
         tools:title="Select field" />
 

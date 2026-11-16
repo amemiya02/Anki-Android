@@ -811,7 +811,7 @@ abstract class AbstractFlashcardViewer :
         Timber.i("Displaying 'delete note' dialog")
         AlertDialog.Builder(this).show {
             title(CommonString.delete_card_title)
-            setIcon(R.drawable.ic_warning)
+            setIcon(R.drawable.symbol_warning)
             message(
                 text =
                     resources.getString(

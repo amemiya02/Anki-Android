@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="6dp"
             android:drawablePadding="4dp"
-            android:drawableStart="@drawable/ic_warning"
+            android:drawableStart="@drawable/symbol_warning"
             android:drawableTint="?attr/colorError"
             android:textColor="?attr/colorError"
             android:visibility="gone"

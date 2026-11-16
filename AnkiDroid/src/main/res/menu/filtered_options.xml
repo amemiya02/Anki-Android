@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_help"
-        android:icon="@drawable/help_outline"
+        android:icon="@drawable/symbol_help"
         android:title="@string/help"
         app:showAsAction="always"
         />

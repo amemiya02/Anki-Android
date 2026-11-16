@@ -5,14 +5,14 @@
     xmlns:ankidroid="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_filter"
-        android:icon="@drawable/ic_search_white"
+        android:icon="@drawable/symbol_search"
         android:title="@string/deck_picker_dialog_filter_decks"
         ankidroid:actionViewClass="com.ichi2.ui.AccessibleSearchView"
         ankidroid:showAsAction="always|collapseActionView"
         />
     <item
         android:id="@+id/action_add_deck"
-        android:icon="@drawable/ic_add"
+        android:icon="@drawable/symbol_add"
         android:title="@string/menu_add"
         ankidroid:showAsAction="always"
         />

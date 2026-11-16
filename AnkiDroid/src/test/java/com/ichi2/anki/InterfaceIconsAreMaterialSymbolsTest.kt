@@ -222,19 +222,6 @@ class InterfaceIconsAreMaterialSymbolsTest {
         /** Icons not yet drawn as Material Symbols: emptied area by area, then removed */
         private val NOT_YET_SYMBOLS =
             """
-                // A: app-wide, deck list, navigation, help
-                ic_add ic_baseline_chevron_right_24 ic_chevron_right ic_chevron_right_black ic_delete_white
-                ic_delete ic_expand_more_black ic_expand_more ic_expand_more_black_24dp_xml
-                ic_expand_less_black_24dp ic_help_black_24dp ic_help_black help_outline ic_remove ic_search_white
-                close_icon ic_baseline_arrow_back_24 ic_back_arrow_custom_tab ic_more_vertical ic_cards_stack
-                ic_cards_stack_filled ic_list_black ic_flashcard_black ic_leaderboard ic_leaderboard_filled
-                ic_bar_chart_black ic_menu_24 ic_settings_black ic_support_ankidroid ic_sync ic_sync_problem
-                ic_add_deck_filled ic_add_filtered_deck ic_add_note ic_file_download_white ic_manual_black_24dp
-                ic_people_black_24dp ic_baseline_privacy_tip_24 ic_round_favorite_24 ic_language_black_24dp
-                ic_build_black_24 ic_star_black_24 ic_email_black_24dp ic_bug_report_black_24dp ic_forum_black_24dp
-                ic_link ic_baseline_policy_24 ic_baseline_description_24 ic_undo_white ic_undo_2 ic_warning
-                ic_warning_24 id_arrow_drop_down home_icon ic_round_open_in_new ic_check_circle_24 ic_done
-                ic_done_white round_done_24 homeAsUpIndicator actionOverflowButtonStyle
                 // B: study screens
                 ic_ease_again ic_ease_hard ic_ease_good ic_ease_easy ic_flag_red ic_flag_orange ic_flag_green
                 ic_flag_blue ic_flag_pink ic_flag_turquoise ic_flag_purple ic_flag_transparent ic_flag_lightgrey

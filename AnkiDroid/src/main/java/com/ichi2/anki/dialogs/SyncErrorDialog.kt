@@ -73,7 +73,7 @@ class SyncErrorDialog : AsyncDialogFragment() {
             DIALOG_USER_NOT_LOGGED_IN_SYNC -> {
                 // User not logged in; take them to login screen
                 dialog
-                    .setIcon(R.drawable.ic_sync_problem)
+                    .setIcon(R.drawable.symbol_sync_problem)
                     .setPositiveButton(TR.sentenceCase.logIn) { _, _ ->
                         requireSyncErrorDialogListener().loginToSyncServer()
                     }.setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
@@ -82,7 +82,7 @@ class SyncErrorDialog : AsyncDialogFragment() {
             DIALOG_CONNECTION_ERROR -> {
                 // Connection error; allow user to retry or cancel
                 dialog
-                    .setIcon(R.drawable.ic_sync_problem)
+                    .setIcon(R.drawable.symbol_sync_problem)
                     .setPositiveButton(CommonString.retry) { _, _ ->
                         syncAndDismissAllDialogFragments()
                     }.setNegativeButton(CommonString.dialog_cancel) { _, _ ->
@@ -94,7 +94,7 @@ class SyncErrorDialog : AsyncDialogFragment() {
                 dialog
                     .titleWithHelpIcon(
                         text = getString(CommonString.sync_conflict_title_new),
-                        startIcon = R.drawable.ic_sync_problem,
+                        startIcon = R.drawable.symbol_sync_problem,
                     ) {
                         requireContext().openUrl(getString(R.string.link_sync_conflict_help))
                     }.setPositiveButton(CommonString.sync_conflict_keep_local_new) { _, _ ->
@@ -108,7 +108,7 @@ class SyncErrorDialog : AsyncDialogFragment() {
             DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_LOCAL -> {
                 // Confirmation before pushing local collection to server after sync conflict
                 dialog
-                    .setIcon(R.drawable.ic_sync_problem)
+                    .setIcon(R.drawable.symbol_sync_problem)
                     .setPositiveButton(CommonString.dialog_positive_replace) { _, _ ->
                         syncAndDismissAllDialogFragments(ConflictResolution.FULL_UPLOAD)
                     }.setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
@@ -117,7 +117,7 @@ class SyncErrorDialog : AsyncDialogFragment() {
             DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_REMOTE -> {
                 // Confirmation before overwriting local collection with server collection after sync conflict
                 dialog
-                    .setIcon(R.drawable.ic_sync_problem)
+                    .setIcon(R.drawable.symbol_sync_problem)
                     .setPositiveButton(CommonString.dialog_positive_replace) { _, _ ->
                         syncAndDismissAllDialogFragments(ConflictResolution.FULL_DOWNLOAD)
                     }.setNegativeButton(CommonString.dialog_cancel) { _, _ -> }

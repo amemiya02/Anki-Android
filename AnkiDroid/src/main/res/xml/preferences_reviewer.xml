@@ -55,7 +55,7 @@
             android:key="@string/show_answer_feedback_key"
             android:title="@string/show_answer_feedback"
             android:defaultValue="true"
-            android:icon="@drawable/ic_done"
+            android:icon="@drawable/symbol_check"
             />
 
         <SwitchPreferenceCompat

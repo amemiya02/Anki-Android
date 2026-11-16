@@ -44,10 +44,10 @@ class DeckPickerFloatingActionMenu(
     private val fabPressedColor = MaterialColors.getColor(binding.fabMain, CommonR.attr.fabPressedColor)
 
     // Add Note Drawable Icon
-    private val addNoteIcon: Int = R.drawable.ic_add_note
+    private val addNoteIcon: Int = R.drawable.symbol_note_add
 
     // Add White Icon
-    private val addWhiteIcon: Int = CommonR.drawable.ic_add
+    private val addWhiteIcon: Int = CommonR.drawable.symbol_add
 
     var isFABOpen = false
         private set

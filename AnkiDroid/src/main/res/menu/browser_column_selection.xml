@@ -7,7 +7,7 @@
 
     <item
         android:id="@+id/action_save_columns"
-        android:icon="@drawable/ic_done_white"
+        android:icon="@drawable/symbol_check"
         android:title="@string/save"
         ankidroid:showAsAction="always"/>
 

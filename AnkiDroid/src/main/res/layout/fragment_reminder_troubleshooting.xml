@@ -45,7 +45,7 @@
                     android:layout_gravity="center"
                     android:importantForAccessibility="no"
                     tools:tint="#81c995"
-                    tools:src="@drawable/ic_check_circle_24" />
+                    tools:src="@drawable/symbol_check_circle" />
 
             </FrameLayout>
 

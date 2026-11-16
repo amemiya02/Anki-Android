@@ -30,6 +30,6 @@
     <item
         android:id="@+id/action_done"
         android:title="@string/multimedia_editor_field_editing_done"
-        android:icon="@drawable/ic_done"
+        android:icon="@drawable/symbol_check"
         app:showAsAction="always" />
 </menu>

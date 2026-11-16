@@ -172,11 +172,11 @@ private fun GroupedListPreview(
         ) {
             GroupedList {
                 item(
-                    leadingContent = { Icon(painterResource(R.drawable.ic_help_black_24dp), contentDescription = null) },
-                    trailingContent = { Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null) },
+                    leadingContent = { Icon(painterResource(R.drawable.symbol_help), contentDescription = null) },
+                    trailingContent = { Icon(painterResource(R.drawable.symbol_chevron_right), contentDescription = null) },
                 ) { Text("Option 1") }
                 item(
-                    leadingContent = { Icon(painterResource(R.drawable.ic_help_black_24dp), contentDescription = null) },
+                    leadingContent = { Icon(painterResource(R.drawable.symbol_help), contentDescription = null) },
                     trailingContent = { Switch(checked = true, onCheckedChange = null) },
                 ) { Text("Switch 1") }
             }

@@ -225,8 +225,8 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
         deckIds: LongArray,
     ) : RecyclerView.Adapter<DecksArrayAdapter.ViewHolder>(),
         Filterable {
-        private val expandImage = requireContext().requireAutoMirroredDrawable(CommonR.drawable.ic_chevron_right)
-        private val collapseImage = requireContext().requireAutoMirroredDrawable(CommonR.drawable.ic_expand_more)
+        private val expandImage = requireContext().requireAutoMirroredDrawable(CommonR.drawable.symbol_chevron_right)
+        private val collapseImage = requireContext().requireAutoMirroredDrawable(CommonR.drawable.symbol_expand_more)
 
         inner class ViewHolder(
             private val binding: ItemDeckPickerDialogBinding,

@@ -19,7 +19,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:background="?attr/selectableItemBackground"
-        app:icon="@drawable/ic_baseline_arrow_back_24"
+        app:icon="@drawable/symbol_arrow_back"
         android:translationX="-16dp"
         app:iconGravity="textStart"
         app:iconPadding="0dp"
@@ -73,7 +73,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:background="?attr/selectableItemBackground"
-        app:icon="@drawable/ic_settings_black"
+        app:icon="@drawable/symbol_settings"
 
         app:iconSize="24dp"
         app:iconPadding="0dp"

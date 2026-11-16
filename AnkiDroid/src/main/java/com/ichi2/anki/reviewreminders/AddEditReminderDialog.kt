@@ -423,12 +423,12 @@ class AddEditReminderDialog : DialogFragment() {
         /**
          * Icon that shows next to the advanced settings section when the dropdown is open.
          */
-        private val DROPDOWN_EXPANDED_CHEVRON = R.drawable.ic_expand_more_black_24dp_xml
+        private val DROPDOWN_EXPANDED_CHEVRON = CommonR.drawable.symbol_expand_more
 
         /**
          * Icon that shows next to the advanced settings section when the dropdown is closed.
          */
-        private val DROPDOWN_COLLAPSED_CHEVRON = CommonR.drawable.ic_baseline_chevron_right_24
+        private val DROPDOWN_COLLAPSED_CHEVRON = CommonR.drawable.symbol_chevron_right
 
         /**
          * Arguments key for the dialog mode to open this dialog in.

@@ -132,7 +132,7 @@ object ReadText {
             Timber.w("ReadText.textToSpeech() no TTS languages available")
             dialog
                 .message(CommonString.no_tts_available_message)
-                .setIcon(R.drawable.ic_warning)
+                .setIcon(R.drawable.symbol_warning)
                 .positiveButton(CommonString.dialog_ok)
         } else {
             val localeMappings: List<Pair<String, CharSequence>> =

@@ -23,5 +23,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_delete_white" />
+        android:src="@drawable/symbol_delete" />
 </LinearLayout>

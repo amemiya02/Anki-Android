@@ -126,7 +126,7 @@
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/delete_command_key"
             tools:title="Delete note"
-            android:icon="@drawable/ic_delete_white"
+            android:icon="@drawable/symbol_delete"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/mark_command_key"
@@ -146,7 +146,7 @@
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/add_note_command_key"
             android:title="@string/menu_add_note"
-            android:icon="@drawable/ic_add"
+            android:icon="@drawable/symbol_add"
             />
     </PreferenceCategory>
 
@@ -163,20 +163,20 @@
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/browse_command_key"
-            android:icon="@drawable/ic_flashcard_black"
+            android:icon="@drawable/symbol_cards"
             app:isPreferenceVisible="false"
             tools:title="Browse"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/statistics_command_key"
-            android:icon="@drawable/ic_bar_chart_black"
+            android:icon="@drawable/symbol_bar_chart"
             app:isPreferenceVisible="false"
             tools:title="Statistics"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/abort_command_key"
             android:title="@string/gesture_abort_learning"
-            android:icon="@drawable/close_icon"
+            android:icon="@drawable/symbol_close"
             />
     </PreferenceCategory>
 
@@ -199,7 +199,7 @@
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/save_voice_command_key"
             android:title="@string/save_voice"
-            app:icon="@drawable/round_done_24"/>
+            app:icon="@drawable/symbol_check"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_cat_whiteboard">
@@ -217,7 +217,7 @@
         <com.ichi2.preferences.WhiteboardControlPreference
             android:key="@string/pref_key_whiteboard_undo"
             android:title="@string/undo"
-            android:icon="@drawable/ic_undo_2"
+            android:icon="@drawable/symbol_undo"
             />
         <com.ichi2.preferences.WhiteboardControlPreference
             android:key="@string/pref_key_whiteboard_redo"
@@ -251,7 +251,7 @@
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/undo_command_key"
             android:title="@string/undo"
-            android:icon="@drawable/ic_undo_white"
+            android:icon="@drawable/symbol_undo"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/redo_command_key"

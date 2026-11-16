@@ -10,7 +10,7 @@
         android:id="@+id/button"
         android:layout_width="?minTouchTargetSize"
         android:layout_height="?minTouchTargetSize"
-        app:srcCompat="@drawable/ic_sync"
+        app:srcCompat="@drawable/symbol_sync"
         style="@android:style/Widget.ActionButton"
         android:tooltipText="@string/button_sync"
         android:tint="?attr/actionBarTextColor"

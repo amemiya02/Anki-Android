@@ -150,7 +150,7 @@ class SyncMediaWorker(
                 setContentTitle(title)
                 setOngoing(true)
                 setProgress(0, 0, true)
-                addAction(R.drawable.close_icon, cancelTitle, cancelIntent)
+                addAction(R.drawable.symbol_close, cancelTitle, cancelIntent)
                 foregroundServiceBehavior = NotificationCompat.FOREGROUND_SERVICE_DEFERRED
             }
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -196,7 +196,7 @@ class SyncMediaWorker(
             setContentTitle(title)
             setContentText(progress)
             setOngoing(true)
-            addAction(R.drawable.close_icon, cancelTitle, cancelIntent)
+            addAction(R.drawable.symbol_close, cancelTitle, cancelIntent)
         }
     }
 

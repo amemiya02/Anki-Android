@@ -17,7 +17,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@drawable/close_icon"
+        app:navigationIcon="@drawable/symbol_close"
         app:titleTextAppearance="@style/TextAppearance.AnkiDroid.TopAppBar.Title"
         tools:title="Filtered deck 10:10"
         tools:menu="@menu/filtered_options">
@@ -115,7 +115,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     app:endIconMode="custom"
-                    app:endIconDrawable="@drawable/ic_search_white"
+                    app:endIconDrawable="@drawable/symbol_search"
                     app:endIconContentDescription="@string/card_browser_cram_search"
                     tools:hint="Search">
 
@@ -187,7 +187,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     app:endIconMode="custom"
-                    app:endIconDrawable="@drawable/ic_search_white"
+                    app:endIconDrawable="@drawable/symbol_search"
                     tools:hint="Search">
 
                     <com.google.android.material.textfield.TextInputEditText

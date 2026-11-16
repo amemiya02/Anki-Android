@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.graphics.Canvas
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -18,6 +19,8 @@ import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
@@ -218,6 +221,7 @@ abstract class NavigationDrawerActivity(
             Timber.w("Unexpected Drawer layout - could not modify navigation animation")
         }
         drawerToggle.isDrawerSlideAnimationEnabled = animationEnabled()
+        drawerToggle.drawerArrowDrawable = MenuSymbolDrawable(supportActionBar?.themedContext ?: this)
         drawerLayout.addDrawerListener(drawerToggle)
 
         enablePostShortcut(this)
@@ -571,3 +575,23 @@ abstract class NavigationDrawerActivity(
 }
 
 fun Fragment.requireNavigationDrawerActivity() = (requireActivity() as NavigationDrawerActivity)
+
+/**
+ * The drawer button's icon: the menu Material Symbol, in place of the hamburger
+ * [DrawerArrowDrawable] draws in code. It does not turn into an arrow while the drawer slides.
+ */
+private class MenuSymbolDrawable(
+    context: Context,
+) : DrawerArrowDrawable(context) {
+    private val symbol = AppCompatResources.getDrawable(context, R.drawable.symbol_menu)!!.mutate()
+
+    override fun draw(canvas: Canvas) {
+        symbol.bounds = bounds
+        symbol.draw(canvas)
+    }
+
+    override fun setAlpha(alpha: Int) {
+        super.setAlpha(alpha)
+        symbol.alpha = alpha
+    }
+}

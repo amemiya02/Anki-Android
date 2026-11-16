@@ -28,7 +28,7 @@
                 style="@android:style/Widget.ActionButton"
                 android:layout_width="?minTouchTargetSize"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_undo_2"
+                android:src="@drawable/symbol_undo"
                 android:contentDescription="@string/undo"
                 android:tooltipText="@string/undo"/>
 
@@ -62,7 +62,7 @@
                 android:layout_width="?minTouchTargetSize"
                 android:layout_height="match_parent"
                 android:contentDescription="@string/whiteboard_more_options"
-                android:src="@drawable/ic_more_vertical"
+                android:src="@drawable/symbol_more_vert"
                 android:tooltipText="@string/whiteboard_more_options" />
 
             <View

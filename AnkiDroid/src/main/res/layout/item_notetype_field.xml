@@ -31,6 +31,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_more_vertical"
+        app:srcCompat="@drawable/symbol_more_vert"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

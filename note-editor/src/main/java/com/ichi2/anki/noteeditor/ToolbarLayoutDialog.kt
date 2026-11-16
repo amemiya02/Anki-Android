@@ -247,7 +247,7 @@ private fun ToolbarLayoutSample(
                     ) {
                         icons.take(3).forEach { PreviewIcon(it, Modifier.weight(1f)) }
                         Icon(
-                            painterResource(CommonR.drawable.ic_baseline_chevron_right_24),
+                            painterResource(CommonR.drawable.symbol_chevron_right),
                             contentDescription = null,
                             modifier = Modifier.size(12.dp),
                             tint = colors.primary,

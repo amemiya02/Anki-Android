@@ -16,7 +16,7 @@
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:background="?attr/selectableItemBackground"
-        app:srcCompat="@drawable/ic_delete"
+        app:srcCompat="@drawable/symbol_delete"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

@@ -122,4 +122,9 @@
         <item name="android:outlineSpotShadowColor" tools:targetApi="p">?attr/foundationPrimary</item>
         <item name="android:outlineAmbientShadowColor" tools:targetApi="p">?attr/foundationPrimary</item>
     </style>
+
+    <!-- The overflow menu's icon, drawn from Material Symbols like every interface icon -->
+    <style name="Widget.Foundation.OverflowButton" parent="Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:src">@drawable/symbol_more_vert</item>
+    </style>
 </resources>

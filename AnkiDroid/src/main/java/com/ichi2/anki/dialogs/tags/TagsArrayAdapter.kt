@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.OnContextAndLongClickListener
 import com.ichi2.anki.OnContextAndLongClickListener.Companion.setOnContextAndLongClickListener
-import com.ichi2.anki.R
 import com.ichi2.anki.databinding.ItemTagBinding
 import com.ichi2.ui.CheckBoxTriStates
 import com.ichi2.ui.CheckBoxTriStates.State.CHECKED
@@ -184,8 +183,8 @@ class TagsArrayAdapter(
         // More custom display related to the node can be added here.
         // For example, display some icon if the node is a leaf? (assets required)
         when (node.isExpanded) {
-            true -> button.setBackgroundResource(R.drawable.ic_expand_more_black_24dp_xml)
-            false -> button.setBackgroundResource(CommonR.drawable.ic_baseline_chevron_right_24)
+            true -> button.setBackgroundResource(CommonR.drawable.symbol_expand_more)
+            false -> button.setBackgroundResource(CommonR.drawable.symbol_chevron_right)
         }
     }
 

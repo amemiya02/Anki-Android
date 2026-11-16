@@ -7,14 +7,14 @@
     >
     <item
         android:id="@+id/deck_picker_action_filter"
-        android:icon="@drawable/ic_search_white"
+        android:icon="@drawable/symbol_search"
         android:title="@string/search_decks"
         android:visible="false"
         ankidroid:actionViewClass="com.ichi2.ui.AccessibleSearchView"
         ankidroid:showAsAction="always|collapseActionView"/>
     <item
         android:id="@+id/action_sync"
-        android:icon="@drawable/ic_sync"
+        android:icon="@drawable/symbol_sync"
         android:title="@string/button_sync"
         ankidroid:actionProviderClass="com.ichi2.anki.SyncActionProvider"
         ankidroid:showAsAction="always"/>

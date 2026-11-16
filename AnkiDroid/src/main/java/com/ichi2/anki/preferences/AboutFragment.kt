@@ -157,7 +157,7 @@ class AboutFragment : Fragment(R.layout.fragment_about) {
         fun showEnableDeveloperOptionsDialog(context: Context) {
             AlertDialog.Builder(context).show {
                 setTitle(CommonString.dev_options_enabled_pref)
-                setIcon(R.drawable.ic_warning)
+                setIcon(R.drawable.symbol_warning)
                 setMessage(CommonString.dev_options_warning)
                 setPositiveButton(CommonString.dialog_ok) { _, _ -> enableDeveloperOptions(context) }
                 setNegativeButton(CommonString.dialog_cancel) { _, _ -> clickCount = 0 }

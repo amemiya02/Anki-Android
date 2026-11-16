@@ -93,7 +93,7 @@
             android:layout_width="48dp"
             android:layout_height="wrap_content"
             app:iconGravity="end"
-            app:icon="@drawable/ic_baseline_chevron_right_24"
+            app:icon="@drawable/symbol_chevron_right"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/slider"

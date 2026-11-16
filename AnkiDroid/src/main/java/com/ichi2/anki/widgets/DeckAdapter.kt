@@ -248,8 +248,8 @@ class DeckAdapter(
         reviewCountColor = ta.getColor(3, context.getColor(CommonR.color.black))
         deckNameDefaultColor = ta.getColor(4, context.getColor(CommonR.color.black))
         deckNameDynColor = ta.getColor(5, context.getColor(CommonR.color.material_blue_A700))
-        expandImage = context.requireAutoMirroredDrawable(CommonR.drawable.ic_chevron_right)
-        collapseImage = context.requireAutoMirroredDrawable(CommonR.drawable.ic_expand_more)
+        expandImage = context.requireAutoMirroredDrawable(CommonR.drawable.symbol_chevron_right)
+        collapseImage = context.requireAutoMirroredDrawable(CommonR.drawable.symbol_expand_more)
         ta.recycle()
         context.withStyledAttributes(attrs = intArrayOf(android.R.attr.selectableItemBackground)) {
             selectableItemBackground = ta.getResourceId(0, 0)

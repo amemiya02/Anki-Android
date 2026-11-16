@@ -18,7 +18,7 @@
     <com.ichi2.preferences.HeaderPreference
         android:fragment="com.ichi2.anki.preferences.GeneralSettingsFragment"
         android:title="@string/pref_cat_general"
-        android:icon="@drawable/ic_settings_black"
+        android:icon="@drawable/symbol_settings"
         android:key="@string/pref_general_screen_key"
         app:summaryEntries="@array/general_summary_entries">
     </com.ichi2.preferences.HeaderPreference>
@@ -37,7 +37,7 @@
         android:fragment="com.ichi2.anki.preferences.ReviewingSettingsFragment"
         android:key="@string/pref_reviewing_screen_key"
         android:title="@string/pref_cat_reviewing"
-        android:icon="@drawable/ic_flashcard_black"
+        android:icon="@drawable/symbol_cards"
         app:summaryEntries="@array/reviewing_summary_entries">
     </com.ichi2.preferences.HeaderPreference>
 
@@ -46,7 +46,7 @@
         android:fragment="com.ichi2.anki.preferences.SyncSettingsFragment"
         android:key="@string/pref_sync_screen_key"
         android:title="@string/pref_cat_sync"
-        android:icon="@drawable/ic_sync"
+        android:icon="@drawable/symbol_sync"
         app:summaryEntries="@array/sync_summary_entries">
     </com.ichi2.preferences.HeaderPreference>
 

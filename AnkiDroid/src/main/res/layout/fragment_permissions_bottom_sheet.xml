@@ -18,7 +18,7 @@
             android:layout_height="?minTouchTargetSize"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/close"
-            android:src="@drawable/close_icon"
+            android:src="@drawable/symbol_close"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="16dp"

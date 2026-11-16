@@ -2033,7 +2033,7 @@ class NoteEditorFragment :
 
         MaterialAlertDialogBuilder(context).show {
             title(CommonString.media_file_size_warning_title)
-            iconAttr(R.drawable.ic_warning)
+            iconAttr(R.drawable.symbol_warning)
             message(text = getString(CommonString.media_file_size_warning_message, fileName, fileSizeStr, limitStr))
             positiveButton(CommonString.dialog_cancel)
             negativeButton(CommonString.media_file_size_add_anyway) {

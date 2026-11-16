@@ -41,7 +41,7 @@ enum class ViewerAction(
     val parentMenu: ViewerAction? = null,
 ) : MappableAction<ReviewerBinding> {
     // Always
-    UNDO(R.id.action_undo, R.drawable.ic_undo_white, ALWAYS),
+    UNDO(R.id.action_undo, R.drawable.symbol_undo, ALWAYS),
 
     // Menu only
     REDO(R.id.action_redo, R.drawable.ic_redo, MENU_ONLY),
@@ -50,16 +50,16 @@ enum class ViewerAction(
     EDIT(R.id.action_edit_note, R.drawable.ic_mode_edit_white, MENU_ONLY),
     BURY_MENU(R.id.action_bury, R.drawable.ic_flip_to_back_white, MENU_ONLY),
     SUSPEND_MENU(R.id.action_suspend, R.drawable.ic_suspend, MENU_ONLY),
-    DELETE(R.id.action_delete, CommonR.drawable.ic_delete_white, MENU_ONLY),
+    DELETE(R.id.action_delete, CommonR.drawable.symbol_delete, MENU_ONLY),
     TOGGLE_WHITEBOARD(R.id.action_toggle_whiteboard, R.drawable.ic_enable_whiteboard, MENU_ONLY),
 
     // Disabled
-    BROWSE(R.id.action_browse, R.drawable.ic_flashcard_black, DISABLED),
-    STATISTICS(R.id.action_statistics, R.drawable.ic_bar_chart_black, DISABLED),
+    BROWSE(R.id.action_browse, R.drawable.symbol_cards, DISABLED),
+    STATISTICS(R.id.action_statistics, R.drawable.symbol_bar_chart, DISABLED),
     DECK_OPTIONS(R.id.action_deck_options, R.drawable.ic_tune_white, DISABLED),
     CARD_INFO(R.id.action_card_info, R.drawable.ic_dialog_info, DISABLED),
     PREVIOUS_CARD_INFO(R.id.action_previous_card_info, R.drawable.ic_outline_info_24, DISABLED),
-    ADD_NOTE(R.id.action_add_note, CommonR.drawable.ic_add, DISABLED),
+    ADD_NOTE(R.id.action_add_note, CommonR.drawable.symbol_add, DISABLED),
     TAG(R.id.action_edit_tags, R.drawable.ic_tag, DISABLED),
     RESCHEDULE_NOTE(R.id.action_set_due_date, R.drawable.ic_reschedule, DISABLED),
     RESET_PROGRESS(R.id.action_reset_progress, R.drawable.ic_backup_restore, DISABLED),

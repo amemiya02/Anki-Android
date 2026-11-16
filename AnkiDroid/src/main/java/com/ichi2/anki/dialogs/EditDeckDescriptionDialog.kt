@@ -115,7 +115,7 @@ class EditDeckDescriptionDialog : DialogFragment() {
             setOnClickListener {
                 MaterialAlertDialogBuilder(requireContext()).show {
                     setTitle(binding.formatAsMarkdownInput.text)
-                    setIcon(CommonR.drawable.ic_help_black_24dp)
+                    setIcon(CommonR.drawable.symbol_help)
                     // FIXME: the upstream string unexpectedly contains newlines
                     setMessage(TR.deckConfigDescriptionNewHandlingHint().replace("\n", " ").replace("  ", " "))
                 }

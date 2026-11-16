@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <item
         android:id="@+id/action_confirm"
-        android:icon="@drawable/ic_done_white"
+        android:icon="@drawable/symbol_check"
         android:title="@string/save"
         ankidroid:showAsAction="ifRoom"
         android:visible="true"/>

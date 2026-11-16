@@ -48,7 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
-                app:icon="@drawable/ic_delete"
+                app:icon="@drawable/symbol_delete"
                 app:iconPadding="0dp"
                 app:iconSize="22dp" />
 
@@ -177,7 +177,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
-                app:icon="@drawable/ic_delete"
+                app:icon="@drawable/symbol_delete"
                 app:iconPadding="0dp"
                 app:iconSize="22dp"
                 app:layout_constraintBottom_toBottomOf="parent"

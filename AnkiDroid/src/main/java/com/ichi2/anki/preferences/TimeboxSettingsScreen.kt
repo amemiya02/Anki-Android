@@ -43,13 +43,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ichi2.anki.CommonPlurals
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.R
 import com.ichi2.anki.preferences.components.PreferenceHelpSection
 import com.ichi2.anki.preferences.components.PreferenceStepperCard
 import com.ichi2.anki.preferences.components.PreferenceSwitchCard
 import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.compose.ui.preview.ThemePreviews
 import androidx.appcompat.R as AppCompatR
+import com.ichi2.anki.common.android.R as CommonR
 
 /**
  * Screen allowing users to enable/disable and configure the review timebox time limit.
@@ -99,7 +99,7 @@ fun TimeboxSettingsScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
                         Icon(
-                            painter = painterResource(R.drawable.ic_baseline_arrow_back_24),
+                            painter = painterResource(CommonR.drawable.symbol_arrow_back),
                             contentDescription = stringResource(AppCompatR.string.abc_action_bar_up_description),
                         )
                     }

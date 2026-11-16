@@ -44,7 +44,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:drawableStart="@drawable/ic_warning"
+        android:drawableStart="@drawable/symbol_warning"
         android:drawableTint="?attr/colorError"
         android:drawablePadding="4dp"
         tools:visibility="visible"

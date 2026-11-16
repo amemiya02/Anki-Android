@@ -73,5 +73,5 @@
         android:visibility="gone"
         tools:visibility="visible"
         android:background="?attr/selectableItemBackgroundBorderless"
-        app:srcCompat="@drawable/help_outline"/>
+        app:srcCompat="@drawable/symbol_help"/>
 </LinearLayout>

@@ -269,7 +269,7 @@ class LoginFragment : Fragment(R.layout.fragment_my_account) {
         MaterialAlertDialogBuilder(requireContext()).showAndAwaitDismissal {
             Timber.i("Showing dialog: 'Sync now?'")
             setTitle(CommonString.login_successful)
-            setIcon(R.drawable.ic_sync)
+            setIcon(R.drawable.symbol_sync)
             setMessage(CommonString.sync_now)
             positiveButton(CommonString.button_sync) { openDeckPickerAndSync() }
             negativeButton(CommonString.dialog_continue) { showLoggedInView() }

@@ -7,27 +7,27 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/nav_decks"
-            android:icon="@drawable/ic_list_black" />
+            android:icon="@drawable/symbol_stacks" />
         <item
             android:id="@+id/nav_browser"
-            android:icon="@drawable/ic_flashcard_black"
+            android:icon="@drawable/symbol_cards"
             android:title="@string/card_browser"/>
         <item
             android:id="@+id/nav_stats"
-            android:icon="@drawable/ic_bar_chart_black"/>
+            android:icon="@drawable/symbol_bar_chart"/>
     </group>
     <group  android:id="@+id/group2">
         <item
             android:id="@+id/nav_settings"
-            android:icon="@drawable/ic_settings_black"
+            android:icon="@drawable/symbol_settings"
             android:title="@string/settings"/>
         <item
             android:id="@+id/nav_help"
-            android:icon="@drawable/ic_help_black"
+            android:icon="@drawable/symbol_help"
             android:title="@string/help"/>
         <item
             android:id="@+id/support_ankidroid"
-            android:icon="@drawable/ic_support_ankidroid"
+            android:icon="@drawable/symbol_volunteer_activism"
             android:title="@string/help_title_support_ankidroid"/>
     </group>
 </menu>

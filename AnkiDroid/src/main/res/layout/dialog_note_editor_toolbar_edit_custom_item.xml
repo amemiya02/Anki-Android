@@ -35,7 +35,7 @@
             android:id="@+id/note_editor_toolbar_btn_delete"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_delete_white"
+            android:src="@drawable/symbol_delete"
             app:tint="?attr/colorAccent"
             android:layout_marginTop="5dp"
             android:paddingStart="20dp"
