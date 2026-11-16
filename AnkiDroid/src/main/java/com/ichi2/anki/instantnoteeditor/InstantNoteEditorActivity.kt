@@ -310,7 +310,7 @@ class InstantNoteEditorActivity : AnkiActivity(R.layout.activity_instant_note_ed
                 }
 
                 EditMode.SINGLE_TAP -> {
-                    dialogBinding.switchEditModeButton.setIconResource(R.drawable.ic_touch)
+                    dialogBinding.switchEditModeButton.setIconResource(R.drawable.symbol_touch_app)
                     viewModel.setEditorMode(EditMode.ADVANCED)
 
                     dialogBinding.singleTapLayout.visibility = View.GONE

@@ -47,7 +47,7 @@
             android:id="@+id/edit_cards_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:icon="@drawable/ic_edit_note"
+            app:icon="@drawable/symbol_edit_note"
             style="@style/Widget.Material3.Button.IconButton"
             android:contentDescription="@string/model_browser_template"
             app:layout_constraintTop_toTopOf="parent"

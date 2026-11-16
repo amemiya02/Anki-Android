@@ -91,7 +91,7 @@ fun SwitchProfilesScreen(
             AnkiDroidExtendedFab(
                 onClick = onAddProfileClick,
                 icon = {
-                    Icon(painterResource(R.drawable.ic_switch_profile), contentDescription = null)
+                    Icon(painterResource(R.drawable.symbol_switch_account), contentDescription = null)
                 },
                 text = { Text(stringResource(CommonString.add_profile)) },
             )

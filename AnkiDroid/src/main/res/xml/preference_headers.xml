@@ -55,7 +55,7 @@
         android:fragment="com.ichi2.anki.preferences.NotificationsSettingsFragment"
         android:key="@string/pref_notifications_screen_key"
         android:title="@string/notification_pref"
-        android:icon="@drawable/ic_notifications"
+        android:icon="@drawable/symbol_notifications"
         app:summaryEntries="@array/notifications_summary_entries">
     </com.ichi2.preferences.HeaderPreference>
 
@@ -64,7 +64,7 @@
         android:fragment="com.ichi2.anki.reviewreminders.ScheduleRemindersFragment"
         android:key="@string/pref_review_reminders_screen_key"
         android:title="@string/review_reminders_title"
-        android:icon="@drawable/ic_notifications"
+        android:icon="@drawable/symbol_alarm"
         app:summaryEntries="@array/review_reminders_summary_entries">
     </com.ichi2.preferences.HeaderPreference>
 
@@ -80,7 +80,7 @@
     <com.ichi2.preferences.HeaderPreference
         android:key="@string/pref_switch_profile_screen_key"
         android:title="@string/switch_profile"
-        android:icon="@drawable/ic_switch_profile"
+        android:icon="@drawable/symbol_switch_account"
         android:fragment="com.ichi2.anki.preferences.profiles.SwitchProfilesFragment" />
 
     <!-- Keybinding preferences -->
@@ -88,7 +88,7 @@
         android:fragment="com.ichi2.anki.preferences.ControlsSettingsFragment"
         android:key="@string/pref_controls_screen_key"
         android:title="@string/pref_cat_controls"
-        android:icon="@drawable/ic_touch"
+        android:icon="@drawable/symbol_touch_app"
         app:summaryEntries="@array/controls_summary_entries">
     </com.ichi2.preferences.HeaderPreference>
 
@@ -97,7 +97,7 @@
         android:fragment="com.ichi2.anki.preferences.AccessibilitySettingsFragment"
         android:key="@string/pref_accessibility_screen_key"
         android:title="@string/accessibility"
-        android:icon="@drawable/ic_accessibility_24"
+        android:icon="@drawable/symbol_accessibility_new"
         app:summaryEntries="@array/accessibility_summary_entries">
     </com.ichi2.preferences.HeaderPreference>
 
@@ -121,7 +121,7 @@
     <com.ichi2.preferences.HeaderPreference
         android:key="@string/pref_developer_options_screen_key"
         android:title="@string/pref_cat_dev_options"
-        android:icon="@drawable/ic_code"
+        android:icon="@drawable/symbol_code"
         android:fragment="com.ichi2.anki.preferences.DeveloperOptionsFragment"
         app:isPreferenceVisible="false">
     </com.ichi2.preferences.HeaderPreference>

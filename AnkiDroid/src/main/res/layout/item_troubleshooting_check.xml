@@ -34,7 +34,7 @@
             android:layout_gravity="center"
             android:importantForAccessibility="no"
             tools:tint="@android:color/holo_red_dark"
-            tools:src="@drawable/ic_error_outline" />
+            tools:src="@drawable/symbol_error" />
 
     </FrameLayout>
 

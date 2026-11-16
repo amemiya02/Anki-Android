@@ -73,7 +73,7 @@
             android:layout_height="96dp"
             android:layout_marginBottom="24dp"
             android:layout_gravity="center_horizontal"
-            app:srcCompat="@drawable/outline_notifications_off_24" />
+            app:srcCompat="@drawable/symbol_notifications_off" />
 
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="match_parent"
@@ -96,7 +96,7 @@
         android:textColor="?attr/foundationOnPrimary"
         app:iconTint="?attr/foundationOnPrimary"
         android:text="@string/add_reminder"
-        app:icon="@drawable/ic_add_bell"
+        app:icon="@drawable/symbol_notification_add"
         android:contentDescription="@string/add_reminder" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

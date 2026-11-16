@@ -51,7 +51,7 @@ private fun GroupedListSample() {
                 trailingContent = { Switch(checked = true, onCheckedChange = null) },
             ) { Text("Switch 1") }
             item(
-                leadingContent = { RowIcon(R.drawable.ic_notifications) },
+                leadingContent = { RowIcon(R.drawable.symbol_notifications) },
                 trailingContent = { Switch(checked = false, onCheckedChange = null) },
             ) { Text("Switch 2") }
         }

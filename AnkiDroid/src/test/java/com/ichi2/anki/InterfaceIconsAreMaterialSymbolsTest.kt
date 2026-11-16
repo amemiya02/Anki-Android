@@ -171,7 +171,7 @@ class InterfaceIconsAreMaterialSymbolsTest {
             val own = items[theme].orEmpty()
             val overflow = items[own["actionOverflowButtonStyle"]?.removePrefix("@style/")].orEmpty()["android:src"]
             listOf("homeAsUpIndicator" to own["homeAsUpIndicator"], "actionOverflowButtonStyle android:src" to overflow)
-                .filter { (slot, value) -> value?.startsWith("@drawable/symbol_") != true && slot.substringBefore(' ') !in NOT_YET_SYMBOLS }
+                .filter { (_, value) -> value?.startsWith("@drawable/symbol_") != true }
                 .map { (slot, value) -> "$theme: $slot is $value, not a Material Symbol" }
         }
     }
@@ -181,7 +181,7 @@ class InterfaceIconsAreMaterialSymbolsTest {
             .flatMap { res -> res.listFiles { dir -> dir.name.startsWith("drawable") }.orEmpty().toList() }
             .flatMap { dir -> dir.listFiles { file -> file.extension == "xml" }.orEmpty().toList() }
             .also { check(it.size > 100) { "only ${it.size} drawables found: is the working directory the module?" } }
-            .filter { it.nameWithoutExtension !in NOT_INTERFACE_ICONS && it.nameWithoutExtension !in NOT_YET_SYMBOLS }
+            .filter { it.nameWithoutExtension !in NOT_INTERFACE_ICONS }
             .filter { builder.parse(it).documentElement.tagName == "vector" }
             .sortedBy { it.path }
             .map { Icon(it) }
@@ -218,23 +218,6 @@ class InterfaceIconsAreMaterialSymbolsTest {
         private val FLAG_COLOUR = Regex("symbol_flag_([a-z]+)")
 
         private val PLATFORM_ICON = Regex("@android:drawable/\\w+|android\\.R\\.drawable\\.\\w+")
-
-        /** Icons not yet drawn as Material Symbols: emptied area by area, then removed */
-        private val NOT_YET_SYMBOLS =
-            """
-                // E: settings and the rest
-                ic_accessibility_24 ic_code ic_dark_mode_24 wallpaper_icon ic_keyboard ic_videogame ic_touch
-                ic_switch_profile ic_notifications outline_notifications_off_24 ic_add_bell ic_outline_troubleshoot
-                ic_error_outline ic_cancel_24 ic_edit_note ic_remove_outline ic_baseline_backup_24
-                ic_baseline_email_24 ic_baseline_lock_24 ic_baseline_check_box_24
-                ic_baseline_check_box_outline_blank_24 ic_baseline_indeterminate_check_box_24
-                baseline_content_copy_24 baseline_download_for_offline_24 baseline_offline_pin_24 baseline_wifi_24
-                ic_export_file
-            """.lines()
-                .filterNot { it.trim().startsWith("//") }
-                .flatMap { it.split(' ') }
-                .filter { it.isNotBlank() }
-                .toSet()
 
         /** Vector drawables that are not interface icons, and why */
         private val NOT_INTERFACE_ICONS =

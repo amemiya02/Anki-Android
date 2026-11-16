@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_troubleshoot"
-        android:icon="@drawable/ic_outline_troubleshoot"
+        android:icon="@drawable/symbol_troubleshoot"
         android:title="@string/schedule_reminders_troubleshoot_menu"
         app:showAsAction="always" />
     <item

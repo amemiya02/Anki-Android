@@ -8,6 +8,6 @@
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:textAppearance="?attr/textAppearanceBodyLarge"
     tools:text="Remove ‘\u2328 Space’"
-    android:drawableStart="@drawable/ic_remove_outline"
+    android:drawableStart="@drawable/symbol_do_not_disturb_on"
     android:drawablePadding="16dp"
     android:background="?selectableItemBackground" />

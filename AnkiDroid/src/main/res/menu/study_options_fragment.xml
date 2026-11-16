@@ -8,7 +8,7 @@
         android:id="@+id/action_schedule_reminders"
         android:title="@string/schedule_reminders_title"
         android:visibility="gone"
-        android:icon="@drawable/ic_notifications"
+        android:icon="@drawable/symbol_notifications"
         ankidroid:showAsAction="always"/>
     <item
         android:id="@+id/action_rebuild"

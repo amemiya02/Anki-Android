@@ -11,6 +11,6 @@
         <item
             android:id="@+id/action_export_stats"
             tools:title="Save PDF"
-            android:icon="@drawable/ic_export_file"
+            android:icon="@drawable/symbol_file_export"
             app:showAsAction="ifRoom"/>
 </menu>

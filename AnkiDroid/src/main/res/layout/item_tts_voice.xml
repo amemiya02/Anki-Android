@@ -55,7 +55,7 @@
         android:clickable="false"
         android:focusable="false"
 
-        app:icon="@drawable/baseline_offline_pin_24"
+        app:icon="@drawable/symbol_offline_pin"
         app:iconTint="?attr/colorControlNormal"
         app:iconSize="24dp"
         app:iconGravity="start"
@@ -102,7 +102,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
 
-        app:icon="@drawable/baseline_download_for_offline_24"
+        app:icon="@drawable/symbol_download_for_offline"
         app:iconSize="24dp"
         app:iconPadding="0dp"
         app:iconGravity="textStart"

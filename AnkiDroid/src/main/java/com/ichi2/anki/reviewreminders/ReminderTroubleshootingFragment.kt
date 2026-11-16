@@ -161,7 +161,7 @@ class ReminderTroubleshootingFragment : Fragment(R.layout.fragment_reminder_trou
                 when (state.summaryStatus) {
                     SummaryStatus.Error ->
                         Triple(
-                            R.drawable.ic_cancel_24,
+                            R.drawable.symbol_cancel,
                             context.getColor(android.R.color.holo_red_dark),
                             context.getString(CommonString.reminder_troubleshooting_summary_error),
                         )
@@ -421,10 +421,10 @@ private fun CheckResult.iconRes(): Int =
     when (this) {
         is CheckResult.Loading -> R.drawable.symbol_sync
         is CheckResult.Passed -> R.drawable.symbol_check_circle
-        is CheckResult.Failed -> R.drawable.ic_cancel_24
+        is CheckResult.Failed -> R.drawable.symbol_cancel
         is CheckResult.Warning -> R.drawable.symbol_warning
-        is CheckResult.Unavailable -> R.drawable.ic_error_outline
-        is CheckResult.Error -> R.drawable.ic_error_outline
+        is CheckResult.Unavailable -> R.drawable.symbol_error
+        is CheckResult.Error -> R.drawable.symbol_error
     }
 
 private fun CheckResult.tintColor(context: Context): Int =

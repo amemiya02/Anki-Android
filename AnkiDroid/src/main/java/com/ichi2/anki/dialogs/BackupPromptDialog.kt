@@ -119,7 +119,7 @@ class BackupPromptDialog private constructor(
     ) {
         this.alertDialog =
             AlertDialog.Builder(windowContext).create {
-                setIcon(if (isLoggedIn) R.drawable.ic_baseline_backup_24 else R.drawable.symbol_settings_backup_restore)
+                setIcon(if (isLoggedIn) R.drawable.symbol_backup else R.drawable.symbol_settings_backup_restore)
                 title(CommonString.backup_your_collection)
                 message(CommonString.backup_collection_message)
                 positiveButton(if (isLoggedIn) CommonString.button_sync else CommonString.button_backup) {

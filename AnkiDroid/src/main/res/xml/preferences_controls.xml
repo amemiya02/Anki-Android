@@ -31,7 +31,7 @@
     <Preference
         android:key="@string/pref_keyboard_shortcuts_key"
         android:title="@string/show_keyboard_shortcuts"
-        android:icon="@drawable/ic_keyboard"
+        android:icon="@drawable/symbol_keyboard"
         />
 
     <com.ichi2.anki.preferences.ControlsTabPreference

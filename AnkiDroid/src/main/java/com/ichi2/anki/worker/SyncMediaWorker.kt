@@ -105,7 +105,7 @@ class SyncMediaWorker(
                             .bigText(message),
                     )
                     addAction(
-                        R.drawable.baseline_content_copy_24,
+                        R.drawable.symbol_content_copy,
                         with(applicationContext) { TR.sentenceCase.copyToClipboard },
                         getCopyToClipboardIntent(TruncatedString.from(message)),
                     )

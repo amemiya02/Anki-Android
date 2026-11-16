@@ -201,14 +201,14 @@ class TtsVoicesDialogFragment : DialogFragment(R.layout.dialog_tts_voices) {
                 binding.textViewBottom.text = voice.tryDisplayLocalizedName()
 
                 binding.localOrNetwork.setIconResource(
-                    if (voice.isNetworkConnectionRequired) R.drawable.baseline_wifi_24 else R.drawable.baseline_offline_pin_24,
+                    if (voice.isNetworkConnectionRequired) R.drawable.symbol_wifi else R.drawable.symbol_offline_pin,
                 )
                 if (voice.unavailable()) {
                     binding.actionButton.setOnClickListener { openTtsSettings() }
                     binding.actionButton.setIconResource(R.drawable.symbol_download)
                 } else {
                     binding.actionButton.setOnClickListener { viewModel.copyToClipboard(voice) }
-                    binding.actionButton.setIconResource(R.drawable.baseline_content_copy_24)
+                    binding.actionButton.setIconResource(R.drawable.symbol_content_copy)
                 }
 
                 binding.root.setOnClickListener { viewModel.playVoice(voice) }
