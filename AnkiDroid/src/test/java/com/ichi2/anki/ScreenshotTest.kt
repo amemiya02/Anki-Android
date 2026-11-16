@@ -94,12 +94,16 @@ abstract class ScreenshotTest : RobolectricTest() {
     @TestParameter(valuesProvider = LanguageProvider::class)
     lateinit var language: LanguageConfig
 
+    @TestParameter(valuesProvider = FontSizeProvider::class)
+    lateinit var fontSize: FontSizeConfig
+
     @Before
     open fun applyGlobalConfig() {
         stabilizeVersionName()
         applyDeviceConfig()
         applyThemeConfig()
         applyLanguageConfig()
+        applyFontSizeConfig()
     }
 
     /** Reports [STABLE_VERSION_NAME] as the `versionName` shown on-screen */
@@ -139,6 +143,13 @@ abstract class ScreenshotTest : RobolectricTest() {
         }
     }
 
+    // ./gradlew :AnkiDroid:recordRoborazziPlayDebug -Pscreenshot -PfontSize=200
+    private fun applyFontSizeConfig() {
+        if (fontSize != FontSizeConfig.NORMAL) {
+            fileNamePrefix += "${fontSize.fileNameComponent}_"
+        }
+    }
+
     /** Applies the orientation and returns its component of the screenshot filename. */
     protected fun setOrientation(landscape: Boolean): String {
         if (landscape) RuntimeEnvironment.setQualifiers("+land")
@@ -150,8 +161,11 @@ abstract class ScreenshotTest : RobolectricTest() {
 
     protected fun setTabletQualifiers() = setDeviceQualifiers(DeviceConfig.TABLET)
 
-    private fun setDeviceQualifiers(device: DeviceConfig) =
+    /** Replaces the qualifiers, keeping the declared language and font size */
+    private fun setDeviceQualifiers(device: DeviceConfig) {
         RuntimeEnvironment.setQualifiers(device.qualifiers(night = theme.isNight, language = language))
+        RuntimeEnvironment.setFontScale(fontSize.scale)
+    }
 
     /**
      * Captures a screenshot to `build/outputs/roborazzi/<TestClass>/<name>.png`.

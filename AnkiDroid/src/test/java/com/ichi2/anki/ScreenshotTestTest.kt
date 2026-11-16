@@ -3,6 +3,8 @@
 package com.ichi2.anki
 
 import android.view.View
+import com.ichi2.anki.FontSizeConfig.NORMAL
+import com.ichi2.anki.FontSizeConfig.PERCENT_200
 import com.ichi2.anki.LanguageConfig.ARABIC
 import com.ichi2.anki.LanguageConfig.ENGLISH
 import com.ichi2.anki.LanguageConfig.JAPANESE
@@ -16,6 +18,7 @@ import com.ichi2.anki.common.android.R as CommonR
 
 /** Meta tests for [ScreenshotTest] */
 @IncludeLanguages(SIMPLIFIED_CHINESE, JAPANESE, ARABIC)
+@IncludeFontSizes(PERCENT_200)
 class ScreenshotTestTest : ScreenshotTest() {
     @Test
     fun `version name does not change between releases - issue 21453`() {
@@ -37,6 +40,19 @@ class ScreenshotTestTest : ScreenshotTest() {
             assertThat(activity.getString(CommonR.string.dialog_cancel), equalTo(expectedCancel))
             val expectedDirection = if (language == ARABIC) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
             assertThat(activity.window.decorView.layoutDirection, equalTo(expectedDirection))
+        }
+    }
+
+    @Test
+    fun `a screen is shown at the declared font size`() {
+        buildActivity(AnkiActivity::class.java).use { controller ->
+            val activity = controller.setup().get()
+            val expectedScale =
+                when (fontSize) {
+                    NORMAL -> 1.0f
+                    PERCENT_200 -> 2.0f
+                }
+            assertThat(activity.resources.configuration.fontScale, equalTo(expectedScale))
         }
     }
 }
