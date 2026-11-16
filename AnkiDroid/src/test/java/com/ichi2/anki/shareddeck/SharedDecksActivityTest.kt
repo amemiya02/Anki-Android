@@ -23,7 +23,6 @@ import com.ichi2.anki.dialogs.utils.title
 import com.ichi2.anki.shareddeck.SharedDecksActivity.Companion.HTTP_STATUS_TOO_MANY_REQUESTS
 import com.ichi2.anki.workarounds.SafeWebViewLayout
 import com.ichi2.testutils.webView
-import com.ichi2.utils.neutralButton
 import com.ichi2.utils.positiveButton
 import org.junit.Rule
 import org.junit.Test
@@ -125,7 +124,7 @@ class SharedDecksActivityTest : RobolectricTest() {
     }
 
     @Test
-    fun `rate limit while logged out asks to log in or sign up`() {
+    fun `rate limit while logged out asks to log in`() {
         val activity = startSharedDecks()
 
         activity.receiveTooManyRequests()
@@ -147,13 +146,12 @@ class SharedDecksActivityTest : RobolectricTest() {
     }
 
     @Test
-    fun `sign up from the rate limit dialog opens the AnkiWeb sign up page`() {
+    fun `the rate limit dialog has no AnkiWeb sign up link`() {
         val activity = startSharedDecks()
         activity.receiveTooManyRequests()
 
-        clickAlertDialogButton { requireNotNull(neutralButton) }
-
-        assertEquals(getResourceString(R.string.shared_decks_sign_up_url), activity.lastLoadedUrl)
+        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+        assertFalse(dialog.getButton(AlertDialog.BUTTON_NEUTRAL)?.isShown == true, "no sign up button")
     }
 
     @Test

@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -40,7 +39,6 @@ import com.ichi2.anki.utils.ext.isCompactWidth
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.utils.hideKeyboard
 import com.ichi2.anki.utils.observeMessages
-import com.ichi2.anki.utils.openUrl
 import com.ichi2.anki.utils.showAndAwaitDismissal
 import com.ichi2.anki.utils.showSnackbarAndAwaitDismissal
 import com.ichi2.utils.Permissions
@@ -169,14 +167,6 @@ class LoginFragment : Fragment(R.layout.fragment_my_account) {
 
     private fun initButtonListeners() {
         binding.loginButton.setOnClickListener { login() }
-
-        binding.resetPasswordButton.setOnClickListener { openUrl(resources.getString(R.string.resetpw_url).toUri()) }
-
-        binding.signUpButton.setOnClickListener { openUrl(resources.getString(R.string.register_url).toUri()) }
-
-        binding.lostMailInstructions.setOnClickListener {
-            openUrl(resources.getString(R.string.link_ankiweb_lost_email_instructions).toUri())
-        }
 
         binding.privacyPolicyButton.setOnClickListener {
             Timber.i("Opening 'Privacy policy'")

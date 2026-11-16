@@ -80,17 +80,6 @@
                     />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/remove_account_button"
-                    app:backgroundTint="@color/material_red_500"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:minWidth="200dp"
-                    android:layout_gravity="center"
-                    android:text="@string/remove_account"
-                    android:layout_margin="@dimen/content_vertical_padding"
-                    />
-
-                <com.google.android.material.button.MaterialButton
                     android:id="@+id/privacy_policy_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -105,13 +94,5 @@
             </LinearLayout>
         </ScrollView>
     </RelativeLayout>
-    <!-- opens a WebView for 'remove account', replaces the layout above -->
-    <FrameLayout
-        android:id="@+id/remove_account_frame"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        tools:context=".pages.RemoveAccountFragment"
-        />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

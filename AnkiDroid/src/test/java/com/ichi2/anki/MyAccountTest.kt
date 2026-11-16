@@ -3,6 +3,7 @@
 
 package com.ichi2.anki
 
+import android.view.View
 import android.widget.Button
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.textfield.TextInputEditText
@@ -14,6 +15,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class MyAccountTest : RobolectricTest() {
@@ -21,6 +23,19 @@ class MyAccountTest : RobolectricTest() {
     fun setup() {
         Prefs.username = ""
         Prefs.hkey = ""
+    }
+
+    @Test
+    fun `the sign-in screen offers no AnkiWeb sign up or password reset`() {
+        launchFragmentInContainer<LoginFragment>().use { scenario ->
+            scenario.onFragment { fragment ->
+                for (text in listOf("AnkiWeb", "Sign up", "Reset password", "Forgot")) {
+                    val views = ArrayList<View>()
+                    fragment.requireView().findViewsWithText(views, text, View.FIND_VIEWS_WITH_TEXT)
+                    assertTrue(views.none { it.isShown }, "'$text' is not offered")
+                }
+            }
+        }
     }
 
     @Test

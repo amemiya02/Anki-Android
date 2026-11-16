@@ -9,7 +9,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -23,24 +22,14 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
 import com.ichi2.anki.dialogs.help.HelpDialog
-import com.ichi2.anki.pages.RemoveAccountFragment
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.bottomCornerClearance
 import com.ichi2.anki.utils.ext.isCompactWidth
-import com.ichi2.anki.utils.ext.removeFragmentFromContainer
 import com.ichi2.anki.utils.ext.showDialogFragment
 import timber.log.Timber
 
 class LoggedInFragment : Fragment(R.layout.fragment_my_account_logged_in) {
-    // if the 'remove account' fragment is open, close it first
-    private val onRemoveAccountBackCallback =
-        object : OnBackPressedCallback(false) {
-            override fun handleOnBackPressed() {
-                closeRemoveAccountScreen()
-            }
-        }
-
     private val viewModel: LoggedInViewModel by viewModels()
 
     private lateinit var loggedInLogo: ImageView
@@ -72,7 +61,6 @@ class LoggedInFragment : Fragment(R.layout.fragment_my_account_logged_in) {
             text = TR.sentenceCase.logOut
             setOnClickListener { logout() }
         }
-        view.findViewById<Button>(R.id.remove_account_button).setOnClickListener { openRemoveAccountScreen() }
 
         loggedInLogo = view.findViewById(R.id.login_logo)
     }
@@ -109,31 +97,6 @@ class LoggedInFragment : Fragment(R.layout.fragment_my_account_logged_in) {
             replace(R.id.fragment_container, LoginFragment())
         }
         fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-    }
-
-    /**
-     * Opens the AnkiWeb 'remove account' WebView
-     * @see RemoveAccountFragment
-     * @see R.string.remove_account_url
-     */
-    private fun openRemoveAccountScreen() {
-        Timber.i("opening 'remove account'")
-        requireActivity()
-            .supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.remove_account_frame, RemoveAccountFragment())
-            .commit()
-        requireView().findViewById<View>(R.id.remove_account_frame).isVisible = true
-        requireView().findViewById<View>(R.id.logged_in_layout).isVisible = false
-        onRemoveAccountBackCallback.isEnabled = true
-    }
-
-    private fun closeRemoveAccountScreen() {
-        Timber.i("closing 'remove account'")
-        requireActivity().supportFragmentManager.removeFragmentFromContainer(R.id.remove_account_frame)
-        requireView().findViewById<View>(R.id.remove_account_frame).isVisible = false
-        requireView().findViewById<View>(R.id.logged_in_layout).isVisible = true
-        onRemoveAccountBackCallback.isEnabled = false
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

@@ -40,7 +40,6 @@ import com.ichi2.anki.workarounds.SafeWebViewClient
 import com.ichi2.utils.FileNameAndExtension
 import com.ichi2.utils.message
 import com.ichi2.utils.negativeButton
-import com.ichi2.utils.neutralButton
 import com.ichi2.utils.positiveButton
 import com.ichi2.utils.show
 import com.ichi2.utils.title
@@ -182,8 +181,9 @@ class SharedDecksActivity :
             AlertDialog.Builder(this).show {
                 title(CommonString.not_logged_in_title)
                 message(CommonString.shared_decks_ankiweb_login_limit)
+                // no AnkiWeb sign-up link (ADR-0001). Logging in on AnkiWeb's website stays:
+                // shared decks are browser access
                 positiveButton(text = TR.sentenceCase.logIn) { redirectToLogin() }
-                neutralButton(CommonString.sign_up) { redirectToSignUp() }
                 negativeButton(CommonString.dialog_cancel)
             }
     }
@@ -192,12 +192,6 @@ class SharedDecksActivity :
     private fun redirectToLogin() {
         val url = getString(R.string.shared_decks_login_url)
         Timber.i("HTTP 429, redirecting to login: '$url'")
-        binding.webView.loadUrl(url)
-    }
-
-    private fun redirectToSignUp() {
-        val url = getString(R.string.shared_decks_sign_up_url)
-        Timber.i("HTTP 429, redirecting to sign up: '$url'")
         binding.webView.loadUrl(url)
     }
 
