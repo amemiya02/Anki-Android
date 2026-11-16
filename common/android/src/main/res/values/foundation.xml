@@ -142,8 +142,10 @@
     -->
     <!--
       How Compose reads a type role (Foundation.kt). Android before 9 lacks android:textFontWeight and
-      android:lineHeight, and the build moves them to a values-v28 copy of each style, so Compose reads
-      the weight from foundationTextWeight and the line height from lineHeight, present on every version.
+      android:lineHeight, so each role is Base.TextAppearance.Foundation.<Role> here and
+      values-v28/foundation.xml adds those two attributes to TextAppearance.Foundation.<Role>. Compose
+      reads the weight from foundationTextWeight and the line height from lineHeight, present on every
+      version.
     -->
     <attr name="foundationTextWeight" format="integer" />
     <declare-styleable name="FoundationTextAppearance">
@@ -163,143 +165,128 @@
     </style>
 
     <!-- The title of a top-level screen -->
-    <style name="TextAppearance.Foundation.ScreenTitle">
+    <style name="Base.TextAppearance.Foundation.ScreenTitle" parent="TextAppearance.Foundation">
         <item name="android:textSize">38sp</item>
-        <item name="android:textFontWeight">500</item>
         <item name="foundationTextWeight">500</item>
-        <item name="android:lineHeight">43.7sp</item>
         <item name="lineHeight">43.7sp</item>
     </style>
+    <style name="TextAppearance.Foundation.ScreenTitle" parent="Base.TextAppearance.Foundation.ScreenTitle" />
 
     <!-- The heading of the finished screen and of an empty screen -->
-    <style name="TextAppearance.Foundation.PageTitle">
+    <style name="Base.TextAppearance.Foundation.PageTitle" parent="TextAppearance.Foundation">
         <item name="android:textSize">30sp</item>
-        <item name="android:textFontWeight">500</item>
         <item name="foundationTextWeight">500</item>
-        <item name="android:lineHeight">36sp</item>
         <item name="lineHeight">36sp</item>
     </style>
+    <style name="TextAppearance.Foundation.PageTitle" parent="Base.TextAppearance.Foundation.PageTitle" />
 
     <!-- A top-level Deck in the deck list -->
-    <style name="TextAppearance.Foundation.DeckName">
+    <style name="Base.TextAppearance.Foundation.DeckName" parent="TextAppearance.Foundation">
         <item name="android:textSize">20sp</item>
-        <item name="android:textFontWeight">500</item>
         <item name="foundationTextWeight">500</item>
-        <item name="android:lineHeight">26sp</item>
         <item name="lineHeight">26sp</item>
     </style>
+    <style name="TextAppearance.Foundation.DeckName" parent="Base.TextAppearance.Foundation.DeckName" />
 
     <!-- A Deck inside another Deck -->
-    <style name="TextAppearance.Foundation.DeckNameNested">
+    <style name="Base.TextAppearance.Foundation.DeckNameNested" parent="TextAppearance.Foundation">
         <item name="android:textSize">17.5sp</item>
-        <item name="android:textFontWeight">400</item>
         <item name="foundationTextWeight">400</item>
-        <item name="android:lineHeight">22.75sp</item>
         <item name="lineHeight">22.75sp</item>
     </style>
+    <style name="TextAppearance.Foundation.DeckNameNested" parent="Base.TextAppearance.Foundation.DeckNameNested" />
 
     <!-- The line that says what is due today -->
-    <style name="TextAppearance.Foundation.Summary">
+    <style name="Base.TextAppearance.Foundation.Summary" parent="TextAppearance.Foundation">
         <item name="android:textSize">18sp</item>
-        <item name="android:textFontWeight">500</item>
         <item name="foundationTextWeight">500</item>
-        <item name="android:lineHeight">25.2sp</item>
         <item name="lineHeight">25.2sp</item>
     </style>
+    <style name="TextAppearance.Foundation.Summary" parent="Base.TextAppearance.Foundation.Summary" />
 
     <!-- A new, learning or due count; a zero count uses weight 400 -->
-    <style name="TextAppearance.Foundation.Count">
+    <style name="Base.TextAppearance.Foundation.Count" parent="TextAppearance.Foundation">
         <item name="android:textSize">17sp</item>
-        <item name="android:textFontWeight">600</item>
         <item name="foundationTextWeight">600</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:lineHeight">20.4sp</item>
         <item name="lineHeight">20.4sp</item>
         <item name="android:fontFeatureSettings">tnum</item>
     </style>
+    <style name="TextAppearance.Foundation.Count" parent="Base.TextAppearance.Foundation.Count" />
 
     <!-- The Deck name on the study screen -->
-    <style name="TextAppearance.Foundation.StudyTitle">
+    <style name="Base.TextAppearance.Foundation.StudyTitle" parent="TextAppearance.Foundation">
         <item name="android:textSize">17sp</item>
-        <item name="android:textFontWeight">500</item>
         <item name="foundationTextWeight">500</item>
-        <item name="android:lineHeight">23.8sp</item>
         <item name="lineHeight">23.8sp</item>
     </style>
+    <style name="TextAppearance.Foundation.StudyTitle" parent="Base.TextAppearance.Foundation.StudyTitle" />
 
     <!-- The label of a primary button -->
-    <style name="TextAppearance.Foundation.Button">
+    <style name="Base.TextAppearance.Foundation.Button" parent="TextAppearance.Foundation">
         <item name="android:textSize">17sp</item>
-        <item name="android:textFontWeight">500</item>
         <item name="foundationTextWeight">500</item>
-        <item name="android:lineHeight">23.8sp</item>
         <item name="lineHeight">23.8sp</item>
     </style>
+    <style name="TextAppearance.Foundation.Button" parent="Base.TextAppearance.Foundation.Button" />
 
     <!-- The title of a row in a list of actions or destinations (More, the finished screen) -->
-    <style name="TextAppearance.Foundation.RowTitle">
+    <style name="Base.TextAppearance.Foundation.RowTitle" parent="TextAppearance.Foundation">
         <item name="android:textSize">17sp</item>
-        <item name="android:textFontWeight">500</item>
         <item name="foundationTextWeight">500</item>
-        <item name="android:lineHeight">23.8sp</item>
         <item name="lineHeight">23.8sp</item>
     </style>
+    <style name="TextAppearance.Foundation.RowTitle" parent="Base.TextAppearance.Foundation.RowTitle" />
 
     <!-- The explanation under a page title -->
-    <style name="TextAppearance.Foundation.Lead">
+    <style name="Base.TextAppearance.Foundation.Lead" parent="TextAppearance.Foundation">
         <item name="android:textSize">16sp</item>
-        <item name="android:textFontWeight">400</item>
         <item name="foundationTextWeight">400</item>
-        <item name="android:lineHeight">24.8sp</item>
         <item name="lineHeight">24.8sp</item>
     </style>
+    <style name="TextAppearance.Foundation.Lead" parent="Base.TextAppearance.Foundation.Lead" />
 
     <!-- Again, Hard, Good and Easy -->
-    <style name="TextAppearance.Foundation.Answer">
+    <style name="Base.TextAppearance.Foundation.Answer" parent="TextAppearance.Foundation">
         <item name="android:textSize">16.5sp</item>
-        <item name="android:textFontWeight">600</item>
         <item name="foundationTextWeight">600</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:lineHeight">23.1sp</item>
         <item name="lineHeight">23.1sp</item>
     </style>
+    <style name="TextAppearance.Foundation.Answer" parent="Base.TextAppearance.Foundation.Answer" />
 
     <!-- Ordinary interface text -->
-    <style name="TextAppearance.Foundation.Body">
+    <style name="Base.TextAppearance.Foundation.Body" parent="TextAppearance.Foundation">
         <item name="android:textSize">15sp</item>
-        <item name="android:textFontWeight">400</item>
         <item name="foundationTextWeight">400</item>
-        <item name="android:lineHeight">21sp</item>
         <item name="lineHeight">21sp</item>
     </style>
+    <style name="TextAppearance.Foundation.Body" parent="Base.TextAppearance.Foundation.Body" />
 
     <!-- Remaining counts on the study screen -->
-    <style name="TextAppearance.Foundation.StudyCount">
+    <style name="Base.TextAppearance.Foundation.StudyCount" parent="TextAppearance.Foundation">
         <item name="android:textSize">14.5sp</item>
-        <item name="android:textFontWeight">600</item>
         <item name="foundationTextWeight">600</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:lineHeight">17.4sp</item>
         <item name="lineHeight">17.4sp</item>
         <item name="android:fontFeatureSettings">tnum</item>
     </style>
+    <style name="TextAppearance.Foundation.StudyCount" parent="Base.TextAppearance.Foundation.StudyCount" />
 
     <!-- Dates and secondary lines -->
-    <style name="TextAppearance.Foundation.Caption">
+    <style name="Base.TextAppearance.Foundation.Caption" parent="TextAppearance.Foundation">
         <item name="android:textSize">13sp</item>
-        <item name="android:textFontWeight">400</item>
         <item name="foundationTextWeight">400</item>
-        <item name="android:lineHeight">18.2sp</item>
         <item name="lineHeight">18.2sp</item>
         <item name="android:textColor">?android:attr/textColorSecondary</item>
     </style>
+    <style name="TextAppearance.Foundation.Caption" parent="Base.TextAppearance.Foundation.Caption" />
 
     <!-- Column headers, bottom bar labels, answer times; the current bottom bar label uses weight 600 -->
-    <style name="TextAppearance.Foundation.Label">
+    <style name="Base.TextAppearance.Foundation.Label" parent="TextAppearance.Foundation">
         <item name="android:textSize">12sp</item>
-        <item name="android:textFontWeight">400</item>
         <item name="foundationTextWeight">400</item>
-        <item name="android:lineHeight">16.8sp</item>
         <item name="lineHeight">16.8sp</item>
     </style>
+    <style name="TextAppearance.Foundation.Label" parent="Base.TextAppearance.Foundation.Label" />
 </resources>
