@@ -1,15 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- A placeholder launcher icon that cannot be mistaken for the Official App's, until the Fork's own icon is applied. -->
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!--
+  Hayaki launcher icon, foreground layer: two paper cards (docs/redesign/quiet-paper/launcher-icon.svg).
+  It stays inside the central 66dp safe zone, so no launcher mask clips it.
+  -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:fillColor="#FFF9F2"
-        android:fillType="evenOdd"
-        android:pathData="M38,32H57A12,12 0 0 1 57,56H48V76H38Z M48,40H56A4,4 0 0 1 56,48H48Z" />
-    <path
-        android:fillColor="#FFF9F2"
-        android:pathData="M50,56H60.5L71,76H60Z" />
+    <!-- the card behind: an outline -->
+    <group
+        android:pivotX="56"
+        android:pivotY="54"
+        android:rotation="9">
+        <path
+            android:pathData="M42,30H70A4,4 0,0 1,74,34V74A4,4 0,0 1,70,78H42A4,4 0,0 1,38,74V34A4,4 0,0 1,42,30Z"
+            android:strokeWidth="2.5"
+            android:strokeColor="#FFF9F2" />
+    </group>
+    <!-- the card in front: paper with two lines of text and a cinnabar mark -->
+    <group
+        android:pivotX="52"
+        android:pivotY="54"
+        android:rotation="-7">
+        <path
+            android:fillColor="#FFF9F2"
+            android:pathData="M38,30H66A4,4 0,0 1,70,34V74A4,4 0,0 1,66,78H38A4,4 0,0 1,34,74V34A4,4 0,0 1,38,30Z" />
+        <path
+            android:fillColor="#211E19"
+            android:pathData="M42.25,40H61.75A1.25,1.25 0,0 1,61.75,42.5H42.25A1.25,1.25 0,0 1,42.25,40Z" />
+        <path
+            android:fillColor="#211E19"
+            android:pathData="M42.25,47H53.75A1.25,1.25 0,0 1,53.75,49.5H42.25A1.25,1.25 0,0 1,42.25,47Z" />
+        <path
+            android:fillColor="#A63D25"
+            android:pathData="M56.8,68A3.2,3.2 0,1 1,63.2,68A3.2,3.2 0,1 1,56.8,68Z" />
+    </group>
 </vector>

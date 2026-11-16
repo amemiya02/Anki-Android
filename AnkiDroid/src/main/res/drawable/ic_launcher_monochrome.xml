@@ -1,15 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- A placeholder launcher icon that cannot be mistaken for the Official App's, until the Fork's own icon is applied. -->
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!--
+  Hayaki launcher icon, monochrome layer for themed icons (Android 13+): the foreground in one
+  colour. The launcher tints it, so the front card's lines and mark are cut out of the card, and
+  the card behind is clipped where the front card covers it so it does not show through them.
+  -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:fillColor="#FF000000"
-        android:fillType="evenOdd"
-        android:pathData="M38,32H57A12,12 0 0 1 57,56H48V76H38Z M48,40H56A4,4 0 0 1 56,48H48Z" />
-    <path
-        android:fillColor="#FF000000"
-        android:pathData="M50,56H60.5L71,76H60Z" />
+    <group>
+        <!-- everything except the front card (its outline runs the other way, leaving a hole) -->
+        <clip-path android:pathData="M0,0H108V108H0Z M31.7,36.34L36.57,76.04A4,4 0,0 0,41.03,79.53L68.82,76.11A4,4 0,0 0,72.3,71.66L67.43,31.96A4,4 0,0 0,62.97,28.47L35.18,31.89A4,4 0,0 0,31.7,36.34Z" />
+        <group
+            android:pivotX="56"
+            android:pivotY="54"
+            android:rotation="9">
+            <path
+                android:pathData="M42,30H70A4,4 0,0 1,74,34V74A4,4 0,0 1,70,78H42A4,4 0,0 1,38,74V34A4,4 0,0 1,42,30Z"
+                android:strokeWidth="2.5"
+                android:strokeColor="#FF000000" />
+        </group>
+    </group>
+    <group
+        android:pivotX="52"
+        android:pivotY="54"
+        android:rotation="-7">
+        <path
+            android:fillColor="#FF000000"
+            android:fillType="evenOdd"
+            android:pathData="M38,30H66A4,4 0,0 1,70,34V74A4,4 0,0 1,66,78H38A4,4 0,0 1,34,74V34A4,4 0,0 1,38,30Z M42.25,40H61.75A1.25,1.25 0,0 1,61.75,42.5H42.25A1.25,1.25 0,0 1,42.25,40Z M42.25,47H53.75A1.25,1.25 0,0 1,53.75,49.5H42.25A1.25,1.25 0,0 1,42.25,47Z M56.8,68A3.2,3.2 0,1 1,63.2,68A3.2,3.2 0,1 1,56.8,68Z" />
+    </group>
 </vector>

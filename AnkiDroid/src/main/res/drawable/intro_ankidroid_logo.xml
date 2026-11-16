@@ -8,7 +8,7 @@
 
         </shape>
     </item>
-    <item android:drawable="@drawable/ankidroid_logo"
+    <item android:drawable="@mipmap/ic_launcher_round"
         android:top="18dp"
         android:left="18dp"
         android:right="18dp"

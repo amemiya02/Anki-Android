@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- A placeholder launcher icon that cannot be mistaken for the Official App's, until the Fork's own icon is applied. -->
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- Hayaki launcher icon, background layer: the cinnabar ground (docs/redesign/quiet-paper/launcher-icon.svg) -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
