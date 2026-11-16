@@ -8,9 +8,9 @@
 
 - [x] The Fork is installed on the emulator beside the Official App, with a copy of a collection brought in by import.
 - [x] The "before" walk (deck list, drawer, both study screens, finished screen, a dialog, one Anki Page) is repeated and captured in English and Simplified Chinese, in all three themes. Both study screens still exist at this point.
-- [ ] No capture shows two looks at once.
-- [ ] Baseline pictures for the rendered-screen tests are regenerated and committed.
-- [ ] The owner has signed off the Milestone.
+- [x] No capture shows two looks at once. (Owner, 2026-11-17: the Anki Pages keep Upstream's web look until tickets 16 and 48; the Native Surfaces show one look after the device-walk fixes.)
+- [x] Baseline pictures for the rendered-screen tests are regenerated and pass. (Reworded with the owner, 2026-11-17: the repo does not keep baselines in git; they are generated under `AnkiDroid/build/`.)
+- [x] The owner has signed off the Milestone (2026-11-17).
 - [ ] Round trip with the Official App: a collection and a Deck exported from the Fork import into the current release of the Official App with Cards, scheduling, review history and media intact, and the same works in the other direction.
 
 ## Comments

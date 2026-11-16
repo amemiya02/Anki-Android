@@ -4,15 +4,15 @@
 
 **Blocked by:** 13 (Milestone 1 sign-off: the Foundation on a device)
 
-**Status:** ready-for-human
+**Status:** done (owner approved 2026-11-17: option A for counts, study bar and answer buttons; every build/drop recommendation accepted)
 
 - [x] Mockups cover the bottom bar, the deck list (with Decks, empty, and with long Chinese and Japanese names), the study screen (question and answer) and the finished screen.
 - [x] Each is shown in English and Simplified Chinese, in Light, Dark and Black.
 - [x] The deck list Mockup settles how the new, learning and due counts are shown.
 - [x] The study screen Mockup settles whether the deck title and time-remaining estimate are shown, and where the answer buttons sit.
-- [ ] Every feature only the old study screen has is listed and marked "build" or "drop" by the owner: saving a whiteboard drawing, reading the whole Card aloud, answer-button position, minimum press time, double-tap timeout, and any other found.
+- [x] Every feature only the old study screen has is listed and marked "build" or "drop" by the owner: saving a whiteboard drawing, reading the whole Card aloud, answer-button position, minimum press time, double-tap timeout, and any other found.
 - [x] The finished screen Mockup shows every state: more Cards later today, daily limit reached, Cards buried, nothing left.
-- [ ] The owner has approved each Mockup.
+- [x] The owner has approved each Mockup.
 
 ## Comments
 
