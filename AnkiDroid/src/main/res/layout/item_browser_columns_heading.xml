@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textAppearance="@style/TextAppearance.Foundation.Body"
         android:textColor="?attr/preferenceCategoryTitleTextColor"
         tools:text="Available"/>
 

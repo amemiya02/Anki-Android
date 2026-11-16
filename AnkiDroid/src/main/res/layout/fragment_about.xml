@@ -88,7 +88,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:text="@string/about_fork_title"
-                    android:textSize="16sp" />
+                    android:textAppearance="@style/TextAppearance.Foundation.RowTitle" />
 
                 <TextView
                     android:id="@+id/contributors_description"
@@ -106,7 +106,7 @@
                     android:layout_marginTop="20dp"
                     android:layout_marginBottom="8dp"
                     android:text="@string/license"
-                    android:textSize="16sp" />
+                    android:textAppearance="@style/TextAppearance.Foundation.RowTitle" />
 
                 <TextView
                     android:id="@+id/license_description"
@@ -123,7 +123,7 @@
                     android:layout_marginTop="20dp"
                     android:layout_marginBottom="8dp"
                     android:text="@string/help_item_support_opencollective_donate"
-                    android:textSize="16sp" />
+                    android:textAppearance="@style/TextAppearance.Foundation.RowTitle" />
 
                 <TextView
                     android:id="@+id/donate_description"

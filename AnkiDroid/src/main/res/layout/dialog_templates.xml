@@ -46,7 +46,7 @@
                 android:layout_weight="1"
                 android:textStyle="bold"
                 tools:text="Current"
-                style="@style/TextAppearance.Material3.LabelLarge"/>
+                android:textAppearance="@style/TextAppearance.Foundation.Body"/>
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/new_template_label"
@@ -56,7 +56,7 @@
                 android:layout_weight="1"
                 android:textStyle="bold"
                 tools:text="New"
-                style="@style/TextAppearance.Material3.LabelLarge"/>
+                android:textAppearance="@style/TextAppearance.Foundation.Body"/>
         </LinearLayout>
 
         <!-- Dynamic Templates Container -->
@@ -101,7 +101,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/title_frame_margin_bottom"
-                style="@style/TextAppearance.Material3.BodyMedium"
+                android:textAppearance="@style/TextAppearance.Foundation.Body"
                 tools:text="If the input/output is a cloze, the mapping is replaced by a message" />
         </LinearLayout>
     </LinearLayout>

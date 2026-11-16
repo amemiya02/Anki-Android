@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:text=""
             android:textColor="?attr/newCountColor"
-            android:textSize="14sp"
+            android:textAppearance="@style/TextAppearance.Foundation.StudyCount"
             tools:text="13"
             />
         <com.ichi2.ui.FixedTextView
@@ -27,7 +27,7 @@
             android:paddingStart="8dp"
             android:text=""
             android:textColor="?attr/learnCountColor"
-            android:textSize="14sp"
+            android:textAppearance="@style/TextAppearance.Foundation.StudyCount"
             tools:text="3"
             />
 
@@ -39,7 +39,7 @@
             android:paddingStart="8dp"
             android:text=""
             android:textColor="?attr/reviewCountColor"
-            android:textSize="14sp"
+            android:textAppearance="@style/TextAppearance.Foundation.StudyCount"
             tools:text="7"
             />
 
@@ -52,7 +52,7 @@
             android:minEms="4"
             android:gravity="center"
             android:text=""
-            android:textSize="14sp"
+            android:textAppearance="@style/TextAppearance.Foundation.Caption"
             tools:text="•••"
             tools:textColor="@color/material_green_500"
             />
@@ -93,7 +93,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:gravity="end"
-            android:textSize="14sp"
+            android:textAppearance="@style/TextAppearance.Foundation.Caption"
             android:visibility="invisible"
             tools:visibility="visible"
             />

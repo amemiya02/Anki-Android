@@ -45,7 +45,7 @@
                 android:layout_weight="1"
                 android:textStyle="bold"
                 tools:text="Current"
-                style="@style/TextAppearance.Material3.LabelLarge"/>
+                android:textAppearance="@style/TextAppearance.Foundation.Body"/>
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/new_field_label"
@@ -55,7 +55,7 @@
                 android:layout_weight="1"
                 android:textStyle="bold"
                 tools:text="New"
-                style="@style/TextAppearance.Material3.LabelLarge"/>
+                android:textAppearance="@style/TextAppearance.Foundation.Body"/>
         </LinearLayout>
 
         <!-- Dynamic Fields Container -->

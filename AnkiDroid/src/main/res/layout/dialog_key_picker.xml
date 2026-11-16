@@ -26,7 +26,7 @@
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:text="@string/key_picker_default_press_key"
-            android:textSize="24sp" />
+            android:textAppearance="@style/TextAppearance.Foundation.DeckName" />
 
         <com.ichi2.ui.FixedTextView
             android:id="@+id/warning"

@@ -57,8 +57,7 @@
                     android:ellipsize="end"
                     android:gravity="center"
                     android:maxLines="3"
-                    android:textSize="28sp"
-                    android:textStyle="bold"
+                    android:textAppearance="@style/TextAppearance.Foundation.PageTitle"
                     tools:text="Deck name here"/>
 
                 <com.ichi2.ui.FixedTextView

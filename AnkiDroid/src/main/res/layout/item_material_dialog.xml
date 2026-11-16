@@ -11,5 +11,5 @@
     android:textAlignment="viewStart"
     android:background="?attr/selectableItemBackground"
     android:drawablePadding="10dp"
-    android:textSize="20sp"
+    android:textAppearance="@style/TextAppearance.Foundation.RowTitle"
     android:textIsSelectable="false" />

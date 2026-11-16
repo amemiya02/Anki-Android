@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:padding="32dp"
             android:text="@string/permissions_screen_optional_headline"
-            android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+            android:textAppearance="@style/TextAppearance.Foundation.PageTitle"
             android:textColor="?android:attr/textColorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

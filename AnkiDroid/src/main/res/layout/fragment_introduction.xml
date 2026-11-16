@@ -41,8 +41,7 @@
             android:paddingBottom="8dp"
             android:text="@string/intro_ankidroid_tagline_one"
             android:textAlignment="textStart"
-            android:textSize="34sp"
-            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.Foundation.ScreenTitle"
             app:layout_constraintBottom_toTopOf="@+id/title_divider"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -63,8 +62,7 @@
             android:paddingBottom="8dp"
             android:text="@string/intro_ankidroid_tagline_two"
             android:textAlignment="center"
-            android:textSize="34sp"
-            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.Foundation.ScreenTitle"
             app:layout_constraintBottom_toTopOf="@+id/subtitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -78,7 +76,7 @@
             android:paddingHorizontal="30dp"
             android:text="@string/intro_short_ankidroid_explanation"
             android:textAlignment="center"
-            android:textSize="18sp"
+            android:textAppearance="@style/TextAppearance.Foundation.Lead"
             app:layout_constraintBottom_toTopOf="@+id/get_started"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

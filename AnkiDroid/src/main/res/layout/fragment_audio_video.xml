@@ -35,7 +35,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <TextView
-            android:textSize="18sp"
+            android:textAppearance="@style/TextAppearance.Foundation.Body"
             android:layout_margin="8dp"
             app:layout_constraintBottom_toTopOf="@id/action_done"
             app:layout_constraintStart_toStartOf="parent"

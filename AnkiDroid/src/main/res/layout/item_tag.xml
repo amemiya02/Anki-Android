@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:paddingStart="6dp"
-        android:textSize="16sp"
+        android:textAppearance="@style/TextAppearance.Foundation.Body"
         tools:text="Example Tag" />
 
     <com.ichi2.ui.CheckBoxTriStates

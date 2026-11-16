@@ -81,7 +81,7 @@
             android:layout_marginBottom="8dp"
             android:gravity="center"
             android:text="@string/you_have_no_review_reminders"
-            style="@style/TextAppearance.AppCompat.Medium" />
+            android:textAppearance="@style/TextAppearance.Foundation.PageTitle" />
 
     </LinearLayout>
 

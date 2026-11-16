@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="8dp"
-        style="@style/TextAppearance.Material3.LabelLarge"
+        android:textAppearance="@style/TextAppearance.Foundation.Body"
         tools:text="Show card in range"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -45,7 +45,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/range_delimiter"
-        android:textSize="24sp"
+        android:textAppearance="@style/TextAppearance.Foundation.DeckName"
         app:layout_constraintBottom_toBottomOf="@+id/date_range_start_layout"
         app:layout_constraintEnd_toStartOf="@+id/date_range_end_layout"
         app:layout_constraintStart_toEndOf="@+id/date_range_start_layout"

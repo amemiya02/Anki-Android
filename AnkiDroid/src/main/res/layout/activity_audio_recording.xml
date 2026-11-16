@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="00:00.00"
-        android:textSize="32sp"
+        android:textAppearance="@style/TextAppearance.Foundation.PageTitle"
         tools:ignore="HardcodedText" />
 
     <LinearLayout

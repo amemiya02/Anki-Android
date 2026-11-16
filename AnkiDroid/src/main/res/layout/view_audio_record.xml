@@ -44,7 +44,7 @@
         android:elevation="2dp"
         android:enabled="false"
         android:layout_marginStart="8dp"
-        android:textSize="16sp"
+        android:textAppearance="@style/TextAppearance.Foundation.Body"
         android:visibility="visible"/>
 
     <LinearLayout
@@ -75,7 +75,7 @@
             android:layout_height="wrap_content"
             android:text="@string/slide_to_cancel"
             android:textColor="?attr/foundationOnBackgroundMuted"
-            android:textSize="16sp"
+            android:textAppearance="@style/TextAppearance.Foundation.Body"
             android:textStyle="normal" />
 
     </LinearLayout>

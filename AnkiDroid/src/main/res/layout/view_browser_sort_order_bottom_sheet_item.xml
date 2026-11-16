@@ -35,8 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
-            android:textAppearance="?android:textAppearanceMedium"
-            android:textSize="15sp"
+            android:textAppearance="@style/TextAppearance.Foundation.Body"
             tools:text="Due" />
 
         <com.ichi2.ui.FixedTextView
@@ -44,9 +43,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
-            android:textAppearance="?android:textAppearanceSmall"
+            android:textAppearance="@style/TextAppearance.Foundation.Caption"
             android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="12sp"
             android:visibility="gone"
             tools:text="Oldest first"
             tools:visibility="visible" />

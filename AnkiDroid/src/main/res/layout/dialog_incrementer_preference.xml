@@ -56,7 +56,7 @@
             android:maxLines="1"
             android:padding="12dp"
             android:selectAllOnFocus="true"
-            android:textSize="24sp"
+            android:textAppearance="@style/TextAppearance.Foundation.DeckName"
             tools:text="1" />
 
     </com.google.android.material.textfield.TextInputLayout>

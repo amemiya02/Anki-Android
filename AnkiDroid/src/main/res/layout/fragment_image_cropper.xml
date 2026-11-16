@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="24dp"
             android:visibility="gone"
-            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textAppearance="@style/TextAppearance.Foundation.Body"
             android:text="@string/crop_image_size_notice"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

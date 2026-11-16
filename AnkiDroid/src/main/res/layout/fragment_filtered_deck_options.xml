@@ -98,7 +98,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="8dp"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textAppearance="@style/TextAppearance.Foundation.RowTitle"
                 tools:text="Filter"
                 />
 
@@ -151,7 +151,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                android:textAppearance="@style/TextAppearance.Foundation.Body"
                 tools:text="Cards selected by"
                 />
 
@@ -168,7 +168,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textAppearance="@style/TextAppearance.Foundation.RowTitle"
                 tools:text="Enable second filter"
                 />
 
@@ -224,7 +224,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:visibility="gone"
-                android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                android:textAppearance="@style/TextAppearance.Foundation.Body"
                 tools:text="Cards selected by"
                 />
 
@@ -242,7 +242,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textAppearance="@style/TextAppearance.Foundation.RowTitle"
                 tools:text="Options"
                 />
 

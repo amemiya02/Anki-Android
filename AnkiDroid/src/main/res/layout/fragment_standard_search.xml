@@ -103,7 +103,7 @@
             android:paddingStart="16dp"
             android:paddingBottom="8dp"
             android:text="History"
-            style="@style/TextAppearance.Material3.LabelLarge" />
+            android:textAppearance="@style/TextAppearance.Foundation.Body" />
 
         <ListView
             android:id="@+id/search_history"
@@ -129,7 +129,7 @@
 
     <com.ichi2.ui.FixedTextView
         android:id="@+id/saved_searches_label"
-        style="@style/TextAppearance.Material3.LabelLarge"
+        android:textAppearance="@style/TextAppearance.Foundation.Body"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:gravity="center_vertical"

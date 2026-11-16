@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:textColor="?attr/actionBarTextColor"
-            android:textAppearance="?textAppearanceBodyMediumEmphasized"
+            android:textAppearance="@style/TextAppearance.Foundation.RowTitle"
             tools:text="5 note types selected" />
 
         <com.google.android.material.button.MaterialButton

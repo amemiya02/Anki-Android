@@ -30,7 +30,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <TextView
-            android:textSize="12sp"
+            android:textAppearance="@style/TextAppearance.Foundation.Caption"
             android:textColor="?android:attr/textColorSecondary"
             android:layout_margin="8dp"
             app:layout_constraintBottom_toTopOf="@id/image_actions"

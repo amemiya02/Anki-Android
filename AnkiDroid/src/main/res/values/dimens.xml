@@ -16,9 +16,6 @@
     <dimen name="input_layout_padding">8dp</dimen>
     <dimen name="icon_margin">16dp</dimen>
 
-    <!-- Material design typography -->
-    <dimen name="title_textsize">20sp</dimen>
-
     <!-- DeckPicker -->
     <dimen name="deck_picker_left_padding_small">0dp</dimen>
     <dimen name="deck_picker_left_padding">24dp</dimen>

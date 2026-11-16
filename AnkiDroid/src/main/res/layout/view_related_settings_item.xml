@@ -9,6 +9,6 @@
     android:focusable="true"
     android:paddingHorizontal="16dp"
     android:paddingVertical="12dp"
-    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+    android:textAppearance="@style/TextAppearance.Foundation.Body"
     tools:text="Controls"
     />

@@ -10,7 +10,7 @@
         android:id="@+id/notetype_type_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+        android:textAppearance="@style/TextAppearance.Foundation.Body"
         android:layout_marginBottom="12dp"
         tools:text="Type"
         />

@@ -25,15 +25,14 @@
             android:id="@+id/reminders_list_time_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="28sp"
-            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.Foundation.PageTitle"
             tools:text="12:00 a.m." />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/reminders_list_deck_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
+            android:textAppearance="@style/TextAppearance.Foundation.Body"
             tools:text="Example Deck Name" />
 
     </LinearLayout>

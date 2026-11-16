@@ -22,7 +22,7 @@
         android:paddingTop="12dp"
         android:paddingBottom="8dp"
         android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textAppearance="@style/TextAppearance.Foundation.Body"
         android:textColor="?attr/preferenceCategoryTitleTextColor"
         tools:text="Active" />
 </LinearLayout>
