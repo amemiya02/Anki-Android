@@ -23,3 +23,11 @@ SPDX-License-Identifier = "OFL-1.1"
 path = ["common/android/src/main/res/font/klee_one_*.ttf", "common/android/src/main/assets/fonts/klee-one/OFL.txt"]
 SPDX-FileCopyrightText = "2020 The Klee Project Authors (https://github.com/fontworks-fonts/Klee)"
 SPDX-License-Identifier = "OFL-1.1"
+
+# The interface icons: Material Symbols (Outlined, weight 300) from Google's official repository
+# https://github.com/google/material-design-icons, converted to vector drawables unmodified in
+# shape by tools/material-symbols/symbol.py, which records the source commit in symbols.lock
+[[annotations]]
+path = "**/src/main/res/drawable/symbol_*.xml"
+SPDX-FileCopyrightText = "Google LLC (https://github.com/google/material-design-icons)"
+SPDX-License-Identifier = "Apache-2.0"
