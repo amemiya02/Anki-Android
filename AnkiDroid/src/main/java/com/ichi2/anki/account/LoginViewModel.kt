@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.NoSyncServerException
 import com.ichi2.anki.cancelSync
 import com.ichi2.anki.getEndpoint
 import com.ichi2.anki.progress.HasProgress
@@ -100,6 +101,7 @@ class LoginViewModel :
      * adding the outcome to [pendingMessages].
      *
      * Ignored if a credential is missing, or a login is running or has succeeded.
+     * Fails with [NoSyncServerException] if no sync server is set up.
      *
      * @param username The username entered by the user.
      * @param password The password entered by the user.
@@ -116,6 +118,13 @@ class LoginViewModel :
             Timber.i("Login cancelled - already logging in")
             return
         }
+        // without an endpoint the Engine would sign in to AnkiWeb, which the Fork never contacts
+        val endpoint = getEndpoint()
+        if (endpoint == null) {
+            Timber.i("Login cancelled - no sync server")
+            onLoginFailed(NoSyncServerException())
+            return
+        }
         // set before launching: the login may complete before `launch` returns
         loginStarted = true
         Timber.i("Logging in")
@@ -127,7 +136,7 @@ class LoginViewModel :
             // Not a child of this coroutine, which would then wait for it when cancelled:
             // waiting for collection access can't be interrupted, so the progress would remain
             // until the collection is available
-            val auth = viewModelScope.async { syncLogin(username, password, getEndpoint()) }
+            val auth = viewModelScope.async { syncLogin(username, password, endpoint) }
             val login = coroutineContext.job
             try {
                 progressManager.withProgress(
@@ -168,7 +177,7 @@ class LoginViewModel :
     private suspend fun syncLogin(
         username: String,
         password: String,
-        endpoint: String?,
+        endpoint: String,
     ): SyncAuth =
         withCol {
             SyncAuth(syncLogin(username, password, endpoint))

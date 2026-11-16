@@ -2114,8 +2114,14 @@ open class DeckPicker :
      * from the mSyncConflictResolutionListener if the first attempt determines that a full-sync is required.
      */
     override fun sync(conflict: ConflictResolution?) {
-        val hkey = Prefs.hkey
-        if (hkey.isNullOrEmpty()) {
+        if (syncServerAddress() == null) {
+            // there is nothing to sign in to: the Fork never syncs with AnkiWeb (ADR-0001)
+            Timber.w("No sync server: opening sync setup")
+            pullToSyncWrapper.isRefreshing = false
+            loginToSyncServer()
+            return
+        }
+        if (!isLoggedIn()) {
             Timber.w("User not logged in")
             pullToSyncWrapper.isRefreshing = false
             showSyncErrorDialog(SyncErrorDialog.Type.DIALOG_USER_NOT_LOGGED_IN_SYNC)
@@ -2157,6 +2163,7 @@ open class DeckPicker :
         viewModel.deferredMeteredSyncMedia = null
     }
 
+    /** Opens sign-in to the sync server, or sync setup while no server is set up */
     override fun loginToSyncServer() {
         val intent = AccountActivity.getIntent(this, forResult = true)
         loginForSyncLauncher.launch(intent)

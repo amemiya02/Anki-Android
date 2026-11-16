@@ -12,6 +12,7 @@ import com.ichi2.anki.dialogs.SyncErrorDialog
 import com.ichi2.anki.dialogs.utils.message
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.utils.ext.DIALOG_FRAGMENT_TAG
+import com.ichi2.testutils.signInToSyncServer
 import com.ichi2.utils.negativeButton
 import com.ichi2.utils.positiveButton
 import kotlinx.coroutines.Dispatchers
@@ -143,7 +144,7 @@ class SyncConflictTest : RobolectricTest() {
         }
 
     private suspend fun DeckPicker.syncWithConflict() {
-        Prefs.hkey = "test"
+        signInToSyncServer()
         Prefs.lastSyncTime = 0
         viewModel.flowOfDecksReloaded.test {
             // Consume the replayed startup event, then wait for sync's own reload.

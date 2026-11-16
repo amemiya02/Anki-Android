@@ -16,7 +16,10 @@ import androidx.test.core.app.ActivityScenario
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.settings.Prefs
+import com.ichi2.testutils.TEST_SYNC_SERVER
 import com.ichi2.testutils.insetsOf
+import com.ichi2.testutils.setSyncServer
+import com.ichi2.testutils.signInToSyncServer
 import org.junit.Test
 import org.robolectric.RuntimeEnvironment
 
@@ -58,12 +61,13 @@ class AccountActivityScreenshotTest : ScreenshotTest() {
     }
 
     private fun withLoggedIn(block: (AccountActivity) -> Unit) {
-        Prefs.hkey = "my precious hkey"
+        signInToSyncServer(hkey = "my precious hkey")
         Prefs.username = "lovely@example.com"
         launchAccount(block)
     }
 
     private fun withLoggedOut(block: (AccountActivity) -> Unit) {
+        setSyncServer(TEST_SYNC_SERVER)
         Prefs.hkey = ""
         launchAccount(block)
     }

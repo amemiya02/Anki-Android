@@ -20,9 +20,11 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import com.google.android.material.appbar.MaterialToolbar
 import com.ichi2.anki.CollectionManager.TR
+import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.dialogs.help.HelpDialog
 import com.ichi2.anki.settings.Prefs
+import com.ichi2.anki.syncServerAddress
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.bottomCornerClearance
 import com.ichi2.anki.utils.ext.isCompactWidth
@@ -46,7 +48,8 @@ class LoggedInFragment : Fragment(R.layout.fragment_my_account_logged_in) {
         activity.setSupportActionBar(toolbar)
 
         activity.supportActionBar?.apply {
-            title = TR.sentenceCase.ankiWebAccount
+            title = getString(CommonString.sync_account_title)
+            subtitle = syncServerAddress()
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)
         }

@@ -25,6 +25,7 @@ import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.CrashReportData.Companion.toCrashReportData
 import com.ichi2.anki.DeckPicker
+import com.ichi2.anki.NoSyncServerException
 import com.ichi2.anki.R
 import com.ichi2.anki.account.AccountActivity.Companion.ARG_START_FOR_RESULT
 import com.ichi2.anki.databinding.FragmentMyAccountBinding
@@ -32,6 +33,7 @@ import com.ichi2.anki.dialogs.help.HelpDialog
 import com.ichi2.anki.exception.CollectionLockedException
 import com.ichi2.anki.progress.observeProgress
 import com.ichi2.anki.showErrorAndAwaitDismissal
+import com.ichi2.anki.syncServerAddress
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.bottomCornerClearance
 import com.ichi2.anki.utils.ext.collectInViewLifecycle
@@ -62,7 +64,9 @@ class LoginFragment : Fragment(R.layout.fragment_my_account) {
         activity.setSupportActionBar(binding.toolbar)
 
         activity.supportActionBar?.apply {
-            title = TR.sentenceCase.ankiWebAccount
+            title = getString(CommonString.sync_account_title)
+            // the server signed in to: never AnkiWeb (ADR-0001)
+            subtitle = syncServerAddress()
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)
         }
@@ -223,6 +227,7 @@ class LoginFragment : Fragment(R.layout.fragment_my_account) {
                     exception.localizedMessage!!,
                     exception.toCrashReportData(requireContext(), reportException = false),
                 )
+            is NoSyncServerException -> showSnackbarAndAwaitDismissal(getString(CommonString.sync_server_required))
             else -> showSnackbarAndAwaitDismissal(exception.message.toString())
         }
     }

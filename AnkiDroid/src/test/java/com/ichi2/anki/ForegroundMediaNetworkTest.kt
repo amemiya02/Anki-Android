@@ -17,6 +17,7 @@ import com.ichi2.anki.settings.enums.ShouldFetchMedia
 import com.ichi2.anki.utils.ext.DIALOG_FRAGMENT_TAG
 import com.ichi2.anki.worker.UniqueWorkNames
 import com.ichi2.testutils.BackupManagerTestUtilities
+import com.ichi2.testutils.signInToSyncServer
 import com.ichi2.utils.NetworkUtils
 import io.mockk.every
 import io.mockk.mockkObject
@@ -53,7 +54,7 @@ class ForegroundMediaNetworkTest : RobolectricTest() {
     @Before
     fun prepareSync() {
         BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
-        Prefs.hkey = "test"
+        signInToSyncServer()
         Prefs.lastSyncTime = 0
         Prefs.allowSyncOnMeteredConnections = false
         Prefs.shouldFetchMedia = ShouldFetchMedia.ALWAYS

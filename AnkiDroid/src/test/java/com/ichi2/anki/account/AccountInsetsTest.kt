@@ -8,7 +8,10 @@ import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.settings.Prefs
+import com.ichi2.testutils.TEST_SYNC_SERVER
 import com.ichi2.testutils.dispatchInsets
+import com.ichi2.testutils.setSyncServer
+import com.ichi2.testutils.signInToSyncServer
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.Test
@@ -90,12 +93,13 @@ class AccountInsetsTest : RobolectricTest() {
     private val AccountActivity.content: View get() = findViewById(R.id.account_content)
 
     private fun withLoginScreen(block: (AccountActivity) -> Unit) {
+        setSyncServer(TEST_SYNC_SERVER)
         Prefs.hkey = ""
         block(startAccountActivity())
     }
 
     private fun withLoggedInScreen(block: (AccountActivity) -> Unit) {
-        Prefs.hkey = "my precious hkey"
+        signInToSyncServer(hkey = "my precious hkey")
         Prefs.username = "lovely@example.com"
         block(startAccountActivity())
     }

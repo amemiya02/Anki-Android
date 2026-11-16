@@ -9,6 +9,7 @@ import anki.sync.SyncAuth
 import anki.sync.SyncStatusResponse
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.worker.UniqueWorkNames
+import com.ichi2.testutils.signInToSyncServer
 import com.ichi2.utils.NetworkUtils
 import io.mockk.every
 import io.mockk.mockkObject
@@ -113,7 +114,7 @@ class DeckPickerAutomaticSyncTest : RobolectricTest() {
             putString(getResourceString(R.string.sync_fetch_media_key), getResourceString(mediaPreference))
         }
         assertEquals(syncMedia, shouldFetchMedia())
-        Prefs.hkey = "test"
+        signInToSyncServer()
         Prefs.allowSyncOnMeteredConnections = true
         Prefs.lastSyncTime = 0
         val backend = CollectionManager.getBackend()

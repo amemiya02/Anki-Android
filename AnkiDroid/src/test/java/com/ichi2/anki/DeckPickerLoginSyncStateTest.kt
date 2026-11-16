@@ -8,6 +8,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.testutils.BackupManagerTestUtilities
+import com.ichi2.testutils.signInToSyncServer
 import com.ichi2.utils.NetworkUtils
 import io.mockk.every
 import io.mockk.mockkObject
@@ -63,7 +64,7 @@ class DeckPickerLoginSyncStateTest : RobolectricTest() {
         val activity = launch(autoSync = false).get()
         CollectionManager.closeCollectionBlocking()
         getPreferences().edit { putBoolean(getResourceString(R.string.automatic_sync_choice_key), true) }
-        Prefs.hkey = "test"
+        signInToSyncServer()
         Prefs.allowSyncOnMeteredConnections = true
         Prefs.lastSyncTime = 0
 

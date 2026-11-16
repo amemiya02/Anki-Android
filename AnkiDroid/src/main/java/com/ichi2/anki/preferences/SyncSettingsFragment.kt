@@ -12,11 +12,11 @@ import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.account.AccountActivity
 import com.ichi2.anki.common.crashreporting.runCatchingWithReport
+import com.ichi2.anki.isLoggedIn
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
-import com.ichi2.anki.ui.internationalization.sentenceCase
-import com.ichi2.anki.utils.ext.ifNullOrEmpty
+import com.ichi2.anki.syncServerAddress
 import com.ichi2.preferences.NumberRangePreferenceCompat
 import com.ichi2.utils.show
 
@@ -30,7 +30,7 @@ class SyncSettingsFragment : SettingsFragment() {
         get() = "prefs.sync"
 
     override fun initSubscreen() {
-        // AnkiWeb Account
+        // Sync account: opens sync setup while no sync server is set up
         updateSyncAccountSummary()
 
         // Enable/disable one-way sync if the user is logged in
@@ -68,7 +68,6 @@ class SyncSettingsFragment : SettingsFragment() {
         }
 
         requirePreference<Preference>(R.string.sync_account_key).apply {
-            title = TR.sentenceCase.ankiWebAccount
             setOnPreferenceClickListener {
                 val accountActivityIntent = AccountActivity.getIntent(requireContext())
                 startActivity(accountActivityIntent)
@@ -78,19 +77,22 @@ class SyncSettingsFragment : SettingsFragment() {
 
         // Custom sync server
         requirePreference<Preference>(R.string.custom_sync_server_key).setSummaryProvider {
-            customSyncBase() ?: getString(CommonString.custom_sync_server_summary_none_of_the_two_servers_used)
+            syncServerAddress() ?: getString(CommonString.sync_server_not_set)
         }
     }
 
     private fun updateSyncAccountSummary() {
         requirePreference<Preference>(R.string.sync_account_key)
             .summary =
-            Prefs.username.ifNullOrEmpty { getString(CommonString.sync_account_summ_logged_out) }
+            when {
+                syncServerAddress() == null -> getString(CommonString.sync_server_required)
+                isLoggedIn() -> Prefs.username
+                else -> getString(CommonString.sync_account_summ_logged_out)
+            }
     }
 
     private fun updateOneWaySyncEnabledState() {
-        val isLoggedIn = !Prefs.username.isNullOrEmpty()
-        requirePreference<Preference>(R.string.one_way_sync_key).isEnabled = isLoggedIn
+        requirePreference<Preference>(R.string.one_way_sync_key).isEnabled = isLoggedIn()
     }
 
     // TODO trigger the summary change from MyAccount.kt once it is migrated to a fragment
@@ -99,10 +101,5 @@ class SyncSettingsFragment : SettingsFragment() {
         updateSyncAccountSummary()
         updateOneWaySyncEnabledState()
         super.onResume()
-    }
-
-    private fun customSyncBase(): String? {
-        if (!Prefs.isCustomSyncEnabled) return null
-        return Prefs.customSyncUri?.ifEmpty { null }
     }
 }

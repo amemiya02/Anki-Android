@@ -49,45 +49,63 @@ object SyncPreferences {
     const val CUSTOM_SYNC_ENABLED = CUSTOM_SYNC_URI + VersatileTextWithASwitchPreference.SWITCH_SUFFIX
 }
 
+/**
+ * Sign-in or sync was attempted without the owner's own sync server address.
+ *
+ * The Engine treats a missing address as AnkiWeb, which the Fork must never contact (ADR-0001).
+ */
+class NoSyncServerException : Exception("No sync server address")
+
 enum class ConflictResolution {
     FULL_DOWNLOAD,
     FULL_UPLOAD,
 }
 
+/**
+ * Sync credentials for the owner's own sync server, or null when signed out or no server is set up.
+ *
+ * Never returns credentials without an endpoint: the Engine would use AnkiWeb (ADR-0001).
+ */
 fun syncAuth(): SyncAuth? {
     // Grab custom sync certificate from preferences (default is the empty string) and set it in CollectionManager
     val currentSyncCertificate = Prefs.customSyncCertificate ?: ""
     CollectionManager.updateCustomCertificate(currentSyncCertificate)
 
-    val resolvedEndpoint = getEndpoint()
-    return Prefs.hkey?.let {
+    val resolvedEndpoint = getEndpoint() ?: return null
+    return Prefs.hkey?.ifEmpty { null }?.let {
         syncAuth {
             this.hkey = it
-            if (resolvedEndpoint != null) {
-                this.endpoint = resolvedEndpoint
-            }
+            this.endpoint = resolvedEndpoint
             this.ioTimeoutSecs = Prefs.networkTimeoutSecs
         }.let(::SyncAuth)
     }
 }
 
-fun getEndpoint(): String? {
-    val currentEndpoint = Prefs.currentSyncUri?.ifEmpty { null }
-    val customEndpoint =
-        if (Prefs.isCustomSyncEnabled) {
-            Prefs.customSyncUri
-        } else {
-            null
-        }
-    return currentEndpoint ?: customEndpoint
+/**
+ * The address of the owner's own sync server, as entered in sync setup, or null if none is set up.
+ *
+ * The Fork has no default server: it never syncs with AnkiWeb (ADR-0001).
+ */
+fun syncServerAddress(): String? {
+    if (!Prefs.isCustomSyncEnabled) return null
+    return Prefs.customSyncUri?.trim()?.ifEmpty { null }
 }
 
 /**
- * Whether the user has a sync account.
- * Returning true does not guarantee that the user actually synced recently,
- * or even that the ankiweb account is still valid.
+ * The endpoint the Engine signs in and syncs with: the sync server, or the address it last
+ * redirected to. Null if no sync server is set up, in which case nothing may be handed to the Engine.
  */
-fun isLoggedIn(): Boolean = !Prefs.hkey.isNullOrEmpty()
+fun getEndpoint(): String? {
+    val server = syncServerAddress() ?: return null
+    return Prefs.currentSyncUri?.ifEmpty { null } ?: server
+}
+
+/**
+ * Whether the user is signed in to their sync server.
+ * Returning true does not guarantee that the user actually synced recently,
+ * or even that the account is still valid.
+ */
+fun isLoggedIn(): Boolean = !Prefs.hkey.isNullOrEmpty() && syncServerAddress() != null
 
 /** Elapsed milliseconds since the last manual or automatic sync attempt. */
 fun millisecondsSinceLastSyncAttempt() = TimeManager.time.intTimeMS() - Prefs.lastSyncTime

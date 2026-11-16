@@ -10,6 +10,7 @@ import com.ichi2.anki.setLastSyncTimeToNow
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.testutils.JvmPreferencesRule
 import com.ichi2.testutils.JvmTest
+import com.ichi2.testutils.signInToSyncServer
 import com.ichi2.utils.NetworkUtils
 import io.mockk.every
 import io.mockk.mockkObject
@@ -32,7 +33,7 @@ class AutomaticSyncActionTest : JvmTest() {
     @Before
     fun enableAutomaticSync() {
         Prefs.isAutoSyncEnabled = true
-        Prefs.hkey = "test"
+        signInToSyncServer()
         Prefs.lastSyncTime = 0
         Prefs.allowSyncOnMeteredConnections = true
         backend = col.backend

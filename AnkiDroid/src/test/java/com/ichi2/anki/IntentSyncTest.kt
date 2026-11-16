@@ -7,6 +7,7 @@ import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.enums.ShouldFetchMedia
 import com.ichi2.anki.sync.MeteredSyncPolicy
 import com.ichi2.anki.worker.SyncWorker
+import com.ichi2.testutils.signInToSyncServer
 import com.ichi2.utils.NetworkUtils
 import io.mockk.every
 import io.mockk.justRun
@@ -40,7 +41,7 @@ class IntentSyncTest : RobolectricTest() {
     @Test
     fun `sync intent schedules collection and media independently of the finishing activity`() =
         deckPicker {
-            Prefs.hkey = "test"
+            signInToSyncServer()
             Prefs.lastSyncTime = 0
             Prefs.shouldFetchMedia = ShouldFetchMedia.ALWAYS
 
@@ -53,7 +54,7 @@ class IntentSyncTest : RobolectricTest() {
     @Test
     fun `sync intent respects disabled media sync`() =
         deckPicker {
-            Prefs.hkey = "test"
+            signInToSyncServer()
             Prefs.lastSyncTime = 0
             Prefs.shouldFetchMedia = ShouldFetchMedia.NEVER
 
@@ -65,7 +66,7 @@ class IntentSyncTest : RobolectricTest() {
     @Test
     fun `sync intent respects metered connection policy`() =
         deckPicker {
-            Prefs.hkey = "test"
+            signInToSyncServer()
             val previousSyncTime = 1_000L
             Prefs.lastSyncTime = previousSyncTime
             every { MeteredSyncPolicy.shouldBlock() } returns true
@@ -82,7 +83,7 @@ class IntentSyncTest : RobolectricTest() {
     @Test
     fun `sync intent respects rate limit`() =
         deckPicker {
-            Prefs.hkey = "test"
+            signInToSyncServer()
             setLastSyncTimeToNow()
 
             IntentHandler.Companion.DoSync().handleAsyncMessage(this)
@@ -93,7 +94,7 @@ class IntentSyncTest : RobolectricTest() {
     @Test
     fun `sync intent does not sync when offline`() =
         deckPicker {
-            Prefs.hkey = "test"
+            signInToSyncServer()
             Prefs.lastSyncTime = 0
             every { NetworkUtils.isOnline } returns false
 

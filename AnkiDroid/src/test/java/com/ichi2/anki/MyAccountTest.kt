@@ -9,7 +9,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.textfield.TextInputEditText
 import com.ichi2.anki.account.LoginFragment
 import com.ichi2.anki.settings.Prefs
+import com.ichi2.testutils.TEST_SYNC_SERVER
 import com.ichi2.testutils.launchFragmentInContainer
+import com.ichi2.testutils.setSyncServer
 import junit.framework.TestCase.assertFalse
 import org.junit.Before
 import org.junit.Test
@@ -23,6 +25,7 @@ class MyAccountTest : RobolectricTest() {
     fun setup() {
         Prefs.username = ""
         Prefs.hkey = ""
+        setSyncServer(TEST_SYNC_SERVER)
     }
 
     @Test

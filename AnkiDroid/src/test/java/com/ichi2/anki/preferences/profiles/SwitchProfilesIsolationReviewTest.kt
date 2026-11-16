@@ -15,6 +15,8 @@ import com.ichi2.anki.multiprofile.ProfileManager
 import com.ichi2.anki.multiprofile.ProfileName
 import com.ichi2.anki.multiprofile.ProfileSwitchGuard
 import com.ichi2.anki.settings.Prefs
+import com.ichi2.testutils.setSyncServer
+import com.ichi2.testutils.signInToSyncServer
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,7 +71,7 @@ class SwitchProfilesIsolationReviewTest : RobolectricTest() {
     fun `a target profile that cannot load is refused before the restart`() =
         runTest {
             val originalManager = requireNotNull(app.profileManager)
-            Prefs.hkey = "outgoing-default-account-key"
+            signInToSyncServer(hkey = "outgoing-default-account-key")
             Prefs.username = "default@example.invalid"
             assertTrue(isLoggedIn())
             val target = createProfile(originalManager)
@@ -102,6 +104,7 @@ class SwitchProfilesIsolationReviewTest : RobolectricTest() {
                     remove("hkey")
                     remove("username")
                 }
+                setSyncServer(null)
                 ProfileManager.resetForTesting()
             }
         }

@@ -25,8 +25,10 @@ import com.ichi2.anki.findAnkiActivity
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.throwOnShowError
 import com.ichi2.testutils.BackendEmulatingOpenConflict
+import com.ichi2.testutils.TEST_SYNC_SERVER
 import com.ichi2.testutils.ext.snackbarText
 import com.ichi2.testutils.rules.BackendOverrideRule
+import com.ichi2.testutils.setSyncServer
 import com.ichi2.testutils.withQueuedCollectionAccess
 import com.ichi2.ui.TextInputEditField
 import com.ichi2.utils.negativeButton
@@ -40,6 +42,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import net.ankiweb.rsdroid.Backend
 import net.ankiweb.rsdroid.exceptions.BackendSyncException.BackendSyncAuthFailedException
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -65,6 +68,11 @@ import kotlin.time.TimeSource
 class LoginFragmentTest : RobolectricTest() {
     @get:Rule
     val backend = BackendOverrideRule()
+
+    @Before
+    fun setUpSyncServer() {
+        setSyncServer(TEST_SYNC_SERVER)
+    }
 
     /**
      * #21051: the locked-collection guidance is multi-sentence, so it is shown in a dialog
@@ -224,7 +232,8 @@ class LoginFragmentTest : RobolectricTest() {
             }
         }
         server.start()
-        Prefs.currentSyncUri = "http://127.0.0.1:${server.address.port}/"
+        // a self-hosted sync server: the real Engine signs in to it
+        setSyncServer("http://127.0.0.1:${server.address.port}/")
         val login = startLoginScreen()
         val activity = login.get()
         login.enterCredentials()

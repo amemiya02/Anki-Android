@@ -207,7 +207,7 @@ class SyncErrorDialog : AsyncDialogFragment() {
     private val title: String
         get() =
             when (dialogType) {
-                DIALOG_USER_NOT_LOGGED_IN_SYNC -> res().getString(CommonString.not_logged_in_title)
+                DIALOG_USER_NOT_LOGGED_IN_SYNC -> res().getString(CommonString.sync_server_not_logged_in_title)
                 DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_LOCAL, DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_REMOTE ->
                     res().getString(
                         CommonString.sync_conflict_replace_title,
@@ -242,7 +242,7 @@ class SyncErrorDialog : AsyncDialogFragment() {
     private val message: String?
         get() =
             when (dialogType) {
-                DIALOG_USER_NOT_LOGGED_IN_SYNC -> res().getString(CommonString.login_create_account_message)
+                DIALOG_USER_NOT_LOGGED_IN_SYNC -> res().getString(CommonString.sync_server_login_message)
                 DIALOG_CONNECTION_ERROR -> res().getString(CommonString.connection_error_message)
                 DIALOG_SYNC_CONFLICT_RESOLUTION -> res().getString(CommonString.sync_conflict_message_new)
                 DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_LOCAL, DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_LOCAL ->
@@ -294,7 +294,7 @@ class SyncErrorDialog : AsyncDialogFragment() {
     override val notificationMessage: String?
         get() {
             return if (dialogType == DIALOG_USER_NOT_LOGGED_IN_SYNC) {
-                res().getString(CommonString.not_logged_in_title)
+                res().getString(CommonString.sync_server_not_logged_in_title)
             } else {
                 message
             }

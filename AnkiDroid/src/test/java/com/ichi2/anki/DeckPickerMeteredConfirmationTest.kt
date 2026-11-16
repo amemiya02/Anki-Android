@@ -13,6 +13,7 @@ import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.enums.ShouldFetchMedia
 import com.ichi2.anki.sync.MeteredSyncPermission
 import com.ichi2.testutils.BackupManagerTestUtilities
+import com.ichi2.testutils.signInToSyncServer
 import com.ichi2.utils.NetworkUtils
 import com.ichi2.utils.getCheckBoxPrompt
 import io.mockk.every
@@ -55,7 +56,7 @@ class DeckPickerMeteredConfirmationTest : RobolectricTest() {
         BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
         InitialActivity.setUpgradedToLatestVersion(targetContext.sharedPrefs())
         getPreferences().edit { putBoolean("backupPromptDisabled", true) }
-        Prefs.hkey = "test"
+        signInToSyncServer()
         Prefs.allowSyncOnMeteredConnections = false
         Prefs.shouldFetchMedia = ShouldFetchMedia.ALWAYS
         mockkObject(NetworkUtils)

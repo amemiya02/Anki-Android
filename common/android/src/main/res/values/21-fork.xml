@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!--
+  Strings the Fork adds. They are not on Upstream's translation platform: each one is translated
+  by hand into Simplified Chinese (values-zh-rCN) and Japanese (values-ja) in a file of this name.
+  -->
+<resources>
+    <!-- Sync setup: the Fork syncs only with the owner's own server, never with AnkiWeb (ADR-0001) -->
+    <string name="sync_server_title" maxLength="41">Sync server</string>
+    <string name="sync_account_title" maxLength="41">Sync account</string>
+    <string name="sync_setup_explanation"><![CDATA[
+        This app syncs only with a sync server you run yourself, such as the one built into desktop Anki.
+        Enter its address, then sign in.
+        <a href="%s">Learn more</a>
+        <br><br>
+        <b>Coming from AnkiWeb?</b> This app cannot sign in to AnkiWeb. To bring your decks here,
+        sync them into AnkiDroid or desktop Anki, export a collection or deck package there,
+        and import it here.
+        ]]></string>
+    <string name="sync_server_not_set" comment="Shown in place of the sync server's address while none is set">Not set up</string>
+    <string name="sync_server_required">Enter a sync server address first</string>
+    <string name="sync_server_sign_in_to">Sign in to %s</string>
+    <string name="sync_server_not_logged_in_title">Sign in to your sync server</string>
+    <string name="sync_server_login_message">Sign in to your sync server to sync your collection.</string>
+</resources>

@@ -40,7 +40,7 @@ class HeaderFragment : SettingsFragment() {
 
         requirePreference<HeaderPreference>(R.string.pref_sync_screen_key).summary =
             HeaderPreference.buildHeaderSummary(
-                TR.sentenceCase.ankiWebAccount,
+                getString(CommonString.sync_server_title),
                 getString(CommonString.automatic_sync_choice),
             )
 

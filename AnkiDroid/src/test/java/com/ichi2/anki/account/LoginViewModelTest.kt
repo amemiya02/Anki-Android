@@ -8,14 +8,18 @@ import anki.backend.backendError
 import anki.sync.SyncAuth
 import anki.sync.SyncLoginRequest
 import anki.sync.syncAuth
+import com.ichi2.anki.NoSyncServerException
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.progress.ViewModelProgress
 import com.ichi2.anki.settings.Prefs
+import com.ichi2.testutils.TEST_SYNC_SERVER
 import com.ichi2.testutils.rules.BackendOverrideRule
+import com.ichi2.testutils.setSyncServer
 import com.ichi2.testutils.withQueuedCollectionAccess
 import kotlinx.coroutines.test.advanceUntilIdle
 import net.ankiweb.rsdroid.Backend
 import net.ankiweb.rsdroid.exceptions.BackendSyncException.BackendSyncAuthFailedException
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,6 +33,42 @@ class LoginViewModelTest : RobolectricTest() {
     val backend = BackendOverrideRule()
 
     private var loginAttempts = 0
+
+    @Before
+    fun setUpSyncServer() {
+        setSyncServer(TEST_SYNC_SERVER)
+    }
+
+    @Test
+    fun `login signs in to the sync server`() =
+        runTest {
+            var endpoint: String? = null
+            emulateLogin {
+                endpoint = it.endpoint.takeIf { _ -> it.hasEndpoint() }
+                syncAuth { hkey = TEST_HKEY }
+            }
+            val viewModel = LoginViewModel()
+
+            viewModel.login(USERNAME, PASSWORD)
+
+            assertEquals(TEST_SYNC_SERVER, endpoint)
+            assertEquals(listOf<LoginMessage>(LoginMessage.LoggedIn), viewModel.messages)
+        }
+
+    @Test
+    fun `login without a sync server sends no credentials`() =
+        runTest {
+            setSyncServer(null)
+            emulateLogin { syncAuth { hkey = TEST_HKEY } }
+            val viewModel = LoginViewModel()
+
+            viewModel.login(USERNAME, PASSWORD)
+
+            assertEquals(0, loginAttempts, "without a server address the Engine would sign in to AnkiWeb")
+            assertEquals(null, Prefs.hkey)
+            val failure = assertIs<LoginMessage.Failed>(viewModel.messages.single())
+            assertIs<NoSyncServerException>(failure.exception)
+        }
 
     @Test
     fun `successful login saves the account`() =

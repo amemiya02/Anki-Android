@@ -17,6 +17,7 @@ import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.dialogs.SyncErrorDialog
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.internationalization.sentenceCase
+import com.ichi2.testutils.signInToSyncServer
 import com.ichi2.utils.negativeButton
 import com.ichi2.utils.positiveButton
 import kotlinx.coroutines.runBlocking
@@ -235,7 +236,7 @@ class SyncTest : RobolectricTest() {
 
     private fun DeckPicker.failSync(exception: BackendSyncException): AlertDialog {
         syncFailure = exception
-        Prefs.hkey = "test"
+        signInToSyncServer()
         Prefs.lastSyncTime = 0
         throwOnShowError = false
 
