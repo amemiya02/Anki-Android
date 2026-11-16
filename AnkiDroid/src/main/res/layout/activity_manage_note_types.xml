@@ -81,6 +81,6 @@
         app:srcCompat="@drawable/ic_add"
         android:contentDescription="@string/cd_manage_notetypes_add"
         app:backgroundTint="?attr/fabNormalColor"
-        app:tint="?attr/colorOnPrimary"/>
+        app:tint="?attr/foundationOnPrimary"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
