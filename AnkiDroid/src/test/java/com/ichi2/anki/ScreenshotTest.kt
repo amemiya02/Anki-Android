@@ -172,6 +172,7 @@ abstract class ScreenshotTest : RobolectricTest() {
      *
      * Writes to /diffs/ if there is an issue.
      * Add `-PaccessibilityScan` to scan the live UI and log accessibility findings.
+     * A class annotated with [CheckAccessibility] fails on contrast and touch-target problems.
      */
     @OptIn(ExperimentalRoborazziApi::class)
     protected fun captureScreen(name: String) =
@@ -225,10 +226,11 @@ abstract class ScreenshotTest : RobolectricTest() {
         val baseline = File(classDir, fileName)
         disableScrollbarFading()
         restartTextCursorBlink()
-        captureImage(
-            baseline.path,
-            provideRoborazziContext().options.withCompareOutputDir(diffDir.path),
-        )
+        val options = provideRoborazziContext().options.withCompareOutputDir(diffDir.path)
+        captureImage(baseline.path, options)
+        if (checksAccessibility) {
+            qualityBarAccessibilityChecks().forEach { onView(isRoot()).checkRoboAccessibility(it, options) }
+        }
 
         // copy the baseline into /diffs (if it exists)
         // /diffs/ is used so 'clean' baselines are not mixed with diffs to inspect
