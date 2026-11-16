@@ -27,13 +27,12 @@
             android:name="com.ichi2.anki.preferences.HeaderFragment"
             />
 
-        <!--  Same color of preference dividers
-        https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:preference/preference/src/main/res/drawable/preference_list_divider_material.xml;l=19;drc=1b03b968dc14199a863d8aa2108e832bd110173e -->
+        <!-- A hairline, like the preference dividers -->
         <View
             android:id="@+id/divider"
             android:layout_width="1dp"
             android:layout_height="0dp"
-            android:background="#1f000000"
+            android:background="?attr/foundationOutline"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/lateral_nav_container"
             app:layout_constraintEnd_toStartOf="@id/settings_container"

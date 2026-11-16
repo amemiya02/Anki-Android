@@ -30,7 +30,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:src="@drawable/ic_record"
-        app:tint="@color/material_on_surface_disabled"
+        app:tint="?attr/foundationOnBackgroundMuted"
         android:visibility="visible"
         />
 
@@ -74,7 +74,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/slide_to_cancel"
-            android:textColor="#898f9d"
+            android:textColor="?attr/foundationOnBackgroundMuted"
             android:textSize="16sp"
             android:textStyle="normal" />
 

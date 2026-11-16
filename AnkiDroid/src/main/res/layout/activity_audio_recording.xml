@@ -48,7 +48,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
-                app:backgroundTint="@color/material_blue_500"
                 app:icon="@drawable/ic_delete"
                 app:iconPadding="0dp"
                 app:iconSize="22dp" />
@@ -63,12 +62,12 @@
                 android:contentDescription="@string/record_voice"
                 android:focusable="true"
                 android:padding="10dp"
-                app:backgroundTint="@color/material_grey_100"
+                app:backgroundTint="?attr/foundationBackground"
                 app:icon="@drawable/ic_record"
                 app:iconPadding="0dp"
                 app:iconSize="50dp"
-                app:iconTint="@color/flag_red"
-                app:strokeColor="@color/flag_red"
+                app:iconTint="?attr/foundationEmphasis"
+                app:strokeColor="?attr/foundationEmphasis"
                 app:strokeWidth="4dp" />
 
             <com.google.android.material.button.MaterialButton
@@ -79,7 +78,6 @@
                 android:layout_marginHorizontal="6dp"
                 android:clickable="true"
                 android:focusable="true"
-                app:backgroundTint="@color/material_blue_500"
                 app:iconPadding="0dp"
                 app:iconSize="22dp" />
 
@@ -102,7 +100,7 @@
             android:minHeight="300px"
             android:paddingVertical="6dp"
             android:src="@drawable/round_audio_file_24"
-            android:tint="@color/material_blue_500" />
+            android:tint="?attr/foundationOnBackgroundMuted" />
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/audio_progress_indicator"
@@ -110,8 +108,8 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="12dp"
             android:progress="0"
-            app:indicatorColor="@color/material_blue_500"
-            app:trackColor="@color/material_light_blue_100" />
+            app:indicatorColor="?attr/foundationProgressFill"
+            app:trackColor="?attr/foundationProgressTrack" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -129,7 +127,6 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:enabled="false"
-                app:backgroundTint="@color/material_blue_500"
                 app:icon="@drawable/baseline_replay_5_24"
                 app:iconPadding="0dp"
                 app:iconSize="22dp"
@@ -146,16 +143,16 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:padding="10dp"
-                app:backgroundTint="@color/material_grey_100"
+                app:backgroundTint="?attr/foundationBackground"
                 app:icon="@drawable/round_play_arrow_24"
                 app:iconPadding="0dp"
                 app:iconSize="50dp"
-                app:iconTint="@color/flag_red"
+                app:iconTint="?attr/foundationEmphasis"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:strokeColor="@color/flag_red"
+                app:strokeColor="?attr/foundationEmphasis"
                 app:strokeWidth="4dp" />
 
             <com.google.android.material.button.MaterialButton
@@ -167,7 +164,6 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:enabled="false"
-                app:backgroundTint="@color/material_blue_500"
                 app:icon="@drawable/baseline_forward_5_24"
                 app:iconPadding="0dp"
                 app:iconSize="22dp"
@@ -181,7 +177,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
-                app:backgroundTint="@color/material_blue_500"
                 app:icon="@drawable/ic_delete"
                 app:iconPadding="0dp"
                 app:iconSize="22dp"
