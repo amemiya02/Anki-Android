@@ -11,6 +11,7 @@ import android.graphics.fonts.Font
 import android.graphics.fonts.FontFamily
 import android.widget.TextView
 import androidx.annotation.FontRes
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.allViews
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Test
@@ -25,7 +26,8 @@ import com.ichi2.anki.common.android.R as CommonR
  * The deck list, an XML screen, draws its text in the bundled faces: Latin in Newsreader and Han
  * characters in the face of the interface language, even inside one Deck name.
  *
- * A Deck name is bold, so each check compares with the heavier face drawing the same text alone.
+ * Each check compares with the expected face alone drawing the same text at the same weight; a
+ * Deck name is bold.
  */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -53,6 +55,20 @@ class InterfaceTypefaceDeckListTest : RobolectricTest() {
         }
     }
 
+    @Test
+    fun `in Japanese, Latin in the app bar title is Newsreader`() {
+        RuntimeEnvironment.setQualifiers("ja")
+        withDeckPicker(deckCount = 0) { deckPicker ->
+            val title =
+                deckPicker
+                    .findViewById<Toolbar>(R.id.toolbar)
+                    .allViews
+                    .filterIsInstance<TextView>()
+                    .first { it.text.isNotEmpty() }
+            assertDrawnLike(CommonR.font.newsreader, title, title.text.toString(), weight = title.typeface.weight)
+        }
+    }
+
     private fun DeckPicker.textView(text: String): TextView =
         deckPickerBinding.decks.allViews
             .filterIsInstance<TextView>()
@@ -62,20 +78,22 @@ class InterfaceTypefaceDeckListTest : RobolectricTest() {
         @FontRes face: Int,
         view: TextView,
         text: String,
+        weight: Int = BOLD,
     ) {
         val name = targetContext.resources.getResourceEntryName(face)
-        assertTrue(draw(view.typeface, text).sameAs(draw(boldOnly(face), text)), "'$text' in the Deck name should be drawn in $name")
+        assertTrue(draw(view.typeface, text).sameAs(draw(only(face, weight), text)), "'$text' should be drawn in $name")
     }
 
-    /** [face] alone at the bold weight; Newsreader at its text optical size */
-    private fun boldOnly(
+    /** [face] alone at [weight]; Newsreader at its text optical size */
+    private fun only(
         @FontRes face: Int,
+        weight: Int,
     ): Typeface {
         val font =
             Font
                 .Builder(targetContext.resources, face)
-                .setWeight(BOLD)
-                .apply { if (face == CommonR.font.newsreader) setFontVariationSettings("'wght' $BOLD, 'opsz' 16") }
+                .setWeight(weight)
+                .apply { if (face == CommonR.font.newsreader) setFontVariationSettings("'wght' $weight, 'opsz' 16") }
                 .build()
         return Typeface.CustomFallbackBuilder(FontFamily.Builder(font).build()).setSystemFallback("serif").build()
     }

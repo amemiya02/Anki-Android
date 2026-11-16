@@ -8,7 +8,9 @@ import android.graphics.Typeface
 import android.os.Build
 import android.util.AttributeSet
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
 import com.google.android.material.theme.MaterialComponentsViewInflater
 import java.lang.reflect.Constructor
 import java.util.WeakHashMap
@@ -71,31 +73,52 @@ class FoundationViewInflater : MaterialComponentsViewInflater() {
     /**
      * Text views the AppCompat inflater leaves to the platform: those named in full in a layout
      * (`com.google.android.material.button.MaterialButton`, the app's own text views) and platform
-     * ones it doesn't replace, such as `Switch`. Every other view is left to the platform.
+     * ones it doesn't replace, such as `Switch`. Also toolbars, whose title and subtitle views are
+     * created in code when first set. Every other view is left to the platform.
      */
     override fun createView(
         context: Context,
         name: String,
         attrs: AttributeSet,
     ): View? {
-        val constructor = textViewConstructor(name, context.classLoader) ?: return null
-        return constructor.newInstance(context, attrs).withInterfaceTypeface()
+        val constructor = constructorFor(name, context.classLoader) ?: return null
+        return when (val view = constructor.newInstance(context, attrs)) {
+            is TextView -> view.withInterfaceTypeface()
+            is Toolbar -> view.apply { setOnHierarchyChangeListener(TitleTypeface) }
+            else -> view
+        }
+    }
+
+    /** Gives a toolbar's title and subtitle the interface typeface as the toolbar adds them */
+    private object TitleTypeface : ViewGroup.OnHierarchyChangeListener {
+        override fun onChildViewAdded(
+            parent: View?,
+            child: View?,
+        ) {
+            (child as? TextView)?.withInterfaceTypeface()
+        }
+
+        override fun onChildViewRemoved(
+            parent: View?,
+            child: View?,
+        ) = Unit
     }
 
     private companion object {
-        /** By tag name; `null` when the tag isn't a text view */
-        val constructors = HashMap<String, Constructor<out TextView>?>()
+        /** By tag name; `null` when the tag is neither a text view nor a toolbar */
+        val constructors = HashMap<String, Constructor<out View>?>()
 
-        fun textViewConstructor(
+        fun constructorFor(
             name: String,
             classLoader: ClassLoader,
-        ): Constructor<out TextView>? =
+        ): Constructor<out View>? =
             synchronized(constructors) {
                 constructors.getOrPut(name) {
                     val className = if ('.' in name) name else "android.widget.$name"
                     val viewClass = runCatching { Class.forName(className, false, classLoader) }.getOrNull()
-                    if (viewClass == null || !TextView::class.java.isAssignableFrom(viewClass)) return@getOrPut null
-                    viewClass.asSubclass(TextView::class.java).getConstructor(Context::class.java, AttributeSet::class.java)
+                    val handled = listOf(TextView::class.java, Toolbar::class.java)
+                    if (viewClass == null || handled.none { it.isAssignableFrom(viewClass) }) return@getOrPut null
+                    viewClass.asSubclass(View::class.java).getConstructor(Context::class.java, AttributeSet::class.java)
                 }
             }
     }

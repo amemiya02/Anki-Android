@@ -88,7 +88,7 @@
 
     <style name="TabLayoutStyle" parent="Widget.Material3.TabLayout">
         <item name="materialThemeOverlay">@style/ThemeOverlay.App.TabLayout</item>
-        <item name="tabTextAppearance">@style/TextAppearance.Material3.LabelLarge</item>
+        <item name="tabTextAppearance">@style/TextAppearance.Foundation.Button</item>
         <item name="tabIndicator">@drawable/tab_layout_indicator_floating_pill</item>
         <item name="tabIndicatorHeight">14dp</item>
         <item name="tabTextColor">?attr/actionBarTextColor</item>
@@ -107,8 +107,8 @@
         <item name="colorOnSecondaryContainer">?attr/bottomNavActiveIconColor</item> <!-- Active icon -->
         <item name="colorOnSurface">?attr/colorPrimary</item> <!-- Active icon -->
         <item name="colorOnSurfaceVariant">?attr/colorPrimary</item> <!-- Inactive icon & label -->
-        <item name="textAppearanceTitleSmall">@style/TextAppearance.Material3.TitleSmall</item>
-        <item name="textAppearanceLabelLarge">@style/TextAppearance.Material3.LabelLarge</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.Foundation.RowTitle</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.Foundation.Button</item>
     </style>
 
     <!-- padding is hardcoded in Toolbar.java (32) to allow for fixing the scrollview -->
@@ -147,9 +147,9 @@
         <item name="android:windowBackground">?android:attr/colorBackground</item>
     </style>
 
-    <style name="TextAppearance.AnkiDroid.TopAppBar.Title" parent="TextAppearance.Material3.TitleMedium" />
+    <style name="TextAppearance.AnkiDroid.TopAppBar.Title" parent="TextAppearance.Foundation.RowTitle" />
 
-    <style name="TextAppearance.AnkiDroid.TopAppBar.Subtitle" parent="TextAppearance.Material3.ActionBar.Subtitle" />
+    <style name="TextAppearance.AnkiDroid.TopAppBar.Subtitle" parent="TextAppearance.Foundation.Caption" />
 
     <style name="CardView.ViewerStyle" parent="Widget.Material3.CardView.Elevated">
         <item name="android:elevation">?attr/studyScreenElevation</item>
