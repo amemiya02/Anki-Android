@@ -120,7 +120,7 @@ android {
         buildConfigField("long", "BUILD_TIME", buildTimeMillis.get())
         // whether UI elements linking to external donation pages are shown ('play' hides them)
         buildConfigField("Boolean", "SHOW_DONATE_LINKS", "true")
-        resValue("string", "app_name", ForkIdentity.WORKING_NAME)
+        resValue("string", "app_name", ForkIdentity.NAME)
 
         // The version number is of the form:
         // <major>.<minor>.<maintenance>[dev|alpha<build>|beta<build>|]
@@ -171,6 +171,7 @@ android {
             versionNameSuffix = "-debug"
             isDebuggable = true
             applicationIdSuffix = ForkIdentity.DEBUG_SUFFIX
+            resValue("string", "app_name", ForkIdentity.WORKING_NAME)
             splits.abi.isUniversalApk = true // Build universal APK for debug always
             val localProperties = Properties()
             if (project.rootProject.file("local.properties").exists()) {

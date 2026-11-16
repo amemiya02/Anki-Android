@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.drawable.AdaptiveIconDrawable
 import androidx.core.net.toUri
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -16,6 +17,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -42,8 +44,18 @@ class ForkIdentityTest {
     }
 
     @Test
-    fun `the launcher shows the working name`() {
-        assertEquals("AnkiDroid Redesign", context.applicationInfo.loadLabel(packageManager).toString())
+    fun `the launcher shows Hayaki, and the working name only in a debug build`() {
+        val expected = if (BuildConfig.DEBUG) "AnkiDroid Redesign" else "Hayaki"
+        assertEquals(expected, context.applicationInfo.loadLabel(packageManager).toString())
+    }
+
+    @Test
+    fun `the launcher icon is adaptive, with a themed form`() {
+        for (icon in listOf(R.mipmap.ic_launcher, R.mipmap.ic_launcher_round)) {
+            val adaptive = assertIs<AdaptiveIconDrawable>(context.getDrawable(icon))
+            assertNotNull(adaptive.monochrome, "no themed icon")
+        }
+        assertEquals(R.mipmap.ic_launcher, context.applicationInfo.icon)
     }
 
     @Test

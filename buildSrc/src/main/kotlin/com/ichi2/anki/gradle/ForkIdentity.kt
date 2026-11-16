@@ -19,8 +19,11 @@ object ForkIdentity {
     /** The application ID of a debug build. */
     const val DEBUG_APPLICATION_ID = APPLICATION_ID + DEBUG_SUFFIX
 
+    /** The Fork's name, shown by the launcher of a release build. Written the same way in every language. */
+    const val NAME = "Hayaki"
+
     /**
-     * The working name shown by the launcher until the Fork's own name is applied.
+     * The working name shown by the launcher of a debug build, so it is told apart from a release build.
      * It is for development builds only and must never reach another person.
      */
     const val WORKING_NAME = "AnkiDroid Redesign"
