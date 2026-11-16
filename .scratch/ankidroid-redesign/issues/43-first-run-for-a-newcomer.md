@@ -12,3 +12,4 @@
 - [ ] It matches the agreed Mockup.
 - [ ] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
 - [ ] A collection or a Deck exported from the Official App or desktop Anki can be imported from the first-run screen, keeping scheduling, review history and media.
+- [ ] A person arriving from AnkiWeb is shown the steps to bring their Decks in through the Official App or desktop Anki.

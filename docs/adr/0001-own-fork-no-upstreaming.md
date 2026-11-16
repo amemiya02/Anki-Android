@@ -14,5 +14,6 @@ The Redesign changes the look, navigation and task flows of the whole app at onc
 ## Consequences
 
 - The Fork follows Upstream for the Engine only. Upstream's interface changes are ignored; Engine updates are taken whenever sync requires it or a few times a year, because an Engine frozen in time would eventually stop syncing with AnkiWeb and newer desktop Anki. (This replaces the first plan, which merged all of Upstream at Milestone boundaries; see ADR-0003.)
+- Other people may use the Fork, so it must be clearly not AnkiDroid: its own name without "AnkiDroid" in it, its own launcher icon, and an about screen that says it is an unofficial fork and links to its source. How other people get it is undecided.
 - The Fork installs beside the Official App with its own data, so Decks reach it through a self-hosted sync server or by export and import, not by sharing storage.
 - The Fork does not sync with AnkiWeb. AnkiWeb's terms allow access only from the browser and four named clients (Anki, AnkiMobile, AnkiDroid, AnkiUniversal) and exclude other third-party clients; a renamed fork is not one of them, even though its sync code is the Engine's, unchanged. (An earlier version of this record listed AnkiWeb sync as a route.)

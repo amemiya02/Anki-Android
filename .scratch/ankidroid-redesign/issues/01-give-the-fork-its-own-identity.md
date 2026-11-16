@@ -11,3 +11,5 @@
 - [ ] The Fork's public API authority and permission no longer collide with the Official App's.
 - [ ] Sharing text into the Fork, its widgets and its file handling all resolve to the Fork, not the Official App.
 - [ ] Screen-logic tests and Engine tests still pass unchanged.
+- [ ] Opening a collection or Deck package from a file manager or another app offers the Fork as a place to open it.
+- [ ] The working name appears only in development builds and is never the name another person sees.

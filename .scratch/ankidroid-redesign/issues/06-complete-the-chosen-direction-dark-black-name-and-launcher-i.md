@@ -12,3 +12,5 @@
 - [ ] One Material Symbols style and weight is chosen for interface icons.
 - [ ] The owner has approved a name and a launcher icon for the Fork.
 - [ ] The glossary records the Fork's name.
+- [ ] The name does not contain "AnkiDroid" and cannot be mistaken for the Official App or for a product of the makers of Anki.
+- [ ] The launcher icon does not reuse the logo of the Official App or of Anki.

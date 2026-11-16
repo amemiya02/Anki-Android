@@ -10,3 +10,4 @@
 - [ ] The launcher icon is the approved one, in adaptive and themed forms.
 - [ ] No interface text still calls the app AnkiDroid, except where it refers to Upstream or the Official App.
 - [ ] New or changed text is provided in English, Simplified Chinese and Japanese.
+- [ ] The about screen says the app is an unofficial fork of AnkiDroid, credits Upstream, states the licence, and links to the public source of the Fork.

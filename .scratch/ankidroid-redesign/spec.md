@@ -20,7 +20,7 @@ Upstream cannot fix this for me. It accepts only small single-purpose changes, i
 
 ## Solution
 
-A personal Fork of AnkiDroid whose whole interface is redesigned: a Reskin, a Restructure and a Reflow, together.
+A Fork of AnkiDroid, usable by me and by other people, whose whole interface is redesigned: a Reskin, a Restructure and a Reflow, together.
 
 - Every Native Surface is rebuilt in one coherent look that I choose by eye from three Directions.
 - The app has its own identity: a fixed palette, typefaces chosen to look good in Chinese, Japanese and English, one icon family, and three designed themes (Light, Dark and Black).
@@ -175,6 +175,15 @@ The work lands in Milestones, and the app stays usable after each one.
 104. As a person whose Official App is older than the Fork's Engine, I want an export that older versions can read, so that my data is never stranded in the Fork.
 105. As a person exporting, I want the export screen to say whether the result will replace or merge with what is in the other app, so that I do not overwrite my AnkiWeb data by surprise.
 106. As a person using the Fork, I want export to stay easy to find however the interface is rearranged, so that leaving the Fork is always possible.
+107. As a person arriving from AnkiWeb, I want the Fork to explain how to bring my Decks in through the Official App or desktop Anki, so that I am not stuck when I find there is no AnkiWeb sign-in.
+108. As a person arriving from AnkiDroid, I want to import on the first-run screen, so that my first minute in the Fork starts with my own Decks.
+109. As a person with a package file on my device, I want the Fork offered when I open it, so that importing does not require finding a menu.
+
+### Other people using the Fork
+
+110. As a person who is not the Fork's owner, I want the app to have its own name and icon, so that I know which app I am using and do not confuse it with AnkiDroid.
+111. As a person who is not the Fork's owner, I want the about screen to say this is an unofficial fork of AnkiDroid and to link to its source, so that I know what I installed and where it came from.
+112. As a maintainer of AnkiDroid, I want the Fork to be clearly not AnkiDroid, so that its users do not bring its problems to us.
 
 ## Implementation Decisions
 
@@ -184,7 +193,12 @@ The work lands in Milestones, and the app stays usable after each one.
 - The Fork gets its own name, launcher icon and app ID, and installs beside the Official App with separate data. Until the Direction is chosen it builds under the working name "AnkiDroid Redesign" with an app ID suffix. The final name and icon are chosen immediately after the Direction.
 - The build already supports a custom name and app ID suffix for a parallel install; the Fork makes its own identity the default for every build type rather than an opt-in.
 - The public API module hard-codes the Official App's package name in its authority and permission. The Fork changes these so that the two apps do not collide. Other apps that integrate with the Official App's API will not see the Fork; this is accepted.
-- The Fork is for the owner's own use and is installed directly. There is no store release.
+- Other people may use the Fork, not only its owner. How they get it (a store release, signing for distribution, support) is deferred and is not decided here.
+- Because other people will use it, a real name and launcher icon are required, not optional:
+  - The name does not contain "AnkiDroid" and cannot be mistaken for the Official App or for a product of Anki's makers.
+  - The launcher icon does not reuse the Official App's or Anki's logo.
+  - The working name "AnkiDroid Redesign" is for development builds only and never reaches another person.
+- The about screen says the app is an unofficial fork of AnkiDroid, credits Upstream, states the licence, and links to the Fork's public source. The licence requires source to be offered with any build given to someone else.
 
 ### Engine boundary
 
@@ -285,6 +299,12 @@ The work lands in Milestones, and the app stays usable after each one.
   - The Fork's Engine can be newer than the Official App a person has installed. The existing export option that writes a package older versions can read is kept and stays easy to find.
   - Before an Engine update is taken, the round trip is checked against the current release of the Official App.
   - Importing a whole collection into the Official App replaces what is there, and its next sync is a one-way upload that overwrites AnkiWeb. Importing a Deck merges into what is there, and its next sync is a normal one. The export screen says which is which.
+- Data must be just as easy to bring in. A person arriving from AnkiDroid or AnkiWeb can bring their Decks, scheduling, review history and media into the Fork:
+  - **From AnkiDroid or desktop Anki:** export a collection or a Deck package there, and import it into the Fork.
+  - **From AnkiWeb:** the Fork cannot sign in, so the route is indirect. Sync AnkiWeb down into the Official App or desktop Anki, export a package there, and import it into the Fork. The Fork explains these steps in the app where a person would look for them.
+  - **From a file:** opening a collection or Deck package from a file manager or another app offers the Fork as a place to open it.
+  - **Shared Decks:** browsing and downloading from AnkiWeb's website stays.
+- Import is offered on the first-run screen from the moment AnkiWeb sync is dropped, in the place where "Sync from AnkiWeb" used to be.
 - During development, the Fork is tested with a copy of a collection brought in by import, never with a live synced account.
 - Crash reporting to Upstream's server and usage analytics are switched off in the Fork, and their settings entries are removed.
 
@@ -364,10 +384,10 @@ Each sign-off also includes the round trip with the Official App: a collection a
 - Rebuilding any Anki Page natively, other than the finished screen.
 - Syncing with AnkiWeb.
 - Contributing anything upstream, or shaping code to be mergeable there.
-- A store release, signing for distribution, or supporting users other than the owner.
+- Deciding how other people get the app: a store release, signing for distribution and support. Deferred, not ruled out.
 - A bespoke tablet, foldable or desktop design.
 - The Plain and E-ink themes, and wallpaper-derived dynamic colour.
-- Translating new strings into languages other than English, Simplified Chinese and Japanese.
+- Translating new strings into languages other than English, Simplified Chinese and Japanese. Deferred, not ruled out.
 - A dependency-injection framework, or any internal re-architecture that changes nothing visible.
 - Compatibility with other apps that integrate with the Official App's public API.
 
@@ -375,7 +395,12 @@ Each sign-off also includes the round trip with the Official App: a collection a
 
 ### Open questions
 
-- **New strings in other languages.** This spec assumes new interface text is written in English, Simplified Chinese and Japanese only. The owner has not been asked directly.
+- **Decisions made when the Fork was for its owner only.** Other people will now use it. These were decided with one person in mind and have not been revisited:
+  - The Plain and E-ink themes are removed.
+  - Cards that need the AnkiDroid JavaScript API rely on the old study screen.
+  - Other apps that send Cards to AnkiDroid through its public API will not see the Fork. Text shared the ordinary way still arrives.
+  - There is no crash reporting at all.
+- **Distribution and further translations.** The owner has deferred both: how other people get the app, and translating new text beyond English, Simplified Chinese and Japanese.
 - **Self-hosted sync server.** Setting one up is the owner's task and is outside the app. The Fork only needs to point at it.
 
 ### Decided later, by looking

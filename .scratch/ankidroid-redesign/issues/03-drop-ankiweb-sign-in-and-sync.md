@@ -15,3 +15,5 @@
 - [ ] A rendered-screen test covers sync setup with and without a server address.
 - [ ] Screen-logic tests and Engine tests still pass unchanged.
 - [ ] Exporting a collection or a Deck still works and is reachable, so data can leave the Fork and reach AnkiWeb through the Official App.
+- [ ] The first-run screen offers to import a collection or Deck package in the place where it used to offer AnkiWeb sync.
+- [ ] Where a person would look for AnkiWeb sign-in, the app explains how to bring Decks in from AnkiWeb: sync into the Official App or desktop Anki, export a package there, and import it here.
