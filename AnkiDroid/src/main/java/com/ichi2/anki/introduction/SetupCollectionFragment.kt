@@ -55,8 +55,8 @@ class SetupCollectionFragment : Fragment(R.layout.fragment_introduction) {
                 insets.getInsets(
                     WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout(),
                 )
-            // the root stays full-bleed apart from the bottom, so the decorative top gradient
-            // reaches the top and side edges. the buttons are the bottom-most touch targets,
+            // the root stays full-bleed apart from the bottom, so its background reaches the top
+            // and side edges. the buttons are the bottom-most touch targets,
             // so they clear the rounded display corners as well as the navigation bar
             root.updatePadding(bottom = maxOf(bars.bottom, insets.bottomCornerClearance(root)))
             binding.introContent.updatePadding(left = bars.left, right = bars.right)

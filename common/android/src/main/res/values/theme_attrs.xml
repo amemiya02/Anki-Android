@@ -69,12 +69,6 @@
     <attr name="buttonShadowColor" format="color"/>
     <attr name="buttonRippleColor" format="color"/>
     <attr name="buttonForegroundColor" format="color"/>
-    <!-- Images -->
-    <attr name="navDrawerImage" format="reference"/>
-
-    <!-- Introduction -->
-    <attr name="introductionLogoTransparent" format="color"/>
-
     <!-- FAB -->
     <attr name="fabNormalColor" format="color"/> <!-- Also color of the Study button in StudyOptions -->
     <attr name="fabPressedColor" format="color"/>

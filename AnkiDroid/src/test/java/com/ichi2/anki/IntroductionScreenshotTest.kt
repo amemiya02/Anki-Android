@@ -21,8 +21,7 @@ import org.robolectric.RuntimeEnvironment
 /**
  * Screenshot tests for [IntroductionActivity]
  *
- * The top gradient is expected to run under the status bar: it is decorative, and the buttons
- * below it are the only touch targets which need to clear the system bars.
+ * The buttons are the only touch targets which need to clear the system bars.
  *
  * `./gradlew :AnkiDroid:verifyRoborazziPlayDebug -Pscreenshot --tests "com.ichi2.anki.IntroductionScreenshotTest"`
  */

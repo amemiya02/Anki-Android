@@ -74,7 +74,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="24dp"
                         android:layout_gravity="center_horizontal"
-                        app:srcCompat="@drawable/anki_box" />
+                        android:importantForAccessibility="no"
+                        app:srcCompat="@drawable/hayaki_mark" />
 
                     <com.ichi2.ui.FixedTextView
                         android:layout_width="match_parent"

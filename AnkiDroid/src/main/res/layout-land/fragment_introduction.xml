@@ -3,35 +3,13 @@
   ~ SPDX-License-Identifier: GPL-3.0-or-later
   ~ SPDX-FileCopyrightText: Copyright (c) 2023 Ashish Yadav <mailtoashish693@gmail.com>
   -->
-<!-- the root is full-bleed and takes the bottom inset, `intro_content` takes the side insets.
-     the gradient is a sibling of the scrolling content so it reaches the display edges -->
+<!-- the root is full-bleed and takes the bottom inset, `intro_content` takes the side insets -->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground">
-
-    <!-- the logo is centred vertically and 150dp tall, so its top edge is 75dp above the
-         midpoint: the gradient ends there, as it did when anchored to the logo itself -->
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/vertical_midpoint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.5" />
-
-    <ImageView
-        android:id="@+id/top_gradient"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="75dp"
-        android:background="@drawable/intro_gradient"
-        android:minHeight="200dp"
-        app:layout_constraintBottom_toTopOf="@id/vertical_midpoint"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
         android:layout_width="0dp"
@@ -48,11 +26,12 @@
     android:layout_height="match_parent">
 
         <ImageView
-        android:id="@+id/ankidroid_logo"
+        android:id="@+id/hayaki_mark"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_marginEnd="32dp"
-        android:background="@drawable/intro_ankidroid_logo"
+        android:importantForAccessibility="no"
+        app:srcCompat="@drawable/hayaki_mark"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/barrier"
@@ -151,7 +130,7 @@
         android:id="@+id/barrier"
         android:layout_width="wrap_content"
         app:barrierDirection="start"
-        app:layout_constraintStart_toEndOf="@id/ankidroid_logo"
+        app:layout_constraintStart_toEndOf="@id/hayaki_mark"
         app:layout_constraintEnd_toStartOf="@id/subtitle"
         android:layout_marginStart="50dp"
         app:constraint_referenced_ids="study_less,title_divider,remember_more,subtitle,btn_container"

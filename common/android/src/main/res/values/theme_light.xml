@@ -226,8 +226,6 @@
         <!-- FAB: the add button, the one primary action -->
         <item name="fabNormalColor">?attr/foundationPrimary</item>
         <item name="fabPressedColor">?attr/foundationPrimary</item>
-        <!-- Images -->
-        <item name="navDrawerImage">@drawable/nav_drawer_logo</item>
         <!-- Dialog styles -->
         <item name="android:listPreferredItemHeight">56dip</item>
         <item name="dialogCornerRadius">@dimen/dialog_corner_radius</item>
@@ -241,9 +239,6 @@
         <!-- Navbar -->
         <item name="android:navigationBarColor">@color/foundation_light_background</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
-
-        <!-- Introduction -->
-        <item name="introductionLogoTransparent">#99FFFFFF</item>
 
         <!-- Widget styles -->
         <item name="switchPreferenceCompatStyle">@style/Preference.SwitchPreferenceCompat.Material3</item>

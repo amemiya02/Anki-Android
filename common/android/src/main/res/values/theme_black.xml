@@ -14,11 +14,6 @@
         <item name="android:windowBackground">@color/foundation_black_background</item>
         <item name="android:statusBarColor">@color/foundation_black_background</item>
         <item name="android:navigationBarColor">@color/foundation_black_background</item>
-
-        <!-- Images -->
-        <item name="navDrawerImage">@drawable/nav_drawer_logo_black_theme</item>
-        <!-- Introduction -->
-        <item name="introductionLogoTransparent">#55111111</item>
     </style>
 
     <style name="Theme_Dark.Black" parent="Base.Theme.Dark.Black"/>
