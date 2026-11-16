@@ -19,4 +19,4 @@ The Redesign was asked to use a modern stack, and two web component libraries (s
 - Upstream's tests that inspect a screen stop applying once that screen is rebuilt and are replaced by new ones. Tests of logic and the Engine must keep passing.
 - Home-screen widgets cannot be drawn with ordinary Compose and use Glance instead.
 - No dependency-injection framework is introduced; it would change nothing visible.
-- The old study screen is the one Native Surface left as it is (see ADR-0002).
+- The old study screen is never rebuilt. It is removed once the newer study screen can replace it (see ADR-0004).

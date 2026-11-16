@@ -1,8 +1,8 @@
-# 26: Note editor: fields, Deck, Note Type and saving
+# 28: Note editor: fields, Deck, Note Type and saving
 
 **What to build:** The owner adds or edits a Note in a redesigned note editor where the fields are the focus.
 
-**Blocked by:** 23 (Mockups for finding and adding)
+**Blocked by:** 25 (Mockups for finding and adding)
 
 **Status:** ready-for-agent
 

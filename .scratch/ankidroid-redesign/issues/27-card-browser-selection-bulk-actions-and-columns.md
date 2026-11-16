@@ -1,8 +1,8 @@
-# 25: Card browser: selection, bulk actions and columns
+# 27: Card browser: selection, bulk actions and columns
 
 **What to build:** The owner can select many Cards and act on them together, and choose what the card browser shows.
 
-**Blocked by:** 24 (Card browser: list, search and sort)
+**Blocked by:** 26 (Card browser: list, search and sort)
 
 **Status:** ready-for-agent
 

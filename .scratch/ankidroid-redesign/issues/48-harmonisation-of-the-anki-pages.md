@@ -1,8 +1,8 @@
-# 46: Harmonisation of the Anki Pages
+# 48: Harmonisation of the Anki Pages
 
 **What to build:** Opening statistics, Deck options, Card info or an importer no longer feels like leaving the app: each Anki Page uses the Fork's colours and typeface, with its content and arrangement untouched.
 
-**Blocked by:** 38 (Milestone 4 sign-off: settings and dialogs on a device)
+**Blocked by:** 40 (Milestone 4 sign-off: settings and dialogs on a device)
 
 **Status:** ready-for-agent
 

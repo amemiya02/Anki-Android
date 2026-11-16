@@ -1,8 +1,8 @@
-# 34: Settings: home, search and appearance
+# 36: Settings: home, search and appearance
 
 **What to build:** The owner opens redesigned settings, finds a setting by browsing its group or by searching, and changes the theme there.
 
-**Blocked by:** 30 (Mockups for settings and dialogs)
+**Blocked by:** 32 (Mockups for settings and dialogs)
 
 **Status:** ready-for-agent
 

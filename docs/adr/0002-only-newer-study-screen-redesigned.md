@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: superseded by ADR-0004
 ---
 
 # Only the newer study screen is redesigned; the old one stays as an unstyled fallback

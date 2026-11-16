@@ -1,8 +1,8 @@
-# 43: First run for a Newcomer
+# 45: First run for a Newcomer
 
 **What to build:** Someone opening the Fork for the first time sees a designed welcome that offers clear ways to begin.
 
-**Blocked by:** 39 (Mockups for the rest)
+**Blocked by:** 41 (Mockups for the rest)
 
 **Status:** ready-for-agent
 

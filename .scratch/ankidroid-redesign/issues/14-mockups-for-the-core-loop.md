@@ -10,5 +10,6 @@
 - [ ] Each is shown in English and Simplified Chinese, in Light, Dark and Black.
 - [ ] The deck list Mockup settles how the new, learning and due counts are shown.
 - [ ] The study screen Mockup settles whether the deck title and time-remaining estimate are shown, and where the answer buttons sit.
+- [ ] Every feature only the old study screen has is listed and marked "build" or "drop" by the owner: saving a whiteboard drawing, reading the whole Card aloud, answer-button position, minimum press time, double-tap timeout, and any other found.
 - [ ] The finished screen Mockup shows every state: more Cards later today, daily limit reached, Cards buried, nothing left.
 - [ ] The owner has approved each Mockup.

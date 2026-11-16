@@ -1,8 +1,8 @@
-# 36: Settings: everything else
+# 38: Settings: everything else
 
 **What to build:** Every remaining setting is in the redesigned settings.
 
-**Blocked by:** 34 (Settings: home, search and appearance)
+**Blocked by:** 36 (Settings: home, search and appearance)
 
 **Status:** ready-for-agent
 

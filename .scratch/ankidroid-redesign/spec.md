@@ -2,7 +2,7 @@
 
 Status: ready-for-agent
 
-This spec uses the vocabulary in `GLOSSARY.md` and respects ADR-0001 (own fork, no upstreaming), ADR-0002 (only the newer study screen is redesigned) and ADR-0003 (the interface is rebuilt natively in Compose).
+This spec uses the vocabulary in `GLOSSARY.md` and respects ADR-0001 (own fork, no upstreaming), ADR-0003 (the interface is rebuilt natively in Compose) and ADR-0004 (one study screen: port, then remove the old one).
 
 ## Problem Statement
 
@@ -93,11 +93,11 @@ The work lands in Milestones, and the app stays usable after each one.
 43. As a Daily Reviewer, I want undo within easy reach, so that a mis-tap costs nothing.
 44. As a Daily Reviewer, I want flag, mark, edit, Card info, bury, suspend, delete, reschedule and the other Card actions available from a menu, so that no action is lost.
 45. As a Daily Reviewer, I want my gestures, tap zones, hardware keys and controller bindings to keep working, so that my habits carry over.
-46. As a Daily Reviewer, I want type-in-the-answer, the whiteboard, auto-advance, the timer, text-to-speech tags, voice recording and timeboxing to keep working, so that the newer study screen is a full replacement for daily use.
-47. As a Daily Reviewer, I want the newer study screen to be the default, so that I get the redesigned experience without changing a setting.
-48. As a Daily Reviewer whose Card needs the AnkiDroid JavaScript API, I want the warning to offer a one-tap switch to the old study screen, so that I can keep studying that Deck.
-49. As a Daily Reviewer, I want the old study screen to stay reachable from settings, so that features only it has (saving a whiteboard drawing, the legacy read-aloud speech) are not lost.
-50. As a Daily Reviewer, I want the deck title, time-remaining estimate and answer-button position decided when the study screen's Mockup is drawn, so that these are deliberate choices rather than accidents of what upstream built.
+46. As a Daily Reviewer, I want type-in-the-answer, the whiteboard, auto-advance, the timer, text-to-speech tags, voice recording and timeboxing to keep working, so that the study screen is a full replacement for daily use.
+47. As a Daily Reviewer, I want the redesigned study screen to be the default, so that I get it without changing a setting.
+48. As a person whose Cards use the AnkiDroid JavaScript API, I want those Cards to work in the study screen, so that shared Decks with custom buttons and behaviour keep working.
+49. As a Daily Reviewer, I want there to be one study screen, so that no old-look screen is left in the app and settings never refer to a screen I do not use.
+50. As a Daily Reviewer, I want each feature only the old study screen had to be either built into the study screen or dropped on purpose, so that nothing disappears by accident.
 
 ### Core Loop: finished screen
 
@@ -125,7 +125,7 @@ The work lands in Milestones, and the app stays usable after each one.
 66. As a Daily Reviewer, I want settings grouped so that I can find a setting without searching, so that configuration is not a maze.
 67. As a Daily Reviewer, I want to search settings, so that I can jump straight to one I know by name.
 68. As a Daily Reviewer, I want every existing setting to remain, so that no behaviour I configured is taken away.
-69. As a Daily Reviewer, I want settings that apply only to one study screen shown clearly as such, so that I understand why a setting has no effect.
+69. As a Daily Reviewer, I want settings that only the old study screen used to be gone, so that every setting I see has an effect.
 70. As a Daily Reviewer, I want theme selection to offer Light, Dark and Black, so that the choice matches what the Fork actually designs.
 71. As a Daily Reviewer, I want every dialog (confirmation, progress, error, picker, input) to share one look, so that no dialog feels like a different app.
 72. As a Daily Reviewer, I want destructive actions to ask for confirmation in a consistent way, so that I always recognise a dangerous choice.
@@ -254,11 +254,13 @@ The work lands in Milestones, and the app stays usable after each one.
 ### Core Loop
 
 - **Deck list.** Rebuilt in Compose. It keeps the Deck tree with expand and collapse, the three counts per Deck, the due total, today's study summary, the add menu, and every Deck action available today. How the counts are presented is decided in the Mockup.
-- **Study screen.** Only the newer study screen is rebuilt, and it becomes the Fork's default (ADR-0002). The Card Frame is redesigned; the Card Content is rendered exactly as today.
-- **Old study screen.** Left as it is and reachable from settings. It is the one Native Surface the Redesign deliberately skips.
-- **Gaps in the newer study screen.** The Fork does not close them as a goal. Two exceptions:
-  - When a Card needs the AnkiDroid JavaScript API, the "not yet supported" warning offers a one-tap switch to the old study screen for that session.
-  - Deck title, time-remaining estimate and answer-button position are decided when the study screen's Mockup is drawn.
+- **Study screen.** Upstream's newer study screen is rebuilt and becomes the Fork's default. The Card Frame is redesigned; the Card Content is rendered exactly as today.
+- **One study screen (ADR-0004).** The old study screen is never rebuilt. It is removed once the study screen can replace it, in this order:
+  1. The AnkiDroid JavaScript API is implemented in the study screen, with the same results as the old study screen for the same Card Template. This is non-UI work taken on deliberately.
+  2. Each feature only the old study screen has is marked "build" or "drop" by the owner when the study screen's Mockup is drawn: saving a whiteboard drawing, reading the whole Card aloud, answer-button position, minimum press time, double-tap timeout, and any other found. A "drop" is a deliberate exception to "no existing feature is removed".
+  3. The old study screen, the setting that chose between the two, and the settings only the old one used are deleted.
+- Until the removal, the old study screen stays selectable in settings and gets no redesign.
+- Deck title and time-remaining estimate are decided in the same Mockup.
 - **Finished screen.** Built as a Native Surface, replacing the Anki Page for this one screen. It shows everything the page shows today, from data the Engine already exposes to native code: when more Cards become available, whether a daily limit was reached, whether Cards are buried and a way to unbury them, a route to custom study, and a route to Deck options. It opens both when a study session ends and when a finished Deck is tapped.
 
 ### Finding and adding
@@ -271,7 +273,7 @@ The work lands in Milestones, and the app stays usable after each one.
 
 - All settings screens and all dialogs (roughly 50) are rebuilt in Compose.
 - Every existing setting remains. Settings may be regrouped.
-- Settings that apply to only one of the two study screens stay available and are labelled as such, since the old study screen remains reachable.
+- Settings only the old study screen used are removed with it, before the settings rebuild. Settings never need to serve two study screens.
 - Dialogs share one small set of patterns: confirmation, destructive confirmation, input, single choice, multiple choice, progress and error.
 
 ### The rest
@@ -320,7 +322,7 @@ The work lands in Milestones, and the app stays usable after each one.
 
 0. **Direction.** Three Directions as Mockups; the owner picks one. Then the name, the launcher icon, and the Dark and Black themes for it.
 1. **Foundation.** The chosen Direction applied app-wide; the Fork's identity; crash reporting and analytics off; themes cut to three; fonts bundled; the hard-coded colour and text-size sweep.
-2. **Core Loop.** Bottom bar, deck list, study screen, finished screen.
+2. **Core Loop.** Bottom bar, deck list, study screen, finished screen; the AnkiDroid JavaScript API in the study screen; removal of the old study screen.
 3. **Finding and adding.** Card browser, note editor, previewer.
 4. **Settings and dialogs.**
 5. **The rest.** Note Types and Card Templates, sign-in and sync, first run, widgets, notifications, Harmonisation of the Anki Pages.
@@ -378,8 +380,8 @@ Each sign-off also includes the round trip with the Official App: a collection a
 ## Out of Scope
 
 - Any change to collection format, sync protocol, scheduling behaviour or the Anki backend.
-- Redesigning the old study screen.
-- Closing the newer study screen's functional gaps, including implementing the AnkiDroid JavaScript API, beyond the two exceptions above.
+- Redesigning the old study screen. It is removed, not redesigned.
+- New features in the AnkiDroid JavaScript API. The study screen matches what the old study screen supported and adds nothing.
 - Restyling Card Content or the default Card Templates.
 - Rebuilding any Anki Page natively, other than the finished screen.
 - Syncing with AnkiWeb.
@@ -397,7 +399,6 @@ Each sign-off also includes the round trip with the Official App: a collection a
 
 - **Decisions made when the Fork was for its owner only.** Other people will now use it. These were decided with one person in mind and have not been revisited:
   - The Plain and E-ink themes are removed.
-  - Cards that need the AnkiDroid JavaScript API rely on the old study screen.
   - Other apps that send Cards to AnkiDroid through its public API will not see the Fork. Text shared the ordinary way still arrives.
   - There is no crash reporting at all.
 - **Distribution and further translations.** The owner has deferred both: how other people get the app, and translating new text beyond English, Simplified Chinese and Japanese.
@@ -411,7 +412,7 @@ The Direction; the Fork's name and launcher icon; each font pairing; the icon st
 
 - Upstream at commit `2f6b7a649e` builds on this machine with Java 21 (the build enforces 21–25). The first build took about 20 minutes.
 - A Pixel 9 emulator on Android 16 is set up with 36 sample Cards across five Decks in Japanese, Chinese and English.
-- "Before" pictures of the deck list, drawer, both study screens, the finished screen, a dialog and one Anki Page are in `docs/redesign/before/`.
+- "Before" pictures of the deck list, drawer, both of Upstream's study screens, the finished screen, a dialog and one Anki Page are in `docs/redesign/before/`.
 - The newer study screen lacks the AnkiDroid JavaScript API, saving a whiteboard drawing, the legacy read-aloud speech, the time-remaining estimate, the deck title, and a choice of answer-button position.
 - Upstream's bottom navigation is phone-only and unfinished; the drawer still sits underneath it.
 - The app is about 190 XML layouts plus about 20 Compose files, on Material 3 base themes, with 82 locales.

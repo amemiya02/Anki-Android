@@ -1,8 +1,8 @@
-# 42: Sync setup around a self-hosted server
+# 44: Sync setup around a self-hosted server
 
 **What to build:** The owner sets up, checks and uses sync with their own server from one redesigned place.
 
-**Blocked by:** 39 (Mockups for the rest)
+**Blocked by:** 41 (Mockups for the rest)
 
 **Status:** ready-for-agent
 

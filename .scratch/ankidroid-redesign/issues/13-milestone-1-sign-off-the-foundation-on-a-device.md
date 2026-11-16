@@ -7,7 +7,7 @@
 **Status:** ready-for-agent
 
 - [ ] The Fork is installed on the emulator beside the Official App, with a copy of a collection brought in by import.
-- [ ] The "before" walk (deck list, drawer, both study screens, finished screen, a dialog, one Anki Page) is repeated and captured in English and Simplified Chinese, in all three themes.
+- [ ] The "before" walk (deck list, drawer, both study screens, finished screen, a dialog, one Anki Page) is repeated and captured in English and Simplified Chinese, in all three themes. Both study screens still exist at this point.
 - [ ] No capture shows two looks at once.
 - [ ] Baseline pictures for the rendered-screen tests are regenerated and committed.
 - [ ] The owner has signed off the Milestone.

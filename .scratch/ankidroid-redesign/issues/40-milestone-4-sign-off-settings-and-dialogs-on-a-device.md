@@ -1,8 +1,8 @@
-# 38: Milestone 4 sign-off: settings and dialogs on a device
+# 40: Milestone 4 sign-off: settings and dialogs on a device
 
 **What to build:** The owner changes settings and meets dialogs across the Fork and agrees the Milestone is done.
 
-**Blocked by:** 37 (Remove the old dialog and settings machinery)
+**Blocked by:** 39 (Remove the old dialog and settings machinery)
 
 **Status:** ready-for-agent
 

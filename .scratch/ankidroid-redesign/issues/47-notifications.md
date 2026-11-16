@@ -1,8 +1,8 @@
-# 45: Notifications
+# 47: Notifications
 
 **What to build:** Review reminders and other notifications match the app in look and wording.
 
-**Blocked by:** 39 (Mockups for the rest)
+**Blocked by:** 41 (Mockups for the rest)
 
 **Status:** ready-for-agent
 

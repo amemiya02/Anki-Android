@@ -1,8 +1,8 @@
-# 28: Previewer
+# 30: Previewer
 
 **What to build:** The owner can preview how a Card will look, from the card browser or the note editor, in a previewer that matches the study screen's Card Frame.
 
-**Blocked by:** 23 (Mockups for finding and adding)
+**Blocked by:** 25 (Mockups for finding and adding)
 
 **Status:** ready-for-agent
 

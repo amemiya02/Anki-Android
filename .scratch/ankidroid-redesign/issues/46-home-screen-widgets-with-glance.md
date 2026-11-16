@@ -1,8 +1,8 @@
-# 44: Home-screen widgets with Glance
+# 46: Home-screen widgets with Glance
 
 **What to build:** The Fork's home-screen widgets match the app.
 
-**Blocked by:** 39 (Mockups for the rest)
+**Blocked by:** 41 (Mockups for the rest)
 
 **Status:** ready-for-agent
 

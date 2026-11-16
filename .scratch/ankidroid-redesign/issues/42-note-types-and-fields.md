@@ -1,8 +1,8 @@
-# 40: Note Types and fields
+# 42: Note Types and fields
 
 **What to build:** The owner manages Note Types and their fields in the redesigned look.
 
-**Blocked by:** 39 (Mockups for the rest)
+**Blocked by:** 41 (Mockups for the rest)
 
 **Status:** ready-for-agent
 

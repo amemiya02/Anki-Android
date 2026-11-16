@@ -1,8 +1,8 @@
-# 33: Dialogs: note editor, importing, errors and the rest
+# 35: Dialogs: note editor, importing, errors and the rest
 
 **What to build:** No dialog anywhere in the app still shows the old look.
 
-**Blocked by:** 31 (Dialog patterns and the deck list's dialogs)
+**Blocked by:** 33 (Dialog patterns and the deck list's dialogs)
 
 **Status:** ready-for-agent
 

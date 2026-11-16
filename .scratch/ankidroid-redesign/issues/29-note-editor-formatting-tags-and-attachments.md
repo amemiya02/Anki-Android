@@ -1,8 +1,8 @@
-# 27: Note editor: formatting, tags and attachments
+# 29: Note editor: formatting, tags and attachments
 
 **What to build:** The owner can still write rich Notes: formatted text, tags, images, audio and drawings.
 
-**Blocked by:** 26 (Note editor: fields, Deck, Note Type and saving)
+**Blocked by:** 28 (Note editor: fields, Deck, Note Type and saving)
 
 **Status:** ready-for-agent
 

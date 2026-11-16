@@ -1,8 +1,8 @@
-# 41: Card Template editor and its previewer
+# 43: Card Template editor and its previewer
 
 **What to build:** The owner edits a Card Template and previews the result in the redesigned look.
 
-**Blocked by:** 39 (Mockups for the rest)
+**Blocked by:** 41 (Mockups for the rest)
 
 **Status:** ready-for-agent
 

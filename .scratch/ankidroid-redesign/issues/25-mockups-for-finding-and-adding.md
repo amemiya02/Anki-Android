@@ -1,8 +1,8 @@
-# 23: Mockups for finding and adding
+# 25: Mockups for finding and adding
 
 **What to build:** The owner approves how the card browser, the note editor and the previewer will look and behave before they are built.
 
-**Blocked by:** 22 (Milestone 2 sign-off: the Core Loop on a device)
+**Blocked by:** 24 (Milestone 2 sign-off: the Core Loop on a device)
 
 **Status:** ready-for-agent
 

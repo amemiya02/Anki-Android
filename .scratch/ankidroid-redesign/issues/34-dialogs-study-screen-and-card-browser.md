@@ -1,8 +1,8 @@
-# 32: Dialogs: study screen and card browser
+# 34: Dialogs: study screen and card browser
 
 **What to build:** Every dialog reachable from the study screen and the card browser uses the shared dialog patterns.
 
-**Blocked by:** 31 (Dialog patterns and the deck list's dialogs)
+**Blocked by:** 33 (Dialog patterns and the deck list's dialogs)
 
 **Status:** ready-for-agent
 

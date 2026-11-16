@@ -1,8 +1,8 @@
-# 24: Card browser: list, search and sort
+# 26: Card browser: list, search and sort
 
 **What to build:** The owner can find any Card in a redesigned card browser that stays smooth however large the collection is.
 
-**Blocked by:** 23 (Mockups for finding and adding)
+**Blocked by:** 25 (Mockups for finding and adding)
 
 **Status:** ready-for-agent
 

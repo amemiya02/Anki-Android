@@ -1,8 +1,8 @@
-# 49: Milestone 5 sign-off: the Redesign is done
+# 51: Milestone 5 sign-off: the Redesign is done
 
 **What to build:** The owner uses the whole Fork and agrees the Redesign is finished.
 
-**Blocked by:** 48 (Finish the single-activity structure and remove leftover XML)
+**Blocked by:** 50 (Finish the single-activity structure and remove leftover XML)
 
 **Status:** ready-for-agent
 

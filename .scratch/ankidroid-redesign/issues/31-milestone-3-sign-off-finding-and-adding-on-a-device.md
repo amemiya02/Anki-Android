@@ -1,8 +1,8 @@
-# 29: Milestone 3 sign-off: finding and adding on a device
+# 31: Milestone 3 sign-off: finding and adding on a device
 
 **What to build:** The owner adds, finds, edits and previews Cards in the Fork and agrees the Milestone is done.
 
-**Blocked by:** 25 (Card browser: selection, bulk actions and columns); 27 (Note editor: formatting, tags and attachments); 28 (Previewer)
+**Blocked by:** 27 (Card browser: selection, bulk actions and columns); 29 (Note editor: formatting, tags and attachments); 30 (Previewer)
 
 **Status:** ready-for-agent
 

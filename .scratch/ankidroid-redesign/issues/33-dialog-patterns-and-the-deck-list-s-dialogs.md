@@ -1,8 +1,8 @@
-# 31: Dialog patterns and the deck list's dialogs
+# 33: Dialog patterns and the deck list's dialogs
 
 **What to build:** Every dialog the owner meets from the deck list shares one look, built from a small set of dialog patterns that the rest of the app will reuse.
 
-**Blocked by:** 30 (Mockups for settings and dialogs)
+**Blocked by:** 32 (Mockups for settings and dialogs)
 
 **Status:** ready-for-agent
 

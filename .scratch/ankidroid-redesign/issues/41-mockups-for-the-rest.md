@@ -1,8 +1,8 @@
-# 39: Mockups for the rest
+# 41: Mockups for the rest
 
 **What to build:** The owner approves how the remaining surfaces will look before they are built.
 
-**Blocked by:** 38 (Milestone 4 sign-off: settings and dialogs on a device)
+**Blocked by:** 40 (Milestone 4 sign-off: settings and dialogs on a device)
 
 **Status:** ready-for-agent
 
