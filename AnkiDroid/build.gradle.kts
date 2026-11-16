@@ -338,6 +338,13 @@ android {
             excludes += listOf("META-INF/DEPENDENCIES")
         }
     }
+
+    // The interface typefaces (common/android res/font) are stored uncompressed, so Android maps
+    // them from the APK. A compressed font is inflated into memory whole when it loads: about
+    // 26 MB for each Chinese face.
+    androidResources {
+        noCompress += "ttf"
+    }
 }
 
 androidComponents.onVariants(androidComponents.selector().withBuildType("release")) { variant ->
