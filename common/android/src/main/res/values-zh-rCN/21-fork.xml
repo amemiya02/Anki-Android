@@ -2,7 +2,6 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <resources>
     <string name="sync_server_title" maxLength="41">同步服务器</string>
-    <string name="sync_account_title" maxLength="41">同步账户</string>
     <string name="sync_setup_explanation"><![CDATA[本应用只与你自己运行的同步服务器同步，例如桌面版 Anki 内置的同步服务器。请输入它的地址，然后登录。<a href="%s">了解更多</a><br><br><b>来自 AnkiWeb？</b>本应用无法登录 AnkiWeb。要把你的牌组带到这里，请先将它们同步到 AnkiDroid 或桌面版 Anki，在那里导出集合或牌组包，再导入到这里。]]></string>
     <string name="sync_server_not_set">未设置</string>
     <string name="sync_server_required">请先输入同步服务器地址</string>

@@ -48,7 +48,7 @@ class LoggedInFragment : Fragment(R.layout.fragment_my_account_logged_in) {
         activity.setSupportActionBar(toolbar)
 
         activity.supportActionBar?.apply {
-            title = getString(CommonString.sync_account_title)
+            title = getString(CommonString.menu_my_account)
             subtitle = syncServerAddress()
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)

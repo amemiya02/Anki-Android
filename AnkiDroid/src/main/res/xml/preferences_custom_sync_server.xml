@@ -25,6 +25,6 @@
     <!-- Enabled once a server address is set. Its summary is set at run time, so it is not indexed in search -->
     <Preference
         android:key="@string/sync_setup_account_key"
-        android:title="@string/sync_account_title"
+        android:title="@string/menu_my_account"
         search:ignore="true" />
 </PreferenceScreen>

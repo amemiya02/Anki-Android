@@ -7,7 +7,6 @@
 <resources>
     <!-- Sync setup: the Fork syncs only with the owner's own server, never with AnkiWeb (ADR-0001) -->
     <string name="sync_server_title" maxLength="41">Sync server</string>
-    <string name="sync_account_title" maxLength="41">Sync account</string>
     <string name="sync_setup_explanation"><![CDATA[
         This app syncs only with a sync server you run yourself, such as the one built into desktop Anki.
         Enter its address, then sign in.

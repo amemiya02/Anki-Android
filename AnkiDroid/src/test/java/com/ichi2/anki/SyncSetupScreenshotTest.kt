@@ -47,11 +47,11 @@ class SyncSetupScreenshotTest : ScreenshotTest() {
         setSyncServer(null)
         withSyncSetup { activity ->
             assertTrue(activity.isTextShown(CommonString.sync_server_required), "asks for a server address")
-            assertFalse(activity.rowWithText(CommonString.sync_account_title).isEnabled, "sign-in is not possible")
+            assertFalse(activity.rowWithText(CommonString.menu_my_account).isEnabled, "sign-in is not possible")
             assertTrue(activity.isTextShown("AnkiWeb"), "explains the route from AnkiWeb")
             captureScreen("no_server")
 
-            activity.rowWithText(CommonString.sync_account_title).performClick()
+            activity.rowWithText(CommonString.menu_my_account).performClick()
             assertNull(shadowOf(activity).nextStartedActivity, "sign-in does not open")
         }
     }
@@ -62,10 +62,10 @@ class SyncSetupScreenshotTest : ScreenshotTest() {
         withSyncSetup { activity ->
             val signInTo = activity.getString(CommonString.sync_server_sign_in_to, TEST_SYNC_SERVER)
             assertTrue(activity.isTextShown(signInTo), "offers to sign in to the server")
-            assertTrue(activity.rowWithText(CommonString.sync_account_title).isEnabled, "sign-in is possible")
+            assertTrue(activity.rowWithText(CommonString.menu_my_account).isEnabled, "sign-in is possible")
             captureScreen("with_server")
 
-            activity.rowWithText(CommonString.sync_account_title).performClick()
+            activity.rowWithText(CommonString.menu_my_account).performClick()
             val intent = assertNotNull(shadowOf(activity).nextStartedActivity)
             assertEquals(AccountActivity::class.java.name, intent.component?.className)
             assertEquals(LoginFragment::class.jvmName, intent.getStringExtra(EXTRA_FRAGMENT_NAME))

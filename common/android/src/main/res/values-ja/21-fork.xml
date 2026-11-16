@@ -2,7 +2,6 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <resources>
     <string name="sync_server_title" maxLength="41">同期サーバー</string>
-    <string name="sync_account_title" maxLength="41">同期アカウント</string>
     <string name="sync_setup_explanation"><![CDATA[このアプリは、デスクトップ版 Anki に内蔵されているものなど、ご自身で運用する同期サーバーとだけ同期します。そのアドレスを入力してから、ログインしてください。<a href="%s">詳細</a><br><br><b>AnkiWeb をお使いですか？</b>このアプリは AnkiWeb にログインできません。デッキをこちらへ移すには、AnkiDroid またはデスクトップ版 Anki に同期し、そこでコレクションまたはデッキパッケージをエクスポートして、こちらでインポートしてください。]]></string>
     <string name="sync_server_not_set">未設定</string>
     <string name="sync_server_required">先に同期サーバーのアドレスを入力してください</string>

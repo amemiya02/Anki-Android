@@ -64,7 +64,7 @@ class LoginFragment : Fragment(R.layout.fragment_my_account) {
         activity.setSupportActionBar(binding.toolbar)
 
         activity.supportActionBar?.apply {
-            title = getString(CommonString.sync_account_title)
+            title = getString(CommonString.menu_my_account)
             // the server signed in to: never AnkiWeb (ADR-0001)
             subtitle = syncServerAddress()
             setDisplayHomeAsUpEnabled(true)
