@@ -27,6 +27,12 @@
             "use": "The title of a top-level screen"
         },
         {
+            "role": "pageTitle",
+            "size": 30,
+            "weight": 500,
+            "use": "The heading of the finished screen and of an empty screen"
+        },
+        {
             "role": "deckName",
             "size": 20,
             "weight": 500,
@@ -57,6 +63,18 @@
             "use": "The Deck name on the study screen"
         },
         { "role": "button", "size": 17, "weight": 500, "use": "The label of a primary button" },
+        {
+            "role": "rowTitle",
+            "size": 17,
+            "weight": 500,
+            "use": "The title of a row in a list of actions or destinations (More, the finished screen)"
+        },
+        {
+            "role": "lead",
+            "size": 16,
+            "weight": 400,
+            "use": "The explanation under a page title; line height 1.55"
+        },
         { "role": "answer", "size": 16.5, "weight": 600, "use": "Again, Hard, Good and Easy" },
         { "role": "body", "size": 15, "weight": 400, "use": "Ordinary interface text" },
         {
@@ -85,7 +103,11 @@
         "primaryButton": 56,
         "answerButton": 66,
         "addButton": 56,
-        "bottomBar": 78
+        "bottomBar": 78,
+        "listRow": 64,
+        "secondaryButton": 52,
+        "pageMark": 56,
+        "emptyMark": 96
     },
 
     "shape": {
@@ -171,7 +193,7 @@
 
     "colourNotes": {
         "cardSheet": "The card sheet colours are not the Direction's. They stand for how the app draws Card Content today, which the Redesign does not touch, and are approximate.",
-        "emphasis": "Cinnabar used as a mark on the background (the current tab rule, the last-studied dot). In Dark and Black it is lighter than the button colour so that it stays visible."
+        "emphasis": "Cinnabar used on the background: as a mark (the current tab rule, the last-studied dot, the finished screen's mark) and as text (an outlined secondary button, the row the current state points to). In Dark and Black it is lighter than the button colour so that it stays visible, and it is checked as text."
     },
 
     "contrast": {
@@ -183,11 +205,11 @@
             ["countNew", "background"],
             ["countLearning", "background"],
             ["countDue", "background"],
+            ["emphasis", "background"],
             ["onCardSheet", "cardSheet"]
         ],
         "marks": [
             ["primary", "background"],
-            ["emphasis", "background"],
             ["answerAgain", "background"],
             ["answerHard", "background"],
             ["answerGood", "background"],
