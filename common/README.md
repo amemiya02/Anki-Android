@@ -12,7 +12,7 @@ This module is expected to define interfaces which are initialized in the `AnkiD
 
 ### `com.ichi2.anki.common` 
 
-Definitions/interfaces exposing core functionality e.g. `CrashReportService`, `UsageAnalytics`
+Definitions/interfaces exposing core functionality e.g. `CrashReportService`
 
 These are to be initialized higher up the dependency tree, typically in `AnkiDroid`
 

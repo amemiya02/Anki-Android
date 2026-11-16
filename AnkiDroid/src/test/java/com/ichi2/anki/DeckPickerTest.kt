@@ -53,7 +53,6 @@ import com.ichi2.anki.browser.CardBrowserFragment
 import com.ichi2.anki.browser.CardBrowserViewModel.RowSelection
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.crashreporting.CrashReporter
-import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.databinding.ActivityHomescreenBinding
@@ -90,7 +89,6 @@ import com.ichi2.anki.utils.ext.defaultConfig
 import com.ichi2.anki.utils.ext.dismissAllDialogFragments
 import com.ichi2.anki.widgets.DeckAdapter
 import com.ichi2.testutils.BackendEmulatingOpenConflict
-import com.ichi2.testutils.BackupManagerTestUtilities
 import com.ichi2.testutils.common.Flaky
 import com.ichi2.testutils.common.OS
 import com.ichi2.testutils.dispatchTouch
@@ -98,7 +96,6 @@ import com.ichi2.testutils.ext.addBasicNoteWithOp
 import com.ichi2.testutils.ext.menu
 import com.ichi2.testutils.ext.snackbarText
 import com.ichi2.testutils.ext.text
-import com.ichi2.testutils.grantWritePermissions
 import com.ichi2.testutils.revokeWritePermissions
 import com.ichi2.testutils.withPref
 import com.ichi2.testutils.withWritePermissions
@@ -496,32 +493,6 @@ class DeckPickerTest : RobolectricTest() {
         } finally {
             BackendEmulatingOpenConflict.disable()
             InitialActivityWithConflictTest.setupForDefault()
-        }
-    }
-
-    @Test
-    fun deckPickerOpensWithHelpMakeAnkiDroidBetterDialog() {
-        // Refactor: It would be much better to use a spy - see if we can get this into Robolectric
-        try {
-            grantWritePermissions()
-            BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
-            // We don't show it if the user is new.
-            targetContext
-                .sharedPrefs()
-                .edit { putString("lastVersion", "0.1") }
-            val d =
-                super.startActivityNormallyOpenCollectionWithIntent(
-                    DeckPickerEx::class.java,
-                    Intent(),
-                )
-            assertThat(
-                "Analytics opt-in should be displayed",
-                d.displayedAnalyticsOptIn,
-                equalTo(true),
-            )
-        } finally {
-            revokeWritePermissions()
-            BackupManagerTestUtilities.reset()
         }
     }
 
@@ -2048,7 +2019,6 @@ class DeckPickerTest : RobolectricTest() {
 
     internal class DeckPickerEx : DeckPicker() {
         var databaseErrorDialog: DatabaseErrorDialogType? = null
-        var displayedAnalyticsOptIn = false
         var optionsMenu: Menu? = null
         var integrityCheckCalled = false
 
@@ -2074,11 +2044,6 @@ class DeckPickerTest : RobolectricTest() {
                 arrayOf(""),
                 intArrayOf(PackageManager.PERMISSION_GRANTED),
             )
-        }
-
-        override fun displayAnalyticsOptInDialog() {
-            displayedAnalyticsOptIn = true
-            super.displayAnalyticsOptInDialog()
         }
 
         override fun onPrepareOptionsMenu(menu: Menu): Boolean {

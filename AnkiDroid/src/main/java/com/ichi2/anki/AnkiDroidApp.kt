@@ -24,7 +24,6 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ProcessLifecycleOwner
 import anki.collection.OpChanges
-import com.ichi2.anki.analytics.initializeAnalytics
 import com.ichi2.anki.browser.IdsFile
 import com.ichi2.anki.browser.SharedPreferencesLastDeckIdRepository
 import com.ichi2.anki.common.android.AdaptionUtil
@@ -192,7 +191,6 @@ open class AnkiDroidApp :
      * On application creation, i.e. when the application process starts.
      * This is called before any activities, services, or receivers are created.
      */
-    @KotlinCleanup("analytics can be moved to attachBaseContext()")
     override fun onCreate() {
         if (isPhoenixProcess()) {
             super.onCreate()
@@ -206,7 +204,6 @@ open class AnkiDroidApp :
 
         setupApplicationDependencies()
         setupLogging()
-        setupUsageAnalytics()
         launchStartupLogging()
 
         setupMainProcessMaintenance()
@@ -353,12 +350,6 @@ open class AnkiDroidApp :
             Timber.tag(TAG)
             Timber.d("Startup - Application Start")
             Timber.i("Timber config: $logType")
-        }
-    }
-
-    private fun setupUsageAnalytics() {
-        setup("setupUsageAnalytics") {
-            initializeAnalytics()
         }
     }
 

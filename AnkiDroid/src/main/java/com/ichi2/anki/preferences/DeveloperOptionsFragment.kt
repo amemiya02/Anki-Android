@@ -14,14 +14,12 @@ import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonPreferenceKey
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
-import com.ichi2.anki.analytics.AnkiDroidUsageAnalytics
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.storage.CollectionHelper
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.dialogs.TtsVoicesDialogFragment
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.settings.Prefs
-import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.ext.defaultConfig
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.withProgress
@@ -59,16 +57,6 @@ class DeveloperOptionsFragment : SettingsFragment() {
         requirePreference<Preference>(R.string.pref_trigger_crash_key).setOnPreferenceClickListener {
             Timber.w("Crash triggered on purpose from advanced preferences in debug mode")
             throw RuntimeException("This is a test crash")
-        }
-        // Make it possible to test analytics
-        requirePreference<Preference>(R.string.pref_analytics_debug_key).setOnPreferenceClickListener {
-            if (AnkiDroidUsageAnalytics.isEnabled) {
-                showSnackbar("Analytics set to dev mode")
-            } else {
-                showSnackbar("Done! Enable Analytics in 'General' settings to use.")
-            }
-            AnkiDroidUsageAnalytics.setDevMode(AnkiDroidApp.instance.applicationContext)
-            false
         }
         // Lock database
         requirePreference<Preference>(R.string.pref_lock_database_key).setOnPreferenceClickListener {

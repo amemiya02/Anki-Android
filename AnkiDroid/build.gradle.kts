@@ -149,33 +149,6 @@ android {
         testApplicationId = "com.ichi2.anki.tests"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "com.ichi2.testutils.NewCollectionPathTestRunner"
-
-        // GA4 Measurement Protocol api_secret. Sourced from `local.properties`
-        // (ANALYTICS_API_KEY) or the ANALYTICS_API_KEY env var; falls back to
-        // a dummy value so contributor builds still compile.
-        //
-        // The dummy key is rejected by GA's ingest, so analytics requests from
-        // unsigned/local builds go nowhere this means `setDevMode()` (100%
-        // sampling) has no observable effect on a build without the real key.
-        //
-        // Google documents the api_secret as private, and the Measurement Protocol
-        // as intended for trusted/server-side use:
-        // https://developers.google.com/analytics/devguides/collection/protocol/ga4/sending-events#api_secret
-        // Shipping it in the APK means anyone can extract it and post junk events to
-        // the property, which would corrupt our reporting. We accept that: there is no
-        // server-side path for an offline-first app, the property holds no user data,
-        // and a polluted property can be rotated by issuing a new secret.
-        val properties = Properties()
-        val localPropsFile = project.rootProject.file("local.properties")
-        if (localPropsFile.exists()) {
-            properties.load(localPropsFile.inputStream())
-        }
-
-        val apiKey =
-            properties.getProperty("ANALYTICS_API_KEY")?.takeIf { it.isNotEmpty() }
-                ?: System.getenv("ANALYTICS_API_KEY")?.takeIf { it.isNotEmpty() } ?: "DUMMY_API_XXX"
-        // Keep credentials out of BuildConfig: ACRA collects its fields through reflection.
-        resValue("string", "ga_api_secret", apiKey)
     }
     signingConfigs {
         create("release") {
@@ -751,8 +724,6 @@ dependencies {
     implementation(project(":vbpd"))
     "baselineProfile"(project(":baselineprofile"))
     implementation(project(":widgets"))
-
-    implementation(libs.google.analytics.kt)
 
     implementation(libs.androidx.activity)
     implementation(libs.androidx.activity.compose)

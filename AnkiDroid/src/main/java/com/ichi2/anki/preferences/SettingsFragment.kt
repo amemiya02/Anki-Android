@@ -2,7 +2,6 @@
 
 package com.ichi2.anki.preferences
 
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,12 +16,9 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceManager.OnPreferenceTreeClickListener
-import com.ichi2.anki.analytics.AnkiDroidUsageAnalytics
 import com.ichi2.anki.common.analytics.Analytics
 import com.ichi2.anki.common.analytics.AnalyticsEvent
-import com.ichi2.anki.common.analytics.getPreferenceReportableValue
 import com.ichi2.anki.databinding.FragmentSettingsBinding
 import com.ichi2.preferences.DialogFragmentProvider
 import dev.androidbroadcast.vbpd.viewBinding
@@ -31,7 +27,6 @@ import timber.log.Timber
 abstract class SettingsFragment :
     PreferenceFragmentCompat(),
     OnPreferenceTreeClickListener,
-    SharedPreferences.OnSharedPreferenceChangeListener,
     PreferenceXmlSource {
     /** @return The XML file which defines the preferences displayed by this PreferenceFragment
      */
@@ -45,19 +40,6 @@ abstract class SettingsFragment :
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
         Analytics.send(AnalyticsEvent.SettingTapped(preference.key))
         return super.onPreferenceTreeClick(preference)
-    }
-
-    override fun onSharedPreferenceChanged(
-        sharedPreferences: SharedPreferences,
-        key: String?,
-    ) {
-        if (key !in AnkiDroidUsageAnalytics.reportablePreferences) {
-            return
-        }
-        if (key != null) {
-            val valueToReport = getPreferenceReportableValue(sharedPreferences.get(key))
-            Analytics.send(AnalyticsEvent.SettingChanged(key, valueToReport))
-        }
     }
 
     override fun onCreateView(
@@ -128,20 +110,6 @@ abstract class SettingsFragment :
         dialogFragment.arguments = Bundle().apply { putString(ARG_PREFERENCE_KEY, preference.key) }
         dialogFragment.setTargetFragment(this, 0)
         dialogFragment.show(parentFragmentManager, "androidx.preference.PreferenceFragment.DIALOG")
-    }
-
-    override fun onStart() {
-        super.onStart()
-        PreferenceManager
-            .getDefaultSharedPreferences(requireContext())
-            .registerOnSharedPreferenceChangeListener(this)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        PreferenceManager
-            .getDefaultSharedPreferences(requireContext())
-            .unregisterOnSharedPreferenceChangeListener(this)
     }
 
     companion object {

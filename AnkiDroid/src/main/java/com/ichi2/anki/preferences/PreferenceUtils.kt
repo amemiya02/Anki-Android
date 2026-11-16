@@ -2,7 +2,6 @@
 
 package com.ichi2.anki.preferences
 
-import android.content.SharedPreferences
 import androidx.annotation.StringRes
 import androidx.preference.ListPreference
 import androidx.preference.Preference
@@ -10,8 +9,6 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceScreen
 import androidx.preference.SwitchPreferenceCompat
-
-fun SharedPreferences.get(key: String): Any? = all[key]
 
 /**
  * Sets the callback to be invoked when this preference is changed by the user

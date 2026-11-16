@@ -4,77 +4,26 @@
 package com.ichi2.anki.common.analytics
 
 /**
- * Opt-in usage analytics, implemented in the app module by `AnkiDroidUsageAnalytics`.
+ * Where Upstream's code reports usage statistics.
  *
- * Takes no Android types, so it can live in `:common`. Setup that needs a `Context`
- * stays on the implementation.
+ * The Fork sends no usage statistics anywhere, so every call here does nothing. The calls
+ * are kept so that code shared with Upstream does not have to change.
  *
- * Send events through [Analytics]; this is the contract it delegates to.
- *
- * @see Analytics
- */
-interface UsageAnalytics {
-    /** Reports [event]. */
-    fun send(event: AnalyticsEvent)
-
-    /** Records a screen view named after [screen]'s class. */
-    fun sendAnalyticsScreenView(screen: Any) {
-        sendAnalyticsScreenView(screen.javaClass.simpleName)
-    }
-
-    /** Records a screen view under [screenName], for classes serving several screens. */
-    fun sendAnalyticsScreenView(screenName: String)
-
-    /** Reports the root cause of [t]. */
-    fun sendAnalyticsException(
-        t: Throwable,
-        fatal: Boolean,
-    )
-
-    companion object {
-        /** Bumped to `_v2` for GA4 so consent given for the old backend isn't reused. */
-        const val PREF_ANALYTICS_OPTIN = "analytics_opt_in_v2"
-    }
-}
-
-/**
- * Sends analytics through whichever [UsageAnalytics] was registered at startup.
- *
- * ```
- * Analytics.send(AnalyticsEvent.WidgetEnabled("AddNoteWidget"))
- * ```
+ * Crashes and errors may call this before startup completes, so nothing here may throw.
  */
 object Analytics {
-    /**
-     * Used until [setAnalytics] runs. Crashes are reported through here, and that can
-     * happen before startup registers an implementation, so dropping the hit has to be
-     * safe: throwing would hide the crash we were reporting.
-     */
-    private object Unregistered : UsageAnalytics {
-        override fun send(event: AnalyticsEvent) = Unit
+    @Suppress("UNUSED_PARAMETER")
+    fun send(event: AnalyticsEvent) = Unit
 
-        override fun sendAnalyticsScreenView(screenName: String) = Unit
+    @Suppress("UNUSED_PARAMETER")
+    fun sendAnalyticsScreenView(screen: Any) = Unit
 
-        override fun sendAnalyticsException(
-            t: Throwable,
-            fatal: Boolean,
-        ) = Unit
-    }
+    @Suppress("UNUSED_PARAMETER")
+    fun sendAnalyticsScreenView(screenName: String) = Unit
 
-    private var instance: UsageAnalytics = Unregistered
-
-    fun setAnalytics(analytics: UsageAnalytics) {
-        instance = analytics
-    }
-
-    fun send(event: AnalyticsEvent) = instance.send(event)
-
-    fun sendAnalyticsScreenView(screen: Any) = instance.sendAnalyticsScreenView(screen)
-
-    fun sendAnalyticsScreenView(screenName: String) = instance.sendAnalyticsScreenView(screenName)
-
+    @Suppress("UNUSED_PARAMETER")
     fun sendAnalyticsException(
         t: Throwable,
         fatal: Boolean,
-    ) = instance.sendAnalyticsException(t, fatal)
+    ) = Unit
 }

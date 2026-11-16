@@ -2,11 +2,16 @@
 
 package com.ichi2.anki
 
+import android.content.Intent
+import androidx.core.content.edit
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.preferences.PreferenceTestUtils
+import com.ichi2.testutils.BackupManagerTestUtilities
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsString
+import org.hamcrest.Matchers.empty
 import org.hamcrest.Matchers.hasItem
 import org.hamcrest.Matchers.not
 import org.junit.Test
@@ -35,10 +40,39 @@ class NoReportingTest : RobolectricTest() {
     }
 
     @Test
-    fun `settings have no entry for crash reports`() {
+    fun `the app carries no usage statistics client`() {
+        assertFailsWith<ClassNotFoundException>("the Google Analytics client would send usage statistics") {
+            Class.forName("com.criticalay.GoogleAnalytics")
+        }
+    }
+
+    @Test
+    fun `settings have no entries for crash reports or usage statistics`() {
         val keys = PreferenceTestUtils.getAllPreferenceKeys(targetContext)
 
         assertThat("error reporting mode", keys, not(hasItem("reportErrorMode")))
+        assertThat("share feature usage", keys, not(hasItem("analytics_opt_in_v2")))
+        assertThat("analytics dev mode", keys, not(hasItem("analytics_debug_preference")))
+    }
+
+    @Test
+    fun `an upgrade does not ask the owner to share usage statistics`() {
+        setIntroductionSlidesShown(true)
+        BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
+        try {
+            // An upgrade is when the opt-in prompt used to appear
+            getPreferences().edit {
+                putString("lastVersion", "0.1")
+                putBoolean("backupPromptDisabled", true)
+            }
+
+            val deckPicker = startActivityNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent())
+            advanceRobolectricLooper()
+
+            assertThat(deckPicker.supportFragmentManager.fragments.filterIsInstance<DialogFragment>(), empty())
+        } finally {
+            BackupManagerTestUtilities.reset()
+        }
     }
 
     @Test
