@@ -268,6 +268,8 @@ The work lands in Milestones, and the app stays usable after each one.
 ### Sync and reporting
 
 - The Fork does not sync with AnkiWeb. AnkiWeb's terms allow access only from the browser and four named clients, and a renamed fork is not one of them (ADR-0001).
+- AnkiWeb sign-in and sync are dropped from the Fork early, before the Foundation Milestone is signed off, so that an unfinished build can never sign in by accident. Sync setup asks for a server address and offers no AnkiWeb default; without a server address there is no way to sign in. The first-run screen no longer offers to sync from AnkiWeb, and links to AnkiWeb account sign-up and password reset are removed.
+- Browsing and downloading shared Decks from AnkiWeb's website stays, since that is browser access.
 - Decks reach the Fork through a self-hosted sync server, using the custom sync server setting the app already has, or by export and import.
 - During development, the Fork is tested with a copy of a collection brought in by import, never with a live synced account.
 - Crash reporting to Upstream's server and usage analytics are switched off in the Fork, and their settings entries are removed.
@@ -357,7 +359,6 @@ Each Milestone ends with a run on the Pixel 9 emulator, repeating the walk used 
 
 ### Open questions
 
-- **AnkiWeb default on sign-in.** Upstream's sign-in screen defaults to AnkiWeb, so one tap would sign the Fork in. The recommendation is that sync setup asks for a server address and offers no AnkiWeb default, and that this default is changed in the Foundation Milestone rather than waiting for the sign-in rebuild in the last one. The owner has not yet confirmed this.
 - **New strings in other languages.** This spec assumes new interface text is written in English, Simplified Chinese and Japanese only. The owner has not been asked directly.
 - **Self-hosted sync server.** Setting one up is the owner's task and is outside the app. The Fork only needs to point at it.
 
