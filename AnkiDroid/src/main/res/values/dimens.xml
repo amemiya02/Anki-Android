@@ -26,6 +26,6 @@
 
     <dimen name="reviewer_side_margin">8dp</dimen>
     <dimen name="answer_button_margin_horizontal">3dp</dimen>
-    <dimen name="answer_button_corner_radius">12dp</dimen>
+    <dimen name="answer_button_corner_radius">@dimen/foundation_shape_button</dimen>
     <dimen name="reviewer_mark_flag">16dp</dimen>
 </resources>

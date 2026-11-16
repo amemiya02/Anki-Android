@@ -34,6 +34,31 @@ data class Dimensions(
 )
 
 /**
+ * The spacing scale taken from the [Foundation]: each `spaceNNN` step is a step of the Foundation's
+ * scale, and [Dimensions.screenEdge] is its screen margin. [Dimensions.space25] and
+ * [Dimensions.space800] sit outside the scale: half its first step and twice its last.
+ */
+internal fun Foundation.toDimensions(): Dimensions {
+    val (s4, s8, s12, s16, _, s24, s32) = spacing.scale
+    return Dimensions(
+        space25 = s4 / 2,
+        space50 = s4,
+        space100 = s8,
+        space150 = s12,
+        space200 = s16,
+        space300 = s24,
+        space400 = s32,
+        space800 = s32 * 2,
+        screenEdge = spacing.screenMargin,
+        sectionGap = s16,
+    )
+}
+
+private operator fun <T> List<T>.component6() = this[5]
+
+private operator fun <T> List<T>.component7() = this[6]
+
+/**
  * Provides the active [Dimensions] down the Compose tree. Prefer reading via
  * [MaterialTheme.dimensions]; use this directly only to override tokens in a
  * `CompositionLocalProvider` (previews, tests).

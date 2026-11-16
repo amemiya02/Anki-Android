@@ -48,5 +48,6 @@
         <attr name="easyBackgroundColor" />
         <attr name="easyTextColor" />
         <attr name="studyScreenElevation" />
+        <attr name="foundationOnPrimary" />
     </declare-styleable>
 </resources>

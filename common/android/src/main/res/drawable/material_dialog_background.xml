@@ -22,9 +22,9 @@
     android:insetBottom="16dp">
 
     <shape android:shape="rectangle">
-        <corners android:radius="@dimen/m3_alert_dialog_corner_size"/>
+        <corners android:radius="@dimen/foundation_shape_button"/>
         <solid android:color="?attr/colorSurfaceContainerHigh"/>
-        <!-- Same stroke as frame_dialog_eink, so the fill follows its corners instead of overflowing them -->
+        <!-- A hairline bounds the dialog: surfaces are flat, so it is the same colour as the page -->
         <stroke android:width="?attr/widgetStrokeWidth" android:color="?attr/widgetStrokeColor"/>
     </shape>
 

@@ -24,7 +24,8 @@ import com.ichi2.anki.common.android.R
 
 /**
  * Wraps [content] in a Material3 [MaterialTheme] populated from the currently
- * applied AnkiDroid XML theme (light, plain, dark or black).
+ * applied AnkiDroid XML theme (Light, Dark or Black), and provides the [Foundation]
+ * as [MaterialTheme.foundation].
  *
  * Color attributes are read from the host Activity's theme via the
  * [R.styleable.ComposeTheme] styleable, so a theme change in app settings
@@ -38,15 +39,17 @@ import com.ichi2.anki.common.android.R
 @Composable
 fun AnkiDroidTheme(content: @Composable () -> Unit) {
     val context = LocalContext.current
+    val foundation = remember(context) { context.toFoundation() }
     val colorScheme = remember(context) { context.toMaterial3ColorScheme() }
     val ankiColors = remember(context, colorScheme) { context.toAnkiDroidColors(colorScheme) }
     val ankiDimensions = remember(context) { context.toAnkiDroidDimensions() }
     CompositionLocalProvider(
-        LocalDimensions provides Dimensions(),
+        LocalFoundation provides foundation,
+        LocalDimensions provides foundation.toDimensions(),
         LocalAnkiDroidDimensions provides ankiDimensions,
         LocalAnkiDroidColors provides ankiColors,
     ) {
-        MaterialTheme(colorScheme = colorScheme, content = content)
+        MaterialTheme(colorScheme = colorScheme, shapes = foundation.toMaterialShapes(), content = content)
     }
 }
 
@@ -63,7 +66,7 @@ internal fun Context.toAnkiDroidColors(scheme: ColorScheme): AnkiDroidColors {
         colors =
             AnkiDroidColors(
                 fabContainer = color(R.styleable.ComposeTheme_fabNormalColor, defaults.fabContainer),
-                onFab = scheme.onPrimary,
+                onFab = color(R.styleable.ComposeTheme_foundationOnPrimary, scheme.onPrimary),
                 showAnswerButton = color(R.styleable.ComposeTheme_showAnswerButtonBackground, defaults.showAnswerButton),
                 againButton = color(R.styleable.ComposeTheme_againBackgroundColor, defaults.againButton),
                 onAgainButton = color(R.styleable.ComposeTheme_againTextColor, defaults.onAgainButton),
@@ -146,6 +149,8 @@ internal fun Context.toMaterial3ColorScheme(): ColorScheme {
                 surfaceBright = color(R.styleable.ComposeTheme_colorSurfaceBright, base.surfaceBright),
                 background = color(R.styleable.ComposeTheme_android_colorBackground, base.background),
                 onBackground = color(R.styleable.ComposeTheme_colorOnBackground, base.onBackground),
+                // Surfaces are flat: elevation never tints them
+                surfaceTint = surface,
             )
     }
     return scheme

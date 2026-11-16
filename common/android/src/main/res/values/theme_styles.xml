@@ -51,7 +51,7 @@
     </style>
 
     <style name="ThemeOverlay.AnkiDroid.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
-        <item name="dialogCornerRadius">@dimen/m3_alert_dialog_corner_size</item>
+        <item name="dialogCornerRadius">@dimen/foundation_shape_button</item>
         <item name="materialAlertDialogBodyTextStyle">@style/AnkiDroid.AlertDialog.Body.Text</item>
         <item name="android:windowBackground">@drawable/material_dialog_background</item>
     </style>
@@ -75,5 +75,51 @@
 
     <style name="ThemeOverlay.App.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
         <item name="android:navigationBarColor" tools:ignore="NewApi">@android:color/transparent</item>
+    </style>
+
+    <!-- Foundation shapes: small corners, hairlines and no shadow, except on the add button -->
+    <style name="ShapeAppearance.Foundation.CardSheet" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/foundation_shape_card_sheet</item>
+    </style>
+
+    <style name="ShapeAppearance.Foundation.Button" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/foundation_shape_button</item>
+    </style>
+
+    <style name="ShapeAppearance.Foundation.AddButton" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/foundation_shape_add_button</item>
+    </style>
+
+    <style name="Widget.Foundation.Button" parent="Widget.Material3.Button">
+        <item name="shapeAppearance">@style/ShapeAppearance.Foundation.Button</item>
+        <item name="elevation">@dimen/foundation_elevation_flat</item>
+    </style>
+
+    <style name="Widget.Foundation.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="shapeAppearance">@style/ShapeAppearance.Foundation.Button</item>
+        <item name="strokeColor">?attr/foundationOutline</item>
+        <item name="strokeWidth">@dimen/foundation_shape_hairline</item>
+    </style>
+
+    <!-- Cards are hairline-bounded paper, not tonal surfaces -->
+    <style name="Widget.Foundation.Card" parent="Widget.Material3.CardView.Outlined">
+        <item name="shapeAppearance">@style/ShapeAppearance.Foundation.CardSheet</item>
+        <item name="strokeWidth">@dimen/foundation_shape_hairline</item>
+        <item name="strokeColor">?attr/foundationOutline</item>
+        <item name="cardBackgroundColor">?attr/foundationBackground</item>
+        <item name="cardElevation">@dimen/foundation_elevation_flat</item>
+    </style>
+
+    <!-- The add button: the only surface with a shadow -->
+    <style name="Widget.Foundation.AddButton" parent="Widget.Material3.FloatingActionButton.Primary">
+        <item name="shapeAppearance">@style/ShapeAppearance.Foundation.AddButton</item>
+        <item name="backgroundTint">?attr/foundationPrimary</item>
+        <item name="tint">?attr/foundationOnPrimary</item>
+        <item name="elevation">@dimen/foundation_elevation_add_button</item>
+        <item name="android:outlineSpotShadowColor" tools:targetApi="p">?attr/foundationPrimary</item>
+        <item name="android:outlineAmbientShadowColor" tools:targetApi="p">?attr/foundationPrimary</item>
     </style>
 </resources>

@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.withStyledAttributes
 import com.ichi2.anki.common.android.R
 
-/** The XML theme's widget outline; e-ink uses it to distinguish white surfaces. */
+/** The XML theme's widget outline: the Foundation's hairline, which bounds surfaces instead of a fill or a shadow. */
 val MaterialTheme.widgetBorder: BorderStroke?
     @Composable
     get() {

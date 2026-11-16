@@ -15,8 +15,8 @@ import androidx.compose.ui.graphics.Color
 /**
  * App specific colors that have no Material3 slot.
  *
- * FABs keep the accent the View screens use (the `fabNormalColor` theme attr)
- * instead of Material3's paler primaryContainer.
+ * FABs are the add button: the Foundation's primary colour (the `fabNormalColor` theme attr)
+ * with its on-primary colour, as on the View screens.
  */
 @Immutable
 data class AnkiDroidColors(

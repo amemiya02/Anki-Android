@@ -5,10 +5,8 @@ package com.ichi2.compose.theme
 
 import android.content.Context
 import android.view.ContextThemeWrapper
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.toArgb
-import androidx.core.content.ContextCompat
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import com.ichi2.anki.common.android.R
 import com.ichi2.anki.settings.enums.DayTheme
@@ -21,13 +19,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
 /**
- * Verifies that the three AnkiDroid XML themes (light, dark, black) are
+ * Verifies that the three AnkiDroid XML themes (Light, Dark and Black) are
  * correctly bridged into a Material3 [androidx.compose.material3.ColorScheme]
  * by [toMaterial3ColorScheme].
  *
- * The colors expected here are pinned to the values declared in the matching
- * theme XML under res/values/theme_*.xml. If a theme's primary color is
- * intentionally changed, the matching assertion here should be updated.
+ * The colours expected here are the Foundation's (docs/redesign/quiet-paper.values.json);
+ * FoundationTest checks every role against that file.
  */
 @RunWith(RobolectricTestRunner::class)
 class ThemeTest {
@@ -53,17 +50,26 @@ class ThemeTest {
     }
 
     @Test
-    fun `light theme bridges colorPrimary to scheme primary`() {
+    fun `light theme bridges the emphasis colour to scheme primary`() {
         val scheme = themed(R.style.Theme_Light).toMaterial3ColorScheme()
-        val expected = ContextCompat.getColor(appContext, R.color.material_light_blue_500)
-        assertEquals(expected, scheme.primary.toArgb())
+        assertEquals(0xFFA63D25.toInt(), scheme.primary.toArgb())
+        assertEquals(0xFFFFF9F2.toInt(), scheme.onPrimary.toArgb())
     }
 
     @Test
-    fun `dark theme bridges colorPrimary to scheme primary`() {
+    fun `dark theme bridges the emphasis colour to scheme primary, with ink on it`() {
         val scheme = themed(R.style.Theme_Dark).toMaterial3ColorScheme()
-        val expected = ContextCompat.getColor(appContext, R.color.material_blue_400)
-        assertEquals(expected, scheme.primary.toArgb())
+        assertEquals(0xFFE67A5C.toInt(), scheme.primary.toArgb())
+        assertEquals(0xFF1C1A17.toInt(), scheme.onPrimary.toArgb())
+    }
+
+    @Test
+    fun `surfaces are the paper background`() {
+        val scheme = themed(R.style.Theme_Light).toMaterial3ColorScheme()
+        assertEquals(0xFFF5F0E6.toInt(), scheme.background.toArgb())
+        assertEquals(0xFFF5F0E6.toInt(), scheme.surface.toArgb())
+        assertEquals(0xFFF5F0E6.toInt(), scheme.surfaceContainerHigh.toArgb())
+        assertEquals(0xFF211E19.toInt(), scheme.onSurface.toArgb())
     }
 
     @Test
@@ -75,65 +81,55 @@ class ThemeTest {
             black.surface.toArgb(),
             "Black theme should be visually distinct from Dark theme on surface color",
         )
+        assertEquals(0xFF000000.toInt(), black.surface.toArgb())
     }
 
     @Test
-    fun `light theme uses lightColorScheme as base for unspecified slots`() {
-        val scheme = themed(R.style.Theme_Light).toMaterial3ColorScheme()
-        val lightDefaults = lightColorScheme()
-        // surfaceTint is not overridden by Theme_Light, so it should come from the base
-        assertEquals(lightDefaults.surfaceTint.toArgb(), scheme.surfaceTint.toArgb())
-    }
-
-    @Test
-    fun `dark theme uses darkColorScheme as base for unspecified slots`() {
-        val scheme = themed(R.style.Theme_Dark).toMaterial3ColorScheme()
-        val darkDefaults = darkColorScheme()
-        // surfaceTint is not overridden by Theme_Dark, so it should come from the base
-        assertEquals(darkDefaults.surfaceTint.toArgb(), scheme.surfaceTint.toArgb())
+    fun `elevation does not tint surfaces`() {
+        for (theme in DayTheme.entries + NightTheme.entries) {
+            val scheme = themed(theme.styleResId).toMaterial3ColorScheme()
+            assertEquals(scheme.surface, scheme.surfaceTint, theme.name)
+        }
     }
 
     @Test
     fun `dark theme bridges the inverse colors used by snackbars`() {
         val scheme = themed(R.style.Theme_Dark).toMaterial3ColorScheme()
-        assertEquals(0xFFCFCFCF.toInt(), scheme.inverseSurface.toArgb())
-        assertEquals(ContextCompat.getColor(appContext, R.color.material_theme_grey), scheme.inverseOnSurface.toArgb())
-        assertEquals(ContextCompat.getColor(appContext, R.color.material_light_blue_900), scheme.inversePrimary.toArgb())
+        assertEquals(0xFFECE5D8.toInt(), scheme.inverseSurface.toArgb())
+        assertEquals(0xFF1C1A17.toInt(), scheme.inverseOnSurface.toArgb())
+        assertEquals(0xFFA63D25.toInt(), scheme.inversePrimary.toArgb())
     }
 
     @Test
-    fun `light theme bridges fabNormalColor to the fab container color`() {
+    fun `the add button is the primary colour in every theme`() {
+        val expected =
+            mapOf(
+                R.style.Theme_Light to (0xFFA63D25.toInt() to 0xFFFFF9F2.toInt()),
+                R.style.Theme_Dark to (0xFFC0492A.toInt() to 0xFFFFF7EF.toInt()),
+                R.style.Theme_Dark_Black to (0xFFC0492A.toInt() to 0xFFFFF7EF.toInt()),
+            )
+        for ((style, colors) in expected) {
+            val context = themed(style)
+            val ankiColors = context.toAnkiDroidColors(context.toMaterial3ColorScheme())
+            assertEquals(colors.first, ankiColors.fabContainer.toArgb())
+            assertEquals(colors.second, ankiColors.onFab.toArgb())
+        }
+    }
+
+    @Test
+    fun `answer buttons are paper labelled in their answer colour`() {
         val context = themed(R.style.Theme_Light)
         val colors = context.toAnkiDroidColors(context.toMaterial3ColorScheme())
-        val expected = ContextCompat.getColor(appContext, R.color.material_light_blue_700)
-        assertEquals(expected, colors.fabContainer.toArgb())
+        assertEquals(0xFFF5F0E6.toInt(), colors.goodButton.toArgb())
+        assertEquals(0xFF3E5B34.toInt(), colors.onGoodButton.toArgb())
+        assertEquals(0xFFA63D25.toInt(), colors.onAgainButton.toArgb())
+        assertEquals(0xFFA63D25.toInt(), colors.showAnswerButton.toArgb())
     }
 
     @Test
-    fun `black theme bridges its own fabNormalColor to the fab container color`() {
-        val context = themed(R.style.Theme_Dark_Black)
-        val colors = context.toAnkiDroidColors(context.toMaterial3ColorScheme())
-        assertEquals(0xFF303030.toInt(), colors.fabContainer.toArgb())
-    }
-
-    @Test
-    fun `fab content color follows the theme onPrimary`() {
-        val context = themed(R.style.Theme_Light)
-        val scheme = context.toMaterial3ColorScheme()
-        assertEquals(scheme.onPrimary.toArgb(), context.toAnkiDroidColors(scheme).onFab.toArgb())
-    }
-
-    @Test
-    fun `light theme bridges the answer button colors`() {
-        val context = themed(R.style.Theme_Light)
-        val colors = context.toAnkiDroidColors(context.toMaterial3ColorScheme())
-        assertEquals(0xFFC8E6C9.toInt(), colors.goodButton.toArgb())
-        assertEquals(ContextCompat.getColor(appContext, R.color.material_green_900), colors.onGoodButton.toArgb())
-        assertEquals(ContextCompat.getColor(appContext, R.color.material_blue_700), colors.showAnswerButton.toArgb())
-    }
-
-    @Test
-    fun `study screen elevation follows the theme`() {
-        assertEquals(0.8f, themed(R.style.Theme_Light).toAnkiDroidDimensions().studyScreenElevation.value, absoluteTolerance = 0.001f)
+    fun `the study screen is flat`() {
+        for (theme in DayTheme.entries + NightTheme.entries) {
+            assertEquals(0.dp, themed(theme.styleResId).toAnkiDroidDimensions().studyScreenElevation, theme.name)
+        }
     }
 }

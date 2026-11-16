@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!--
+  The Foundation: the app-wide base of the chosen Direction (Quiet paper) that every Native Surface
+  inherits. Every value here is copied from docs/redesign/quiet-paper.values.json, the single source;
+  FoundationTest fails if one drifts from it.
+
+  XML reads the colour roles as theme attributes (?attr/foundationPrimary); each theme in
+  theme_light.xml, theme_dark.xml and theme_black.xml points them at the colours below, and maps
+  the Material 3 colour roles onto them. Compose reads the same attributes through AnkiDroidTheme
+  (MaterialTheme.foundation). Shapes and spacing are plain dimensions read by both.
+-->
+<resources>
+    <!-- Colour roles, as theme attributes -->
+    <attr name="foundationBackground" format="color" />
+    <attr name="foundationOnBackground" format="color" />
+    <attr name="foundationOnBackgroundMuted" format="color" />
+    <attr name="foundationOutline" format="color" />
+    <attr name="foundationPrimary" format="color" />
+    <attr name="foundationOnPrimary" format="color" />
+    <attr name="foundationEmphasis" format="color" />
+    <attr name="foundationCountNew" format="color" />
+    <attr name="foundationCountLearning" format="color" />
+    <attr name="foundationCountDue" format="color" />
+    <attr name="foundationAnswerAgain" format="color" />
+    <attr name="foundationAnswerHard" format="color" />
+    <attr name="foundationAnswerGood" format="color" />
+    <attr name="foundationAnswerEasy" format="color" />
+    <attr name="foundationProgressTrack" format="color" />
+    <attr name="foundationProgressFill" format="color" />
+
+    <!-- How Compose reads the colour roles (Foundation.kt) -->
+    <declare-styleable name="Foundation">
+        <attr name="foundationBackground" />
+        <attr name="foundationOnBackground" />
+        <attr name="foundationOnBackgroundMuted" />
+        <attr name="foundationOutline" />
+        <attr name="foundationPrimary" />
+        <attr name="foundationOnPrimary" />
+        <attr name="foundationEmphasis" />
+        <attr name="foundationCountNew" />
+        <attr name="foundationCountLearning" />
+        <attr name="foundationCountDue" />
+        <attr name="foundationAnswerAgain" />
+        <attr name="foundationAnswerHard" />
+        <attr name="foundationAnswerGood" />
+        <attr name="foundationAnswerEasy" />
+        <attr name="foundationProgressTrack" />
+        <attr name="foundationProgressFill" />
+    </declare-styleable>
+
+    <!-- Light -->
+    <color name="foundation_light_background">#F5F0E6</color>
+    <color name="foundation_light_on_background">#211E19</color>
+    <color name="foundation_light_on_background_muted">#675F53</color>
+    <color name="foundation_light_outline">#D8CFBE</color>
+    <color name="foundation_light_primary">#A63D25</color>
+    <color name="foundation_light_on_primary">#FFF9F2</color>
+    <color name="foundation_light_emphasis">#A63D25</color>
+    <color name="foundation_light_count_new">#2F4A6B</color>
+    <color name="foundation_light_count_learning">#A63D25</color>
+    <color name="foundation_light_count_due">#3E5B34</color>
+    <color name="foundation_light_answer_again">#A63D25</color>
+    <color name="foundation_light_answer_hard">#8A5E10</color>
+    <color name="foundation_light_answer_good">#3E5B34</color>
+    <color name="foundation_light_answer_easy">#2F4A6B</color>
+    <color name="foundation_light_progress_track">#DDD4C3</color>
+    <color name="foundation_light_progress_fill">#211E19</color>
+
+    <!-- Dark -->
+    <color name="foundation_dark_background">#1C1A17</color>
+    <color name="foundation_dark_on_background">#ECE5D8</color>
+    <color name="foundation_dark_on_background_muted">#A9A090</color>
+    <color name="foundation_dark_outline">#3B362E</color>
+    <color name="foundation_dark_primary">#C0492A</color>
+    <color name="foundation_dark_on_primary">#FFF7EF</color>
+    <color name="foundation_dark_emphasis">#E67A5C</color>
+    <color name="foundation_dark_count_new">#93B4DC</color>
+    <color name="foundation_dark_count_learning">#EE8E72</color>
+    <color name="foundation_dark_count_due">#A3C592</color>
+    <color name="foundation_dark_answer_again">#E0694B</color>
+    <color name="foundation_dark_answer_hard">#D6A24A</color>
+    <color name="foundation_dark_answer_good">#8FB57F</color>
+    <color name="foundation_dark_answer_easy">#86A8D4</color>
+    <color name="foundation_dark_progress_track">#3B362E</color>
+    <color name="foundation_dark_progress_fill">#ECE5D8</color>
+
+    <!-- Black: Dark on true black. Only the background, outline and progress track differ. -->
+    <color name="foundation_black_background">#000000</color>
+    <color name="foundation_black_outline">#2E2A24</color>
+    <color name="foundation_black_progress_track">#2E2A24</color>
+
+    <!-- Shape: corner radii and rule widths. The icon button's corner is full (a circle). -->
+    <dimen name="foundation_shape_card_sheet">4dp</dimen>
+    <dimen name="foundation_shape_button">6dp</dimen>
+    <dimen name="foundation_shape_add_button">16dp</dimen>
+    <dimen name="foundation_shape_hairline">1dp</dimen>
+    <dimen name="foundation_shape_current_tab_rule">2dp</dimen>
+    <dimen name="foundation_shape_answer_rule">3dp</dimen>
+
+    <!-- Spacing: the scale, then named sizes -->
+    <dimen name="foundation_space_4">4dp</dimen>
+    <dimen name="foundation_space_8">8dp</dimen>
+    <dimen name="foundation_space_12">12dp</dimen>
+    <dimen name="foundation_space_16">16dp</dimen>
+    <dimen name="foundation_space_20">20dp</dimen>
+    <dimen name="foundation_space_24">24dp</dimen>
+    <dimen name="foundation_space_32">32dp</dimen>
+    <dimen name="foundation_spacing_screen_margin">20dp</dimen>
+    <dimen name="foundation_spacing_study_margin">16dp</dimen>
+    <dimen name="foundation_spacing_touch_target">48dp</dimen>
+    <dimen name="foundation_spacing_deck_row">58dp</dimen>
+    <dimen name="foundation_spacing_deck_row_nested">48dp</dimen>
+    <dimen name="foundation_spacing_count_column">46dp</dimen>
+    <dimen name="foundation_spacing_primary_button">56dp</dimen>
+    <dimen name="foundation_spacing_answer_button">66dp</dimen>
+    <dimen name="foundation_spacing_add_button">56dp</dimen>
+    <dimen name="foundation_spacing_bottom_bar">78dp</dimen>
+    <dimen name="foundation_spacing_list_row">64dp</dimen>
+    <dimen name="foundation_spacing_secondary_button">52dp</dimen>
+    <dimen name="foundation_spacing_page_mark">56dp</dimen>
+    <dimen name="foundation_spacing_empty_mark">96dp</dimen>
+
+    <!--
+      Elevation: surfaces are flat and separated by hairlines. Nothing casts a shadow except the
+      add button, whose shadow is the primary colour at 55% opacity.
+    -->
+    <dimen name="foundation_elevation_flat">0dp</dimen>
+    <dimen name="foundation_elevation_add_button">8dp</dimen>
+    <item name="foundation_elevation_add_button_shadow_alpha" format="float" type="dimen">0.55</item>
+</resources>
