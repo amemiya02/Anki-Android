@@ -31,7 +31,7 @@
         android:paddingStart="@dimen/side_margin"
         android:paddingEnd="@dimen/side_margin"
         android:paddingTop="16dp"
-        android:textSize="@dimen/content_textsize"
+        android:textAppearance="@style/TextAppearance.Foundation.Body"
         tools:text="Dialog Message"/>
 
     <!--Dialog ListItem-->
