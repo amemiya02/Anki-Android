@@ -4,14 +4,14 @@
 
 **Blocked by:** 01 (Give the Fork its own identity); 02 (Switch off crash reports and usage statistics); 03 (Drop AnkiWeb sign-in and sync); 08 (Foundation: bundled typefaces and the type scale); 09 (Apply the Fork's name and launcher icon); 10 (Sweep hard-coded colours and text sizes out of layouts); 11 (Move interface icons to one Material Symbols style); 12 (Sweep hard-coded colours out of illustrations and graphics)
 
-**Status:** ready-for-human
+**Status:** done
 
 - [x] The Fork is installed on the emulator beside the Official App, with a copy of a collection brought in by import.
 - [x] The "before" walk (deck list, drawer, both study screens, finished screen, a dialog, one Anki Page) is repeated and captured in English and Simplified Chinese, in all three themes. Both study screens still exist at this point.
 - [x] No capture shows two looks at once. (Owner, 2026-11-17: the Anki Pages keep Upstream's web look until tickets 16 and 48; the Native Surfaces show one look after the device-walk fixes.)
 - [x] Baseline pictures for the rendered-screen tests are regenerated and pass. (Reworded with the owner, 2026-11-17: the repo does not keep baselines in git; they are generated under `AnkiDroid/build/`.)
 - [x] The owner has signed off the Milestone (2026-11-17).
-- [ ] Round trip with the Official App: a collection and a Deck exported from the Fork import into the current release of the Official App with Cards, scheduling, review history and media intact, and the same works in the other direction.
+- [x] Round trip with the Official App: a collection and a Deck exported from the Fork import into the current release of the Official App with Cards, scheduling, review history and media intact, and the same works in the other direction.
 
 ## Comments
 
@@ -37,7 +37,7 @@ Device part done on `ticket/13` (Pixel 9 emulator, Android 16, debug build `com.
 **Awaiting the owner**
 
 - Look at the two overview sheets and decide on the problems above, then sign off.
-- Round trip with the Official App: the Official App was not installed, so this was not done.
+- Round trip with the Official App: done on 2026-11-17, see "Round trip with the Official App" below.
 
 **Fixes after the walk** (branch `fix/m1-device`, one commit each, each with a regression test that failed first):
 
@@ -46,3 +46,22 @@ Device part done on `ticket/13` (Pixel 9 emulator, Android 16, debug build `com.
 - Drawer header: the header was deliberately not inset, so Upstream's banner drew under the status bar; Hayaki's mark then sat under the clock. The header now adds the status bar's height to its top padding. Test: `NavigationDrawerInsetsTest`.
 - Checked with the harness in Light, Dark and Black (`ReviewerScreenshotTest` question and answer, `NavigationDrawerScreenshotTest`, `IntroductionScreenshotTest`). The harness does not draw the system's status bar icons, so the status bar fix rests on the test above and still wants a look on a device.
 - The unexplained network traffic is investigated under ticket 02's Comments.
+
+**Round trip with the Official App** (2026-11-17, branch `ticket/13-roundtrip`, Pixel 9 emulator, Android 16)
+
+- Official App: AnkiDroid **2.25.3** (`com.ichi2.anki`, versionCode 322503300), the latest stable release on GitHub, `AnkiDroid-2.25.3-arm64-v8a.apk`, signed by AnkiDroid's long-standing certificate (CN=Nicolas Raoul, SHA-256 `2071534f…5b21a45`). Engine 26.05 (backend 0.1.68). Installed beside the Fork's debug build (`com.ichi2.anki.redesign.debug`, 2.26.0alpha14, Engine 26.09.4). No account was signed in to in either app.
+- **The export option for older versions was not needed.** Both apps' Engines write and read collection schema 18; every package below was exported with "Support older Anki versions" off and imported without complaint.
+- Media: an image was added to the Note 熟悉 (中文::HSK 4) through the Fork's note editor (Gallery), and another to the Note ephemeral (English::GRE Words) through the Official App's note editor.
+- **Fork → Official App.** In the Fork, three Cards of 中文::HSK 4 were studied (Easy, Good, Again). The Fork exported the whole collection (`.colpkg`, media on) and the Deck 中文 (`.apkg`, scheduling, deck presets and media on). The Official App, starting from an empty collection, imported the `.apkg` first ("8 new notes imported", learning progress and presets switched on in its import options), then the `.colpkg` ("Replace").
+  - Deck counts (new, learning, due) match for every Deck: Anatomy 0 0 0, English 7 0 0, 中文 5 2 0, 日本語 12 3 0, N3 語彙 6 3 0, 文法 6 0 0; 29 cards due.
+  - Card info of 熟悉 matches field by field: due 2026-11-21, interval 4 days, ease 250%, position 17, one review on 2026-11-17 rated 4, 32.97 s.
+  - The image shows on the Card in the Official App, and its file (10,666 bytes) is in the Official App's media folder.
+  - After the `.colpkg` import the Official App's database, read off the device, is identical to the one in the Fork's package: 36 Notes, 36 Cards, 12 review log entries, every Card's deck, type, queue, due, interval, ease, reps and lapses, and every Note's fields and tags.
+  - Only difference: after the Deck import, Card info names the Note Type "Basic+", because the Official App's fresh collection already had its own "Basic". This is the Engine's usual renaming on a name clash, not a loss; the `.colpkg` import keeps "Basic".
+- **Official App → Fork.** In the Official App, three Cards of English::GRE Words were studied (Easy, Hard, Good) and ephemeral was edited (image added). The Official App exported the collection (`.colpkg`, media on) and the Deck English (`.apkg`, scheduling, deck presets and media on). In the Fork the English Deck was deleted first, so the Deck import adds rather than skips Notes that already exist; then the `.apkg` was imported ("7 new notes imported", learning progress and presets on), then the `.colpkg` ("Replace").
+  - Deck counts match after each import: English 4 2 0 and the rest as above; 28 cards due.
+  - Card info of ephemeral matches: due 2026-11-21, interval 4 days, ease 250%, position 25, one review rated 4, 30.99 s.
+  - The image shows on the Card in the Fork, and both images are in the Fork's media folder.
+  - The Fork's collection after the `.colpkg` import, exported again and compared, is identical to the Official App's export (36 Notes, 36 Cards, 15 review log entries, all scheduling fields), and its media list holds both images.
+- Pictures: `docs/redesign/milestone-1/round-trip/` (`fork-to-official-*.png`, `official-to-fork-*.png`: deck list, Card info, media; `export-and-import.png`: the export dialogs and import results).
+- Not covered: audio media (only images were tried), and the spec's note that the export screen should say that a collection import replaces while a Deck import merges (the Fork's export screen is still Upstream's and does not say it yet; that is ticket 18).
