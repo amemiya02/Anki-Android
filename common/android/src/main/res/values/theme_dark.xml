@@ -116,6 +116,23 @@
         <item name="android:textAppearanceListItem">@style/TextAppearance.Foundation.Lead</item>
         <item name="android:textAppearanceListItemSmall">@style/TextAppearance.Foundation.Body</item>
         <item name="android:textAppearanceListItemSecondary">@style/TextAppearance.Foundation.Caption</item>
+        <!-- Older type slots that AppCompat and Material 2 widgets still read -->
+        <item name="textAppearanceHeadline1">@style/TextAppearance.Foundation.ScreenTitle</item>
+        <item name="textAppearanceHeadline2">@style/TextAppearance.Foundation.ScreenTitle</item>
+        <item name="textAppearanceHeadline3">@style/TextAppearance.Foundation.ScreenTitle</item>
+        <item name="textAppearanceHeadline4">@style/TextAppearance.Foundation.PageTitle</item>
+        <item name="textAppearanceHeadline5">@style/TextAppearance.Foundation.DeckName</item>
+        <item name="textAppearanceHeadline6">@style/TextAppearance.Foundation.DeckName</item>
+        <item name="textAppearanceSubtitle1">@style/TextAppearance.Foundation.RowTitle</item>
+        <item name="textAppearanceSubtitle2">@style/TextAppearance.Foundation.RowTitle</item>
+        <item name="textAppearanceBody1">@style/TextAppearance.Foundation.Lead</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.Foundation.Body</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.Foundation.Caption</item>
+        <item name="textAppearanceButton">@style/TextAppearance.Foundation.Button</item>
+        <item name="textAppearanceOverline">@style/TextAppearance.Foundation.Label</item>
+        <item name="textAppearanceListItem">@style/TextAppearance.Foundation.Lead</item>
+        <item name="textAppearanceListItemSmall">@style/TextAppearance.Foundation.Body</item>
+        <item name="textAppearanceListItemSecondary">@style/TextAppearance.Foundation.Caption</item>
 
         <!-- Foundation shapes and elevation -->
         <item name="shapeCornerSizeExtraSmall">@dimen/foundation_shape_card_sheet</item>

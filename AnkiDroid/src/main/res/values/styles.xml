@@ -18,15 +18,12 @@
     <!--  Material Design-style persistent footer button -->
     <style name="FooterButtonBase">
         <item name="android:layout_height">48dp</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:typeface">sans</item>
+        <item name="android:textAppearance">@style/TextAppearance.Foundation.Button</item>
         <item name="android:gravity">center</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:singleLine">true</item>
     </style>
-    <style name="FooterButton" parent="FooterButtonBase">
-        <item name="android:fontFamily">@string/font_fontFamily_medium</item>
-    </style>
+    <style name="FooterButton" parent="FooterButtonBase" />
 
     <style name="FooterButtonNextTime">
         <item name="android:layout_width">match_parent</item>
@@ -35,16 +32,14 @@
         <item name="android:ellipsize">marquee</item>
         <item name="android:gravity">bottom|center_horizontal</item>
         <item name="android:singleLine">true</item>
-        <item name="android:textSize">12sp</item>
+        <!-- an answer time -->
+        <item name="android:textAppearance">@style/TextAppearance.Foundation.Label</item>
     </style>
 
     <style name="FooterButtonEaseTextBase" parent="FooterButtonNextTime">
-        <item name="android:textSize">14sp</item>
-        <item name="android:typeface">sans</item>
+        <item name="android:textAppearance">@style/TextAppearance.Foundation.Answer</item>
     </style>
-    <style name="FooterButtonEaseText" parent="FooterButtonEaseTextBase" >
-        <item name="android:fontFamily">@string/font_fontFamily_medium</item>
-    </style>
+    <style name="FooterButtonEaseText" parent="FooterButtonEaseTextBase" />
 
     <!-- Styles for each of the 4 answer buttons -->
     <style name="AgainButton">
@@ -117,7 +112,7 @@
         <item name="android:layout_height">44dp</item>
         <item name="android:padding">2dp</item>
         <item name="android:background">?android:attr/selectableItemBackground</item>
-        <item name="android:tint">@color/black</item>
+        <item name="android:tint">?attr/colorOnSurface</item>
     </style>
 
     <style name="reviewer_whiteboard_editor_button_style">
@@ -209,7 +204,7 @@
         <item name="android:paddingEnd">0dp</item>
         <item name="android:insetTop">8dp</item>
         <item name="android:insetBottom">8dp</item>
-        <item name="android:textSize">13sp</item>
+        <item name="android:textAppearance">@style/TextAppearance.Foundation.Caption</item>
         <item name="android:textStyle">bold</item>
         <!-- tabular numerals ensures correct centering -->
         <item name="android:fontFeatureSettings">"tnum"</item>
