@@ -28,7 +28,6 @@ import com.ichi2.anki.databinding.ItemHelpEntryBinding
 import com.ichi2.anki.dialogs.help.HelpItem.Action.OpenUrl
 import com.ichi2.anki.dialogs.help.HelpItem.Action.OpenUrlResource
 import com.ichi2.anki.dialogs.help.HelpItem.Action.Rate
-import com.ichi2.anki.dialogs.help.HelpItem.Action.SendReport
 import com.ichi2.anki.utils.ext.setCompoundDrawablesRelativeWithIntrinsicBoundsKt
 import com.ichi2.utils.createAndApply
 import com.ichi2.utils.customView
@@ -90,7 +89,6 @@ class HelpDialog : AnalyticsDialogFragment() {
             is OpenUrl -> actionsDispatcher.onOpenUrl(selectedItem.action.url)
             is OpenUrlResource -> actionsDispatcher.onOpenUrlResource(selectedItem.action.urlResourceId)
             Rate -> actionsDispatcher.onRate()
-            SendReport -> actionsDispatcher.onSendReport()
             null -> {
                 // there's no action so check if the selected item has children to show
                 val children = childHelpMenuItems.filter { it.parentId == selectedItem.id }
@@ -332,14 +330,6 @@ internal val childHelpMenuItems =
             id = 201,
             parentId = 2,
             action = OpenUrl(AnkiDroidApp.feedbackUrl),
-        ),
-        HelpItem(
-            titleResId = CommonString.help_title_send_exception,
-            iconResId = R.drawable.ic_round_assignment_24,
-            analyticsId = LinkAction.EXCEPTION_REPORT,
-            id = 202,
-            parentId = 2,
-            action = SendReport,
         ),
         HelpItem(
             titleResId = CommonString.help_item_anki_forums,

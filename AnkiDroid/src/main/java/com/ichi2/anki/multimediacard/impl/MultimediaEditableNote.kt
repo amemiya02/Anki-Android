@@ -17,7 +17,10 @@ import com.ichi2.anki.utils.ext.readSerializableList
 import com.ichi2.anki.utils.ext.writeSerializableList
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
-import org.acra.util.IOUtils
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 
 /**
  * Implementation of the editable note.
@@ -113,7 +116,11 @@ class MultimediaEditableNote() :
 
     override fun getInitialField(index: Int): IField? = cloneField(initialFields!![index])
 
-    private fun cloneField(f: IField?): IField? = IOUtils.deserialize(IField::class.java, IOUtils.serialize(f!!))
+    /** A deep copy of [f], made by serializing and deserializing it. */
+    private fun cloneField(f: IField?): IField? {
+        val bytes = ByteArrayOutputStream().also { out -> ObjectOutputStream(out).use { it.writeObject(f!!) } }.toByteArray()
+        return ObjectInputStream(ByteArrayInputStream(bytes)).use { it.readObject() as IField }
+    }
 
     val isEmpty: Boolean
         get() = fields.isNullOrEmpty()

@@ -90,6 +90,17 @@ class HelpDialogTest {
     }
 
     @Test
+    fun `Get help offers no way to send a crash report`() {
+        val getHelpParentId = mainHelpMenuItems.single { it.titleResId == CommonString.help_title_get_help }.id
+        val getHelpItems = childHelpMenuItems.filter { it.parentId == getHelpParentId }.map { it.titleResId }
+
+        assertEquals(
+            listOf(CommonString.help_item_mailing_list, CommonString.help_item_report_bug),
+            getHelpItems,
+        )
+    }
+
+    @Test
     fun `Menu items IDs are consistent`() {
         // support menu items have unique ids
         assertEquals(
@@ -202,11 +213,6 @@ class HelpDialogTest {
             // the feedback url is being shown
             onView(withText(CommonString.help_item_report_bug)).inRoot(isDialog()).perform(click())
             verify(exactly = 1) { mockActionDispatcher.onOpenUrl(AnkiDroidApp.feedbackUrl) }
-            // a report is sent
-            onView(withText(CommonString.help_title_send_exception))
-                .inRoot(isDialog())
-                .perform(click())
-            verify(exactly = 1) { mockActionDispatcher.onSendReport() }
         }
     }
 

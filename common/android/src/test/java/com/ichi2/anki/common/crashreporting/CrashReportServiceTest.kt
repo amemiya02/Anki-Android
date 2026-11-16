@@ -7,8 +7,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import timber.log.Timber
-import kotlin.test.assertFalse
-import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -44,27 +42,15 @@ class CrashReportServiceTest {
         Timber.uproot(recordingTree)
     }
 
-    /**
-     * Crash reporting is called from error-handling paths, so it must never throw.
-     *
-     * A report can be sent before [CrashReportService.setReporter] is called during
-     * app initialization: `AnkiDroidApp.onCreate` may return early (#5887), and
-     * `ContentProvider`s are created before `Application.onCreate` completes.
-     */
+    /** Crash reporting is called from error-handling paths, so it must never throw. */
     @Test
-    fun `reporting before initialization is logged, not thrown`() {
-        val exception = Exception("reported before setReporter")
+    fun `a report is logged, not sent or thrown`() {
+        val exception = Exception("a caught failure")
 
         CrashReportService.sendExceptionReport(exception, origin = "CrashReportServiceTest")
 
-        // WARN is collected into ACRA reports (LOGCAT report field): no PII
-        val error = logs.single { it.priority == Log.ERROR }
-        assertNull(error.throwable, "ERROR should not contain the throwable: its message may contain PII")
-        assertFalse(error.message.contains(exception.message!!), "ERROR should not contain the exception message")
-        assertTrue(error.message.contains("java.lang.Exception"), "ERROR should contain the exception class")
-
-        // DEBUG is not collected into ACRA reports: full detail for local debugging
-        val debug = logs.single { it.priority == Log.DEBUG }
-        assertSame(debug.throwable, exception, "DEBUG should contain the dropped exception")
+        val warning = logs.single { it.priority == Log.WARN }
+        assertSame(exception, warning.throwable, "the log should hold the exception for local debugging")
+        assertTrue(warning.message.contains("CrashReportServiceTest"), "the log should name the origin")
     }
 }

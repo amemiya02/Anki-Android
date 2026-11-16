@@ -25,7 +25,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ProcessLifecycleOwner
 import anki.collection.OpChanges
 import com.ichi2.anki.analytics.initializeAnalytics
-import com.ichi2.anki.analytics.launchPreviousAnrReporting
 import com.ichi2.anki.browser.IdsFile
 import com.ichi2.anki.browser.SharedPreferencesLastDeckIdRepository
 import com.ichi2.anki.common.android.AdaptionUtil
@@ -69,7 +68,6 @@ import com.ichi2.anki.preferences.SharedPreferencesProvider
 import com.ichi2.anki.recorder.VoiceRecorder
 import com.ichi2.anki.reviewreminders.ReminderLogTree
 import com.ichi2.anki.servicelayer.DebugInfoService
-import com.ichi2.anki.servicelayer.ThrowableFilterService
 import com.ichi2.anki.services.NotificationService
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.PrefsRepository
@@ -149,7 +147,7 @@ open class AnkiDroidApp :
      */
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
-        if (isAcraSenderProcess() || isPhoenixProcess()) return
+        if (isPhoenixProcess()) return
         profileManager = ProfileManager.createOrNull(base)
     }
 
@@ -206,19 +204,11 @@ open class AnkiDroidApp :
             return
         }
 
-        val crashReporting = CrashReportingContext.apply { setupCrashReporting() }
         setupApplicationDependencies()
-        with(crashReporting) {
-            setupLogging()
-            setupUsageAnalytics()
-            launchStartupLogging()
-        }
+        setupLogging()
+        setupUsageAnalytics()
+        launchStartupLogging()
 
-        // Stop after analytics and logging are initialised.
-        if (isAcraSenderProcess()) {
-            Timber.d("Skipping AnkiDroidApp.onCreate from ACRA sender process")
-            return
-        }
         setupMainProcessMaintenance()
         setupContextMenus()
 
@@ -308,7 +298,7 @@ open class AnkiDroidApp :
     /**
      * Sets [isInitialized] to `true` ([instance] != null)
      *
-     * [onCreate] can be called multiple times due to ACRA using a separate sender process
+     * [onCreate] can be called multiple times
      *
      * @return false if `instance.resources` is unusable
      */
@@ -329,12 +319,6 @@ open class AnkiDroidApp :
         }
     }
 
-    private fun setupCrashReporting() {
-        setup("setupCrashReporting") {
-            initializeAcraCrashReporter()
-        }
-    }
-
     /** Registers the application-specific implementations used by shared modules. */
     private fun setupApplicationDependencies() {
         setup("setupApplicationDependencies") {
@@ -352,9 +336,6 @@ open class AnkiDroidApp :
         }
     }
 
-    // Keep crash reporting ahead of logging setup so failures while planting trees or configuring
-    // LeakCanary can be reported.
-    context(_: CrashReportingContext)
     private fun setupLogging() {
         setup("setupLogging") {
             val logType = LogType.value
@@ -375,24 +356,13 @@ open class AnkiDroidApp :
         }
     }
 
-    context(_: CrashReportingContext)
     private fun setupUsageAnalytics() {
         setup("setupUsageAnalytics") {
-            // Analytics chains UncaughtExceptionHandlers, while ACRA does not, so initialize ACRA first.
             initializeAnalytics()
-            // Install the filter last so it sanitizes exceptions before either reporting handler sees them.
-            ThrowableFilterService.initialize()
         }
     }
 
-    /**
-     * Launches startup diagnostics after Timber is configured.
-     *
-     * [DebugInfoService.getDebugInfo] reads `CrashReportService.isEnabled()` to include the
-     * crash-reporting status. Before the reporter is initialized, that read warns and returns
-     * the default `false`, so crash reporting must be set up before collecting the diagnostics.
-     */
-    context(_: CrashReportingContext)
+    /** Launches startup diagnostics after Timber is configured. */
     private fun launchStartupLogging() {
         setup("launchStartupLogging") {
             applicationScope.launch {
@@ -402,10 +372,9 @@ open class AnkiDroidApp :
         }
     }
 
-    /** Starts maintenance and diagnostics which must not run in the ACRA sender process. */
+    /** Starts maintenance and diagnostics. */
     private fun setupMainProcessMaintenance() {
         setup("setupMainProcessMaintenance") {
-            launchPreviousAnrReporting()
             ProfileManager.attachError?.let {
                 Timber.w(it, "Failed to load the profile environment, running on the base context")
             }
@@ -714,9 +683,6 @@ open class AnkiDroidApp :
 
     object AnkiContext
 
-    /** Crash reporting is initialized for dependent diagnostics and to capture later startup failures. */
-    private object CrashReportingContext
-
     companion object {
         /**
          * A [SharedPreferencesProvider] which does not require [onCreate] when run from tests
@@ -756,10 +722,6 @@ open class AnkiDroidApp :
             SharedPreferencesTestHook.override ?: if (isInitialized) instance.sharedPrefs() else null
 
         fun wrapForActiveProfile(base: Context): Context = (base.applicationContext as? AnkiDroidApp)?.profileManager?.wrap(base) ?: base
-
-        /** HACK: Whether an exception report has been thrown - TODO: Rewrite an ACRA Listener to do this  */
-        @VisibleForTesting
-        var sentExceptionReportHack = false
 
         @get:JvmName("isInitialized")
         val isInitialized: Boolean

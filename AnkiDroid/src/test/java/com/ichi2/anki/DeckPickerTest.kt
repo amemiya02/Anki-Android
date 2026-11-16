@@ -51,6 +51,8 @@ import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.DeckPickerFloatingActionMenu.CloseAnimation
 import com.ichi2.anki.browser.CardBrowserFragment
 import com.ichi2.anki.browser.CardBrowserViewModel.RowSelection
+import com.ichi2.anki.common.crashreporting.CrashReportService
+import com.ichi2.anki.common.crashreporting.CrashReporter
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
@@ -127,6 +129,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Robolectric
@@ -448,7 +451,9 @@ class DeckPickerTest : RobolectricTest() {
 
     @Test
     fun databaseLockedWithPermissionIntegrationTest() {
-        AnkiDroidApp.sentExceptionReportHack = false
+        val originalCrashReporter = CrashReportService.getReporter()
+        val crashReporter = mock(CrashReporter::class.java)
+        CrashReportService.setReporter(crashReporter)
         try {
             BackendEmulatingOpenConflict.enable()
             InitialActivityWithConflictTest.setupForDatabaseConflict()
@@ -462,12 +467,9 @@ class DeckPickerTest : RobolectricTest() {
                 d.databaseErrorDialog,
                 equalTo(DatabaseErrorDialogType.DIALOG_DB_LOCKED),
             )
-            assertThat(
-                "No exception reports should be thrown",
-                AnkiDroidApp.sentExceptionReportHack,
-                equalTo(false),
-            )
+            verifyNoInteractions(crashReporter)
         } finally {
+            CrashReportService.setReporter(originalCrashReporter)
             BackendEmulatingOpenConflict.disable()
             InitialActivityWithConflictTest.setupForDefault()
         }

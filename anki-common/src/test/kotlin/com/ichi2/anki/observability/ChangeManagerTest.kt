@@ -2,7 +2,6 @@
 
 package com.ichi2.anki.observability
 
-import android.app.Activity
 import android.content.Context
 import anki.collection.OpChanges
 import com.ichi2.anki.common.crashreporting.CrashReportService
@@ -192,23 +191,4 @@ private object NoOpCrashReporter : CrashReporter {
         context: Context,
     ) {
     }
-
-    override fun onPreferenceChanged(
-        ctx: Context,
-        newValue: String,
-    ) {
-    }
-
-    override fun deleteLimiterData(context: Context) {
-    }
-
-    override fun setReportingMode(value: String) {
-    }
-
-    override fun isEnabled(
-        context: Context,
-        defaultValue: Boolean,
-    ): Boolean = false
-
-    override fun sendReport(activity: Activity): Boolean = false
 }
