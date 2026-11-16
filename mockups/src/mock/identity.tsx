@@ -151,10 +151,32 @@ export function IdentityBoard() {
           Name and launcher icon
         </h2>
         <p className="mt-1 text-[17px] text-neutral-600">
-          Candidates for the Fork, in Quiet paper. Each icon is shown as a
-          circle, as a rounded square, and at launcher size.
+          The owner chose the name Hayaki and Icon A. The other candidates are
+          kept below for the record. Each icon is shown as a circle, as a
+          rounded square, and at launcher size.
         </p>
       </header>
+
+      <div className="flex items-center gap-14">
+        <div
+          className="flex w-[420px] flex-col gap-3 rounded-[6px] border border-[#D8CFBE] bg-[#F5F0E6] p-8 text-[#211E19]"
+          style={{
+            fontFamily:
+              "'Newsreader Variable', 'Klee One', 'LXGW WenKai', serif",
+          }}
+        >
+          <p className="text-[13px] text-[#675F53]">The Fork's name</p>
+          <p className="text-[64px] leading-none font-medium">Hayaki</p>
+          <p className="text-[16px] leading-snug text-[#675F53]">
+            Chosen by the owner. Written the same way in every language.
+          </p>
+        </div>
+        <Masks label="The launcher icon: two paper cards on cinnabar.">
+          <IconCards />
+        </Masks>
+      </div>
+
+      <p className="text-[15px] text-neutral-500">Candidates not chosen</p>
 
       <div className="flex gap-8">
         {names.map((n, i) => (

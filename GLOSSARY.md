@@ -62,6 +62,10 @@ _Avoid_: Original, mainline, AnkiDroid proper
 Our own copy of Upstream that carries the Redesign, with its own name, icon and app ID.
 _Avoid_: Our version, the new app, the clone
 
+**Hayaki**:
+The Fork's name as the people who use it see it, written the same way in every language.
+_Avoid_: AnkiDroid Redesign (the working name for development builds only), AnkiDroid
+
 **Official App**:
 AnkiDroid as Upstream publishes it, which can be installed beside the Fork.
 _Avoid_: Stock app, real AnkiDroid

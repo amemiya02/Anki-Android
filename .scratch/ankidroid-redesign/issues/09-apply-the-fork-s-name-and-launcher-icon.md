@@ -1,6 +1,6 @@
 # 09: Apply the Fork's name and launcher icon
 
-**What to build:** The Fork appears under its real name and launcher icon everywhere the owner sees it.
+**What to build:** The Fork appears as Hayaki, with its launcher icon (`docs/redesign/quiet-paper/launcher-icon.svg`), everywhere a person sees it.
 
 **Blocked by:** 01 (Give the Fork its own identity); 06 (Complete the chosen Direction: Dark, Black, name and launcher icon)
 
