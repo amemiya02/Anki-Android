@@ -415,8 +415,8 @@
   padding: 0;
   border: var(--sheet-border);
   border-radius: var(--r-sheet);
-  background: #fff;
-  color: #000;
+  background: var(--v-cardSheet, #fff);
+  color: var(--v-onCardSheet, #000);
   box-shadow: var(--sheet-shadow);
 }
 
@@ -433,7 +433,7 @@
 .card-content hr {
   margin: 16px 0;
   border: 0;
-  border-top: 1px solid #8b8b8b;
+  border-top: 1px solid var(--v-cardSheetRule, #8b8b8b);
 }
 
 .answer-area {
@@ -501,13 +501,15 @@
    ====================================================================== */
 
 :where([data-direction="paper"]) {
-  --background: #f5f0e6;
-  --foreground: #211e19;
-  --primary: #a63d25;
-  --primary-foreground: #fff9f2;
-  --muted-foreground: #675f53;
-  --border: #d8cfbe;
-  --rule: #d8cfbe;
+  /* Colours come from docs/redesign/quiet-paper.values.json, which the page
+     passes in as --v-* properties for the theme being shown. */
+  --background: var(--v-background);
+  --foreground: var(--v-onBackground);
+  --primary: var(--v-primary);
+  --primary-foreground: var(--v-onPrimary);
+  --muted-foreground: var(--v-onBackgroundMuted);
+  --border: var(--v-outline);
+  --rule: var(--v-outline);
 
   --f-latin: "Newsreader Variable";
   --f-zh: "LXGW WenKai";
@@ -537,8 +539,8 @@
   --today-weight: 500;
   --bar-h: 3px;
   --bar-r: 0;
-  --bar-track: #ddd4c3;
-  --bar-fill: #211e19;
+  --bar-track: var(--v-progressTrack);
+  --bar-fill: var(--v-progressFill);
   --bar-inset: 16px;
 
   --list-pad: 20px;
@@ -553,9 +555,9 @@
   --count-w: 46px;
   --count-size: 17px;
   --count-weight: 600;
-  --c-new: #2f4a6b;
-  --c-learn: #a63d25;
-  --c-due: #3e5b34;
+  --c-new: var(--v-countNew);
+  --c-learn: var(--v-countLearning);
+  --c-due: var(--v-countDue);
 
   --fab-bottom: 96px;
   --fab-bg: var(--primary);
@@ -563,16 +565,16 @@
   --fab-shadow: 0 8px 18px -8px rgb(120 44 26 / 0.55);
 
   --nav-h: 78px;
-  --nav-bg: #f5f0e6;
-  --nav-border: 1px solid #d8cfbe;
-  --nav-current: #211e19;
+  --nav-bg: var(--v-background);
+  --nav-border: 1px solid var(--v-outline);
+  --nav-current: var(--v-onBackground);
 
   --study-title-size: 17px;
   --study-title-weight: 500;
   --study-count-gap: 12px;
   --study-count-size: 14.5px;
   --sheet-m: 14px 16px 2px;
-  --sheet-border: 1px solid #d8cfbe;
+  --sheet-border: 1px solid var(--v-outline);
   --sheet-shadow: none;
   --answer-pad: 14px 16px 30px;
   --btn-h: 56px;
@@ -581,10 +583,10 @@
   --ans-gap: 8px;
   --ans-size: 16.5px;
   --ans-weight: 600;
-  --a-again: #a63d25;
-  --a-hard: #9a6a14;
-  --a-good: #3e5b34;
-  --a-easy: #2f4a6b;
+  --a-again: var(--v-answerAgain);
+  --a-hard: var(--v-answerHard);
+  --a-good: var(--v-answerGood);
+  --a-easy: var(--v-answerEasy);
 }
 
 :where([data-direction="paper"]) .deck-group + .deck-group {
@@ -600,7 +602,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--primary);
+  background: var(--v-emphasis);
 }
 
 :where([data-direction="paper"]) .bottombar-item.is-current::before {
@@ -609,7 +611,7 @@
   top: -1px;
   width: 28px;
   height: 2px;
-  background: var(--primary);
+  background: var(--v-emphasis);
 }
 
 :where([data-direction="paper"]) .answer {

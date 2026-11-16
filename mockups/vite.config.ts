@@ -8,6 +8,8 @@ export default defineConfig({
   // Relative paths, so the built page also opens straight from disk.
   base: "./",
   plugins: [react(), tailwindcss()],
+  // The design values live with the docs, one folder up.
+  server: { fs: { allow: [".."] } },
   resolve: {
     alias: {
       "@": resolve(import.meta.dirname, "./src"),

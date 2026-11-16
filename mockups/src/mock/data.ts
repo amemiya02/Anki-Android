@@ -1,6 +1,7 @@
 export type Direction = "paper" | "crisp" | "soft"
 export type Lang = "en" | "zh"
 export type Side = "question" | "answer"
+export type Theme = "light" | "dark" | "black"
 
 /** new, learning, due */
 export type Counts = [number, number, number]

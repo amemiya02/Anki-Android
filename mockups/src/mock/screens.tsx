@@ -1,4 +1,6 @@
-import type { ReactNode } from "react"
+import type { CSSProperties, ReactNode } from "react"
+
+import values from "../../../docs/redesign/quiet-paper.values.json"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,6 +18,7 @@ import {
   type Direction,
   type Lang,
   type Side,
+  type Theme,
 } from "./data"
 
 /** A Material Symbols icon, drawn in the style the Direction chooses. */
@@ -44,21 +47,36 @@ export function Phone({
   direction,
   lang,
   screen,
+  theme = "light",
   label,
   children,
 }: {
   direction: Direction
   lang: Lang
   screen: "decks" | "study"
+  theme?: Theme
   label: string
   children: ReactNode
 }) {
+  // The chosen Direction takes its colours from the design values file, so
+  // the Mockups and the Foundation can never disagree about a colour.
+  const colours =
+    direction === "paper"
+      ? (Object.fromEntries(
+          Object.entries(values.colour[theme]).map(([role, hex]) => [
+            `--v-${role}`,
+            hex,
+          ])
+        ) as CSSProperties)
+      : undefined
   return (
     <figure className="flex flex-col items-center gap-4">
       <div
         className="phone"
         data-direction={direction}
         data-screen={screen}
+        data-theme={theme}
+        style={colours}
         lang={lang === "zh" ? "zh-CN" : "en"}
       >
         <div className="screen">

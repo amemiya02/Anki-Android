@@ -6,10 +6,10 @@
 
 **Status:** ready-for-agent
 
-- [ ] The deck list and study screen Mockups exist in Dark and in Black, in English and Simplified Chinese.
-- [ ] Every colour pairing used for text meets WCAG AA in all three themes.
-- [ ] The design values are written down as one list: colour roles per theme, type scale, spacing scale, corner shapes and elevation.
-- [ ] One Material Symbols style and weight is chosen for interface icons.
+- [x] The deck list and study screen Mockups exist in Dark and in Black, in English and Simplified Chinese.
+- [x] Every colour pairing used for text meets WCAG AA in all three themes.
+- [x] The design values are written down as one list: colour roles per theme, type scale, spacing scale, corner shapes and elevation.
+- [x] One Material Symbols style and weight is chosen for interface icons.
 - [ ] The owner has approved a name and a launcher icon for the Fork.
 - [ ] The glossary records the Fork's name.
 - [ ] The name does not contain "AnkiDroid" and cannot be mistaken for the Official App or for a product of the makers of Anki.

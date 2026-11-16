@@ -1,0 +1,198 @@
+{
+    "direction": "Quiet paper",
+    "note": "The design values of the chosen Direction, as one list. The Mockups read their colours from this file, and the Foundation is built from it. Sizes are in dp for layout and sp for text.",
+
+    "typefaces": {
+        "latin": "Newsreader",
+        "chinese": "LXGW WenKai",
+        "japanese": "Klee One",
+        "licence": "SIL Open Font License 1.1",
+        "rule": "The Latin face comes first in every stack, so Latin letters and figures are always Newsreader. Chinese text falls to LXGW WenKai and Japanese text to Klee One, chosen by the language of the text. Hierarchy uses size and weight only."
+    },
+
+    "icons": {
+        "family": "Material Symbols Outlined",
+        "weight": 300,
+        "fill": 0,
+        "grade": 0,
+        "opticalSize": 24,
+        "size": 24
+    },
+
+    "type": [
+        {
+            "role": "screenTitle",
+            "size": 38,
+            "weight": 500,
+            "use": "The title of a top-level screen"
+        },
+        {
+            "role": "deckName",
+            "size": 20,
+            "weight": 500,
+            "use": "A top-level Deck in the deck list"
+        },
+        {
+            "role": "deckNameNested",
+            "size": 17.5,
+            "weight": 400,
+            "use": "A Deck inside another Deck"
+        },
+        {
+            "role": "summary",
+            "size": 18,
+            "weight": 500,
+            "use": "The line that says what is due today"
+        },
+        {
+            "role": "count",
+            "size": 17,
+            "weight": 600,
+            "use": "A new, learning or due count; a zero count uses weight 400"
+        },
+        {
+            "role": "studyTitle",
+            "size": 17,
+            "weight": 500,
+            "use": "The Deck name on the study screen"
+        },
+        { "role": "button", "size": 17, "weight": 500, "use": "The label of a primary button" },
+        { "role": "answer", "size": 16.5, "weight": 600, "use": "Again, Hard, Good and Easy" },
+        { "role": "body", "size": 15, "weight": 400, "use": "Ordinary interface text" },
+        {
+            "role": "studyCount",
+            "size": 14.5,
+            "weight": 600,
+            "use": "Remaining counts on the study screen"
+        },
+        { "role": "caption", "size": 13, "weight": 400, "use": "Dates and secondary lines" },
+        {
+            "role": "label",
+            "size": 12,
+            "weight": 400,
+            "use": "Column headers, bottom bar labels, answer times; the current bottom bar label uses weight 600"
+        }
+    ],
+
+    "spacing": {
+        "scale": [4, 8, 12, 16, 20, 24, 32],
+        "screenMargin": 20,
+        "studyMargin": 16,
+        "touchTarget": 48,
+        "deckRow": 58,
+        "deckRowNested": 48,
+        "countColumn": 46,
+        "primaryButton": 56,
+        "answerButton": 66,
+        "addButton": 56,
+        "bottomBar": 78
+    },
+
+    "shape": {
+        "cardSheet": 4,
+        "button": 6,
+        "addButton": 16,
+        "iconButton": "full",
+        "hairline": 1,
+        "currentTabRule": 2,
+        "answerRule": 3
+    },
+
+    "elevation": {
+        "rule": "Surfaces are flat and separated by hairlines. Nothing casts a shadow except the add button.",
+        "addButton": "0 8dp 18dp -8dp, the primary colour at 55% opacity"
+    },
+
+    "colour": {
+        "light": {
+            "background": "#F5F0E6",
+            "onBackground": "#211E19",
+            "onBackgroundMuted": "#675F53",
+            "outline": "#D8CFBE",
+            "primary": "#A63D25",
+            "onPrimary": "#FFF9F2",
+            "emphasis": "#A63D25",
+            "countNew": "#2F4A6B",
+            "countLearning": "#A63D25",
+            "countDue": "#3E5B34",
+            "answerAgain": "#A63D25",
+            "answerHard": "#8A5E10",
+            "answerGood": "#3E5B34",
+            "answerEasy": "#2F4A6B",
+            "progressTrack": "#DDD4C3",
+            "progressFill": "#211E19",
+            "cardSheet": "#FFFFFF",
+            "onCardSheet": "#000000",
+            "cardSheetRule": "#8B8B8B"
+        },
+        "dark": {
+            "background": "#1C1A17",
+            "onBackground": "#ECE5D8",
+            "onBackgroundMuted": "#A9A090",
+            "outline": "#3B362E",
+            "primary": "#C0492A",
+            "onPrimary": "#FFF7EF",
+            "emphasis": "#E67A5C",
+            "countNew": "#93B4DC",
+            "countLearning": "#EE8E72",
+            "countDue": "#A3C592",
+            "answerAgain": "#E0694B",
+            "answerHard": "#D6A24A",
+            "answerGood": "#8FB57F",
+            "answerEasy": "#86A8D4",
+            "progressTrack": "#3B362E",
+            "progressFill": "#ECE5D8",
+            "cardSheet": "#2C2C2C",
+            "onCardSheet": "#FFFFFF",
+            "cardSheetRule": "#8B8B8B"
+        },
+        "black": {
+            "background": "#000000",
+            "onBackground": "#ECE5D8",
+            "onBackgroundMuted": "#A9A090",
+            "outline": "#2E2A24",
+            "primary": "#C0492A",
+            "onPrimary": "#FFF7EF",
+            "emphasis": "#E67A5C",
+            "countNew": "#93B4DC",
+            "countLearning": "#EE8E72",
+            "countDue": "#A3C592",
+            "answerAgain": "#E0694B",
+            "answerHard": "#D6A24A",
+            "answerGood": "#8FB57F",
+            "answerEasy": "#86A8D4",
+            "progressTrack": "#2E2A24",
+            "progressFill": "#ECE5D8",
+            "cardSheet": "#000000",
+            "onCardSheet": "#FFFFFF",
+            "cardSheetRule": "#8B8B8B"
+        }
+    },
+
+    "colourNotes": {
+        "cardSheet": "The card sheet colours are not the Direction's. They stand for how the app draws Card Content today, which the Redesign does not touch, and are approximate.",
+        "emphasis": "Cinnabar used as a mark on the background (the current tab rule, the last-studied dot). In Dark and Black it is lighter than the button colour so that it stays visible."
+    },
+
+    "contrast": {
+        "rule": "Text pairs must reach 4.5:1 (WCAG AA). Marks that carry meaning without text must reach 3:1. Hairlines are decoration and are exempt.",
+        "text": [
+            ["onBackground", "background"],
+            ["onBackgroundMuted", "background"],
+            ["onPrimary", "primary"],
+            ["countNew", "background"],
+            ["countLearning", "background"],
+            ["countDue", "background"],
+            ["onCardSheet", "cardSheet"]
+        ],
+        "marks": [
+            ["primary", "background"],
+            ["emphasis", "background"],
+            ["answerAgain", "background"],
+            ["answerHard", "background"],
+            ["answerGood", "background"],
+            ["answerEasy", "background"],
+            ["progressFill", "progressTrack"]
+        ]
+    }
+}
