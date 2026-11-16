@@ -15,7 +15,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:background="@drawable/shadow_left"
+            android:background="@drawable/hairline_start"
             android:visibility="gone"/>
 
         <com.google.android.material.button.MaterialButton

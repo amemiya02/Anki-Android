@@ -3,8 +3,8 @@
 package com.ichi2.anki
 
 import android.content.Context
-import android.content.res.Configuration
-import android.graphics.drawable.GradientDrawable
+import android.graphics.Rect
+import android.graphics.drawable.LayerDrawable
 import android.view.View
 import android.view.View.MeasureSpec
 import android.view.ViewGroup
@@ -48,7 +48,6 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
-import java.util.Locale
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -393,7 +392,7 @@ class StudyOptionsFragmentTest : RobolectricTest() {
     }
 
     @Test
-    fun `study options gradient spans from top to bottom of parent`() =
+    fun `the pane's hairline spans from top to bottom of parent`() =
         runTest {
             withStudyOptions {
                 val gradient = requireView().findViewById<View>(R.id.studyoptions_gradient)
@@ -405,25 +404,24 @@ class StudyOptionsFragmentTest : RobolectricTest() {
         }
 
     @Test
-    fun `shadow_left drawable mirrors in RTL`() {
+    fun `the pane's hairline sits on the start edge, also in RTL`() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val ltrConfig =
-            Configuration(context.resources.configuration).apply {
-                setLayoutDirection(Locale.US)
-            }
-        val ltrContext = context.createConfigurationContext(ltrConfig)
-        val ltrDrawable =
-            AppCompatResources.getDrawable(ltrContext, R.drawable.shadow_left) as GradientDrawable
-        assertEquals(GradientDrawable.Orientation.LEFT_RIGHT, ltrDrawable.orientation)
 
-        val rtlConfig =
-            Configuration(context.resources.configuration).apply {
-                setLayoutDirection(Locale.forLanguageTag("ar"))
-            }
-        val rtlContext = context.createConfigurationContext(rtlConfig)
-        val rtlDrawable =
-            AppCompatResources.getDrawable(rtlContext, R.drawable.shadow_left) as GradientDrawable
-        assertEquals(GradientDrawable.Orientation.RIGHT_LEFT, rtlDrawable.orientation)
+        fun hairlineBounds(layoutDirection: Int): Rect {
+            val drawable = AppCompatResources.getDrawable(context, R.drawable.hairline_start) as LayerDrawable
+            drawable.layoutDirection = layoutDirection
+            drawable.setBounds(0, 0, 100, 10)
+            return drawable.getDrawable(0).bounds
+        }
+
+        val ltr = hairlineBounds(View.LAYOUT_DIRECTION_LTR)
+        assertEquals(0, ltr.left)
+        assertTrue(ltr.width() in 1..10, "a hairline, not a band: ${ltr.width()}px")
+        assertEquals(10, ltr.height())
+
+        val rtl = hairlineBounds(View.LAYOUT_DIRECTION_RTL)
+        assertEquals(100, rtl.right)
+        assertEquals(ltr.width(), rtl.width())
     }
 
     @Test

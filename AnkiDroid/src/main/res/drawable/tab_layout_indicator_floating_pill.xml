@@ -5,6 +5,7 @@
 
     <shape android:shape="rectangle">
         <corners android:radius="2dp" />
-        <solid android:color="@color/white" />
+        <!-- tinted by the tab layout's tabIndicatorColor -->
+        <solid android:color="?attr/foundationOnBackground" />
     </shape>
 </inset>

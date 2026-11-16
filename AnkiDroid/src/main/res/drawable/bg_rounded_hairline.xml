@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- A panel on the page: Quiet paper draws its edge as a hairline, not a shadow -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="?android:attr/colorBackground" />
+    <corners android:radius="16dp" />
+    <stroke
+        android:width="@dimen/foundation_shape_hairline"
+        android:color="?attr/foundationOutline" />
+</shape>

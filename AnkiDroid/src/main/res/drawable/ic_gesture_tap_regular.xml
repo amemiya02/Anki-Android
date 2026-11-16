@@ -18,5 +18,5 @@
             A10,10 0 1,1 22,12
             A10,10 0 1,1 2,12"
         android:strokeWidth="1"
-        android:strokeColor="#b1b1b1" />
+        android:strokeColor="?attr/foundationOnBackgroundMuted" />
 </vector>

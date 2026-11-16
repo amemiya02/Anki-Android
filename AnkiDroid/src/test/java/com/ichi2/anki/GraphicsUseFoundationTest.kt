@@ -224,25 +224,6 @@ class GraphicsUseFoundationTest {
         /** Graphics and code the sweep has not reached yet (part of the reported location) */
         private val NOT_YET_SWEPT =
             setOf(
-                "shadow_left.xml",
-                "ic_gesture_swipe.xml",
-                "ic_gesture_tap_regular.xml",
-                "add_shortcut.xml",
-                "browse_shortcut.xml",
-                "review_shortcut.xml",
-                "badge_drawable.xml",
-                "bg_preference_widget_text.xml",
-                "bg_rounded_drop_shadow.xml",
-                "brush_preview_background.xml",
-                "color_picker_circle_indicator.xml",
-                "divider_handle_background.xml",
-                "launch_screen.xml",
-                "pin_shape.xml",
-                "tab_layout_indicator_floating_pill.xml",
-                "drawer_item_background_dark.xml",
-                "drawer_item_background_light.xml",
-                "footer_button.xml",
-                "footer_button_ripple.xml",
                 "widgets:",
                 "/java/",
             )

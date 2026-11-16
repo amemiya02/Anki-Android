@@ -18,7 +18,7 @@
                 android:name="swipe"
                 android:pathData="m3314.4,7707.9 l1244,-1042v397h2486v-2486h-397l1042,-1244 1043,1244h-397v2486h2485v-397l1245,1042 -1245,1043v-397h-2485v2485h397l-1043,1245 -1042,-1245h397L7044.4,8353.9L4558.4,8353.9v397z"
                 android:strokeWidth="100.000"
-                android:strokeColor="#b2b2b2"/>
+                android:strokeColor="?attr/foundationOnBackgroundMuted"/>
         </vector>
 
     </item>

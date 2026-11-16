@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- The current drawer item sits on the Foundation's selected tint, as a selected row does -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true">
+        <color android:color="?attr/foundationProgressTrack" />
+    </item>
+    <item android:drawable="@android:color/transparent" />
+</selector>

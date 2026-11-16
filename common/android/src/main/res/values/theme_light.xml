@@ -154,7 +154,7 @@
         <item name="preferenceCategoryTitleTextColor">?attr/foundationOnBackgroundMuted</item>
         <!-- Navigation drawer theme -->
         <item name="navDrawerItemColor">@color/drawer_item_text</item>
-        <item name="navDrawerItemBackground">@drawable/drawer_item_background_light</item>
+        <item name="navDrawerItemBackground">@drawable/drawer_item_background</item>
         <!-- Menu -->
         <!-- Icons the platform draws: the up arrow, the overflow menu, the search field -->
         <item name="homeAsUpIndicator">@drawable/symbol_arrow_back</item>

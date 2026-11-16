@@ -1,28 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~  Copyright (c) 2023 Ashish Yadav <mailtoashish693@gmail.com>
-  ~
-  ~  This program is free software; you can redistribute it and/or modify it under
-  ~  the terms of the GNU General Public License as published by the Free Software
-  ~  Foundation; either version 3 of the License, or (at your option) any later
-  ~  version.
-  ~
-  ~  This program is distributed in the hope that it will be useful, but WITHOUT ANY
-  ~  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-  ~  PARTICULAR PURPOSE. See the GNU General Public License for more details.
-  ~
-  ~  You should have received a copy of the GNU General Public License along with
-  ~  this program.  If not, see <http://www.gnu.org/licenses/>.
-  -->
+  SPDX-License-Identifier: GPL-3.0-or-later
+  The launcher shortcut "Add": the Material Symbol add in cinnabar on paper, the launcher
+  icon's two colours. The launcher draws it without the app's theme, so its colours are fixed
+  Foundation colours (Light).
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="48dp"
     android:height="48dp"
-    android:viewportWidth="1000"
-    android:viewportHeight="1000">
+    android:viewportWidth="960"
+    android:viewportHeight="960">
     <path
-        android:fillColor="#FFFFFF"
-        android:strokeWidth="0"
-        android:strokeMiterLimit="100"
-        android:pathData="m500 58.9c238.1 0 431.1 193 431.1 431.1c0 238.1 -193 431.1 -431.1 431.1c-238.1 0 -431.1 -193 -431.1 -431.1c0 -238.1 193 -431.1 431.1 -431.1z" />
-    <path android:fillColor="@android:color/holo_blue_dark"
-        android:pathData="M470,359.5l0,110.5 -110.5,-0 -110.5,-0 0,30 0,30 110.5,-0 110.5,-0 0,110.5 0,110.5 30,-0 30,-0 0,-110.5 0,-110.5 110.5,-0 110.5,-0 0,-30 0,-30 -110.5,-0 -110.5,-0 0,-110.5 0,-110.5 -30,-0 -30,-0 0,110.5z" android:strokeColor="#00000000"/>
+        android:fillColor="@color/foundation_light_on_primary"
+        android:pathData="M480,0 A480,480 0 1 1 480,960 A480,480 0 1 1 480,0 Z" />
+    <group
+        android:pivotX="480"
+        android:pivotY="480"
+        android:scaleX="0.55"
+        android:scaleY="0.55">
+        <group android:translateY="960">
+            <path
+                android:fillColor="@color/foundation_light_primary"
+                android:pathData="M450-450H220v-60h230v-230h60v230h230v60H510v230h-60v-230Z" />
+        </group>
+    </group>
 </vector>

@@ -230,9 +230,9 @@ class InterfaceIconsAreMaterialSymbolsTest {
                 "ic_launcher_background" to "the launcher icon",
                 "ic_launcher_foreground" to "the launcher icon",
                 "ic_launcher_monochrome" to "the launcher icon",
-                "add_shortcut" to "a launcher shortcut, drawn with the launcher icon (ticket 12)",
-                "browse_shortcut" to "a launcher shortcut, drawn with the launcher icon (ticket 12)",
-                "review_shortcut" to "a launcher shortcut, drawn with the launcher icon (ticket 12)",
+                "add_shortcut" to "a launcher shortcut, drawn with the launcher icon's colours",
+                "browse_shortcut" to "a launcher shortcut, drawn with the launcher icon's colours",
+                "review_shortcut" to "a launcher shortcut, drawn with the launcher icon's colours",
                 "hayaki_mark" to "Hayaki's mark: the empty deck list, first run, drawer and sync account (GraphicsUseFoundationTest)",
                 "ic_star_notify" to "the notification's small icon (ticket 47)",
                 "ic_widget_add_note" to "a home-screen widget's picture (ticket 46)",
@@ -240,8 +240,8 @@ class InterfaceIconsAreMaterialSymbolsTest {
                 "ic_anki_unthemed" to "a home-screen widget's picture (ticket 46)",
                 "ic_anki_unthemed_finish" to "a home-screen widget's picture (ticket 46)",
                 "pin_shape" to "the shape behind the colour picker's swatch, not an icon",
-                "ic_gesture_tap_regular" to "a tap zone drawn in the gesture picker, not an icon (ticket 12)",
-                "ic_gesture_tap_selected" to "a tap zone drawn in the gesture picker, not an icon (ticket 12)",
+                "ic_gesture_tap_regular" to "a tap zone drawn in the gesture picker, not an icon",
+                "ic_gesture_tap_selected" to "a tap zone drawn in the gesture picker, not an icon",
             )
     }
 }
