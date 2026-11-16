@@ -23,6 +23,7 @@ import org.json.JSONObject
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -301,6 +302,14 @@ class FoundationTest {
                 assertEquals(0, (styleValue(style, android.R.attr.textStyle) { data } ?: 0) and Typeface.ITALIC, "$theme.$name")
             }
         }
+    }
+
+    /** Android 7 loads fonts from resources through AndroidX, which can fail; the app must still start */
+    @Test
+    @Config(sdk = [24])
+    fun `Compose reads the type scale on Android 7`() {
+        val type = appContext.toFoundation().type
+        assertTrue(type.all.all { it.fontFamily != null })
     }
 
     @Test

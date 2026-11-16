@@ -25,8 +25,11 @@ import com.google.android.material.R as MaterialR
 class ThemeAttributesTest {
     private val appContext: Context get() = ApplicationProvider.getApplicationContext()
 
-    /** Set by the styles applied to each answer button, not by the themes. */
-    private val styleAttributes = setOf("answerButtonBackground")
+    /**
+     * Set by styles, not by the themes: on each answer button, and on each type role
+     * (`TextAppearance.Foundation.*`).
+     */
+    private val styleAttributes = setOf("answerButtonBackground", "foundationTextWeight", "lineHeight")
 
     @Test
     fun `every theme attribute resolves in every app theme`() {

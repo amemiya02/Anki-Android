@@ -140,11 +140,16 @@
       Every style sets the interface typeface (@font/foundation_interface). On Android 10 and later,
       text inflated from a layout is redrawn in InterfaceTypeface.kt's fallback chain at the same weight.
     -->
-    <!-- How Compose reads a type role (Foundation.kt) -->
+    <!--
+      How Compose reads a type role (Foundation.kt). Android before 9 lacks android:textFontWeight and
+      android:lineHeight, and the build moves them to a values-v28 copy of each style, so Compose reads
+      the weight from foundationTextWeight and the line height from lineHeight, present on every version.
+    -->
+    <attr name="foundationTextWeight" format="integer" />
     <declare-styleable name="FoundationTextAppearance">
         <attr name="android:textSize" />
-        <attr name="android:textFontWeight" />
-        <attr name="android:lineHeight" />
+        <attr name="foundationTextWeight" />
+        <attr name="lineHeight" />
         <attr name="android:fontFeatureSettings" />
     </declare-styleable>
 
@@ -161,6 +166,7 @@
     <style name="TextAppearance.Foundation.ScreenTitle">
         <item name="android:textSize">38sp</item>
         <item name="android:textFontWeight">500</item>
+        <item name="foundationTextWeight">500</item>
         <item name="android:lineHeight">43.7sp</item>
         <item name="lineHeight">43.7sp</item>
     </style>
@@ -169,6 +175,7 @@
     <style name="TextAppearance.Foundation.PageTitle">
         <item name="android:textSize">30sp</item>
         <item name="android:textFontWeight">500</item>
+        <item name="foundationTextWeight">500</item>
         <item name="android:lineHeight">36sp</item>
         <item name="lineHeight">36sp</item>
     </style>
@@ -177,6 +184,7 @@
     <style name="TextAppearance.Foundation.DeckName">
         <item name="android:textSize">20sp</item>
         <item name="android:textFontWeight">500</item>
+        <item name="foundationTextWeight">500</item>
         <item name="android:lineHeight">26sp</item>
         <item name="lineHeight">26sp</item>
     </style>
@@ -185,6 +193,7 @@
     <style name="TextAppearance.Foundation.DeckNameNested">
         <item name="android:textSize">17.5sp</item>
         <item name="android:textFontWeight">400</item>
+        <item name="foundationTextWeight">400</item>
         <item name="android:lineHeight">22.75sp</item>
         <item name="lineHeight">22.75sp</item>
     </style>
@@ -193,6 +202,7 @@
     <style name="TextAppearance.Foundation.Summary">
         <item name="android:textSize">18sp</item>
         <item name="android:textFontWeight">500</item>
+        <item name="foundationTextWeight">500</item>
         <item name="android:lineHeight">25.2sp</item>
         <item name="lineHeight">25.2sp</item>
     </style>
@@ -201,6 +211,7 @@
     <style name="TextAppearance.Foundation.Count">
         <item name="android:textSize">17sp</item>
         <item name="android:textFontWeight">600</item>
+        <item name="foundationTextWeight">600</item>
         <item name="android:textStyle">bold</item>
         <item name="android:lineHeight">20.4sp</item>
         <item name="lineHeight">20.4sp</item>
@@ -211,6 +222,7 @@
     <style name="TextAppearance.Foundation.StudyTitle">
         <item name="android:textSize">17sp</item>
         <item name="android:textFontWeight">500</item>
+        <item name="foundationTextWeight">500</item>
         <item name="android:lineHeight">23.8sp</item>
         <item name="lineHeight">23.8sp</item>
     </style>
@@ -219,6 +231,7 @@
     <style name="TextAppearance.Foundation.Button">
         <item name="android:textSize">17sp</item>
         <item name="android:textFontWeight">500</item>
+        <item name="foundationTextWeight">500</item>
         <item name="android:lineHeight">23.8sp</item>
         <item name="lineHeight">23.8sp</item>
     </style>
@@ -227,6 +240,7 @@
     <style name="TextAppearance.Foundation.RowTitle">
         <item name="android:textSize">17sp</item>
         <item name="android:textFontWeight">500</item>
+        <item name="foundationTextWeight">500</item>
         <item name="android:lineHeight">23.8sp</item>
         <item name="lineHeight">23.8sp</item>
     </style>
@@ -235,6 +249,7 @@
     <style name="TextAppearance.Foundation.Lead">
         <item name="android:textSize">16sp</item>
         <item name="android:textFontWeight">400</item>
+        <item name="foundationTextWeight">400</item>
         <item name="android:lineHeight">24.8sp</item>
         <item name="lineHeight">24.8sp</item>
     </style>
@@ -243,6 +258,7 @@
     <style name="TextAppearance.Foundation.Answer">
         <item name="android:textSize">16.5sp</item>
         <item name="android:textFontWeight">600</item>
+        <item name="foundationTextWeight">600</item>
         <item name="android:textStyle">bold</item>
         <item name="android:lineHeight">23.1sp</item>
         <item name="lineHeight">23.1sp</item>
@@ -252,6 +268,7 @@
     <style name="TextAppearance.Foundation.Body">
         <item name="android:textSize">15sp</item>
         <item name="android:textFontWeight">400</item>
+        <item name="foundationTextWeight">400</item>
         <item name="android:lineHeight">21sp</item>
         <item name="lineHeight">21sp</item>
     </style>
@@ -260,6 +277,7 @@
     <style name="TextAppearance.Foundation.StudyCount">
         <item name="android:textSize">14.5sp</item>
         <item name="android:textFontWeight">600</item>
+        <item name="foundationTextWeight">600</item>
         <item name="android:textStyle">bold</item>
         <item name="android:lineHeight">17.4sp</item>
         <item name="lineHeight">17.4sp</item>
@@ -270,6 +288,7 @@
     <style name="TextAppearance.Foundation.Caption">
         <item name="android:textSize">13sp</item>
         <item name="android:textFontWeight">400</item>
+        <item name="foundationTextWeight">400</item>
         <item name="android:lineHeight">18.2sp</item>
         <item name="lineHeight">18.2sp</item>
         <item name="android:textColor">?android:attr/textColorSecondary</item>
@@ -279,6 +298,7 @@
     <style name="TextAppearance.Foundation.Label">
         <item name="android:textSize">12sp</item>
         <item name="android:textFontWeight">400</item>
+        <item name="foundationTextWeight">400</item>
         <item name="android:lineHeight">16.8sp</item>
         <item name="lineHeight">16.8sp</item>
     </style>

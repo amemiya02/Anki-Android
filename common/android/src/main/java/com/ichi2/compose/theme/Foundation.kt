@@ -286,9 +286,9 @@ private fun Context.textStyle(
             TextStyle(
                 fontFamily = FontFamily(Typeface(interfaceTypeface(opticalSize = size.value))),
                 fontSize = size,
-                fontWeight = FontWeight(getInt(R.styleable.FoundationTextAppearance_android_textFontWeight, 400)),
+                fontWeight = FontWeight(getInt(R.styleable.FoundationTextAppearance_foundationTextWeight, 400)),
                 fontStyle = FontStyle.Normal,
-                lineHeight = sp(R.styleable.FoundationTextAppearance_android_lineHeight),
+                lineHeight = sp(R.styleable.FoundationTextAppearance_lineHeight),
                 // Half the extra line height above the text and half below, as on the web
                 lineHeightStyle = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.None),
                 letterSpacing = 0.sp,

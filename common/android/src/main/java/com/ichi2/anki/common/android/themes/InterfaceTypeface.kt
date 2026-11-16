@@ -12,6 +12,7 @@ import androidx.annotation.FontRes
 import androidx.annotation.RequiresApi
 import androidx.core.content.res.ResourcesCompat
 import com.ichi2.anki.common.android.R
+import timber.log.Timber
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 
@@ -32,13 +33,20 @@ const val TEXT_OPTICAL_SIZE = 16f
  *
  * A typeface can only fall back to faces of the app's choosing from Android 10. Before that it is the
  * language's own face alone (`res/font*` `foundation_interface`): Klee One in Japanese, LXGW WenKai in
- * Chinese, Newsreader otherwise; letters it lacks come from the system font.
+ * Chinese, Newsreader otherwise; letters it lacks come from the system font. If it cannot be loaded,
+ * the system serif font is used.
  *
  * @param opticalSize the size Newsreader's shapes are drawn for, in sp: larger sizes are finer
  */
 fun Context.interfaceTypeface(opticalSize: Float = TEXT_OPTICAL_SIZE): Typeface {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-        return ResourcesCompat.getFont(this, R.font.foundation_interface) ?: Typeface.SERIF
+        // AndroidX copies the font to a file to load it there, which can fail: text is still drawn
+        return try {
+            ResourcesCompat.getFont(this, R.font.foundation_interface)
+        } catch (e: Resources.NotFoundException) {
+            Timber.w(e, "interface typeface could not be loaded")
+            null
+        } ?: Typeface.SERIF
     }
     return InterfaceFaces.typeface(resources.configuration.locales[0], opticalSize, applicationContext.resources)
 }
