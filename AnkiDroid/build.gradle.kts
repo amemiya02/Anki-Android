@@ -278,8 +278,9 @@ android {
                     // ./gradlew testFullDebugUnitTest -Pscreenshot
                     if (project.hasProperty("screenshot")) {
                         // ./gradlew :AnkiDroid:recordRoborazziPlayDebug -Pscreenshot -Ptheme=black -Pdevice=tablet,foldable
+                        // Without -Ptheme, every theme runs: light, dark and black
                         // -Planguage=zh-cn,ja,ar -PfontSize=200
-                        val theme = project.findProperty("theme")?.takeIf { it.toString().isNotEmpty() } ?: "light"
+                        val theme = project.findProperty("theme")?.takeIf { it.toString().isNotEmpty() } ?: "all"
                         val device = project.findProperty("device")?.takeIf { it.toString().isNotEmpty() } ?: "phone"
                         val language = project.findProperty("language")?.takeIf { it.toString().isNotEmpty() } ?: "en"
                         val fontSize = project.findProperty("fontSize")?.takeIf { it.toString().isNotEmpty() } ?: "normal"

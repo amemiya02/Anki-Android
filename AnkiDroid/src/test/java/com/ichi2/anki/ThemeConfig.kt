@@ -19,14 +19,21 @@ enum class ThemeConfig(
     val isNight get() = theme is NightTheme
 }
 
-/** Provides the themes selected with `-Ptheme`: a comma-separated list, or `all` */
+/**
+ * Provides the themes selected with `-Ptheme`: a comma-separated list, or `all`.
+ * Without a selection, every theme runs: the Quality Bar checks each surface in Light, Dark and Black.
+ */
 class ThemeProvider : TestParameterValuesProvider() {
-    override fun provideValues(context: Context?): List<ThemeConfig> {
-        val requestedTheme = System.getProperty("screenshot.theme") ?: "light"
-        val requestedThemes = requestedTheme.split(",").map { it.trim().lowercase() }
-        if ("all" in requestedThemes) {
-            return ThemeConfig.entries
+    override fun provideValues(context: Context?): List<ThemeConfig> = selectedThemes(System.getProperty("screenshot.theme"))
+
+    companion object {
+        /** The themes named by [requested] (the value of `-Ptheme`), or every theme when it is `null` */
+        fun selectedThemes(requested: String?): List<ThemeConfig> {
+            val requestedThemes = (requested ?: "all").split(",").map { it.trim().lowercase() }
+            if ("all" in requestedThemes) {
+                return ThemeConfig.entries
+            }
+            return ThemeConfig.entries.filter { requestedThemes.contains(it.name.lowercase()) }
         }
-        return ThemeConfig.entries.filter { requestedThemes.contains(it.name.lowercase()) }
     }
 }
