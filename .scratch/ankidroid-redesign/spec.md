@@ -167,6 +167,15 @@ The work lands in Milestones, and the app stays usable after each one.
 99. As an agent implementing a ticket, I want each Native Surface to have an agreed Mockup and a mechanical Quality Bar, so that I know when the work is done.
 100. As an agent implementing a ticket, I want to use the glossary's words in code, tests and tickets, so that the project speaks one language.
 
+### Moving data in and out
+
+101. As a person using the Fork, I want to export my whole collection with scheduling, review history and media, so that I can import it into the Official App and sync it to AnkiWeb from there.
+102. As a person using the Fork, I want to export a single Deck with its scheduling and media, so that I can merge it into the Official App without replacing what is already there.
+103. As a person using the Fork, I want to import a collection or a Deck exported from the Official App or desktop Anki, so that I can bring my existing study history with me.
+104. As a person whose Official App is older than the Fork's Engine, I want an export that older versions can read, so that my data is never stranded in the Fork.
+105. As a person exporting, I want the export screen to say whether the result will replace or merge with what is in the other app, so that I do not overwrite my AnkiWeb data by surprise.
+106. As a person using the Fork, I want export to stay easy to find however the interface is rearranged, so that leaving the Fork is always possible.
+
 ## Implementation Decisions
 
 ### Fork and identity
@@ -271,6 +280,11 @@ The work lands in Milestones, and the app stays usable after each one.
 - AnkiWeb sign-in and sync are dropped from the Fork early, before the Foundation Milestone is signed off, so that an unfinished build can never sign in by accident. Sync setup asks for a server address and offers no AnkiWeb default; without a server address there is no way to sign in. The first-run screen no longer offers to sync from AnkiWeb, and links to AnkiWeb account sign-up and password reset are removed.
 - Browsing and downloading shared Decks from AnkiWeb's website stays, since that is browser access.
 - Decks reach the Fork through a self-hosted sync server, using the custom sync server setting the app already has, or by export and import.
+- Data must always be able to leave the Fork and reach AnkiWeb through the Official App. A whole collection or a single Deck exported from the Fork, with scheduling, review history and media, must import into the current release of the Official App, which can then sync it to AnkiWeb. The reverse direction must work too.
+  - This holds because export and import are done by the Engine, unchanged, in the same package formats the Official App uses. It is checked on a device at every Milestone sign-off rather than assumed.
+  - The Fork's Engine can be newer than the Official App a person has installed. The existing export option that writes a package older versions can read is kept and stays easy to find.
+  - Before an Engine update is taken, the round trip is checked against the current release of the Official App.
+  - Importing a whole collection into the Official App replaces what is there, and its next sync is a one-way upload that overwrites AnkiWeb. Importing a Deck merges into what is there, and its next sync is a normal one. The export screen says which is which.
 - During development, the Fork is tested with a copy of a collection brought in by import, never with a live synced account.
 - Crash reporting to Upstream's server and usage analytics are switched off in the Fork, and their settings entries are removed.
 
@@ -338,6 +352,8 @@ A good test exercises a Native Surface the way a person does and checks what tha
 ### On-device check
 
 Each Milestone ends with a run on the Pixel 9 emulator, repeating the walk used for the "before" pictures, and a sign-off on the owner's own phone once it is connected.
+
+Each sign-off also includes the round trip with the Official App: a collection and a Deck exported from the Fork are imported into the current release of the Official App installed beside it, and checked for Cards, scheduling, review history and media; then the same in the other direction.
 
 ## Out of Scope
 

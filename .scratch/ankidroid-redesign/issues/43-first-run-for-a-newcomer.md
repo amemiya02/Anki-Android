@@ -11,3 +11,4 @@
 - [ ] It does not appear again once the owner has begun.
 - [ ] It matches the agreed Mockup.
 - [ ] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
+- [ ] A collection or a Deck exported from the Official App or desktop Anki can be imported from the first-run screen, keeping scheduling, review history and media.

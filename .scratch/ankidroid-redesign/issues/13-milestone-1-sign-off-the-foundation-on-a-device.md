@@ -11,3 +11,4 @@
 - [ ] No capture shows two looks at once.
 - [ ] Baseline pictures for the rendered-screen tests are regenerated and committed.
 - [ ] The owner has signed off the Milestone.
+- [ ] Round trip with the Official App: a collection and a Deck exported from the Fork import into the current release of the Official App with Cards, scheduling, review history and media intact, and the same works in the other direction.

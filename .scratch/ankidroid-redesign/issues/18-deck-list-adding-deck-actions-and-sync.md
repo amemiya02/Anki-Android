@@ -13,3 +13,5 @@
 - [ ] It matches the agreed Mockup.
 - [ ] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
 - [ ] Screen-logic tests and Engine tests still pass unchanged.
+- [ ] Exporting a Deck or the whole collection offers the same choices as today: scheduling, media, Deck options, and a package older versions can read.
+- [ ] The export screen says whether the package will replace or merge with what is in the other app.

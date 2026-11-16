@@ -14,3 +14,4 @@
 - [ ] Shared Decks can still be browsed and downloaded.
 - [ ] A rendered-screen test covers sync setup with and without a server address.
 - [ ] Screen-logic tests and Engine tests still pass unchanged.
+- [ ] Exporting a collection or a Deck still works and is reachable, so data can leave the Fork and reach AnkiWeb through the Official App.

@@ -10,3 +10,4 @@
 - [ ] The walk is done in English and Simplified Chinese and captured in all three themes.
 - [ ] Baseline pictures are regenerated and committed.
 - [ ] The owner has signed off the Milestone.
+- [ ] Round trip with the Official App: a collection and a Deck exported from the Fork import into the current release of the Official App with Cards, scheduling, review history and media intact, and the same works in the other direction.
