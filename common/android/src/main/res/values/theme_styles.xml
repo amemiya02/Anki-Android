@@ -127,4 +127,13 @@
     <style name="Widget.Foundation.OverflowButton" parent="Widget.AppCompat.ActionButton.Overflow">
         <item name="android:src">@drawable/symbol_more_vert</item>
     </style>
+
+    <!-- The search field's icons, drawn from Material Symbols like every interface icon -->
+    <style name="Widget.Foundation.SearchView" parent="Widget.AppCompat.SearchView">
+        <item name="searchIcon">@drawable/symbol_search</item>
+        <item name="searchHintIcon">@drawable/symbol_search</item>
+        <item name="closeIcon">@drawable/symbol_close</item>
+        <item name="goIcon">@drawable/symbol_arrow_forward</item>
+        <item name="voiceIcon">@drawable/symbol_mic</item>
+    </style>
 </resources>

@@ -150,7 +150,7 @@ class InterfaceIconsAreMaterialSymbolsTest {
             .filter { lock.style[it] != style.get(it).toString() }
             .map { "symbols.lock: $it is ${lock.style[it]}, the Foundation says ${style.get(it)}" }
 
-    /** Icons the platform draws for the app (the up arrow, the overflow menu) come from the theme */
+    /** Icons the platform draws for the app (the up arrow, the overflow menu, the search field) come from the theme */
     private fun themeIconProblems(): List<String> {
         val items =
             resourceDirs
@@ -170,8 +170,13 @@ class InterfaceIconsAreMaterialSymbolsTest {
         return listOf("Base.Theme.Light", "Base.Theme.Dark").flatMap { theme ->
             val own = items[theme].orEmpty()
             val overflow = items[own["actionOverflowButtonStyle"]?.removePrefix("@style/")].orEmpty()["android:src"]
-            listOf("homeAsUpIndicator" to own["homeAsUpIndicator"], "actionOverflowButtonStyle android:src" to overflow)
-                .filter { (_, value) -> value?.startsWith("@drawable/symbol_") != true }
+            val search = items[own["searchViewStyle"]?.removePrefix("@style/")].orEmpty()
+            listOf(
+                "homeAsUpIndicator" to own["homeAsUpIndicator"],
+                "actionOverflowButtonStyle android:src" to overflow,
+                "searchViewStyle searchIcon" to search["searchIcon"],
+                "searchViewStyle closeIcon" to search["closeIcon"],
+            ).filter { (_, value) -> value?.startsWith("@drawable/symbol_") != true }
                 .map { (slot, value) -> "$theme: $slot is $value, not a Material Symbol" }
         }
     }

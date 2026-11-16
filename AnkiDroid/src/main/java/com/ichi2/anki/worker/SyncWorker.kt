@@ -46,6 +46,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import timber.log.Timber
 import kotlin.coroutines.cancellation.CancellationException
+import com.ichi2.anki.common.android.R as CommonR
 
 /**
  * Held while a background collection sync runs. A profile switch holds it until
@@ -214,7 +215,7 @@ class SyncWorker(
                 setContentTitle(TR.syncSyncing())
                 setOngoing(true)
                 setProgress(0, 0, true)
-                addAction(R.drawable.symbol_close, cancelTitle, cancelIntent)
+                addAction(CommonR.drawable.symbol_close, cancelTitle, cancelIntent)
                 foregroundServiceBehavior = NotificationCompat.FOREGROUND_SERVICE_DEFERRED
             }
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -250,7 +251,7 @@ class SyncWorker(
             setContentTitle(TR.syncSyncing())
             setContentText(progress)
             setOngoing(true)
-            addAction(R.drawable.symbol_close, cancelTitle, cancelIntent)
+            addAction(CommonR.drawable.symbol_close, cancelTitle, cancelIntent)
         }
     }
 

@@ -101,6 +101,7 @@
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 app:expandedHintEnabled="false"
                 app:endIconMode="clear_text"
+                app:endIconDrawable="@drawable/symbol_close"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="8dp"
                 android:visibility="gone"

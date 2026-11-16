@@ -64,7 +64,7 @@ enum class ViewerAction(
     RESCHEDULE_NOTE(R.id.action_set_due_date, R.drawable.symbol_edit_calendar, DISABLED),
     RESET_PROGRESS(R.id.action_reset_progress, R.drawable.symbol_restart_alt, DISABLED),
     TOGGLE_AUTO_ADVANCE(R.id.action_toggle_auto_advance, R.drawable.symbol_fast_forward, DISABLED),
-    RECORD_VOICE(R.id.action_record_voice, R.drawable.symbol_mic, DISABLED),
+    RECORD_VOICE(R.id.action_record_voice, CommonR.drawable.symbol_mic, DISABLED),
     PLAY_MEDIA(R.id.action_replay_media, R.drawable.symbol_play_circle, DISABLED),
     USER_ACTION_1(R.id.user_action_1, R.drawable.symbol_counter_1, DISABLED),
     USER_ACTION_2(R.id.user_action_2, R.drawable.symbol_counter_2, DISABLED),

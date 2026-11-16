@@ -168,7 +168,8 @@
                     android:hint="@string/type_answer_hint"
                     app:boxBackgroundMode="filled"
                     app:boxStrokeWidth="0dp"
-                    app:endIconMode="clear_text">
+                    app:endIconMode="clear_text"
+                    app:endIconDrawable="@drawable/symbol_close">
 
                     <com.ichi2.ui.TypeAnswerEditText
                         android:id="@+id/type_answer_edit_text"

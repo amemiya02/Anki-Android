@@ -20,6 +20,7 @@ import com.ichi2.anki.utils.ext.removeSubMenu
 import com.ichi2.utils.setPaddedIcon
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import com.ichi2.anki.common.android.R as CommonR
 
 fun ReviewerMenuView.setup(
     lifecycle: Lifecycle,
@@ -114,10 +115,10 @@ fun ReviewerMenuView.setup(
         recordVoiceFlow
             .onEach { isEnabled ->
                 if (isEnabled) {
-                    recordVoiceItem.setPaddedIcon(context, R.drawable.symbol_mic)
+                    recordVoiceItem.setPaddedIcon(context, CommonR.drawable.symbol_mic)
                     recordVoiceItem.setTitle(CommonString.disable_voice_recording)
                 } else {
-                    recordVoiceItem.setPaddedIcon(context, R.drawable.symbol_mic)
+                    recordVoiceItem.setPaddedIcon(context, CommonR.drawable.symbol_mic)
                     recordVoiceItem.setTitle(CommonString.enable_voice_recording)
                 }
             }.launchIn(lifecycle.coroutineScope)

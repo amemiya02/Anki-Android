@@ -176,6 +176,13 @@
         <item name="elevationOverlayEnabled">false</item>
         <item name="chipStyle">@style/TimePickerStyle.Display</item>
         <item name="materialClockStyle">@style/TimePickerStyle.Clock</item>
+        <item name="materialTimePickerStyle">@style/TimePickerStyle.Picker</item>
+    </style>
+
+    <!-- The picker's switch between the clock face and typed entry, drawn from Material Symbols -->
+    <style name="TimePickerStyle.Picker" parent="Widget.Material3.MaterialTimePicker">
+        <item name="keyboardIcon">@drawable/symbol_keyboard</item>
+        <item name="clockIcon">@drawable/symbol_schedule</item>
     </style>
 
     <style name="TimePickerStyle.Display" parent="Widget.Material3.MaterialTimePicker.Display">
@@ -216,5 +223,11 @@
         <item name="backgroundTint">@color/sort_pill_background_color</item>
         <item name="strokeWidth">?attr/widgetStrokeWidth</item>
         <item name="strokeColor">?attr/widgetStrokeColor</item>
+    </style>
+
+    <!-- A filter chip's check mark, drawn from Material Symbols like every interface icon -->
+    <style name="Widget.Foundation.Chip.Filter" parent="Widget.Material3.Chip.Filter">
+        <item name="checkedIcon">@drawable/symbol_check</item>
+        <item name="closeIcon">@drawable/symbol_close</item>
     </style>
 </resources>

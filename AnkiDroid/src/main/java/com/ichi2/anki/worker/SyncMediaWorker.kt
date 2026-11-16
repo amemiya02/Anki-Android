@@ -46,6 +46,7 @@ import timber.log.Timber
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import com.ichi2.anki.common.android.R as CommonR
 
 /**
  * Held while a media sync runs. A profile switch holds it until the process dies,
@@ -150,7 +151,7 @@ class SyncMediaWorker(
                 setContentTitle(title)
                 setOngoing(true)
                 setProgress(0, 0, true)
-                addAction(R.drawable.symbol_close, cancelTitle, cancelIntent)
+                addAction(CommonR.drawable.symbol_close, cancelTitle, cancelIntent)
                 foregroundServiceBehavior = NotificationCompat.FOREGROUND_SERVICE_DEFERRED
             }
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -196,7 +197,7 @@ class SyncMediaWorker(
             setContentTitle(title)
             setContentText(progress)
             setOngoing(true)
-            addAction(R.drawable.symbol_close, cancelTitle, cancelIntent)
+            addAction(CommonR.drawable.symbol_close, cancelTitle, cancelIntent)
         }
     }
 

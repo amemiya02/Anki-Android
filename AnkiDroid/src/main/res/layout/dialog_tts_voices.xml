@@ -95,7 +95,7 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/toggle_internet_required"
-            style="@style/Widget.Material3.Chip.Filter"
+            style="@style/Widget.Foundation.Chip.Filter"
             app:chipSurfaceColor="@android:color/transparent"
             app:chipBackgroundColor="@android:color/transparent"
 
@@ -109,7 +109,7 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/only_show_uninstalled"
-            style="@style/Widget.Material3.Chip.Filter"
+            style="@style/Widget.Foundation.Chip.Filter"
             app:chipSurfaceColor="@android:color/transparent"
             app:chipBackgroundColor="@android:color/transparent"
 

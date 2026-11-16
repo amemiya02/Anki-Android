@@ -68,6 +68,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/username"
                     app:endIconMode="clear_text"
+                    app:endIconDrawable="@drawable/symbol_close"
                     app:errorEnabled="true"
                     android:layout_marginHorizontal="@dimen/input_layout_padding">
 
@@ -88,6 +89,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/password"
                     app:endIconMode="password_toggle"
+                    app:endIconDrawable="@drawable/password_toggle"
                     app:errorEnabled="true"
                     android:layout_marginHorizontal="@dimen/input_layout_padding">
 

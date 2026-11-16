@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-License-Identifier: GPL-3.0-or-later
+
+  Replaces the settings search library's own icon of this name with the Material Symbol.
+-->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:drawable="@drawable/symbol_close"
+    tools:ignore="UnusedResources"
+    tools:override="true" />
