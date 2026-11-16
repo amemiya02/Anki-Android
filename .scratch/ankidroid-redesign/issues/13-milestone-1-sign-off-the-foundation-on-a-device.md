@@ -38,3 +38,11 @@ Device part done on `ticket/13` (Pixel 9 emulator, Android 16, debug build `com.
 
 - Look at the two overview sheets and decide on the problems above, then sign off.
 - Round trip with the Official App: the Official App was not installed, so this was not done.
+
+**Fixes after the walk** (branch `fix/m1-device`, one commit each, each with a regression test that failed first):
+
+- Old study screen: the strip under the answer buttons (`showAnswerColor`) was the Foundation's primary (the cinnabar band behind the gesture bar) and the "Show answer" label was onPrimary (paper on paper in Light). Both now follow the page: the strip is paper like the buttons, the label is ink, and the navigation bar icons follow the theme instead of always being light. No restyle otherwise (ADR-0004). Test: `ReviewerLegibilityTest` (label contrast on its rendered button, strip colour under the navigation bar, navigation bar icons; Light, Dark, Black).
+- Light status bar: the first-run screen and seven more screens still asked for light status bar icons in every theme, a leftover of Upstream's coloured app bars: study options, card browser (without the search view), Note Type fields, card template editor, browser appearance, about and shared decks. All now follow the theme. Test: `StatusBarFollowsThemeTest` starts every screen in `ActivityList` in Light, Dark and Black and checks the status bar icon appearance (69 cases).
+- Drawer header: the header was deliberately not inset, so Upstream's banner drew under the status bar; Hayaki's mark then sat under the clock. The header now adds the status bar's height to its top padding. Test: `NavigationDrawerInsetsTest`.
+- Checked with the harness in Light, Dark and Black (`ReviewerScreenshotTest` question and answer, `NavigationDrawerScreenshotTest`, `IntroductionScreenshotTest`). The harness does not draw the system's status bar icons, so the status bar fix rests on the test above and still wants a look on a device.
+- The unexplained network traffic is investigated under ticket 02's Comments.
