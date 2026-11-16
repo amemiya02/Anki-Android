@@ -63,7 +63,10 @@ abstract class ScreenshotTest : RobolectricTest() {
         DESKTOP("w1920dp-h1080dp-xlarge-long-notround-any", "xhdpi"),
         ;
 
-        fun qualifiers(night: Boolean) = listOfNotNull(screen, "night".takeIf { night }, density, "keyshidden-nonav").joinToString("-")
+        fun qualifiers(
+            night: Boolean,
+            language: LanguageConfig,
+        ) = listOfNotNull(language.qualifiers, screen, "night".takeIf { night }, density, "keyshidden-nonav").joinToString("-")
     }
 
     /**
@@ -88,11 +91,15 @@ abstract class ScreenshotTest : RobolectricTest() {
     @TestParameter(valuesProvider = DeviceProvider::class)
     lateinit var device: DeviceConfig
 
+    @TestParameter(valuesProvider = LanguageProvider::class)
+    lateinit var language: LanguageConfig
+
     @Before
     open fun applyGlobalConfig() {
         stabilizeVersionName()
         applyDeviceConfig()
         applyThemeConfig()
+        applyLanguageConfig()
     }
 
     /** Reports [STABLE_VERSION_NAME] as the `versionName` shown on-screen */
@@ -125,6 +132,13 @@ abstract class ScreenshotTest : RobolectricTest() {
         }
     }
 
+    // ./gradlew :AnkiDroid:recordRoborazziPlayDebug -Pscreenshot -Planguage=ja,ar
+    private fun applyLanguageConfig() {
+        if (language != LanguageConfig.ENGLISH) {
+            fileNamePrefix += "${language.option}_"
+        }
+    }
+
     /** Applies the orientation and returns its component of the screenshot filename. */
     protected fun setOrientation(landscape: Boolean): String {
         if (landscape) RuntimeEnvironment.setQualifiers("+land")
@@ -136,7 +150,8 @@ abstract class ScreenshotTest : RobolectricTest() {
 
     protected fun setTabletQualifiers() = setDeviceQualifiers(DeviceConfig.TABLET)
 
-    private fun setDeviceQualifiers(device: DeviceConfig) = RuntimeEnvironment.setQualifiers(device.qualifiers(night = theme.isNight))
+    private fun setDeviceQualifiers(device: DeviceConfig) =
+        RuntimeEnvironment.setQualifiers(device.qualifiers(night = theme.isNight, language = language))
 
     /**
      * Captures a screenshot to `build/outputs/roborazzi/<TestClass>/<name>.png`.

@@ -313,8 +313,10 @@ android {
                     // ./gradlew testFullDebugUnitTest -Pscreenshot
                     if (project.hasProperty("screenshot")) {
                         // ./gradlew :AnkiDroid:recordRoborazziPlayDebug -Pscreenshot -Ptheme=black -Pdevice=tablet,foldable
+                        // -Planguage=zh-cn,ja,ar
                         val theme = project.findProperty("theme")?.takeIf { it.toString().isNotEmpty() } ?: "light"
                         val device = project.findProperty("device")?.takeIf { it.toString().isNotEmpty() } ?: "phone"
+                        val language = project.findProperty("language")?.takeIf { it.toString().isNotEmpty() } ?: "en"
                         val validateInput = { input: Any, validOptions: List<String> ->
                             val requested =
                                 Pattern
@@ -331,9 +333,11 @@ android {
                         }
                         validateInput(theme, listOf("light", "plain", "dark", "black", "eink", "all"))
                         validateInput(device, listOf("phone", "tablet", "foldable", "desktop", "all"))
+                        validateInput(language, listOf("en", "zh-cn", "ja", "ar", "all"))
 
                         test.systemProperty("screenshot.theme", theme)
                         test.systemProperty("screenshot.device", device)
+                        test.systemProperty("screenshot.language", language)
                         test.systemProperty("screenshot.accessibilityScan", project.hasProperty("accessibilityScan"))
                     }
                     // Ensures that no EmptyApplication test relies on AnkiDroidApp
