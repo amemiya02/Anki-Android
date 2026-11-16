@@ -30,3 +30,4 @@
 
 **Left in place:** stale translations of removed strings in `values-*/`; the username field's "Email address" hint; the AnkiWeb privacy policy and terms in Help, which still apply to shared decks. The screen is not restyled.
 
+**Device check (ticket 13):** On the Pixel 9 emulator, with no server address, the deck list's sync button opens sync setup ("Sync server"), and its "Sync account" row is disabled. With a placeholder address set, the sign-in form shows only email, password, Log in and Privacy: no sign-up, password reset or forgot-email links. The address was removed again and no sign-in was attempted. The first-run screen offers "Import a collection or deck". Still open: syncing end to end against a self-hosted server. No server was set up for this check.

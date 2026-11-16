@@ -34,3 +34,5 @@
   App's logo) for ticket 47, the widgets' logos for ticket 46, and the AnkiWeb sign-in illustrations
   (`login_logo`, `logged_in_logo`) for ticket 44. The launch screen and first-run screen now show the
   Hayaki icon; their colours are left to ticket 12.
+
+**Device check (ticket 13):** On the Pixel 9 emulator (Android 16), the debug build's launcher entry and app switcher show the Hayaki icon (adaptive, circle mask) and the working name "AnkiDroid Redesign", as debug builds should. Still open: Hayaki as the name on a device, which needs a release build installed; a real notification; and the themed (monochrome) icon on the launcher. The launcher setting for themed icons was not changed.
