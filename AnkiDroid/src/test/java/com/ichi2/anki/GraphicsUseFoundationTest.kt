@@ -26,19 +26,19 @@ import kotlin.test.assertEquals
 class GraphicsUseFoundationTest {
     @Test
     fun `no graphic fixes a colour outside the Foundation`() {
-        val offending = colourProblems().filter { it.isSwept() }
+        val offending = colourProblems()
         assertEquals(emptyList(), offending, "${offending.size} hard-coded colours in graphics")
     }
 
     @Test
     fun `no graphic is a bitmap`() {
-        val offending = bitmapProblems().filter { it.isSwept() }
+        val offending = bitmapProblems()
         assertEquals(emptyList(), offending, "${offending.size} bitmaps")
     }
 
     @Test
     fun `no code draws with a colour outside the Foundation`() {
-        val offending = codeProblems().filter { it.isSwept() }
+        val offending = codeProblems()
         assertEquals(emptyList(), offending, "${offending.size} hard-coded colours in code")
     }
 
@@ -46,12 +46,8 @@ class GraphicsUseFoundationTest {
     fun `the exemptions are still needed`() {
         val unusedMasks = MASKS.keys.filter { name -> drawables().none { it.nameWithoutExtension == name } }
         val unusedOutside = DRAWN_WITHOUT_THE_APP_THEME.keys.filter { name -> drawables().none { it.nameWithoutExtension == name } }
-        val all = colourProblems() + bitmapProblems() + codeProblems()
-        val swept = NOT_YET_SWEPT.filter { part -> all.none { part in it } }.map { "$it is swept: remove it from NOT_YET_SWEPT" }
-        assertEquals(emptyList(), unusedMasks + unusedOutside + swept, "exemptions no longer needed")
+        assertEquals(emptyList(), unusedMasks + unusedOutside, "exemptions no longer needed")
     }
-
-    private fun String.isSwept() = NOT_YET_SWEPT.none { it in this }
 
     private fun colourProblems(): List<String> = drawables().flatMap { drawableProblems(it) }
 
@@ -72,7 +68,7 @@ class GraphicsUseFoundationTest {
                     KOTLIN_COLOUR
                         .findAll(line)
                         .map { it.value }
-                        .filter { !isFoundationResource(it) }
+                        .filter { !followsTheFoundation(it) }
                         .filter { token -> CONTENT_COLOURS.keys.none { it.covers(path, token) } }
                         .map { "$path:${index + 1}: $it" }
                         .toList()
@@ -183,7 +179,16 @@ class GraphicsUseFoundationTest {
 
     private fun String.isWhite() = uppercase() in setOf("#FFF", "#FFFFFF", "#FFFFFFFF", "@ANDROID:COLOR/WHITE", "@COLOR/WHITE")
 
-    private fun isFoundationResource(token: String) = FOUNDATION_RESOURCE.matches(token)
+    /**
+     * Whether a colour named in code follows the Foundation: a Foundation colour or a Flag's colour
+     * (code also draws outside the app's theme, as notifications are), or one of the app's colour
+     * state lists built from theme attributes.
+     */
+    private fun followsTheFoundation(token: String): Boolean {
+        if (FOUNDATION_RESOURCE.matches(token)) return true
+        val app = APP_COLOUR_RESOURCE.matchEntire(token) ?: return false
+        return colourProblem("@color/${app.groupValues[1]}") == null
+    }
 
     /** Whether a [CONTENT_COLOURS] key (`<path part>` or `<path part>#<token>`) covers [token] in the file at [path] */
     private fun String.covers(
@@ -221,11 +226,8 @@ class GraphicsUseFoundationTest {
 
         private val FOUNDATION_RESOURCE = Regex(".*\\.color\\.(foundation_\\w+|flag_\\w+|transparent)")
 
-        /** Graphics and code the sweep has not reached yet (part of the reported location) */
-        private val NOT_YET_SWEPT =
-            setOf(
-                "/java/",
-            )
+        /** A colour resource of the app's own modules (not the platform's or a library's) */
+        private val APP_COLOUR_RESOURCE = Regex("(?:CommonR|R)\\.color\\.(\\w+)")
 
         /**
          * Graphics drawn by the launcher, not inside the app, so a theme attribute cannot reach them.
@@ -256,6 +258,8 @@ class GraphicsUseFoundationTest {
             mapOf(
                 "com/ichi2/anki/Whiteboard.kt" to "the old study screen's whiteboard: pen and ink colours the person picks",
                 "com/ichi2/anki/ui/windows/reviewer/whiteboard/" to "the whiteboard: brush and ink colours the person picks",
+                "com/ichi2/anki/DrawingFragment.kt" to "a drawing saved into a Note: its paper is Card Content",
+                "com/ichi2/anki/AbstractFlashcardViewer.kt#Color.argb(" to "the Card Content's web view: 1/255 alpha, never seen",
             )
     }
 }

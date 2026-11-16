@@ -53,6 +53,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.widget.TooltipCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
@@ -86,6 +87,7 @@ import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.utils.android.HandlerUtils.executeFunctionWithDelay
 import com.ichi2.anki.common.utils.android.HandlerUtils.getDefaultLooper
+import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.common.utils.ext.showRemainingDueCounts
@@ -387,6 +389,13 @@ open class Reviewer :
     // insets are handled manually: see setupEdgeToEdge()
     public override fun fitsSystemWindows(): Boolean = false
 
+    /** The page's colour, see-through by [alpha]: a scrim behind a system bar over the card */
+    private fun pageScrim(alpha: Int) = ColorUtils.setAlphaComponent(getColorFromAttr(this, CommonR.attr.foundationBackground), alpha)
+
+    /** Dark's page colour as a scrim, for a navigation bar whose icons can only be light (below API 26) */
+    private fun darkPageScrim() =
+        ColorUtils.setAlphaComponent(getColor(CommonR.color.foundation_dark_background), EDGE_TO_EDGE_DARK_SCRIM_ALPHA)
+
     /**
      * Enables edge-to-edge and applies insets so no content is occluded by the system bars.
      */
@@ -409,15 +418,15 @@ open class Reviewer :
                     // use a translucent scrim if there are no answer buttons
                     // auto() draws nothing over gesture navigation, so use dark/light.
                     if (Themes.isNightTheme) {
-                        SystemBarStyle.dark(EDGE_TO_EDGE_DARK_SCRIM)
+                        SystemBarStyle.dark(pageScrim(EDGE_TO_EDGE_DARK_SCRIM_ALPHA))
                     } else {
-                        SystemBarStyle.light(EDGE_TO_EDGE_LIGHT_SCRIM, EDGE_TO_EDGE_DARK_SCRIM)
+                        SystemBarStyle.light(pageScrim(EDGE_TO_EDGE_LIGHT_SCRIM_ALPHA), darkPageScrim())
                     }
                 } else {
                     // the navigation bar sits over an empty window-background strip below the
                     // card. The dark scrim is only used below API 26, where light navigation
                     // icons are unsupported
-                    SystemBarStyle.auto(Color.TRANSPARENT, EDGE_TO_EDGE_DARK_SCRIM) {
+                    SystemBarStyle.auto(Color.TRANSPARENT, darkPageScrim()) {
                         Themes.isNightTheme
                     }
                 },
@@ -2148,10 +2157,10 @@ open class Reviewer :
         private const val REQUEST_AUDIO_PERMISSION = 0
         private const val ANIMATION_DURATION = 200
 
-        // the default scrims of androidx.activity.EdgeToEdge, which it keeps private.
-        // These are lazy for unit tests
-        private val EDGE_TO_EDGE_LIGHT_SCRIM by lazy { Color.argb(0xe6, 0xff, 0xff, 0xff) }
-        private val EDGE_TO_EDGE_DARK_SCRIM by lazy { Color.argb(0x80, 0x1b, 0x1b, 0x1b) }
+        // the alphas of androidx.activity.EdgeToEdge's default scrims, which it keeps private.
+        // The scrims themselves are the Foundation's page colour.
+        private const val EDGE_TO_EDGE_LIGHT_SCRIM_ALPHA = 0xe6
+        private const val EDGE_TO_EDGE_DARK_SCRIM_ALPHA = 0x80
 
         /**
          * With the system bars hidden, the answer buttons rest this far above the bottom

@@ -162,7 +162,7 @@ class ReminderTroubleshootingFragment : Fragment(R.layout.fragment_reminder_trou
                     SummaryStatus.Error ->
                         Triple(
                             R.drawable.symbol_cancel,
-                            context.getColor(android.R.color.holo_red_dark),
+                            getColorFromAttr(context, CommonR.attr.foundationEmphasis),
                             context.getString(CommonString.reminder_troubleshooting_summary_error),
                         )
 
@@ -431,10 +431,10 @@ private fun CheckResult.tintColor(context: Context): Int =
     when (this) {
         is CheckResult.Passed -> getColorFromAttr(context, CommonR.attr.reminderTroubleshootingOk)
         is CheckResult.Warning -> getColorFromAttr(context, CommonR.attr.reminderTroubleshootingWarning)
-        is CheckResult.Failed -> context.getColor(android.R.color.holo_red_dark)
-        is CheckResult.Loading -> context.getColor(android.R.color.darker_gray)
-        is CheckResult.Unavailable -> context.getColor(android.R.color.darker_gray)
-        is CheckResult.Error -> context.getColor(android.R.color.holo_red_dark)
+        is CheckResult.Failed -> getColorFromAttr(context, CommonR.attr.foundationEmphasis)
+        is CheckResult.Loading -> getColorFromAttr(context, CommonR.attr.foundationOnBackgroundMuted)
+        is CheckResult.Unavailable -> getColorFromAttr(context, CommonR.attr.foundationOnBackgroundMuted)
+        is CheckResult.Error -> getColorFromAttr(context, CommonR.attr.foundationEmphasis)
     }
 
 /**

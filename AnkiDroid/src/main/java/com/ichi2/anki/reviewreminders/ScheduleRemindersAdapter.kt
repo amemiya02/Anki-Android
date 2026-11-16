@@ -17,6 +17,7 @@ import com.google.android.material.materialswitch.MaterialSwitch
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
+import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.ext.setBitFlag
 import com.ichi2.anki.databinding.ItemScheduleRemindersBinding
 import com.ichi2.anki.libanki.DeckId
@@ -82,8 +83,8 @@ class ScheduleRemindersAdapter(
     ) {
         val activeTextColor = getThemeColor(holder.context, normalTextThemeAttribute)
         val activeTrackColor = getThemeColor(holder.context, normalPrimaryColorThemeAttribute)
-        val inactiveTextColor = holder.context.getColor(erroredReviewReminderColor)
-        val inactiveTrackColor = holder.context.getColor(erroredReviewReminderColor)
+        val inactiveTextColor = getColorFromAttr(holder.context, erroredReviewReminderColor)
+        val inactiveTrackColor = getColorFromAttr(holder.context, erroredReviewReminderColor)
 
         when (scope) {
             is ReviewReminderScope.Global -> {
@@ -176,7 +177,7 @@ class ScheduleRemindersAdapter(
          * Color of the activated switch and text of an element in the review reminder UI list when its review reminder
          * is errored-out. A deck-specific review reminder can become errored-out if its corresponding deck cannot be found.
          */
-        private val erroredReviewReminderColor: Int = CommonR.color.material_grey_500
+        private val erroredReviewReminderColor: Int = CommonR.attr.foundationOnBackgroundMuted
 
         private val diffCallback =
             object : DiffUtil.ItemCallback<ReviewReminder>() {

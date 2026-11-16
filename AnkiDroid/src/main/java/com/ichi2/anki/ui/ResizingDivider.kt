@@ -25,6 +25,6 @@ class ResizingDivider
             val layoutInflater = LayoutInflater.from(context)
             ViewResizingDividerInternalBinding.inflate(layoutInflater, this)
 
-            setBackgroundColor(context.getColor(R.color.idle_divider_color))
+            setBackgroundColor(context.getColor(R.color.divider_idle))
         }
     }

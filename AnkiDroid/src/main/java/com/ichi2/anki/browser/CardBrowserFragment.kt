@@ -4,7 +4,6 @@ package com.ichi2.anki.browser
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.Spannable
@@ -105,6 +104,7 @@ import com.ichi2.anki.browser.search.iconRes
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.destinations.NoteEditorDestination
 import com.ichi2.anki.common.destinations.navigate
+import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.ext.ifNotZero
 import com.ichi2.anki.common.utils.ext.savedFilters
 import com.ichi2.anki.dialogs.BrowserOptionsDialog
@@ -169,6 +169,7 @@ import kotlinx.coroutines.launch
 import net.ankiweb.rsdroid.RustCleanup
 import net.ankiweb.rsdroid.Translations
 import timber.log.Timber
+import com.ichi2.anki.common.android.R as CommonR
 
 // Minor BUG: 'don't keep activities' and huge selection
 // At some point, starting between 35k and 60k selections, the scroll position is lost on recreation
@@ -1208,7 +1209,7 @@ class CardBrowserFragment :
             if (activity?.isFinishing == true) return
 
             // WARN: This changes the text when the SearchView is open
-            launchCatchingTask { searchBar?.setText(value.toUserSpannable()) }
+            launchCatchingTask { searchBar?.setText(value.toUserSpannable(requireContext())) }
 
             Timber.i("relaying submitted search to activity")
             activityViewModel.launchSearchForCards(value, forceRefresh = false, feedbackMode = BrowserSearchFeedbackMode.SEARCH_RESULTS)
@@ -1244,7 +1245,7 @@ class CardBrowserFragment :
 
             // Handle default search text
             if (search.query.isNotEmpty() && searchBar?.text.isNullOrEmpty()) {
-                launchCatchingTask { searchBar?.setText(search.toUserSpannable()) }
+                launchCatchingTask { searchBar?.setText(search.toUserSpannable(requireContext())) }
             }
 
             legacyDeckName?.text = filters.decks.firstOrNull()?.name ?: TR.sentenceCase.allDecks
@@ -2063,28 +2064,34 @@ private fun Fragment.getOrCreateSearchFragment(
 }
 
 @CheckResult
-suspend fun SearchRequest.toUserSpannable(): Spannable {
+suspend fun SearchRequest.toUserSpannable(context: Context): Spannable {
     val text = withCol { this@toUserSpannable.toSearchString() }.getOrDefault(SearchString.EMPTY)
-    return this.toUserSpannable(text)
+    return this.toUserSpannable(context, text)
 }
 
 @CheckResult
-fun SearchRequest.toUserSpannable(searchString: SearchString): Spannable = buildUserSpannable(this.query, searchString)
+fun SearchRequest.toUserSpannable(
+    context: Context,
+    searchString: SearchString,
+): Spannable = buildUserSpannable(context, this.query, searchString)
 
 @CheckResult
-fun SearchHistory.SearchHistoryEntry.toUserSpannable(searchString: SearchString) = buildUserSpannable(this.query, searchString)
+fun SearchHistory.SearchHistoryEntry.toUserSpannable(
+    context: Context,
+    searchString: SearchString,
+) = buildUserSpannable(context, this.query, searchString)
 
 fun buildUserSpannable(
+    context: Context,
     query: String,
     searchString: SearchString,
 ): SpannableString {
-    // TODO: handle theming, don't hardcode gray
     val spannable = SpannableString(searchString.value)
 
-    // gray out the additional filters, as they're handled by chips
+    // mute the additional filters, as they're handled by chips
     if (searchString.value.startsWith(query)) {
         spannable.setSpan(
-            ForegroundColorSpan(Color.GRAY),
+            ForegroundColorSpan(getColorFromAttr(context, CommonR.attr.foundationOnBackgroundMuted)),
             query.length,
             searchString.length,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,

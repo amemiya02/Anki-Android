@@ -5,7 +5,6 @@ package com.ichi2.anki.dialogs
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.text.SpannableStringBuilder
@@ -49,6 +48,7 @@ import com.ichi2.anki.CrashReportData.Companion.toCrashReportData
 import com.ichi2.anki.R
 import com.ichi2.anki.analytics.AnalyticsDialogFragment
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.android.getResFromAttr
 import com.ichi2.anki.compat.setTooltipTextCompat
 import com.ichi2.anki.databinding.DialogChangeNoteTypeBinding
@@ -211,7 +211,7 @@ class ChangeNoteTypeDialog : AnalyticsDialogFragment(R.layout.dialog_change_note
             android.R.layout.simple_spinner_dropdown_item,
             noteTypes,
         ) {
-            var clozeColor = MaterialColors.getColor(context, CommonR.attr.clozeColor, Color.BLUE)
+            var clozeColor = getColorFromAttr(context, CommonR.attr.clozeColor)
 
             private val defaultViewTextColor: Int by lazy {
                 (super.getView(0, null, Spinner(context)) as CheckedTextView).currentTextColor
@@ -326,7 +326,6 @@ class ChangeNoteTypeDialog : AnalyticsDialogFragment(R.layout.dialog_change_note
                 MaterialColors.getColor(
                     tabLayout,
                     com.google.android.material.R.attr.colorOnSurfaceVariant,
-                    Color.GRAY,
                 )
 
             val colorStateList =

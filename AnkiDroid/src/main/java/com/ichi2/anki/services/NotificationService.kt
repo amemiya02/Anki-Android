@@ -6,7 +6,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.BadParcelableException
 import androidx.annotation.VisibleForTesting
 import androidx.core.app.NotificationCompat
@@ -283,7 +282,7 @@ class NotificationService : AnkiBroadcastReceiver() {
                     .Builder(context, NotificationChannel.REVIEW_REMINDERS.id)
                     .setCategory(NotificationCompat.CATEGORY_REMINDER)
                     .setSmallIcon(R.drawable.ic_star_notify)
-                    .setColor(context.getColor(CommonR.color.material_light_blue_700))
+                    .setColor(context.getColor(CommonR.color.foundation_light_primary))
                     .setContentTitle(title)
                     .setContentText(description)
                     .setContentIntent(pendingIntent)
@@ -394,7 +393,7 @@ class NotificationService : AnkiBroadcastReceiver() {
                             NotificationChannel.GENERAL.id,
                         ).setCategory(NotificationCompat.CATEGORY_REMINDER)
                         .setSmallIcon(R.drawable.ic_star_notify)
-                        .setColor(context.getColor(CommonR.color.material_light_blue_700))
+                        .setColor(context.getColor(CommonR.color.foundation_light_primary))
                         .setContentTitle(cardsDueText)
                         .setTicker(cardsDueText)
                 // Enable vibrate and blink if set in preferences
@@ -402,7 +401,7 @@ class NotificationService : AnkiBroadcastReceiver() {
                     builder.setVibrate(longArrayOf(1000, 1000, 1000))
                 }
                 if (preferences.getBoolean("widgetBlink", false)) {
-                    builder.setLights(Color.BLUE, 1000, 1000)
+                    builder.setLights(context.getColor(CommonR.color.foundation_light_primary), 1000, 1000)
                 }
                 // Creates an explicit intent for an Activity in your app
                 val resultIntent = Intent(context, DeckPicker::class.java)

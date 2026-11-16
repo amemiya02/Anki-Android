@@ -5,6 +5,7 @@ package com.ichi2.anki.reviewer
 import android.widget.TextView
 import anki.scheduler.CardAnswer.Rating
 import com.ichi2.anki.common.utils.android.HandlerUtils.newHandler
+import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.android.R as CommonR
 
 /**
@@ -38,19 +39,19 @@ class PreviousAnswerIndicator(
         when (rating) {
             Rating.AGAIN -> {
                 chosenAnswerText.text = "\u2022"
-                chosenAnswerText.setTextColor(getColor(CommonR.color.material_red_500))
+                chosenAnswerText.setTextColor(getColor(CommonR.attr.foundationAnswerAgain))
             }
             Rating.HARD -> {
                 chosenAnswerText.text = "\u2022\u2022"
-                chosenAnswerText.setTextColor(getColor(CommonR.color.material_blue_grey_600))
+                chosenAnswerText.setTextColor(getColor(CommonR.attr.foundationAnswerHard))
             }
             Rating.GOOD -> {
                 chosenAnswerText.text = "\u2022\u2022\u2022"
-                chosenAnswerText.setTextColor(getColor(CommonR.color.material_green_500))
+                chosenAnswerText.setTextColor(getColor(CommonR.attr.foundationAnswerGood))
             }
             Rating.EASY -> {
                 chosenAnswerText.text = "\u2022\u2022\u2022\u2022"
-                chosenAnswerText.setTextColor(getColor(CommonR.color.material_light_blue_500))
+                chosenAnswerText.setTextColor(getColor(CommonR.attr.foundationAnswerEasy))
             }
             Rating.UNRECOGNIZED -> {}
         }
@@ -73,7 +74,7 @@ class PreviousAnswerIndicator(
         timerHandler.removeCallbacks(removeChosenAnswerText)
     }
 
-    private fun getColor(color: Int) = chosenAnswerText.context.getColor(color)
+    private fun getColor(attr: Int) = getColorFromAttr(chosenAnswerText.context, attr)
 
     companion object {
         /** The amount of time to display the answer indicator (2 seconds) */

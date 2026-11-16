@@ -375,8 +375,8 @@ class AudioRecordingController(
         when (state) {
             ImmediatePlayback.CLEARED -> {
                 recordButton.apply {
-                    iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
-                    strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
+                    iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_record)
+                    strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_record)
                     setIconResource(R.drawable.symbol_radio_button_checked)
                     contentDescription = context.getString(CommonString.start_recording)
                 }
@@ -386,8 +386,8 @@ class AudioRecordingController(
             }
             ImmediatePlayback.RECORDING_IN_PROGRESS -> {
                 recordButton.apply {
-                    iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
-                    strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
+                    iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_record)
+                    strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_record)
                     setIconResource(R.drawable.symbol_stop)
                     contentDescription = context.getString(CommonString.stop_recording)
                 }
@@ -396,8 +396,8 @@ class AudioRecordingController(
             }
             ImmediatePlayback.PLAYBACK_PLAYING -> {
                 recordButton.apply {
-                    iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_grey)
-                    strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_grey)
+                    iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_inactive)
+                    strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_inactive)
                     setIconResource(R.drawable.symbol_skip_next)
                     contentDescription = context.getString(CommonString.next_recording)
                 }
@@ -407,8 +407,8 @@ class AudioRecordingController(
             }
             ImmediatePlayback.PLAYBACK_ENDED -> {
                 recordButton.apply {
-                    iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_grey)
-                    strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_grey)
+                    iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_inactive)
+                    strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_inactive)
                     setIconResource(R.drawable.symbol_play_arrow)
                     contentDescription = context.getString(CommonString.play_recording)
                 }
@@ -419,14 +419,14 @@ class AudioRecordingController(
             }
             AppendToRecording.CLEARED -> {
                 recordButton.apply {
-                    iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
-                    strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
+                    iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_record)
+                    strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_record)
                     setIconResource(R.drawable.symbol_radio_button_checked)
                 }
                 playAudioButton.apply {
                     setIconResource(R.drawable.symbol_play_arrow)
-                    iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
-                    strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
+                    iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_record)
+                    strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_record)
                 }
                 cancelAudioRecordingButton.isEnabled = false
                 audioTimeView?.text = DEFAULT_TIME
@@ -458,8 +458,8 @@ class AudioRecordingController(
                 forwardAudioButton.isEnabled = false
                 audioProgressBar.progress = 0
                 playAudioButton.apply {
-                    iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
-                    strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
+                    iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_record)
+                    strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_record)
                     setIconResource(R.drawable.symbol_play_arrow)
                 }
             }
@@ -468,8 +468,8 @@ class AudioRecordingController(
                 forwardAudioButton.isEnabled = false
                 playAudioButton.apply {
                     setIconResource(R.drawable.symbol_play_arrow)
-                    iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
-                    strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_red)
+                    iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_record)
+                    strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_record)
                 }
             }
             AppendToRecording.PLAYBACK_PLAYING -> {
@@ -477,8 +477,8 @@ class AudioRecordingController(
                 forwardAudioButton.isEnabled = true
                 playAudioButton.apply {
                     setIconResource(R.drawable.symbol_pause)
-                    iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_green)
-                    strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_green)
+                    iconTint = ContextCompat.getColorStateList(context, R.color.audio_recorder_playing)
+                    strokeColor = ContextCompat.getColorStateList(context, R.color.audio_recorder_playing)
                 }
             }
         }

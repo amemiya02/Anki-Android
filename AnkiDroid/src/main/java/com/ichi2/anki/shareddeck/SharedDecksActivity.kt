@@ -32,6 +32,7 @@ import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.common.analytics.reportPotentiallyDeadCode
 import com.ichi2.anki.common.crashreporting.CrashReportService
+import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.ext.requireSystemService
 import com.ichi2.anki.databinding.ActivitySharedDecksBinding
 import com.ichi2.anki.ui.internationalization.sentenceCase
@@ -246,7 +247,7 @@ class SharedDecksActivity :
         setTitle(CommonString.download_deck)
         setupEdgeToEdge()
 
-        binding.webviewToolbar.setTitleTextColor(getColor(CommonR.color.white))
+        binding.webviewToolbar.setTitleTextColor(getColorFromAttr(this, CommonR.attr.foundationOnBackground))
         setSupportActionBar(binding.webviewToolbar)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

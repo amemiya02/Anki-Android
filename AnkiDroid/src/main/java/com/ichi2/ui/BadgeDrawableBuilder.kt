@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import com.ichi2.anki.R
 import com.ichi2.anki.SyncActionProvider
 import timber.log.Timber
+import com.ichi2.anki.common.android.R as CommonR
 
 class BadgeDrawableBuilder(
     private val context: Context,
@@ -35,6 +36,8 @@ class BadgeDrawableBuilder(
         val badge = BadgeDrawable(originalIcon)
         if (char != '\u0000') {
             badge.setText(char)
+            // the badge is drawn in the Foundation's emphasis: its text is the page's colour
+            badge.setTextColor(ThemeUtils.getThemeAttrColor(context, CommonR.attr.foundationBackground))
         }
         if (color != null) {
             val badgeDrawable: Drawable? = ContextCompat.getDrawable(context, R.drawable.badge_drawable)

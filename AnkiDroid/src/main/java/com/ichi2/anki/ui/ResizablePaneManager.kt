@@ -26,8 +26,8 @@ class ResizablePaneManager(
     private val sharedPrefs: SharedPreferences,
     private val startPaneWeightKey: String,
     private val endPaneWeightKey: String,
-    private val dragColor: Int = divider.context.getColor(R.color.drag_divider_color),
-    private val idleColor: Int = divider.context.getColor(R.color.idle_divider_color),
+    private val dragColor: Int = divider.context.getColor(R.color.divider_dragging),
+    private val idleColor: Int = divider.context.getColor(R.color.divider_idle),
     private val onResizingChanged: (Boolean) -> Unit = {},
 ) {
     init {

@@ -7,7 +7,6 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Insets
 import android.graphics.Paint
 import android.graphics.drawable.Drawable
@@ -40,6 +39,7 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.common.preferences.sharedPrefs
+import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.compat.CompatHelper
 import com.ichi2.anki.noteeditor.data.ToolbarPreferences
@@ -96,7 +96,7 @@ class Toolbar : FrameLayout {
         stringPaint =
             Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 textSize = 24.dp.toPx(context).toFloat()
-                color = Color.BLACK
+                color = getColorFromAttr(context, CommonR.attr.foundationOnBackground)
                 textAlign = Paint.Align.CENTER
             }
         toolbar = findViewById(R.id.editor_toolbar_internal)

@@ -4,7 +4,6 @@ package com.ichi2.anki.dialogs.customstudy
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
@@ -60,7 +59,7 @@ class IncludedExcludedTagsAdapter(
                 intArrayOf(android.R.attr.selectableItemBackground, androidx.appcompat.R.attr.colorPrimary),
             )
         selectableItemBackground = ta.getResourceId(0, 0)
-        selectedItemBackground = ta.getColor(1, Color.BLUE)
+        selectedItemBackground = ta.getColor(1, 0)
         ta.recycle()
     }
 

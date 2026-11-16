@@ -4,17 +4,18 @@ package com.ichi2.ui
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
 import com.google.android.material.color.MaterialColors
+import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.dp
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import com.ichi2.anki.common.android.R as CommonR
 
 typealias MeasureSpecValue = Int
 
@@ -35,13 +36,13 @@ class AxisValueDisplay(
     /** The default color of the value of an axis when not at an extreme */
     private val normalPaint =
         Paint().apply {
-            color = Color.BLUE
+            color = getColorFromAttr(context, CommonR.attr.foundationOnBackgroundMuted)
         }
 
     /** The color when an axis is at {-1, 1} and is selectable */
     private val extremityPaint =
         Paint().apply {
-            color = Color.GREEN
+            color = getColorFromAttr(context, CommonR.attr.foundationEmphasis)
         }
 
     /** The current value */

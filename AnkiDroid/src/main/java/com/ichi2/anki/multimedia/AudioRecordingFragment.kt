@@ -309,7 +309,10 @@ class AudioRecordingFragment : MultimediaFragment(R.layout.fragment_audio_record
         actionForward.isEnabled = isPlaying
         actionPlayRecording.setIconResource(if (isPlaying) R.drawable.symbol_pause else R.drawable.symbol_play_arrow)
         val playTint =
-            ContextCompat.getColorStateList(requireContext(), if (isPlaying) R.color.audio_recorder_green else R.color.audio_recorder_red)
+            ContextCompat.getColorStateList(
+                requireContext(),
+                if (isPlaying) R.color.audio_recorder_playing else R.color.audio_recorder_record,
+            )
         actionPlayRecording.iconTint = playTint
         actionPlayRecording.strokeColor = playTint
         audioProgressIndicator.max =

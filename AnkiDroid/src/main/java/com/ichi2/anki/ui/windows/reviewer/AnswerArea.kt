@@ -37,6 +37,7 @@ import anki.scheduler.CardAnswer.Rating
 import com.ichi2.anki.R
 import com.ichi2.compose.theme.ankiColors
 import com.ichi2.compose.theme.ankiDimensions
+import com.ichi2.compose.theme.foundation
 import com.ichi2.compose.theme.widgetBorder
 import com.ichi2.anki.common.android.R as CommonR
 
@@ -101,7 +102,7 @@ fun AnswerArea(
         }
         AnswerButton(
             text = AnnotatedString(stringResource(CommonR.string.show_answer)),
-            textColor = Color.White,
+            textColor = MaterialTheme.foundation.colors.onPrimary,
             backgroundColor = colors.showAnswerButton,
             onClick = onShowAnswerClicked,
             modifier = Modifier.matchParentSize().invisibleIf(isAnswerShown),

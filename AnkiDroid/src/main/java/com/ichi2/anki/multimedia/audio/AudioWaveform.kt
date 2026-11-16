@@ -5,14 +5,15 @@ package com.ichi2.anki.multimedia.audio
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.withStyledAttributes
 import com.ichi2.anki.R
+import com.ichi2.anki.common.utils.android.getColorFromAttr
 import kotlin.math.ceil
+import com.ichi2.anki.common.android.R as CommonR
 
 /**This class represents a custom View used for creating audio waveforms when recording audio.
  * It loops over each spike and add it on the screen and the height of the spike is determined by the
@@ -23,19 +24,19 @@ class AudioWaveform(
 ) : View(context, attrs) {
     private var spikePaint =
         Paint().apply {
-            color = Color.rgb(244, 81, 30)
+            color = getColorFromAttr(context, CommonR.attr.foundationEmphasis)
         }
 
     private var verticalLinePaint =
         Paint().apply {
-            color = Color.rgb(33, 150, 243)
+            color = getColorFromAttr(context, CommonR.attr.foundationOnBackground)
             style = Paint.Style.STROKE
             strokeWidth = 5f
         }
 
     private var backgroundPaint =
         Paint().apply {
-            color = Color.argb(20, 229, 228, 226)
+            color = getColorFromAttr(context, CommonR.attr.foundationProgressTrack)
         }
 
     private var amplitudes = ArrayList<Float>()

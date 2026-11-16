@@ -177,7 +177,7 @@ class StandardSearchFragment :
         ) {
             // as we have the rendered SearchString, we can produce a Spannable without using the
             // Anki collection
-            fun toSpannable() = searchString?.let { entry.toUserSpannable(it) } ?: SpannableString("")
+            fun toSpannable(context: Context) = searchString?.let { entry.toUserSpannable(context, it) } ?: SpannableString("")
         }
 
         fun toUiModels(items: SearchHistoryItems): List<SearchHistoryItemUiModel> =
@@ -209,7 +209,7 @@ class StandardSearchFragment :
                     dialog.show(childFragmentManager, "savedSearchName")
                 }
 
-                binding.title.text = item.toSpannable()
+                binding.title.text = item.toSpannable(context)
                 binding.root.setOnClickListener { viewModel.selectSearchHistoryEntry(item.entry) }
                 binding.favorite.setOnClickListener { openSavedSearchNamePrompt() }
                 return binding.root

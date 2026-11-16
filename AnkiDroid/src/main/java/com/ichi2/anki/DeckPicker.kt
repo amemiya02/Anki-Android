@@ -112,6 +112,7 @@ import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.destinations.toIntent
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.storage.CollectionHelper
+import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.common.utils.dp
@@ -514,7 +515,7 @@ open class DeckPicker :
         enableEdgeToEdge(
             statusBarStyle =
                 SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme },
-            navigationBarStyle = BottomFadeFrameLayout.navigationBarStyle(),
+            navigationBarStyle = BottomFadeFrameLayout.navigationBarStyle(this),
         )
 
         binding = ActivityHomescreenBinding.inflate(layoutInflater)
@@ -697,7 +698,7 @@ open class DeckPicker :
             IMPORT_MIME_TYPES,
             DropHelper.Options
                 .Builder()
-                .setHighlightColor(CommonR.color.material_lime_green_A700)
+                .setHighlightColor(getColorFromAttr(this, CommonR.attr.foundationEmphasis))
                 .setHighlightCornerRadiusPx(0)
                 .build(),
             onReceiveContentListener,

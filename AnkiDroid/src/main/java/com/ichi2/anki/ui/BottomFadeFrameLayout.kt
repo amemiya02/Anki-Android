@@ -12,9 +12,11 @@ import android.view.View
 import android.view.Window
 import android.widget.FrameLayout
 import androidx.activity.SystemBarStyle
+import androidx.core.graphics.ColorUtils
 import com.ichi2.anki.android.view.locationOnScreen
 import com.ichi2.anki.compat.setDstOutBlendCompat
 import com.ichi2.themes.Themes
+import com.ichi2.anki.common.android.R as CommonR
 
 /**
  * A container which emulates the 'fade' effect which is applied to content when underneath the
@@ -90,7 +92,7 @@ class BottomFadeFrameLayout
             const val FADE_ALPHA: Int = 0xE6
 
             /** `navigationBarStyle` to pass to [androidx.activity.enableEdgeToEdge] */
-            fun navigationBarStyle(): SystemBarStyle =
+            fun navigationBarStyle(context: Context): SystemBarStyle =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     SystemBarStyle.auto(
                         lightScrim = Color.TRANSPARENT,
@@ -99,8 +101,8 @@ class BottomFadeFrameLayout
                 } else {
                     // Dark nav bar icons are not supported by the platform
                     // Maintain a dark nav, rather than just using fade
-                    // androidx.activity.EdgeToEdge.DefaultDarkScrim
-                    SystemBarStyle.dark(Color.argb(0x80, 0x1b, 0x1b, 0x1b))
+                    // androidx.activity.EdgeToEdge.DefaultDarkScrim's alpha, on Dark's page colour
+                    SystemBarStyle.dark(ColorUtils.setAlphaComponent(context.getColor(CommonR.color.foundation_dark_background), 0x80))
                 }
         }
     }

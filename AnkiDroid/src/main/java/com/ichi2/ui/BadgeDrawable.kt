@@ -3,11 +3,11 @@
 package com.ichi2.ui
 
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.DrawableWrapper
+import androidx.annotation.ColorInt
 
 /**
  * Creates a new wrapper around the specified drawable.
@@ -77,6 +77,13 @@ class BadgeDrawable(
         invalidateSize()
     }
 
+    /** The colour of the badge's text, which sits on the badge's own colour */
+    fun setTextColor(
+        @ColorInt color: Int,
+    ) {
+        paint.color = color
+    }
+
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
         if (badge != null) {
@@ -95,6 +102,5 @@ class BadgeDrawable(
     init {
         paint.typeface = Typeface.DEFAULT_BOLD
         paint.textAlign = Paint.Align.CENTER
-        paint.color = Color.WHITE
     }
 }

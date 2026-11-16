@@ -12,7 +12,6 @@ import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.Color
 import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
@@ -551,7 +550,7 @@ open class AnkiActivity(
                 ).setSmallIcon(R.drawable.ic_star_notify)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setColor(getColor(CommonR.color.material_light_blue_500))
+                .setColor(getColor(CommonR.color.foundation_light_primary))
                 .setStyle(NotificationCompat.BigTextStyle().bigText(message))
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setTicker(ticker)
@@ -583,7 +582,7 @@ open class AnkiActivity(
                 builder.setVibrate(longArrayOf(1000, 1000, 1000))
             }
             if (prefs.getBoolean("widgetBlink", false)) {
-                builder.setLights(Color.BLUE, 1000, 1000)
+                builder.setLights(getColor(CommonR.color.foundation_light_primary), 1000, 1000)
             }
         }
     }

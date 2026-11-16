@@ -5,7 +5,6 @@
 package com.ichi2.preferences
 
 import android.content.Context
-import android.graphics.Color
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
@@ -17,6 +16,7 @@ import androidx.preference.ListPreference
 import androidx.preference.ListPreferenceDialogFragmentCompat
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.common.crashreporting.runCatchingWithLog
+import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.startup.getDefaultAnkiDroidDirectory
 import com.ichi2.anki.utils.ext.containsFile
@@ -117,15 +117,20 @@ class ExternalDirectorySelectionPreference(
         return FullWidthListPreferenceDialogFragment()
     }
 
-    /** Builds the display label for a path, graying out its storage root. */
+    /** Builds the display label for a path, muting its storage root. */
     private fun toDisplayLabel(path: String): CharSequence {
-        // Split at "/Android/" so the root is gray and the rest keeps the normal color
-        // Eg: "/storage/emulated/0" is gray, "/Android/data/com.ichi2.anki" is not
+        // Split at "/Android/" so the root is muted and the rest keeps the normal color
+        // Eg: "/storage/emulated/0" is muted, "/Android/data/com.ichi2.anki" is not
         val androidIndex = path.indexOf("/Android/")
         if (androidIndex == -1) return path
         val displayString = "${path.take(androidIndex)}\n${path.substring(androidIndex)}"
         return SpannableString(displayString).apply {
-            setSpan(ForegroundColorSpan(Color.GRAY), 0, androidIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(
+                ForegroundColorSpan(getColorFromAttr(context, CommonR.attr.foundationOnBackgroundMuted)),
+                0,
+                androidIndex,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE,
+            )
         }
     }
 
