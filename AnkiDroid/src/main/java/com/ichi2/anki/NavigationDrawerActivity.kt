@@ -237,10 +237,13 @@ abstract class NavigationDrawerActivity(
         val dividerInset = navigationView.dividerInsetStart
         // setting the values below requests a layout: only do so if the inset changed
         var appliedStartInset = -1
+        val header = navigationView.getHeaderView(0)
+        val headerTopPadding = header?.paddingTop ?: 0
         ViewCompat.setOnApplyWindowInsetsListener(navigationView) { view, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
-            // the top is not inset: the header image is meant to draw under the status bar
+            // the drawer's page draws under the status bar; Hayaki's mark in the header sits below it
             view.updatePadding(bottom = bars.bottom)
+            header?.updatePadding(top = headerTopPadding + bars.top)
 
             // Widen by the start inset, so the usable width is unchanged.
             val startInset = if (view.layoutDirection == View.LAYOUT_DIRECTION_RTL) bars.right else bars.left
