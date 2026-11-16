@@ -218,10 +218,6 @@ android {
             // Issue 6009: allow disabling JaCoCo to speed up debug builds.
             // A Gradle property also allows the preference to be shared across worktrees.
             isTestCoverageEnabled = project.isCoverageEnabled()
-
-            // make the icon red if in debug mode
-            resValue("color", "anki_foreground_icon_color_0", "#FFFF0000")
-            resValue("color", "anki_foreground_icon_color_1", "#FFFF0000")
         }
         named("release") {
             isTestCoverageEnabled = testReleaseBuild
@@ -239,9 +235,6 @@ android {
             if (project.hasProperty("customName")) {
                 resValue("string", "app_name", project.property("customName").toString())
             }
-
-            resValue("color", "anki_foreground_icon_color_0", "#FF29B6F6")
-            resValue("color", "anki_foreground_icon_color_1", "#FF0288D1")
         }
 
         create("benchmark") {
