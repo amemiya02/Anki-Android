@@ -222,12 +222,6 @@ class InterfaceIconsAreMaterialSymbolsTest {
         /** Icons not yet drawn as Material Symbols: emptied area by area, then removed */
         private val NOT_YET_SYMBOLS =
             """
-                // C: card browser
-                ic_remove_red_eye_white ic_select_all_white ic_deselect_white ic_change_notetype ic_change_deck
-                ic_reposition ic_grading ic_export_notes ic_find_replace ic_label_outline ic_sort ic_sort_24
-                outline_arrow_downward_alt_24 outline_arrow_upward_alt_24 outline_arrow_insert_24
-                ic_round_favorite_outline ic_cards_star ic_card_state_default ic_card_state calendar_date_range
-                calendar_single_day ic_view_list_white_24dp ic_restore_variant ic_css ic_sort_pill_arrow_down_label
                 // D: note editor, multimedia
                 ic_format_bold_black_24dp ic_format_italic_black_24dp ic_format_underlined_black_24dp
                 ic_format_title_black_24dp ic_format_font_size_24dp ic_horizontal_rule_black_24dp

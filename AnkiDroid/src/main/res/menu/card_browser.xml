@@ -56,12 +56,12 @@
 
     <item
         android:id="@+id/action_preview_many"
-        android:icon="@drawable/ic_remove_red_eye_white"
+        android:icon="@drawable/symbol_visibility"
         android:title="@string/card_editor_preview_card"/>
 
     <item
         android:id="@+id/action_select_all"
-        android:icon="@drawable/ic_select_all_white"
+        android:icon="@drawable/symbol_select_all"
         android:title="@string/card_browser_select_all"/>
 
     <item
@@ -80,7 +80,7 @@
     <item
         android:id="@+id/action_find_replace"
         app:showAsAction="never"
-        android:icon="@drawable/ic_find_replace"
+        android:icon="@drawable/symbol_find_replace"
         tools:title="Find and replace"
         />
 </menu>

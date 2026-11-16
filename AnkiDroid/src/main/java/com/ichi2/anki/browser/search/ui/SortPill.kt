@@ -237,8 +237,8 @@ class SortPill
                     )
                 }
                 ColumnType.DATE, ColumnType.UNSPECIFIED -> {
-                    setIconAndLabel(standardButton, R.drawable.outline_arrow_downward_alt_24, label = null)
-                    setIconAndLabel(reverseButton, R.drawable.outline_arrow_upward_alt_24, label = null)
+                    setIconAndLabel(standardButton, R.drawable.symbol_arrow_downward_alt, label = null)
+                    setIconAndLabel(reverseButton, R.drawable.symbol_arrow_upward_alt, label = null)
                 }
             }
         }

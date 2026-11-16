@@ -128,7 +128,7 @@ class CardStateBottomSheetFragment : BottomSheetDialogFragment(R.layout.fragment
 
 /** Returns the card-state icon tinted with the current theme's state color. */
 fun CardState?.getIcon(context: Context): Drawable? {
-    val iconRes = if (this == null) R.drawable.ic_card_state_default else R.drawable.ic_card_state
+    val iconRes = R.drawable.symbol_circle
     val colorAttr =
         when (this) {
             null -> androidx.appcompat.R.attr.colorPrimary

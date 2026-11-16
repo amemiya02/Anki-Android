@@ -22,7 +22,7 @@
                 android:id="@+id/toggle_row_selections"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:src="@drawable/ic_select_all_white"
+                android:src="@drawable/symbol_select_all"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 app:tint="?attr/colorControlNormal"
                 />

@@ -49,17 +49,17 @@
 
     <item
         android:id="@+id/action_change_note_type"
-        android:icon="@drawable/ic_change_notetype"
+        android:icon="@drawable/symbol_move_selection_right"
         tools:title="Change note type"/>
 
     <item
         android:id="@+id/action_change_deck"
-        android:icon="@drawable/ic_change_deck"
+        android:icon="@drawable/symbol_input"
         tools:title="Change deck"/>
 
     <item
         android:id="@+id/action_reposition_cards"
-        android:icon="@drawable/ic_reposition"
+        android:icon="@drawable/symbol_low_priority"
         android:title="@string/card_editor_reposition_card"/>
 
     <item
@@ -74,7 +74,7 @@
 
     <item
         android:id="@+id/action_grade_now"
-        android:icon="@drawable/ic_grading"
+        android:icon="@drawable/symbol_grading"
         tools:title="Grade now" />
 
     <item
@@ -86,19 +86,19 @@
     <item
         android:id="@+id/action_preview_many"
         android:title="@string/card_editor_preview_card"
-        android:icon="@drawable/ic_remove_red_eye_white"
+        android:icon="@drawable/symbol_visibility"
     />
 
     <item
         android:id="@+id/action_export_selected"
-        android:icon="@drawable/ic_export_notes"
+        android:icon="@drawable/symbol_export_notes"
         tools:title="Export cards"/>
 
 
     <item
         android:id="@+id/action_find_replace"
         app:showAsAction="never"
-        android:icon="@drawable/ic_find_replace"
+        android:icon="@drawable/symbol_find_replace"
         tools:title="Find and replace"
         />
 

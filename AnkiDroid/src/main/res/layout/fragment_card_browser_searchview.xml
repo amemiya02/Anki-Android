@@ -86,13 +86,13 @@
                     android:layout_height="wrap_content"
                     app:chipStartPadding="8dp"
                     app:chipIconSize="22dp"
-                    app:chipIcon="@drawable/ic_sort_24" />
+                    app:chipIcon="@drawable/symbol_sort" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/decks_chip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:chipIcon="@drawable/ic_cards_star"
+                    app:chipIcon="@drawable/symbol_cards_star"
                     android:maxLines="1"
                     android:ellipsize="middle"
 
@@ -106,7 +106,7 @@
                         android:id="@+id/tags_chip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:chipIcon="@drawable/ic_label_outline"
+                        app:chipIcon="@drawable/symbol_label"
                         android:maxLines="1"
                         android:ellipsize="middle"
                         tools:text="Tags"
@@ -116,7 +116,7 @@
                         android:id="@+id/card_state_chip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:chipIcon="@drawable/ic_card_state_default"
+                        app:chipIcon="@drawable/symbol_circle"
                         android:maxLines="1"
                         android:ellipsize="middle"
                         tools:text="State"
@@ -146,7 +146,7 @@
                 android:id="@+id/toggle_row_selections"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:src="@drawable/ic_select_all_white"
+                android:src="@drawable/symbol_select_all"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 app:tint="?attr/colorControlNormal"
                 />

@@ -706,7 +706,7 @@ internal class NoteFieldAdapter(
             binding.fieldName.setCompoundDrawablesRelativeWithIntrinsicBoundsKt(
                 end =
                     when (kind) {
-                        NodetypeKind.SORT -> R.drawable.ic_sort
+                        NodetypeKind.SORT -> R.drawable.symbol_sort
                         NodetypeKind.UNDEFINED -> 0
                     },
             )

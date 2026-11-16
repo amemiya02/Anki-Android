@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Material Symbols Outlined: arrow_insert
+  From google/material-design-icons (Apache-2.0), drawn by tools/material-symbols/symbol.py. Do not edit by hand.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:tint="?attr/colorControlNormal">
+    <group android:translateY="960">
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="m708.23-254.23-394-393.62V-290h-60v-460h460v60H356.38L750-296l-41.77 41.77Z" />
+    </group>
+</vector>

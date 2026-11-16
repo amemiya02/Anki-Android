@@ -13,6 +13,6 @@
         android:title="@string/back_field_name" />
     <item
         android:id="@+id/styling_edit"
-        android:icon="@drawable/ic_css"
+        android:icon="@drawable/symbol_css"
         tools:title="Styling" />
 </menu>

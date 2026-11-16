@@ -21,7 +21,7 @@
         app:layout_constraintEnd_toStartOf="@+id/btn_actions"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
         android:layout_marginEnd="4dp"
-        tools:drawableEnd="@drawable/ic_sort"
+        tools:drawableEnd="@drawable/symbol_sort"
         tools:text="Field name" />
 
     <ImageView

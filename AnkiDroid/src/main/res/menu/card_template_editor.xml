@@ -12,7 +12,7 @@
         android:visible="true"/>
     <item
         android:id="@+id/action_preview"
-        android:icon="@drawable/ic_remove_red_eye_white"
+        android:icon="@drawable/symbol_visibility"
         android:title="@string/card_editor_preview_card"
         ankidroid:showAsAction="ifRoom"
         android:visible="true"/>
@@ -34,7 +34,7 @@
         ankidroid:showAsAction="never"/>
     <item
         android:id="@+id/action_card_browser_appearance"
-        android:icon="@drawable/ic_view_list_white_24dp"
+        android:icon="@drawable/symbol_view_list"
         tools:title="Browser appearance"
         ankidroid:showAsAction="ifRoom"/>
     <!-- never show - no icon. Title is dynamic (on/off) -->

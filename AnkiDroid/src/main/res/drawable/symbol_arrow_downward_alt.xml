@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Material Symbols Outlined: arrow_downward_alt
+  From google/material-design-icons (Apache-2.0), drawn by tools/material-symbols/symbol.py. Do not edit by hand.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:tint="?attr/colorControlNormal">
+    <group android:translateY="960">
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M480-253.85 253.85-480 296-522.15l154 154V-750h60v381.85l154-154L706.15-480 480-253.85Z" />
+    </group>
+</vector>

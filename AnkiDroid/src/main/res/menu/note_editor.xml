@@ -11,7 +11,7 @@
         ankidroid:showAsAction="always"/>
     <item
         android:id="@+id/action_preview"
-        android:icon="@drawable/ic_remove_red_eye_white"
+        android:icon="@drawable/symbol_visibility"
         android:title="@string/card_editor_preview_card"
         ankidroid:showAsAction="ifRoom"
         android:visible="true"/>

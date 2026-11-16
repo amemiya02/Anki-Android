@@ -7,12 +7,12 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/sort_pill_standard"
         style="@style/Widget.AnkiDroid.SortPillButton"
-        app:icon="@drawable/outline_arrow_downward_alt_24"
+        app:icon="@drawable/symbol_arrow_downward_alt"
         tools:text="A" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/sort_pill_reverse"
         style="@style/Widget.AnkiDroid.SortPillButton"
-        app:icon="@drawable/outline_arrow_downward_alt_24"
+        app:icon="@drawable/symbol_arrow_downward_alt"
         tools:text="Z" />
 </merge>

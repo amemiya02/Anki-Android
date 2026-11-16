@@ -1147,8 +1147,8 @@ class CardBrowserFragment :
         fun onToggleSelectionStateUpdated(selectionState: ToggleSelectionState) {
             toggleRowSelections.setImageResource(
                 when (selectionState) {
-                    SELECT_ALL -> R.drawable.ic_select_all_white
-                    SELECT_NONE -> R.drawable.ic_deselect_white
+                    SELECT_ALL -> R.drawable.symbol_select_all
+                    SELECT_NONE -> R.drawable.symbol_deselect
                 },
             )
             toggleRowSelections.contentDescription =

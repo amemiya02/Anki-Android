@@ -2,6 +2,7 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -16,7 +17,8 @@
         android:layout_gravity="center_vertical"
         android:paddingStart="12dp"
         android:paddingEnd="12dp"
-        android:src="@drawable/symbol_favorite"/>
+        android:src="@drawable/symbol_favorite"
+        app:tint="?attr/foundationEmphasis"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -65,7 +67,7 @@
         android:background="?attr/selectableItemBackground"
         android:padding="8dp"
         android:layout_marginEnd="8dp"
-        android:src="@drawable/outline_arrow_insert_24"/>
+        android:src="@drawable/symbol_arrow_insert"/>
 
 
 
