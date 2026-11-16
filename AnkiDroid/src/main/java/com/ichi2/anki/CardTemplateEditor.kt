@@ -113,6 +113,7 @@ import com.ichi2.anki.utils.ext.dismissAllDialogFragments
 import com.ichi2.anki.utils.ext.doOnTabSelected
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.utils.postDelayed
+import com.ichi2.themes.Themes
 import com.ichi2.utils.TruncatedString
 import com.ichi2.utils.copyToClipboard
 import com.ichi2.utils.listItems
@@ -275,7 +276,7 @@ open class CardTemplateEditor : AnkiActivity(R.layout.activity_card_template_edi
     }
 
     private fun setupEdgeToEdge() {
-        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme })
         ViewCompat.setOnApplyWindowInsetsListener(binding.templateEditorTop.root) { _, insets ->
             val constraints = insets.getInsets(systemBars() or displayCutout())
             findViewById<LinearLayout>(

@@ -21,6 +21,7 @@ import com.ichi2.anki.introduction.SetupCollectionFragment.Companion.REQUEST_COL
 import com.ichi2.anki.introduction.SetupCollectionFragment.Companion.RESULT_KEY
 import com.ichi2.anki.introduction.hasCollectionStoragePermissions
 import com.ichi2.anki.utils.ext.setFragmentResultListener
+import com.ichi2.themes.Themes
 import timber.log.Timber
 
 /**
@@ -48,7 +49,7 @@ class IntroductionActivity :
             return
         }
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme })
 
         setFragmentResultListener(REQUEST_COLLECTION_SETUP) { _, bundle ->
             val option =

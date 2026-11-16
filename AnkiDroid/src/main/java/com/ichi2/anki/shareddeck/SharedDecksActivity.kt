@@ -38,6 +38,7 @@ import com.ichi2.anki.databinding.ActivitySharedDecksBinding
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.workarounds.OnWebViewRecreatedListener
 import com.ichi2.anki.workarounds.SafeWebViewClient
+import com.ichi2.themes.Themes
 import com.ichi2.utils.FileNameAndExtension
 import com.ichi2.utils.message
 import com.ichi2.utils.negativeButton
@@ -243,7 +244,7 @@ class SharedDecksActivity :
         // and the wrong background is visible behind the WebView while a page loads
         //
         // statusBarStyle matches the status bar theme of the rest of the app
-        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme })
         setTitle(CommonString.download_deck)
         setupEdgeToEdge()
 

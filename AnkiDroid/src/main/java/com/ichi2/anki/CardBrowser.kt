@@ -187,12 +187,8 @@ open class CardBrowser :
         }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
-            statusBarStyle =
-                if (useSearchView) {
-                    SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme }
-                } else {
-                    SystemBarStyle.dark(Color.TRANSPARENT)
-                },
+            // the status bar sits over the app bar, which is the page colour
+            statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme },
         )
         val contentBinding =
             if (useSearchView) {

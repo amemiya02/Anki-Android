@@ -58,6 +58,7 @@ import com.ichi2.anki.utils.ext.requireString
 import com.ichi2.anki.utils.ext.setCompoundDrawablesRelativeWithIntrinsicBoundsKt
 import com.ichi2.anki.utils.ext.setFragmentResultListener
 import com.ichi2.anki.utils.ext.showDialogFragment
+import com.ichi2.themes.Themes
 import com.ichi2.ui.FixedEditText
 import com.ichi2.utils.customView
 import com.ichi2.utils.getInputField
@@ -123,7 +124,7 @@ class NoteTypeFieldEditor : AnkiActivity(R.layout.activity_note_type_field_edito
         }
         setContentView(R.layout.activity_note_type_field_editor)
         enableToolbar()
-        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme })
         ViewCompat.setOnApplyWindowInsetsListener(binding.rootLayout) { _, insets ->
             val constraints = insets.getInsets(systemBars() or displayCutout() or ime())
             binding.toolbarContainer.updatePadding(left = constraints.left, right = constraints.right, top = constraints.top)

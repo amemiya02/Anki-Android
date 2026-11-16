@@ -37,6 +37,7 @@ import com.ichi2.anki.reviewreminders.ReviewReminderScope
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
 import com.ichi2.anki.startup.ensureStorageIsReady
 import com.ichi2.anki.utils.ext.setFragmentResultListener
+import com.ichi2.themes.Themes
 import com.ichi2.ui.RtlCompliantActionProvider
 import dev.androidbroadcast.vbpd.viewBinding
 import timber.log.Timber
@@ -60,7 +61,7 @@ class StudyOptionsActivity :
             return
         }
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme })
         if (!ensureStorageIsReady()) {
             return
         }

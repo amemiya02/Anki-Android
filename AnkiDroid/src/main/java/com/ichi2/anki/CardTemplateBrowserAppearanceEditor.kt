@@ -26,6 +26,7 @@ import com.ichi2.anki.databinding.ActivityCardBrowserAppearanceBinding
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.libanki.CardTemplate
 import com.ichi2.anki.ui.internationalization.sentenceCase
+import com.ichi2.themes.Themes
 import com.ichi2.utils.message
 import com.ichi2.utils.negativeButton
 import com.ichi2.utils.positiveButton
@@ -55,7 +56,7 @@ class CardTemplateBrowserAppearanceEditor : AnkiActivity(R.layout.activity_card_
             return
         }
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme })
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbarContainer) { view, insets ->
             val constraints = insets.getInsets(systemBars() or displayCutout())
             view.updatePadding(left = constraints.left, right = constraints.right, top = constraints.top)
