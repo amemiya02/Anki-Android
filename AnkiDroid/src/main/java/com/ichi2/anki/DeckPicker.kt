@@ -95,6 +95,7 @@ import com.ichi2.anki.StudyOptionsFragment.Companion.registerStudyOptionsAddEdit
 import com.ichi2.anki.StudyOptionsFragment.Companion.registerStudyOptionsStudyHandler
 import com.ichi2.anki.account.AccountActivity
 import com.ichi2.anki.android.back.exitViaDoubleTapBackCallback
+import com.ichi2.anki.android.input.Shortcut
 import com.ichi2.anki.android.input.ShortcutGroup
 import com.ichi2.anki.android.input.shortcut
 import com.ichi2.anki.android.view.locationInWindow
@@ -775,9 +776,11 @@ open class DeckPicker :
             )
             deckPickerBinding.reviewSummaryTextView.updatePadding(bottom = withKeyboard.bottom)
 
+            // The bar's height without the navigation-bar inset (added here via bars.bottom). The hosted
+            // fragments' container uses the bar's measured height instead, which includes the inset.
             val bottomNavOffset =
                 if (binding.bottomNavigation?.let { it.isVisible && HideViewOnScrollBehavior.from(it).isScrolledIn } == true) {
-                    BOTTOM_NAV_HEIGHT_DP.dp.toPx(this)
+                    resources.getDimensionPixelSize(R.dimen.bottom_bar_height)
                 } else {
                     0
                 }
@@ -2527,7 +2530,7 @@ open class DeckPicker :
             fun bottomNavShortcut(
                 keys: String,
                 destination: NavigationItem,
-            ) = if (bottomNavigationEnabled) shortcut(keys, destination.shortcutLabel) else null
+            ) = if (bottomNavigationEnabled) Shortcut(keys, destination.shortcutLabel(this)) else null
 
             return ShortcutGroup(
                 listOfNotNull(
@@ -2558,15 +2561,6 @@ open class DeckPicker :
         }
 
     companion object {
-        /**
-         * Material 3 BottomNavigationView content height in dp, *excluding* the system
-         * navigation-bar inset (that inset is added separately here via `bars.bottom`).
-         * Used to offset the FAB above the bar. The hosted-fragment container instead uses
-         * the bar's measured height, which already includes the inset so the two must not
-         * be swapped for one another.
-         */
-        private const val BOTTOM_NAV_HEIGHT_DP = 80
-
         /**
          * Result codes from other activities
          */

@@ -98,9 +98,9 @@ class DeckPickerInsetsTest : RobolectricTest() {
             val fabColumnPadding = 12.dp.toPx(targetContext)
             val fabMargin = 16.dp.toPx(targetContext)
             assertThat(
-                "the FAB is unchanged compared to its pre-edge-to-edge position",
+                "the FAB clears the navigation bar and the bottom bar above it",
                 deckPicker.fabDistanceToWindowBottom,
-                equalTo(navBarBottom + fabColumnPadding + fabMargin + summaryTextHeight / 2),
+                equalTo(navBarBottom + bottomBarHeight + fabColumnPadding + fabMargin + summaryTextHeight / 2),
             )
         }
 
@@ -124,7 +124,7 @@ class DeckPickerInsetsTest : RobolectricTest() {
             assertThat(
                 "the FAB rests half the re-wrapped summary line above its padded position",
                 deckPicker.fabDistanceToWindowBottom,
-                equalTo(navBarBottom + fabColumnPadding + fabMargin + summaryTextHeight / 2),
+                equalTo(navBarBottom + bottomBarHeight + fabColumnPadding + fabMargin + summaryTextHeight / 2),
             )
         }
 
@@ -221,6 +221,10 @@ class DeckPickerInsetsTest : RobolectricTest() {
     /** The bottom margin raising the FAB above the 'Studied X cards' line. */
     private val DeckPicker.fabBottomMargin: Int
         get() = (floatingActionButtonBinding.fabLinearLayout.layoutParams as MarginLayoutParams).bottomMargin
+
+    // The phone's bottom bar above the navigation bar: 62dp, the Mockup's 78dp less its 16dp gesture area
+    private val bottomBarHeight: Int
+        get() = 62.dp.toPx(targetContext)
 
     /** The gap, in pixels, between the bottom of the FAB and the bottom of its container. */
     private val DeckPicker.fabDistanceToWindowBottom: Int
