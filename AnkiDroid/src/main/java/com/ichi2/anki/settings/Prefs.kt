@@ -462,7 +462,7 @@ open class PrefsRepository protected constructor(
             isDeveloperOptionsEnabledByUser = value
         }
 
-    var isNewStudyScreenEnabled by booleanPref(R.string.new_reviewer_options_key, false)
+    var isNewStudyScreenEnabled by booleanPref(R.string.new_reviewer_options_key, true)
 
     @set:VisibleForTesting
     var devIsCardBrowserFragmented: Boolean by booleanPref(R.string.dev_card_browser_fragmented, false)
