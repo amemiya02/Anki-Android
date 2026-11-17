@@ -11,6 +11,7 @@ import app.cash.turbine.test
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.ext.cardStateCustomizer
+import com.ichi2.anki.utils.CollectionPreferences
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -25,6 +26,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
@@ -80,6 +82,68 @@ class ReviewerViewModelTest : RobolectricTest() {
                 cancelAndIgnoreRemainingEvents()
             }
         return assertNotNull(Jsoup.parseBodyFragment(html).selectFirst("input#typeans"))
+    }
+
+    @Test
+    fun `the study bar names the Deck of the Card as a path`() =
+        runTest {
+            val did = addDeck("中文::HSK 4", setAsSelected = true)
+            val card = addBasicNote().firstCard()
+            col.setDeck(listOf(card.id), did)
+
+            val studyBar = startStudying().studyBarFlow.value
+
+            assertEquals(listOf("中文", "HSK 4"), studyBar.deckPath)
+        }
+
+    @Test
+    fun `the study bar shows the remaining counts and the time-remaining estimate`() =
+        runTest {
+            repeat(6) { addBasicNote("front $it") }
+
+            val studyBar = startStudying().studyBarFlow.value
+
+            assertEquals("6", studyBar.counts?.new)
+            // With no review history the estimate assumes 20 seconds a rep: 6 new cards are 2 minutes
+            assertEquals(2, studyBar.minutesLeft)
+        }
+
+    @Test
+    fun `the study bar hides what is left when the collection hides the remaining count`() =
+        runTest {
+            addBasicNote()
+            CollectionPreferences.setShowRemainingDueCounts(false)
+
+            val studyBar = startStudying().studyBarFlow.value
+
+            assertNull(studyBar.counts)
+            assertNull(studyBar.minutesLeft)
+            assertNull(studyBar.progress)
+        }
+
+    @Test
+    fun `the progress line fills as Cards leave the session`() =
+        runTest {
+            addBasicNote("one")
+            addBasicNote("two")
+            val viewModel = startStudying()
+            assertEquals(0f, viewModel.studyBarFlow.value.progress)
+
+            viewModel.onShowAnswer()
+            advanceUntilIdle()
+            viewModel.answerCard(Rating.EASY)
+            advanceUntilIdle()
+
+            assertEquals(0.5f, viewModel.studyBarFlow.value.progress)
+        }
+
+    private fun TestScope.startStudying(): ReviewerViewModel {
+        val viewModel = ReviewerViewModel(SavedStateHandle()).also { viewModelStore.put("reviewer", it) }
+        viewModel.onPageFinished(false)
+        advanceUntilIdle()
+        viewModel.onStateMutationCallback()
+        advanceUntilIdle()
+        return viewModel
     }
 
     @Test

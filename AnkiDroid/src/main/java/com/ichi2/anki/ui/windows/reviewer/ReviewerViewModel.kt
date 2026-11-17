@@ -29,6 +29,7 @@ import com.ichi2.anki.libanki.Card
 import com.ichi2.anki.libanki.CardId
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.DeckId
+import com.ichi2.anki.libanki.Decks
 import com.ichi2.anki.libanki.NoteId
 import com.ichi2.anki.libanki.redoLabel
 import com.ichi2.anki.libanki.sched.CurrentQueueState
@@ -53,6 +54,7 @@ import com.ichi2.anki.ui.windows.reviewer.autoadvance.AnswerAction
 import com.ichi2.anki.ui.windows.reviewer.autoadvance.AutoAdvance
 import com.ichi2.anki.ui.windows.reviewer.autoadvance.AutoAdvanceAction
 import com.ichi2.anki.ui.windows.reviewer.autoadvance.QuestionAction
+import com.ichi2.anki.utils.CollectionPreferences
 import com.ichi2.anki.utils.ext.answerCard
 import com.ichi2.anki.utils.ext.cardStatsNoCardClean
 import com.ichi2.anki.utils.ext.flag
@@ -96,6 +98,7 @@ class ReviewerViewModel(
     val undoLabelFlow = MutableStateFlow<String?>(null)
     val redoLabelFlow = MutableStateFlow<String?>(null)
     val countsFlow = savedStateHandle.getMutableStateFlow(KEY_COUNTS, StudyCounts())
+    val studyBarFlow = MutableStateFlow(StudyBarState())
     val typeAnswerFlow = MutableStateFlow<TypeAnswer?>(null)
     val onTypedAnswerResultFlow = MutableSharedFlow<CompletableDeferred<String>>()
     val onCardUpdatedFlow = MutableSharedFlow<Unit>()
@@ -137,6 +140,7 @@ class ReviewerViewModel(
     val isAutoAdvanceEnabledFlow = MutableStateFlow(autoAdvance.isEnabled)
     val answerButtonsNextTimeFlow: MutableStateFlow<AnswerButtonsNextTime?> = MutableStateFlow(null)
     private val shouldShowNextTimes = asyncIO { repository.getShouldShowNextTimes() }
+    private val showRemainingCounts = asyncIO { CollectionPreferences.getShowRemainingDueCounts() }
 
     init {
         ChangeManager.subscribe(this)
@@ -175,6 +179,8 @@ class ReviewerViewModel(
                 } else {
                     showQuestion()
                 }
+                // after process death the study bar is empty again
+                queueState.await()?.let { updateStudyBar(currentCard.await(), it) }
             }
         } else {
             launchCatchingIO {
@@ -607,6 +613,35 @@ class ReviewerViewModel(
         canBuryNoteFlow.emit(isBuryNoteAvailable(card))
         canSuspendNoteFlow.emit(isSuspendNoteAvailable(card))
         countsFlow.emit(StudyCounts(state))
+        updateStudyBar(card, state)
+    }
+
+    /** Deck path, remaining counts, time-remaining estimate and session progress for the study bar */
+    private suspend fun updateStudyBar(
+        card: Card,
+        state: CurrentQueueState,
+    ) {
+        val deckPath = withCol { Decks.path(decks.name(card.did)) }
+        if (!showRemainingCounts.await()) {
+            studyBarFlow.emit(StudyBarState(deckPath = deckPath))
+            return
+        }
+        val counts = state.counts
+        val remaining = counts.new + counts.lrn + counts.rev
+        // The session's size is the most that was ever left in it, so a Card answered Again
+        // keeps its place and an undo moves the line back.
+        val sessionSize = maxOf(savedStateHandle[KEY_SESSION_SIZE] ?: 0, remaining)
+        savedStateHandle[KEY_SESSION_SIZE] = sessionSize
+        val progress = if (sessionSize == 0) 0f else (sessionSize - remaining).toFloat() / sessionSize
+        val minutesLeft = withCol { sched.eta(counts, false) }.takeIf { it >= 0 }
+        studyBarFlow.emit(
+            StudyBarState(
+                deckPath = deckPath,
+                counts = StudyCounts(state),
+                minutesLeft = minutesLeft,
+                progress = progress,
+            ),
+        )
     }
 
     override suspend fun typeAnsFilter(text: String): String {
@@ -847,5 +882,6 @@ class ReviewerViewModel(
     companion object {
         private const val KEY_PREVIOUS_CARD_ID = "key_previous_card_id"
         private const val KEY_COUNTS = "counts"
+        private const val KEY_SESSION_SIZE = "sessionSize"
     }
 }
