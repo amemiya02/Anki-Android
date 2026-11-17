@@ -2344,7 +2344,7 @@ open class DeckPicker :
             showEmptyDeckSnackbar()
             updateUi()
         } else {
-            StudyCompletionUi.openCongratsPage(this)
+            StudyCompletionUi.openFinishedScreen(this)
         }
     }
 

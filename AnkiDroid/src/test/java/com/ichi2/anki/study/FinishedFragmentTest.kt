@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-package com.ichi2.anki.pages
+package com.ichi2.anki.study
 
 import android.app.Activity
 import android.os.Bundle
 import android.os.Looper
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.fragment.app.commitNow
 import androidx.lifecycle.Lifecycle
 import androidx.test.espresso.Espresso.onView
@@ -16,7 +20,6 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import anki.scheduler.CongratsInfoResponse
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.R
@@ -27,6 +30,8 @@ import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyAction
 import com.ichi2.anki.ioDispatcher
 import com.ichi2.anki.libanki.Consts
 import com.ichi2.anki.observability.undoableOp
+import com.ichi2.anki.pages.DeckOptions
+import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.testutils.AnkiFragmentScenario
 import com.ichi2.testutils.EmptyAnkiActivity
 import com.ichi2.testutils.launchFragmentInContainer
@@ -36,43 +41,105 @@ import com.ichi2.testutils.withFragment
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.hamcrest.Matchers.allOf
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import com.ichi2.anki.common.android.R as CommonR
 
 @RunWith(AndroidJUnit4::class)
-class CongratsPageTest : RobolectricTest() {
+class FinishedFragmentTest : RobolectricTest() {
+    @get:Rule
+    val composeRule = createEmptyComposeRule()
+
     @Test
-    fun `congrats polling does not require an attached activity`() =
+    fun `unburying returns to studying the Deck`() =
         runTest {
-            // Issues 15658 and 15679: a surviving page polled after its fragment detached.
-            // requireActivity() turned each poll into a 500 response and a JavaScript alert.
-            val fragment = CongratsPage()
-            assertNull(fragment.activity)
+            val note = addBasicNote()
+            col.sched.buryCards(listOf(note.firstCard().id))
 
-            val response = fragment.handlePostRequest(PostRequestUri("/_anki/congratsInfo"), byteArrayOf())
+            launchFragmentInContainer<FinishedFragment>().use { scenario ->
+                val activity = scenario.withFragment { requireActivity() }
+                advanceUntilIdle()
 
-            assertFalse(CongratsInfoResponse.parseFrom(response).reviewRemaining)
+                clickText(targetContext.getString(CommonR.string.finished_unbury))
+                advanceUntilIdle()
+                shadowOf(Looper.getMainLooper()).idle()
+
+                assertEquals(CardViewerActivity::class.java.name, shadowOf(activity).nextStartedActivity?.component?.className)
+                assertTrue(activity.isFinishing)
+                assertNotNull(col.sched.card, "the Card is no longer buried")
+            }
         }
 
     @Test
-    fun `congrats polling succeeds while the page is stopped`() =
+    fun `back to decks closes the screen`() =
         runTest {
-            launchFragmentInContainer<CongratsPage>().use { scenario ->
-                lateinit var fragment: CongratsPage
-                scenario.onFragment { fragment = it }
-                scenario.moveToState(Lifecycle.State.CREATED)
-                assertEquals(Lifecycle.State.CREATED, fragment.lifecycle.currentState)
+            launchFragmentInContainer<FinishedFragment>().use { scenario ->
+                val activity = scenario.withFragment { requireActivity() }
+                advanceUntilIdle()
 
-                val response = fragment.handlePostRequest(PostRequestUri("/_anki/congratsInfo"), byteArrayOf())
+                clickText(targetContext.getString(CommonR.string.finished_back_to_decks))
 
-                assertFalse(CongratsInfoResponse.parseFrom(response).reviewRemaining)
+                assertTrue(activity.isFinishing)
+                assertNull(shadowOf(activity).nextStartedActivity)
+            }
+        }
+
+    @Test
+    fun `custom study is reachable`() =
+        runTest {
+            updateDeckConfig(Consts.DEFAULT_DECK_ID) { new.perDay = 0 }
+            addBasicNote()
+
+            launchFragmentInContainer<FinishedFragment>().use { scenario ->
+                advanceUntilIdle()
+
+                clickText("Custom study")
+                shadowOf(Looper.getMainLooper()).idle()
+                advanceUntilIdle()
+
+                onView(withText(TR.customStudyIncreaseTodaysNewCardLimit()))
+                    .inRoot(isDialog())
+                    .check(matches(isDisplayed()))
+            }
+        }
+
+    @Test
+    fun `deck options are reachable`() =
+        runTest {
+            launchFragmentInContainer<FinishedFragment>().use { scenario ->
+                val activity = scenario.withFragment { requireActivity() }
+                advanceUntilIdle()
+
+                clickText("Deck options")
+                advanceUntilIdle()
+                shadowOf(Looper.getMainLooper()).idle()
+
+                val next = assertNotNull(shadowOf(activity).nextStartedActivity)
+                assertEquals(DeckOptions::class.java.name, next.getStringExtra(com.ichi2.anki.SingleFragmentActivity.EXTRA_FRAGMENT_NAME))
+            }
+        }
+
+    @Test
+    fun `a filtered Deck offers no custom study`() =
+        runTest {
+            addBasicNote()
+            val filtered = addDynamicDeck("Filtered", "")
+            withCol { sched.emptyFilteredDeck(filtered) }
+
+            launchFragmentInContainer<FinishedFragment>().use {
+                advanceUntilIdle()
+                composeRule.waitForIdle()
+
+                composeRule.onNodeWithText("Deck options").assertExists()
+                composeRule.onNodeWithText("Custom study").assertDoesNotExist()
+                composeRule.onNodeWithText(TR.studyingThisIsASpecialDeckFor()).assertExists()
             }
         }
 
@@ -84,7 +151,7 @@ class CongratsPageTest : RobolectricTest() {
             val deckId = addDynamicDeck("Filtered", "")
             withCol { sched.emptyFilteredDeck(deckId) }
 
-            launchFragmentInContainer<CongratsPage>().use { scenario ->
+            launchFragmentInContainer<FinishedFragment>().use { scenario ->
                 scenario.moveToState(Lifecycle.State.CREATED)
 
                 // rebuild happens while the screen isn't visible - nobody is collecting congratsRefreshState
@@ -107,8 +174,8 @@ class CongratsPageTest : RobolectricTest() {
             addBasicNote()
             ioDispatcher = StandardTestDispatcher(testScheduler)
 
-            launchFragmentInContainer<CongratsPage>().use { scenario ->
-                scenario.onFragment { it.bridgeCommands.getValue("customStudy").invoke() }
+            launchFragmentInContainer<FinishedFragment>().use { scenario ->
+                scenario.onFragment { it.onCustomStudy() }
                 shadowOf(Looper.getMainLooper()).idle()
                 advanceUntilIdle()
                 onView(withText(TR.customStudyIncreaseTodaysNewCardLimit()))
@@ -127,16 +194,16 @@ class CongratsPageTest : RobolectricTest() {
     @Test
     fun `custom study results open study options and finish the screen`() =
         runTest {
-            // Keep the deck finished so the Congrats page stays open.
+            // Keep the deck finished so the finished screen stays open.
             updateDeckConfig(Consts.DEFAULT_DECK_ID) { new.perDay = 0 }
             addBasicNote()
 
             for (action in CustomStudyAction.entries) {
-                // hosted by EmptyAnkiActivity, not SingleFragmentActivity: the page handles the result itself
-                launchFragmentInContainer<CongratsPage>().use { scenario ->
+                // hosted by EmptyAnkiActivity, not SingleFragmentActivity: the screen handles the result itself
+                launchFragmentInContainer<FinishedFragment>().use { scenario ->
                     val activity = scenario.withFragment { requireActivity() }
                     advanceUntilIdle()
-                    assertNull(shadowOf(activity).nextStartedActivity, "$action: page opened study options early")
+                    assertNull(shadowOf(activity).nextStartedActivity, "$action: screen opened study options early")
 
                     scenario.postCustomStudyResult(action)
 
@@ -146,13 +213,12 @@ class CongratsPageTest : RobolectricTest() {
         }
 
     @Test
-    fun `custom study result is handled after the page is recreated`() =
+    fun `custom study result is handled after the screen is recreated`() =
         runTest {
-            // Keep the deck finished so the Congrats page stays open.
             updateDeckConfig(Consts.DEFAULT_DECK_ID) { new.perDay = 0 }
             addBasicNote()
 
-            launchFragmentInContainer<CongratsPage>().use { scenario ->
+            launchFragmentInContainer<FinishedFragment>().use { scenario ->
                 scenario.recreate()
                 val activity = scenario.withFragment { requireActivity() }
                 advanceUntilIdle()
@@ -164,21 +230,20 @@ class CongratsPageTest : RobolectricTest() {
             }
         }
 
-    /** Issue 22801: the activity owns the custom study operation, so its result can arrive while the page is stopped */
+    /** Issue 22801: the activity owns the custom study operation, so its result can arrive while the screen is stopped */
     @Test
-    fun `custom study result received while stopped is handled when the page starts`() =
+    fun `custom study result received while stopped is handled when the screen starts`() =
         runTest {
-            // Keep the deck finished so the Congrats page stays open.
             updateDeckConfig(Consts.DEFAULT_DECK_ID) { new.perDay = 0 }
             addBasicNote()
 
-            launchFragmentInContainer<CongratsPage>().use { scenario ->
+            launchFragmentInContainer<FinishedFragment>().use { scenario ->
                 val activity = scenario.withFragment { requireActivity() }
                 scenario.moveToState(Lifecycle.State.CREATED)
 
                 scenario.postCustomStudyResult(CustomStudyAction.CUSTOM_STUDY_SESSION)
-                assertNull(shadowOf(activity).nextStartedActivity, "a stopped page should not navigate")
-                assertFalse(activity.isFinishing)
+                assertNull(shadowOf(activity).nextStartedActivity, "a stopped screen should not navigate")
+                assertTrue(!activity.isFinishing)
 
                 scenario.moveToState(Lifecycle.State.RESUMED)
                 advanceUntilIdle()
@@ -190,7 +255,6 @@ class CongratsPageTest : RobolectricTest() {
     @Test
     fun `custom study tag selection survives process death`() =
         runTest {
-            // Keep the deck finished so the Congrats page stays open.
             updateDeckConfig(Consts.DEFAULT_DECK_ID) { new.perDay = 0 }
             val selectedNote = addBasicNote().update { addTag("selected") }
             val otherNote = addBasicNote().update { addTag("other") }
@@ -198,9 +262,9 @@ class CongratsPageTest : RobolectricTest() {
             val savedState =
                 Robolectric.buildActivity(EmptyAnkiActivity::class.java).use { controller ->
                     val activity = controller.setup().get()
-                    val page = CongratsPage()
-                    activity.supportFragmentManager.commitNow { add(android.R.id.content, page) }
-                    page.bridgeCommands.getValue("customStudy").invoke()
+                    val screen = FinishedFragment()
+                    activity.supportFragmentManager.commitNow { add(android.R.id.content, screen) }
+                    screen.onCustomStudy()
                     shadowOf(Looper.getMainLooper()).idle()
                     onView(withText(TR.customStudyStudyByCardStateOrTag()))
                         .inRoot(isDialog())
@@ -215,7 +279,6 @@ class CongratsPageTest : RobolectricTest() {
             Robolectric.buildActivity(EmptyAnkiActivity::class.java).use { controller ->
                 controller.setup(savedState)
                 shadowOf(Looper.getMainLooper()).idle()
-                // Submit through the real picker and FragmentResult listener, without injecting a result.
                 onView(allOf(withId(R.id.tags_dialog_tag_item), hasDescendant(withText("selected"))))
                     .inRoot(isDialog())
                     .perform(click())
@@ -226,10 +289,19 @@ class CongratsPageTest : RobolectricTest() {
             assertEquals(Consts.DEFAULT_DECK_ID, otherNote.firstCard().did)
         }
 
+    private fun clickText(text: String) {
+        composeRule.waitForIdle()
+        val node = composeRule.onNodeWithText(text)
+        // "Back to decks" sits below the scrolling page, the rest inside it
+        runCatching { node.performScrollTo() }
+        node.performClick()
+        composeRule.waitForIdle()
+    }
+
     /** Posts [action] where [CustomStudyDialog] posts it: the activity's fragment manager */
-    private fun AnkiFragmentScenario<CongratsPage>.postCustomStudyResult(action: CustomStudyAction) {
-        onFragment { page ->
-            page.requireActivity().supportFragmentManager.setFragmentResult(
+    private fun AnkiFragmentScenario<FinishedFragment>.postCustomStudyResult(action: CustomStudyAction) {
+        onFragment { screen ->
+            screen.requireActivity().supportFragmentManager.setFragmentResult(
                 CustomStudyAction.REQUEST_KEY,
                 Bundle().apply { putInt(CustomStudyAction.RESULT_CUSTOM_STUDY_ACTION, action.ordinal) },
             )

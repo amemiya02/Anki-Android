@@ -34,6 +34,7 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.ichi2.anki.AbstractFlashcardViewer.Companion.RESULT_NO_MORE_CARDS
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.DispatchKeyEventListener
@@ -70,6 +71,7 @@ import com.ichi2.anki.settings.enums.ToolbarPosition
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
 import com.ichi2.anki.snackbar.SnackbarBuilder
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.study.StudyCompletionUi
 import com.ichi2.anki.ui.windows.reviewer.audiorecord.CheckPronunciationFragment
 import com.ichi2.anki.ui.windows.reviewer.whiteboard.WhiteboardFragment
 import com.ichi2.anki.utils.ext.collectInViewLifecycle
@@ -183,6 +185,11 @@ class ReviewerFragment :
             .onEach { result ->
                 requireActivity().run {
                     setResult(result)
+                    // the deck list opens the finished screen from the result; nobody awaits
+                    // one when studying was opened from a shortcut or the finished screen
+                    if (result == RESULT_NO_MORE_CARDS && callingActivity == null) {
+                        StudyCompletionUi.openFinishedScreen(this)
+                    }
                     finish()
                 }
             }.launchIn(viewScope)

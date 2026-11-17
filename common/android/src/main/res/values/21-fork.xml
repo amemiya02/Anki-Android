@@ -32,4 +32,14 @@
     <string name="more_settings_summary" comment="Under Settings on the More page">Appearance, studying, controls, backups</string>
     <string name="more_help_summary" comment="Under Help on the More page">The manual and the community forum</string>
     <string name="more_support_summary" comment="Under Support AnkiDroid on the More page">Help the project Hayaki is built on</string>
+    <!-- The finished screen (ticket 16); the rest of its text is the Engine's -->
+    <string name="finished_title_later" comment="Finished screen title: nothing left right now, more later">Finished for now</string>
+    <string name="finished_title_limit" comment="Finished screen title: a daily limit stopped the session">Daily limit reached</string>
+    <string name="finished_title_done" comment="Finished screen title: nothing left until tomorrow">Done for today</string>
+    <string name="finished_next_day" comment="%s is a time of day, e.g. 4:00 AM, when the next day's Cards become available">More cards will be ready tomorrow from %s.</string>
+    <string name="finished_unbury" comment="Button on the finished screen which unburies Cards and returns to studying">Unbury and keep studying</string>
+    <string name="finished_custom_study_summary" comment="Under Custom study on the finished screen">Extend today’s limit, review ahead, study by tag</string>
+    <string name="finished_deck_options_summary" comment="Under Deck options on the finished screen">Daily limits, learning steps, display order</string>
+    <string name="finished_filtered_deck_options_summary" comment="Under Deck options on the finished screen, for a filtered deck">Search, limit, order and rebuilding</string>
+    <string name="finished_back_to_decks" comment="Primary button on the finished screen which returns to the deck list">Back to decks</string>
 </resources>

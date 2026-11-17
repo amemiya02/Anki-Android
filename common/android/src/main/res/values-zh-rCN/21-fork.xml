@@ -17,4 +17,14 @@
     <string name="more_settings_summary">外观、学习、操作方式、备份</string>
     <string name="more_help_summary">使用手册与社区论坛</string>
     <string name="more_support_summary">支持 Hayaki 所基于的项目</string>
+
+    <string name="finished_title_later">暂时学完了</string>
+    <string name="finished_title_limit">已达到每日上限</string>
+    <string name="finished_title_done">今天已完成</string>
+    <string name="finished_next_day">明天 %s 起会有更多卡片。</string>
+    <string name="finished_unbury">取消搁置并继续学习</string>
+    <string name="finished_custom_study_summary">扩大今天的上限、提前复习、按标签学习</string>
+    <string name="finished_deck_options_summary">每日上限、学习步骤、显示顺序</string>
+    <string name="finished_filtered_deck_options_summary">搜索条件、数量上限、顺序和重建</string>
+    <string name="finished_back_to_decks">返回牌组</string>
 </resources>

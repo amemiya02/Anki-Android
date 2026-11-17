@@ -1,18 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 package com.ichi2.anki
 
-import android.content.Context
 import android.content.Intent
 import android.view.KeyEvent
-import androidx.core.content.edit
 import anki.scheduler.CardAnswer.Rating
 import com.ichi2.anki.AbstractFlashcardViewer.Companion.RESULT_NO_MORE_CARDS
-import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.NavigationDrawerActivity.Companion.EXTRA_STARTED_WITH_SHORTCUT
 import com.ichi2.anki.libanki.Consts.DEFAULT_DECK_ID
-import com.ichi2.anki.pages.CongratsPage
 import com.ichi2.anki.settings.Prefs
-import com.ichi2.testutils.ext.snackbarText
+import com.ichi2.anki.study.FinishedFragment
 import org.json.JSONArray
 import org.junit.Before
 import org.junit.Test
@@ -29,17 +25,12 @@ import kotlin.test.assertTrue
 class ReviewCompletionTest : RobolectricTest() {
     @ParameterizedRobolectricTestRunner.Parameter(0)
     @JvmField
-    var newCongratsScreen = false
-
-    @ParameterizedRobolectricTestRunner.Parameter(1)
-    @JvmField
     var fromShortcut = false
 
     override fun getCollectionStorageMode() = CollectionStorageMode.IN_MEMORY_WITH_MEDIA
 
     @Before
     fun configureCompletionScreen() {
-        getPreferences().edit { putBoolean("new_congrats_screen", newCongratsScreen) }
         // these cases are the old study screen's, which is no longer the default
         Prefs.isNewStudyScreenEnabled = false
         ShadowToast.reset()
@@ -51,7 +42,7 @@ class ReviewCompletionTest : RobolectricTest() {
         col.setDeck(listOf(addBasicNote().firstCard().id), child)
         col.decks.select(col.decks.id("Parent"))
 
-        completeReview(expectEmpty = false) {
+        completeReview {
             col.sched.answerCard(assertNotNull(col.sched.card), Rating.EASY)
             assertEquals(0, col.sched.totalCount())
             assertEquals(1, col.decks.cardCount(child, includeSubdecks = true))
@@ -63,41 +54,27 @@ class ReviewCompletionTest : RobolectricTest() {
         addBasicNote()
         val filtered = addDynamicDeck("Filtered", "")
 
-        completeReview(expectEmpty = false) {
+        completeReview {
             col.sched.answerCard(assertNotNull(col.sched.card), Rating.EASY)
             assertEquals(0, col.decks.cardCount(filtered, includeSubdecks = true))
         }
     }
 
     @Test
-    fun `learning later still shows completion with the next available time`() {
+    fun `learning later still shows completion`() {
         col.config.set("collapseTime", 0)
         val config = col.decks.configDictForDeckId(DEFAULT_DECK_ID)
         config.new.delays = JSONArray(listOf(1))
         col.decks.save(config)
         addBasicNote()
 
-        completeReview(
-            expectEmpty = false,
-            expectedMessage = {
-                it.getString(
-                    CommonString.studyoptions_congrats_next_due_in,
-                    TR.schedulingNextLearnDue("minutes", 1),
-                )
-            },
-        ) {
+        completeReview {
             col.sched.answerCard(assertNotNull(col.sched.card), Rating.AGAIN)
             assertNull(col.sched.card)
         }
     }
 
-    private fun completeReview(
-        expectEmpty: Boolean,
-        expectedMessage: (Context) -> String = {
-            it.getString(if (expectEmpty) CommonString.empty_deck else CommonString.studyoptions_congrats_finished)
-        },
-        finishCards: () -> Unit,
-    ) {
+    private fun completeReview(finishCards: () -> Unit) {
         if (fromShortcut) {
             runTest {
                 val reviewer =
@@ -116,12 +93,7 @@ class ReviewCompletionTest : RobolectricTest() {
 
                 assertTrue(reviewer.isFinishing)
                 assertEquals(RESULT_NO_MORE_CARDS, shadowOf(reviewer).resultCode)
-                if (newCongratsScreen && !expectEmpty) {
-                    assertCongratsIntent(shadowOf(reviewer).nextStartedActivity)
-                } else {
-                    assertNull(shadowOf(reviewer).nextStartedActivity)
-                    assertEquals(expectedMessage(reviewer), ShadowToast.getTextOfLatestToast())
-                }
+                assertFinishedScreenIntent(shadowOf(reviewer).nextStartedActivity)
                 assertEquals(selected, col.decks.selected())
                 assertEquals(undoStatus, col.undoStatus())
             }
@@ -141,32 +113,24 @@ class ReviewCompletionTest : RobolectricTest() {
 
                 activityResultRegistry.dispatchResult(review.requestCode, RESULT_NO_MORE_CARDS, null)
 
-                if (newCongratsScreen && !expectEmpty) {
-                    advanceRobolectricLooperUntil { shadow.peekNextStartedActivity() != null }
-                    assertCongratsIntent(shadow.nextStartedActivity)
-                } else {
-                    advanceRobolectricLooperUntil { snackbarText == expectedMessage(this) }
-                    assertNull(shadow.nextStartedActivity)
-                }
+                advanceRobolectricLooperUntil { shadow.peekNextStartedActivity() != null }
+                assertFinishedScreenIntent(shadow.nextStartedActivity)
                 assertEquals(selected, col.decks.selected())
                 assertEquals(undoStatus, col.undoStatus())
             }
         }
     }
 
-    private fun assertCongratsIntent(intent: Intent?) {
+    private fun assertFinishedScreenIntent(intent: Intent?) {
         assertEquals(
-            CongratsPage::class.java.name,
+            FinishedFragment::class.java.name,
             assertNotNull(intent).getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME),
         )
     }
 
     companion object {
-        @ParameterizedRobolectricTestRunner.Parameters(name = "new screen = {0}, shortcut = {1}")
+        @ParameterizedRobolectricTestRunner.Parameters(name = "shortcut = {0}")
         @JvmStatic
-        fun configurations() =
-            listOf(false, true).flatMap { newScreen ->
-                listOf(false, true).map { shortcut -> arrayOf(newScreen, shortcut) }
-            }
+        fun configurations() = listOf(false, true).map { shortcut -> arrayOf(shortcut) }
     }
 }

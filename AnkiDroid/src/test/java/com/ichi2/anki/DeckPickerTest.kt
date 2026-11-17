@@ -77,11 +77,11 @@ import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.navigation.AnkiDroidNavigator
 import com.ichi2.anki.observability.ChangeManager
-import com.ichi2.anki.pages.CongratsPage
 import com.ichi2.anki.preferences.PreferencesActivity
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.study.FinishedFragment
 import com.ichi2.anki.ui.RecyclerFastScroller
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.Destination
@@ -198,7 +198,7 @@ class DeckPickerTest : RobolectricTest() {
             advanceRobolectricLooperUntil { shadowOf(this).peekNextStartedActivity() != null }
 
             val intent = assertNotNull(shadowOf(this).nextStartedActivity)
-            assertEquals(CongratsPage::class.java.name, intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME))
+            assertEquals(FinishedFragment::class.java.name, intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME))
             assertEquals(filtered, col.decks.selected())
         }
     }

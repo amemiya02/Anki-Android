@@ -198,7 +198,7 @@ class CustomStudyMenuNavigationTest : RobolectricTest() {
         val activity = controller.get()
         val fragment = CustomStudyDialog.createInstance(Consts.DEFAULT_DECK_ID)
         if (childHosted) {
-            // CongratsPage hosts Custom Study in its child fragment manager.
+            // A fragment may host Custom Study in its child fragment manager.
             val parent = Fragment()
             activity.supportFragmentManager
                 .beginTransaction()

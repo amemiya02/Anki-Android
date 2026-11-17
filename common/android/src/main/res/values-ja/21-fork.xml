@@ -17,4 +17,14 @@
     <string name="more_settings_summary">外観、学習、操作、バックアップ</string>
     <string name="more_help_summary">マニュアルとコミュニティフォーラム</string>
     <string name="more_support_summary">Hayaki のもとになったプロジェクトを支援</string>
+
+    <string name="finished_title_later">ひとまず終了</string>
+    <string name="finished_title_limit">1日の上限に達しました</string>
+    <string name="finished_title_done">今日はここまで</string>
+    <string name="finished_next_day">明日の %s から次のカードを学習できます。</string>
+    <string name="finished_unbury">「今日は非表示」を解除して学習を続ける</string>
+    <string name="finished_custom_study_summary">今日の上限を増やす、先取り復習、タグで学習</string>
+    <string name="finished_deck_options_summary">1日の上限、学習ステップ、表示順</string>
+    <string name="finished_filtered_deck_options_summary">検索条件、上限、順序、再構築</string>
+    <string name="finished_back_to_decks">デッキ一覧に戻る</string>
 </resources>
