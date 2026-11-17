@@ -27,6 +27,7 @@ Deliberately different or left for other tickets:
 
 - The More footer says "Based on AnkiDroid" (the existing `about_fork_title`, translated) rather than the Mockup's "Built on AnkiDroid", to reuse a string instead of adding a near-duplicate.
 - Help and Support carry the Mockup's "opens outside" mark although they open the help and support menus first (as the drawer did); every entry in those menus opens outside the app.
-- In the rendered-screen tests the Decks tab label is English in every language: it is the Engine's `actionsDecks` string, which Robolectric does not translate. On a device it follows the app's language.
+- The tab labels and More's title are the Engine's translations (`actionsDecks`, `qtMiscBrowse`, `qtMiscStats`, `studyingMore`: "Decks, Browse, Stats, More" as in the Mockup), which `TranslationTest` requires over new strings. In the rendered-screen tests they are English in every language because the Engine's language is not set by resource qualifiers; on a device they follow the app's language (checked at the Milestone 2 sign-off, ticket 24).
+- The add button now clears the 62dp bar (it assumed Material's 80dp bar); `DeckPickerInsetsTest` covers it.
 - The Decks picture hides the add button: in Dark and Black the accessibility check reports its label colour (#1C1A17 on cinnabar, 3.5:1). The add button and the deck list belong to tickets 17 and 18. At 200% the "Studied ..." summary is cut at the top of the bar; also the deck list's (ticket 17).
 - The bar is still Material's `BottomNavigationView` restyled (hide-on-scroll, saved tab and tests depend on it); a Compose bar can come with the single-activity work (ticket 50).
