@@ -12,6 +12,7 @@ import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.common.destinations.DeferredNavigation
 import com.ichi2.anki.reviewer.Binding
 import com.ichi2.anki.reviewer.CardSide
+import com.ichi2.anki.settings.Prefs
 import com.ichi2.preferences.ReviewerControlPreference
 import com.ichi2.testutils.HamcrestUtils
 import com.ichi2.utils.negativeButton
@@ -28,6 +29,8 @@ import kotlin.test.assertNull
 class ControlsSettingsFragmentTest : RobolectricTest() {
     @Test
     fun `XML keys match the Enum keys`() {
+        // the XML lists the old study screen's commands, which are no longer the default
+        Prefs.isNewStudyScreenEnabled = false
         for (screen in ControlPreferenceScreen.entries) {
             val xmlKeys =
                 PreferenceTestUtils.getKeysFromXml(targetContext, screen.xmlRes, excludeCategories = true).toMutableList().apply {

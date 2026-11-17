@@ -11,6 +11,7 @@ import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.NavigationDrawerActivity.Companion.EXTRA_STARTED_WITH_SHORTCUT
 import com.ichi2.anki.libanki.Consts.DEFAULT_DECK_ID
 import com.ichi2.anki.pages.CongratsPage
+import com.ichi2.anki.settings.Prefs
 import com.ichi2.testutils.ext.snackbarText
 import org.json.JSONArray
 import org.junit.Before
@@ -39,6 +40,8 @@ class ReviewCompletionTest : RobolectricTest() {
     @Before
     fun configureCompletionScreen() {
         getPreferences().edit { putBoolean("new_congrats_screen", newCongratsScreen) }
+        // these cases are the old study screen's, which is no longer the default
+        Prefs.isNewStudyScreenEnabled = false
         ShadowToast.reset()
     }
 
