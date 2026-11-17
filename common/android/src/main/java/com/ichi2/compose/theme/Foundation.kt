@@ -3,6 +3,7 @@
 package com.ichi2.compose.theme
 
 import android.content.Context
+import android.os.Build
 import android.util.TypedValue
 import androidx.annotation.DimenRes
 import androidx.annotation.StyleRes
@@ -19,10 +20,12 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.AndroidFont
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontLoadingStrategy
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.Typeface
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -284,7 +287,7 @@ private fun Context.textStyle(
         val size = sp(R.styleable.FoundationTextAppearance_android_textSize)
         textStyle =
             TextStyle(
-                fontFamily = FontFamily(Typeface(interfaceTypeface(opticalSize = size.value))),
+                fontFamily = interfaceFontFamily(interfaceTypeface(opticalSize = size.value)),
                 fontSize = size,
                 fontWeight = FontWeight(getInt(R.styleable.FoundationTextAppearance_foundationTextWeight, 400)),
                 fontStyle = FontStyle.Normal,
@@ -334,3 +337,41 @@ internal fun Foundation.toMaterialShapes() =
 private fun Context.dp(
     @DimenRes id: Int,
 ): Dp = (resources.getDimension(id) / resources.displayMetrics.density).dp
+
+/**
+ * The interface typeface as a Compose [FontFamily] that answers to each weight the type scale uses.
+ *
+ * `FontFamily(Typeface(typeface))` hands Compose the one Android typeface whatever weight a style
+ * asks for, so every role drew at 400. Here each weight is its own font, derived from the same
+ * fallback chain the way XML text derives it (`Typeface.create(typeface, weight, false)`).
+ */
+private fun interfaceFontFamily(typeface: android.graphics.Typeface): FontFamily =
+    FontFamily(INTERFACE_WEIGHTS.map { weight -> InterfaceFont(FontWeight(weight), typeface.atWeight(weight)) })
+
+private val INTERFACE_WEIGHTS = listOf(400, 500, 600, 700)
+
+private fun android.graphics.Typeface.atWeight(weight: Int): android.graphics.Typeface =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        android.graphics.Typeface.create(this, weight, false)
+    } else {
+        android.graphics.Typeface.create(this, if (weight >= 600) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+    }
+
+private class InterfaceFont(
+    override val weight: FontWeight,
+    val typeface: android.graphics.Typeface,
+) : AndroidFont(FontLoadingStrategy.Blocking, InterfaceFontLoader, FontVariation.Settings()) {
+    override val style: FontStyle = FontStyle.Normal
+}
+
+private object InterfaceFontLoader : AndroidFont.TypefaceLoader {
+    override fun loadBlocking(
+        context: Context,
+        font: AndroidFont,
+    ): android.graphics.Typeface = (font as InterfaceFont).typeface
+
+    override suspend fun awaitLoad(
+        context: Context,
+        font: AndroidFont,
+    ): android.graphics.Typeface = loadBlocking(context, font)
+}
