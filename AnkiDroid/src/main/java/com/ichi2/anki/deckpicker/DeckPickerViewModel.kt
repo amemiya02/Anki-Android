@@ -192,6 +192,30 @@ class DeckPickerViewModel :
     /** "Studied N cards in 0 seconds today */
     val flowOfStudiedTodayStats = MutableStateFlow("")
 
+    /** How many Cards were answered today, counted as the Engine counts them for [flowOfStudiedTodayStats] */
+    private val flowOfStudiedTodayCount = MutableStateFlow(0)
+
+    /**
+     * Everything the deck list draws: the Decks, the total due today and today's study count.
+     * `null` until the Decks are first read.
+     */
+    val flowOfDeckListScreen =
+        combine(
+            flowOfDeckList,
+            flowOfDeckListInInitialState,
+            flowOfDeckDueTree,
+            flowOfStudiedTodayCount,
+        ) { deckList, inInitialState, tree, studiedToday ->
+            if (tree == null || inInitialState == null) return@combine null
+            DeckListScreenState(
+                decks = deckList.data,
+                isEmptyCollection = inInitialState,
+                // Sum the top-level decks: the root's aggregate is capped (see flowOfCardsDue)
+                dueToday = tree.totalCardsDue(),
+                studiedToday = studiedToday,
+            )
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, initialValue = null)
+
     /** Flow that determines when the resizing divider should be visible */
     val flowOfResizingDividerVisible =
         combine(flowOfDeckListInInitialState, flowOfCollectionHasNoCards) { isInInitialState, hasNoCards ->
@@ -475,6 +499,7 @@ class DeckPickerViewModel :
                 // TODO: This is in the wrong place
                 // Backend returns studiedToday() with newlines for HTML formatting,so we replace them with spaces.
                 flowOfStudiedTodayStats.value = withCol { sched.studiedToday().replace("\n", " ") }
+                flowOfStudiedTodayCount.value = withCol { cardsStudiedToday() }
 
                 /**
                  * Checks the current scheduler version and prompts the upgrade dialog if using the legacy version.

@@ -12,6 +12,7 @@ import anki.card_rendering.EmptyCardsReport
 import anki.card_rendering.emptyCardsReport
 import anki.collection.OpChanges
 import anki.decks.SetDeckCollapsedRequest
+import anki.scheduler.CardAnswer.Rating
 import app.cash.turbine.test
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.withCol
@@ -21,6 +22,7 @@ import com.ichi2.anki.StoragePermissionSet
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.storage.CollectionHelper
 import com.ichi2.anki.common.storage.StorageDecision
+import com.ichi2.anki.common.time.SECONDS_PER_DAY
 import com.ichi2.anki.deckpicker.DeckPickerViewModel.DeleteDeckConfirmationRequest
 import com.ichi2.anki.libanki.Consts
 import com.ichi2.anki.libanki.DeckId
@@ -525,6 +527,38 @@ class DeckPickerViewModelTest : JvmTest() {
             assertEquals(expected, col.decks.selected())
             assertEquals(expected, viewModel.focusedDeck)
         }
+
+    @Test
+    fun `the deck list shows what is due today and how many cards were studied`() =
+        runTest {
+            val deckId = addDeck("Spanish", setAsSelected = true)
+            repeat(3) { addBasicNote("front $it").firstCard().moveToDeck(deckId) }
+            col.sched.answerCard(col.sched.card!!, Rating.EASY)
+            // The review is logged at the test clock's time, which is not the Engine's today: move it into today
+            col.db.execute("update revlog set id = ?", (col.sched.dayCutoff - SECONDS_PER_DAY) * 1000 + 1)
+
+            viewModel.reloadDeckCounts().join()
+            val state = viewModel.flowOfDeckListScreen.first { it != null && it.decks.isNotEmpty() }!!
+
+            assertEquals(false, state.isEmptyCollection)
+            assertEquals(listOf("Spanish"), state.decks.map { it.lastDeckNameComponent })
+            // the Card answered Easy is not due again today
+            assertEquals(2, state.dueToday)
+            assertEquals(1, state.studiedToday)
+        }
+
+    @Test
+    fun `a collection without cards shows the empty deck list`() =
+        runTest {
+            viewModel.reloadDeckCounts().join()
+
+            val state = viewModel.flowOfDeckListScreen.first { it != null }!!
+
+            assertEquals(true, state.isEmptyCollection)
+            assertEquals(0, state.studiedToday)
+        }
+
+    private fun com.ichi2.anki.libanki.Card.moveToDeck(deckId: DeckId) = col.setDeck(listOf(id), deckId)
 }
 
 @RunWith(AndroidJUnit4::class)
