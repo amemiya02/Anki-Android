@@ -191,7 +191,7 @@ private val FinishedReason.mark: Int
  * day's Cards arrive. The reason the screen leads with comes first.
  */
 internal fun FinishedState.paragraphs(context: Context): List<String> =
-    buildList {
+    buildList<String> {
         learningLater?.let { add(it.describe()) }
         if (newLimitReached) add(TR.schedulingTodayNewLimitReached())
         if (reviewLimitReached) add(TR.schedulingTodayReviewLimitReached())
@@ -203,7 +203,10 @@ internal fun FinishedState.paragraphs(context: Context): List<String> =
             val time = DateFormat.getTimeFormat(context).format(Date(nextDayStartsAtMillis))
             add(context.getString(CommonR.string.finished_next_day, time))
         }
-    }
+    }.map { it.collapseLineBreaks() }
+
+/** The Engine's longer strings are wrapped with line breaks, which its web page collapsed. */
+private fun String.collapseLineBreaks() = replace(Regex("""\s*\n\s*"""), " ").trim()
 
 /** As the congratulations page put it: how many come back, and when the next one is ready. */
 private fun FinishedState.LearningLater.describe(): String {
