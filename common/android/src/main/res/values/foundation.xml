@@ -289,4 +289,11 @@
         <item name="lineHeight">16.8sp</item>
     </style>
     <style name="TextAppearance.Foundation.Label" parent="Base.TextAppearance.Foundation.Label" />
+
+    <!-- The current tab's label in the bottom bar: Label at weight 600 -->
+    <style name="Base.TextAppearance.Foundation.Label.Current" parent="TextAppearance.Foundation.Label">
+        <item name="foundationTextWeight">600</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.Foundation.Label.Current" parent="Base.TextAppearance.Foundation.Label.Current" />
 </resources>

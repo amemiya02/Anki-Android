@@ -94,6 +94,24 @@
         <item name="colorOnSurfaceVariant">@color/tab_unselected_text_color</item> <!-- Not selected text color -->
     </style>
 
+    <!-- The phone's bottom bar (Core Loop Mockup): flat on the page, a hairline above it, the current
+         tab in ink with a cinnabar rule and a heavier label, the others muted; no indicator pill -->
+    <style name="Widget.Foundation.BottomBar" parent="@style/Widget.Material3.BottomNavigationView">
+        <item name="android:background">@drawable/bottom_bar_background</item>
+        <item name="android:minHeight">@dimen/bottom_bar_height</item>
+        <item name="elevation">@dimen/foundation_elevation_flat</item>
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="itemActiveIndicatorStyle">@null</item>
+        <item name="itemBackground">@drawable/bottom_bar_item_background</item>
+        <item name="itemIconTint">@color/bottom_bar_item</item>
+        <item name="itemTextColor">@color/bottom_bar_item</item>
+        <item name="itemTextAppearanceInactive">@style/TextAppearance.Foundation.Label</item>
+        <item name="itemTextAppearanceActive">@style/TextAppearance.Foundation.Label.Current</item>
+        <item name="itemTextAppearanceActiveBoldEnabled">false</item>
+        <item name="itemPaddingTop">10dp</item>
+        <item name="itemPaddingBottom">9dp</item>
+    </style>
+
     <style name="BottomNavigationViewStyle" parent="@style/Widget.Material3.BottomNavigationView">
         <item name="materialThemeOverlay">@style/ThemeOverlay.App.BottomNavigationView</item>
     </style>

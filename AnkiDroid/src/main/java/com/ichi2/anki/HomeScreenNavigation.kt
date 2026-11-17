@@ -2,11 +2,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 package com.ichi2.anki
 
+import android.graphics.Typeface
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat.Type.navigationBars
+import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.core.view.marginBottom
 import androidx.core.view.updateLayoutParams
@@ -23,6 +27,7 @@ import com.ichi2.anki.browser.CardBrowserFragment
 import com.ichi2.anki.browser.CardBrowserViewModel
 import com.ichi2.anki.browser.IdsFile
 import com.ichi2.anki.common.analytics.Analytics
+import com.ichi2.anki.common.android.themes.interfaceTypeface
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.pages.Statistics
 import com.google.android.material.R as MaterialR
@@ -109,6 +114,7 @@ fun setupBottomNavigation() {
     }
 
     NavigationItem.populateMenu(bottomNav, deckPicker)
+    bottomNav.useInterfaceTypeface()
 
     deckPicker.onBackPressedDispatcher.addCallback(deckPicker, deckPicker.bottomNavBackCallback)
 
@@ -143,6 +149,26 @@ fun setupBottomNavigation() {
     }
     studiedSummary.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
         if (scrollBehavior.isScrolledIn) positionStudiedSummary(animate = false)
+    }
+}
+
+/**
+ * Draws the bar's labels in the interface typeface of the app's language, the current tab's at
+ * weight 600. Material builds the labels itself, so they miss the typeface every inflated text gets,
+ * and its text appearances alone leave Chinese and Japanese labels at the regular weight.
+ */
+private fun BottomNavigationView.useInterfaceTypeface() {
+    val regular = context.interfaceTypeface(opticalSize = 12f)
+    val current =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            Typeface.create(regular, 600, false)
+        } else {
+            Typeface.create(regular, Typeface.BOLD)
+        }
+    val items = getChildAt(0) as? ViewGroup ?: return
+    items.children.forEach { item ->
+        item.findViewById<TextView>(MaterialR.id.navigation_bar_item_small_label_view)?.typeface = regular
+        item.findViewById<TextView>(MaterialR.id.navigation_bar_item_large_label_view)?.typeface = current
     }
 }
 

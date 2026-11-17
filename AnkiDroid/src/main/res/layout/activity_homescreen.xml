@@ -23,23 +23,22 @@
             android:id="@+id/deck_picker_pane"
             layout="@layout/include_deck_picker" />
     </LinearLayout>
-    <!-- Hidden by default. Made visible by DeckPicker when devBottomNavEnabled is true. -->
+    <!-- Browse, Stats and More, shown by the bottom bar in place of the deck list -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/bottom_nav_fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />
 
-    <!-- Hidden by default. Made visible by DeckPicker when devBottomNavEnabled is true. -->
+    <!-- The phone's bottom bar: made visible by setupBottomNavigation() -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
+        style="@style/Widget.Foundation.BottomBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="?attr/colorSurface"
         android:visibility="gone"
         app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior"
-        app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

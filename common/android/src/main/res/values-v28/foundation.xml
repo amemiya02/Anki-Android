@@ -80,4 +80,9 @@
         <item name="android:textFontWeight">400</item>
         <item name="android:lineHeight">16.8sp</item>
     </style>
+
+    <style name="TextAppearance.Foundation.Label.Current" parent="Base.TextAppearance.Foundation.Label.Current">
+        <item name="android:textFontWeight">600</item>
+        <item name="android:lineHeight">16.8sp</item>
+    </style>
 </resources>
