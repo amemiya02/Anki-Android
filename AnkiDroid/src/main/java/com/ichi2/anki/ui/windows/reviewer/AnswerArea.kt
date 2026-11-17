@@ -3,6 +3,9 @@
 package com.ichi2.anki.ui.windows.reviewer
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,36 +14,41 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import anki.scheduler.CardAnswer.Rating
-import com.ichi2.anki.R
-import com.ichi2.compose.theme.ankiColors
-import com.ichi2.compose.theme.ankiDimensions
 import com.ichi2.compose.theme.foundation
-import com.ichi2.compose.theme.widgetBorder
 import com.ichi2.anki.common.android.R as CommonR
 
+/**
+ * Show answer, then Again, Hard, Good and Easy, in the same place at the bottom of the study screen.
+ *
+ * The area keeps the answer buttons' height on both sides, so the Card does not move when the
+ * answer is shown; Show answer sits at the bottom of it, where the answer buttons will be.
+ */
 @Composable
 fun AnswerArea(
     isAnswerShown: Boolean,
@@ -51,115 +59,106 @@ fun AnswerArea(
     showHardAndEasyButtons: Boolean = true,
     buttonsHeightPercentage: Int = 100,
 ) {
-    val colors = MaterialTheme.ankiColors
-    Box(
-        modifier = modifier.fillMaxWidth().relativeHeight(buttonsHeightPercentage),
-        propagateMinConstraints = true,
-    ) {
-        Row(
+    val foundation = MaterialTheme.foundation
+    val spacing = foundation.spacing
+    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+        Box(
             modifier =
-                Modifier
-                    .height(IntrinsicSize.Min)
-                    .invisibleIf(!isAnswerShown),
+                modifier
+                    .fillMaxWidth()
+                    .relativeHeight(buttonsHeightPercentage)
+                    .padding(top = 6.dp, bottom = 8.dp),
         ) {
-            val margin = dimensionResource(R.dimen.answer_button_margin_horizontal)
-            RatingButton(
-                easeName = CommonR.string.ease_button_again,
-                nextTime = nextTimes?.again,
-                textColor = colors.onAgainButton,
-                backgroundColor = colors.againButton,
-                onClick = { onRatingClicked(Rating.AGAIN) },
-                modifier = Modifier.padding(end = margin),
-            )
-            if (showHardAndEasyButtons) {
-                RatingButton(
-                    easeName = CommonR.string.ease_button_hard,
-                    nextTime = nextTimes?.hard,
-                    textColor = colors.onHardButton,
-                    backgroundColor = colors.hardButton,
-                    onClick = { onRatingClicked(Rating.HARD) },
-                    modifier = Modifier.padding(horizontal = margin),
-                )
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min)
+                        .heightIn(min = spacing.answerButton)
+                        .invisibleIf(!isAnswerShown),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                val colors = foundation.colors
+                RatingButton(CommonR.string.ease_button_again, nextTimes?.again, colors.answerAgain) { onRatingClicked(Rating.AGAIN) }
+                if (showHardAndEasyButtons) {
+                    RatingButton(CommonR.string.ease_button_hard, nextTimes?.hard, colors.answerHard) { onRatingClicked(Rating.HARD) }
+                }
+                RatingButton(CommonR.string.ease_button_good, nextTimes?.good, colors.answerGood) { onRatingClicked(Rating.GOOD) }
+                if (showHardAndEasyButtons) {
+                    RatingButton(CommonR.string.ease_button_easy, nextTimes?.easy, colors.answerEasy) { onRatingClicked(Rating.EASY) }
+                }
             }
-            RatingButton(
-                easeName = CommonR.string.ease_button_good,
-                nextTime = nextTimes?.good,
-                textColor = colors.onGoodButton,
-                backgroundColor = colors.goodButton,
-                onClick = { onRatingClicked(Rating.GOOD) },
-                modifier = Modifier.padding(horizontal = margin),
-            )
-            if (showHardAndEasyButtons) {
-                RatingButton(
-                    easeName = CommonR.string.ease_button_easy,
-                    nextTime = nextTimes?.easy,
-                    textColor = colors.onEasyButton,
-                    backgroundColor = colors.easyButton,
-                    onClick = { onRatingClicked(Rating.EASY) },
-                    modifier = Modifier.padding(start = margin),
-                )
+            Button(
+                onClick = onShowAnswerClicked,
+                modifier =
+                    Modifier
+                        .matchParentSize()
+                        .padding(top = spacing.answerButton - spacing.primaryButton)
+                        .invisibleIf(isAnswerShown),
+                shape = foundation.shapes.button,
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = foundation.colors.primary,
+                        contentColor = foundation.colors.onPrimary,
+                    ),
+                elevation = null,
+                contentPadding = PaddingValues(horizontal = 16.dp),
+            ) {
+                Text(stringResource(CommonR.string.show_answer), style = foundation.type.button, textAlign = TextAlign.Center)
             }
         }
-        AnswerButton(
-            text = AnnotatedString(stringResource(CommonR.string.show_answer)),
-            textColor = MaterialTheme.foundation.colors.onPrimary,
-            backgroundColor = colors.showAnswerButton,
-            onClick = onShowAnswerClicked,
-            modifier = Modifier.matchParentSize().invisibleIf(isAnswerShown),
-        )
     }
 }
 
+/**
+ * A paper button outlined by a hairline, with a rule in the answer's colour along its top edge.
+ * The time until the Card comes back sits above the answer's name.
+ */
 @Composable
 private fun RowScope.RatingButton(
     @StringRes easeName: Int,
     nextTime: String?,
-    textColor: Color,
-    backgroundColor: Color,
+    ruleColor: Color,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
+    val foundation = MaterialTheme.foundation
+    val shape = foundation.shapes.button
     val name = stringResource(easeName)
     val text =
-        if (nextTime == null) {
-            AnnotatedString(name)
-        } else {
-            buildAnnotatedString {
-                withStyle(SpanStyle(fontSize = 0.8.em)) { append(nextTime) }
+        buildAnnotatedString {
+            if (nextTime != null) {
+                val label = foundation.type.label
+                withStyle(
+                    SpanStyle(fontSize = label.fontSize, fontWeight = label.fontWeight, color = foundation.colors.onBackgroundMuted),
+                ) {
+                    append(nextTime)
+                }
+                // one Text keeps the time and the name together for screen readers
                 append("\n")
-                append(name)
             }
+            append(name)
         }
-    AnswerButton(
-        text = text,
-        textColor = textColor,
-        backgroundColor = backgroundColor,
-        onClick = onClick,
-        modifier = modifier.weight(1f).fillMaxHeight(),
-    )
-}
-
-@Composable
-private fun AnswerButton(
-    text: AnnotatedString,
-    textColor: Color,
-    backgroundColor: Color,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val elevation = MaterialTheme.ankiDimensions.studyScreenElevation
-    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
-        ElevatedButton(
-            onClick = onClick,
-            modifier = modifier.padding(vertical = 4.dp),
-            shape = RoundedCornerShape(dimensionResource(R.dimen.answer_button_corner_radius)),
-            colors = ButtonDefaults.buttonColors(containerColor = backgroundColor, contentColor = textColor),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = elevation, pressedElevation = elevation),
-            border = MaterialTheme.widgetBorder,
-            contentPadding = PaddingValues(0.dp),
-        ) {
-            Text(text, textAlign = TextAlign.Center)
-        }
+    Box(
+        modifier =
+            Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .clip(shape)
+                .border(foundation.shapes.hairline, foundation.colors.outline, shape)
+                .drawWithContent {
+                    drawContent()
+                    drawRect(ruleColor, size = Size(size.width, foundation.shapes.answerRule.toPx()))
+                }.clickable(role = Role.Button, onClick = onClick)
+                .padding(horizontal = 2.dp, vertical = 6.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            // each line takes the direction of its own text, so `<10m` reads the same in Arabic
+            style = foundation.type.answer.copy(textDirection = TextDirection.Content),
+            color = foundation.colors.onBackground,
+            textAlign = TextAlign.Center,
+        )
     }
 }
 

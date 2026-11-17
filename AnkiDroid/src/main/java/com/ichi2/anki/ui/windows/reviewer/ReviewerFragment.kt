@@ -72,7 +72,6 @@ import com.ichi2.anki.snackbar.SnackbarBuilder
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.ui.windows.reviewer.audiorecord.CheckPronunciationFragment
 import com.ichi2.anki.ui.windows.reviewer.whiteboard.WhiteboardFragment
-import com.ichi2.anki.utils.CollectionPreferences
 import com.ichi2.anki.utils.ext.collectInViewLifecycle
 import com.ichi2.anki.utils.ext.sharedPrefs
 import com.ichi2.anki.utils.ext.showDialogFragment
@@ -167,7 +166,7 @@ class ReviewerFragment :
         setupImmersiveMode()
         setupTypeAnswer()
         setupAnswerButtons()
-        setupCounts()
+        setupStudyBar()
         setupMenu()
         setupToolbarPosition()
         setupAnswerTimer()
@@ -412,14 +411,17 @@ class ReviewerFragment :
         }
     }
 
-    private fun setupCounts() {
-        viewModel.countsFlow.collectInViewLifecycle { counts ->
-            binding.studyCounts.updateCounts(counts)
+    private fun setupStudyBar() {
+        binding.studyBarTitles.setContent {
+            AnkiDroidTheme {
+                val state by viewModel.studyBarFlow.collectAsStateWithLifecycle()
+                StudyBarTitles(state)
+            }
         }
-
-        lifecycleScope.launch {
-            if (!CollectionPreferences.getShowRemainingDueCounts()) {
-                binding.studyCounts.isVisible = false
+        binding.studyProgress.setContent {
+            AnkiDroidTheme {
+                val state by viewModel.studyBarFlow.collectAsStateWithLifecycle()
+                StudyProgress(state.progress)
             }
         }
     }
@@ -477,10 +479,13 @@ class ReviewerFragment :
     private fun setupToolbarPosition() {
         when (Prefs.toolbarPosition) {
             ToolbarPosition.TOP -> return
-            ToolbarPosition.NONE -> binding.toolsLayout.isVisible = false
+            ToolbarPosition.NONE -> binding.studyBar.isVisible = false
             ToolbarPosition.BOTTOM -> {
-                binding.mainLayout.removeView(binding.toolsLayout)
-                binding.mainLayout.addView(binding.toolsLayout)
+                binding.mainLayout.removeView(binding.studyBar)
+                binding.mainLayout.addView(binding.studyBar)
+                // the progress line stays between the Card and the bar
+                binding.studyBar.removeView(binding.studyProgress)
+                binding.studyBar.addView(binding.studyProgress, 0)
 
                 // Put the answer buttons inside the toolbar on big screens
                 if (!isBigScreen || !Prefs.showAnswerButtons) return

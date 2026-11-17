@@ -146,6 +146,16 @@
 
     <style name="TextAppearance.AnkiDroid.TopAppBar.Subtitle" parent="TextAppearance.Foundation.Caption" />
 
+    <!-- The study bar's menu: the overflow button is a full touch target -->
+    <style name="ThemeOverlay.Foundation.StudyBarMenu" parent="">
+        <item name="actionOverflowButtonStyle">@style/Widget.Foundation.OverflowButton.StudyBar</item>
+    </style>
+
+    <style name="Widget.Foundation.OverflowButton.StudyBar" parent="Widget.Foundation.OverflowButton">
+        <item name="android:minWidth">?minTouchTargetSize</item>
+        <item name="android:minHeight">?minTouchTargetSize</item>
+    </style>
+
     <style name="CardView.ViewerStyle" parent="Widget.Material3.CardView.Elevated">
         <item name="android:elevation">?attr/studyScreenElevation</item>
         <item name="strokeWidth">?attr/widgetStrokeWidth</item>
