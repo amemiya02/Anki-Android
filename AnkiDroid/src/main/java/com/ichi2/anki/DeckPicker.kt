@@ -182,7 +182,6 @@ import com.ichi2.anki.reviewreminders.ReviewReminderScope
 import com.ichi2.anki.reviewreminders.ReviewRemindersDatabase
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
 import com.ichi2.anki.servicelayer.ScopedStorageService
-import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.uiConfigPrefs
 import com.ichi2.anki.shareddeck.SharedDecksActivity
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
@@ -299,8 +298,9 @@ open class DeckPicker :
     override val analyticsScreenName: String
         get() = selectedBottomNavItem()?.analyticsScreenName ?: super.analyticsScreenName
 
+    /** Phones navigate with the bottom bar; the split-pane layout of large screens keeps the side drawer. */
     internal val bottomNavigationEnabled: Boolean
-        get() = Prefs.devBottomNavEnabled && !fragmented
+        get() = !hasNavigationDrawer
 
     // Short animation duration from system
     private var shortAnimDuration = 0

@@ -249,9 +249,6 @@ open class Reviewer :
         if (!ensureStorageIsReady()) {
             return
         }
-        if (Prefs.devBottomNavEnabled && resources.getBoolean(R.bool.bottom_navigation_available)) {
-            showBackIcon()
-        }
         colorPalette = findViewById(R.id.whiteboard_editor)
         answerTimer = AnswerTimer(findViewById(R.id.card_time))
         textBarNew = findViewById(R.id.new_number)

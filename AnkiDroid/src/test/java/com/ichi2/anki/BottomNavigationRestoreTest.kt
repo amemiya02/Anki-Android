@@ -17,9 +17,11 @@ import com.ichi2.anki.settings.Prefs
 import com.ichi2.testutils.withPref
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.nullValue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.android.controller.ActivityController
 
 @RunWith(AndroidJUnit4::class)
@@ -89,23 +91,22 @@ class BottomNavigationRestoreTest : RobolectricTest() {
         }
 
     @Test
-    fun `restoring a browser after the bottom navigation is turned off`() =
+    fun `restoring a browser on a screen with the side drawer`() =
         withBottomNavigation {
             val controller = launchOn(NavigationItem.BROWSER)
 
-            withPref(Prefs::devBottomNavEnabled, false) {
-                val deckPicker = restoreAfterProcessDeath(controller)
+            // e.g. a foldable opened: the split-pane layout has the drawer and no bottom bar
+            RuntimeEnvironment.setQualifiers("w1280dp-h800dp-xlarge")
+            val deckPicker = restoreAfterProcessDeath(controller)
 
-                assertThat(deckPicker.bottomNav.isVisible, equalTo(false))
-                assertThat(deckPicker.deckList.isVisible, equalTo(true))
-            }
+            assertThat(deckPicker.binding.bottomNavigation, nullValue())
+            assertThat(deckPicker.hasNavigationDrawer, equalTo(true))
         }
 
-    private fun withBottomNavigation(test: () -> Unit) =
-        withPref(Prefs::devBottomNavEnabled, true) {
-            setIntroductionSlidesShown(true)
-            test()
-        }
+    private fun withBottomNavigation(test: () -> Unit) {
+        setIntroductionSlidesShown(true)
+        test()
+    }
 
     private fun forEachTab(test: (NavigationItem) -> Unit) =
         withBottomNavigation {

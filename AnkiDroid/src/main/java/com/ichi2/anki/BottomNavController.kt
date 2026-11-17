@@ -72,7 +72,7 @@ class BottomNavController(
             when (this) {
                 HOME -> TR.actionsDecks()
                 BROWSER -> context.getString(CommonString.bottom_nav_browse)
-                STATS -> TR.statisticsTitle()
+                STATS -> context.getString(CommonString.bottom_nav_stats)
                 MORE -> context.getString(CommonString.bottom_nav_more)
             }
 

@@ -589,7 +589,8 @@ class DeckPickerTest : RobolectricTest() {
         assertEquals(expectedTitle, actualTitle)
     }
 
-    private fun withBottomNavigationEnabled(action: () -> Unit) = withPref(Prefs::devBottomNavEnabled, true, action)
+    /** Phones always navigate with the bottom bar; large screens keep the side drawer */
+    private fun withBottomNavigationEnabled(action: () -> Unit) = action()
 
     private fun DeckPicker.openEmbeddedCardBrowser(): CardBrowserFragment {
         findViewById<BottomNavigationView>(R.id.bottom_navigation).selectedItemId =
@@ -1643,12 +1644,13 @@ class DeckPickerTest : RobolectricTest() {
         }
 
     @Test
-    fun `bottom navigation features are disabled on tablets`() =
+    fun `tablets keep the side drawer and have no bottom bar`() =
         withBottomNavigationEnabled {
             deckPicker {
                 assumeTrue("Running on tablet", fragmented)
 
-                assertThat(Prefs.devBottomNavEnabled, equalTo(true))
+                assertThat(findViewById<View>(R.id.navdrawer_items_container), notNullValue())
+                assertThat(hasNavigationDrawer, equalTo(true))
                 assertThat(bottomNavigationEnabled, equalTo(false))
                 assertThat(resources.getBoolean(R.bool.bottom_navigation_available), equalTo(false))
                 val bottomNavigation = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation
@@ -1664,7 +1666,6 @@ class DeckPickerTest : RobolectricTest() {
             RuntimeEnvironment.setQualifiers("sw480dp-large")
             deckPicker {
                 assertThat(fragmented, equalTo(false))
-                assertThat(Prefs.devBottomNavEnabled, equalTo(true))
                 assertThat(bottomNavigationEnabled, equalTo(true))
                 assertThat(resources.getBoolean(R.bool.bottom_navigation_available), equalTo(true))
                 assertThat(binding.bottomNavigation, notNullValue())
@@ -1681,7 +1682,7 @@ class DeckPickerTest : RobolectricTest() {
                 val menu = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation!!.menu
                 assertThat(menu.findItem(R.id.nav_home)?.title.toString(), equalTo("Decks"))
                 assertThat(menu.findItem(R.id.nav_browser)?.title.toString(), equalTo("Browse"))
-                assertThat(menu.findItem(R.id.nav_stats)?.title.toString(), equalTo("Statistics"))
+                assertThat(menu.findItem(R.id.nav_stats)?.title.toString(), equalTo("Stats"))
                 assertThat(menu.findItem(R.id.nav_more)?.title.toString(), equalTo("More"))
             }
         }

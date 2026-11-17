@@ -15,11 +15,11 @@ import androidx.core.view.WindowInsetsCompat.Type.statusBars
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.testutils.insetsOf
 import org.junit.Test
-import org.robolectric.RuntimeEnvironment
 import com.ichi2.anki.common.android.R as CommonR
 
 /**
- * Screenshot tests for the navigation drawer of [NavigationDrawerActivity]
+ * Screenshot tests for the navigation drawer of [NavigationDrawerActivity], which only large
+ * screens have
  *
  * [DeckPicker] is used as the host activity
  *
@@ -27,12 +27,15 @@ import com.ichi2.anki.common.android.R as CommonR
  */
 class NavigationDrawerScreenshotTest : ScreenshotTest() {
     @Test
-    fun navigationDrawer_edgeToEdge() =
+    fun navigationDrawer_edgeToEdge() {
+        // Only large screens have the side drawer: phones navigate with the bottom bar
+        setTabletQualifiers()
         withDeckPicker(deckCount = 5) { deckPicker ->
             openDrawer(deckPicker)
             deckPicker.simulateEdgeToEdge()
             captureScreen("navigationDrawer")
         }
+    }
 
     /**
      * Landscape with 3-button navigation on the same side as the drawer: the drawer's
@@ -40,7 +43,7 @@ class NavigationDrawerScreenshotTest : ScreenshotTest() {
      */
     @Test
     fun navigationDrawer_sideNavigationBar() {
-        RuntimeEnvironment.setQualifiers("+land")
+        setTabletQualifiers()
         withDeckPicker(deckCount = 5) { deckPicker ->
             openDrawer(deckPicker)
             deckPicker.simulateLeftNavigationBar()

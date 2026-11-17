@@ -29,6 +29,7 @@ import androidx.annotation.CheckResult
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.ThemeUtils
 import androidx.appcompat.widget.Toolbar
@@ -453,6 +454,18 @@ class CardBrowserFragment :
             view.findViewById<SearchBar>(R.id.search_bar)?.apply {
                 setNavigationOnClickListener {
                     requireNavigationDrawerActivity().onNavigationPressed()
+                }
+                if (!requireNavigationDrawerActivity().hasNavigationDrawer) {
+                    // Phones have no side drawer: the Browse tab needs no button, the browser screen goes back
+                    navigationIcon =
+                        if (isHostedInBottomNavigation()) {
+                            null
+                        } else {
+                            AppCompatResources.getDrawable(
+                                context,
+                                CommonR.drawable.symbol_arrow_back,
+                            )
+                        }
                 }
             }
 

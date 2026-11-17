@@ -32,6 +32,9 @@ class GeneralSettingsFragment : SettingsFragment() {
     override fun initSubscreen() {
         // Build languages
         initializeLanguagePref()
+        // Phones have no side drawer, so no gesture to open it
+        requirePreference<SwitchPreferenceCompat>(R.string.nav_drawer_gesture_key).isVisible =
+            !resources.getBoolean(R.bool.bottom_navigation_available)
 
         // Deck for new cards
         requirePreference<ListPreference>(R.string.deck_for_new_cards_key).apply {

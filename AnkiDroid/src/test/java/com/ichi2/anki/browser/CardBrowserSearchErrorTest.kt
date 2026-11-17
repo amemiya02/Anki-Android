@@ -9,9 +9,7 @@ import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.setIntroductionSlidesShown
-import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.throwOnShowError
-import com.ichi2.testutils.withPref
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
@@ -55,7 +53,7 @@ class CardBrowserSearchErrorTest : RobolectricTest() {
         useSearchView: Boolean = false,
         block: suspend CardBrowserFragment.() -> Unit,
     ) = if (embedded) {
-        withPref(Prefs::devBottomNavEnabled, true) {
+        run {
             setIntroductionSlidesShown(true)
             runTest {
                 val activity = startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent()).get()

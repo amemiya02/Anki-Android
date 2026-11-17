@@ -96,6 +96,10 @@ class HeaderFragment : SettingsFragment() {
                 setFragmentContainerViewId(android.R.id.list_container)
 
                 index(R.xml.preferences_general)
+                if (activity.resources.getBoolean(R.bool.bottom_navigation_available)) {
+                    // From [GeneralSettingsFragment.initSubscreen]: phones have no side drawer
+                    searchConfiguration.ignorePreference(activity.getString(R.string.nav_drawer_gesture_key))
+                }
                 index(R.xml.preferences_reviewing)
                 index(R.xml.preferences_sync)
                 index(R.xml.preferences_custom_sync_server)
@@ -194,9 +198,6 @@ class HeaderFragment : SettingsFragment() {
                 // From [DeveloperOptionsFragment.initSubscreen]
                 if (BuildConfig.DEBUG) {
                     searchConfiguration.ignorePreference(activity.getString(R.string.developer_options_enabled_by_user_key))
-                }
-                if (!activity.resources.getBoolean(R.bool.bottom_navigation_available)) {
-                    searchConfiguration.ignorePreference(activity.getString(R.string.dev_bottom_nav_key))
                 }
             }
 

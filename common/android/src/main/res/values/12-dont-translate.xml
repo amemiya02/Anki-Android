@@ -27,9 +27,4 @@ If you want to use a string in your code that can't be translated, please use:
 
     <string name="crowding_test_non_breaking_space">This is a string with a non breakable-space using unicode.</string>
     <string name="crowding_test_160_space">This is a string with a non&#160;breakable-space using entity.</string>
-
-    <!-- Bottom Nav Bar: In progress for GSoC 2026 -->
-    <string name="bottom_nav_more" maxLength="28">More</string>
-    <string name="bottom_nav_browse" maxLength="28">Browse</string>
 </resources>
-

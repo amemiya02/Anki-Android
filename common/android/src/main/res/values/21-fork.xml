@@ -28,4 +28,11 @@
     <!-- About screen: the Fork is not the Official App (ADR-0001) -->
     <string name="about_fork_title">Based on AnkiDroid</string>
     <string name="about_fork_description" comment="%1$s is the address of AnkiDroid's source code, %2$s the list of its contributors"><![CDATA[Hayaki is an unofficial fork of <a href="%1$s">AnkiDroid</a>. It is not made or endorsed by the AnkiDroid team or by the makers of Anki, and is built on the work of AnkiDroid\'s <a href="%2$s">contributors</a>.]]></string>
+    <!-- Bottom bar on phones and its More surface (ticket 15) -->
+    <string name="bottom_nav_browse" maxLength="28" comment="Bottom bar tab which opens the card browser">Browse</string>
+    <string name="bottom_nav_stats" maxLength="28" comment="Bottom bar tab which opens the statistics">Stats</string>
+    <string name="bottom_nav_more" maxLength="28" comment="Bottom bar tab which lists settings, help and support; also the title of that page">More</string>
+    <string name="more_settings_summary" comment="Under Settings on the More page">Appearance, studying, controls, backups</string>
+    <string name="more_help_summary" comment="Under Help on the More page">The manual and the community forum</string>
+    <string name="more_support_summary" comment="Under Support AnkiDroid on the More page">Help the project Hayaki is built on</string>
 </resources>

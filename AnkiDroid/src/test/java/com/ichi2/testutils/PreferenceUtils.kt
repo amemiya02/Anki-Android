@@ -8,7 +8,7 @@ import kotlin.reflect.KMutableProperty0
  * Sets [pref] to [value] while [action] runs, then restores the previous value.
  *
  * ```kotlin
- * withPref(Prefs::devBottomNavEnabled, true) { ... }
+ * withPref(Prefs::devUsingCardBrowserSearchView, true) { ... }
  * ```
  */
 fun <T> withPref(

@@ -15,6 +15,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RuntimeEnvironment
 import com.ichi2.anki.common.android.R as CommonR
 
 /**
@@ -25,7 +26,9 @@ import com.ichi2.anki.common.android.R as CommonR
 @RunWith(AndroidJUnit4::class)
 class NavigationDrawerInsetsTest : RobolectricTest() {
     @Test
-    fun `Hayaki's mark in the drawer header sits below the status bar`() =
+    fun `Hayaki's mark in the drawer header sits below the status bar`() {
+        // Only large screens have the side drawer
+        RuntimeEnvironment.setQualifiers("w1280dp-h800dp-xlarge")
         withDeckPicker(deckCount = 1) { deckPicker ->
             deckPicker.drawerLayout.openDrawer(GravityCompat.START, false)
             advanceRobolectricLooper()
@@ -42,4 +45,5 @@ class NavigationDrawerInsetsTest : RobolectricTest() {
                 greaterThanOrEqualTo(24.dp.toPx(targetContext) + header.resources.getDimensionPixelSize(CommonR.dimen.foundation_space_24)),
             )
         }
+    }
 }

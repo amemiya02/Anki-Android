@@ -68,6 +68,13 @@ abstract class NavigationDrawerActivity(
      */
     open var fragmented = false
         protected set
+
+    /**
+     * Whether this screen has the side drawer. Only large screens have it: phones navigate with
+     * the bottom bar, and their layout holds no drawer at all.
+     */
+    val hasNavigationDrawer: Boolean
+        get() = !resources.getBoolean(R.bool.bottom_navigation_available)
     private var navButtonGoesBack = false
 
     // Navigation drawer list item entries
@@ -101,7 +108,7 @@ abstract class NavigationDrawerActivity(
             ) as ClosableDrawerLayout
 
         val coordinatorLayout = binding.root
-        if (preferences.getBoolean(PREF_FULL_SCREEN_NAVIGATION_DRAWER, false)) {
+        if (hasNavigationDrawer && preferences.getBoolean(PREF_FULL_SCREEN_NAVIGATION_DRAWER, false)) {
             // If full screen navigation drawer is needed, then add FullDraggableContainer as a child view of closableDrawerLayout.
             // Then add coordinatorLayout as a child view of fullDraggableContainer.
             val fullDraggableContainer = FullDraggableContainerFix(this)
@@ -131,7 +138,7 @@ abstract class NavigationDrawerActivity(
             LayoutInflater
                 .from(this)
                 .inflate(layoutResID, closableDrawerLayout, false) as CoordinatorLayout
-        if (preferences.getBoolean(PREF_FULL_SCREEN_NAVIGATION_DRAWER, false)) {
+        if (hasNavigationDrawer && preferences.getBoolean(PREF_FULL_SCREEN_NAVIGATION_DRAWER, false)) {
             // If full screen navigation drawer is needed, then add FullDraggableContainer as a child view of closableDrawerLayout.
             // Then add coordinatorLayout as a child view of fullDraggableContainer.
             val fullDraggableContainer = FullDraggableContainerFix(this)
@@ -151,7 +158,7 @@ abstract class NavigationDrawerActivity(
     /** Whether android:fitsSystemWindows="true" should be applied to the navigation drawer  */
     protected open fun fitsSystemWindows(): Boolean = true
 
-    fun navDrawerIsReady(): Boolean = navigationView != null
+    fun navDrawerIsReady(): Boolean = ::drawerLayout.isInitialized
 
     // Navigation drawer initialisation
     @Suppress("DEPRECATION", "API35 properly handle edge-to-edge")
@@ -168,8 +175,9 @@ abstract class NavigationDrawerActivity(
             ),
         )
         // Setup toolbar and hamburger
+        // Phones' layout holds no drawer (see hasNavigationDrawer)
         navigationView =
-            drawerLayout.findViewById<NavigationView>(R.id.navdrawer_items_container).apply {
+            drawerLayout.findViewById<NavigationView>(R.id.navdrawer_items_container)?.apply {
                 setNavigationItemSelectedListener(this@NavigationDrawerActivity)
                 menu.findItem(R.id.nav_decks)?.title = TR.actionsDecks()
                 menu.findItem(R.id.nav_stats)?.title = TR.statisticsTitle()
@@ -223,6 +231,10 @@ abstract class NavigationDrawerActivity(
         drawerToggle.isDrawerSlideAnimationEnabled = animationEnabled()
         drawerToggle.drawerArrowDrawable = MenuSymbolDrawable(supportActionBar?.themedContext ?: this)
         drawerLayout.addDrawerListener(drawerToggle)
+        if (!hasNavigationDrawer) {
+            // Nothing to open: the navigation button goes back, and screens without one hide it
+            showBackIcon()
+        }
 
         enablePostShortcut(this)
     }
@@ -272,7 +284,7 @@ abstract class NavigationDrawerActivity(
      * Sets selected navigation drawer item
      */
     protected fun selectNavigationItem(itemId: Int) {
-        val menu = navigationView!!.menu
+        val menu = navigationView?.menu ?: return
         if (itemId == -1) {
             for (i in 0 until menu.size) {
                 menu[i].isChecked = false
@@ -329,6 +341,7 @@ abstract class NavigationDrawerActivity(
      * function in a noop if the drawer hasn't been initialized.
      */
     protected fun enableDrawerSwipe() {
+        if (!hasNavigationDrawer) return
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
     }
 
@@ -408,13 +421,12 @@ abstract class NavigationDrawerActivity(
 
                     R.id.nav_help -> {
                         Timber.i("Navigating to help")
-                        showDialogFragment(HelpDialog.newHelpInstance())
+                        openHelp()
                     }
 
                     R.id.support_ankidroid -> {
                         Timber.i("Navigating to support AnkiDroid")
-                        val canRateApp = IntentUtil.canOpenIntent(this, AnkiDroidApp.getMarketIntent(this))
-                        showDialogFragment(HelpDialog.newSupportInstance(canRateApp))
+                        openSupport()
                     }
                 }
             }
@@ -436,9 +448,21 @@ abstract class NavigationDrawerActivity(
 
     /**
      * Opens AnkiDroid's Settings Screen.
+     * Reached from the drawer on large screens and from More on phones.
      */
-    protected fun openSettings() {
+    fun openSettings() {
         preferencesLauncher.navigate(PreferencesDestination.Root)
+    }
+
+    /** Opens the help menu. Reached from the drawer on large screens and from More on phones. */
+    fun openHelp() {
+        showDialogFragment(HelpDialog.newHelpInstance())
+    }
+
+    /** Opens the ways to support AnkiDroid. Reached from the drawer on large screens and from More on phones. */
+    fun openSupport() {
+        val canRateApp = IntentUtil.canOpenIntent(this, AnkiDroidApp.getMarketIntent(this))
+        showDialogFragment(HelpDialog.newSupportInstance(canRateApp))
     }
 
     /**
@@ -460,6 +484,10 @@ abstract class NavigationDrawerActivity(
     }
 
     protected fun restoreDrawerIcon() {
+        if (!hasNavigationDrawer) {
+            showBackIcon()
+            return
+        }
         drawerToggle.isDrawerIndicatorEnabled = true
         navButtonGoesBack = false
     }
@@ -479,10 +507,12 @@ abstract class NavigationDrawerActivity(
     }
 
     private fun openDrawer() {
+        if (!hasNavigationDrawer) return
         drawerLayout.openDrawer(GravityCompat.START, animationEnabled())
     }
 
     private fun closeDrawer() {
+        if (!hasNavigationDrawer) return
         drawerLayout.closeDrawer(GravityCompat.START, animationEnabled())
     }
 

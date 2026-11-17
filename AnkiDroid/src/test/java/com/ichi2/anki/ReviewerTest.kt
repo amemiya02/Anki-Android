@@ -49,7 +49,6 @@ import com.ichi2.anki.model.CardStateFilter
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.preferences.PreferenceTestUtils
 import com.ichi2.anki.reviewer.ActionButtonStatus
-import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.SnackbarBuilder
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.testutils.RecordingInputMethodManager
@@ -58,7 +57,6 @@ import com.ichi2.testutils.common.OS
 import com.ichi2.testutils.ext.addNoSuggestNote
 import com.ichi2.testutils.ext.createInputConnection
 import com.ichi2.testutils.ext.text
-import com.ichi2.testutils.withPref
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
@@ -157,22 +155,20 @@ class ReviewerTest : RobolectricTest() {
     }
 
     @Test
-    fun `saved bottom nav preference does not show a back icon on split pane layouts`() =
-        withPref(Prefs::devBottomNavEnabled, true) {
-            RuntimeEnvironment.setQualifiers("sw600dp")
-            val reviewer = startReviewer(withCards = 1)
-            assertFalse(reviewer.resources.getBoolean(R.bool.bottom_navigation_available))
-            assertTrue(reviewer.drawerToggle.isDrawerIndicatorEnabled)
-        }
+    fun `split pane layouts keep the drawer button`() {
+        RuntimeEnvironment.setQualifiers("sw600dp")
+        val reviewer = startReviewer(withCards = 1)
+        assertFalse(reviewer.resources.getBoolean(R.bool.bottom_navigation_available))
+        assertTrue(reviewer.drawerToggle.isDrawerIndicatorEnabled)
+    }
 
     @Test
-    fun `saved bottom nav preference shows a back icon on large single pane layouts`() =
-        withPref(Prefs::devBottomNavEnabled, true) {
-            RuntimeEnvironment.setQualifiers("sw480dp-large")
-            val reviewer = startReviewer(withCards = 1)
-            assertTrue(reviewer.resources.getBoolean(R.bool.bottom_navigation_available))
-            assertFalse(reviewer.drawerToggle.isDrawerIndicatorEnabled)
-        }
+    fun `large single pane layouts have no drawer and show a back button`() {
+        RuntimeEnvironment.setQualifiers("sw480dp-large")
+        val reviewer = startReviewer(withCards = 1)
+        assertTrue(reviewer.resources.getBoolean(R.bool.bottom_navigation_available))
+        assertFalse(reviewer.drawerToggle.isDrawerIndicatorEnabled)
+    }
 
     @Test
     fun testOnSelectedTags() {

@@ -468,9 +468,6 @@ open class PrefsRepository protected constructor(
     var devIsCardBrowserFragmented: Boolean by booleanPref(R.string.dev_card_browser_fragmented, false)
 
     @set:VisibleForTesting
-    var devBottomNavEnabled: Boolean by booleanPref(R.string.dev_bottom_nav_key, false)
-
-    @set:VisibleForTesting
     var devUsingCardBrowserSearchView: Boolean by booleanPref(R.string.dev_card_browser_search_view, false)
 
     @set:VisibleForTesting

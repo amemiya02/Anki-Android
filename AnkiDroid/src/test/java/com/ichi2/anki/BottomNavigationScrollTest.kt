@@ -11,6 +11,11 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import android.widget.ScrollView
 import android.widget.TextView
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -18,20 +23,22 @@ import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.common.utils.dp
-import com.ichi2.anki.databinding.FragmentMoreBinding
 import com.ichi2.anki.databinding.PageStatisticsBinding
 import com.ichi2.anki.pages.scrolledUpToBottom
-import com.ichi2.anki.settings.Prefs
 import com.ichi2.testutils.dispatchInsets
-import com.ichi2.testutils.withPref
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.lessThanOrEqualTo
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RuntimeEnvironment
 
 @RunWith(AndroidJUnit4::class)
 class BottomNavigationScrollTest : RobolectricTest() {
+    @get:Rule
+    val composeRule = createEmptyComposeRule()
+
     @Test
     fun `scrolling down hides the bar and scrolling up restores it`() =
         withBottomNavigation { deckPicker ->
@@ -99,7 +106,7 @@ class BottomNavigationScrollTest : RobolectricTest() {
             val nav = deckPicker.bottomNav
             nav.selectedItemId = NavigationItem.MORE.id
             advanceRobolectricLooper()
-            val scrollView = deckPicker.moreBinding.moreScrollView
+            val scrollView = deckPicker.moreView
             val behavior = HideViewOnScrollBehavior.from(nav)
 
             deckPicker.scrollFrom(scrollView, 40)
@@ -115,9 +122,9 @@ class BottomNavigationScrollTest : RobolectricTest() {
             val nav = deckPicker.bottomNav
             nav.selectedItemId = NavigationItem.MORE.id
             advanceRobolectricLooper()
-            val scrollView = deckPicker.moreBinding.moreScrollView
+            val scrollView = deckPicker.moreView
             val behavior = HideViewOnScrollBehavior.from(nav)
-            scrollView.scrollTo(0, scrollView.getChildAt(0).height)
+            scrollMoreBy(10_000f)
 
             deckPicker.scrollFrom(scrollView, 40)
             assertThat(behavior.isScrolledOut, equalTo(true))
@@ -146,15 +153,15 @@ class BottomNavigationScrollTest : RobolectricTest() {
         }
 
     @Test
-    fun `upward reversal does not repeatedly restore the bar in More`() =
+    fun `upward reversal does not repeatedly restore the bar in More`() {
+        // More holds three rows: a short screen makes it long enough to scroll
+        RuntimeEnvironment.setQualifiers("w320dp-h320dp")
         withBottomNavigation { activity ->
             val nav = activity.bottomNav
             nav.selectedItemId = NavigationItem.MORE.id
             advanceRobolectricLooper()
-            val scroll = activity.moreBinding.moreScrollView
-            scroll.scrollTo(0, 200)
-            advanceRobolectricLooper()
-            assertThat("More must be scrolled away from the top", scroll.scrollY > 70, equalTo(true))
+            val scroll = activity.moreView
+            assertThat("More must be scrolled away from the top", scrollMoreBy(200f) > 70, equalTo(true))
             val behavior = HideViewOnScrollBehavior.from(nav)
             val states = mutableListOf<Int>()
             behavior.addOnScrollStateChangedListener { _, state -> states.add(state) }
@@ -169,6 +176,8 @@ class BottomNavigationScrollTest : RobolectricTest() {
                 val event = MotionEvent.obtain(start, start + delta, action, 100f, origin[1] + offset, 0)
                 activity.dispatchTouchEvent(event)
                 event.recycle()
+                // let Compose handle the drag before the bar is checked
+                composeRule.waitForIdle()
                 advanceRobolectricLooper()
             }
             // Keep the finger down throughout the reversal. Vertical coordinates are relative to More.
@@ -187,6 +196,7 @@ class BottomNavigationScrollTest : RobolectricTest() {
             )
             assertThat(behavior.isScrolledOut, equalTo(true))
         }
+    }
 
     @Test
     fun `scrolling Statistics content hides the bar`() =
@@ -317,7 +327,7 @@ class BottomNavigationScrollTest : RobolectricTest() {
         }
 
     private fun withBottomNavigation(test: (DeckPicker) -> Unit) =
-        withPref(Prefs::devBottomNavEnabled, true) {
+        run {
             setIntroductionSlidesShown(true)
             test(startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent()).get())
         }
@@ -353,8 +363,19 @@ class BottomNavigationScrollTest : RobolectricTest() {
     private val View.contentBottomOnScreen: Int
         get() = topOnScreen + height - paddingBottom
 
-    private val DeckPicker.moreBinding: FragmentMoreBinding
-        get() = FragmentMoreBinding.bind(supportFragmentManager.findFragmentByTag(NavigationItem.MORE.tag)!!.requireView())
+    /** More, drawn by Compose ([MoreScreen]) */
+    private val DeckPicker.moreView: View
+        get() = supportFragmentManager.findFragmentByTag(NavigationItem.MORE.tag)!!.requireView()
+
+    /** Scrolls More's content as a screen reader would; returns the distance scrolled in pixels */
+    private fun scrollMoreBy(pixels: Float): Float {
+        val more = composeRule.onNode(hasScrollAction())
+        more.performSemanticsAction(SemanticsActions.ScrollBy) { scrollBy -> scrollBy(0f, pixels) }
+        composeRule.waitForIdle()
+        advanceRobolectricLooper()
+        val range = more.fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange]
+        return range.value()
+    }
 
     private val DeckPicker.statisticsBinding: PageStatisticsBinding
         get() = PageStatisticsBinding.bind(supportFragmentManager.findFragmentByTag(NavigationItem.STATS.tag)!!.requireView())

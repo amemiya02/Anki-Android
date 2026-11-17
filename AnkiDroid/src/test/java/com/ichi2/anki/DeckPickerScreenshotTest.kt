@@ -12,7 +12,6 @@ import com.ichi2.anki.android.view.locationInWindow
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.libanki.DeckId
-import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.widgets.DeckAdapter
 import com.ichi2.testutils.BackupManagerTestUtilities
@@ -47,7 +46,6 @@ class DeckPickerScreenshotTest : ScreenshotTest() {
     override fun tearDown() {
         super.tearDown()
         BackupManagerTestUtilities.reset()
-        Prefs.devBottomNavEnabled = false
     }
 
     @Test
@@ -122,7 +120,6 @@ class DeckPickerScreenshotTest : ScreenshotTest() {
     /** The studied summary and final deck must remain above the keyboard with bottom navigation enabled. */
     @Test
     fun bottom_navigation_keyboard_open_scrolled_to_bottom() {
-        enableBottomNavigation()
         withDeckPicker(deckCount = 30) { deckPicker ->
             deckPicker.searchWithKeyboard()
             deckPicker.deckPickerBinding.decks.scrollToEnd()
@@ -133,7 +130,6 @@ class DeckPickerScreenshotTest : ScreenshotTest() {
 
     @Test
     fun bottom_navigation_statistics_selected() {
-        enableBottomNavigation()
         withDeckPicker(deckCount = 0) { deckPicker ->
             val bottomNavigation = requireNotNull(deckPicker.binding.bottomNavigation)
             bottomNavigation.selectedItemId = R.id.nav_stats
@@ -147,8 +143,6 @@ class DeckPickerScreenshotTest : ScreenshotTest() {
     @Test
     fun hierarchy_lines() =
         runTest {
-            enableBottomNavigation()
-
             val root1 = addDeck("Math")
             val mathAlg = addDeck("Math::Algebra")
             addDeck("Math::Algebra::Linear")
@@ -167,8 +161,6 @@ class DeckPickerScreenshotTest : ScreenshotTest() {
     @Test
     fun hierarchy_lines_collapsed() =
         runTest {
-            enableBottomNavigation()
-
             val root = addDeck("Math")
             addDeck("Math::Algebra")
             addDeck("Math::Algebra::Linear")
@@ -185,8 +177,6 @@ class DeckPickerScreenshotTest : ScreenshotTest() {
     @Test
     fun hierarchy_lines_deep_nesting() =
         runTest {
-            enableBottomNavigation()
-
             addDeck("Level1")
             addDeck("Level1::Level2")
             addDeck("Level1::Level2::Level3")
@@ -211,8 +201,6 @@ class DeckPickerScreenshotTest : ScreenshotTest() {
     @Test
     fun hierarchy_lines_many_siblings() =
         runTest {
-            enableBottomNavigation()
-
             val root = addDeck("Parent")
             addDeck("Parent::Child1")
             addDeck("Parent::Child2")
@@ -252,10 +240,6 @@ class DeckPickerScreenshotTest : ScreenshotTest() {
      */
     private val View.contentCenterYInWindow: Int
         get() = locationInWindow().y + paddingTop + (height - paddingTop - paddingBottom) / 2
-
-    private fun enableBottomNavigation() {
-        Prefs.devBottomNavEnabled = true
-    }
 
     private suspend fun startDeckPicker(): DeckPicker =
         startActivityNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent()).also {

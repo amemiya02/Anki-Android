@@ -3,5 +3,5 @@
                                            android:id="@+id/drawer_layout"
                                            android:layout_width="match_parent"
                                            android:layout_height="match_parent">
-    <include layout="@layout/include_navigation_drawer" />
+    <!-- Phones have no side drawer: they navigate with the bottom bar. Large screens: layout-sw600dp -->
 </androidx.drawerlayout.widget.ClosableDrawerLayout>
