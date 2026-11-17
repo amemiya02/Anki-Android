@@ -57,6 +57,33 @@ class ReviewerMenuRepositoryTest {
     }
 
     @Test
+    fun `by default undo is in the bar and every Card action is in the menu`() {
+        val actions = repository.getActionsByMenuDisplayTypes()
+
+        assertEquals(listOf(ViewerAction.UNDO), actions.getValue(MenuDisplayType.ALWAYS))
+        val cardActions =
+            listOf(
+                ViewerAction.REDO,
+                ViewerAction.FLAG_MENU,
+                ViewerAction.MARK,
+                ViewerAction.EDIT,
+                ViewerAction.CARD_INFO,
+                ViewerAction.PREVIOUS_CARD_INFO,
+                ViewerAction.TAG,
+                ViewerAction.BURY_MENU,
+                ViewerAction.SUSPEND_MENU,
+                ViewerAction.DELETE,
+                ViewerAction.RESCHEDULE_NOTE,
+                ViewerAction.RESET_PROGRESS,
+                ViewerAction.ADD_NOTE,
+                ViewerAction.DECK_OPTIONS,
+                ViewerAction.PLAY_MEDIA,
+            )
+        val menu = actions.getValue(MenuDisplayType.MENU_ONLY)
+        assertEquals(emptyList<ViewerAction>(), cardActions - menu.toSet())
+    }
+
+    @Test
     fun `getActionsByMenuDisplayType returns only the selected display types`() {
         val one = repository.getActionsByMenuDisplayTypes(MenuDisplayType.DISABLED, MenuDisplayType.MENU_ONLY)
         one.getValue(MenuDisplayType.DISABLED)
