@@ -11,13 +11,11 @@
         android:icon="@drawable/symbol_stacks" />
     <item
         android:id="@+id/nav_browser"
-        android:icon="@drawable/symbol_search"
-        android:title="@string/bottom_nav_browse" />
+        android:icon="@drawable/symbol_search" />
     <item
         android:id="@+id/nav_stats"
         android:icon="@drawable/symbol_bar_chart" />
     <item
         android:id="@+id/nav_more"
-        android:icon="@drawable/symbol_more_horiz"
-        android:title="@string/bottom_nav_more" />
+        android:icon="@drawable/symbol_more_horiz" />
 </menu>

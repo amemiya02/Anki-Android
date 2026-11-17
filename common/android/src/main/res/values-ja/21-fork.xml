@@ -14,9 +14,6 @@
     <string name="about_fork_title">AnkiDroid の派生版</string>
     <string name="about_fork_description"><![CDATA[Hayaki は <a href="%1$s">AnkiDroid</a> の非公式フォークです。AnkiDroid チームや Anki の開発者が作成・承認したものではなく、AnkiDroid の<a href="%2$s">貢献者</a>の成果をもとに作られています。]]></string>
 
-    <string name="bottom_nav_browse">ブラウズ</string>
-    <string name="bottom_nav_stats">統計</string>
-    <string name="bottom_nav_more">その他</string>
     <string name="more_settings_summary">外観、学習、操作、バックアップ</string>
     <string name="more_help_summary">マニュアルとコミュニティフォーラム</string>
     <string name="more_support_summary">Hayaki のもとになったプロジェクトを支援</string>

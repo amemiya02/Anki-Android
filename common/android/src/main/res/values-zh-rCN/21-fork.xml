@@ -14,9 +14,6 @@
     <string name="about_fork_title">基于 AnkiDroid</string>
     <string name="about_fork_description"><![CDATA[Hayaki 是 <a href="%1$s">AnkiDroid</a> 的非官方分支，并非由 AnkiDroid 团队或 Anki 的开发者制作或认可。它建立在 AnkiDroid <a href="%2$s">贡献者</a>的工作之上。]]></string>
 
-    <string name="bottom_nav_browse">浏览</string>
-    <string name="bottom_nav_stats">统计</string>
-    <string name="bottom_nav_more">更多</string>
     <string name="more_settings_summary">外观、学习、操作方式、备份</string>
     <string name="more_help_summary">使用手册与社区论坛</string>
     <string name="more_support_summary">支持 Hayaki 所基于的项目</string>

@@ -36,6 +36,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.compose.theme.foundation
 import com.ichi2.anki.common.android.R as CommonR
 
@@ -78,7 +79,7 @@ private fun MoreRows(
     val margin = foundation.spacing.screenMargin
     Column {
         Text(
-            text = stringResource(CommonR.string.bottom_nav_more),
+            text = TR.studyingMore(),
             style = foundation.type.screenTitle,
             color = foundation.colors.onBackground,
             modifier =

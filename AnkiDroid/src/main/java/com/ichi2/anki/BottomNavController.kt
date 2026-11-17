@@ -59,22 +59,25 @@ class BottomNavController(
         @IdRes val id: Int,
         /** Fragment tag used to find and reuse this destination's fragment across tab switches. */
         val tag: String,
-        @StringRes val shortcutLabel: Int,
+        /** Describes the tab in the keyboard shortcuts list; null: its title */
+        @StringRes private val shortcutLabelRes: Int?,
         val analyticsScreenName: String,
     ) {
         HOME(R.id.nav_home, "home", CommonString.deck_picker_group, DECK_PICKER_SCREEN_NAME),
         BROWSER(R.id.nav_browser, "browser", CommonString.card_browser_context_menu, CARD_BROWSER_SCREEN_NAME),
         STATS(R.id.nav_stats, "stats", CommonString.open_statistics, STATISTICS_SCREEN_NAME),
-        MORE(R.id.nav_more, "more", CommonString.bottom_nav_more, MORE_SCREEN_NAME),
+        MORE(R.id.nav_more, "more", null, MORE_SCREEN_NAME),
         ;
 
         fun title(context: Context): String =
             when (this) {
                 HOME -> TR.actionsDecks()
-                BROWSER -> context.getString(CommonString.bottom_nav_browse)
-                STATS -> context.getString(CommonString.bottom_nav_stats)
-                MORE -> context.getString(CommonString.bottom_nav_more)
+                BROWSER -> TR.qtMiscBrowse()
+                STATS -> TR.qtMiscStats()
+                MORE -> TR.studyingMore()
             }
+
+        fun shortcutLabel(context: Context): String = shortcutLabelRes?.let(context::getString) ?: title(context)
 
         companion object {
             fun populateMenu(
