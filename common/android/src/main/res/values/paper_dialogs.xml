@@ -9,4 +9,5 @@
     <string name="paper_dialog_create_deck">Create deck</string>
     <string name="paper_dialog_deck_name">Deck name</string>
     <string name="paper_dialog_sync_unreachable">Could not reach the sync server</string>
+    <string name="paper_dialog_export_deck_title">Export “%1$s”</string>
 </resources>

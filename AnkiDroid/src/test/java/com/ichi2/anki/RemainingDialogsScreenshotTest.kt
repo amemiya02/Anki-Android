@@ -13,7 +13,6 @@ import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.dialogs.ImportDialog
 import com.ichi2.anki.export.ExportDialogFragment
-import com.ichi2.anki.libanki.Consts.DEFAULT_DECK_ID
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.testutils.EmptyAnkiActivity
 import com.ichi2.testutils.ext.reopenWithLanguage
@@ -56,7 +55,7 @@ class RemainingDialogsScreenshotTest : ScreenshotTest() {
     @Test
     fun deckExport() =
         withActivity { activity ->
-            ExportDialogFragment.forDeckList(DEFAULT_DECK_ID).showNow(activity.supportFragmentManager, "export")
+            ExportDialogFragment.forDeckList(addDeck("日本語")).showNow(activity.supportFragmentManager, "export")
             compose.onNodeWithText("(.apkg)", substring = true).assertIsDisplayed()
             compose.onNodeWithText(activity.getString(CommonString.dialog_cancel)).assertIsDisplayed()
             captureScreen("deck_export")

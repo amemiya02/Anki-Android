@@ -123,7 +123,7 @@ class ExportDialogFragment : AnalyticsDialogFragment() {
             if (format == ExportConfiguration.Apkg &&
                 deck is SelectableDeck.Deck
             ) {
-                getString(CommonString.export_deck)
+                getString(CommonString.paper_dialog_export_deck_title, deck.getFullDisplayName(requireContext()))
             } else {
                 TR.actionsExport()
             }
@@ -398,7 +398,7 @@ class ExportDialogFragment : AnalyticsDialogFragment() {
         val options: List<ExportOption>,
     ) {
         Collection(0, listOf(ExportOption.Media, ExportOption.Legacy)),
-        Apkg(1, listOf(ExportOption.Schedule, ExportOption.DeckConfigs, ExportOption.Media, ExportOption.Legacy)),
+        Apkg(1, listOf(ExportOption.Schedule, ExportOption.Media, ExportOption.DeckConfigs, ExportOption.Legacy)),
         Notes(
             2,
             listOf(ExportOption.Html, ExportOption.Tags, ExportOption.Deck, ExportOption.Notetype, ExportOption.Guid),
