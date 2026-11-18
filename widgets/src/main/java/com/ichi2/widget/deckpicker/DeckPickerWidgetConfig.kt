@@ -214,7 +214,7 @@ private fun DeckListWidgetSetup(
     var draggedId by remember { mutableStateOf<Long?>(null) }
     var dragOffset by remember { mutableFloatStateOf(0f) }
 
-    fun dropDeck() {
+    val drop by rememberUpdatedState {
         val from = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == draggedId }
         if (from != null) {
             val center = from.offset + from.size / 2f + dragOffset
@@ -228,7 +228,6 @@ private fun DeckListWidgetSetup(
         dragOffset = 0f
     }
 
-    val drop by rememberUpdatedState(::dropDeck)
     Column(
         Modifier
             .fillMaxSize()
