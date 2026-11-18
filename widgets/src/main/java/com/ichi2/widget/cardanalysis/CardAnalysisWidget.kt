@@ -112,7 +112,7 @@ private object OneDeck : PaperWidget<OneDeckDisplay>(CardAnalysisWidget::class.j
                 verticalAlignment = if (compact) Alignment.CenterVertically else Alignment.Top,
             ) {
                 WidgetText(
-                    deck.fullName.replace("::", " › "),
+                    if (narrow) deck.name else deck.fullName.replace("::", " › "),
                     colors.onBackground,
                     if (compact) appearance.textSize(if (narrow) 13 else 16, 16) else detailedNameFont,
                     GlanceModifier.fillMaxWidth(),

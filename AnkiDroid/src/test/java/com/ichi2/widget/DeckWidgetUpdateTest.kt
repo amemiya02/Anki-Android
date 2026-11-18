@@ -48,6 +48,19 @@ class DeckWidgetUpdateTest : RobolectricTest() {
         }
 
     @Test
+    fun `the one Deck widget prioritizes the selected Deck name at minimum width`() =
+        runTest {
+            val deck = addDeck("Japanese::Vocabulary")
+            CardAnalysisWidgetPreferences(targetContext).saveSelectedDeck(WIDGET_ID, deck)
+
+            val compact = targetContext.renderWidget(CardAnalysisWidget(), width = 84, height = 56, id = WIDGET_ID)
+            val expanded = targetContext.renderWidget(CardAnalysisWidget(), width = 166, height = 166, id = WIDGET_ID)
+
+            assertTrue("Vocabulary" in compact.labels())
+            assertTrue("Japanese › Vocabulary" in expanded.labels())
+        }
+
+    @Test
     fun `a deleted selected Deck opens its own widget setup`() =
         runTest {
             CardAnalysisWidgetPreferences(targetContext).saveSelectedDeck(WIDGET_ID, 987654321)
