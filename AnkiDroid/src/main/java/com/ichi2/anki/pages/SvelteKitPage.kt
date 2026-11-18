@@ -10,17 +10,18 @@ package com.ichi2.anki.pages
 internal enum class SvelteKitPage(
     val route: String,
     val disableCsp: Boolean = false,
+    val harmonised: Boolean = true,
 ) {
     GRAPHS("graphs"),
 
     // #22334: `javascript:bridgeCommand` is used by 'Custom Study' and 'Unbury'
-    CONGRATS("congrats", disableCsp = true),
+    CONGRATS("congrats", disableCsp = true, harmonised = false),
     CARD_INFO("card-info"),
     CHANGE_NOTETYPE("change-notetype"),
     DECK_OPTIONS("deck-options"),
     IMPORT_ANKI_PACKAGE("import-anki-package"),
     IMPORT_CSV("import-csv"),
-    IMPORT_PAGE("import-page"),
+    IMPORT_PAGE("import-page", harmonised = false),
     IMAGE_OCCLUSION("image-occlusion"),
     ;
 

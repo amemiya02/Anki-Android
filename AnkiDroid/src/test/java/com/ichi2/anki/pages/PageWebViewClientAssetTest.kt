@@ -58,13 +58,14 @@ class PageWebViewClientAssetTest : PageWebViewClientTestBase() {
         }
 
     @Test
-    fun `other supported pages retain the bundled HTML and CSP unchanged`() =
+    fun `Anki Pages add a theme without changing the bundled HTML and CSP`() =
         withStatistics { view, client ->
             val expected =
                 view.context.assets
                     .open("backend/sveltekit/index.html")
-                    .use { it.readBytes() }
-            assertNotNull(Jsoup.parse(expected.decodeToString()).selectFirst("meta[http-equiv=content-security-policy]"))
+                    .bufferedReader()
+                    .use { Jsoup.parse(it.readText()) }
+            assertNotNull(expected.selectFirst("meta[http-equiv=content-security-policy]"))
 
             val pageUrl = assertNotNull(view.url).toUri()
             val paths =
@@ -75,7 +76,6 @@ class PageWebViewClientAssetTest : PageWebViewClientTestBase() {
                     "/deck-options",
                     "/import-anki-package",
                     "/import-csv",
-                    "/import-page",
                     "/image-occlusion",
                     "/deck-options/1",
                     "/card-info/1/2",
@@ -83,8 +83,27 @@ class PageWebViewClientAssetTest : PageWebViewClientTestBase() {
             for (path in paths) {
                 val url = pageUrl.buildUpon().path(path).build()
                 val response = assertNotNull(client.shouldInterceptRequest(view, request(url.toString())))
-                assertContentEquals(expected, response.data.use { it.readBytes() }, path)
+                val html = response.data.bufferedReader().use { Jsoup.parse(it.readText()) }
+                assertNotNull(html.selectFirst("meta[name=color-scheme]"), path).remove()
+                assertNotNull(html.selectFirst("link[rel=stylesheet][href=/hayaki/anki-pages.css]"), path).remove()
+                val root = assertNotNull(html.selectFirst("html[data-hayaki-page][data-hayaki-font]"), path)
+                root.removeAttr("data-hayaki-page").removeAttr("data-hayaki-font")
+                assertEquals(expected.outerHtml(), html.outerHtml(), path)
             }
+        }
+
+    @Test
+    fun `page styles and bundled fonts are limited to exact paths on the page origin`() =
+        withStatistics { view, client ->
+            val pageUrl = assertNotNull(view.url).toUri()
+            for ((path, mimeType) in listOf("/hayaki/anki-pages.css" to "text/css", "/hayaki/newsreader.ttf" to "font/ttf")) {
+                val url = pageUrl.buildUpon().path(path).build()
+                val response = assertNotNull(client.shouldInterceptRequest(view, request(url.toString())))
+                assertEquals(mimeType, response.mimeType)
+                response.data.close()
+                assertNull(client.shouldInterceptRequest(view, request(url.buildUpon().encodedAuthority("example.org").toString())))
+            }
+            assertNull(client.shouldInterceptRequest(view, request(pageUrl.buildUpon().path("/hayaki/other.ttf").toString())))
         }
 
     @Test

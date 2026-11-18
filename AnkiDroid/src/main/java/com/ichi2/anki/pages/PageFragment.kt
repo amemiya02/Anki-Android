@@ -12,6 +12,7 @@ import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.ichi2.anki.R
 import com.ichi2.anki.workarounds.OnWebViewRecreatedListener
@@ -19,6 +20,7 @@ import com.ichi2.anki.workarounds.SafeWebViewLayout
 import com.ichi2.themes.Themes
 import com.ichi2.utils.showDialogIfWebViewOutdated
 import timber.log.Timber
+import com.ichi2.anki.common.android.R as CommonR
 
 /**
  * Base class for displaying Anki HTML pages
@@ -109,6 +111,7 @@ abstract class PageFragment(
     private fun setupWebView(savedInstanceState: Bundle?) {
         val pageWebViewClient = onCreateWebViewClient(savedInstanceState)
         webViewLayout.apply {
+            setBackgroundColor(MaterialColors.getColor(this, CommonR.attr.foundationBackground))
             setAcceptThirdPartyCookies(true)
             with(settings) {
                 javaScriptEnabled = true

@@ -60,6 +60,8 @@ open class PageWebViewClient : SafeWebViewClient() {
             return WebResourceResponse("image/x-icon", null, ByteArrayInputStream(byteArrayOf()))
         }
 
+        AnkiPageStyle.responseFor(view.context, path)?.let { return it }
+
         val page = SvelteKitPage.fromPath(path)
         val assetPath =
             if (path.startsWith("/_app/")) {
@@ -74,10 +76,13 @@ open class PageWebViewClient : SafeWebViewClient() {
             val mimeType = guessMimeType(assetPath)
             val inputStream =
                 view.context.assets.open(assetPath).let { asset ->
-                    if (page?.disableCsp == true) {
-                        removeBundledCsp(asset)
-                    } else {
-                        asset
+                    when {
+                        page?.disableCsp == true -> removeBundledCsp(asset)
+                        page?.harmonised == true -> {
+                            val html = asset.bufferedReader().use { it.readText() }
+                            AnkiPageStyle.attachTo(html, view.context).byteInputStream()
+                        }
+                        else -> asset
                     }
                 }
             val response = WebResourceResponse(mimeType, null, inputStream)
@@ -97,6 +102,14 @@ open class PageWebViewClient : SafeWebViewClient() {
         favicon: Bitmap?,
     ) {
         super.onPageStarted(view, url, favicon)
+        val page =
+            url
+                ?.toUri()
+                ?.takeIf(::isInternalUrl)
+                ?.path
+                ?.let(SvelteKitPage::fromPath)
+        if (page?.harmonised == true) return
+
         view?.let { webView ->
             val bgColor = MaterialColors.getColor(webView, android.R.attr.colorBackground).toRGBHex()
             webView.evaluateAfterDOMContentLoaded(

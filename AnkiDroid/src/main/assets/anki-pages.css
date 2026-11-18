@@ -1,0 +1,191 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+@font-face {
+    font-family: "Newsreader";
+    src: url("/hayaki/newsreader.ttf") format("truetype");
+    font-weight: 400 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "LXGW WenKai";
+    src: url("/hayaki/lxgw-wenkai-regular.ttf") format("truetype");
+    font-weight: 400 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "LXGW WenKai";
+    src: url("/hayaki/lxgw-wenkai-medium.ttf") format("truetype");
+    font-weight: 600 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Klee One";
+    src: url("/hayaki/klee-one-regular.ttf") format("truetype");
+    font-weight: 400 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Klee One";
+    src: url("/hayaki/klee-one-semibold.ttf") format("truetype");
+    font-weight: 600 700;
+    font-display: swap;
+}
+
+html:root[data-hayaki-page="light"] {
+    color-scheme: light;
+}
+
+html:root[data-hayaki-page="dark"] {
+    color-scheme: dark;
+}
+
+/* Map the bundled Anki and Bootstrap roles. This outranks their root rules even when a route
+   adds another stylesheet. The form structure, sizing and chart data stay in the bundled pages. */
+html:root[data-hayaki-page] {
+    --hayaki-cjk: "LXGW WenKai", "Klee One";
+    --hayaki-face: "Newsreader", var(--hayaki-cjk), serif;
+    --hayaki-raised-paper: var(--hayaki-paper);
+
+    --fg: var(--hayaki-ink);
+    --fg-subtle: var(--hayaki-muted);
+    --fg-disabled: var(--hayaki-muted);
+    --fg-faint: var(--hayaki-muted);
+    --fg-link: var(--hayaki-emphasis);
+    --canvas: var(--hayaki-paper);
+    --canvas-elevated: var(--hayaki-raised-paper);
+    --canvas-inset: var(--hayaki-paper);
+    --canvas-overlay: var(--hayaki-raised-paper);
+    --canvas-code: var(--hayaki-paper);
+    --canvas-glass: rgba(var(--hayaki-paper-rgb), 0.8);
+    --border: var(--hayaki-rule);
+    --border-subtle: var(--hayaki-rule);
+    --border-strong: var(--hayaki-muted);
+    --border-focus: var(--hayaki-emphasis);
+    --button-bg: var(--hayaki-raised-paper);
+    --button-gradient-start: var(--hayaki-raised-paper);
+    --button-gradient-end: var(--hayaki-paper);
+    --button-primary-bg: var(--hayaki-primary);
+    --button-primary-gradient-start: var(--hayaki-primary);
+    --button-primary-gradient-end: var(--hayaki-primary);
+    --button-hover-border: var(--hayaki-muted);
+    --scrollbar-bg: var(--hayaki-muted);
+    --scrollbar-bg-hover: var(--hayaki-ink);
+    --scrollbar-bg-active: var(--hayaki-ink);
+    --shadow: var(--hayaki-muted);
+    --shadow-focus: var(--hayaki-emphasis);
+    --state-new: var(--hayaki-new);
+    --state-learn: var(--hayaki-learning);
+    --state-review: var(--hayaki-review);
+
+    --bs-body-bg: var(--hayaki-paper);
+    --bs-body-bg-rgb: var(--hayaki-paper-rgb);
+    --bs-body-color: var(--hayaki-ink);
+    --bs-body-color-rgb: var(--hayaki-ink-rgb);
+    --bs-emphasis-color: var(--hayaki-ink);
+    --bs-emphasis-color-rgb: var(--hayaki-ink-rgb);
+    --bs-secondary-color: var(--hayaki-muted);
+    --bs-secondary-bg: var(--hayaki-raised-paper);
+    --bs-tertiary-bg: var(--hayaki-raised-paper);
+    --bs-border-color: var(--hayaki-rule);
+    --bs-border-color-translucent: var(--hayaki-rule);
+    --bs-link-color: var(--hayaki-emphasis);
+    --bs-link-color-rgb: var(--hayaki-emphasis-rgb);
+    --bs-link-hover-color: var(--hayaki-ink);
+    --bs-link-hover-color-rgb: var(--hayaki-ink-rgb);
+    --bs-primary: var(--hayaki-primary);
+    --bs-primary-rgb: var(--hayaki-primary-rgb);
+    --bs-body-font-family: var(--hayaki-face);
+    --bs-font-sans-serif: var(--hayaki-face);
+
+    background-color: var(--hayaki-paper);
+    color: var(--hayaki-ink);
+    font-family: var(--hayaki-face);
+    accent-color: var(--hayaki-primary);
+}
+
+@supports (color: color-mix(in srgb, black, white)) {
+    html:root[data-hayaki-page] {
+        --hayaki-raised-paper: color-mix(in srgb, var(--hayaki-paper) 97%, var(--hayaki-ink));
+    }
+}
+
+/* Prefer the Japanese forms of shared Han characters in the Japanese interface. */
+html:root[data-hayaki-font="ja"] {
+    --hayaki-cjk: "Klee One", "LXGW WenKai";
+}
+
+html[data-hayaki-page] body {
+    background-color: var(--hayaki-paper);
+    color: var(--hayaki-ink);
+}
+
+html[data-hayaki-page] svg [font-family="sans-serif"] {
+    font-family: var(--hayaki-face);
+}
+
+/* Give half-opacity graph tick labels the palette’s readable muted ink. */
+html:root[data-hayaki-page] svg .tick text {
+    fill: var(--hayaki-muted);
+    opacity: 1;
+}
+
+html[data-hayaki-page] .btn-primary {
+    --bs-btn-color: var(--hayaki-on-primary);
+    --bs-btn-bg: var(--hayaki-primary);
+    --bs-btn-border-color: var(--hayaki-primary);
+    --bs-btn-hover-color: var(--hayaki-on-primary);
+    --bs-btn-hover-bg: var(--hayaki-primary);
+    --bs-btn-hover-border-color: var(--hayaki-ink);
+    --bs-btn-focus-shadow-rgb: var(--hayaki-emphasis-rgb);
+    --bs-btn-active-color: var(--hayaki-on-primary);
+    --bs-btn-active-bg: var(--hayaki-primary);
+    --bs-btn-active-border-color: var(--hayaki-ink);
+    --bs-btn-disabled-color: var(--hayaki-on-primary);
+    --bs-btn-disabled-bg: var(--hayaki-primary);
+    --bs-btn-disabled-border-color: var(--hayaki-primary);
+}
+
+html[data-hayaki-page] .btn-outline-primary {
+    --bs-btn-color: var(--hayaki-emphasis);
+    --bs-btn-border-color: var(--hayaki-emphasis);
+    --bs-btn-hover-color: var(--hayaki-on-primary);
+    --bs-btn-hover-bg: var(--hayaki-primary);
+    --bs-btn-hover-border-color: var(--hayaki-primary);
+    --bs-btn-focus-shadow-rgb: var(--hayaki-emphasis-rgb);
+    --bs-btn-active-color: var(--hayaki-on-primary);
+    --bs-btn-active-bg: var(--hayaki-primary);
+    --bs-btn-active-border-color: var(--hayaki-primary);
+    --bs-btn-disabled-color: var(--hayaki-emphasis);
+    --bs-btn-disabled-border-color: var(--hayaki-emphasis);
+}
+
+html[data-hayaki-page] :is(.form-control, .form-select, .form-check-input, .select-container, .spin-box) {
+    border-color: var(--hayaki-muted);
+}
+
+html[data-hayaki-page] .form-check-input:checked {
+    background-color: var(--hayaki-primary);
+    border-color: var(--hayaki-primary);
+}
+
+html[data-hayaki-page] :is(.form-control, .form-select, .form-check-input):focus {
+    border-color: var(--hayaki-emphasis);
+    box-shadow: 0 0 0 0.25rem rgba(var(--hayaki-emphasis-rgb), 0.25);
+}
+
+html[data-hayaki-page] .form-range::-webkit-slider-thumb {
+    background-color: var(--hayaki-primary);
+}
+
+html[data-hayaki-page] :is(.icon-button.primary, .tab-buttons .active) {
+    color: var(--hayaki-on-primary);
+}
+
+/* The occlusion toolbar gives its active icon an important foreground. */
+html[data-hayaki-page] .active-tool {
+    color: var(--hayaki-on-primary) !important;
+}
