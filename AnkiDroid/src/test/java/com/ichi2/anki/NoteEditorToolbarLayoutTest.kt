@@ -11,6 +11,7 @@ import androidx.core.content.edit
 import androidx.core.view.isVisible
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.common.destinations.NoteEditorDestination
+import com.ichi2.anki.noteeditor.Toolbar
 import com.ichi2.anki.noteeditor.getNoteEditorFragment
 import com.ichi2.anki.noteeditor.label
 import com.ichi2.anki.noteeditor.presentation.ToolbarLayoutMode
@@ -38,32 +39,20 @@ class NoteEditorToolbarLayoutTest : RobolectricTest() {
         option(ToolbarLayoutMode.SCROLL).performClick()
         option(ToolbarLayoutMode.SCROLL).assertDoesNotExist()
         assertTrue(getPreferences().getBoolean("noteEditorScrollToolbar", false))
-        assertTrue(
-            activity
-                .getNoteEditorFragment()
-                .binding.editorToolbar.isVisible,
-        )
+        assertTrue(activity.editorToolbar().isVisible)
         openChooser(activity)
         option(ToolbarLayoutMode.SCROLL).assertIsSelected()
         option(ToolbarLayoutMode.HIDDEN).performClick()
         option(ToolbarLayoutMode.HIDDEN).assertDoesNotExist()
         assertFalse(getPreferences().getBoolean("noteEditorShowToolbar", true))
-        assertFalse(
-            activity
-                .getNoteEditorFragment()
-                .binding.editorToolbar.isVisible,
-        )
+        assertFalse(activity.editorToolbar().isVisible)
         openChooser(activity)
         option(ToolbarLayoutMode.HIDDEN).assertIsSelected()
         option(ToolbarLayoutMode.STACK).performClick()
         option(ToolbarLayoutMode.STACK).assertDoesNotExist()
         assertTrue(getPreferences().getBoolean("noteEditorShowToolbar", false))
         assertFalse(getPreferences().getBoolean("noteEditorScrollToolbar", true))
-        assertTrue(
-            activity
-                .getNoteEditorFragment()
-                .binding.editorToolbar.isVisible,
-        )
+        assertTrue(activity.editorToolbar().isVisible)
     }
 
     @Test
@@ -87,13 +76,10 @@ class NoteEditorToolbarLayoutTest : RobolectricTest() {
         option(ToolbarLayoutMode.STACK).assertIsSelected()
         option(ToolbarLayoutMode.HIDDEN).performClick()
         option(ToolbarLayoutMode.HIDDEN).assertDoesNotExist()
-        assertFalse(
-            controller
-                .get()
-                .getNoteEditorFragment()
-                .binding.editorToolbar.isVisible,
-        )
+        assertFalse(controller.get().editorToolbar().isVisible)
     }
+
+    private fun NoteEditorActivity.editorToolbar(): Toolbar = getNoteEditorFragment().requireView().findViewById(R.id.editor_toolbar)
 
     private fun option(layout: ToolbarLayoutMode) = composeRule.onNodeWithText(targetContext.getString(layout.label()))
 

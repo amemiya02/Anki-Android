@@ -61,6 +61,7 @@ import com.ichi2.anki.libanki.CollectionFiles
 import com.ichi2.anki.libanki.getStockNotetype
 import com.ichi2.anki.multimedia.MultimediaActivity
 import com.ichi2.anki.noteeditor.CustomToolbarButton
+import com.ichi2.anki.noteeditor.Toolbar
 import com.ichi2.anki.noteeditor.label
 import com.ichi2.anki.noteeditor.presentation.ToolbarLayoutMode
 import com.ichi2.anki.noteeditor.toIntent
@@ -444,7 +445,7 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
             activity.simulateGestureNavigationBar()
             activity.simulateSideNavigationBar()
 
-            val toolbar = activity.noteEditorFragment.binding.editorToolbar.scrollView
+            val toolbar = activity.noteEditorFragment.requireView().findViewById<Toolbar>(R.id.editor_toolbar).scrollView
             assertThat(toolbar.paddingLeft, equalTo(0))
             assertThat(toolbar.paddingRight, equalTo(0))
         }
