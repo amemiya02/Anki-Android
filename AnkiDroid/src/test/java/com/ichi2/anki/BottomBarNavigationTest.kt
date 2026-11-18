@@ -88,7 +88,11 @@ class BottomBarNavigationTest : RobolectricTest() {
 
                 assertThat("$tab: back selects Decks", deckPicker.bottomBar.selectedItemId, equalTo(NavigationItem.HOME.id))
                 assertThat("$tab: back shows Decks", deckPicker.binding.deckPickerContentWrapper!!.isShown, equalTo(true))
-                assertThat("$tab: back restores the Decks host title", deckPicker.title.toString(), equalTo(deckPicker.getString(R.string.app_name)))
+                assertThat(
+                    "$tab: back restores the Decks host title",
+                    deckPicker.title.toString(),
+                    equalTo(deckPicker.getString(R.string.app_name)),
+                )
                 assertThat("$tab: back stays in the app", deckPicker.isFinishing, equalTo(false))
             }
         }
@@ -120,7 +124,11 @@ class BottomBarNavigationTest : RobolectricTest() {
             composeRule.onNodeWithText("Help").performClick()
             val restoredHost =
                 composeRule.runOnIdle {
-                    ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED).filterIsInstance<DeckPicker>().single()
+                    ActivityLifecycleMonitorRegistry
+                        .getInstance()
+                        .getActivitiesInStage(Stage.RESUMED)
+                        .filterIsInstance<DeckPicker>()
+                        .single()
                 }
             assertThat("Help opens the help menu", restoredHost.shownHelpMenuTitle(), equalTo(CommonR.string.help))
             restoredHost.dismissDialogs()
