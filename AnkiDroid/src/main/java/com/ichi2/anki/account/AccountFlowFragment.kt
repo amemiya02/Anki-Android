@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.FrameLayout
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
@@ -33,15 +35,21 @@ class AccountFlowFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View =
-        ComposeView(inflater.context).apply {
-            id = R.id.account_flow_step
+        FrameLayout(inflater.context).apply {
             ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
                 bottomCornerClearancePx = insets.bottomCornerClearance(view)
                 insets
             }
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            val first = if (requireArguments().getBoolean(START_WITH_ADDRESS)) CustomSyncServerSettingsFragment() else LoginFragment()
-            setContent { navigation.Content(first) }
+            addView(
+                ComposeView(context).apply {
+                    id = R.id.account_flow_step
+                    setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                    val first = if (requireArguments().getBoolean(START_WITH_ADDRESS)) CustomSyncServerSettingsFragment() else LoginFragment()
+                    setContent { navigation.Content(first) }
+                },
+                MATCH_PARENT,
+                MATCH_PARENT,
+            )
         }
 
     internal fun showSignIn() {

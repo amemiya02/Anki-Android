@@ -12,7 +12,9 @@ import android.graphics.fonts.FontFamily
 import androidx.annotation.FontRes
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
-import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.createFontFamilyResolver
@@ -75,7 +77,7 @@ class InterfaceTypefaceDeckListTest : RobolectricTest() {
 
     /** The typeface Compose draws [text] in, from the style of its text layout */
     private fun typefaceOf(text: String): Typeface {
-        val node = composeRule.onNodeWithText(text, useUnmergedTree = true).fetchSemanticsNode()
+        val node = composeRule.onNode(hasText(text) and !hasAnyAncestor(hasTestTag("tab-home")), useUnmergedTree = true).fetchSemanticsNode()
         val layouts = mutableListOf<TextLayoutResult>()
         checkNotNull(node.config[SemanticsActions.GetTextLayoutResult].action).invoke(layouts)
         val style = layouts.single().layoutInput.style
