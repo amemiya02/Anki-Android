@@ -71,6 +71,7 @@ class Toolbar : FrameLayout {
     private val toolbar: LinearLayout
     private val toolbarLayout: LinearLayout
     private val toolbarPreferences = ToolbarPreferences(context.sharedPrefs())
+    private val buttonSize get() = resources.getDimensionPixelSize(CommonR.dimen.foundation_spacing_touch_target)
 
     @VisibleForTesting
     internal val scrollView: HorizontalScrollView
@@ -222,8 +223,6 @@ class Toolbar : FrameLayout {
         val background = TypedValue()
         context.theme.resolveAttribute(android.R.attr.selectableItemBackground, background, true)
         button.setBackgroundResource(background.resourceId)
-        // Use layout size from R.style.note_editor_toolbar_button
-        val buttonSize = 44.dp.toPx(context)
         val params = LinearLayout.LayoutParams(buttonSize, buttonSize)
         params.gravity = Gravity.CENTER
         button.layoutParams = params
@@ -240,7 +239,7 @@ class Toolbar : FrameLayout {
 
         // Hack - items are truncated from the scrollview
         val v = findViewById<View>(R.id.toolbar_layout)
-        val expectedWidth = getVisibleItemCount(toolbar) * 48.dp.toPx(context)
+        val expectedWidth = getVisibleItemCount(toolbar) * buttonSize
         val width = screenWidth
         val p = LayoutParams(v.layoutParams)
         p.gravity =
@@ -348,7 +347,7 @@ class Toolbar : FrameLayout {
     private fun getVisibleItemCount(layout: LinearLayout): Int = ViewGroupUtils.getAllChildren(layout).count { it.isVisible }
 
     private fun addViewToToolbar(button: AppCompatImageButton) {
-        val expectedWidth = getVisibleItemCount(toolbar) * 48.dp.toPx(context)
+        val expectedWidth = getVisibleItemCount(toolbar) * buttonSize
         val width = screenWidth
         if (expectedWidth <= width) {
             toolbar.addView(button, toolbar.childCount)
@@ -357,7 +356,7 @@ class Toolbar : FrameLayout {
         var spaceLeft = false
         if (rows.isNotEmpty()) {
             val row = rows.last()
-            val expectedRowWidth = getVisibleItemCount(row) * 48.dp.toPx(context)
+            val expectedRowWidth = getVisibleItemCount(row) * buttonSize
             if (expectedRowWidth <= width) {
                 row.addView(button, row.childCount)
                 spaceLeft = true

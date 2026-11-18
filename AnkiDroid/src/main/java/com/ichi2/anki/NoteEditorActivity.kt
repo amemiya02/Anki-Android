@@ -6,9 +6,13 @@ package com.ichi2.anki
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.VisibleForTesting
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat.Type.displayCutout
@@ -58,9 +62,6 @@ class NoteEditorActivity :
 
     lateinit var noteEditorFragment: NoteEditorFragment
 
-    private val mainToolbar: androidx.appcompat.widget.Toolbar
-        get() = findViewById(R.id.toolbar)
-
     /**
      * Reference to the previewer container that exists only on larger screens.
      * Non-null if and only if the layout is x-large and includes the previewer frame
@@ -91,7 +92,9 @@ class NoteEditorActivity :
      * hidden the pane via the "Show preview sidebar" menu action.
      */
     val isPreviewerVisible: Boolean
-        get() = binding.previewerFrameLayout?.isVisible == true
+        get() = previewPaneVisible
+
+    private var previewPaneVisible by mutableStateOf(false)
 
     /** Whether this layout contains a previewer pane (split layouts only); never changes at runtime. */
     val hasPreviewerPane: Boolean
@@ -111,8 +114,10 @@ class NoteEditorActivity :
             val bars = insets.getInsets(systemBars() or displayCutout() or ime())
             binding.toolbarContainer.updatePadding(left = bars.left, top = bars.top, right = bars.right)
             binding.previewerFrameLayout?.let { pane ->
+                val isRtl = pane.layoutDirection == View.LAYOUT_DIRECTION_RTL
                 pane.updatePadding(
-                    right = bars.right,
+                    left = if (isRtl) bars.left else 0,
+                    right = if (isRtl) 0 else bars.right,
                     bottom = maxOf(bars.bottom, insets.bottomCornerClearance(pane)),
                 )
             }
@@ -169,15 +174,6 @@ class NoteEditorActivity :
             noteEditorFragment.setDelegate(this)
         }
 
-        enableToolbar()
-
-        // R.id.home is handled in setNavigationOnClickListener
-        // Set a listener for back button clicks in the toolbar
-        mainToolbar.setNavigationOnClickListener {
-            Timber.i("NoteEditor:: Back button on the menu was pressed")
-            onBackPressedDispatcher.onBackPressed()
-        }
-
         if (hasPreviewerPane) {
             val parentLayout = binding.noteEditorXlView!!
             val divider = binding.noteEditorResizingDivider!!
@@ -221,9 +217,10 @@ class NoteEditorActivity :
     }
 
     private fun applyPreviewerVisibility() {
-        val visible = hasPreviewerPane && previewerVisibilityPref
-        binding.previewerFrameLayout?.isVisible = visible
-        binding.noteEditorResizingDivider?.isVisible = visible
+        previewPaneVisible = hasPreviewerPane && previewerVisibilityPref
+        binding.previewerFrameLayout?.isVisible = isPreviewerVisible
+        binding.noteEditorResizingDivider?.isVisible = isPreviewerVisible
+        ViewCompat.requestApplyInsets(binding.root)
     }
 
     /**
@@ -400,7 +397,7 @@ class NoteEditorActivity :
     }
 
     override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean =
-        noteEditorFragment.dispatchKeyEvent(event) || super.dispatchKeyEvent(event)
+        (::noteEditorFragment.isInitialized && noteEditorFragment.dispatchKeyEvent(event)) || super.dispatchKeyEvent(event)
 
     override val shortcuts: ShortcutGroup
         get() = noteEditorFragment.shortcuts

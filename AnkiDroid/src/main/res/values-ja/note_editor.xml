@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="note_editor_duplicate_first_field">最初のフィールドの内容が重複しています</string>
+</resources>

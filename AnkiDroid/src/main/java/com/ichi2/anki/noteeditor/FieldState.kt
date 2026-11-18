@@ -33,7 +33,7 @@ class FieldState private constructor(
     fun loadFieldEditLines(type: FieldChangeType): List<FieldEditLine> {
         val fieldEditLines: List<FieldEditLine> =
             if (type.type == Type.INIT && customViewIds != null) {
-                recreateFields(customViewIds!!)
+                recreateFields(type, customViewIds!!)
             } else {
                 createFields(type).also { fields ->
                     for (field in fields) {
@@ -67,8 +67,13 @@ class FieldState private constructor(
      * Given a list of [viewIds]: create the fields, assign the IDs and let Android
      * restore the state via [FieldEditLine.onRestoreInstanceState]
      */
-    private fun recreateFields(viewIds: List<Int>): List<FieldEditLine> =
-        viewIds.map { id -> FieldEditLine(editor.requireContext()).also { field -> field.id = id } }
+    private fun recreateFields(
+        type: FieldChangeType,
+        viewIds: List<Int>,
+    ): List<FieldEditLine> =
+        createFields(type).onEachIndexed { index, field ->
+            field.id = viewIds.getOrElse(index) { View.generateViewId() }
+        }
 
     private fun createFields(type: FieldChangeType): List<FieldEditLine> {
         val fields = getFields(type)

@@ -11,9 +11,12 @@
             android:id="@+id/toolbar_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/appBarColor">
+            android:background="?attr/foundationBackground">
 
-            <include layout="@layout/include_toolbar" />
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/editor_app_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
         </FrameLayout>
         <com.ichi2.anki.ui.ResizablePaneLayout
             android:id="@+id/note_editor_xl_view"

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="note_editor_duplicate_first_field">First field is a duplicate</string>
+</resources>

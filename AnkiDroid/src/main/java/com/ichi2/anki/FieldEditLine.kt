@@ -3,33 +3,35 @@
 package com.ichi2.anki
 
 import android.content.Context
-import android.graphics.drawable.Drawable
-import android.os.Build
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.ActionMode
 import android.view.LayoutInflater
-import android.view.View
 import android.widget.FrameLayout
-import androidx.annotation.DrawableRes
-import androidx.constraintlayout.widget.ConstraintSet
-import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
-import com.ichi2.anki.common.utils.android.getDensityAdjustedValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.core.view.isVisible
+import com.ichi2.anki.common.android.themes.interfaceTypeface
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
-import com.ichi2.anki.compat.setTooltipTextCompat
 import com.ichi2.anki.databinding.ViewCardMultimediaEditlineBinding
+import com.ichi2.anki.noteeditor.NoteEditorFieldFooter
+import com.ichi2.anki.noteeditor.NoteEditorFieldHeader
+import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.ui.AnimationUtil.collapseView
 import com.ichi2.ui.AnimationUtil.expandView
 import kotlinx.parcelize.Parcelize
 import java.util.Locale
-import com.ichi2.anki.common.android.R as CommonR
 
 @KotlinCleanup("replace _name with `field`")
 class FieldEditLine : FrameLayout {
     val binding = ViewCardMultimediaEditlineBinding.inflate(LayoutInflater.from(context), this, true)
-    private var _name: String? = null
-    private var expansionState = ExpansionState.EXPANDED
+    private var _name by mutableStateOf<String?>(null)
+    private var expansionState by mutableStateOf(ExpansionState.EXPANDED)
+    var sticky by mutableStateOf<Boolean?>(null)
+    var focused by mutableStateOf(false)
+    var duplicate by mutableStateOf(false)
 
     var enableAnimation = true
 
@@ -40,27 +42,37 @@ class FieldEditLine : FrameLayout {
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
     init {
-        binding.toggleSticky.setTooltipTextCompat(CollectionManager.TR.editingToggleSticky())
-        // 7433 -
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            binding.editText.id = generateViewId()
-            binding.toggleSticky.id = generateViewId()
-            binding.mediaButton.id = generateViewId()
-            binding.expandButton.id = generateViewId()
-            binding.editText.nextFocusForwardId = binding.toggleSticky.id
-            binding.toggleSticky.nextFocusForwardId = binding.mediaButton.id
-            binding.mediaButton.nextFocusForwardId = binding.expandButton.id
-            ConstraintSet().apply {
-                clone(binding.constraintLayout)
-                connect(binding.toggleSticky.id, ConstraintSet.END, binding.mediaButton.id, ConstraintSet.START)
-                connect(binding.mediaButton.id, ConstraintSet.END, binding.expandButton.id, ConstraintSet.START)
-                applyTo(binding.constraintLayout)
+        binding.editText.apply {
+            id = generateViewId()
+            init()
+            typeface = context.interfaceTypeface()
+        }
+    }
+
+    fun bindPresentation(
+        onStickyToggle: () -> Unit,
+        onAttach: () -> Unit,
+        onShowDuplicates: () -> Unit,
+    ) {
+        binding.fieldHeader.setContent {
+            AnkiDroidTheme {
+                NoteEditorFieldHeader(
+                    label = name.orEmpty(),
+                    expanded = expansionState == ExpansionState.EXPANDED,
+                    sticky = sticky,
+                    onExpandToggle = ::toggleExpansionState,
+                    onStickyToggle = onStickyToggle,
+                    onAttach = onAttach,
+                )
             }
         }
-        setExpanderBackgroundImage()
-        binding.expandButton.setOnClickListener { toggleExpansionState() }
-        binding.editText.init()
-        binding.label.setPaddingRelative(getDensityAdjustedValue(context, 3.4f).toInt(), 0, 0, 0)
+        binding.fieldFooter.setContent {
+            AnkiDroidTheme {
+                if (expansionState == ExpansionState.EXPANDED) {
+                    NoteEditorFieldFooter(focused, duplicate, onShowDuplicates)
+                }
+            }
+        }
     }
 
     private fun toggleExpansionState() {
@@ -68,6 +80,7 @@ class FieldEditLine : FrameLayout {
             when (expansionState) {
                 ExpansionState.EXPANDED -> {
                     collapseView(binding.editText, enableAnimation)
+                    if (binding.editText.isFocused) binding.editText.clearFocus()
                     ExpansionState.COLLAPSED
                 }
                 ExpansionState.COLLAPSED -> {
@@ -75,19 +88,7 @@ class FieldEditLine : FrameLayout {
                     ExpansionState.EXPANDED
                 }
             }
-        setExpanderBackgroundImage()
     }
-
-    private fun setExpanderBackgroundImage() {
-        when (expansionState) {
-            ExpansionState.COLLAPSED -> binding.expandButton.background = getBackgroundImage(CommonR.drawable.symbol_expand_more)
-            ExpansionState.EXPANDED -> binding.expandButton.background = getBackgroundImage(R.drawable.symbol_expand_less)
-        }
-    }
-
-    private fun getBackgroundImage(
-        @DrawableRes idRes: Int,
-    ): Drawable? = VectorDrawableCompat.create(this.resources, idRes, context.theme)
 
     fun setActionModeCallbacks(callback: ActionMode.Callback?) {
         binding.editText.customSelectionActionModeCallback = callback
@@ -116,11 +117,7 @@ class FieldEditLine : FrameLayout {
         set(name) {
             _name = name
             binding.editText.contentDescription = name
-            binding.label.text = name
         }
-
-    val lastViewInTabOrder: View
-        get() = binding.expandButton
 
     override fun dispatchSaveInstanceState(container: SparseArray<Parcelable>) {
         dispatchFreezeSelfOnly(container)
@@ -157,10 +154,8 @@ class FieldEditLine : FrameLayout {
             binding.editText.setSelection(state.selectionStart, state.selectionEnd)
         }
         binding.editText.ord = state.ord
-        if (expansionState != state.expansionState) {
-            toggleExpansionState()
-        }
         expansionState = state.expansionState
+        binding.editText.isVisible = expansionState == ExpansionState.EXPANDED
     }
 
     @Parcelize

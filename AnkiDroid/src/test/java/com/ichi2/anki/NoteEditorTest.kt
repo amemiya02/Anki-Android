@@ -17,8 +17,6 @@ import android.provider.MediaStore
 import android.util.SparseArray
 import android.view.View
 import android.widget.EditText
-import android.widget.Spinner
-import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
@@ -59,7 +57,6 @@ import org.junit.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
-import org.robolectric.annotation.Config
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -68,17 +65,6 @@ import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class NoteEditorTest : RobolectricTest() {
-    @Test
-    @Config(qualifiers = "en")
-    fun verifyCardsList() {
-        val n = getNoteEditorEditingExistingBasicNote("Test", "Note", DECK_LIST)
-        assertThat(
-            "Cards list is correct",
-            (n.requireView().findViewById<TextView>(R.id.CardEditorCardsButton)).text.toString(),
-            equalTo("Cards: Card 1"),
-        )
-    }
-
     @Test // #20510
     fun `editing - fields are refreshed after the template editor restores the note type to default`() {
         val basic = col.notetypes.byName("Basic")!!
@@ -385,7 +371,7 @@ class NoteEditorTest : RobolectricTest() {
 
     @Test
     fun copyNoteAllowsChangingNoteType() =
-        withRealSpinnerSelection {
+        run {
             val originalNote = addBasicNote("front", "back")
             val editor =
                 openNoteEditorWithArgs(NoteEditorDestination.EditSelection(listOf(originalNote.firstCard().id), DEFAULT).toBundle())
@@ -398,7 +384,7 @@ class NoteEditorTest : RobolectricTest() {
 
             assertEquals(
                 requestedType.name,
-                copiedEditor.noteTypeSpinner!!.selectedItem.toString(),
+                copiedEditor.selectedNoteTypeName,
                 "Changing the copied note's type should not reselect the original type",
             )
             assertEquals(requestedType.id, copiedEditor.editorNote!!.noteTypeId)
@@ -407,7 +393,7 @@ class NoteEditorTest : RobolectricTest() {
 
     @Test
     fun copyNoteOverridesDeckNoteTypeAndPreservesAllFields() =
-        withRealSpinnerSelection {
+        run {
             val name = addStandardNoteType("Three Fields", arrayOf("Front", "Back", "Extra"), "{{Front}}", "{{Back}}{{Extra}}")
             val originalNote = addNoteUsingNoteTypeName(name, "front value", "back value", "third value")
             addBasicNote()
@@ -436,7 +422,7 @@ class NoteEditorTest : RobolectricTest() {
 
     @Test
     fun copyNotePreservesChangedTypeAndFieldsAcrossRecreation() =
-        withRealSpinnerSelection {
+        run {
             ensureCollectionLoadIsSynchronous()
             val originalNote = addBasicNote("front", "back")
             val editor =
@@ -465,7 +451,7 @@ class NoteEditorTest : RobolectricTest() {
 
     @Test
     fun copyNotePreservesHiddenFieldsAcrossTypeChanges() =
-        withRealSpinnerSelection {
+        run {
             val name = addStandardNoteType("Three Fields", arrayOf("Front", "Back", "Extra"), "{{Front}}", "{{Back}}{{Extra}}")
             val original = addNoteUsingNoteTypeName(name, "front", "back", "extra")
             val editor =
@@ -485,7 +471,7 @@ class NoteEditorTest : RobolectricTest() {
 
     @Test
     fun copyNotePreservesHiddenFieldsAcrossRecreation() =
-        withRealSpinnerSelection {
+        run {
             ensureCollectionLoadIsSynchronous()
             val name = addStandardNoteType("Three Fields", arrayOf("Front", "Back", "Extra"), "{{Front}}", "{{Back}}{{Extra}}")
             val original = addNoteUsingNoteTypeName(name, "front", "back", "extra")
@@ -511,7 +497,7 @@ class NoteEditorTest : RobolectricTest() {
 
     @Test
     fun hiddenFieldsDoNotCarryOverAfterSaving() =
-        withRealSpinnerSelection {
+        run {
             runTest {
                 val name = addStandardNoteType("Three Fields", arrayOf("Front", "Back", "Extra"), "{{Front}}", "{{Back}}{{Extra}}")
                 val typeId = col.notetypes.byName(name)!!.id
@@ -535,7 +521,7 @@ class NoteEditorTest : RobolectricTest() {
 
     @Test
     fun hiddenStickyBaselineSurvivesRoundTrip() =
-        withRealSpinnerSelection {
+        run {
             runTest {
                 val name = addStandardNoteType("Sticky Three Fields", arrayOf("Front", "Back", "Extra"), "{{Front}}", "{{Back}}{{Extra}}")
                 val type = col.notetypes.byName(name)!!
@@ -563,7 +549,7 @@ class NoteEditorTest : RobolectricTest() {
 
     @Test
     fun hiddenDraftStillRequiresDiscardConfirmation() =
-        withRealSpinnerSelection {
+        run {
             val name = addStandardNoteType("Hidden Draft", arrayOf("Front", "Back", "Extra"), "{{Front}}", "{{Back}}{{Extra}}")
             val typeId = col.notetypes.byName(name)!!.id
             val editor = openNoteEditorWithArgs(NoteEditorDestination.AddNote().toBundle())
@@ -584,7 +570,7 @@ class NoteEditorTest : RobolectricTest() {
     fun unchangedHiddenStickyFieldDoesNotRequireConfirmationAfterRecreation() = assertHiddenFieldStateAfterRecreation(sticky = true)
 
     private fun assertHiddenFieldStateAfterRecreation(sticky: Boolean) =
-        withRealSpinnerSelection {
+        run {
             runTest {
                 ensureCollectionLoadIsSynchronous()
                 val name = addStandardNoteType("Draft Three Fields", arrayOf("Front", "Back", "Extra"), "{{Front}}", "{{Back}}{{Extra}}")
@@ -854,8 +840,8 @@ class NoteEditorTest : RobolectricTest() {
     fun `can switch two image occlusion note types 15579`() {
         val otherOcclusion = getSecondImageOcclusionNoteType()
         getNoteEditorAdding(NoteType.IMAGE_OCCLUSION).build().apply {
-            val position = requireNotNull(noteTypeSpinner!!.getItemIndex(otherOcclusion.name)) { "could not find ${otherOcclusion.name}" }
-            noteTypeSpinner!!.setSelection(position)
+            setCurrentlySelectedNoteType(otherOcclusion.id)
+            assertEquals(otherOcclusion.id, editorNote!!.noteTypeId)
         }
     }
 
@@ -878,10 +864,8 @@ class NoteEditorTest : RobolectricTest() {
         val testFilteredDeckId = addDynamicDeck("TestFiltered")
         col.decks.select(testFilteredDeckId)
         val editor = getNoteEditorAdding(NoteType.BASIC).build()
-        val deckNameView = editor.view?.findViewById<TextView>(R.id.note_deck_name)
-        assertNotNull(deckNameView)
         // we can't add to a filtered deck so this should show the Default deck
-        assertEquals("Default", deckNameView.text.toString())
+        assertEquals("Default", editor.selectedDeckName)
     }
 
     @Test
@@ -892,10 +876,8 @@ class NoteEditorTest : RobolectricTest() {
         val testDeckId3 = addDeck(testDeckName)
         col.decks.select(testDeckId3)
         val editor = getNoteEditorAdding(NoteType.BASIC).build()
-        val deckNameView = editor.view?.findViewById<TextView>(R.id.note_deck_name)
-        assertNotNull(deckNameView)
         // we can't add to a filtered deck so this should show the Default deck
-        assertEquals(testDeckName, deckNameView.text.toString())
+        assertEquals(testDeckName, editor.selectedDeckName)
     }
 
     @Test
@@ -910,10 +892,8 @@ class NoteEditorTest : RobolectricTest() {
                 NoteEditorDestination.AddNote(testDeckId1).toIntent(),
             )
         val editor = activity.getNoteEditorFragment()
-        val deckNameView = editor.view?.findViewById<TextView>(R.id.note_deck_name)
-        assertNotNull(deckNameView)
         // we can't add to a filtered deck so this should show the Default deck
-        assertEquals(testDeckName, deckNameView.text.toString())
+        assertEquals(testDeckName, editor.selectedDeckName)
     }
 
     @Test
@@ -1308,35 +1288,11 @@ class NoteEditorTest : RobolectricTest() {
         }
     }
 
-    private fun withRealSpinnerSelection(block: () -> Unit) {
-        // Robolectric's legacy spinner shadow invokes callbacks immediately, which can hide
-        // selection changes made by the callback. Android dispatches them during layout instead.
-        val key = "robolectric.useRealSpinnerSelection"
-        val previousValue = System.setProperty(key, "true")
-        try {
-            block()
-        } finally {
-            if (previousValue == null) {
-                System.clearProperty(key)
-            } else {
-                System.setProperty(key, previousValue)
-            }
-        }
-    }
-
     private fun getCopyNoteIntent(editor: NoteEditorFragment): Bundle {
         val editorShadow = shadowOf(editor.requireActivity())
         editor.copyNote()
         val intent = editorShadow.peekNextStartedActivityForResult().intent
         return intent.extras ?: Bundle()
-    }
-
-    private fun Spinner.getItemIndex(toFind: Any): Int? {
-        for (i in 0 until count) {
-            if (this.getItemAtPosition(i) != toFind) continue
-            return i
-        }
-        return null
     }
 
     private val cardCount: Int
