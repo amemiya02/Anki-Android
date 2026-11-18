@@ -9,10 +9,14 @@
 - [ ] On the emulator, every screen in the app is walked in English, Simplified Chinese and Japanese, in all three themes.
 - [ ] The whole walk is set beside the "before" pictures.
 - [ ] Baseline pictures are regenerated and committed.
-- [ ] The spec's open questions are closed or recorded as decisions.
+- [x] The spec's open questions are closed or recorded as decisions.
 - [ ] The owner has signed off the Redesign.
-- [ ] Round trip with the Official App: a collection and a Deck exported from the Fork import into the current release of the Official App with Cards, scheduling, review history and media intact, and the same works in the other direction.
+- [x] Round trip with the Official App: a collection and a Deck exported from the Fork import into the current release of the Official App with Cards, scheduling, review history and media intact, and the same works in the other direction.
 
 ## Comments
 
 On 2026-11-18 the owner asked development to continue across milestones while personal phone sign-off stays pending. Emulator checks and the package round trip still apply.
+
+The Official App 2.25.3 and Hayaki completed all four package transfers. The recipient databases matched the exported Cards, scheduling, Notes and review histories, and each media file matched by byte count and SHA-256. [Package exchange](../../../docs/redesign/milestone-5/round-trip/README.md)
+
+The decisions record links the confirmed design choices, the Foundation and the scope items deferred in the spec. [Redesign decisions](../../../docs/redesign/milestone-5/decisions.md)
