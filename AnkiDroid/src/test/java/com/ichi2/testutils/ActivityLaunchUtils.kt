@@ -6,6 +6,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import com.ichi2.anki.SingleFragmentActivity
+import com.ichi2.anki.multimedia.MultimediaActivity
 
 /** Adds the same payload to the intent and, when applicable, the hosted fragment's arguments. */
 fun Intent.withLaunchPayload(
@@ -15,7 +16,8 @@ fun Intent.withLaunchPayload(
 ): Intent =
     apply {
         putExtra(key, payload)
-        if (SingleFragmentActivity::class.java.isAssignableFrom(activityClass)) {
+        // Multimedia passes a file reference under the same key as single-fragment argument bundles.
+        if (activityClass != MultimediaActivity::class.java && SingleFragmentActivity::class.java.isAssignableFrom(activityClass)) {
             val arguments = getBundleExtra(SingleFragmentActivity.EXTRA_FRAGMENT_ARGS) ?: Bundle()
             arguments.putByteArray(key, payload)
             putExtra(SingleFragmentActivity.EXTRA_FRAGMENT_ARGS, arguments)
