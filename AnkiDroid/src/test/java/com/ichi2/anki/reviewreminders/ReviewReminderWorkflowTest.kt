@@ -101,6 +101,8 @@ class ReviewReminderWorkflowTest : RobolectricTest() {
     private fun storedReminder(): ReviewReminder? =
         runBlocking { ReviewRemindersDatabase.getAllReminders().getRemindersList().singleOrNull() }
 
+    @Suppress("DEPRECATION") // Robolectric exposes the recorded PendingIntent as a field.
+
     private fun hasAlarm(id: ReviewReminderId): Boolean =
         shadowOf(targetContext.getSystemService<AlarmManager>()!!).scheduledAlarms.any { alarm ->
             val intent = shadowOf(alarm.operation).savedIntent
