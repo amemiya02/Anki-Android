@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="previewer_show_back_only">仅显示背面</string>
+    <string name="previewer_show_question">显示问题</string>
+</resources>

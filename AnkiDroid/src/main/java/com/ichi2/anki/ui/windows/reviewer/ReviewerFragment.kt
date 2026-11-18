@@ -72,6 +72,7 @@ import com.ichi2.anki.preferences.reviewer.WhiteboardAction
 import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.anki.previewer.CardViewerFragment
 import com.ichi2.anki.previewer.TypeAnswer
+import com.ichi2.anki.previewer.cardImageZoomCss
 import com.ichi2.anki.previewer.setFrameStyle
 import com.ichi2.anki.previewer.stdHtml
 import com.ichi2.anki.reviewer.BindingMap
@@ -268,12 +269,7 @@ class ReviewerFragment :
             context = requireContext(),
             extraJsAssets = listOf("scripts/ankidroid-reviewer.js", "scripts/type-answer.js", "scripts/js-api.js"),
             nightMode = Themes.isNightTheme,
-            // "Image zoom" in settings scales the Card's images apart from its text
-            extraCss =
-                Prefs.imageZoom
-                    .takeIf { it != 100 }
-                    ?.let { "img { zoom: ${it / 100.0} }" }
-                    .orEmpty(),
+            extraCss = cardImageZoomCss(),
         )
 
     override fun onStart() {

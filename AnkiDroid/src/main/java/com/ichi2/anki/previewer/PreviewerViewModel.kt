@@ -12,6 +12,7 @@ import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.destinations.NoteEditorDestination
 import com.ichi2.anki.launchCatchingIO
 import com.ichi2.anki.libanki.Card
+import com.ichi2.anki.libanki.Decks
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.reviewer.CardSide
@@ -22,6 +23,7 @@ import com.ichi2.anki.utils.ext.flag
 import com.ichi2.anki.utils.ext.setUserFlagForCards
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import timber.log.Timber
@@ -46,8 +48,8 @@ class PreviewerViewModel(
             index != 0 || (showingAnswer && !isBackSideOnly)
         }
     val isNextButtonEnabled =
-        combine(currentIndex, showingAnswer) { index, showingAnswer ->
-            index != selectedCardIds.lastIndex || !showingAnswer
+        combine(currentIndex, showingAnswer, backSideOnly) { index, showingAnswer, isBackSideOnly ->
+            index != selectedCardIds.lastIndex || (!showingAnswer && !isBackSideOnly)
         }
 
     private val showAnswerOnReload get() = showingAnswer.value || backSideOnly.value
@@ -57,8 +59,12 @@ class PreviewerViewModel(
             withCol { getCard(selectedCardIds[currentIndex.value]) }
         }
 
+    private val mutableDeckPath = MutableStateFlow(emptyList<String>())
+    val deckPath = mutableDeckPath.asStateFlow()
+
     init {
         ChangeManager.subscribe(this)
+        launchCatchingIO { updateDeckPath() }
     }
 
     /* *********************************************************************************************
@@ -137,8 +143,8 @@ class PreviewerViewModel(
                 cardMediaPlayer.stop()
                 showAnswer()
                 cardMediaPlayer.autoplayAllForSide(CardSide.ANSWER)
-            } else {
-                updateCurrentIndex { it + 1 }
+            } else if (currentIndex.value < selectedCardIds.lastIndex) {
+                updateCurrentIndex { (it + 1).coerceAtMost(selectedCardIds.lastIndex) }
             }
         }
     }
@@ -150,7 +156,7 @@ class PreviewerViewModel(
     fun onPreviousButtonClick() {
         launchCatchingIO {
             if (currentIndex.value > 0) {
-                updateCurrentIndex { it - 1 }
+                updateCurrentIndex { (it - 1).coerceAtLeast(0) }
             } else if (showingAnswer.value && !backSideOnly.value) {
                 cardMediaPlayer.stop()
                 showQuestion()
@@ -199,6 +205,12 @@ class PreviewerViewModel(
         if (showAnswer) showAnswer() else showQuestion()
         updateFlagIcon()
         updateMarkIcon()
+        updateDeckPath()
+    }
+
+    private suspend fun updateDeckPath() {
+        val deckId = currentCard.await().did
+        mutableDeckPath.value = withCol { Decks.path(decks.name(deckId)) }
     }
 
     private suspend fun updateFlagIcon() {
@@ -251,6 +263,7 @@ class PreviewerViewModel(
                     val card = currentCard.await()
                     withCol { card.load(this) }
                     updateFlagIcon()
+                    updateDeckPath()
                 }
             }
         }

@@ -22,7 +22,6 @@ import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
-import com.google.android.material.tabs.TabLayout
 import com.ichi2.anki.android.input.ShortcutGroup
 import com.ichi2.anki.android.input.ShortcutGroupProvider
 import com.ichi2.anki.databinding.ActivityNoteEditorBinding
@@ -37,7 +36,6 @@ import com.ichi2.anki.snackbar.SnackbarBuilder
 import com.ichi2.anki.startup.ensureStorageIsReady
 import com.ichi2.anki.ui.ResizablePaneManager
 import com.ichi2.anki.utils.bottomCornerClearance
-import com.ichi2.anki.utils.ext.doOnTabSelected
 import com.ichi2.themes.Themes
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -271,9 +269,6 @@ class NoteEditorActivity :
                     val previewerFragment = createPreviewerFragment(fields, tags, ord)
                     supportFragmentManager.commit {
                         replace(R.id.previewer_frame, previewerFragment)
-                        runOnCommit {
-                            configurePreviewerTabs(previewerFragment)
-                        }
                     }
                 }
 
@@ -327,67 +322,7 @@ class NoteEditorActivity :
                 fillEmpty = false,
             )
 
-        val previewerFragment = TemplatePreviewerFragment.newInstance(args)
-        return previewerFragment
-    }
-
-    /**
-     * Configures the tab layout for the previewer with appropriate tabs for each card template.
-     * Delegates the tab setup responsibility to the TemplatePreviewerFragment
-     *
-     * @param previewerFragment The previewer fragment that will manage the tabs
-     */
-    private fun configurePreviewerTabs(previewerFragment: TemplatePreviewerFragment) {
-        // Post to ensure the fragment is attached before accessing its viewModel
-        binding.previewerFrame?.post {
-            if (!previewerFragment.isAdded) return@post
-            val previewerTabLayout = binding.previewerTabLayout!!
-            launchCatchingTask {
-                previewerFragment.setupTabs(previewerTabLayout)
-            }
-        }
-    }
-
-    /**
-     * Sets up the previewer tabs with appropriate titles and selection handling.
-     *
-     * @param tabLayout The tab layout to configure
-     */
-    private suspend fun TemplatePreviewerFragment.setupTabs(tabLayout: TabLayout) {
-        tabLayout.removeAllTabs()
-
-        val cardsWithEmptyFronts = viewModel.cardsWithEmptyFronts?.await()
-        val templateNames = viewModel.getTemplateNames()
-
-        for ((index, templateName) in templateNames.withIndex()) {
-            val tabTitle =
-                if (cardsWithEmptyFronts?.get(index) == true) {
-                    getString(CommonString.card_previewer_empty_front_indicator, templateName)
-                } else {
-                    templateName
-                }
-            val newTab = tabLayout.newTab().setText(tabTitle)
-            tabLayout.addTab(newTab)
-        }
-
-        // Ensure tab index is within valid range
-        val currentTabIndex = viewModel.getCurrentTabIndex()
-        val safeTabIndex = currentTabIndex.coerceIn(0, maxOf(0, templateNames.size - 1))
-
-        if (templateNames.isNotEmpty()) {
-            tabLayout.selectTab(tabLayout.getTabAt(safeTabIndex))
-            // Update ViewModel if index was adjusted
-            if (safeTabIndex != currentTabIndex) {
-                viewModel.onTabSelected(safeTabIndex)
-            }
-        }
-
-        // Remove any existing listeners to avoid duplicates
-        tabLayout.clearOnTabSelectedListeners()
-        tabLayout.doOnTabSelected { tab ->
-            Timber.v("Selected tab %d", tab.position)
-            viewModel.onTabSelected(tab.position)
-        }
+        return TemplatePreviewerFragment.newInstance(args)
     }
 
     override fun onCollectionLoaded(col: Collection) {

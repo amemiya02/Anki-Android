@@ -67,7 +67,6 @@ import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
-import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.common.utils.ext.contentEquals
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
 import com.ichi2.anki.databinding.ActivityCardTemplateEditorBinding
@@ -316,26 +315,8 @@ open class CardTemplateEditor : AnkiActivity(R.layout.activity_card_template_edi
                     tags = note.tags,
                     fillEmpty = true,
                 )
-            val fragment = TemplatePreviewerFragment.newInstance(args)
             supportFragmentManager.commitNow {
-                replace(R.id.fragment_container, fragment)
-            }
-
-            // Modify the "Show Answer" button height to 80dp to maintain visual consistency with the BottomNavigationView,
-            // which has a default height of 80dp.
-            fragment.view?.post {
-                fragment.binding.showAnswer.let { button ->
-                    button.layoutParams.height = 80.dp.toPx(button.context)
-                    button.requestLayout()
-                }
-
-                // Adjust the top margin of the webview container to match template editor top margin
-                fragment.binding.webViewContainer.let { container ->
-                    val params = container.layoutParams as ViewGroup.MarginLayoutParams
-                    val topMargin = resources.getDimensionPixelSize(R.dimen.reviewer_side_margin)
-                    params.topMargin = topMargin
-                    container.layoutParams = params
-                }
+                replace(R.id.fragment_container, TemplatePreviewerFragment.newInstance(args, inTemplateEditor = true))
             }
         }
     }

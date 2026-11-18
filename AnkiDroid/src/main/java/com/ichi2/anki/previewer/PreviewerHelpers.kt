@@ -102,3 +102,10 @@ fun MaterialCardView.setFrameStyle() {
         strokeWidth = 0
     }
 }
+
+/** Image zoom applies to template images in both the study and preview renderers. */
+internal fun cardImageZoomCss(): String =
+    Prefs.imageZoom
+        .takeIf { it != 100 }
+        ?.let { "img { zoom: ${it / 100.0} }" }
+        .orEmpty()

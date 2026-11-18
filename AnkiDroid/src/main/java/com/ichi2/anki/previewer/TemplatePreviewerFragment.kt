@@ -4,40 +4,31 @@ package com.ichi2.anki.previewer
 
 import android.os.Bundle
 import android.view.View
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.R
-import com.ichi2.anki.databinding.FragmentTemplatePreviewerBinding
 import com.ichi2.anki.libanki.CardOrdinal
-import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
-import com.ichi2.anki.snackbar.SnackbarBuilder
-import com.ichi2.anki.utils.ext.collectInViewLifecycle
-import com.ichi2.anki.workarounds.SafeWebViewLayout
+import com.ichi2.compose.theme.AnkiDroidTheme
+import com.ichi2.compose.theme.foundation
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class TemplatePreviewerFragment :
-    CardViewerFragment(R.layout.fragment_template_previewer),
-    BaseSnackbarBuilderProvider {
+class TemplatePreviewerFragment : ComposeCardViewerFragment() {
     override val viewModel: TemplatePreviewerViewModel by viewModels()
-
-    lateinit var binding: FragmentTemplatePreviewerBinding
-
-    override val webViewLayout: SafeWebViewLayout get() = binding.webViewLayout
-
-    override val baseSnackbarBuilder: SnackbarBuilder
-        get() = { anchorView = binding.showAnswer }
 
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?,
     ) {
-        // binding must be set before super.onViewCreated
-        // as super.onViewCreated depends on webViewLayout, which depends on the binding
-        binding = FragmentTemplatePreviewerBinding.bind(view)
-
-        // The backing NotetypeFile may be missing after process death if the OS cleared
-        // its cache dir. Bail out before the ViewModel is constructed; the constructor
-        // would otherwise throw on `getNotetype()`.
+        // The OS can clear the temporary Note Type file while the process is gone.
         if (!TemplatePreviewerArguments.isUsable(requireArguments())) {
             Timber.w("Notetype file missing on previewer open; finishing")
             requireActivity().finish()
@@ -46,27 +37,48 @@ class TemplatePreviewerFragment :
 
         super.onViewCreated(view, savedInstanceState)
 
-        binding.showAnswer.setOnClickListener { viewModel.toggleShowAnswer() }
-        viewModel.showingAnswer.collectInViewLifecycle { showingAnswer ->
-            binding.showAnswer.text =
-                if (showingAnswer) {
-                    getString(CommonString.hide_answer)
-                } else {
-                    getString(CommonString.show_answer)
+        val standalone = parentFragment is TemplatePreviewerPage
+        val inTemplateEditor = requireArguments().getBoolean(ARG_TEMPLATE_EDITOR)
+        var titles by mutableStateOf(emptyList<String>())
+        var selectedTab by mutableIntStateOf(-1)
+        if (!inTemplateEditor) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                val emptyFronts = viewModel.cardsWithEmptyFronts?.await()
+                titles =
+                    viewModel.getTemplateNames().mapIndexed { index, name ->
+                        if (emptyFronts?.get(index) == true) {
+                            getString(CommonString.card_previewer_empty_front_indicator, name)
+                        } else {
+                            name
+                        }
+                    }
+                viewModel.ordFlow.collect {
+                    selectedTab = viewModel.getCurrentTabIndex()
                 }
+            }
         }
 
-        binding.webViewContainer.setFrameStyle()
+        (view as ComposeView).setContent {
+            AnkiDroidTheme {
+                val showingAnswer by viewModel.showingAnswer.collectAsStateWithLifecycle()
+                TemplatePreviewerScreen(
+                    webView = webViewLayout,
+                    titles = titles,
+                    selectedTab = selectedTab,
+                    showingAnswer = showingAnswer,
+                    standalone = standalone,
+                    fullBleed = fullBleed,
+                    // Line up the template editor's answer control with its bottom navigation.
+                    minimumButtonHeight = if (inTemplateEditor) 80.dp else MaterialTheme.foundation.spacing.primaryButton,
+                    onSelect = viewModel::onTabSelected,
+                    onToggleSide = viewModel::toggleShowAnswer,
+                    onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() },
+                )
+            }
+        }
     }
 
-    /**
-     * Updates the content displayed in the previewer with the provided fields and tags
-     *
-     * Should not be called for cloze deletions, since they they have dynamic ord
-     *
-     * @param fields The list of field values to display
-     * @param tags The list of tags associated with the note
-     */
+    /** Updates a regular template in the note editor's live preview. */
     fun updateContent(
         fields: List<String>,
         tags: List<String>,
@@ -74,20 +86,23 @@ class TemplatePreviewerFragment :
         viewModel.updateContent(fields, tags)
     }
 
-    /**
-     * Retrieves a safe cloze ordinal number for cloze deletions.
-     *
-     * @return The safe cloze ordinal number
-     */
+    /** Preserves the selected cloze when edits change the available ordinals. */
     suspend fun getSafeClozeOrd(): CardOrdinal = viewModel.getSafeClozeOrd()
 
     companion object {
         const val ARG_KEY = "arg_key"
+        private const val ARG_TEMPLATE_EDITOR = "template_editor"
 
-        fun newInstance(arguments: TemplatePreviewerArguments): TemplatePreviewerFragment =
+        fun newInstance(
+            arguments: TemplatePreviewerArguments,
+            inTemplateEditor: Boolean = false,
+        ): TemplatePreviewerFragment =
             TemplatePreviewerFragment().apply {
-                val args = Bundle().apply { putParcelable(ARG_KEY, arguments) }
-                this.arguments = args
+                this.arguments =
+                    Bundle().apply {
+                        putParcelable(ARG_KEY, arguments)
+                        putBoolean(ARG_TEMPLATE_EDITOR, inTemplateEditor)
+                    }
             }
     }
 }

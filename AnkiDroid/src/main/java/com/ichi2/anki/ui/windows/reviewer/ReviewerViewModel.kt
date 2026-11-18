@@ -52,8 +52,6 @@ import com.ichi2.anki.servicelayer.MARKED_TAG
 import com.ichi2.anki.servicelayer.NoteService
 import com.ichi2.anki.servicelayer.isBuryNoteAvailable
 import com.ichi2.anki.servicelayer.isSuspendNoteAvailable
-import com.ichi2.anki.settings.Prefs
-import com.ichi2.anki.settings.enums.NightTheme
 import com.ichi2.anki.tryRedo
 import com.ichi2.anki.tryUndo
 import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment.Companion.RESULT_DEFAULT
@@ -68,7 +66,6 @@ import com.ichi2.anki.utils.ext.cardStatsNoCardClean
 import com.ichi2.anki.utils.ext.flag
 import com.ichi2.anki.utils.ext.getLongOrNull
 import com.ichi2.anki.utils.ext.setUserFlagForCards
-import com.ichi2.themes.Themes
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -830,18 +827,6 @@ class ReviewerViewModel(
             ),
         )
     }
-
-    /**
-     * Adds what the old study screen gave the Card's `<body>`: `vertically_centered` when short
-     * Cards are centred, and `ankidroid_dark_mode` in the Dark theme, which shared Card Templates
-     * style for.
-     */
-    override suspend fun bodyClass(): String =
-        buildString {
-            append(super.bodyClass())
-            if (Prefs.centerVertically) append(" vertically_centered")
-            if (Themes.currentTheme == NightTheme.DARK) append(" ankidroid_dark_mode")
-        }
 
     override suspend fun typeAnsFilter(text: String): String {
         Timber.v("ReviewerViewModel::typeAnsFilter")

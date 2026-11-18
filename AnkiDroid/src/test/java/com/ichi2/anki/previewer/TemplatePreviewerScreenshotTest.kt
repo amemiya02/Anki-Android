@@ -1,46 +1,59 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+
 package com.ichi2.anki.previewer
 
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
 import androidx.test.core.app.ActivityScenario
+import com.ichi2.anki.CheckAccessibility
+import com.ichi2.anki.CommonString
+import com.ichi2.anki.FontSizeConfig.PERCENT_200
+import com.ichi2.anki.IncludeFontSizes
+import com.ichi2.anki.IncludeLanguages
+import com.ichi2.anki.LanguageConfig.ARABIC
+import com.ichi2.anki.LanguageConfig.JAPANESE
+import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.NotetypeFile
 import com.ichi2.anki.ScreenshotTest
-import com.ichi2.anki.databinding.FragmentTemplatePreviewerContainerBinding
 import com.ichi2.testutils.createTransientDirectory
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.equalTo
+import com.ichi2.testutils.ext.reopenWithLanguage
+import org.junit.Rule
 import org.junit.Test
+import org.robolectric.shadows.ShadowLooper
 
+@CheckAccessibility
+@IncludeLanguages(SIMPLIFIED_CHINESE, JAPANESE, ARABIC)
+@IncludeFontSizes(PERCENT_200)
 class TemplatePreviewerScreenshotTest : ScreenshotTest() {
-    @Test
-    fun baseState() =
-        withTemplatePreviewer {
-            captureScreen("base")
-        }
+    @get:Rule
+    val composeRule = createEmptyComposeRule()
 
-    private fun withTemplatePreviewer(block: (CardViewerActivity) -> Unit) {
-        val notetype = col.notetypes.basic
-        val notetypeFile = NotetypeFile(createTransientDirectory(), notetype)
+    override fun getCollectionStorageMode() = CollectionStorageMode.IN_MEMORY_WITH_MEDIA
+
+    @Test
+    fun previewFromNoteEditor() {
+        runTest { col.reopenWithLanguage(language.option) }
+        val notetype = col.notetypes.basicAndReversed
         val arguments =
             TemplatePreviewerArguments(
-                notetypeFile = notetypeFile,
-                fields = listOf("Front", "Back"),
+                notetypeFile = NotetypeFile(createTransientDirectory(), notetype),
+                fields = listOf("熟悉", "Familiar with"),
                 tags = emptyList(),
             )
-
         val intent = TemplatePreviewerPage.getIntent(targetContext, arguments)
 
-        ActivityScenario.launch<CardViewerActivity>(intent).use { scenario ->
-            scenario.onActivity { activity ->
-                val binding = FragmentTemplatePreviewerContainerBinding.bind(activity.fragment!!.requireView())
-                val tabs = binding.tabLayout
-                // Tabs are added after the background check for empty card fronts (Issue 21791).
-                advanceRobolectricLooperUntil(lazyMessage = { "Template tabs did not load before capture" }) {
-                    tabs.tabCount == notetype.templatesNames.size
-                }
-                assertThat("All template tabs are present before capture", tabs.tabCount, equalTo(notetype.templatesNames.size))
-                assertThat("The initial template is selected before capture", tabs.selectedTabPosition, equalTo(arguments.ord))
-                block(activity)
+        ActivityScenario.launch<CardViewerActivity>(intent).use {
+            val firstTemplate = notetype.templatesNames.first()
+            composeRule.waitUntil(10_000) {
+                ShadowLooper.idleMainLooper()
+                composeRule.onAllNodesWithText(firstTemplate).fetchSemanticsNodes().isNotEmpty()
             }
+            composeRule.onNodeWithText(firstTemplate).assertIsSelected()
+            composeRule.onNodeWithText(targetContext.getString(CommonString.show_answer)).assertIsDisplayed()
+            captureScreen("templates")
         }
     }
 }

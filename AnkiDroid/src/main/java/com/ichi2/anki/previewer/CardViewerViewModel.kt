@@ -17,6 +17,9 @@ import com.ichi2.anki.multimedia.getAvTag
 import com.ichi2.anki.multimedia.replaceAvRefsWithPlayButtons
 import com.ichi2.anki.pages.PostRequestHandler
 import com.ichi2.anki.pages.PostRequestUri
+import com.ichi2.anki.settings.Prefs
+import com.ichi2.anki.settings.enums.NightTheme
+import com.ichi2.themes.Themes
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -88,7 +91,13 @@ abstract class CardViewerViewModel(
 
     protected abstract suspend fun typeAnsFilter(text: String): String
 
-    protected open suspend fun bodyClass() = bodyClassForCardOrd(currentCard.await().ord)
+    protected suspend fun bodyClass(): String =
+        buildString {
+            append(bodyClassForCardOrd(currentCard.await().ord))
+            if (Prefs.centerVertically) append(" vertically_centered")
+            // Older shared Card Templates use this AnkiDroid-specific Dark selector.
+            if (Themes.currentTheme == NightTheme.DARK) append(" ankidroid_dark_mode")
+        }
 
     /** From the [desktop code](https://github.com/ankitects/anki/blob/1ff55475b93ac43748d513794bcaabd5d7df6d9d/qt/aqt/reviewer.py#L358) */
     private suspend fun mungeQA(text: String) = typeAnsFilter(prepareCardTextForDisplay(text))

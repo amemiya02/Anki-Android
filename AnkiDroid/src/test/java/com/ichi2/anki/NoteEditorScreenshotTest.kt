@@ -15,8 +15,12 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.FrameLayout
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
@@ -476,17 +480,9 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
     fun `tablet preview tabs are ready before capture`() {
         setTabletQualifiers()
         withNoteEditor { activity ->
-            val tabs = activity.binding.previewerTabLayout!!
-            assertThat(tabs.tabCount, equalTo(1))
-            val name =
-                basicNoteType.templates
-                    .first()
-                    .name
-            assertThat(
-                tabs.getTabAt(0)?.text.toString(),
-                equalTo(activity.getString(CommonString.card_previewer_empty_front_indicator, name)),
-            )
-            assertThat(tabs.selectedTabPosition, equalTo(0))
+            val name = basicNoteType.templates.first().name
+            val displayedName = activity.getString(CommonString.card_previewer_empty_front_indicator, name)
+            composeRule.onNode(previewTab and hasText(displayedName)).assertIsDisplayed().assertIsSelected()
         }
     }
 
@@ -538,14 +534,13 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
         block(activity)
     }
 
+    private val previewTab = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
+
     private fun NoteEditorActivity.waitForPreviewTabs() {
         if (!isPreviewerVisible) return
-        val tabs = binding.previewerTabLayout!!
-        // Wait for the background card rendering to complete.
-        advanceRobolectricLooperUntil(
-            lazyMessage = { "Note editor preview tabs did not finish loading" },
-        ) {
-            tabs.tabCount > 0 && tabs.selectedTabPosition == 0
+        composeRule.waitUntil(10_000) {
+            advanceRobolectricLooper()
+            composeRule.onAllNodes(previewTab).fetchSemanticsNodes().isNotEmpty()
         }
     }
 
