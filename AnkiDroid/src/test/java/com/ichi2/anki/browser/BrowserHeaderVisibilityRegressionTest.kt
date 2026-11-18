@@ -7,12 +7,10 @@ import android.view.View
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.browser.search.SavedSearch
@@ -46,7 +44,7 @@ class BrowserHeaderVisibilityRegressionTest : RobolectricTest() {
 
             onView(isRoot()).pressKey(KEYCODE_S, ctrl = true, alt = true)
             advanceRobolectricLooper()
-            onView(withText("Cats")).inRoot(isDialog()).perform(click())
+            composeRule.onNodeWithText("Cats").performClick()
             composeRule.waitUntil(10_000) {
                 ShadowLooper.idleMainLooper()
                 snackbarText == "1 card shown"
