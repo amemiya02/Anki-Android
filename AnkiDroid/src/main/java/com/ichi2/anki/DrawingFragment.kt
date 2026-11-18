@@ -20,6 +20,11 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
 import androidx.core.graphics.createBitmap
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat.Type.displayCutout
+import androidx.core.view.WindowInsetsCompat.Type.systemBars
+import androidx.core.view.doOnAttach
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commitNow
@@ -75,6 +80,15 @@ class DrawingFragment : Fragment() {
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
+        // The compatibility activity already pads its fragment container around the system bars.
+        if (requireActivity() is DeckPicker) {
+            ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
+                val safeArea = insets.getInsets(systemBars() or displayCutout())
+                view.updatePadding(left = safeArea.left, top = safeArea.top, right = safeArea.right, bottom = safeArea.bottom)
+                insets
+            }
+            view.doOnAttach { ViewCompat.requestApplyInsets(it) }
+        }
         if (whiteboardFragment == null) childFragmentManager.commitNow { replace(R.id.fragment_container, WhiteboardFragment()) }
         setupBackPressHandling()
     }
