@@ -35,7 +35,6 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.addCallback
-import androidx.activity.compose.BackHandler
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
@@ -2549,100 +2548,112 @@ class NoteEditorFragment :
             var prefix by rememberSaveable { mutableStateOf(currentButton?.prefix.orEmpty()) }
             var suffix by rememberSaveable { mutableStateOf(currentButton?.suffix.orEmpty()) }
             var edited by rememberSaveable { mutableStateOf(false) }
-            var confirmingRemoval by rememberSaveable { mutableStateOf(false) }
-            BackHandler(confirmingRemoval) { confirmingRemoval = false }
             val hasHtml = prefix.isNotBlank() || suffix.isNotBlank()
             val needsIcon = currentButton == null && icon.isBlank()
 
-            if (confirmingRemoval && currentButton != null) {
-                ConfirmationDialog(
-                    title = getString(CommonString.remove_toolbar_item),
-                    message = "",
-                    confirm =
-                        DialogAction(getString(CommonString.dialog_positive_delete), {
-                            dialog.dismiss()
-                            removeButton(currentButton)
-                        }, DialogActionStyle.Destructive),
-                    onDismissRequest = { confirmingRemoval = false },
-                )
-            } else {
-                PaperDialog(
-                    title = getString(if (currentButton == null) CommonString.add_toolbar_item else CommonString.edit_toolbar_item),
-                    onDismissRequest = dialog::dismiss,
-                    actions =
-                        buildList {
+            PaperDialog(
+                title = getString(if (currentButton == null) CommonString.add_toolbar_item else CommonString.edit_toolbar_item),
+                onDismissRequest = dialog::dismiss,
+                actions =
+                    buildList {
+                        add(
+                            DialogAction(getString(CommonString.help), {
+                                dialog.dismiss()
+                                requireContext().openUrl(R.string.link_manual_note_format_toolbar)
+                            }),
+                        )
+                        if (currentButton != null) {
                             add(
-                                DialogAction(getString(CommonString.help), {
-                                    dialog.dismiss()
-                                    requireContext().openUrl(R.string.link_manual_note_format_toolbar)
+                                DialogAction(getString(CommonString.remove_toolbar_item), {
+                                    confirmToolbarButtonRemoval(currentButton, dialog::dismiss)
                                 }),
                             )
-                            if (currentButton != null) {
-                                add(DialogAction(getString(CommonString.remove_toolbar_item), { confirmingRemoval = true }))
-                            }
-                            add(DialogAction(getString(CommonString.dialog_cancel), dialog::dismiss))
-                            add(
-                                DialogAction(
-                                    getString(if (currentButton == null) CommonString.dialog_positive_create else CommonString.save),
-                                    {
-                                        dialog.dismiss()
-                                        if (currentButton == null) {
-                                            addToolbarButton(icon, prefix, suffix)
-                                        } else {
-                                            editToolbarButton(icon, prefix, suffix, currentButton)
-                                        }
-                                    },
-                                    DialogActionStyle.Filled,
-                                    enabled = hasHtml && !needsIcon,
-                                ),
-                            )
+                        }
+                        add(DialogAction(getString(CommonString.dialog_cancel), dialog::dismiss))
+                        add(
+                            DialogAction(
+                                getString(if (currentButton == null) CommonString.dialog_positive_create else CommonString.save),
+                                {
+                                    dialog.dismiss()
+                                    if (currentButton == null) {
+                                        addToolbarButton(icon, prefix, suffix)
+                                    } else {
+                                        editToolbarButton(icon, prefix, suffix, currentButton)
+                                    }
+                                },
+                                DialogActionStyle.Filled,
+                                enabled = hasHtml && !needsIcon,
+                            ),
+                        )
+                    },
+            ) {
+                DialogBody(getString(CommonString.toolbar_item_explain_edit_or_remove))
+                OutlinedTextField(
+                    value = icon,
+                    onValueChange = {
+                        icon = it
+                        edited = true
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(getString(CommonString.note_editor_toolbar_icon)) },
+                    isError = edited && needsIcon,
+                    supportingText =
+                        if (edited && needsIcon) {
+                            { Text(getString(CommonString.note_editor_toolbar_icon_requirement_error)) }
+                        } else {
+                            null
                         },
-                ) {
-                    DialogBody(getString(CommonString.toolbar_item_explain_edit_or_remove))
-                    OutlinedTextField(
-                        value = icon,
-                        onValueChange = {
-                            icon = it
-                            edited = true
+                )
+                OutlinedTextField(
+                    value = prefix,
+                    onValueChange = {
+                        prefix = it
+                        edited = true
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(getString(CommonString.before_text)) },
+                    isError = edited && !hasHtml && currentButton == null,
+                )
+                OutlinedTextField(
+                    value = suffix,
+                    onValueChange = {
+                        suffix = it
+                        edited = true
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(getString(CommonString.after_text)) },
+                    isError = edited && !hasHtml && currentButton == null,
+                    supportingText =
+                        if (edited && !hasHtml && currentButton == null) {
+                            { Text(getString(CommonString.before_after_text_requirement_error)) }
+                        } else {
+                            null
                         },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text(getString(CommonString.note_editor_toolbar_icon)) },
-                        isError = edited && needsIcon,
-                        supportingText =
-                            if (edited && needsIcon) {
-                                { Text(getString(CommonString.note_editor_toolbar_icon_requirement_error)) }
-                            } else {
-                                null
-                            },
-                    )
-                    OutlinedTextField(
-                        value = prefix,
-                        onValueChange = {
-                            prefix = it
-                            edited = true
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text(getString(CommonString.before_text)) },
-                        isError = edited && !hasHtml && currentButton == null,
-                    )
-                    OutlinedTextField(
-                        value = suffix,
-                        onValueChange = {
-                            suffix = it
-                            edited = true
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text(getString(CommonString.after_text)) },
-                        isError = edited && !hasHtml && currentButton == null,
-                        supportingText =
-                            if (edited && !hasHtml && currentButton == null) {
-                                { Text(getString(CommonString.before_after_text_requirement_error)) }
-                            } else {
-                                null
-                            },
-                    )
-                }
+                )
             }
+        }.show()
+    }
+
+    private fun confirmToolbarButtonRemoval(
+        button: CustomToolbarButton,
+        dismissEditor: () -> Unit,
+    ) {
+        createPaperDialog(requireContext()) { dialog ->
+            ConfirmationDialog(
+                title = getString(CommonString.remove_toolbar_item),
+                message = "",
+                confirm =
+                    DialogAction(
+                        getString(CommonString.dialog_positive_delete),
+                        {
+                            dialog.dismiss()
+                            dismissEditor()
+                            removeButton(button)
+                        },
+                        DialogActionStyle.Destructive,
+                    ),
+                onDismissRequest = dialog::dismiss,
+            )
         }.show()
     }
 

@@ -46,10 +46,7 @@ class PermissionsBottomSheet : DialogFragment() {
                 message = getString(CommonString.notifications_permission_explanation),
                 confirm =
                     DialogAction(
-                        label =
-                            getString(
-                                if (canRequestPermission) CommonString.reminder_troubleshooting_action_grant_permission else CommonString.open_settings,
-                            ),
+                        label = getString(actionLabel),
                         onClick = {
                             if (canRequestPermission) {
                                 requestPermissionThroughDialogOrSettings(

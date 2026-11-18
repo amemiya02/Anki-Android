@@ -7,7 +7,6 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Intent
 import android.database.sqlite.SQLiteDatabaseCorruptException
-import androidx.appcompat.app.AlertDialog
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -29,9 +28,6 @@ import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.dialogs.DatabaseErrorDialog
 import com.ichi2.anki.dialogs.databaseErrorDialogs
-import com.ichi2.anki.dialogs.utils.message
-import com.ichi2.anki.dialogs.utils.performPositiveClick
-import com.ichi2.anki.dialogs.utils.title
 import com.ichi2.anki.setIntroductionSlidesShown
 import com.ichi2.anki.utils.ext.DIALOG_FRAGMENT_TAG
 import com.ichi2.anki.widgets.R
@@ -48,7 +44,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowAppWidgetManager
-import org.robolectric.shadows.ShadowDialog
 import org.robolectric.shadows.ShadowLooper
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -198,8 +193,8 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
         val activity = startTestActivityWithDeckPicker()
         databaseErrorDialogs.showLoadFailed(activity, SQLiteDatabaseCorruptException())
 
-        val loadFailed = activity.openedDeckPicker().awaitDialog<DatabaseErrorDialog>()
-        assertEquals(getResourceString(CommonString.open_collection_failed_title), loadFailed.title)
+        activity.openedDeckPicker().awaitDialog<DatabaseErrorDialog>()
+        compose.onNodeWithText(getResourceString(CommonString.open_collection_failed_title)).assertIsDisplayed()
     }
 
     @Test
@@ -208,8 +203,11 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
         assertTrue(HelpAction.OpenCheckDatabase.canExecute(activity))
         runBlocking { HelpAction.OpenCheckDatabase.execute(activity) }
 
-        activity.openedDeckPicker().awaitDialog<DatabaseErrorDialog>().performPositiveClick()
-        assertEquals(TR.databaseCheckRebuilt(), (ShadowDialog.getLatestDialog() as AlertDialog).message)
+        activity.openedDeckPicker().awaitDialog<DatabaseErrorDialog>()
+        compose.onNodeWithText(getResourceString(CommonString.dialog_ok)).performClick()
+        advanceRobolectricLooperUntil {
+            runCatching { compose.onNodeWithText(TR.databaseCheckRebuilt()).assertIsDisplayed() }.isSuccess
+        }
     }
 
     private fun startTestActivityWithDeckPicker(): CardAnalysisWidgetConfig {
@@ -226,9 +224,8 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
         return startActivityNormallyOpenCollectionWithIntent(DeckPicker::class.java, intent)
     }
 
-    private inline fun <reified T : DialogFragment> FragmentActivity.awaitDialog(): AlertDialog {
+    private inline fun <reified T : DialogFragment> FragmentActivity.awaitDialog() {
         advanceRobolectricLooperUntil { supportFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG) is T }
-        return (supportFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG) as T).requireDialog() as AlertDialog
     }
 
     private fun startTestActivity(

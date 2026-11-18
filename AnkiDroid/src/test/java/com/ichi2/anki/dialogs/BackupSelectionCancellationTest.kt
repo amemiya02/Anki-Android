@@ -2,8 +2,11 @@
 
 package com.ichi2.anki.dialogs
 
-import android.content.DialogInterface
-import androidx.appcompat.app.AlertDialog
+import androidx.activity.ComponentDialog
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.BackupManager
 import com.ichi2.anki.CollectionManager
@@ -12,26 +15,29 @@ import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.common.storage.CollectionHelper
 import com.ichi2.anki.dialogs.DatabaseErrorDialog.DatabaseErrorDialogType
-import com.ichi2.anki.dialogs.utils.performPositiveClick
-import com.ichi2.anki.dialogs.utils.title
 import com.ichi2.anki.utils.ext.DIALOG_FRAGMENT_TAG
 import com.ichi2.anki.withDeckPicker
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
-import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 @RunWith(AndroidJUnit4::class)
 class BackupSelectionCancellationTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Test
     fun `Cancel returns to the deck list without reopening the warning`() =
         withDeckPicker(deckCount = 0) { activity ->
             createBackup()
             activity.showDatabaseErrorDialog(DatabaseErrorDialogType.DIALOG_CONFIRM_RESTORE_BACKUP)
-            activity.currentDialog().performPositiveClick()
+            advanceRobolectricLooper()
+            compose.onNodeWithText(activity.getString(CommonString.paper_dialog_replace_collection)).performClick()
+            advanceRobolectricLooper()
 
-            activity.currentDialog().getButton(DialogInterface.BUTTON_NEGATIVE).performClick()
+            compose.onNodeWithText(activity.getString(CommonString.dialog_cancel)).performClick()
             advanceRobolectricLooper()
 
             assertNull(activity.supportFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG))
@@ -48,7 +54,7 @@ class BackupSelectionCancellationTest : RobolectricTest() {
             activity.currentDialog().onBackPressedDispatcher.onBackPressed()
             advanceRobolectricLooper()
 
-            assertEquals(getResourceString(CommonString.error_handling_title), activity.currentDialog().title)
+            compose.onNodeWithText(activity.getString(CommonString.error_handling_title)).assertIsDisplayed()
         }
 
     private fun createBackup() {
@@ -56,6 +62,6 @@ class BackupSelectionCancellationTest : RobolectricTest() {
         File(directory, "backup-2026-09-29-12.00.00.colpkg").writeText("backup")
     }
 
-    private fun DeckPicker.currentDialog(): AlertDialog =
-        (supportFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG) as DatabaseErrorDialog).requireDialog() as AlertDialog
+    private fun DeckPicker.currentDialog(): ComponentDialog =
+        (supportFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG) as DatabaseErrorDialog).requireDialog() as ComponentDialog
 }
