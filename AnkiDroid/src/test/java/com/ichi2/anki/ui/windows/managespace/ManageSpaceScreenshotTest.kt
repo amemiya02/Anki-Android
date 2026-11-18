@@ -13,6 +13,13 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type.displayCutout
 import androidx.core.view.WindowInsetsCompat.Type.navigationBars
 import androidx.core.view.WindowInsetsCompat.Type.statusBars
+import com.ichi2.anki.CheckAccessibility
+import com.ichi2.anki.FontSizeConfig.PERCENT_200
+import com.ichi2.anki.IncludeFontSizes
+import com.ichi2.anki.IncludeLanguages
+import com.ichi2.anki.LanguageConfig.ARABIC
+import com.ichi2.anki.LanguageConfig.JAPANESE
+import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.testutils.insetsOf
@@ -24,6 +31,9 @@ import org.robolectric.RuntimeEnvironment
  *
  * `./gradlew :AnkiDroid:verifyRoborazziPlayDebug -Pscreenshot --tests "com.ichi2.anki.ui.windows.managespace.ManageSpaceScreenshotTest"`
  */
+@CheckAccessibility
+@IncludeLanguages(SIMPLIFIED_CHINESE, JAPANESE, ARABIC)
+@IncludeFontSizes(PERCENT_200)
 class ManageSpaceScreenshotTest : ScreenshotTest() {
     /** 3-button navigation: a tall bottom inset which the last row rests above */
     @Test

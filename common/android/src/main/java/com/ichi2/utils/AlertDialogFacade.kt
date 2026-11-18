@@ -11,8 +11,6 @@ import androidx.appcompat.app.AlertDialog
 import com.ichi2.anki.common.utils.android.HandlerUtils.executeOnMainThread
 import timber.log.Timber
 
-inline fun <T : AlertDialog.Builder> T.show(block: T.() -> Unit): AlertDialog = apply(block).show().apply { outlineWindow() }
-
 val AlertDialog.positiveButton: Button
     get() = getButton(DialogInterface.BUTTON_POSITIVE)
 

@@ -17,7 +17,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
-import com.google.android.material.appbar.MaterialToolbar
 import com.ichi2.anki.R
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.common.android.Animations
@@ -46,11 +45,7 @@ class PreferencesFragment : Fragment(R.layout.fragment_preferences) {
                 view: View,
                 savedInstanceState: Bundle?,
             ) {
-                if (fragment.id != R.id.settings_container) return
-                if (settingsIsSplit && fragment.arguments?.getBoolean(SETTINGS_IS_SUBPAGE) != true) {
-                    view.findViewById<MaterialToolbar>(R.id.toolbar)?.navigationIcon = null
-                }
-                updateActivePage()
+                if (fragment.id == R.id.settings_container) updateActivePage()
             }
         }
 
