@@ -17,7 +17,7 @@
 - [x] Rows show flag, marked, suspended and buried as marks and words, not as a row tint; the flag colours are added to the Foundation (values file and `foundation.xml`).
 - [x] It matches the agreed Mockup.
 - [x] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
-- [ ] Screen-logic tests and Engine tests still pass unchanged.
+- [x] Screen-logic tests and Engine tests still pass unchanged.
 
 ## Implementation evidence
 
