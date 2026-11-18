@@ -121,7 +121,7 @@ class ReviewRemindersScreenshotTest : ScreenshotTest() {
                 }
                 advanceRobolectricLooper()
                 activity.simulateSystemBars()
-                compose.onNodeWithText("Test Deck", useUnmergedTree = true).assertExists()
+                compose.onNodeWithText("Test Deck", substring = true, useUnmergedTree = true).assertExists()
                 captureScreen("study_options_activity")
             }
         }

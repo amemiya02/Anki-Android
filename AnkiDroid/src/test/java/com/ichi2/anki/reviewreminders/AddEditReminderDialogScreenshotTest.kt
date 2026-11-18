@@ -61,7 +61,8 @@ class AddEditReminderDialogScreenshotTest : ScreenshotTest() {
     fun time_picker(
         @TestParameter use24HourClock: Boolean,
     ) {
-        Settings.System.putString(targetContext.contentResolver, Settings.System.TIME_12_24, if (use24HourClock) "24" else "12")
+        val clock = if (use24HourClock) "24" else "12"
+        Settings.System.putString(targetContext.contentResolver, Settings.System.TIME_12_24, clock)
         val reminder = ReviewReminder.createReviewReminder(time = ReviewReminderTime(17, 45))
         withEditor(reminder) {
             compose.onNodeWithText(getString(R.string.review_reminder_time)).performScrollTo().performClick()
@@ -78,9 +79,9 @@ class AddEditReminderDialogScreenshotTest : ScreenshotTest() {
                 compose.onNodeWithText(dial).performScrollTo().performClick()
                 compose.onNodeWithText(getString(R.string.review_reminder_select_time)).performScrollTo()
             }
-            captureScreen("time_picker_dial")
+            captureScreen("time_picker_${clock}h_dial")
             compose.onNodeWithText(keyboard).performScrollTo().performClick()
-            captureScreen("time_picker_keyboard")
+            captureScreen("time_picker_${clock}h_keyboard")
         }
     }
 
