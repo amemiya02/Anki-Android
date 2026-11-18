@@ -9,6 +9,7 @@ import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CollectionManager.withOpenColOrNull
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.DeckId
+import com.ichi2.anki.libanki.mediaFolder
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.progress.HasProgress
 import com.ichi2.anki.progress.ProgressManager
@@ -120,9 +121,7 @@ class StudyOptionsViewModel :
         flowOfIsFilteredDeck.value = isDynamic
         flowOfHaveBuried.value = sched.haveBuried()
         flowOfSelectedDeckId.value = study.deckId
-        // Only resolve the media directory when a description will render it: an in-memory
-        // collection has no media folder and `media.dir` would throw.
-        flowOfMediaDir.value = if (!description.isNullOrEmpty()) media.dir else null
+        flowOfMediaDir.value = mediaFolder
 
         flowOfState.value =
             when {

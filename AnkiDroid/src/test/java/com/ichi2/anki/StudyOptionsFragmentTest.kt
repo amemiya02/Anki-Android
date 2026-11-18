@@ -349,6 +349,7 @@ class StudyOptionsFragmentTest : RobolectricTest() {
     @Test
     fun `the pane's hairline spans from top to bottom of parent`() =
         runTest {
+            addBasicNote()
             withStudyOptions {
                 val rule = compose.onNodeWithTag("study_pane_rule", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
                 val viewport = compose.onNodeWithTag("study_options_scroll").fetchSemanticsNode().boundsInRoot
