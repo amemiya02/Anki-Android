@@ -18,6 +18,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.scheduler.CardAnswer.Rating
+import app.cash.turbine.test
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.MetaDB
 import com.ichi2.anki.R
@@ -46,8 +47,11 @@ import com.ichi2.testutils.RecordingInputMethodManager
 import com.ichi2.testutils.ext.addNoSuggestNote
 import com.ichi2.testutils.ext.createInputConnection
 import com.ichi2.testutils.ext.snackbarText
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
+import org.json.JSONTokener
+import org.jsoup.Jsoup
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -215,6 +219,38 @@ class ReviewerFragmentTest : RobolectricTest() {
                 assertTrue(viewModel.showingAnswer.value)
             }
         }
+
+    @Test
+    fun `an answer typed in Chinese is compared, even while the keyboard is still composing it`() = checkTypedAnswer("熟悉", composing = true)
+
+    @Test
+    fun `an answer typed in Japanese is compared`() = checkTypedAnswer("勉強する", composing = false)
+
+    /** Types [answer] with an input method as a person would, presses Done and reads the comparison */
+    private fun checkTypedAnswer(
+        answer: String,
+        composing: Boolean,
+    ) = runTest {
+        targetContext.sharedPrefs().edit { putBoolean("useInputTag", false) }
+        addBasicWithTypingNote("question", answer)
+        withReviewer {
+            assertTrue(binding.typeAnswerContainer.isVisible)
+            val connection = binding.typeAnswerEditText.createInputConnection()
+
+            // an input method first composes the reading, then converts it
+            connection.setComposingText("x", 1)
+            connection.setComposingText(answer, 1)
+            if (!composing) connection.finishComposingText()
+            viewModel.eval.filter { it.startsWith("_showAnswer(") }.test {
+                connection.performEditorAction(EditorInfo.IME_ACTION_DONE)
+                advanceUntilIdle()
+                val html = JSONTokener(awaitItem().removePrefix("_showAnswer(")).nextValue() as String
+                assertEquals(answer, Jsoup.parse(html).select(".typeGood").text(), "the typed answer matches: $html")
+                cancelAndIgnoreRemainingEvents()
+            }
+            assertTrue(viewModel.showingAnswer.value)
+        }
+    }
 
     @Test
     @Config(shadows = [RecordingInputMethodManager::class])
