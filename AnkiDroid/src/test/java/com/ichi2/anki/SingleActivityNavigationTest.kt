@@ -83,7 +83,10 @@ class SingleActivityNavigationTest : RobolectricTest() {
 
         val host = controller.get()
         startEmpty.performClick()
-        composeRule.waitUntil(10_000) { host.currentScreenFragment is NoteEditorPaneFragment }
+        composeRule.waitUntil(10_000) {
+            advanceRobolectricLooper()
+            host.currentScreenFragment is NoteEditorPaneFragment
+        }
 
         assertEquals(
             "Text from another app",

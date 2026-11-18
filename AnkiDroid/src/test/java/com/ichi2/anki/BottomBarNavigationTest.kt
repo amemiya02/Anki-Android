@@ -9,6 +9,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.view.isVisible
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.browser.CardBrowserFragment
@@ -114,13 +116,17 @@ class BottomBarNavigationTest : RobolectricTest() {
             composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment is MoreFragment }
 
             composeRule.onNodeWithText("Help").performClick()
-            assertThat("Help opens the help menu", deckPicker.shownHelpMenuTitle(), equalTo(CommonR.string.help))
-            deckPicker.dismissDialogs()
+            val restoredHost =
+                composeRule.runOnIdle {
+                    ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED).filterIsInstance<DeckPicker>().single()
+                }
+            assertThat("Help opens the help menu", restoredHost.shownHelpMenuTitle(), equalTo(CommonR.string.help))
+            restoredHost.dismissDialogs()
 
             composeRule.onNodeWithText("Support AnkiDroid").performClick()
             assertThat(
                 "Support opens the support menu",
-                deckPicker.shownHelpMenuTitle(),
+                restoredHost.shownHelpMenuTitle(),
                 equalTo(CommonR.string.help_title_support_ankidroid),
             )
         }

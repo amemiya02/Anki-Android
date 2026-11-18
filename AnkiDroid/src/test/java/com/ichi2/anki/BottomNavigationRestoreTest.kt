@@ -14,6 +14,7 @@ import androidx.core.view.isVisible
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ichi2.anki.BottomNavController.NavigationItem
+import com.ichi2.testutils.BackupManagerTestUtilities
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.nullValue
@@ -105,6 +106,7 @@ class BottomNavigationRestoreTest : RobolectricTest() {
 
     private fun withBottomNavigation(test: () -> Unit) {
         setIntroductionSlidesShown(true)
+        BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
         test()
     }
 
@@ -153,7 +155,10 @@ class BottomNavigationRestoreTest : RobolectricTest() {
         deckPicker: DeckPicker,
         tab: NavigationItem,
     ) {
-        composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment?.isVisible == true && !deckPicker.deckList.isShown }
+        composeRule.waitUntil(10_000) {
+            advanceRobolectricLooper()
+            deckPicker.currentScreenFragment?.isVisible == true && !deckPicker.deckList.isShown
+        }
         val screen = deckPicker.currentScreenFragment!!
         assertThat("$tab is selected", deckPicker.bottomNav.selectedItemId, equalTo(tab.id))
         assertThat("$tab content is shown", screen.isVisible, equalTo(true))
