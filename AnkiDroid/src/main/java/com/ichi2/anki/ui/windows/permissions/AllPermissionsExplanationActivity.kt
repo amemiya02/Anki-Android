@@ -7,10 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat.Type.displayCutout
-import androidx.core.view.WindowInsetsCompat.Type.systemBars
-import androidx.core.view.updatePadding
+import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.R
@@ -31,22 +28,11 @@ class AllPermissionsExplanationActivity : AnkiActivity() {
         }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_all_permissions_explanation)
-        setupEdgeToEdge()
-
-        supportFragmentManager.commit {
-            replace(R.id.fragment_container, AllPermissionsExplanationFragment())
-        }
-    }
-
-    /** Applies edge-to-edge insets for the screen */
-    private fun setupEdgeToEdge() {
-        // systemBars (not just statusBars) so a landscape 3-button navigation bar,
-        // which is a side inset, is also cleared
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.root_layout)) { view, insets ->
-            val bars = insets.getInsets(systemBars() or displayCutout())
-            view.updatePadding(left = bars.left, top = bars.top, right = bars.right, bottom = bars.bottom)
-            insets
+        setContentView(FragmentContainerView(this).apply { id = R.id.fragment_container })
+        if (savedInstanceState == null) {
+            supportFragmentManager.commit {
+                replace(R.id.fragment_container, AllPermissionsExplanationFragment())
+            }
         }
     }
 }

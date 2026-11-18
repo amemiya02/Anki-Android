@@ -7,9 +7,6 @@ import android.app.Dialog
 import android.app.DownloadManager
 import android.graphics.Color
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.view.ViewGroup.MarginLayoutParams
 import android.webkit.CookieManager
 import android.webkit.URLUtil
 import android.webkit.WebBackForwardList
@@ -17,14 +14,14 @@ import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
+import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.VisibleForTesting
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.CollectionManager.TR
@@ -32,22 +29,20 @@ import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.common.analytics.reportPotentiallyDeadCode
 import com.ichi2.anki.common.crashreporting.CrashReportService
-import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.ext.requireSystemService
-import com.ichi2.anki.databinding.ActivitySharedDecksBinding
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.workarounds.OnWebViewRecreatedListener
 import com.ichi2.anki.workarounds.SafeWebViewClient
+import com.ichi2.anki.workarounds.SafeWebViewLayout
+import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.compose.ui.dialogs.ConfirmationDialog
 import com.ichi2.compose.ui.dialogs.DialogAction
 import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.themes.Themes
 import com.ichi2.utils.FileNameAndExtension
-import dev.androidbroadcast.vbpd.viewBinding
 import timber.log.Timber
 import java.io.Serializable
 import kotlin.random.Random
-import com.ichi2.anki.common.android.R as CommonR
 
 /**
  * Browse AnkiWeb shared decks with the functionality to download and import them.
@@ -55,9 +50,9 @@ import com.ichi2.anki.common.android.R as CommonR
  * @see SharedDecksDownloadFragment
  */
 class SharedDecksActivity :
-    AnkiActivity(R.layout.activity_shared_decks),
+    AnkiActivity(),
     OnWebViewRecreatedListener {
-    private val binding by viewBinding(ActivitySharedDecksBinding::bind)
+    private lateinit var webView: SafeWebViewLayout
     lateinit var downloadManager: DownloadManager
 
     private var shouldHistoryBeCleared = false
@@ -73,8 +68,8 @@ class SharedDecksActivity :
         object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
                 if (isReturningAfterLogin) return
-                if (binding.webView.canGoBack()) {
-                    binding.webView.goBack()
+                if (webView.canGoBack()) {
+                    webView.goBack()
                 } else {
                     pagesBeforeLogin.removeLastOrNull()?.let { returnTo(it) } ?: run {
                         isEnabled = false
@@ -100,7 +95,7 @@ class SharedDecksActivity :
         ) {
             super.doUpdateVisitedHistory(view, url, isReload)
             if (isReturningAfterLogin && url?.startsWith(SHARED_PAGES_PREFIX) == true) {
-                binding.webView.clearHistory()
+                webView.clearHistory()
                 isReturningAfterLogin = false
             }
             updateBackPressedCallback()
@@ -115,7 +110,7 @@ class SharedDecksActivity :
         ) {
             // Clear history if mShouldHistoryBeCleared is true and set it to false
             if (shouldHistoryBeCleared) {
-                binding.webView.clearHistory()
+                webView.clearHistory()
                 shouldHistoryBeCleared = false
                 updateBackPressedCallback()
             }
@@ -197,12 +192,12 @@ class SharedDecksActivity :
     private fun redirectToLogin() {
         val url = getString(R.string.shared_decks_login_url)
         Timber.i("HTTP 429, redirecting to login: '$url'")
-        binding.webView.loadUrl(url)
+        webView.loadUrl(url)
     }
 
     private fun returnToSharedDecks() {
         if (isReturningAfterLogin) return
-        val history = binding.webView.copyBackForwardList()
+        val history = webView.copyBackForwardList()
         val sharedPages =
             history.urlsBeforeCurrent
                 .filter { it.startsWith(SHARED_PAGES_PREFIX) }
@@ -215,11 +210,11 @@ class SharedDecksActivity :
 
     private fun returnTo(url: String) {
         isReturningAfterLogin = true
-        binding.webView.loadUrl(url)
+        webView.loadUrl(url)
     }
 
     private fun updateBackPressedCallback() {
-        onBackPressedCallback.isEnabled = binding.webView.canGoBack() || pagesBeforeLogin.isNotEmpty()
+        onBackPressedCallback.isEnabled = webView.canGoBack() || pagesBeforeLogin.isNotEmpty()
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -249,25 +244,43 @@ class SharedDecksActivity :
         // statusBarStyle matches the status bar theme of the rest of the app
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme })
         setTitle(CommonString.download_deck)
-        setupEdgeToEdge()
-
-        binding.webviewToolbar.setTitleTextColor(getColorFromAttr(this, CommonR.attr.foundationOnBackground))
-        setSupportActionBar(binding.webviewToolbar)
-
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
-
         downloadManager = requireSystemService<DownloadManager>()
-
+        webView = SafeWebViewLayout(this).apply { id = R.id.web_view }
         setupWebView()
+        setContentView(
+            FrameLayout(this).apply {
+                addView(
+                    ComposeView(this@SharedDecksActivity).apply {
+                        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                        setContent {
+                            AnkiDroidTheme {
+                                SharedDecksBrowserScreen(
+                                    webView = webView,
+                                    onUp = {
+                                        onBackPressedCallback.isEnabled = false
+                                        onBackPressedDispatcher.onBackPressed()
+                                    },
+                                    onHome = ::openSharedDecksHome,
+                                )
+                            }
+                        }
+                    },
+                    FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT),
+                )
+                addView(
+                    FragmentContainerView(this@SharedDecksActivity).apply { id = R.id.shared_decks_fragment_container },
+                    FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT),
+                )
+            },
+        )
         onBackPressedDispatcher.addCallback(onBackPressedCallback)
     }
 
     /** Opens the AnkiWeb shared decks page, handing any download it starts to [SharedDecksDownloadFragment] */
     private fun setupWebView() {
-        binding.webView.settings.javaScriptEnabled = true
-        binding.webView.loadUrl(resources.getString(R.string.shared_decks_url))
-        binding.webView.setDownloadListener { url, userAgent, contentDisposition, mimetype, _ ->
+        webView.settings.javaScriptEnabled = true
+        webView.loadUrl(resources.getString(R.string.shared_decks_url))
+        webView.setDownloadListener { url, userAgent, contentDisposition, mimetype, _ ->
             // If the activity/fragment lifecycle has already begun teardown process,
             // avoid handling the download, as FragmentManager.commit will throw
             if (!supportFragmentManager.isStateSaved) {
@@ -296,7 +309,7 @@ class SharedDecksActivity :
                 }
             }
         }
-        binding.webView.setWebViewClient(webViewClient)
+        webView.setWebViewClient(webViewClient)
     }
 
     override fun onWebViewRecreated() {
@@ -305,57 +318,15 @@ class SharedDecksActivity :
         setupWebView()
     }
 
-    /** Applies edge-to-edge insets for the screen */
-    private fun setupEdgeToEdge() {
-        // systemBars (not just statusBars) so a landscape 3-button navigation bar,
-        // which is a side inset, is also cleared
-        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbarContainer) { view, insets ->
-            val bars =
-                insets.getInsets(
-                    WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout(),
-                )
-            view.updatePadding(left = bars.left, top = bars.top, right = bars.right)
-            insets
-        }
-        // margins rather than padding: WebView does not support padding
-        // ime() so the page (e.g. AnkiWeb's search/login) is not covered by the keyboard
-        ViewCompat.setOnApplyWindowInsetsListener(binding.webView) { view, insets ->
-            val bars =
-                insets.getInsets(
-                    WindowInsetsCompat.Type.systemBars() or
-                        WindowInsetsCompat.Type.displayCutout() or
-                        WindowInsetsCompat.Type.ime(),
-                )
-            view.updateLayoutParams<MarginLayoutParams> {
-                leftMargin = bars.left
-                rightMargin = bars.right
-                bottomMargin = bars.bottom
-            }
-            insets
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.download_shared_decks_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.home) {
-            // R.id.home refers to a custom 'home' menu item defined in your app resources (res/menu/...).
-            shouldHistoryBeCleared = true
-            pagesBeforeLogin.clear()
-            binding.webView.loadUrl(resources.getString(R.string.shared_decks_url))
-        } else if (item.itemId == android.R.id.home) {
-            // android.R.id.home refers to the system-provided "up" button in the app toolbar
-            onBackPressedCallback.isEnabled = false
-        }
-        return super.onOptionsItemSelected(item)
+    private fun openSharedDecksHome() {
+        shouldHistoryBeCleared = true
+        pagesBeforeLogin.clear()
+        webView.loadUrl(getString(R.string.shared_decks_url))
     }
 
     override fun onDestroy() {
         loginRequiredDialog?.dismiss()
-        binding.webView.destroy()
+        if (::webView.isInitialized) webView.destroy()
         super.onDestroy()
     }
 }

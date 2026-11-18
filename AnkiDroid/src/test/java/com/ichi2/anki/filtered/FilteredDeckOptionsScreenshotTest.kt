@@ -2,80 +2,85 @@
 
 package com.ichi2.anki.filtered
 
-import androidx.core.view.isVisible
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextReplacement
 import anki.decks.copy
+import com.ichi2.anki.CheckAccessibility
+import com.ichi2.anki.CollectionManager.TR
+import com.ichi2.anki.CommonString
+import com.ichi2.anki.FontSizeConfig.PERCENT_200
+import com.ichi2.anki.IncludeFontSizes
+import com.ichi2.anki.IncludeLanguages
+import com.ichi2.anki.LanguageConfig.ARABIC
+import com.ichi2.anki.LanguageConfig.JAPANESE
+import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.anki.common.utils.dp
-import com.ichi2.anki.databinding.FragmentFilteredDeckOptionsBinding
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.utils.ConfigAwareSingleFragmentActivity
-import com.ichi2.testutils.simulateSystemBars
+import com.ichi2.testutils.dispatchInsets
+import com.ichi2.testutils.ext.reopenWithLanguage
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
+import org.junit.Rule
 import org.junit.Test
 import org.robolectric.RuntimeEnvironment
 
-/**
- * Screenshot tests for [FilteredDeckOptionsFragment].
- *
- * `./gradlew :AnkiDroid:verifyRoborazziPlayDebug -Pscreenshot --tests "com.ichi2.anki.filtered.FilteredDeckOptionsScreenshotTest"`
- */
+@CheckAccessibility
+@IncludeLanguages(SIMPLIFIED_CHINESE, JAPANESE, ARABIC)
+@IncludeFontSizes(PERCENT_200)
 class FilteredDeckOptionsScreenshotTest : ScreenshotTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Test
-    fun `new filtered deck`() =
-        withOptions { _, _ ->
-            captureScreen("newDeck")
+    fun newFilteredDeckAndItsOptions() =
+        withOptions {
+            compose.onNodeWithText(TR.decksBuild()).assertIsDisplayed()
+            captureScreen("new_deck")
+            compose.onNodeWithText(TR.decksUnmovableCards()).performScrollTo().assertIsDisplayed()
+            captureScreen("new_deck_options")
         }
 
     @Test
-    fun `existing filtered deck with system bars`() =
-        withOptions(deckId = col.decks.newFiltered("Filtered deck")) { activity, _ ->
-            activity.simulateSystemBars()
-            captureScreen("existingDeck_systemBars")
-        }
-
-    @Test
-    fun `landscape display cutout`() {
+    fun existingFilteredDeckWithLandscapeCutout() {
+        setPhoneQualifiers()
         RuntimeEnvironment.setQualifiers("+land")
-        withOptions { activity, binding ->
-            activity.simulateSystemBars(cutoutLeft = 32.dp)
-            captureScreen("landscapeCutout")
-            captureScrolledToEnd("landscapeCutout_scrolledToEnd", binding)
+        withOptions(deckId = col.decks.newFiltered("Filtered deck"), usePhoneQualifiers = false) { activity ->
+            activity.dispatchInsets(cutoutTop = 32.dp, navBarBottom = 24.dp)
+            compose.onNodeWithText(TR.actionsRebuild()).assertIsDisplayed()
+            compose.onNodeWithText(TR.decksUnmovableCards()).performScrollTo().assertIsDisplayed()
+            captureScreen("existing_deck_landscape_options")
         }
     }
 
     @Test
-    fun `second filter and preview delays`() =
-        withOptions { activity, binding ->
-            binding.switchSecondFilter.isChecked = true
-            binding.checkBoxReschedule.isChecked = false
-            advanceRobolectricLooperUntil {
-                binding.secondFilterSearchContainer.isVisible && binding.rescheduleDelayAgainLayout.isVisible
-            }
-            binding.secondFilterSearchInput.setText("is:new")
-            binding.switchSecondFilter.jumpDrawablesToCurrentState()
-            binding.checkBoxReschedule.jumpDrawablesToCurrentState()
-            activity.simulateSystemBars()
-            captureScreen("secondFilter_systemBars")
-            captureScrolledToEnd("previewDelays_systemBars_scrolledToEnd", binding)
-        }
+    fun secondFilterAndPreviewDelays() =
+        withOptions {
+            compose.onNodeWithText(TR.decksEnableSecondFilter()).performScrollTo().performClick()
+            compose.onAllNodes(hasText(TR.actionsSearch()))[1].performScrollTo().performTextReplacement("is:new")
+            compose.onNodeWithText("is:new").assertIsDisplayed()
+            captureScreen("second_filter")
 
-    private fun captureScrolledToEnd(
-        name: String,
-        binding: FragmentFilteredDeckOptionsBinding,
-    ) {
-        binding.scrollView.scrollTo(0, binding.scrollView.getChildAt(0).bottom)
-        advanceRobolectricLooper()
-        captureScreen(name)
-    }
+            compose.onNodeWithText(TR.decksRescheduleCardsBasedOnMyAnswers()).performScrollTo().performClick()
+            compose.onNodeWithText(getResourceString(CommonString.filtered_option_delay_again)).performScrollTo().assertIsDisplayed()
+            captureScreen("preview_delays")
+        }
 
     private fun withOptions(
         deckId: DeckId = 0,
-        block: (ConfigAwareSingleFragmentActivity, FragmentFilteredDeckOptionsBinding) -> Unit,
+        usePhoneQualifiers: Boolean = true,
+        block: (ConfigAwareSingleFragmentActivity) -> Unit,
     ) {
+        if (usePhoneQualifiers) setPhoneQualifiers()
+        runTest { col.reopenWithLanguage(language.option) }
         val scheduler = col.sched
-        // The backend includes the current time in new deck names, outside Robolectric's clock.
         val options = scheduler.getOrCreateFilteredDeck(deckId).copy { name = "Filtered deck" }
         mockkObject(scheduler)
         try {
@@ -85,10 +90,11 @@ class FilteredDeckOptionsScreenshotTest : ScreenshotTest() {
                     ConfigAwareSingleFragmentActivity::class.java,
                     FilteredDeckOptionsFragment.getIntent(targetContext, did = deckId),
                 )
-            val binding = FragmentFilteredDeckOptionsBinding.bind(activity.fragment!!.requireView())
-            // Loading the options uses the collection dispatcher; draining the main looper alone can miss it.
-            advanceRobolectricLooperUntil { binding.scrollView.isVisible }
-            block(activity, binding)
+            activity.dispatchInsets(navBarBottom = 24.dp)
+            compose.waitUntil(10_000) {
+                compose.onAllNodes(hasText(TR.deckConfigNamePrompt())).fetchSemanticsNodes().isNotEmpty()
+            }
+            block(activity)
         } finally {
             unmockkObject(scheduler)
         }

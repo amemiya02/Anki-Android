@@ -4,41 +4,33 @@ package com.ichi2.anki.dialogs
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.content.res.ColorStateList
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.doOnTextChanged
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ichi2.anki.AndroidTtsVoice
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.common.utils.android.showThemedToast
-import com.ichi2.anki.databinding.DialogTtsVoicesBinding
-import com.ichi2.anki.databinding.ItemTtsVoiceBinding
 import com.ichi2.anki.dialogs.viewmodel.TtsVoicesViewModel
+import com.ichi2.anki.dialogs.viewmodel.TtsVoicesViewModel.VoiceLoadingState
 import com.ichi2.anki.libanki.TtsVoice
 import com.ichi2.anki.localizedErrorMessage
-import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.preferences.settingsComposeView
 import com.ichi2.anki.utils.openUrl
-import com.ichi2.compose.theme.AnkiDroidTheme
-import com.ichi2.compose.ui.dialogs.DialogTitle
-import com.ichi2.compose.ui.dialogs.ErrorDialog
-import com.ichi2.compose.ui.dialogs.createPaperDialog
-import com.ichi2.themes.Themes
 import com.ichi2.utils.UiUtil.makeFullscreen
-import dev.androidbroadcast.vbpd.viewBinding
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
@@ -59,58 +51,58 @@ import timber.log.Timber
  *
  * @see [TtsVoicesViewModel]
  */
-class TtsVoicesDialogFragment : DialogFragment(R.layout.dialog_tts_voices) {
-    private val viewModel: TtsVoicesViewModel by this.viewModels()
+class TtsVoicesDialogFragment : DialogFragment() {
+    private val viewModel: TtsVoicesViewModel by viewModels()
 
-    private val binding by viewBinding(DialogTtsVoicesBinding::bind)
-
-    private lateinit var voicesAdapter: TtsVoiceAdapter
-
-    override fun onViewCreated(
-        view: View,
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ) {
-        voicesAdapter = TtsVoiceAdapter()
-        Themes.setTheme(requireContext()) // (re)-enable selectableItemBackground on theme change
-
-        binding.dialogTitle.setContent {
-            AnkiDroidTheme { DialogTitle(getString(CommonString.tts_error_dialog_supported_voices_button_text)) }
-        }
-        binding.files.adapter = voicesAdapter
-        binding.spokenTextEditText.apply {
-            // setup the initial value from the UI
-            viewModel.setSpokenText(text.toString())
-            doOnTextChanged { text, _, _, _ -> viewModel.setSpokenText(text.toString()) }
-        }
-        binding.backButton.setOnClickListener { dismiss() }
-        binding.optionsButtons.setOnClickListener { openTtsSettings() }
-        binding.toggleInternetRequired.apply {
-            setOnCheckedChangeListener { _, value ->
-                viewModel.showInternetEnabled.value = value
-                chipBackgroundColor =
-                    if (value) {
-                        // TODO: This should be RMaterial.attr.colorSecondaryContainer
-                        // but this shows as Purple after Themes.setTheme
-                        ColorStateList.valueOf(requireContext().getColor(R.color.text_input_background))
-                    } else {
-                        ColorStateList.valueOf(Color.TRANSPARENT)
-                    }
+    ): View =
+        settingsComposeView(R.id.tts_voices_screen) {
+            val context = LocalContext.current
+            val voices by viewModel.availableVoicesFlow.collectAsStateWithLifecycle(VoiceLoadingState.Pending)
+            val showInternet by viewModel.showInternetEnabled.collectAsStateWithLifecycle()
+            val showUninstalled by viewModel.showNotInstalled.collectAsStateWithLifecycle()
+            var text by rememberSaveable { mutableStateOf(getString(CommonString.tts_voices_default_text)) }
+            val snackbar = remember { SnackbarHostState() }
+            TtsVoicesScreen(
+                state = TtsVoicesScreenState(voices, text, showInternet, showUninstalled),
+                onBack = ::dismiss,
+                onSettings = ::openTtsSettings,
+                onText = { text = it },
+                onShowInternet = { viewModel.showInternetEnabled.value = it },
+                onShowUninstalled = { viewModel.showNotInstalled.value = it },
+                onPlay = {
+                    viewModel.setSpokenText(text)
+                    viewModel.playVoice(it)
+                },
+                onCopy = viewModel::copyToClipboard,
+                snackbar = snackbar,
+            )
+            LaunchedEffect(snackbar) {
+                viewModel.uninstalledVoicePlayed.collect { voice ->
+                    val result =
+                        snackbar.showSnackbar(
+                            message = context.getString(CommonString.tts_voices_selected_voice_should_be_installed),
+                            actionLabel = context.getString(CommonString.tts_voices_use_selected_voice_without_install),
+                            withDismissAction = true,
+                        )
+                    if (result == SnackbarResult.ActionPerformed) viewModel.copyToClipboard(voice)
+                }
             }
-            viewModel.showInternetEnabled.value = this.isChecked
-        }
-        binding.onlyShowUninstalled.apply {
-            setOnCheckedChangeListener { _, value ->
-                viewModel.showNotInstalled.value = value
-                chipBackgroundColor =
-                    if (value) {
-                        ColorStateList.valueOf(requireContext().getColor(R.color.text_input_background))
-                    } else {
-                        ColorStateList.valueOf(Color.TRANSPARENT)
-                    }
+            LaunchedEffect(snackbar) {
+                viewModel.ttsPlaybackErrorFlow.collect { error ->
+                    val result =
+                        snackbar.showSnackbar(
+                            message = error.localizedErrorMessage(context),
+                            actionLabel = context.getString(CommonString.help),
+                            withDismissAction = true,
+                        )
+                    if (result == SnackbarResult.ActionPerformed) context.openUrl(R.string.link_faq_tts)
+                }
             }
-            viewModel.showNotInstalled.value = this.isChecked
         }
-    }
 
     fun openTtsSettings() {
         try {
@@ -127,122 +119,12 @@ class TtsVoicesDialogFragment : DialogFragment(R.layout.dialog_tts_voices) {
 
     override fun onStart() {
         super.onStart()
-
         dialog?.makeFullscreen()
-
-        viewModel.availableVoicesFlow.observe {
-            if (it is TtsVoicesViewModel.VoiceLoadingState.Failure) {
-                binding.progress.visibility = View.VISIBLE
-                createPaperDialog(requireContext()) { error ->
-                    ErrorDialog(
-                        title = getString(CommonString.vague_error),
-                        message = it.exception.localizedMessage.orEmpty(),
-                        onDismissRequest = error::dismiss,
-                    )
-                }.apply {
-                    setOnDismissListener { this@TtsVoicesDialogFragment.dismiss() }
-                    show()
-                }
-            }
-
-            if (it is TtsVoicesViewModel.VoiceLoadingState.Success) {
-                Timber.v("loaded new voice collection")
-                voicesAdapter.submitList(it.voices)
-                binding.progress.visibility = View.GONE
-            }
-        }
-
-        viewModel.showNotInstalled.observe { showInstalled ->
-            // if the user is showing installed, it shows ALL uninstalled voices
-            binding.toggleInternetRequired.isEnabled = !showInstalled
-        }
-
-        viewModel.uninstalledVoicePlayed.observe { voice ->
-            dialog?.window?.decorView?.showSnackbar(CommonString.tts_voices_selected_voice_should_be_installed) {
-                setAction(CommonString.tts_voices_use_selected_voice_without_install) { viewModel.copyToClipboard(voice) }
-            }
-        }
-
-        viewModel.ttsPlaybackErrorFlow.observe {
-            val string = it.localizedErrorMessage(requireContext())
-            dialog?.window?.decorView?.showSnackbar(string) {
-                setAction(CommonString.help) {
-                    // TODO: Should do this in ViewModel, but we need an Activity
-                    requireContext().openUrl(R.string.link_faq_tts)
-                }
-            }
-        }
     }
 
     override fun onResume() {
         super.onResume()
         viewModel.waitForRefresh()
-    }
-
-    /**
-     * Helper function to observe a flow while the current lifecycle is active
-     */
-    private fun <T> Flow<T>.observe(exec: (T) -> Unit) {
-        lifecycleScope.launch {
-            this@observe
-                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-                .collect(exec)
-        }
-    }
-
-    private class TtsVoiceDiffCallback : DiffUtil.ItemCallback<AndroidTtsVoice>() {
-        override fun areItemsTheSame(
-            oldItem: AndroidTtsVoice,
-            newItem: AndroidTtsVoice,
-        ): Boolean = oldItem.name == newItem.name
-
-        override fun areContentsTheSame(
-            oldItem: AndroidTtsVoice,
-            newItem: AndroidTtsVoice,
-        ): Boolean = oldItem.unavailable() == newItem.unavailable()
-    }
-
-    // inner allows access to viewModel/openTtsSettings
-    inner class TtsVoiceAdapter : ListAdapter<AndroidTtsVoice, TtsVoiceAdapter.TtsViewHolder>(TtsVoiceDiffCallback()) {
-        inner class TtsViewHolder(
-            private val binding: ItemTtsVoiceBinding,
-        ) : RecyclerView.ViewHolder(binding.root) {
-            fun bind(voice: AndroidTtsVoice) {
-                binding.textViewTop.text = voice.normalizedLocale.displayName
-                binding.textViewBottom.text = voice.tryDisplayLocalizedName()
-
-                binding.localOrNetwork.setIconResource(
-                    if (voice.isNetworkConnectionRequired) R.drawable.symbol_wifi else R.drawable.symbol_offline_pin,
-                )
-                if (voice.unavailable()) {
-                    binding.actionButton.setOnClickListener { openTtsSettings() }
-                    binding.actionButton.setIconResource(R.drawable.symbol_download)
-                    binding.actionButton.contentDescription = getString(CommonString.settings)
-                } else {
-                    binding.actionButton.setOnClickListener { viewModel.copyToClipboard(voice) }
-                    binding.actionButton.setIconResource(R.drawable.symbol_content_copy)
-                    binding.actionButton.contentDescription = getString(android.R.string.copy)
-                }
-
-                binding.root.setOnClickListener { viewModel.playVoice(voice) }
-            }
-        }
-
-        override fun onCreateViewHolder(
-            parent: ViewGroup,
-            viewType: Int,
-        ): TtsViewHolder {
-            val layoutInflater = LayoutInflater.from(parent.context)
-            val binding = ItemTtsVoiceBinding.inflate(layoutInflater, parent, false)
-            return TtsViewHolder(binding)
-        }
-
-        override fun onBindViewHolder(
-            holder: TtsViewHolder,
-            position: Int,
-        ) {
-            holder.bind(this.currentList[position])
-        }
     }
 }
 

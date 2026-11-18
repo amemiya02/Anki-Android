@@ -7,56 +7,107 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
-import androidx.annotation.LayoutRes
+import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
-import androidx.core.view.allViews
+import androidx.annotation.StringRes
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.R
 import com.ichi2.anki.common.permissions.MANAGE_EXTERNAL_STORAGE
+import com.ichi2.anki.common.permissions.hasAllPermissions
+import com.ichi2.anki.preferences.settingsComposeView
 import com.ichi2.utils.Permissions.openAppSettingsScreenForPermission
 import com.ichi2.utils.Permissions.showToastAndOpenAppSettingsScreenForPermission
 import timber.log.Timber
 
-/**
- * Base class for constructing a permissions screen
- *
- * @see PermissionsActivity
- */
-abstract class PermissionsFragment(
-    @LayoutRes contentLayoutId: Int,
-) : Fragment(contentLayoutId) {
-    /**
-     * All the [PermissionsItem]s in the fragment.
-     * Must be called ONLY AFTER [onCreateView]
-     */
-    val permissionsItems: List<PermissionsItem>
-        by lazy { view?.allViews?.filterIsInstance<PermissionsItem>()?.toList() ?: emptyList() }
+internal data class PermissionRequest(
+    @StringRes val title: Int,
+    @StringRes val summary: Int,
+    @DrawableRes val icon: Int,
+    val permissions: List<String>,
+    val optional: Boolean = false,
+    val onClick: (Boolean) -> Unit,
+)
 
-    protected fun hasAllPermissions() = permissionsItems.all { it.areGranted }
+internal data class PermissionRowState(
+    val request: PermissionRequest,
+    val granted: Boolean,
+)
+
+/** Keeps the runtime permission results and their Android settings routes in the host. */
+abstract class PermissionsFragment : Fragment() {
+    internal abstract fun permissionRequests(): List<PermissionRequest>
+
+    private var rows by mutableStateOf<List<PermissionRowState>>(emptyList())
+
+    internal open val isExplanation = false
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        refreshPermissions()
+        return settingsComposeView(R.id.permissions_screen) {
+            PermissionsScreen(
+                title =
+                    stringResource(
+                        if (isExplanation) CommonString.permissions_screen_optional_headline else CommonString.permissions_screen_headline,
+                    ),
+                rows = rows,
+                showGroupLabels = isExplanation,
+                onBack = if (isExplanation) ({ requireActivity().onBackPressedDispatcher.onBackPressed() }) else null,
+                onContinue = if (isExplanation) null else ::completeStoragePermissionRequest,
+            )
+        }
+    }
 
     override fun onResume() {
         super.onResume()
-        permissionsItems.forEach { it.updateSwitchCheckedStatus() }
-        setFragmentResult(
-            REQUEST_PERMISSIONS,
-            Bundle().apply { putBoolean(RESULT_HAS_ALL_PERMISSIONS, hasAllPermissions()) },
-        )
+        refreshPermissions()
     }
 
-    /** Opens the Android 'MANAGE_ALL_FILES' page if the device provides this feature */
+    protected fun refreshPermissions() {
+        rows =
+            permissionRequests().map { request ->
+                PermissionRowState(request, hasAllPermissions(requireContext(), request.permissions))
+            }
+    }
+
+    protected fun completeStoragePermissionRequest() {
+        if (permissionRequests().all { hasAllPermissions(requireContext(), it.permissions) }) {
+            setFragmentResult(PermissionsActivity.REQUEST_PERMISSIONS_GRANTED, Bundle())
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.R)
-    protected fun ActivityResultLauncher<Intent>.showManageAllFilesScreen() {
+    internal fun externalStorageRequest(launcher: ActivityResultLauncher<Intent>): PermissionRequest =
+        PermissionRequest(
+            CommonString.all_files_access_title,
+            CommonString.storage_access_summary,
+            R.drawable.symbol_save,
+            listOf(MANAGE_EXTERNAL_STORAGE),
+        ) { granted ->
+            if (!granted) launcher.showManageAllFilesScreen()
+        }
+
+    /** Opens the Android all-files page if the device provides it. */
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun ActivityResultLauncher<Intent>.showManageAllFilesScreen() {
         val intent =
             Intent(
                 Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
                 Uri.fromParts("package", requireActivity().packageName, null),
             )
-
-        // From the docs: [ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION]
-        // In some cases, a matching Activity may not exist, so ensure you safeguard against this.
-        // example: not yet supported on WearOS: https://issuetracker.google.com/issues/299174252
         if (intent.resolveActivity(requireActivity().packageManager) != null) {
             Timber.i("launching ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION")
             launch(intent)
@@ -65,34 +116,15 @@ abstract class PermissionsFragment(
         }
     }
 
-    /**
-     * Set this PermissionItem so that when it is clicked, the app requests external file management permissions
-     * from the user.
-     */
-    @RequiresApi(Build.VERSION_CODES.R)
-    protected fun PermissionsItem.requestExternalStorageOnClick(launcher: ActivityResultLauncher<Intent>) {
-        setOnPermissionsRequested { areAlreadyGranted ->
-            if (!areAlreadyGranted) launcher.showManageAllFilesScreen()
+    protected fun requestOrOpenSettings(
+        permission: String,
+        granted: Boolean,
+        request: () -> Unit,
+    ) {
+        if (granted) {
+            showToastAndOpenAppSettingsScreenForPermission(permission, CommonString.revoke_permissions)
+        } else {
+            request()
         }
-    }
-
-    /**
-     * If these permissions are already granted, open the OS settings to allow the user to disable them, as
-     * it is impossible to programmatically revoke a permission. If the permissions have not been granted,
-     * execute the callback.
-     */
-    protected fun PermissionsItem.revokeIfGrantedOnClickElse(callback: () -> Unit) {
-        setOnPermissionsRequested { areAlreadyGranted ->
-            if (areAlreadyGranted) {
-                showToastAndOpenAppSettingsScreenForPermission(permissions.singleOrNull(), CommonString.revoke_permissions)
-            } else {
-                callback()
-            }
-        }
-    }
-
-    companion object {
-        const val REQUEST_PERMISSIONS = "PERMISSION_FRAGMENT_RESULT"
-        const val RESULT_HAS_ALL_PERMISSIONS = "HAS_ALL_PERMISSIONS"
     }
 }

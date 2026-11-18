@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
+import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.CommonString
@@ -16,11 +17,7 @@ import com.ichi2.anki.R
 import com.ichi2.anki.StoragePermissionSet
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.ext.getParcelableExtraCompat
-import com.ichi2.anki.databinding.ActivityPermissionsBinding
-import com.ichi2.anki.ui.windows.permissions.PermissionsFragment.Companion.REQUEST_PERMISSIONS
-import com.ichi2.anki.ui.windows.permissions.PermissionsFragment.Companion.RESULT_HAS_ALL_PERMISSIONS
 import com.ichi2.anki.utils.ext.setFragmentResultListener
-import dev.androidbroadcast.vbpd.viewBinding
 import timber.log.Timber
 
 /**
@@ -36,18 +33,14 @@ import timber.log.Timber
  *
  * To request optional permissions from the user, prefer [PermissionsBottomSheet].
  */
-class PermissionsActivity : AnkiActivity(R.layout.activity_permissions) {
-    internal val binding by viewBinding(ActivityPermissionsBinding::bind)
-
+class PermissionsActivity : AnkiActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         if (showedActivityFailedScreen(savedInstanceState)) {
             return
         }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setViewBinding(binding)
-
-        binding.continueButton.setOnClickListener { decideStorageAndFinish() }
+        setContentView(FragmentContainerView(this).apply { id = R.id.fragment_container })
 
         // #20881: Activity should not be launchd without extras
         val permissionSet = intent.getParcelableExtraCompat<StoragePermissionSet>(EXTRA_PERMISSIONS_SET)
@@ -58,19 +51,10 @@ class PermissionsActivity : AnkiActivity(R.layout.activity_permissions) {
             finish()
             return
         }
-        configurePermissions(permissionSet)
+        setFragmentResultListener(REQUEST_PERMISSIONS_GRANTED) { _, _ -> decideStorageAndFinish() }
+        if (savedInstanceState == null) showPermissionsFragment(permissionSet)
         // only close the activity by tapping the continue button
         onBackPressedDispatcher.addCallback {}
-    }
-
-    private fun configurePermissions(permissionSet: StoragePermissionSet) {
-        setFragmentResultListener(REQUEST_PERMISSIONS) { _, bundle ->
-            val hasAllPermissions = bundle.getBoolean(RESULT_HAS_ALL_PERMISSIONS)
-            setContinueButtonEnabled(hasAllPermissions)
-        }
-        setFragmentResultListener(REQUEST_PERMISSIONS_GRANTED) { _, _ -> decideStorageAndFinish() }
-
-        showPermissionsFragment(permissionSet)
     }
 
     private fun showPermissionsFragment(permissionSet: StoragePermissionSet) {
@@ -84,10 +68,6 @@ class PermissionsActivity : AnkiActivity(R.layout.activity_permissions) {
         supportFragmentManager.commit {
             replace(R.id.fragment_container, permissionsFragment)
         }
-    }
-
-    private fun setContinueButtonEnabled(isEnabled: Boolean) {
-        binding.continueButton.isEnabled = isEnabled
     }
 
     /**

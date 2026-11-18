@@ -7,6 +7,10 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollTo
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type.displayCutout
@@ -19,6 +23,7 @@ import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.ui.windows.permissions.AllPermissionsExplanationActivity
 import com.ichi2.testutils.insetsOf
+import org.junit.Rule
 import org.junit.Test
 import org.robolectric.RuntimeEnvironment
 
@@ -31,13 +36,23 @@ import org.robolectric.RuntimeEnvironment
  * icon and a trailing switch, so the pictures show the right-to-left mirroring.
  * Add `-Ptheme=light,dark,black` for the themes of the Quality Bar.
  */
+@CheckAccessibility
 @IncludeLanguages(SIMPLIFIED_CHINESE, JAPANESE, ARABIC)
 @IncludeFontSizes(PERCENT_200)
 class AllPermissionsExplanationScreenshotTest : ScreenshotTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
+    private fun showPermissionRows() {
+        compose.onNodeWithText(getResourceString(CommonString.notification_pref)).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText(getResourceString(CommonString.microphone)).performScrollTo().assertIsDisplayed()
+    }
+
     @Test
     fun allPermissionsExplanation() =
         withAllPermissionsExplanation { activity ->
             activity.simulateNavigationBar()
+            showPermissionRows()
             captureScreen("portrait")
         }
 
@@ -50,6 +65,7 @@ class AllPermissionsExplanationScreenshotTest : ScreenshotTest() {
         RuntimeEnvironment.setQualifiers("+land")
         withAllPermissionsExplanation { activity ->
             activity.simulateSideNavigationBar()
+            showPermissionRows()
             captureScreen("landscape")
         }
     }

@@ -16,6 +16,7 @@ import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
@@ -40,7 +41,6 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
-import org.robolectric.fakes.RoboMenuItem
 import org.robolectric.shadows.ShadowDialog
 import timber.log.Timber
 import kotlin.test.assertEquals
@@ -234,7 +234,7 @@ class SharedDecksActivityTest : RobolectricTest() {
         activity.logInToAnkiWeb()
         activity.visit(SHARED_DECK)
 
-        activity.onOptionsItemSelected(RoboMenuItem(R.id.home))
+        composeRule.onNodeWithContentDescription(getResourceString(CommonString.home)).performClick()
         activity.visit(getResourceString(R.string.shared_decks_url))
         activity.pressBack()
 

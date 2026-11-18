@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <item type="id" name="permissions_screen" />
+    <item type="id" name="filtered_deck_options_screen" />
+    <item type="id" name="shared_decks_fragment_container" />
+    <item type="id" name="tts_voices_screen" />
+    <item type="id" name="multimedia_controls_anchor" />
+    <item type="id" name="multimedia_web_view" />
+    <item type="id" name="multimedia_image_screen" />
+    <item type="id" name="multimedia_clip_screen" />
+    <item type="id" name="multimedia_recording_screen" />
+    <item type="id" name="image_cropper_screen" />
+</resources>
