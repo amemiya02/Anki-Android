@@ -4,6 +4,7 @@ package com.ichi2.anki.workarounds
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Bundle
 import android.print.PrintDocumentAdapter
 import android.util.AttributeSet
 import android.view.ViewGroup
@@ -189,6 +190,12 @@ open class SafeWebViewLayout :
 
     @MainThread
     fun copyBackForwardList(): WebBackForwardList = uncheckedWebView.copyBackForwardList()
+
+    @MainThread
+    fun saveHistory(): Bundle? = Bundle().takeIf { activeWebView?.saveState(it) != null }
+
+    @MainThread
+    fun restoreHistory(state: Bundle): Boolean = activeWebView?.restoreState(state) != null
 
     @MainThread
     fun setDownloadListener(listener: DownloadListener?) {

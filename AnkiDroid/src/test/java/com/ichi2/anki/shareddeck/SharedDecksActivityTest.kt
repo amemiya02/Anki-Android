@@ -396,6 +396,23 @@ class SharedDecksActivityTest : RobolectricTest() {
         assertTrue(activity.isFinishing, "Back should exit while the replacement WebView has no history")
     }
 
+    @Test
+    fun `returning from another screen keeps the shared deck and its browser history`() {
+        val activity = startOnSharedDeck()
+        val screen = activity.sharedPage
+        activity.supportFragmentManager.commitNow { setMaxLifecycle(screen, Lifecycle.State.CREATED) }
+        activity.supportFragmentManager.commitNow { setMaxLifecycle(screen, Lifecycle.State.RESUMED) }
+
+        assertEquals(
+            SHARED_DECK,
+            activity.webView
+                .copyBackForwardList()
+                .currentItem
+                ?.url,
+        )
+        assertTrue(activity.webView.canGoBack())
+    }
+
     private fun startOnSharedDeck(): SharedDecksActivity =
         startSharedDecks().apply {
             visit(getResourceString(R.string.shared_decks_url))

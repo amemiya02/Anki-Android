@@ -60,6 +60,7 @@ class SharedDecksFragment :
     private lateinit var webView: SafeWebViewLayout
     lateinit var downloadManager: DownloadManager
 
+    private var savedBrowserHistory: Bundle? = null
     private var shouldHistoryBeCleared = false
 
     private var isReturningAfterLogin = false
@@ -235,6 +236,24 @@ class SharedDecksFragment :
         private const val SHARED_PAGES_PREFIX = "https://ankiweb.net/shared/"
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) return
+        savedBrowserHistory = savedInstanceState.getBundle("browserHistory")
+        shouldHistoryBeCleared = savedInstanceState.getBoolean("clearHistory")
+        isReturningAfterLogin = savedInstanceState.getBoolean("returningAfterLogin")
+        savedInstanceState.getStringArrayList("pagesBeforeLogin")?.let(pagesBeforeLogin::addAll)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        val history = if (view != null) webView.saveHistory() else savedBrowserHistory
+        outState.putBundle("browserHistory", history)
+        outState.putBoolean("clearHistory", shouldHistoryBeCleared)
+        outState.putBoolean("returningAfterLogin", isReturningAfterLogin)
+        outState.putStringArrayList("pagesBeforeLogin", ArrayList(pagesBeforeLogin))
+    }
+
     // Show WebView with AnkiWeb shared decks with the functionality to capture downloads and import decks.
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -289,7 +308,6 @@ class SharedDecksFragment :
     /** Opens the AnkiWeb shared decks page, handing any download it starts to [SharedDecksDownloadFragment] */
     private fun setupWebView() {
         webView.settings.javaScriptEnabled = true
-        webView.loadUrl(resources.getString(R.string.shared_decks_url))
         webView.setDownloadListener { url, userAgent, contentDisposition, mimetype, _ ->
             // If the activity/fragment lifecycle has already begun teardown process,
             // avoid handling the download, as FragmentManager.commit will throw
@@ -320,6 +338,10 @@ class SharedDecksFragment :
             }
         }
         webView.setWebViewClient(webViewClient)
+        val history = savedBrowserHistory
+        savedBrowserHistory = null
+        if (history == null || !webView.restoreHistory(history)) webView.loadUrl(getString(R.string.shared_decks_url))
+        updateBackPressedCallback()
     }
 
     override fun onWebViewRecreated() {
@@ -336,7 +358,8 @@ class SharedDecksFragment :
 
     override fun onDestroyView() {
         loginRequiredDialog?.dismiss()
-        if (::webView.isInitialized) webView.destroy()
+        savedBrowserHistory = webView.saveHistory()
+        webView.destroy()
         super.onDestroyView()
     }
 }
