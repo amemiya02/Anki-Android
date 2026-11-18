@@ -11,8 +11,10 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.NoteEditorActivity
 import com.ichi2.anki.RobolectricTest
+import com.ichi2.anki.common.utils.ext.getParcelableExtraCompat
 import com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity
 import com.ichi2.testutils.withCollectionAccessOn
 import kotlinx.coroutines.android.asCoroutineDispatcher
@@ -48,7 +50,9 @@ class InstantEditorFallbackTest : RobolectricTest() {
             compose.onNodeWithText(getResourceString(CommonString.cloze_note_required)).assertIsDisplayed()
             compose.onNodeWithText(getResourceString(CommonString.open)).performClick()
             val next = assertNotNull(shadowOf(editor).nextStartedActivity)
-            assertEquals(NoteEditorActivity::class.java.name, next.component?.className)
-            assertEquals(text, next.getStringExtra(Intent.EXTRA_TEXT))
+            assertEquals(DeckPicker::class.java.name, next.component?.className)
+            val destination = assertNotNull(next.getParcelableExtraCompat<Intent>("appNavigationEntryScreen"))
+            assertEquals(NoteEditorActivity::class.java.name, destination.component?.className)
+            assertEquals(text, destination.getStringExtra(Intent.EXTRA_TEXT))
         }
 }

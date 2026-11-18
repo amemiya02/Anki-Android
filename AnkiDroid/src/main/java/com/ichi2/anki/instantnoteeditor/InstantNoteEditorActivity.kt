@@ -22,8 +22,8 @@ import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.common.destinations.NoteEditorDestination
-import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.dialogs.IntegerDialog
@@ -31,6 +31,7 @@ import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.dialogs.startDeckSelection
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.model.SelectableDeck
+import com.ichi2.anki.noteeditor.toIntent
 import com.ichi2.anki.progress.ViewModelProgress
 import com.ichi2.anki.progress.observeProgress
 import com.ichi2.anki.servicelayer.NoteService
@@ -221,7 +222,8 @@ class InstantNoteEditorActivity : AnkiActivity() {
     }
 
     private fun openNoteEditor() {
-        navigate(NoteEditorDestination.AddInstantNote(viewModel.actualClozeFieldText.value.orEmpty()))
+        val fullEditor = NoteEditorDestination.AddInstantNote(viewModel.actualClozeFieldText.value.orEmpty()).toIntent(this)
+        startActivity(DeckPicker.getEntryIntent(this, fullEditor))
         finish()
     }
 
