@@ -3,6 +3,8 @@
 package com.ichi2.anki
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -86,7 +88,7 @@ class DeckListTest : RobolectricTest() {
     @Test
     fun `the phone's deck list is titled Decks`() {
         deckPicker {
-            composeRule.onNodeWithText("Decks").assertIsDisplayed()
+            composeRule.onNode(hasText("Decks") and !hasTestTag("tab-home")).assertIsDisplayed()
         }
     }
 

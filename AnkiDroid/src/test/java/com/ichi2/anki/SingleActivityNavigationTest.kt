@@ -7,6 +7,8 @@ import android.content.pm.ActivityInfo
 import android.view.View
 import android.webkit.WebView
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
@@ -71,7 +73,7 @@ class SingleActivityNavigationTest : RobolectricTest() {
             deckPicker.startActivity(search)
             composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment is CardBrowserPaneFragment }
 
-            composeRule.onNodeWithText("Browse").assertIsDisplayed()
+            composeRule.onNode(hasText("Browse") and !hasTestTag("tab-browser")).assertIsDisplayed()
             assertTrue(deckPicker.findViewById<View>(R.id.root_layout).isShown)
             assertNull(shadowOf(deckPicker).nextStartedActivity)
         }
@@ -97,7 +99,7 @@ class SingleActivityNavigationTest : RobolectricTest() {
             advanceRobolectricLooper()
             host.currentScreenFragment is CardBrowserPaneFragment
         }
-        composeRule.onNodeWithText("Browse").assertIsDisplayed()
+        composeRule.onNode(hasText("Browse") and !hasTestTag("tab-browser")).assertIsDisplayed()
         assertNull(shadowOf(host).nextStartedActivity)
     }
 
