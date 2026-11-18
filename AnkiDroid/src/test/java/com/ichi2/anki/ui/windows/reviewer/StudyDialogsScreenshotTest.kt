@@ -3,6 +3,7 @@
 package com.ichi2.anki.ui.windows.reviewer
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
@@ -59,6 +60,10 @@ class StudyDialogsScreenshotTest : ScreenshotTest() {
             }
             onView(withContentDescription(ViewerAction.RESET_PROGRESS.title(targetContext))).perform(click())
             val title = targetContext.getString(CommonString.reset_card_dialog_title)
+            composeRule.waitUntil(10_000) {
+                ShadowLooper.idleMainLooper()
+                composeRule.onNodeWithText(title).isDisplayed()
+            }
             composeRule.onNodeWithText(title).assertIsDisplayed()
             composeRule.onNodeWithText(targetContext.getString(CommonString.reset)).assertIsDisplayed()
             captureScreen("reset_progress")
