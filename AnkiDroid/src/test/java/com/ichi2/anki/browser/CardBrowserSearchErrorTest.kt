@@ -63,7 +63,7 @@ class CardBrowserSearchErrorTest : RobolectricTest() {
                     val activity = startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent()).get()
                     activity.binding.bottomNavigation!!.selectedItemId = NavigationItem.BROWSER.id
                     advanceRobolectricLooper()
-                    val browser = activity.supportFragmentManager.findFragmentByTag(NavigationItem.BROWSER.tag) as CardBrowserFragment
+                    val browser = activity.currentScreenFragment as CardBrowserFragment
                     browser.activityViewModel.searchJob?.join()
                     advanceRobolectricLooper()
                     block(browser)

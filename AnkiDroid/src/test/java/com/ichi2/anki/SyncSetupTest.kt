@@ -63,8 +63,8 @@ class SyncSetupTest : RobolectricTest() {
             advanceRobolectricLooper()
 
             assertEquals(dialogs, ShadowDialog.getShownDialogs().size, "no 'log in' dialog")
-            val intent = assertNotNull(shadowOf(this).nextStartedActivity)
-            assertOpensSyncSetup(intent)
+            compose.onNodeWithText(getString(CommonString.paper_sync_server_address)).assertIsDisplayed()
+            assertEquals(null, shadowOf(this).nextStartedActivity)
         }
 
     @Test
@@ -80,9 +80,8 @@ class SyncSetupTest : RobolectricTest() {
             compose.onNodeWithText(getString(CommonString.paper_sync_sign_in)).performClick()
             advanceRobolectricLooper()
 
-            val intent = assertNotNull(shadowOf(this).nextStartedActivity)
-            assertEquals(AccountActivity::class.java.name, intent.component?.className)
-            assertAccountEntry(intent, startWithAddress = false)
+            compose.onNodeWithText(getString(CommonString.paper_sync_sign_in_title)).assertIsDisplayed()
+            assertEquals(null, shadowOf(this).nextStartedActivity)
         }
 
     @Test

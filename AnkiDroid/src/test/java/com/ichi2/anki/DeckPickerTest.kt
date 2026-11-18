@@ -88,6 +88,8 @@ import com.ichi2.anki.libanki.Consts.DEFAULT_DECK_ID
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.navigation.AnkiDroidNavigator
 import com.ichi2.anki.observability.ChangeManager
+import com.ichi2.anki.preferences.PreferencesFragment
+import com.ichi2.anki.preferences.AdvancedSettingsFragment
 import com.ichi2.anki.preferences.PreferencesActivity
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
 import com.ichi2.anki.snackbar.showSnackbar
@@ -206,10 +208,8 @@ class DeckPickerTest : RobolectricTest() {
             shadowOf(this).clearNextStartedActivities()
 
             assertTrue(onKeyUp(KeyEvent.KEYCODE_S, KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_S)))
-            advanceRobolectricLooperUntil { shadowOf(this).peekNextStartedActivity() != null }
-
-            val intent = assertNotNull(shadowOf(this).nextStartedActivity)
-            assertEquals(FinishedFragment::class.java.name, intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME))
+            advanceRobolectricLooperUntil { currentScreenFragment is FinishedFragment }
+            assertThat(shadowOf(this).nextStartedActivity, nullValue())
             assertEquals(filtered, col.decks.selected())
         }
     }
@@ -442,9 +442,12 @@ class DeckPickerTest : RobolectricTest() {
         settingsButton.performClick()
         advanceRobolectricLooper()
 
-        val settings = shadowOf(deckPicker).nextStartedActivity
-        assertNotNull(settings, "Advanced settings should be opened")
-        assertEquals(PreferencesActivity::class.qualifiedName, settings.component?.className)
+        advanceRobolectricLooperUntil {
+            (deckPicker.currentScreenFragment as? PreferencesFragment)
+                ?.childFragmentManager
+                ?.findFragmentById(R.id.settings_container) is AdvancedSettingsFragment
+        }
+        assertThat(shadowOf(deckPicker).nextStartedActivity, nullValue())
     }
 
     /** Until the storage setup flow exists (#19552), the user gets recovery options, not a crash */
@@ -608,8 +611,8 @@ class DeckPickerTest : RobolectricTest() {
     private fun DeckPicker.openEmbeddedCardBrowser(): CardBrowserFragment {
         findViewById<BottomNavigationView>(R.id.bottom_navigation).selectedItemId =
             BottomNavController.NavigationItem.BROWSER.id
-        supportFragmentManager.executePendingTransactions()
-        return supportFragmentManager.findFragmentByTag("browser") as CardBrowserFragment
+        advanceRobolectricLooperUntil { currentScreenFragment is CardBrowserFragment }
+        return currentScreenFragment as CardBrowserFragment
     }
 
     /** Long-presses the Deck named [name] on the deck list, and waits for it to become the current Deck */
@@ -1745,11 +1748,9 @@ class DeckPickerTest : RobolectricTest() {
 
                 composeRule.onNodeWithText("Pine").performClick()
                 advanceRobolectricLooperUntil(lazyMessage = { "tapping a card opened nothing" }) {
-                    shadowOf(this).peekNextStartedActivity() != null
+                    currentScreenFragment is NoteEditorPaneFragment
                 }
-
-                val intent = assertNotNull(shadowOf(this).nextStartedActivity)
-                assertEquals(NoteEditorActivity::class.java.name, intent.component?.className)
+                assertThat(shadowOf(this).nextStartedActivity, nullValue())
             }
         }
 
@@ -1843,13 +1844,8 @@ class DeckPickerTest : RobolectricTest() {
     @Test
     fun `On a new startup, the App Intro is displayed`() =
         deckPicker(skipIntroduction = false) {
-            val nextIntent = Shadows.shadowOf(this).nextStartedActivity
-
-            assertThat(
-                "App Intro should be started on a new startup",
-                nextIntent.component?.className,
-                equalTo(IntroductionActivity::class.java.name),
-            )
+            composeRule.onNodeWithText(getString(CommonString.paper_welcome_start_empty)).assertIsDisplayed()
+            assertThat(Shadows.shadowOf(this).nextStartedActivity, nullValue())
         }
 
     @Suppress("RedundantValueArgument")

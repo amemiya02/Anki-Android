@@ -285,7 +285,7 @@ class BottomNavigationScrollTest : RobolectricTest() {
 
     /** More, drawn by Compose ([MoreScreen]) */
     private val DeckPicker.moreView: View
-        get() = supportFragmentManager.findFragmentByTag(NavigationItem.MORE.tag)!!.requireView()
+        get() = currentScreenFragment!!.requireView()
 
     /** Scrolls More's content as a screen reader would; returns the distance scrolled in pixels */
     private fun scrollMoreBy(pixels: Float): Float {
@@ -301,7 +301,7 @@ class BottomNavigationScrollTest : RobolectricTest() {
 
     /** The [WebView] wrapped by the Statistics page's [com.ichi2.anki.workarounds.SafeWebViewLayout] */
     private val DeckPicker.statisticsWebView: WebView
-        get() = (supportFragmentManager.findFragmentByTag(NavigationItem.STATS.tag) as Statistics).webViewLayout.getChildAt(0) as WebView
+        get() = (currentScreenFragment as Statistics).webViewLayout.getChildAt(0) as WebView
 
     private val DeckPicker.bottomNav: BottomNavigationView
         get() = binding.bottomNavigation!!
