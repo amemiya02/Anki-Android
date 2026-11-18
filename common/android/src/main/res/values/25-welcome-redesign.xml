@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="paper_welcome_title">Study less.\nRemember more.</string>
+    <string name="paper_welcome_lead">Anki’s scheduler shows each Card just before you would forget it. How would you like to begin?</string>
+    <string name="paper_welcome_start_empty">Start with no Decks</string>
+    <string name="paper_welcome_import">Import a collection or Deck</string>
+    <string name="paper_welcome_import_hint">A .colpkg or .apkg from AnkiDroid or desktop Anki</string>
+    <string name="paper_welcome_sync">Sync with your own server</string>
+    <string name="paper_welcome_sync_hint">Bring your collection down from it</string>
+    <string name="paper_welcome_unofficial">Hayaki is an unofficial fork of AnkiDroid</string>
+    <string name="paper_welcome_migration_title">Coming from AnkiWeb</string>
+    <string name="paper_welcome_migration_lead">Move your Decks from AnkiWeb through AnkiDroid or desktop Anki to keep their scheduling, review history and media.</string>
+    <string name="paper_welcome_migration_sync">Sync in AnkiDroid or desktop Anki</string>
+    <string name="paper_welcome_migration_sync_hint">This brings in everything from AnkiWeb.</string>
+    <string name="paper_welcome_migration_export">Export a collection package</string>
+    <string name="paper_welcome_migration_export_hint">On AnkiDroid, choose Export collection in the Decks menu. On desktop Anki, choose File › Export › Anki Collection Package (.colpkg). Include media.</string>
+    <string name="paper_welcome_migration_import">Import it here</string>
+    <string name="paper_welcome_migration_import_hint">Choose the .colpkg file below.</string>
+    <string name="paper_welcome_migration_step" translatable="false">%1$d</string>
+</resources>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="paper_welcome_title">学習は短く。\n記憶は長く。</string>
+    <string name="paper_welcome_lead">Anki は、忘れそうになる直前にカードを表示します。どの方法で始めますか？</string>
+    <string name="paper_welcome_start_empty">デッキなしで始める</string>
+    <string name="paper_welcome_import">コレクションやデッキをインポート</string>
+    <string name="paper_welcome_import_hint">AnkiDroid やデスクトップ版 Anki の .colpkg または .apkg</string>
+    <string name="paper_welcome_sync">自分のサーバーと同期</string>
+    <string name="paper_welcome_sync_hint">サーバーからコレクションをダウンロード</string>
+    <string name="paper_welcome_unofficial">Hayaki は AnkiDroid の非公式フォークです</string>
+    <string name="paper_welcome_migration_title">AnkiWeb からの移行</string>
+    <string name="paper_welcome_migration_lead">AnkiDroid やデスクトップ版 Anki を使って AnkiWeb のデッキを移行すると、スケジュール、復習履歴、メディアを引き継げます。</string>
+    <string name="paper_welcome_migration_sync">AnkiDroid やデスクトップ版 Anki で同期する</string>
+    <string name="paper_welcome_migration_sync_hint">AnkiWeb のデータをすべて取り込みます。</string>
+    <string name="paper_welcome_migration_export">コレクションパッケージをエクスポートする</string>
+    <string name="paper_welcome_migration_export_hint">AnkiDroid のデッキ画面のメニューで「コレクションをエクスポート」を選びます。デスクトップ版 Anki では「ファイル › エクスポート › Anki コレクションパッケージ (.colpkg)」を選びます。メディアも含めてください。</string>
+    <string name="paper_welcome_migration_import">ここでインポートする</string>
+    <string name="paper_welcome_migration_import_hint">下のボタンから .colpkg ファイルを選びます。</string>
+</resources>

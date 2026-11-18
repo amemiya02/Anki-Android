@@ -8,88 +8,75 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.content.edit
-import androidx.core.os.BundleCompat
-import com.ichi2.anki.common.annotations.NeedsTest
+import androidx.core.view.ViewCompat
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.introduction.CollectionPermissionScreenLauncher
-import com.ichi2.anki.introduction.SetupCollectionFragment
-import com.ichi2.anki.introduction.SetupCollectionFragment.CollectionSetupOption
-import com.ichi2.anki.introduction.SetupCollectionFragment.Companion.REQUEST_COLLECTION_SETUP
-import com.ichi2.anki.introduction.SetupCollectionFragment.Companion.RESULT_KEY
+import com.ichi2.anki.introduction.Welcome
 import com.ichi2.anki.introduction.hasCollectionStoragePermissions
-import com.ichi2.anki.utils.ext.setFragmentResultListener
+import com.ichi2.anki.utils.bottomCornerClearance
+import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.themes.Themes
-import timber.log.Timber
 
-/**
- * App introduction for new users.
- *
- * Links to [DeckPicker], either to import a collection or deck package ("Import") or to start
- * with a new collection ("Get Started"). Upstream's "Sync from AnkiWeb" is not offered (ADR-0001).
- *
- * @see SetupCollectionFragment
- */
-// TODO: Background of introduction_layout does not display on API 25 emulator: https://github.com/ankidroid/Anki-Android/pull/12033#issuecomment-1228429130
-@NeedsTest("Ensure that we can get here on first run without an exception dialog shown")
+/** The first-run choices before opening the collection on Decks. */
 class IntroductionActivity :
-    AnkiActivity(R.layout.activity_introduction),
+    AnkiActivity(),
     CollectionPermissionScreenLauncher {
+    private var bottomClearance by mutableIntStateOf(0)
+
     override val permissionScreenLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (hasCollectionStoragePermissions()) {
-                openImport()
-            }
+            if (hasCollectionStoragePermissions()) openImport()
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (showedActivityFailedScreen(savedInstanceState)) {
-            return
-        }
+        if (showedActivityFailedScreen(savedInstanceState)) return
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme })
-
-        setFragmentResultListener(REQUEST_COLLECTION_SETUP) { _, bundle ->
-            val option =
-                BundleCompat.getParcelable(bundle, RESULT_KEY, CollectionSetupOption::class.java) ?: error("Missing introduction option!")
-            when (option) {
-                CollectionSetupOption.DeckPickerWithNewCollection -> startDeckPicker()
-                CollectionSetupOption.ImportPackage -> openImport()
+        val barStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme }
+        enableEdgeToEdge(statusBarStyle = barStyle, navigationBarStyle = barStyle)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { view, insets ->
+            bottomClearance = insets.bottomCornerClearance(view)
+            insets
+        }
+        setContent {
+            AnkiDroidTheme {
+                Welcome(
+                    bottomClearance = bottomClearance,
+                    onStartEmpty = { startDeckPicker() },
+                    onImport = ::openImport,
+                    onSetupSync = { startDeckPicker(DeckPicker.EXTRA_SYNC_SETUP) },
+                )
             }
         }
     }
 
     private fun openImport() {
-        if (collectionPermissionScreenWasOpened()) return
-        Timber.i("Opening deck picker to import")
-        startDeckPicker(RESULT_IMPORT)
+        if (!collectionPermissionScreenWasOpened()) startDeckPicker(DeckPicker.EXTRA_IMPORT)
     }
 
-    private fun startDeckPicker(result: Int = RESULT_START_NEW) {
-        Timber.i("Opening deck picker, import: %b", result == RESULT_IMPORT)
-        this.sharedPrefs().edit { putBoolean(PREF_INTRODUCTION_SLIDES_SHOWN, true) }
-        val deckPicker = Intent(this, DeckPicker::class.java)
+    private fun startDeckPicker(extra: String? = null) {
+        if (isFinishing) return
+        sharedPrefs().edit { putBoolean(PREF_INTRODUCTION_SLIDES_SHOWN, true) }
+        val deckPicker = DeckPicker.getIntent(this)
         deckPicker.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-        if (result == RESULT_IMPORT) {
-            deckPicker.putExtra(DeckPicker.EXTRA_IMPORT, true)
-        }
-
+        if (extra != null) deckPicker.putExtra(extra, true)
         startActivity(deckPicker)
         finish()
     }
 
     companion object {
-        const val RESULT_START_NEW = 1
-        const val RESULT_IMPORT = 2
-
-        /**
-         * Key for the preference recording that the slide "Study less/ Remember more" offering to
-         * get started or import, was displayed. If so don't display it again.
-         */
+        /** Retain the original preference so installed users keep going straight to Decks. */
         const val PREF_INTRODUCTION_SLIDES_SHOWN = "IntroductionSlidesShown"
     }
 }
 
-internal fun Context.hasShownAppIntro(): Boolean = sharedPrefs().getBoolean(IntroductionActivity.PREF_INTRODUCTION_SLIDES_SHOWN, false)
+internal fun Context.hasShownAppIntro(): Boolean {
+    val prefs = sharedPrefs()
+    return prefs.getBoolean(IntroductionActivity.PREF_INTRODUCTION_SLIDES_SHOWN, false) || !InitialActivity.wasFreshInstall(prefs)
+}

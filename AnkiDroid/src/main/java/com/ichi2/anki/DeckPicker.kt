@@ -167,9 +167,10 @@ import com.ichi2.anki.dialogs.DialogHandlerMessage
 import com.ichi2.anki.dialogs.EditDeckDescriptionDialog
 import com.ichi2.anki.dialogs.EmptyCardsDialogFragment
 import com.ichi2.anki.dialogs.FatalErrorDialog
+import com.ichi2.anki.dialogs.ImportFileSelectionFragment
 import com.ichi2.anki.dialogs.ImportFileSelectionFragment.ApkgImportResultLauncherProvider
 import com.ichi2.anki.dialogs.ImportFileSelectionFragment.CsvImportResultLauncherProvider
-import com.ichi2.anki.dialogs.ImportFileSelectionFragment.ImportOptions
+import com.ichi2.anki.dialogs.ImportFileSelectionFragment.ImportFileType
 import com.ichi2.anki.dialogs.ImportViewModel
 import com.ichi2.anki.dialogs.MeteredSyncDialog
 import com.ichi2.anki.dialogs.ProfileLoadFailureDialog
@@ -412,9 +413,6 @@ open class DeckPicker :
      */
     private var syncOnResume = false
 
-    /** Whether to offer to import a collection or deck package when shown: see [EXTRA_IMPORT] */
-    private var importOnResume = false
-
     private var toolbarSearchItem: MenuItem? = null
     private var toolbarSearchView: AccessibleSearchView? = null
 
@@ -589,10 +587,6 @@ open class DeckPicker :
         if (intent.hasExtra(EXTRA_SYNC_FROM_LOGIN)) {
             Timber.d("launched from introduction activity login: syncing")
             syncOnResume = true
-        }
-        if (intent.hasExtra(EXTRA_IMPORT)) {
-            Timber.d("launched from the introduction to import")
-            importOnResume = true
         }
 
         setViewBinding(binding)
@@ -1618,12 +1612,19 @@ open class DeckPicker :
     }
 
     fun refreshState() {
-        // Due to the App Introduction, this may be called before permission has been granted.
-        if (importOnResume && hasCollectionStoragePermissions()) {
-            importOnResume = false
-            intent.removeExtra(EXTRA_IMPORT)
-            Timber.i("Offering import on resume")
-            showImportDialog(ImportOptions(importColpkg = true, importApkg = true, importTextFile = false))
+        // Welcome actions can arrive before storage permission is granted or via onNewIntent.
+        if (hasCollectionStoragePermissions()) {
+            when {
+                intent.getBooleanExtra(EXTRA_IMPORT, false) -> {
+                    intent.removeExtra(EXTRA_IMPORT)
+                    // Both package types use the same launcher. The selected file determines the importer.
+                    ImportFileSelectionFragment.openImportFilePicker(this, ImportFileType.APKG)
+                }
+                intent.getBooleanExtra(EXTRA_SYNC_SETUP, false) -> {
+                    intent.removeExtra(EXTRA_SYNC_SETUP)
+                    loginToSyncServer()
+                }
+            }
         }
         if (syncOnResume && hasCollectionStoragePermissions()) {
             syncOnResume = false
@@ -2574,15 +2575,15 @@ open class DeckPicker :
          * If passed into the intent, the user should have been logged in and DeckPicker
          * should sync immediately.
          *
-         * This is for the 'download existing collection from AnkiWeb' use case
+         * This is for downloading an existing collection from a configured sync server.
          */
         const val EXTRA_SYNC_FROM_LOGIN = "syncFromLogin"
 
-        /**
-         * If passed into the intent, DeckPicker offers to import a collection or deck package
-         * once it is shown. The first-run screen offers this in place of syncing from AnkiWeb.
-         */
+        /** Opens the system picker for a collection or Deck package. */
         const val EXTRA_IMPORT = "importOnStart"
+
+        /** Opens the self-hosted sync setup from the welcome screen. */
+        internal const val EXTRA_SYNC_SETUP = "setupSyncOnStart"
 
         /**
          * Available options performed by other activities (request codes for onActivityResult())
@@ -2615,7 +2616,6 @@ open class DeckPicker :
             Timber.i("Sync requested from Login")
             this.syncOnResume = true
         }
-        if (intent.hasExtra(EXTRA_IMPORT)) importOnResume = true
     }
 
     override fun opExecuted(
