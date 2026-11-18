@@ -108,6 +108,8 @@ internal fun SyncPrimaryButton(
             ButtonDefaults.buttonColors(
                 containerColor = foundation.colors.primary,
                 contentColor = foundation.colors.onPrimary,
+                disabledContainerColor = foundation.colors.progressTrack,
+                disabledContentColor = foundation.colors.onBackgroundMuted,
             ),
     ) {
         if (icon != null) {

@@ -40,6 +40,8 @@ class SyncSetupScreenshotTest : ScreenshotTest() {
     @get:Rule
     val compose = createEmptyComposeRule()
 
+    override fun getCollectionStorageMode() = CollectionStorageMode.ON_DISK
+
     @After
     override fun tearDown() {
         super.tearDown()
