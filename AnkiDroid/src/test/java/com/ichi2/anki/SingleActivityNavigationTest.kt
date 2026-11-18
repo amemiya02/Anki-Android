@@ -30,7 +30,7 @@ class SingleActivityNavigationTest : RobolectricTest() {
     fun `media check opens in the existing activity and Back returns to Decks`() =
         withDeckPicker(deckCount = 1) { deckPicker ->
             val deck = composeRule.onNodeWithText("Test Deck 0")
-            val mediaCheck = composeRule.onNodeWithText(with(deckPicker) { TR.sentenceCase.checkMediaTitle() })
+            val mediaCheck = composeRule.onNodeWithText(with(deckPicker) { TR.sentenceCase.checkMediaTitle })
             deck.assertIsDisplayed()
 
             deckPicker.startActivity(MediaCheckFragment.getIntent(deckPicker))

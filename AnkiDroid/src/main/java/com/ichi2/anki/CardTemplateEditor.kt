@@ -706,7 +706,7 @@ class CardTemplateEditorFragment :
     }
 
     override val shortcuts
-        get() = with(requireContext()) {
+        get() = with(requireAnkiActivity()) {
                 ShortcutGroup(
                     listOf(
                         shortcut("Ctrl+P", CommonString.card_editor_preview_card),
