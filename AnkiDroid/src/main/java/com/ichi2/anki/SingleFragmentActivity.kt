@@ -7,6 +7,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.ViewGroup
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -32,7 +33,7 @@ import kotlin.reflect.jvm.jvmName
 
 /**
  * Activity aimed to host a fragment on the entire screen.
- * For that, it uses [R.layout.activity_single_fragment], which has only a [FragmentContainerView]
+ * For that, it uses a full-window container, which has only a [FragmentContainerView]
  *
  * Useful to avoid creating a Activity for every new screen
  * while being able to reuse the fragment on other places.
@@ -42,7 +43,7 @@ import kotlin.reflect.jvm.jvmName
  * See also: [ConfigAwareSingleFragmentActivity]
  */
 open class SingleFragmentActivity :
-    AnkiActivity(R.layout.activity_single_fragment),
+    AnkiActivity(),
     BaseSnackbarBuilderProvider {
     // delegate to the fragment in all cases
     override val baseSnackbarBuilder: SnackbarBuilder
@@ -62,7 +63,15 @@ open class SingleFragmentActivity :
             return
         }
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme })
-        val root = findViewById<CoordinatorLayout>(R.id.root_layout)
+        val root =
+            CoordinatorLayout(this).apply {
+                id = R.id.root_layout
+                addView(
+                    FragmentContainerView(context).apply { id = R.id.fragment_container },
+                    CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT),
+                )
+            }
+        setContentView(root)
         ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
             val constraints = insets.getInsets(systemBars() or displayCutout())
             // apply the insets only for content/fragments defined by SingleFragmentActivity

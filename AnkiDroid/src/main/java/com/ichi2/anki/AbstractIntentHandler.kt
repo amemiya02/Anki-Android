@@ -6,6 +6,10 @@ package com.ichi2.anki
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.view.Gravity
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.FrameLayout
+import android.widget.ProgressBar
 import com.ichi2.anki.common.android.themes.disableXiaomiForceDarkMode
 import com.ichi2.anki.workarounds.AppLoadedFromBackupWorkaround.showedActivityFailedScreen
 import com.ichi2.themes.Themes
@@ -35,6 +39,10 @@ abstract class AbstractIntentHandler : Activity() {
         super.onCreate(savedInstanceState)
         Themes.setTheme(this, savedInstanceState)
         disableXiaomiForceDarkMode(this)
-        setContentView(R.layout.activity_progress_bar)
+        setContentView(
+            FrameLayout(this).apply {
+                addView(ProgressBar(context), FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.CENTER))
+            },
+        )
     }
 }

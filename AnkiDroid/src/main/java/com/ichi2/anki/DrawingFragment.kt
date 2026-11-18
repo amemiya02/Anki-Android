@@ -9,50 +9,73 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
 import androidx.core.graphics.createBitmap
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
+import androidx.fragment.app.commitNow
 import androidx.lifecycle.lifecycleScope
-import com.ichi2.anki.navigation.finishScreen
+import com.google.android.material.color.MaterialColors
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.time.getTimestamp
 import com.ichi2.anki.compat.CompatHelper
-import com.ichi2.anki.databinding.FragmentDrawingBinding
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.multimedia.AttachmentAppBar
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.ui.windows.reviewer.whiteboard.WhiteboardFragment
 import com.ichi2.anki.ui.windows.reviewer.whiteboard.WhiteboardView
 import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.themes.Themes
-import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import com.ichi2.anki.common.android.R as CommonR
 
-class DrawingFragment : Fragment(R.layout.fragment_drawing) {
-    private val binding by viewBinding(FragmentDrawingBinding::bind)
+class DrawingFragment : Fragment() {
     private val whiteboardFragment
         get() = childFragmentManager.findFragmentById(R.id.fragment_container) as? WhiteboardFragment
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        val context = inflater.context
+        val toolbar =
+            ComposeView(context).apply {
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    AnkiDroidTheme {
+                        AttachmentAppBar(
+                            title = stringResource(CommonString.drawing),
+                            onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() },
+                            onSave = ::onSaveDrawing,
+                        )
+                    }
+                }
+            }
+        return LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(MaterialColors.getColor(this, CommonR.attr.foundationBackground))
+            addView(toolbar, MATCH_PARENT, WRAP_CONTENT)
+            addView(FragmentContainerView(context).apply { id = R.id.fragment_container }, LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f))
+        }
+    }
 
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-        binding.toolbar.apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                AnkiDroidTheme {
-                    AttachmentAppBar(
-                        title = stringResource(CommonString.drawing),
-                        onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() },
-                        onSave = ::onSaveDrawing,
-                    )
-                }
-            }
-        }
+        if (whiteboardFragment == null) childFragmentManager.commitNow { replace(R.id.fragment_container, WhiteboardFragment()) }
         setupBackPressHandling()
     }
 
@@ -101,7 +124,6 @@ class DrawingFragment : Fragment(R.layout.fragment_drawing) {
             Intent().apply {
                 putExtra(EXTRA_IMAGE_PATH, imagePath)
             }
-        // TODO don't depend on an Activity
         finishScreen(Activity.RESULT_OK, result)
     }
 
