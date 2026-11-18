@@ -4,15 +4,15 @@
 
 **Blocked by:** 25 (Mockups for finding and adding)
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [x] A Card can be previewed from the card browser and from the note editor.
 - [x] The question and the answer side can both be shown, and the owner can step between Cards.
 - [x] Card Content renders exactly as it does in the study screen.
 - [x] The note editor's preview (one tab per Card Template or cloze number) is rebuilt in the same Card Frame.
 - [x] It matches the agreed Mockup.
-- [ ] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
-- [ ] Screen-logic tests and Engine tests still pass unchanged.
+- [x] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
+- [x] Screen-logic tests and Engine tests still pass unchanged.
 
 ## Verification
 
@@ -20,4 +20,4 @@ The Pixel emulator opened the browser preview from a two-Card selection. It rend
 
 Android reported a focus time-out during the first cold WebView startup while several builds were running. Warm browser launches and the phone and tablet editor previews completed successfully.
 
-The browser rendered regression failed on the old screen and then passed with 38 existing preview, renderer and link tests. The note editor rendered regression also failed on the old screen. The final six-class run passed 35 tests. The screenshot matrix is queued.
+The browser rendered regression failed on the old screen and then passed with 38 existing preview, renderer and link tests. The note editor rendered regression also failed on the old screen. The final six-class run passed 35 tests. The final browser and template preview matrix passed all 96 cases and generated 192 accessible captures on phone and tablet. A separate press state for Reveal and Next keeps the latter legible in Dark and Black. Locale-specific built-in Note Types are exercised in every run. The Engine passed 143 tests with seven existing skips.

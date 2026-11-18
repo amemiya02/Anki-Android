@@ -20,4 +20,4 @@ On the Android 15 Pixel 9 emulator, six walks added an image and tag, found the 
 
 Both production importers preserved the Cards, scheduling, review history and media. The two collection comparisons matched 42 Cards and Notes, with nine and 11 review entries. Each reviewed Deck comparison matched 13 Cards and Notes and two review entries. [Package comparison](../../../docs/redesign/milestone-3/README.md#round-trip-with-the-official-app)
 
-The previewer accessibility checks in Dark and Black and the complete Roborazzi record and verify run remain open. The owner deferred the personal phone walk and sign-off.
+The previewer passed accessibility checks in all 96 rendered cases. The complete milestone baseline record and verification run remains open. The owner deferred the personal phone walk and sign-off.

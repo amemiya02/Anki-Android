@@ -23,7 +23,7 @@ The Official App was the same published APK verified for Milestone 2. [Release a
 
 ## Rendered baselines
 
-The browser search and sort matrix and the browser selection matrix each produced 120 captures. The note editor field and save matrix ran 312 cases, and the formatting, attachments and drawing matrix passed 168 cases. The previewer matrix produced 192 captures. Dark and Black card browser preview accessibility checks are still open. The Milestone 1 decision keeps generated Roborazzi baselines under `AnkiDroid/build/outputs/roborazzi/`. The pending milestone gate is to record and verify the complete Finding and Adding baseline set. [Milestone 1 decision](../../../.scratch/ankidroid-redesign/issues/13-milestone-1-sign-off-the-foundation-on-a-device.md)
+The browser search and sort matrix and the browser selection matrix each produced 120 captures. The note editor field and save matrix ran 312 cases, and the formatting, attachments and drawing matrix passed 168 cases. The previewer matrix passed the accessibility checks in all 96 cases and produced 192 captures. The Milestone 1 decision keeps generated Roborazzi baselines under `AnkiDroid/build/outputs/roborazzi/`. The pending milestone gate is to record and verify the complete Finding and Adding baseline set. [Milestone 1 decision](../../../.scratch/ankidroid-redesign/issues/13-milestone-1-sign-off-the-foundation-on-a-device.md)
 
 ## Round trip with the Official App
 
