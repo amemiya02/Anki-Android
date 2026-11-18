@@ -23,6 +23,9 @@ import org.robolectric.RuntimeEnvironment
  *
  * `./gradlew :AnkiDroid:verifyRoborazziPlayDebug -Pscreenshot --tests "com.ichi2.anki.StudyOptionsScreenshotTest"`
  */
+@CheckAccessibility
+@IncludeLanguages(LanguageConfig.SIMPLIFIED_CHINESE, LanguageConfig.JAPANESE, LanguageConfig.ARABIC)
+@IncludeFontSizes(FontSizeConfig.PERCENT_200)
 class StudyOptionsScreenshotTest : ScreenshotTest() {
     @Test
     fun studyOptionsWithCounts() =

@@ -9,23 +9,22 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.database.sqlite.SQLiteDatabaseCorruptException
-import android.os.Bundle
 import android.os.SystemClock
 import android.text.Layout
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MotionEvent
 import android.view.View
-import android.view.View.MeasureSpec
 import android.widget.LinearLayout
-import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasSetTextAction
@@ -36,8 +35,10 @@ import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.core.content.edit
@@ -49,8 +50,6 @@ import androidx.core.view.MenuItemCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.size
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commitNow
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -960,15 +959,15 @@ class DeckPickerTest : RobolectricTest() {
             assertSame(studyOptions, fragment)
             assertSame(studyOptionsView, assertNotNull(fragment).requireView())
             assertEquals(deckId, assertNotNull(fragment).viewModel.selectedDeckId)
-            assertEquals("Another Deck", findViewById<TextView>(R.id.studyoptions_deck_name).text.toString())
-            assertEquals("2", findViewById<TextView>(R.id.studyoptions_new_count).text.toString())
+            composeRule.onNodeWithTag("study_deck_title").assertTextEquals("Another Deck")
+            composeRule.onNodeWithTag("study_new").assertTextEquals("2")
 
             viewModel.selectDeck(1L).join()
             advanceRobolectricLooper()
 
             assertSame(studyOptionsView, assertNotNull(fragment).requireView())
             assertEquals(1L, studyOptions.viewModel.selectedDeckId)
-            assertEquals("1", findViewById<TextView>(R.id.studyoptions_new_count).text.toString())
+            composeRule.onNodeWithTag("study_new").assertTextEquals("1")
         }
     }
 
@@ -977,10 +976,11 @@ class DeckPickerTest : RobolectricTest() {
         assumeTrue("We are running on a tablet", qualifiers!!.contains("xlarge"))
         addBasicNote()
 
+        populateLongStudyDescription(1L)
         deckPicker {
+            composeRule.onNodeWithTag("study_counts").assertExists()
             val description = findViewById<TextView>(R.id.studyoptions_deck_description)
-            val defaultDescription =
-                layoutInflater.inflate(R.layout.fragment_study_options, null).findViewById<TextView>(R.id.studyoptions_deck_description)
+            val defaultDescription = TextView(this)
             assertEquals(defaultDescription.breakStrategy, description.breakStrategy)
             assertEquals(defaultDescription.hyphenationFrequency, description.hyphenationFrequency)
             val divider = findViewById<View>(R.id.resizing_divider)
@@ -1104,13 +1104,13 @@ class DeckPickerTest : RobolectricTest() {
         val anotherDeck = addDeck("Another deck")
         addNoteToDeck(anotherDeck, count = 2)
 
+        populateLongStudyDescription(1L)
+        populateLongStudyDescription(anotherDeck)
         deckPicker {
-            makeStudyOptionsScrollable()
             val studyOptions = assertNotNull(fragment)
             for (selectAnotherDeck in listOf(false, true)) {
-                val scroll = studyOptions.layoutScroll()
-                scroll.scrollTo(0, 200)
-                assertEquals(200, scroll.scrollY)
+                scrollStudyTo(200)
+                assertEquals(200, studyScrollPosition())
 
                 selectContextMenuOption(ContextMenuOption.SCHEDULE_REMINDERS, studyOptions.viewModel.selectedDeckId)
                 advanceRobolectricLooper()
@@ -1125,8 +1125,7 @@ class DeckPickerTest : RobolectricTest() {
 
                 assertSame(studyOptions, fragment)
                 assertEquals(if (selectAnotherDeck) anotherDeck else 1L, studyOptions.viewModel.selectedDeckId)
-                val restoredScroll = studyOptions.layoutScroll()
-                assertEquals(if (selectAnotherDeck) 0 else 200, restoredScroll.scrollY)
+                assertEquals(if (selectAnotherDeck) 0 else 200, studyScrollPosition())
             }
         }
     }
@@ -1138,11 +1137,12 @@ class DeckPickerTest : RobolectricTest() {
         val anotherDeck = addDeck("Another deck")
         addNoteToDeck(anotherDeck, count = 2)
 
+        populateLongStudyDescription(1L)
+        populateLongStudyDescription(anotherDeck)
         deckPicker {
-            makeStudyOptionsScrollable()
             for (deckId in listOf(1L, anotherDeck)) {
                 val studyOptions = assertNotNull(fragment)
-                studyOptions.layoutScroll().scrollTo(0, 200)
+                scrollStudyTo(200)
                 val savedState = supportFragmentManager.saveFragmentInstanceState(studyOptions)
                 viewModel.selectDeck(deckId).join()
                 advanceRobolectricLooper()
@@ -1153,37 +1153,30 @@ class DeckPickerTest : RobolectricTest() {
                 advanceRobolectricLooper()
 
                 assertEquals(deckId, restored.viewModel.selectedDeckId)
-                assertEquals(if (deckId == 1L) 200 else 0, restored.layoutScroll().scrollY)
+                assertEquals(if (deckId == 1L) 200 else 0, studyScrollPosition())
             }
         }
     }
 
-    /** Keep original and restored panes scrollable without relying on font metrics. */
-    private fun DeckPicker.makeStudyOptionsScrollable() {
-        val studyOptionsView = assertNotNull(fragment).requireView()
-        studyOptionsView.findViewById<ScrollView>(R.id.studyoptions_scrollview).getChildAt(0).minimumHeight = 10000
-        supportFragmentManager.registerFragmentLifecycleCallbacks(
-            object : FragmentManager.FragmentLifecycleCallbacks() {
-                override fun onFragmentViewCreated(
-                    fm: FragmentManager,
-                    f: Fragment,
-                    v: View,
-                    savedInstanceState: Bundle?,
-                ) {
-                    if (f is StudyOptionsFragment) {
-                        v.findViewById<ScrollView>(R.id.studyoptions_scrollview).getChildAt(0).minimumHeight = 10000
-                    }
-                }
-            },
-            false,
-        )
+    private fun populateLongStudyDescription(deckId: Long) {
+        val deck = requireNotNull(col.decks.getLegacy(deckId))
+        deck.description = "Deck description<br>".repeat(100)
+        col.decks.save(deck)
     }
 
-    private fun StudyOptionsFragment.layoutScroll(): ScrollView =
-        requireView().findViewById<ScrollView>(R.id.studyoptions_scrollview).apply {
-            measure(MeasureSpec.makeMeasureSpec(400, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(300, MeasureSpec.EXACTLY))
-            layout(0, 0, 400, 300)
-        }
+    private fun studyScrollPosition() =
+        composeRule
+            .onNodeWithTag(
+                "study_options_scroll",
+            ).fetchSemanticsNode()
+            .config[SemanticsProperties.VerticalScrollAxisRange]
+            .value()
+            .toInt()
+
+    private fun scrollStudyTo(position: Int) {
+        val distance = (position - studyScrollPosition()).toFloat()
+        composeRule.onNodeWithTag("study_options_scroll").performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, distance) }
+    }
 
     private fun withReminderPanel(test: suspend DeckPicker.(ScheduleRemindersFragment) -> Unit) {
         assumeTrue("We are running on a tablet", qualifiers!!.contains("xlarge"))

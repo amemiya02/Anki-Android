@@ -47,6 +47,19 @@ import net.ankiweb.rsdroid.BackendException
 import timber.log.Timber
 import anki.search.BrowserRow.Color as EngineRowColor
 
+private val mediaFilenameRegex = Regex("\uD83D\uDD09(.*?)\uD83D\uDD09") // 🔉(.*?)🔉
+
+/**
+ * Strips instances of '🔉filename.mp3🔉' if [showMediaFilenames] is not set
+ */
+internal fun removeSounds(
+    input: String,
+    showMediaFilenames: Boolean,
+): String {
+    if (showMediaFilenames) return input
+    return mediaFilenameRegex.replace(input, "")
+}
+
 /** Loaded only while the corresponding ID is visible in the browser. */
 internal data class BrowserResultRow(
     val title: String,
@@ -64,7 +77,7 @@ internal suspend fun loadBrowserResultRow(
     withCol {
         try {
             val row = backend.browserRowForId(id.cardOrNoteId)
-            val cells = row.cellsList.map { cell -> BrowserMultiColumnAdapter.removeSounds(cell.text, showMediaFilenames) }
+            val cells = row.cellsList.map { cell -> removeSounds(cell.text, showMediaFilenames) }
             val base =
                 BrowserResultRow(
                     title = cells.firstOrNull().orEmpty(),

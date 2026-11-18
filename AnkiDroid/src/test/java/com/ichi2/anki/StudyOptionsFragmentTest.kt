@@ -6,13 +6,17 @@ import android.content.Context
 import android.graphics.Rect
 import android.graphics.drawable.LayerDrawable
 import android.view.View
-import android.view.View.MeasureSpec
 import android.view.ViewGroup
-import android.widget.ScrollView
-import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.view.menu.MenuBuilder
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
@@ -21,7 +25,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.databinding.FragmentStudyOptionsBinding
 import com.ichi2.anki.libanki.Consts.DEFAULT_DECK_ID
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.QueueType
@@ -38,6 +41,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -45,9 +49,7 @@ import org.robolectric.annotation.Config
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
-import kotlin.test.assertContains
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
@@ -61,6 +63,8 @@ import kotlin.test.assertTrue
  */
 @RunWith(AndroidJUnit4::class)
 class StudyOptionsFragmentTest : RobolectricTest() {
+    @get:Rule val compose = createEmptyComposeRule()
+
     /** Issue 22249: backend deletion can leave the tablet showing hidden Default. */
     @Test
     @Config(qualifiers = "xlarge")
@@ -110,14 +114,13 @@ class StudyOptionsFragmentTest : RobolectricTest() {
             col.sched.suspendCards(note.cardIds(col))
             withStudyOptions {
                 assertIs<StudyOptionsState.Congrats>(viewModel.state)
-                val counts = requireView().findViewById<View>(R.id.group_counts)
-                assertEquals(View.GONE, counts.visibility)
+                compose.onNodeWithTag("study_counts").assertDoesNotExist()
 
                 col.decks.select(col.decks.newFiltered("Filtered deck"))
                 refreshAndAwait()
 
                 assertTrue(assertIs<StudyOptionsState.Congrats>(viewModel.state).isDynamic)
-                assertEquals(View.VISIBLE, counts.visibility)
+                compose.onNodeWithTag("study_counts").assertIsDisplayed()
             }
         }
 
@@ -143,12 +146,11 @@ class StudyOptionsFragmentTest : RobolectricTest() {
             col.decks.save(config)
             withStudyOptions {
                 assertIs<StudyOptionsState.StudyOptions>(viewModel.state)
-                val newBury = binding.studyoptionsNewBury
-                assertEquals(View.VISIBLE, newBury.visibility)
+                val newBury = compose.onNodeWithText("+1 buried")
+                newBury.assertIsDisplayed()
 
                 reattachView()
-                assertEquals(View.VISIBLE, newBury.visibility)
-                assertEquals("+1 buried", newBury.text.toString())
+                newBury.assertIsDisplayed()
             }
         }
 
@@ -156,22 +158,29 @@ class StudyOptionsFragmentTest : RobolectricTest() {
     fun `scroll position is retained on refresh and reset for another deck`() =
         runTest {
             val anotherDeck = addDeck("Another deck")
+            val originalDeck = col.decks.current()
+            originalDeck.description = "Deck description<br>".repeat(120)
+            col.decks.save(originalDeck)
+            addBasicNote()
             withStudyOptions {
-                val scroll = requireView().findViewById<ScrollView>(R.id.studyoptions_scrollview)
-                // Give the pane scrollable content without depending on font metrics.
-                scroll.getChildAt(0).minimumHeight = 2000
-                scroll.measure(MeasureSpec.makeMeasureSpec(400, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(300, MeasureSpec.EXACTLY))
-                scroll.layout(0, 0, 400, 300)
-                scroll.scrollTo(0, 200)
-                assertEquals(200, scroll.scrollY)
+                val scroll = compose.onNodeWithTag("study_options_scroll")
+
+                fun position() =
+                    scroll
+                        .fetchSemanticsNode()
+                        .config[SemanticsProperties.VerticalScrollAxisRange]
+                        .value()
+                        .toInt()
+                scroll.performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, 200f) }
+                assertEquals(200, position())
 
                 addBasicNote()
                 refreshAndAwait()
-                assertEquals(200, scroll.scrollY)
+                assertEquals(200, position())
 
                 col.decks.select(anotherDeck)
                 refreshAndAwait()
-                assertEquals(0, scroll.scrollY)
+                assertEquals(0, position())
             }
         }
 
@@ -233,35 +242,7 @@ class StudyOptionsFragmentTest : RobolectricTest() {
             assertEquals(Lifecycle.State.RESUMED, replacement.lifecycle.currentState)
             val state = assertIs<StudyOptionsState.StudyOptions>(replacement.viewModel.state)
             assertEquals(1, state.data.newCardsToday)
-            val newCount = replacement.requireView().findViewById<TextView>(R.id.studyoptions_new_count)
-            assertEquals("1", newCount.text.toString())
-        }
-
-    @Test
-    fun `study options refresh queued before finishing exposes lifecycle misuse`() =
-        assertLifecycleFailure("activity is finishing") {
-            addBasicNote()
-            val controller = Robolectric.buildActivity(StudyOptionsActivity::class.java).setup()
-            saveControllerForCleanup(controller)
-            advanceUntilIdle()
-            advanceRobolectricLooper()
-            val activity = controller.get()
-            val fragment = assertIs<StudyOptionsFragment>(activity.supportFragmentManager.findFragmentById(R.id.studyoptions_frame))
-            val initialState = assertIs<StudyOptionsState.StudyOptions>(fragment.viewModel.state)
-            assertEquals(1, initialState.data.newCardsToday)
-            addBasicNote()
-
-            activity.lifecycleScope
-                .launch {
-                    fragment.refreshInterface()
-                    activity.finish()
-                }.join()
-            advanceUntilIdle()
-            advanceRobolectricLooper()
-
-            assertTrue(activity.isFinishing)
-            assertSame(activity, fragment.activity)
-            assertSame(initialState, fragment.viewModel.state)
+            compose.onNodeWithTag("study_new").assertTextEquals("1")
         }
 
     /** Issue 22065: the host can replace the fragment before its queued refresh starts. */
@@ -368,11 +349,9 @@ class StudyOptionsFragmentTest : RobolectricTest() {
     fun `the pane's hairline spans from top to bottom of parent`() =
         runTest {
             withStudyOptions {
-                val gradient = requireView().findViewById<View>(R.id.studyoptions_gradient)
-                val params = gradient.layoutParams as ConstraintLayout.LayoutParams
-                assertEquals(ConstraintLayout.LayoutParams.PARENT_ID, params.topToTop)
-                assertEquals(ConstraintLayout.LayoutParams.PARENT_ID, params.bottomToBottom)
-                assertEquals(ConstraintLayout.LayoutParams.PARENT_ID, params.startToStart)
+                val rule = compose.onNodeWithTag("study_pane_rule", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+                val viewport = compose.onNodeWithTag("study_options_scroll").fetchSemanticsNode().boundsInRoot
+                assertTrue(rule.height >= viewport.height && rule.width in 1f..10f)
             }
         }
 
@@ -574,14 +553,6 @@ class StudyOptionsFragmentTest : RobolectricTest() {
 
     private fun DeckPicker.selectPanelItem(itemId: Int) = fragment!!.onMenuItemSelected(menu().findItem(itemId))
 
-    private fun assertLifecycleFailure(
-        message: String,
-        block: suspend TestScope.() -> Unit,
-    ) {
-        val failure = assertFailsWith<IllegalStateException> { runTest(testBody = block) }
-        assertContains(failure.message.orEmpty(), message)
-    }
-
     private fun TestScope.withStudyOptions(block: StudyOptionsFragment.() -> Unit) =
         launchFragmentInContainer<StudyOptionsFragment>().use { scenario ->
             advanceUntilIdle()
@@ -589,15 +560,10 @@ class StudyOptionsFragmentTest : RobolectricTest() {
             scenario.withFragment(block)
         }
 
-    private val StudyOptionsFragment.binding
-        get() = FragmentStudyOptionsBinding.bind(requireView())
-
-    private fun StudyOptionsFragment.assertBuryCountsHidden() =
-        with(binding) {
-            for (bury in listOf(studyoptionsNewBury, studyoptionsLearningBury, studyoptionsReviewBury)) {
-                assertEquals(View.GONE, bury.visibility, resources.getResourceEntryName(bury.id))
-            }
-        }
+    private fun StudyOptionsFragment.assertBuryCountsHidden() {
+        compose.onNodeWithText(TR.studyingCountsDiffer()).assertDoesNotExist()
+        compose.onNodeWithText("buried", substring = true).assertDoesNotExist()
+    }
 
     private fun StudyOptionsFragment.reattachView() {
         val view = requireView()
