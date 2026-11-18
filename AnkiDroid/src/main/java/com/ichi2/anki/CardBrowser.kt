@@ -6,6 +6,7 @@
 package com.ichi2.anki
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.KeyEvent
@@ -142,6 +143,15 @@ open class CardBrowser :
             return
         }
         super.onCreate(savedInstanceState)
+        // Older launcher shortcuts stored this activity as their target.
+        if (savedInstanceState == null &&
+            intent.action == Intent.ACTION_VIEW &&
+            (intent.flags and Intent.FLAG_ACTIVITY_CLEAR_TASK) != 0
+        ) {
+            startActivity(DeckPicker.getEntryIntent(this, intent, resetTask = true))
+            finish()
+            return
+        }
         enableEdgeToEdge(
             // the status bar sits over the app bar, which is the page colour
             statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme },

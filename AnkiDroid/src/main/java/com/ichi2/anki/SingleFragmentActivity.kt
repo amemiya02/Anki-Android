@@ -59,6 +59,13 @@ open class SingleFragmentActivity :
         }
 
         super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) {
+            shortcutEntryIntent()?.let {
+                startActivity(it)
+                finish()
+                return
+            }
+        }
         if (!ensureStorageIsReady()) {
             return
         }
@@ -114,6 +121,9 @@ open class SingleFragmentActivity :
             super.dispatchKeyEvent(event)
         }
     }
+
+    /** Redirects a launcher shortcut saved before this screen moved into DeckPicker. */
+    protected open fun shortcutEntryIntent(): Intent? = null
 
     protected open fun createFragment(): Fragment? {
         val fragmentClassName = intent.getStringExtra(EXTRA_FRAGMENT_NAME) ?: return null
