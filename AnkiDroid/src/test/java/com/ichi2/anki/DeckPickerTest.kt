@@ -22,6 +22,13 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.core.content.edit
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.Insets
@@ -38,8 +45,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.action.GeneralClickAction
+import androidx.test.espresso.action.Press
+import androidx.test.espresso.action.Tap
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.SdkSuppress
 import anki.backend.backendError
 import anki.collection.opChanges
@@ -87,7 +96,6 @@ import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.Destination
 import com.ichi2.anki.utils.ext.defaultConfig
 import com.ichi2.anki.utils.ext.dismissAllDialogFragments
-import com.ichi2.anki.widgets.DeckAdapter
 import com.ichi2.testutils.BackendEmulatingOpenConflict
 import com.ichi2.testutils.common.Flaky
 import com.ichi2.testutils.common.OS
@@ -118,6 +126,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Ignore
+import org.junit.Rule
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
@@ -143,13 +152,15 @@ import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
-import com.ichi2.anki.common.android.R as CommonR
 
 typealias ContextMenuOption = DeckPickerContextMenuOption
 
 @KotlinCleanup("SPMockBuilder")
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class DeckPickerTest : RobolectricTest() {
+    @get:Rule
+    val composeRule = createEmptyComposeRule()
+
     @ParameterizedRobolectricTestRunner.Parameter
     @JvmField // required for Parameter
     var qualifiers: String? = null
@@ -174,7 +185,7 @@ class DeckPickerTest : RobolectricTest() {
         assertThat(col.sched.deckDueTree().find(DEFAULT_DECK_ID), nullValue())
 
         deckPicker {
-            advanceRobolectricLooperUntil { deckPickerBinding.decks.adapter?.itemCount == 1 }
+            advanceRobolectricLooperUntil { visibleDeckCount == 1 }
             shadowOf(this).clearNextStartedActivities()
 
             assertTrue(onKeyUp(KeyEvent.KEYCODE_S, KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_S)))
@@ -191,7 +202,7 @@ class DeckPickerTest : RobolectricTest() {
         val filtered = col.decks.newFiltered("Filtered")
 
         deckPicker {
-            advanceRobolectricLooperUntil { deckPickerBinding.decks.adapter?.itemCount == 2 }
+            advanceRobolectricLooperUntil { visibleDeckCount == 2 }
             shadowOf(this).clearNextStartedActivities()
 
             assertTrue(onKeyUp(KeyEvent.KEYCODE_S, KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_S)))
@@ -353,7 +364,18 @@ class DeckPickerTest : RobolectricTest() {
             val deletion =
                 withQueuedCollectionAccess {
                     deckPicker.deleteDeck(deleted).also {
-                        onView(withText("Other")).perform(click())
+                        // a tap through the window, which ignores touches while the deletion runs
+                        val other =
+                            composeRule
+                                .onNodeWithText("Other")
+                                .fetchSemanticsNode()
+                                .boundsInRoot.center
+                        onView(withId(R.id.deck_list)).perform(
+                            GeneralClickAction(Tap.SINGLE, { view ->
+                                val origin = IntArray(2).also(view::getLocationOnScreen)
+                                floatArrayOf(origin[0] + other.x, origin[1] + other.y)
+                            }, Press.FINGER, 0, 0),
+                        )
                     }
                 }
             deletion.join()
@@ -599,19 +621,13 @@ class DeckPickerTest : RobolectricTest() {
         return supportFragmentManager.findFragmentByTag("browser") as CardBrowserFragment
     }
 
-    private fun DeckPicker.longPressDeck(name: String): View {
-        val decks = deckPickerBinding.decks
-        val adapter = decks.adapter as DeckAdapter
-        // Background list diffs can finish after the initial main looper drain.
-        advanceRobolectricLooperUntil(lazyMessage = { "Deck '$name' was not laid out" }) {
-            val position = adapter.currentList.indexOfFirst { it.lastDeckNameComponent == name }
-            position >= 0 && decks.findViewHolderForAdapterPosition(position) != null
+    /** Long-presses the Deck named [name] on the deck list, and waits for it to become the current Deck */
+    private fun DeckPicker.longPressDeck(name: String) {
+        advanceRobolectricLooperUntil(lazyMessage = { "Deck '$name' was not shown" }) {
+            composeRule.onAllNodesWithText(name).fetchSemanticsNodes().isNotEmpty()
         }
-        val deck = adapter.currentList.single { it.lastDeckNameComponent == name }
-        val position = adapter.currentList.indexOf(deck)
-        decks.findViewHolderForAdapterPosition(position)!!.itemView.performLongClick()
-        advanceRobolectricLooperUntil { adapter.currentList[position].isSelected }
-        return decks.findViewHolderForAdapterPosition(position)!!.itemView
+        composeRule.onNodeWithText(name).performTouchInput { longClick() }
+        advanceRobolectricLooperUntil { displayedDecks.single { it.lastDeckNameComponent == name }.isSelected }
     }
 
     private fun keyDownEvent(
@@ -1312,12 +1328,9 @@ class DeckPickerTest : RobolectricTest() {
 
         deckPicker {
             assumeTrue("Not running on tablet", !fragmented)
-            val selectedDeck = longPressDeck("Long pressed")
+            longPressDeck("Long pressed")
 
-            assertThat(
-                shadowOf(selectedDeck.background).createdFromResId,
-                equalTo(CommonR.drawable.item_background_selected),
-            )
+            composeRule.onNodeWithText("Long pressed").assertIsSelected()
         }
     }
 
@@ -1655,7 +1668,6 @@ class DeckPickerTest : RobolectricTest() {
                 assertThat(resources.getBoolean(R.bool.bottom_navigation_available), equalTo(false))
                 val bottomNavigation = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation
                 assertThat(bottomNavigation, nullValue())
-                assertThat(deckPickerBinding.decks.itemDecorationCount, equalTo(0))
             }
         }
 
@@ -1670,7 +1682,6 @@ class DeckPickerTest : RobolectricTest() {
                 assertThat(resources.getBoolean(R.bool.bottom_navigation_available), equalTo(true))
                 assertThat(binding.bottomNavigation, notNullValue())
                 assertThat(binding.bottomNavigation!!.visibility, equalTo(View.VISIBLE))
-                assertThat(deckPickerBinding.decks.itemDecorationCount, equalTo(1))
             }
         }
 

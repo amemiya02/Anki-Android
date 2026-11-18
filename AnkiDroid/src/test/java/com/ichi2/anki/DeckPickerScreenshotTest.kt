@@ -3,38 +3,72 @@
 package com.ichi2.anki
 
 import android.content.Intent
-import android.view.View
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.core.content.edit
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
-import com.ichi2.anki.CollectionManager.TR
-import com.ichi2.anki.android.view.locationInWindow
+import anki.decks.SetDeckCollapsedRequest
+import com.ichi2.anki.FontSizeConfig.PERCENT_200
+import com.ichi2.anki.LanguageConfig.ARABIC
+import com.ichi2.anki.LanguageConfig.JAPANESE
+import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.common.preferences.sharedPrefs
-import com.ichi2.anki.common.utils.dp
+import com.ichi2.anki.common.time.SECONDS_PER_DAY
+import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.libanki.DeckId
-import com.ichi2.anki.snackbar.showSnackbar
-import com.ichi2.anki.widgets.DeckAdapter
+import com.ichi2.anki.libanki.sched.SetDueDateDays
 import com.ichi2.testutils.BackupManagerTestUtilities
-import com.ichi2.testutils.dispatchInsets
-import com.ichi2.testutils.lastItemView
-import com.ichi2.testutils.scrollToEnd
-import com.ichi2.testutils.simulateKeyboard
-import kotlinx.coroutines.flow.first
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
-import org.robolectric.shadows.ShadowDialog
 
 /**
- * Screenshot tests for [DeckPicker]
+ * The deck list against the Core Loop Mockups (`docs/redesign/core-loop/decks-*.png`), with the
+ * Mockup's Decks, with long Chinese and Japanese names, and for a Newcomer, across the Quality Bar:
  *
- * `./gradlew :AnkiDroid:verifyRoborazziPlayDebug -Pscreenshot --tests "com.ichi2.anki.DeckPickerScreenshotTest"`
+ * `./gradlew :AnkiDroid:recordRoborazziPlayDebug -Pscreenshot -Ptheme=light,dark,black --tests '*.DeckPickerScreenshotTest'`
  */
-class DeckPickerScreenshotTest : ScreenshotTest() {
+@CheckAccessibility
+@IncludeLanguages(SIMPLIFIED_CHINESE, JAPANESE, ARABIC)
+@IncludeFontSizes(PERCENT_200)
+class DeckPickerScreenshotTest : DeckListScreenshotTest() {
+    /** The Mockup's sample Decks: one done for today, two collapsed, one expanded with the current sub-Deck */
+    @Test
+    fun decks() {
+        seedMockupDecks()
+        showDeckList("decks")
+    }
+
+    /** Long names wrap once and are then cut; the counts beside them stay in place */
+    @Test
+    fun long_names() {
+        addDeck("唐诗三百首 · 全本精选（附注释、译文与赏析）")
+        deck("汉语水平考试 HSK 5 级核心词汇 2500 · 分课练习::第 11–20 课：生词、固定搭配与例句", new = 15, learning = 4, due = 38)
+        deck("汉语水平考试 HSK 5 级核心词汇 2500 · 分课练习::听力与阅读", new = 0, learning = 0, due = 24)
+        val current = deck("日本語能力試験 N2 文法・語彙・読解 総合対策::第3章 敬語と複合動詞の使い分け", new = 10, learning = 5, due = 90)
+        deck("日本語能力試験 N2 文法・語彙・読解 総合対策::読解練習", new = 10, learning = 0, due = 58)
+        expand("汉语水平考试 HSK 5 级核心词汇 2500 · 分课练习")
+        expand("日本語能力試験 N2 文法・語彙・読解 総合対策")
+        col.decks.select(current)
+        studiedToday(31)
+
+        showDeckList("long_names")
+    }
+
+    /** A Newcomer with no Decks */
+    @Test
+    fun empty() {
+        showDeckList("empty")
+    }
+}
+
+/** Seeds Decks with chosen counts and opens the deck list */
+abstract class DeckListScreenshotTest : ScreenshotTest() {
+    @get:Rule
+    val composeRule = createEmptyComposeRule()
+
     @Before
     override fun setUp() {
         super.setUp()
-        setPhoneQualifiers()
         ensureCollectionLoadIsSynchronous()
         setIntroductionSlidesShown(true)
         BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
@@ -48,229 +82,64 @@ class DeckPickerScreenshotTest : ScreenshotTest() {
         BackupManagerTestUtilities.reset()
     }
 
-    @Test
-    fun baseState_and_fabExpanded() =
-        withDeckPicker(deckCount = 0) { deckPicker ->
-            captureScreen("baseState")
-
-            deckPicker.floatingActionMenu.showFloatingActionMenu()
-            captureScreen("fabExpanded")
-        }
-
-    @Test
-    fun edgeToEdge_30_decks() =
-        withDeckPicker(deckCount = 30) { deckPicker ->
-            deckPicker.simulateEdgeToEdge()
-            captureScreen("edgeToEdge_30_decks")
-        }
-
-    @Test
-    fun deck_list_after_dismissing_create_deck_dialog() =
-        withDeckPicker(deckCount = 12) { deckPicker ->
-            deckPicker.simulateEdgeToEdge()
-            deckPicker.showCreateDeckDialog()
-            deckPicker.dispatchInsets(navBarBottom = 48.dp, imeBottom = 300.dp)
-            advanceRobolectricLooper()
-
-            ShadowDialog.getLatestDialog().cancel()
-            deckPicker.dispatchInsets(navBarBottom = 48.dp)
-            advanceRobolectricLooper()
-            deckPicker.deckPickerBinding.decks.scrollToEnd()
-
-            captureScreen("deck_list_after_dismissing_create_deck_dialog")
-        }
-
-    @Test
-    fun snackbar_follows_keyboard_visibility() =
-        withDeckPicker(deckCount = 30) { deckPicker ->
-            // Deck creation displays feedback before the dialog's keyboard closes.
-            deckPicker.dispatchInsets(navBarBottom = 48.dp, imeBottom = 300.dp)
-            advanceRobolectricLooper()
-            val snackbar = checkNotNull(deckPicker.showSnackbar(TR.errorsFilteredParentDeck(), Snackbar.LENGTH_INDEFINITE))
-            advanceRobolectricLooper()
-
-            deckPicker.dispatchInsets(navBarBottom = 48.dp)
-            advanceRobolectricLooper()
-            captureScreen("snackbar_keyboard_closed")
-
-            deckPicker.simulateKeyboard()
-            captureScreen("snackbar_keyboard_open")
-            snackbar.dismiss()
-        }
-
-    /** Ensure that 'studied today' overlaying a deck name works when the IME is open */
-    @Test
-    fun keyboard_studied_line_overlaying_deck_name() =
-        withDeckPicker(deckCount = 30) { deckPicker ->
-            deckPicker.searchWithKeyboard()
-            deckPicker.scrollLastDeckOntoStudiedLine()
-
-            captureScreen("keyboard_studied_line_overlaying_deck_name")
-        }
-
-    @Test
-    fun keyboard_open_scrolled_to_bottom() =
-        withDeckPicker(deckCount = 30) { deckPicker ->
-            deckPicker.searchWithKeyboard()
-            deckPicker.deckPickerBinding.decks.scrollToEnd()
-
-            captureScreen("keyboard_open_scrolled_to_bottom")
-        }
-
-    /** The studied summary and final deck must remain above the keyboard with bottom navigation enabled. */
-    @Test
-    fun bottom_navigation_keyboard_open_scrolled_to_bottom() {
-        withDeckPicker(deckCount = 30) { deckPicker ->
-            deckPicker.searchWithKeyboard()
-            deckPicker.deckPickerBinding.decks.scrollToEnd()
-
-            captureScreen("bottom_navigation_keyboard_open_scrolled_to_bottom")
-        }
+    protected fun seedMockupDecks() {
+        addDeck("Anatomy")
+        deck("English::Vocabulary", new = 7, learning = 0, due = 9)
+        deck("中文::HSK 4", new = 8, learning = 2, due = 6)
+        val current = deck("日本語::N3 語彙", new = 6, learning = 3, due = 7)
+        deck("日本語::文法", new = 6, learning = 0, due = 4)
+        expand("日本語")
+        col.decks.select(current)
+        studiedToday(9)
     }
 
-    @Test
-    fun bottom_navigation_statistics_selected() {
-        withDeckPicker(deckCount = 0) { deckPicker ->
-            val bottomNavigation = requireNotNull(deckPicker.binding.bottomNavigation)
-            bottomNavigation.selectedItemId = R.id.nav_stats
-            advanceRobolectricLooper()
-            check(bottomNavigation.selectedItemId == R.id.nav_stats)
-
-            captureScreen("bottom_navigation_statistics_selected")
+    protected fun showDeckList(name: String) {
+        val deckPicker = startActivityNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent())
+        advanceRobolectricLooperUntil(lazyMessage = { "the deck list should be shown" }) {
+            deckPicker.viewModel.flowOfDeckListScreen.value != null
         }
-    }
-
-    @Test
-    fun hierarchy_lines() =
-        runTest {
-            val root1 = addDeck("Math")
-            val mathAlg = addDeck("Math::Algebra")
-            addDeck("Math::Algebra::Linear")
-            addDeck("Math::Geometry")
-            val root2 = addDeck("Science")
-            val sciPhys = addDeck("Science::Physics")
-            addDeck("Science::Physics::Kinematics")
-            addDeck("Science::Chemistry")
-
-            val deckPicker = startDeckPicker()
-            expandDecks(deckPicker, root1, root2, mathAlg, sciPhys)
-
-            captureScreen("hierarchy_lines")
-        }
-
-    @Test
-    fun hierarchy_lines_collapsed() =
-        runTest {
-            val root = addDeck("Math")
-            addDeck("Math::Algebra")
-            addDeck("Math::Algebra::Linear")
-            addDeck("Math::Geometry")
-            addDeck("Science::Physics::Kinematics")
-
-            val deckPicker = startDeckPicker()
-            // Expand Math to see Algebra and Geometry, but leave Algebra collapsed
-            expandDecks(deckPicker, root)
-
-            captureScreen("hierarchy_lines_collapsed")
-        }
-
-    @Test
-    fun hierarchy_lines_deep_nesting() =
-        runTest {
-            addDeck("Level1")
-            addDeck("Level1::Level2")
-            addDeck("Level1::Level2::Level3")
-            addDeck("Level1::Level2::Level3::Level4")
-            addDeck("Level1::Level2::Level3::Level4::Level5")
-            addDeck("Level1::Level2::Level3::Level4::Level5::Level6")
-            addDeck("Level1::Level2::Level3::Level4::Level5::Level6::Level7")
-            addDeck("Level1::Level2::Sibling")
-            addDeck("Level1::Sibling")
-
-            val deckPicker = startDeckPicker()
-            val expandedDecks =
-                (1..6).map { depth ->
-                    val name = (1..depth).joinToString("::") { "Level$it" }
-                    col.decks.id(name)
-                }
-            expandDecks(deckPicker, *expandedDecks.toLongArray())
-
-            captureScreen("hierarchy_lines_deep_nesting")
-        }
-
-    @Test
-    fun hierarchy_lines_many_siblings() =
-        runTest {
-            val root = addDeck("Parent")
-            addDeck("Parent::Child1")
-            addDeck("Parent::Child2")
-            val child3 = addDeck("Parent::Child3")
-            addDeck("Parent::Child3::Subchild")
-            addDeck("Parent::Child4")
-            addDeck("Parent::Child5")
-
-            val deckPicker = startDeckPicker()
-            expandDecks(deckPicker, root, child3)
-
-            captureScreen("hierarchy_lines_many_siblings")
-        }
-
-    /** Expands the deck search, hiding the FAB, and opens the keyboard over the navigation bar */
-    private fun DeckPicker.searchWithKeyboard() {
-        requireNotNull(searchDecksIcon).expandActionView()
+        composeRule.waitForIdle()
         advanceRobolectricLooper()
-        // settles layout: the list's bottom padding follows the summary line's layout pass
-        simulateKeyboard()
-    }
-
-    /** Scrolls to the end, then back so the last deck's name is centered on the 'Studied' line */
-    private fun DeckPicker.scrollLastDeckOntoStudiedLine() {
-        val list = deckPickerBinding.decks
-        list.scrollToEnd()
-        val lastDeck = list.lastItemView
-        val studiedLine = deckPickerBinding.reviewSummaryTextView
-        list.scrollBy(0, lastDeck.contentCenterYInWindow - studiedLine.contentCenterYInWindow)
-        advanceRobolectricLooper()
+        captureScreen(name)
     }
 
     /**
-     * The vertical center of the receiver's content, relative to its window.
-     *
-     * Padding is excluded: the 'Studied' line's bottom padding holds the keyboard inset.
+     * Adds a Deck holding [new] new Cards, [learning] Cards in learning and [due] review Cards
+     * due today
      */
-    private val View.contentCenterYInWindow: Int
-        get() = locationInWindow().y + paddingTop + (height - paddingTop - paddingBottom) / 2
+    protected fun deck(
+        name: String,
+        new: Int,
+        learning: Int,
+        due: Int,
+    ): DeckId {
+        val deckId = addDeck(name)
 
-    private suspend fun startDeckPicker(): DeckPicker =
-        startActivityNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent()).also {
-            it.awaitDeckList()
+        fun cards(count: Int) = List(count) { addBasicNote("$name $it", "back").firstCard().id }.onEach { col.setDeck(listOf(it), deckId) }
+        cards(new)
+        cards(due).takeIf { it.isNotEmpty() }?.let { col.sched.setDueDate(it, SetDueDateDays("0")) }
+        cards(learning).forEach {
+            // an intraday learning Card, due now
+            col.db.execute("update cards set type = 1, queue = 1, due = ?, left = 1001 where id = ?", TimeManager.time.intTime(), it)
         }
-
-    private suspend fun DeckPicker.awaitDeckList() {
-        viewModel.flowOfDeckList.first { it.data.isNotEmpty() }
-        advanceRobolectricLooper()
+        return deckId
     }
 
-    private suspend fun expandDecks(
-        deckPicker: DeckPicker,
-        vararg deckIds: DeckId,
-    ) {
-        deckIds.forEach { deckPicker.viewModel.toggleDeckExpand(it).join() }
-        deckPicker.awaitDecksRenderedExpanded(*deckIds)
-    }
+    protected fun expand(name: String) =
+        col.decks.setCollapsed(col.decks.id(name), collapsed = false, SetDeckCollapsedRequest.Scope.REVIEWER)
 
-    /**
-     * Waits until the deck list's [RecyclerView] has rendered [deckIds] as expanded.
-     */
-    private fun DeckPicker.awaitDecksRenderedExpanded(vararg deckIds: DeckId) {
-        val adapter = this.deckPickerBinding.decks.adapter as DeckAdapter
-        advanceRobolectricLooperUntil(
-            lazyMessage = {
-                "Decks ${deckIds.toList()} not rendered as expanded. Displayed: " +
-                    adapter.currentList.map { "${it.did}(collapsed=${it.collapsed})" }
-            },
-        ) {
-            deckIds.all { id -> adapter.currentList.any { it.did == id && !it.collapsed } }
+    /** Logs [count] reviews in the Engine's today */
+    protected fun studiedToday(count: Int) {
+        val dayStart = (col.sched.dayCutoff - SECONDS_PER_DAY) * 1000
+        val card = addBasicNote("studied", "today").firstCard().id
+        repeat(count) {
+            col.db.execute(
+                "insert into revlog (id, cid, usn, ease, ivl, lastIvl, factor, time, type) values (?, ?, -1, 3, 1, 0, 2500, 6000, 1)",
+                dayStart + 1 + it,
+                card,
+            )
         }
+        // the Card above is not one of the sample Decks' Cards
+        col.sched.suspendCards(listOf(card))
     }
 }

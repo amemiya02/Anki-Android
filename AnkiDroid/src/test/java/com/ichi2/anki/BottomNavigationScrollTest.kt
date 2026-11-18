@@ -13,7 +13,9 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.core.view.ViewCompat
@@ -22,17 +24,15 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ichi2.anki.BottomNavController.NavigationItem
-import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.databinding.PageStatisticsBinding
 import com.ichi2.anki.pages.scrolledUpToBottom
-import com.ichi2.testutils.dispatchInsets
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RuntimeEnvironment
+import com.ichi2.anki.common.android.R as CommonR
 
 @RunWith(AndroidJUnit4::class)
 class BottomNavigationScrollTest : RobolectricTest() {
@@ -44,7 +44,7 @@ class BottomNavigationScrollTest : RobolectricTest() {
         withBottomNavigation { deckPicker ->
             val nav = deckPicker.bottomNav
             val behavior = HideViewOnScrollBehavior.from(nav)
-            val deckList = deckPicker.deckPickerBinding.decks
+            val deckList = deckPicker.deckPickerBinding.deckList
 
             assertThat(behavior.isScrolledIn, equalTo(true))
             deckPicker.scrollFrom(deckList, 40)
@@ -59,7 +59,7 @@ class BottomNavigationScrollTest : RobolectricTest() {
             val nav = deckPicker.bottomNav
             val behavior = HideViewOnScrollBehavior.from(nav)
 
-            deckPicker.scrollFrom(deckPicker.deckPickerBinding.decks, 40)
+            deckPicker.scrollFrom(deckPicker.deckPickerBinding.deckList, 40)
             assertThat(behavior.isScrolledOut, equalTo(true))
 
             nav.selectedItemId = NavigationItem.BROWSER.id
@@ -256,71 +256,11 @@ class BottomNavigationScrollTest : RobolectricTest() {
     }
 
     @Test
-    fun `Studied summary sits above the visible nav bar`() =
-        withBottomNavigation { deckPicker ->
-            val summary = deckPicker.deckPickerBinding.reviewSummaryTextView
-            val nav = deckPicker.bottomNav
-            deckPicker.deckPickerBinding.deckPickerContent.visibility = View.VISIBLE
-            summary.text = "Studied 10 cards today"
-            summary.visibility = View.VISIBLE
-            deckPicker.binding.root.requestLayout()
-            advanceRobolectricLooper()
-
-            assertThat(summary.height > 0, equalTo(true))
-            assertThat(summary.contentBottomOnScreen, lessThanOrEqualTo(nav.topOnScreen))
-        }
-
-    @Test
-    fun `Studied summary stays visible above the system navigation bar when the bar hides`() =
-        withBottomNavigation { deckPicker ->
-            val summary = deckPicker.deckPickerBinding.reviewSummaryTextView
-            val nav = deckPicker.bottomNav
-            deckPicker.deckPickerBinding.deckPickerContent.visibility = View.VISIBLE
-            summary.text = "Studied 10 cards today"
-            summary.visibility = View.VISIBLE
-            deckPicker.binding.root.requestLayout()
-            advanceRobolectricLooper()
-
-            assertThat(summary.height > 0, equalTo(true))
-            deckPicker.scrollFrom(deckPicker.deckPickerBinding.decks, 40)
-            advanceRobolectricLooper()
-            // Robolectric re-dispatches zero insets when the bar's state changes: apply a real nav bar after
-            deckPicker.dispatchInsets(navBarBottom = 48.dp)
-            deckPicker.binding.root.requestLayout()
-            advanceRobolectricLooper()
-
-            assertThat(HideViewOnScrollBehavior.from(nav).isScrolledOut, equalTo(true))
-            assertThat(summary.alpha, equalTo(1f))
-            // back at its resting position, which pads it above the system navigation bar
-            assertThat(summary.translationY, equalTo(0f))
-            assertThat(summary.paddingBottom, equalTo(48.dp.toPx(deckPicker)))
-
-            deckPicker.scrollFrom(deckPicker.deckPickerBinding.decks, -40)
-            advanceRobolectricLooper()
-            assertThat(summary.alpha, equalTo(1f))
-            assertThat(summary.contentBottomOnScreen, lessThanOrEqualTo(nav.topOnScreen))
-        }
-
-    @Test
-    fun `deck list fade stays anchored to the summary while the bottom bar is hidden`() =
-        withBottomNavigation { deckPicker ->
-            val deckList = deckPicker.deckPickerBinding.decks
-            val fade = deckPicker.deckPickerBinding.decksFadeWrapper
-            val summary = deckPicker.deckPickerBinding.reviewSummaryTextView
-
-            assertThat(fade.anchorView, equalTo(summary))
-            deckPicker.scrollFrom(deckList, 40)
-            assertThat(fade.anchorView, equalTo(summary))
-            deckPicker.scrollFrom(deckList, -40)
-            assertThat(fade.anchorView, equalTo(summary))
-        }
-
-    @Test
     fun `hidden bar releases space for fragment content`() =
         withBottomNavigation { deckPicker ->
             val nav = deckPicker.bottomNav
             val container = deckPicker.binding.bottomNavFragmentContainer!!
-            deckPicker.scrollFrom(deckPicker.deckPickerBinding.decks, 40)
+            deckPicker.scrollFrom(deckPicker.deckPickerBinding.deckList, 40)
 
             assertThat(HideViewOnScrollBehavior.from(nav).isScrolledOut, equalTo(true))
             assertThat((container.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin < nav.height, equalTo(true))
@@ -357,19 +297,15 @@ class BottomNavigationScrollTest : RobolectricTest() {
         advanceRobolectricLooper()
     }
 
-    private val View.topOnScreen: Int
-        get() = IntArray(2).also { getLocationOnScreen(it) }[1]
-
-    private val View.contentBottomOnScreen: Int
-        get() = topOnScreen + height - paddingBottom
-
     /** More, drawn by Compose ([MoreScreen]) */
     private val DeckPicker.moreView: View
         get() = supportFragmentManager.findFragmentByTag(NavigationItem.MORE.tag)!!.requireView()
 
     /** Scrolls More's content as a screen reader would; returns the distance scrolled in pixels */
     private fun scrollMoreBy(pixels: Float): Float {
-        val more = composeRule.onNode(hasScrollAction())
+        // the deck list behind More scrolls too
+        val more =
+            composeRule.onNode(hasScrollAction() and hasAnyDescendant(hasText(targetContext.getString(CommonR.string.more_help_summary))))
         more.performSemanticsAction(SemanticsActions.ScrollBy) { scrollBy -> scrollBy(0f, pixels) }
         composeRule.waitForIdle()
         advanceRobolectricLooper()

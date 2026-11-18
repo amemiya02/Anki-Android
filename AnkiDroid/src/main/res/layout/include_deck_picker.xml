@@ -19,81 +19,19 @@
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/pull_to_sync_wrapper"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
+            <!-- The right-click menu anchors to this frame -->
             <FrameLayout
+                android:id="@+id/deck_picker_content"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <RelativeLayout
-                    android:id="@+id/deck_picker_content"
+                <!-- The deck list, drawn by Compose (DeckListScreen) -->
+                <androidx.compose.ui.platform.ComposeView
+                    android:id="@+id/deck_list"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <com.ichi2.anki.ui.BottomFadeFrameLayout
-                        android:id="@+id/decks_fade_wrapper"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/decks"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:clipToPadding="false"
-                            android:drawSelectorOnTop="true"
-                            android:fastScrollEnabled="true"
-                            android:focusable="true"
-                            android:paddingBottom="72dp"
-                            android:scrollbars="vertical" />
-                    </com.ichi2.anki.ui.BottomFadeFrameLayout>
-
-                    <com.ichi2.ui.FixedTextView
-                        android:id="@+id/review_summary_text_view"
-                        android:layout_width="match_parent"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_alignParentEnd="true"
-                        android:layout_alignParentStart="true"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:layout_marginBottom="4dp"
-                        android:gravity="center"/>
-
-                </RelativeLayout>
-
-                <LinearLayout
-                    android:id="@+id/no_decks_placeholder"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center_vertical"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="24dp"
-                        android:layout_gravity="center_horizontal"
-                        android:importantForAccessibility="no"
-                        app:srcCompat="@drawable/hayaki_mark" />
-
-                    <com.ichi2.ui.FixedTextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:gravity="center"
-                        android:text="@string/no_cards_placeholder_title"
-                        android:textAppearance="@style/TextAppearance.Foundation.PageTitle" />
-
-                    <com.ichi2.ui.FixedTextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:textAlignment="center"
-                        android:text="@string/no_cards_placeholder_description"
-                        android:textAppearance="@style/TextAppearance.Foundation.Lead" />
-                </LinearLayout>
-
+                    android:layout_height="match_parent" />
             </FrameLayout>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </LinearLayout>

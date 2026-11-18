@@ -21,7 +21,6 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.color.MaterialColors
 import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.browser.CardBrowserFragment
 import com.ichi2.anki.browser.CardBrowserViewModel
@@ -50,9 +49,6 @@ fun setupBottomNavigation() {
     val binding = deckPicker.binding
     val bottomNav = checkNotNull(binding.bottomNavigation)
     val fragmentContainer = checkNotNull(binding.bottomNavFragmentContainer)
-    val studiedSummary = deckPicker.deckPickerBinding.reviewSummaryTextView
-    // Once raised above the bar, the summary overlaps the deck list: a solid background stops deck names showing through.
-    studiedSummary.setBackgroundColor(MaterialColors.getColor(bottomNav, MaterialR.attr.colorSurface))
     bottomNav.isVisible = true
     val scrollBehavior = HideViewOnScrollBehavior.from(bottomNav)
 
@@ -68,47 +64,10 @@ fun setupBottomNavigation() {
         }
     }
 
-    fun positionStudiedSummary(animate: Boolean) {
-        // The "Studied X cards today" summary is anchored to the bottom of the Decks layout, not to the bar.
-        // Raise it above the bar while the bar is shown. When the bar hides, return it to its resting
-        // position, where its bottom padding already keeps it above the system navigation bar.
-        val translation =
-            if (scrollBehavior.isScrolledIn && studiedSummary.height > 0) {
-                val navLocation = IntArray(2).also(bottomNav::getLocationInWindow)
-                val summaryLocation = IntArray(2).also(studiedSummary::getLocationInWindow)
-                // Subtract current translations so this is the resting position, even mid-animation.
-                val navTop = navLocation[1] - bottomNav.translationY
-                val summaryContentBottom =
-                    summaryLocation[1] - studiedSummary.translationY + studiedSummary.height - studiedSummary.paddingBottom
-                // Only ever raise it: an open keyboard already pads the text above the bar.
-                (navTop - summaryContentBottom - studiedSummary.marginBottom).coerceAtMost(0f)
-            } else if (scrollBehavior.isScrolledIn) {
-                -bottomNav.height.toFloat()
-            } else {
-                0f
-            }
-        // The deck list fades from the summary downwards. Moving the summary does not redraw that fade,
-        // so redraw it on every step, or it stays at the summary's old position.
-        val fadeWrapper = deckPicker.deckPickerBinding.decksFadeWrapper
-        studiedSummary.animate().cancel()
-        if (animate) {
-            studiedSummary
-                .animate()
-                .translationY(translation)
-                .setDuration(bottomNav.resources.getInteger(android.R.integer.config_shortAnimTime).toLong())
-                .setUpdateListener { fadeWrapper.invalidate() }
-                .start()
-        } else {
-            studiedSummary.translationY = translation
-            fadeWrapper.invalidate()
-        }
-    }
-
     // Never hide the bar while explore-by-touch (e.g. TalkBack) is on, so it stays reachable.
     scrollBehavior.disableOnTouchExploration(true)
     scrollBehavior.addOnScrollStateChangedListener { _, _ ->
         updateFragmentBottomMargin()
-        positionStudiedSummary(animate = true)
         // Re-apply insets so the Decks FAB and list padding follow the bar's new position.
         ViewCompat.requestApplyInsets(deckPicker.deckPickerBinding.root)
     }
@@ -143,12 +102,8 @@ fun setupBottomNavigation() {
         }
     }
 
-    bottomNav.addOnLayoutChangeListener { _, _, top, _, bottom, _, oldTop, _, oldBottom ->
+    bottomNav.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
         updateFragmentBottomMargin()
-        if (bottom - top != oldBottom - oldTop) positionStudiedSummary(animate = false)
-    }
-    studiedSummary.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-        if (scrollBehavior.isScrolledIn) positionStudiedSummary(animate = false)
     }
 }
 

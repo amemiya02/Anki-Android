@@ -140,7 +140,7 @@ fun DeckListTitle(
             val locale = ConfigurationCompat.getLocales(configuration)[0] ?: java.util.Locale.getDefault()
             SimpleDateFormat(DateFormat.getBestDateTimePattern(locale, "EEEEdMMMM"), locale).format(date)
         }
-    Column(modifier = modifier.semantics(mergeDescendants = true) { heading() }) {
+    Column(modifier = modifier.padding(top = 6.dp, bottom = 10.dp).semantics(mergeDescendants = true) { heading() }) {
         Text(text = dateText, style = foundation.type.caption, color = foundation.colors.onBackgroundMuted)
         Text(text = TR.actionsDecks(), style = foundation.type.screenTitle, color = foundation.colors.onBackground)
     }

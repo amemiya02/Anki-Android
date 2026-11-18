@@ -3,19 +3,17 @@
 
 package com.ichi2.anki.testutil
 
-import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.contrib.RecyclerViewActions
-import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
-import com.ichi2.anki.TestUtils.clickChildViewWithId
-import com.ichi2.anki.tests.checkWithTimeout
 import com.ichi2.anki.testutil.ThreadUtils.sleep
 import com.ichi2.anki.common.android.R as CommonR
 
@@ -55,13 +53,12 @@ fun createDeckWithUniqueName(): String {
     return deckName
 }
 
+/** Taps the counts of the Deck named [deckName], which open its study options */
 fun tapOnCountLayouts(deckName: String) {
-    onView(withId(R.id.decks)).perform(
-        RecyclerViewActions.actionOnItem<RecyclerView.ViewHolder>(
-            hasDescendant(withText(deckName)),
-            clickChildViewWithId(R.id.counts_layout),
-        ),
-    )
+    // The deck list is drawn by Compose: its row reads as the Deck's name, and the counts are the
+    // row's one clickable child
+    val row = checkNotNull(device.wait(Until.findObject(By.text(deckName)), DECK_TIMEOUT_MS)) { "Deck '$deckName' not shown" }
+    checkNotNull(row.findObject(By.clickable(true))) { "Deck '$deckName' has no counts" }.click()
 
     // without this sleep, the study options fragment sometimes loses the "load and become active" race vs the assertion below.
     // It actually won the race sometimes so sleeping a full second is generous. This should be quite stable
@@ -72,14 +69,13 @@ fun tapOnCountLayouts(deckName: String) {
  * This must be called on a clean deck picker.
  */
 fun clickOnDeckWithName(deckName: String) {
-    onView(withId(R.id.decks)).checkWithTimeout(matches(hasDescendant(withText(deckName))))
-    onView(withId(R.id.decks)).perform(
-        RecyclerViewActions.actionOnItem<RecyclerView.ViewHolder>(
-            hasDescendant(withText(deckName)),
-            click(),
-        ),
-    )
+    checkNotNull(device.wait(Until.findObject(By.text(deckName)), DECK_TIMEOUT_MS)) { "Deck '$deckName' not shown" }.click()
 }
+
+private val device: UiDevice
+    get() = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+private const val DECK_TIMEOUT_MS = 10_000L
 
 /**
  * This must be called on a clean deck picker. It taps on the deck, and if needed on the "study" button.

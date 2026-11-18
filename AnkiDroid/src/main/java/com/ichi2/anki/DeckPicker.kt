@@ -25,7 +25,6 @@ import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
-import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.TextView
@@ -41,7 +40,14 @@ import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
-import androidx.appcompat.widget.TooltipCompat
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalDensity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.edit
@@ -65,10 +71,10 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import androidx.fragment.app.commitNow
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.work.NetworkType
 import androidx.work.WorkInfo
@@ -100,7 +106,6 @@ import com.ichi2.anki.android.input.ShortcutGroup
 import com.ichi2.anki.android.input.shortcut
 import com.ichi2.anki.android.view.locationInWindow
 import com.ichi2.anki.common.android.AdaptionUtil
-import com.ichi2.anki.common.android.animationDisabled
 import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
@@ -113,6 +118,7 @@ import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.destinations.toIntent
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.storage.CollectionHelper
+import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
@@ -125,12 +131,15 @@ import com.ichi2.anki.databinding.IncludeDeckPickerBinding
 import com.ichi2.anki.databinding.IncludeFloatingAddButtonBinding
 import com.ichi2.anki.deckpicker.BackgroundImage
 import com.ichi2.anki.deckpicker.DeckDeletionResult
+import com.ichi2.anki.deckpicker.DeckListActions
+import com.ichi2.anki.deckpicker.DeckListScreen
+import com.ichi2.anki.deckpicker.DeckListTitle
 import com.ichi2.anki.deckpicker.DeckPickerProgress
 import com.ichi2.anki.deckpicker.DeckPickerViewModel
 import com.ichi2.anki.deckpicker.DeckPickerViewModel.AnkiDroidEnvironment
 import com.ichi2.anki.deckpicker.DeckPickerViewModel.AutomaticSyncAction
-import com.ichi2.anki.deckpicker.DeckPickerViewModel.FlattenedDeckList
 import com.ichi2.anki.deckpicker.DeckPickerViewModel.StartupResponse
+import com.ichi2.anki.deckpicker.DisplayDeckNode
 import com.ichi2.anki.deckpicker.EmptyCardsResult
 import com.ichi2.anki.deckpicker.OptionsMenuState
 import com.ichi2.anki.deckpicker.ShortcutData
@@ -196,25 +205,20 @@ import com.ichi2.anki.sync.MeteredSyncPolicy
 import com.ichi2.anki.sync.launchCatchingRequiringOneWaySyncDiscardUndo
 import com.ichi2.anki.ui.BottomFadeFrameLayout
 import com.ichi2.anki.ui.ResizablePaneManager
-import com.ichi2.anki.ui.animations.fadeIn
-import com.ichi2.anki.ui.animations.fadeOut
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.ui.windows.permissions.PermissionsActivity
 import com.ichi2.anki.utils.Destination
 import com.ichi2.anki.utils.ShortcutUtils
 import com.ichi2.anki.utils.ext.collectInLifecycle
 import com.ichi2.anki.utils.ext.dismissAllDialogFragments
-import com.ichi2.anki.utils.ext.doOnScrolled
 import com.ichi2.anki.utils.ext.onGlobalLayout
-import com.ichi2.anki.utils.ext.positionIsVisible
 import com.ichi2.anki.utils.ext.setFragmentResultListener
 import com.ichi2.anki.utils.ext.setImageDrawableSafe
 import com.ichi2.anki.utils.ext.showDialogFragment
-import com.ichi2.anki.widgets.DeckAdapter
-import com.ichi2.anki.widgets.DeckHierarchyLinesDecoration
 import com.ichi2.anki.worker.SyncMediaWorker
 import com.ichi2.anki.worker.SyncWorker
 import com.ichi2.anki.worker.UniqueWorkNames
+import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.themes.Themes
 import com.ichi2.ui.AccessibleSearchView
 import com.ichi2.ui.BadgeDrawableBuilder
@@ -237,6 +241,7 @@ import kotlinx.coroutines.launch
 import net.ankiweb.rsdroid.Translations
 import timber.log.Timber
 import java.io.File
+import java.util.Date
 import com.ichi2.anki.common.android.R as CommonR
 
 /**
@@ -249,7 +254,7 @@ import com.ichi2.anki.common.android.R as CommonR
  * Responsibilities:
  * * Setup/upgrades of the application: [handleStartup]
  * * Error handling [handleDbLocked]
- * * Displaying a tree of decks, some of which may be collapsible: [deckListAdapter]
+ * * Displaying a tree of decks, some of which may be collapsible: [DeckListScreen]
  *   * Allows users to study the decks
  *   * Displays deck progress
  *   * A long press opens a menu allowing modification of the deck
@@ -306,8 +311,46 @@ open class DeckPicker :
     // Short animation duration from system
     private var shortAnimDuration = 0
 
-    private lateinit var decksLayoutManager: LinearLayoutManager
-    private lateinit var deckListAdapter: DeckAdapter
+    /** The scroll position of the deck list ([DeckListScreen]) */
+    private val deckListState = LazyListState()
+
+    /** Space below the last Deck, so it scrolls clear of the add button, the bottom bar and the keyboard */
+    @VisibleForTesting
+    internal val deckListBottomPadding = mutableIntStateOf(0)
+
+    /** Today, as the deck list's title shows it on phones */
+    private val deckListDate = mutableStateOf(Date(TimeManager.time.intTimeMS()))
+
+    private val deckListActions =
+        object : DeckListActions {
+            override fun onDeckClick(deckId: DeckId) = onDeckClick(deckId, DeckSelectionType.DEFAULT)
+
+            override fun onDeckCountsClick(deckId: DeckId) = onDeckClick(deckId, DeckSelectionType.SHOW_STUDY_OPTIONS)
+
+            override fun onDeckLongClick(deckId: DeckId) {
+                viewModel.requestContextMenu(deckId)
+            }
+
+            override fun onDeckRightClick(
+                deckId: DeckId,
+                x: Float,
+                y: Float,
+            ) {
+                viewModel.requestRightClickContextMenu(deckId, x, y)
+                Timber.d("Right Click on deck recorded!! %d, %f %f", deckId, x, y)
+            }
+
+            override fun onToggleExpand(deckId: DeckId) {
+                viewModel.toggleDeckExpand(deckId)
+                dismissAllDialogFragments()
+            }
+
+            override fun onGetSharedDecks() = openAnkiWebSharedDecks()
+
+            override fun onImport() = showImportDialog()
+
+            override fun onCreateDeck() = showCreateDeckDialog()
+        }
     private var backgroundImageErrorShown = false
     private lateinit var pullToSyncWrapper: SwipeRefreshLayout
 
@@ -478,9 +521,6 @@ open class DeckPicker :
         launchCatchingTask {
             handleDeckSelection(deckId, selectionType)
             if (fragmented) {
-                // Calling notifyDataSetChanged() will update the color of the selected deck.
-                // This interferes with the ripple effect, so we don't do it if lollipop and not tablet view
-                deckListAdapter.notifyDataSetChanged()
                 updateDeckList()
             }
         }
@@ -573,34 +613,8 @@ open class DeckPicker :
         setupEdgeToEdge()
         title = resources.getString(R.string.app_name)
 
-        deckPickerBinding.deckPickerContent.visibility = View.GONE
-        deckPickerBinding.noDecksPlaceholder.visibility = View.GONE
-
-        // specify a LinearLayoutManager for the RecyclerView
-        decksLayoutManager = LinearLayoutManager(this)
-        deckPickerBinding.decks.layoutManager = decksLayoutManager
-
-        deckListAdapter =
-            DeckAdapter(
-                this,
-                onDeckSelected = { onDeckClick(it, DeckSelectionType.DEFAULT) },
-                onDeckCountsSelected = { onDeckClick(it, DeckSelectionType.SHOW_STUDY_OPTIONS) },
-                onDeckChildrenToggled = { deckId ->
-                    viewModel.toggleDeckExpand(deckId)
-                    dismissAllDialogFragments()
-                },
-                onDeckContextRequested = { deckId -> viewModel.requestContextMenu(deckId) },
-                onDeckRightClick = { deckId, x, y ->
-                    viewModel.requestRightClickContextMenu(deckId, x, y)
-                    Timber.d("Right Click on deck recorded!! %d, %f %f", deckId, x, y)
-                },
-            )
-        deckPickerBinding.decks.adapter = deckListAdapter
-        if (bottomNavigationEnabled) {
-            deckPickerBinding.decks.addItemDecoration(
-                DeckHierarchyLinesDecoration(this, deckListAdapter),
-            )
-        }
+        setupDeckList()
+        if (bottomNavigationEnabled) showDeckListTitle()
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -718,41 +732,61 @@ open class DeckPicker :
 
     override fun fitsSystemWindows(): Boolean = false
 
-    /** Raises the FAB by half the 'Studied X cards' line, so it clears the line's text */
-    private fun raiseFabAboveSummary(summaryHeight: Int) {
-        val fabBottomMargin = summaryHeight / 2
-        val layoutParams = floatingActionButtonBinding.fabLinearLayout.layoutParams as MarginLayoutParams
-        if (layoutParams.bottomMargin != fabBottomMargin) {
-            layoutParams.bottomMargin = fabBottomMargin
-            floatingActionButtonBinding.fabLinearLayout.layoutParams = layoutParams
+    /** Draws the deck list ([DeckListScreen]) from the view model's state */
+    private fun setupDeckList() {
+        deckPickerBinding.deckList.setContent {
+            AnkiDroidTheme {
+                val state by viewModel.flowOfDeckListScreen.collectAsStateWithLifecycle()
+                val bottom = with(LocalDensity.current) { deckListBottomPadding.intValue.toDp() }
+                state?.let {
+                    DeckListScreen(
+                        state = it,
+                        actions = deckListActions,
+                        listState = deckListState,
+                        contentPadding = PaddingValues(bottom = bottom),
+                    )
+                }
+            }
         }
+    }
+
+    /** On phones the top bar shows today's date over "Decks", in place of the app's name */
+    private fun showDeckListTitle() {
+        val toolbar = findViewById<Toolbar>(R.id.toolbar) ?: return
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+        val title =
+            ComposeView(this).apply {
+                setContent {
+                    AnkiDroidTheme {
+                        DeckListTitle(date = deckListDate.value)
+                    }
+                }
+            }
+        toolbar.addView(title, Toolbar.LayoutParams(Toolbar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT))
     }
 
     /** Applied edge-to-edge insets for the screen */
     private fun setupEdgeToEdge() {
         /**
-         * The view the deck list rests above: the FAB, or the 'Studied X cards' line while the
-         * FAB is hidden (searching)
+         * Pads the end of the deck list so its last Deck scrolls clear of what covers the list's
+         * bottom: the add button, or (while it is hidden, when searching) the keyboard or the bars.
          */
-        fun listAnchor(): View =
-            if (floatingActionButtonBinding.fabMain.isVisible) {
-                floatingActionButtonBinding.fabMain
-            } else {
-                deckPickerBinding.reviewSummaryTextView
-            }
-
-        fun setRecyclerViewBottomPaddingAbove(target: View) {
-            val recyclerView = deckPickerBinding.decks
-            if (recyclerView.height == 0 || target.height == 0) return
-            val bottom = recyclerView.locationInWindow().y + recyclerView.height
-            val topOfTarget = (target.layoutParams as? MarginLayoutParams)?.topMargin ?: 0
-            recyclerView.updatePadding(
-                bottom = (bottom - target.locationInWindow().y - topOfTarget).coerceAtLeast(0),
-            )
+        fun updateDeckListBottomPadding() {
+            val deckList = deckPickerBinding.deckList
+            if (deckList.height == 0) return
+            val listBottom = deckList.locationInWindow().y + deckList.height
+            val fab = floatingActionButtonBinding.fabMain
+            val fabRoot = floatingActionButtonBinding.root
+            val coveredFrom =
+                if (fab.isVisible && fab.height > 0) {
+                    fab.locationInWindow().y - ((fab.layoutParams as? MarginLayoutParams)?.topMargin ?: 0)
+                } else {
+                    fabRoot.locationInWindow().y + fabRoot.height - fabRoot.paddingBottom
+                }
+            val padding = (listBottom - coveredFrom).coerceAtLeast(0)
+            if (deckListBottomPadding.intValue != padding) deckListBottomPadding.intValue = padding
         }
 
-        deckPickerBinding.decksFadeWrapper.setup(window)
-        deckPickerBinding.decksFadeWrapper.anchorView = deckPickerBinding.reviewSummaryTextView
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbarContainer) { toolbar, insets ->
             val bars = insets.getInsets(systemBars() or displayCutout())
             toolbar.updatePadding(left = bars.left, top = bars.top, right = bars.right)
@@ -763,8 +797,7 @@ open class DeckPicker :
             val bars = insets.getInsets(systemBars() or displayCutout())
             // edge-to-edge disables adjustResize: the keyboard is cleared via the ime inset
             val withKeyboard = insets.getInsets(systemBars() or displayCutout() or ime())
-            // BottomFadeFrameLayout handles contrast for bottom nav; let the system draw
-            // its own scrim when the nav bar is on the side (no manual fade applies there)
+            // Let the system draw its own scrim when the nav bar is on the side
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val nav = insets.getInsets(navigationBars())
                 window.isNavigationBarContrastEnforced = nav.left > 0 || nav.right > 0
@@ -774,7 +807,6 @@ open class DeckPicker :
                 left = if (isRtl && fragmented) 0 else bars.left,
                 right = if (!isRtl && fragmented) 0 else bars.right,
             )
-            deckPickerBinding.reviewSummaryTextView.updatePadding(bottom = withKeyboard.bottom)
 
             // The bar's height without the navigation-bar inset (added here via bars.bottom). The hosted
             // fragments' container uses the bar's measured height instead, which includes the inset.
@@ -794,17 +826,7 @@ open class DeckPicker :
         // Insets move the FAB's ancestors without changing the FAB's bounds within its parent.
         // Wait until the whole hierarchy is laid out before reading positions in the window.
         deckPickerBinding.root.onGlobalLayout(this) {
-            setRecyclerViewBottomPaddingAbove(listAnchor())
-        }
-        deckPickerBinding.reviewSummaryTextView.addOnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
-            // exclude paddingBottom: it holds the edge-to-edge inset, which is already applied
-            raiseFabAboveSummary(view.height - view.paddingBottom)
-        }
-        // The summary is hidden until the collection loads.
-        // Assume the summary takes up a single line, so it does not 'jump' up on load
-        deckPickerBinding.reviewSummaryTextView.apply {
-            measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-            raiseFabAboveSummary(measuredHeight - paddingBottom)
+            updateDeckListBottomPadding()
         }
         if (fragmented) {
             val studyoptionsView = binding.studyoptionsFragment ?: return
@@ -835,8 +857,9 @@ open class DeckPicker :
                 }
             }
         // Only allow pull-to-sync when the deck list is scrolled to the top.
-        deckPickerBinding.decks.doOnScrolled { _, _ ->
-            pullToSyncWrapper.isEnabled = decksLayoutManager.findFirstCompletelyVisibleItemPosition() == 0
+        lifecycleScope.launch {
+            snapshotFlow { deckListState.firstVisibleItemIndex == 0 && deckListState.firstVisibleItemScrollOffset == 0 }
+                .collect { atTop -> pullToSyncWrapper.isEnabled = atTop }
         }
     }
 
@@ -876,64 +899,13 @@ open class DeckPicker :
 
         fun onOptionsMenuUpdated(unused: OptionsMenuState) = invalidateOptionsMenu()
 
-        fun onStudiedTodayChanged(studiedToday: String) {
-            deckPickerBinding.reviewSummaryTextView.text = studiedToday
-        }
-
         fun onCollectionStatusChanged(isInInitialState: Boolean) {
-            // no summary line in the initial state: the FAB rests unraised
-            val summary = deckPickerBinding.reviewSummaryTextView
-            if (isInInitialState) {
-                raiseFabAboveSummary(summaryHeight = 0)
-            } else if (summary.height > 0) {
-                // re-showing the summary with unchanged text does not lay it out again,
-                // so restore the FAB from the bounds the summary keeps while hidden
-                raiseFabAboveSummary(summary.height - summary.paddingBottom)
-            }
             // Hide the background when there are no cards to improve text readability.
             deckPickerBinding.background.isVisible = !isInInitialState
-            if (animationDisabled()) {
-                deckPickerBinding.deckPickerContent.isVisible = !isInInitialState
-                deckPickerBinding.noDecksPlaceholder.isVisible = isInInitialState
-                return
-            }
-
-            val decksListShown = deckPickerBinding.deckPickerContent.isVisible
-            val placeholderShown = deckPickerBinding.noDecksPlaceholder.isVisible
-            if (isInInitialState) {
-                deckPickerBinding.deckPickerContent.fadeOut(shortAnimDuration)
-                deckPickerBinding.noDecksPlaceholder.fadeIn(shortAnimDuration).startDelay =
-                    if (decksListShown) {
-                        shortAnimDuration * 2L
-                    } else {
-                        0L
-                    }
-            } else {
-                deckPickerBinding.deckPickerContent.fadeIn(shortAnimDuration).startDelay =
-                    if (placeholderShown) {
-                        shortAnimDuration * 2L
-                    } else {
-                        0L
-                    }
-                deckPickerBinding.noDecksPlaceholder.fadeOut(shortAnimDuration)
-            }
         }
 
         fun onResizingDividerVisibilityChanged(isVisible: Boolean) {
             binding.resizingDivider?.isVisible = isVisible
-        }
-
-        fun onCardsDueChanged(dueCount: Int?) {
-            if (dueCount == null) {
-                supportActionBar?.subtitle = null
-                return
-            }
-
-            supportActionBar?.apply {
-                subtitle = if (dueCount == 0) null else resources.getQuantityString(CommonPlurals.widget_cards_due, dueCount, dueCount)
-                val toolbar = findViewById<Toolbar>(R.id.toolbar)
-                TooltipCompat.setTooltipText(toolbar, toolbar.subtitle)
-            }
         }
 
         fun onStudyOptionsVisibilityChanged(collectionHasNoCards: Boolean) {
@@ -941,27 +913,22 @@ open class DeckPicker :
             binding.studyoptionsFrame?.isVisible = !collectionHasNoCards
         }
 
-        fun onDeckListChanged(deckList: FlattenedDeckList) {
-            // Filtering must not recreate the study options fragment: its menu invalidation closes search.
-            deckListAdapter.submit(
-                data = deckList.data,
-                hasSubDecks = deckList.hasSubDecks,
-            )
-        }
-
         fun onFocusedDeckChanged(deckId: DeckId?) {
             if (deckId != null) tryShowStudyOptionsPanel()
             val position = deckId?.let { viewModel.findDeckPosition(it) } ?: 0
-
+            // the summary and the column headings come before the Decks
+            val item = position + DECK_LIST_ITEMS_BEFORE_DECKS
             // Skip centering if the deck is already on screen.
-            // Scrolling during a tap animation causes deck labels to overlap on older devices.
-            if (decksLayoutManager.positionIsVisible(position)) {
+            val layout = deckListState.layoutInfo
+            val visible = layout.visibleItemsInfo.firstOrNull { it.index == item }
+            if (visible != null && visible.offset >= layout.viewportStartOffset &&
+                visible.offset + visible.size <= layout.viewportEndOffset
+            ) {
                 return
             }
-            // HACK: a small delay is required before scrolling works
-            deckPickerBinding.decks.postDelayed({
-                decksLayoutManager.scrollToPositionWithOffset(position, deckPickerBinding.decks.height / 2)
-            }, 10)
+            lifecycleScope.launch {
+                deckListState.scrollToItem(item, scrollOffset = -deckPickerBinding.deckList.height / 2)
+            }
         }
 
         fun onDecksReloaded(param: Unit) {
@@ -1041,11 +1008,8 @@ open class DeckPicker :
         viewModel.onError.collectInLifecycle(::onError)
         viewModel.flowOfPromptUserToUpdateScheduler.collectInLifecycle(::onPromptUserToUpdateScheduler)
         viewModel.flowOfOptionsMenuState.filterNotNull().collectInLifecycle(::onOptionsMenuUpdated)
-        viewModel.flowOfStudiedTodayStats.collectInLifecycle(::onStudiedTodayChanged)
         viewModel.flowOfDeckListInInitialState.filterNotNull().collectInLifecycle(::onCollectionStatusChanged)
-        viewModel.flowOfCardsDue.collectInLifecycle(::onCardsDueChanged)
         viewModel.flowOfCollectionHasNoCards.collectInLifecycle(::onStudyOptionsVisibilityChanged)
-        viewModel.flowOfDeckList.collectInLifecycle(::onDeckListChanged)
         viewModel.flowOfFocusedDeck.collectInLifecycle(::onFocusedDeckChanged)
         viewModel.flowOfResizingDividerVisible.collectInLifecycle(::onResizingDividerVisibilityChanged)
         viewModel.flowOfDecksReloaded.collectInLifecycle(::onDecksReloaded)
@@ -1261,12 +1225,9 @@ open class DeckPicker :
             showBackgroundImageError(result.message(this))
         }
         val drawable = (result as? BackgroundImage.ResolveResult.Ready)?.drawable
-        val applied =
-            deckPickerBinding.background.setImageDrawableSafe(drawable) {
-                showBackgroundImageError(getString(CommonString.background_image_too_large))
-            }
-        // activityHasBackground calls notifyDataSetChanged, ensure only 1 call
-        deckListAdapter.activityHasBackground = applied && drawable != null
+        deckPickerBinding.background.setImageDrawableSafe(drawable) {
+            showBackgroundImageError(getString(CommonString.background_image_too_large))
+        }
     }
 
     private fun showBackgroundImageError(message: String) {
@@ -1614,6 +1575,8 @@ open class DeckPicker :
         // As `loadDeckCounts` is cancelled in `migrate()`
         val message = dialogHandler.popMessage()
         super.onResume()
+        // the title shows today's date: the day may have changed while the app was away
+        deckListDate.value = Date(TimeManager.time.intTimeMS())
         if (navDrawerIsReady() && hasCollectionStoragePermissions()) {
             refreshState()
         }
@@ -2305,7 +2268,7 @@ open class DeckPicker :
     ) {
         // ignore requests(ex: from keyboard shortcuts) when the collection is empty(and
         // adapter has no decks)
-        if (deckListAdapter.itemCount <= 0) {
+        if (displayedDecks.isEmpty()) {
             return
         }
 
@@ -2330,7 +2293,6 @@ open class DeckPicker :
                 decks.select(did)
                 currentDeckStudyState()
             }
-        deckListAdapter.updateSelectedDeck(did)
         // Also forget the last deck used by the Browser
         CardBrowser.clearLastDeckId()
         viewModel.focusedDeck = did
@@ -2414,7 +2376,6 @@ open class DeckPicker :
             createDeckDialog.deckName = currentName
             createDeckDialog.onNewDeckCreated = {
                 dismissAllDialogFragments()
-                deckListAdapter.notifyDataSetChanged()
                 updateDeckList()
                 tryShowStudyOptionsPanel()
             }
@@ -2495,7 +2456,6 @@ open class DeckPicker :
         createDeckDialog.onNewDeckCreated = { deckId ->
             // a deck was created
             dismissAllDialogFragments()
-            deckListAdapter.notifyDataSetChanged()
             onDeckCreated(deckId)
         }
         createDeckDialog.showDialog()
@@ -2507,12 +2467,22 @@ open class DeckPicker :
      */
     @get:VisibleForTesting(otherwise = VisibleForTesting.NONE)
     val visibleDeckCount: Int
-        get() = deckListAdapter.itemCount
+        get() = displayedDecks.size
 
     /**
      * Check if at least one deck is being displayed.
      */
-    fun hasAtLeastOneDeckBeingDisplayed(): Boolean = deckListAdapter.itemCount > 0 && decksLayoutManager.getChildAt(0) != null
+    fun hasAtLeastOneDeckBeingDisplayed(): Boolean =
+        viewModel.flowOfDeckListScreen.value?.isEmptyCollection == false && displayedDecks.isNotEmpty() &&
+            deckPickerBinding.deckList.isShown
+
+    /** The Decks the deck list shows (Decks inside a collapsed Deck are left out) */
+    @VisibleForTesting
+    internal val displayedDecks: List<DisplayDeckNode>
+        get() =
+            viewModel.flowOfDeckListScreen.value
+                ?.decks
+                .orEmpty()
 
     private enum class DeckSelectionType {
         /** Show study options if fragmented, otherwise, review  */
@@ -2561,6 +2531,9 @@ open class DeckPicker :
         }
 
     companion object {
+        /** The deck list draws today's summary and the column headings before the first Deck */
+        private const val DECK_LIST_ITEMS_BEFORE_DECKS = 2
+
         /**
          * Result codes from other activities
          */

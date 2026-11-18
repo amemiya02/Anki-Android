@@ -4,7 +4,6 @@ package com.ichi2.anki
 
 import android.content.Intent
 import androidx.core.content.edit
-import androidx.core.view.isVisible
 import com.ichi2.anki.RobolectricTest.Companion.advanceRobolectricLooperUntil
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.deckpicker.DeckPickerViewModel
@@ -13,7 +12,6 @@ import com.ichi2.anki.dialogs.DeckPickerContextMenu.DeckPickerContextMenuOption
 import com.ichi2.anki.dialogs.DeckPickerContextMenuResult
 import com.ichi2.anki.dialogs.setDeckPickerContextMenuResult
 import com.ichi2.anki.libanki.DeckId
-import com.ichi2.anki.widgets.DeckAdapter
 import com.ichi2.testutils.BackupManagerTestUtilities
 
 // TODO: move to testFixtures once RobolectricTest is moved
@@ -39,7 +37,7 @@ fun withDeckPicker(
         test.startActivityNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent()).also {
             // Deck refreshes run on IO, so draining the main looper alone may finish first.
             advanceRobolectricLooperUntil(lazyMessage = { "the deck list or empty collection placeholder should be shown" }) {
-                it.deckPickerBinding.deckPickerContent.isVisible || it.deckPickerBinding.noDecksPlaceholder.isVisible
+                it.viewModel.flowOfDeckListScreen.value != null
             }
         }
     block(deckPicker)
@@ -50,13 +48,12 @@ fun DeckPickerViewModel.awaitStartup() =
         startupJob?.isActive != true && flowOfStartupResponse.value !is StartupResponse.Success
     }
 
-/** Waits for the adapter to display the expected decks, including background list diffs. */
+/** Waits for the deck list to display the expected decks, in order */
 fun DeckPicker.awaitVisibleDecks(expectedDeckIds: List<DeckId>) {
-    val adapter = deckPickerBinding.decks.adapter as DeckAdapter
     advanceRobolectricLooperUntil(
-        lazyMessage = { "Expected visible decks $expectedDeckIds, but found ${adapter.currentList.map { it.did }}" },
+        lazyMessage = { "Expected visible decks $expectedDeckIds, but found ${displayedDecks.map { it.did }}" },
     ) {
-        adapter.currentList.map { it.did } == expectedDeckIds
+        displayedDecks.map { it.did } == expectedDeckIds
     }
 }
 

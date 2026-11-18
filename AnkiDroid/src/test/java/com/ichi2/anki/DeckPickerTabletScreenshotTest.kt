@@ -2,51 +2,24 @@
 
 package com.ichi2.anki
 
-import com.ichi2.testutils.BackupManagerTestUtilities
-import com.ichi2.testutils.simulateKeyboard
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.robolectric.RuntimeEnvironment
 
 /**
- * Screenshot tests for [DeckPicker] in fragmented mode.
+ * The deck list on a tablet keeps its two-pane layout and the drawer, with the Mockup's Decks.
  *
- * `./gradlew :AnkiDroid:verifyRoborazziPlayDebug -Pscreenshot --tests "com.ichi2.anki.DeckPickerTabletScreenshotTest"`
+ * `./gradlew :AnkiDroid:recordRoborazziPlayDebug -Pscreenshot -Ptheme=light,dark,black --tests "com.ichi2.anki.DeckPickerTabletScreenshotTest"`
  */
-class DeckPickerTabletScreenshotTest : ScreenshotTest() {
+class DeckPickerTabletScreenshotTest : DeckListScreenshotTest() {
     @Before
     override fun setUp() {
         super.setUp()
         setTabletQualifiers()
     }
 
-    @After
-    fun tearDownBackup() {
-        BackupManagerTestUtilities.reset()
+    @Test
+    fun decks() {
+        seedMockupDecks()
+        showDeckList("decks_tablet")
     }
-
-    @Test
-    fun deckOverviewKeyboardOpen() =
-        withDeckPicker(deckCount = 1, withCards = true) { deckPicker ->
-            deckPicker.simulateKeyboard()
-            captureScreen("keyboard_open")
-        }
-
-    @Test
-    fun deckPickerWith30Decks() =
-        withDeckPicker(deckCount = 30, withCards = true) { deckPicker ->
-            deckPicker.simulateEdgeToEdge()
-            captureScreen("30_decks_tablet")
-        }
-
-    @Test
-    fun deckPickerWith30DecksRtl() =
-        runTest {
-            RuntimeEnvironment.setQualifiers("+ar")
-            withDeckPicker(deckCount = 30, withCards = true) { deckPicker ->
-                deckPicker.simulateEdgeToEdge()
-                captureScreen("30_decks_tablet_rtl")
-            }
-        }
 }

@@ -70,7 +70,7 @@ class DeckPickerMenuContentProvider(
                     )
                 }
             val anchorParent = deckPicker.deckPickerBinding.deckPickerContent
-            val target = deckPicker.deckPickerBinding.decks
+            val target = deckPicker.deckPickerBinding.deckList
             MouseContextMenuHandler(viewGroup = anchorParent, menuContentProvider = provider)
                 .showContextMenu(view = target, x = x, y = y)
         }
