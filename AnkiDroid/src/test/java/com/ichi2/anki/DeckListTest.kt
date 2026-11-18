@@ -90,7 +90,10 @@ class DeckListTest : RobolectricTest() {
         }
     }
 
-    private fun tapDeck(name: String, destinationLabel: String) {
+    private fun tapDeck(
+        name: String,
+        destinationLabel: String,
+    ) {
         composeRule.onNodeWithText(name).performClick()
         composeRule.waitUntil(10_000) { composeRule.onAllNodesWithText(destinationLabel).fetchSemanticsNodes().isNotEmpty() }
         composeRule.onNodeWithText(destinationLabel).assertIsDisplayed()

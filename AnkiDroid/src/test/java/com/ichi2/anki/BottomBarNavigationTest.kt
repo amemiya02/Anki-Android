@@ -83,7 +83,8 @@ class BottomBarNavigationTest : RobolectricTest() {
 
                 deckPicker.onBackPressedDispatcher.onBackPressed()
                 composeRule.waitUntil(10_000) {
-                    deckPicker.binding.deckPickerContentWrapper?.isShown == true && deckPicker.bottomBar.selectedItemId == NavigationItem.HOME.id
+                    deckPicker.binding.deckPickerContentWrapper?.isShown == true &&
+                        deckPicker.bottomBar.selectedItemId == NavigationItem.HOME.id
                 }
 
                 assertThat("$tab: back selects Decks", deckPicker.bottomBar.selectedItemId, equalTo(NavigationItem.HOME.id))
