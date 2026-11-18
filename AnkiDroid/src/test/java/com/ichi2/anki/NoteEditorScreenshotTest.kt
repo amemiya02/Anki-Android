@@ -37,7 +37,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type.navigationBars
 import androidx.core.view.WindowInsetsCompat.Type.statusBars
-import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
@@ -45,7 +44,6 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.pressKey
 import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
@@ -279,7 +277,7 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
 
             tags.performClick()
             advanceRobolectricLooper()
-            onView(withText(tag)).inRoot(isDialog()).perform(click())
+            composeRule.onNodeWithContentDescription(tag).performClick()
             confirm.performClick()
             composeRule.onNodeWithText(tag).assertDoesNotExist()
         }
@@ -333,7 +331,7 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
         val cloze = clozeNoteType
         withNoteEditor(addNoteIntent(basic.id)) {
             composeRule.onNodeWithText(basic.name).performClick()
-            onData(equalTo(cloze.name)).inRoot(isDialog()).perform(click())
+            composeRule.onNode(hasText(cloze.name) and hasAnyAncestor(isComposeDialog())).performClick()
             val textField = onView(allOf(withContentDescription(cloze.fields.first().name), isDisplayed()))
             val extraField = onView(allOf(withContentDescription(cloze.fields.last().name), isDisplayed()))
             textField.perform(click(), composeWithIme("nihongo", "{{c1::日本語}}"))
@@ -342,7 +340,7 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
             extraField.check(matches(withText("汉字")))
             composeRule.onNodeWithText(col.decks.name(1L)).performClick()
             advanceRobolectricLooper()
-            onView(withText(deckName)).inRoot(isDialog()).perform(click())
+            composeRule.onNode(hasText(deckName) and hasAnyAncestor(isComposeDialog())).performClick()
             advanceRobolectricLooper()
             composeRule.onNodeWithText(deckName).assertIsDisplayed()
             composeRule.onNode(hasText(TR.notetypesNotetype()) and hasText(cloze.name)).assertIsDisplayed()
@@ -361,9 +359,9 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
             val front = basic.fields.first().name
             onView(allOf(withContentDescription(front), isDisplayed())).perform(replaceText("下書き"))
             composeRule.onNodeWithContentDescription(targetContext.getString(CommonString.close)).performClick()
-            onView(withText(TR.addingDiscardCurrentInput())).inRoot(isDialog()).check(matches(isDisplayed()))
+            composeRule.onNodeWithText(TR.addingDiscardCurrentInput()).assertIsDisplayed()
             val keepEditing = with(targetContext) { TR.sentenceCase.keepEditing }
-            onView(withText(keepEditing)).inRoot(isDialog()).perform(click())
+            composeRule.onNodeWithText(keepEditing).performClick()
             onView(allOf(withContentDescription(front), isDisplayed())).check(matches(withText("下書き")))
             captureScreen("kept_draft")
         }
