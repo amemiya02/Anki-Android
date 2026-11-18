@@ -45,9 +45,6 @@ class StatusBarFollowsThemeTest : RobolectricTest() {
     private val launcher: ActivityLaunchParam get() = config.launcher
 
     // rendering a card requires a media folder
-    override fun getCollectionStorageMode() =
-        if (launcher.activity == Reviewer::class.java) CollectionStorageMode.IN_MEMORY_WITH_MEDIA else super.getCollectionStorageMode()
-
     @Before
     fun startAsAnExistingUser() {
         grantWritePermissions()

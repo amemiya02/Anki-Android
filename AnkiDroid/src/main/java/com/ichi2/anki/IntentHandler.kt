@@ -194,18 +194,21 @@ class IntentHandler : AbstractIntentHandler() {
         reloadIntent: Intent,
         reviewerIntent: Intent,
     ) {
-        val deckId = intent.getLongExtra(EXTRA_DECK_ID, 0)
-        Timber.i("Handling intent to review deck '%d'", deckId)
-
+        val fromFormerReviewer = reviewerIntent.component?.className == FORMER_REVIEWER_COMPONENT
+        val deckKey =
+            if (fromFormerReviewer && !reviewerIntent.hasExtra(EXTRA_DECK_ID)) FORMER_REVIEWER_DECK_ID else EXTRA_DECK_ID
+        val deckId = reviewerIntent.getLongExtra(deckKey, 0)
+        if (deckId != 0L) {
+            Timber.i("Handling intent to review deck '%d'", deckId)
+            val decks = CollectionManager.getColUnsafe().decks
+            if (decks.have(deckId)) decks.select(deckId)
+        }
         val reviewIntent =
-            if (Prefs.isNewStudyScreenEnabled) {
-                ReviewerFragment.getIntent(this)
-            } else {
-                Intent(this, Reviewer::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            ReviewerFragment.getIntent(this).apply {
+                if (reviewerIntent.getBooleanExtra(NavigationDrawerActivity.EXTRA_STARTED_WITH_SHORTCUT, false)) {
+                    putExtra(NavigationDrawerActivity.EXTRA_STARTED_WITH_SHORTCUT, true)
                 }
             }
-        CollectionManager.getColUnsafe().decks.select(deckId)
         // Clean the stack out under the reviewer to avoid any incorrect activities / dialogs /
         // data state from prior app usage showing after reviewer exits if going to reviewer directly
         TaskStackBuilder
@@ -383,6 +386,8 @@ class IntentHandler : AbstractIntentHandler() {
     companion object {
         private const val ACTION_DO_SYNC = "com.ichi2.anki.DO_SYNC"
         const val EXTRA_DECK_ID = "EXTRA_DECK_ID"
+        private const val FORMER_REVIEWER_COMPONENT = "com.ichi2.anki.Reviewer"
+        private const val FORMER_REVIEWER_DECK_ID = "deckId"
         private const val ACTION_COPY_DEBUG_INFO = "com.ichi2.anki.COPY_DEBUG_INFO"
         private const val EXTRA_CLIPBOARD_DATA = "clip_data"
 
@@ -405,7 +410,9 @@ class IntentHandler : AbstractIntentHandler() {
         @CheckResult
         fun getLaunchType(intent: Intent): LaunchType {
             val action = intent.action
-            return if (intent.isBrowserDeepLink()) {
+            return if (intent.component?.className == FORMER_REVIEWER_COMPONENT) {
+                LaunchType.REVIEW
+            } else if (intent.isBrowserDeepLink()) {
                 LaunchType.OPEN_BROWSER
             } else if (action == Intent.ACTION_SEND || (Intent.ACTION_VIEW == action && isValidViewIntent(intent))) {
                 val mimeType = intent.resolveMimeType()

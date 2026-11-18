@@ -162,7 +162,6 @@ class AllActivitiesRecreationTest : RobolectricTest() {
                 DeckPickerWidgetConfig::class.java,
                 NoteTypeFieldEditor::class.java,
                 PermissionsActivity::class.java,
-                Reviewer::class.java,
             )
 
         /**

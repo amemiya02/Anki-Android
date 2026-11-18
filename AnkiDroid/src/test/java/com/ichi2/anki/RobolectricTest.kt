@@ -74,7 +74,6 @@ import org.robolectric.junit.rules.TimeoutRule
 import org.robolectric.shadows.ShadowDialog
 import org.robolectric.shadows.ShadowLog
 import org.robolectric.shadows.ShadowLooper
-import org.robolectric.shadows.ShadowMediaPlayer
 import timber.log.Timber
 import kotlin.test.assertNotNull
 import kotlin.time.Duration
@@ -332,13 +331,6 @@ open class RobolectricTest(
             clazz: Class<T>?,
             i: Intent?,
         ): ActivityController<T> {
-            if (AbstractFlashcardViewer::class.java.isAssignableFrom(clazz!!)) {
-                // fixes 'Don't know what to do with dataSource...' inside Sounds.kt
-                // solution from https://github.com/robolectric/robolectric/issues/4673
-                ShadowMediaPlayer.setMediaInfoProvider {
-                    ShadowMediaPlayer.MediaInfo(1, 0)
-                }
-            }
             val controller =
                 Robolectric
                     .buildActivity(clazz, i)

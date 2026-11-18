@@ -316,18 +316,16 @@
             android:label="@string/model_editor_label"
             android:configChanges="keyboardHidden|orientation|screenSize"
             />
-        <activity
+        <!-- Keep saved launcher shortcuts and external intents for the former component working. -->
+        <activity-alias
             android:name="com.ichi2.anki.Reviewer"
-            android:exported="true"
-            android:theme="@style/Theme_Dark.Launcher"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:windowSoftInputMode="adjustResize"
-            android:parentActivityName=".DeckPicker">
+            android:targetActivity="com.ichi2.anki.IntentHandler"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-        </activity>
+        </activity-alias>
         <activity
             android:name="com.ichi2.anki.account.AccountActivity"
             android:label="@string/menu_my_account"

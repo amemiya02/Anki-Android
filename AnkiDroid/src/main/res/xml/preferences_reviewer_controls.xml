@@ -164,13 +164,11 @@
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/browse_command_key"
             android:icon="@drawable/symbol_search"
-            app:isPreferenceVisible="false"
             tools:title="Browse"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/statistics_command_key"
             android:icon="@drawable/symbol_bar_chart"
-            app:isPreferenceVisible="false"
             tools:title="Statistics"
             />
         <com.ichi2.preferences.ReviewerControlPreference
@@ -196,10 +194,6 @@
             android:title="@string/replay_voice"
             app:icon="@drawable/symbol_replay"
             />
-        <com.ichi2.preferences.ReviewerControlPreference
-            android:key="@string/save_voice_command_key"
-            android:title="@string/save_voice"
-            app:icon="@drawable/symbol_check"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_cat_whiteboard">
@@ -208,7 +202,6 @@
             android:title="@string/gesture_toggle_whiteboard"
             android:icon="@drawable/symbol_draw"
             />
-        <!-- New study screen -->
         <com.ichi2.preferences.WhiteboardControlPreference
             android:key="@string/pref_key_whiteboard_toggle_eraser"
             android:title="@string/gesture_toggle_eraser"
@@ -228,22 +221,6 @@
             android:key="@string/pref_key_whiteboard_clear"
             android:title="@string/clear_whiteboard"
             android:icon="@drawable/symbol_delete_sweep"
-            />
-        <!-- Legacy study screen -->
-        <com.ichi2.preferences.ReviewerControlPreference
-            android:key="@string/toggle_eraser_command_key"
-            android:title="@string/gesture_toggle_eraser"
-            android:icon="@drawable/symbol_ink_eraser"
-            />
-        <com.ichi2.preferences.ReviewerControlPreference
-            android:key="@string/clear_whiteboard_command_key"
-            android:title="@string/clear_whiteboard"
-            android:icon="@drawable/symbol_delete_sweep"
-            />
-        <com.ichi2.preferences.ReviewerControlPreference
-            android:key="@string/change_whiteboard_pen_color_command_key"
-            android:title="@string/title_whiteboard_editor"
-            android:icon="@drawable/symbol_palette"
             />
     </PreferenceCategory>
 

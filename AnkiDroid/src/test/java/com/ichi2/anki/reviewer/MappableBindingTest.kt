@@ -3,8 +3,9 @@
 package com.ichi2.anki.reviewer
 
 import android.view.KeyEvent
-import com.ichi2.anki.cardviewer.ViewerCommand
-import com.ichi2.anki.cardviewer.ViewerCommand.entries
+import com.github.ivanshafran.sharedpreferencesmock.SPMockBuilder
+import com.ichi2.anki.preferences.reviewer.ViewerAction
+import com.ichi2.anki.preferences.reviewer.ViewerAction.entries
 import com.ichi2.anki.reviewer.MappableBinding.Companion.toPreferenceString
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.hasItem
@@ -71,7 +72,7 @@ class MappableBindingTest {
     private fun getAllBindings() =
         Arrays
             .stream(entries.toTypedArray())
-            .flatMap { x: ViewerCommand -> x.defaultValue.stream() }
+            .flatMap { x: ViewerAction -> x.getBindings(SPMockBuilder().createSharedPreferences()).stream() }
             .collect(Collectors.toList())
 
     @Suppress("SameParameterValue")

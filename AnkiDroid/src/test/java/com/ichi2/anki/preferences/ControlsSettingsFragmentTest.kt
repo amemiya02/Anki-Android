@@ -10,9 +10,10 @@ import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.common.destinations.DeferredNavigation
+import com.ichi2.anki.preferences.reviewer.ViewerAction
+import com.ichi2.anki.preferences.reviewer.WhiteboardAction
 import com.ichi2.anki.reviewer.Binding
 import com.ichi2.anki.reviewer.CardSide
-import com.ichi2.anki.settings.Prefs
 import com.ichi2.preferences.ReviewerControlPreference
 import com.ichi2.testutils.HamcrestUtils
 import com.ichi2.utils.negativeButton
@@ -29,19 +30,30 @@ import kotlin.test.assertNull
 class ControlsSettingsFragmentTest : RobolectricTest() {
     @Test
     fun `XML keys match the Enum keys`() {
-        // the XML lists the old study screen's commands, which are no longer the default
-        Prefs.isNewStudyScreenEnabled = false
         for (screen in ControlPreferenceScreen.entries) {
-            val xmlKeys =
-                PreferenceTestUtils.getKeysFromXml(targetContext, screen.xmlRes, excludeCategories = true).toMutableList().apply {
-                    remove("binding_BROWSE")
-                    remove("binding_STATISTICS")
-                    remove("binding_whiteboard_UNDO")
-                    remove("binding_whiteboard_REDO")
-                    remove("binding_whiteboard_CLEAR")
-                    remove("binding_whiteboard_TOGGLE_ERASER")
+            val xmlKeys = PreferenceTestUtils.getKeysFromXml(targetContext, screen.xmlRes, excludeCategories = true)
+            val actions =
+                if (screen == ControlPreferenceScreen.REVIEWER) {
+                    val menuOnlyActions =
+                        setOf(
+                            ViewerAction.BURY_MENU,
+                            ViewerAction.SUSPEND_MENU,
+                            ViewerAction.FLAG_MENU,
+                            ViewerAction.DECK_OPTIONS,
+                            ViewerAction.RESET_PROGRESS,
+                            ViewerAction.FLAG_RED,
+                            ViewerAction.FLAG_ORANGE,
+                            ViewerAction.FLAG_GREEN,
+                            ViewerAction.FLAG_BLUE,
+                            ViewerAction.FLAG_PINK,
+                            ViewerAction.FLAG_TURQUOISE,
+                            ViewerAction.FLAG_PURPLE,
+                        )
+                    ViewerAction.entries - menuOnlyActions + WhiteboardAction.entries
+                } else {
+                    screen.getActions()
                 }
-            val enumKeys = screen.getActions().map { it.preferenceKey }
+            val enumKeys = actions.map { it.preferenceKey }
 
             assertThat(xmlKeys, HamcrestUtils.containsInAnyOrder(enumKeys))
         }

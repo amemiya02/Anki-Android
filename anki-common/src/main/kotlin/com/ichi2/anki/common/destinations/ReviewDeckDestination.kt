@@ -5,10 +5,7 @@ package com.ichi2.anki.common.destinations
 import android.content.Intent
 import com.ichi2.anki.libanki.DeckId
 
-/**
- * Opens the reviewer: either the legacy or the new reviewer, based on
- * `Prefs.isNewStudyScreenEnabled`.
- */
+/** Opens a study session for the current Deck or a Deck selected by an external launch. */
 sealed class ReviewDeckDestination : Destination() {
     /**
      * Opens the reviewer for the currently selected deck.

@@ -2,51 +2,111 @@
 
 package com.ichi2.anki.ui.windows.reviewer
 
+import android.content.Intent
+import androidx.core.content.edit
+import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.R
-import com.ichi2.anki.Reviewer
+import com.ichi2.anki.DeckPicker
+import com.ichi2.anki.IntentHandler
+import com.ichi2.anki.NavigationDrawerActivity
 import com.ichi2.anki.RobolectricTest
+import com.ichi2.anki.SingleFragmentActivity
+import com.ichi2.anki.common.destinations.ReviewDeckDestination
 import com.ichi2.anki.previewer.CardViewerActivity
-import com.ichi2.anki.settings.Prefs
+import com.ichi2.anki.toIntent
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.xmlpull.v1.XmlPullParser
+import org.robolectric.Shadows.shadowOf
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
-/** The redesigned study screen is the Fork's default; the old one stays selectable (ADR-0004). */
 @RunWith(AndroidJUnit4::class)
 class StudyScreenDefaultTest : RobolectricTest() {
     @Test
-    fun `studying opens the redesigned study screen when nothing was chosen`() {
-        val intent = Reviewer.getIntent(targetContext)
+    fun `studying opens the study screen when the old screen was selected`() {
+        disableFormerReviewerPreference()
 
+        assertStudyScreen(ReviewDeckDestination.CurrentDeck.toIntent(targetContext))
+    }
+
+    @Test
+    fun `external deck launch selects the requested deck and opens the study screen`() {
+        disableFormerReviewerPreference()
+        val deckId = addDeck("Requested deck")
+        val intent = ReviewDeckDestination.ExternalLaunch(deckId).toIntent(targetContext)
+
+        val handler = startActivityNormallyOpenCollectionWithIntent(IntentHandler::class.java, intent)
+
+        assertEquals(deckId, col.decks.selected())
+        assertReviewStack(handler)
+    }
+
+    @Test
+    fun `saved launcher shortcut opens the current deck`() {
+        val deckId = addDeck("Current deck")
+        col.decks.select(deckId)
+        val intent = formerReviewerIntent().putExtra(NavigationDrawerActivity.EXTRA_STARTED_WITH_SHORTCUT, true)
+
+        val handler = startActivityNormallyOpenCollectionWithIntent(IntentHandler::class.java, intent)
+
+        assertEquals(deckId, col.decks.selected())
+        val study = assertReviewStack(handler)
+        assertTrue(study.getBooleanExtra(NavigationDrawerActivity.EXTRA_STARTED_WITH_SHORTCUT, false))
+    }
+
+    @Test
+    fun `former external reviewer link still opens a requested deck`() {
+        val deckId = addDeck("Requested deck")
+        val intent = formerReviewerIntent().putExtra("deckId", deckId)
+
+        val handler = startActivityNormallyOpenCollectionWithIntent(IntentHandler::class.java, intent)
+
+        assertEquals(deckId, col.decks.selected())
+        assertReviewStack(handler)
+    }
+
+    @Test
+    fun `former external reviewer link falls back to the current deck when its deck has been deleted`() {
+        val deckId = addDeck("Current deck")
+        col.decks.select(deckId)
+        val intent = formerReviewerIntent().putExtra("deckId", Long.MAX_VALUE)
+
+        val handler = startActivityNormallyOpenCollectionWithIntent(IntentHandler::class.java, intent)
+
+        assertEquals(deckId, col.decks.selected())
+        assertReviewStack(handler)
+    }
+
+    @Test
+    fun `published review shortcut keeps its launcher and opens the study screen`() {
+        disableFormerReviewerPreference()
+        NavigationDrawerActivity.enablePostShortcut(targetContext)
+
+        val shortcut =
+            ShortcutManagerCompat.getDynamicShortcuts(targetContext).single { it.id == "reviewCardsShortcutId" }
+        assertEquals(IntentHandler::class.java.name, shortcut.intents[0].component?.className)
+        val study = shortcut.intents[1]
+        assertStudyScreen(study)
+        assertTrue(study.getBooleanExtra(NavigationDrawerActivity.EXTRA_STARTED_WITH_SHORTCUT, false))
+    }
+
+    private fun formerReviewerIntent(): Intent = Intent(Intent.ACTION_VIEW).setClassName(targetContext, "com.ichi2.anki.Reviewer")
+
+    private fun disableFormerReviewerPreference() {
+        getPreferences().edit { putBoolean("newReviewerOptions", false) }
+    }
+
+    private fun assertReviewStack(handler: IntentHandler): Intent {
+        val shadow = shadowOf(handler.application)
+        val study = assertNotNull(shadow.nextStartedActivity)
+        assertStudyScreen(study)
+        assertEquals(DeckPicker::class.java.name, shadow.nextStartedActivity?.component?.className)
+        return study
+    }
+
+    private fun assertStudyScreen(intent: Intent) {
         assertEquals(CardViewerActivity::class.java.name, intent.component?.className)
-    }
-
-    @Test
-    fun `the old study screen can still be chosen in settings`() {
-        Prefs.isNewStudyScreenEnabled = false
-
-        val intent = Reviewer.getIntent(targetContext)
-
-        assertEquals(Reviewer::class.java.name, intent.component?.className)
-    }
-
-    @Test
-    fun `the settings switch shows the redesigned study screen as the default`() {
-        assertEquals("true", switchDefaultValue(R.xml.preferences_reviewer))
-    }
-
-    private fun switchDefaultValue(xmlRes: Int): String? {
-        val key = targetContext.getString(R.string.new_reviewer_options_key)
-        val parser = targetContext.resources.getXml(xmlRes)
-        while (parser.next() != XmlPullParser.END_DOCUMENT) {
-            if (parser.eventType != XmlPullParser.START_TAG) continue
-            val attributes = (0 until parser.attributeCount).associate { parser.getAttributeName(it) to parser.getAttributeValue(it) }
-            val keyAttribute = attributes["key"] ?: continue
-            if (keyAttribute != key && keyAttribute != "@${R.string.new_reviewer_options_key}") continue
-            return attributes["defaultValue"]
-        }
-        error("no preference with key $key")
+        assertEquals(ReviewerFragment::class.java.name, intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME))
     }
 }

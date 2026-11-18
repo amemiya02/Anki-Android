@@ -21,8 +21,10 @@
     <item type="id" name="action_edit_tags"/>
     <item type="id" name="action_card_info"/>
     <item type="id" name="action_previous_card_info"/>
+    <item type="id" name="action_bury"/>
     <item type="id" name="action_bury_card"/>
     <item type="id" name="action_bury_note"/>
+    <item type="id" name="action_suspend"/>
     <item type="id" name="action_suspend_card"/>
     <item type="id" name="action_suspend_note"/>
     <item type="id" name="action_toggle_auto_advance"/>

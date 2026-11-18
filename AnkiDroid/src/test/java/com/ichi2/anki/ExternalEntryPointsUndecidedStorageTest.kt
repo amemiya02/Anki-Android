@@ -21,7 +21,6 @@ import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
-import org.robolectric.shadows.ShadowMediaPlayer
 import kotlin.test.assertFailsWith
 import kotlin.test.fail
 
@@ -75,7 +74,8 @@ class ExternalEntryPointsUndecidedStorageTest : RobolectricTest() {
             // share text with AnkiDroid
             "com.ichi2.anki.IntentHandler2", "com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity" ->
                 Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, "dog")
-            "com.ichi2.anki.Reviewer" -> Intent(Intent.ACTION_VIEW)
+            "com.ichi2.anki.Reviewer" ->
+                Intent(Intent.ACTION_VIEW).setClassName(targetContext, className)
             // 'Anki Card' text selection menu entry
             "com.ichi2.anki.AnkiCardContextMenuAction" ->
                 Intent(Intent.ACTION_PROCESS_TEXT).setType("text/plain").putExtra(Intent.EXTRA_PROCESS_TEXT, "dog")
@@ -105,10 +105,6 @@ class ExternalEntryPointsUndecidedStorageTest : RobolectricTest() {
 
     private fun launchActivity(targetClassName: String) {
         val activityClass = Class.forName(targetClassName).asSubclass(Activity::class.java)
-        if (AbstractFlashcardViewer::class.java.isAssignableFrom(activityClass)) {
-            // fixes 'Don't know what to do with dataSource...' inside Sounds.kt
-            ShadowMediaPlayer.setMediaInfoProvider { ShadowMediaPlayer.MediaInfo(1, 0) }
-        }
         val controller = Robolectric.buildActivity(activityClass, entryPoint!!.externalIntent())
         saveControllerForCleanup(controller)
         // mirrors Android: an activity which finishes during onCreate (e.g. redirectToMainEntryPoint)

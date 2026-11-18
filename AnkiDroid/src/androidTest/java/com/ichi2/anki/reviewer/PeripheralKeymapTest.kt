@@ -4,8 +4,8 @@ package com.ichi2.anki.reviewer
 
 import android.view.KeyEvent
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.cardviewer.ViewerCommand
 import com.ichi2.anki.common.preferences.sharedPrefs
+import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.tests.InstrumentedTest
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
@@ -18,19 +18,19 @@ class PeripheralKeymapTest : InstrumentedTest() {
     @Test
     fun testNumpadAction() {
         // #7736 Ensures that a numpad key is passed through (mostly testing num lock)
-        val processed: MutableList<ViewerCommand> = ArrayList()
+        val processed: MutableList<ViewerAction> = ArrayList()
 
         val sharedPrefs = testContext.sharedPrefs()
         val bindingMap =
-            BindingMap(sharedPrefs, ViewerCommand.entries) { e: ViewerCommand, _ -> processed.add(e) }
+            BindingMap(sharedPrefs, ViewerAction.entries) { e: ViewerAction, _ -> processed.add(e) }
 
         bindingMap.onKeyDown(
             getNumpadEvent(KeyEvent.KEYCODE_NUMPAD_1),
         )
-        assertThat<List<ViewerCommand>>(processed, hasSize(1))
+        assertThat<List<ViewerAction>>(processed, hasSize(1))
         assertThat(
             processed[0],
-            equalTo(ViewerCommand.ANSWER_AGAIN),
+            equalTo(ViewerAction.ANSWER_AGAIN),
         )
     }
 

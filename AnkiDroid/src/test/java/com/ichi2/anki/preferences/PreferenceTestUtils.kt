@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
-import com.ichi2.anki.cardviewer.ViewerCommand
 import com.ichi2.testutils.getInstanceFromClassName
 import org.xmlpull.v1.XmlPullParser
 
@@ -140,14 +139,7 @@ object PreferenceTestUtils {
             .map { it.preferenceResource }
             .flatMapTo(hashSetOf()) {
                 getKeysFromXml(context, it, excludeCategories = false)
-            } + ViewerCommand.entries.map { it.preferenceKey }
-
-    fun getAllCustomButtonKeys(context: Context): Set<String> {
-        val keys = getKeysFromXml(context, R.xml.preferences_custom_buttons).toMutableSet()
-        keys.remove("reset_custom_buttons")
-        keys.remove("appBarButtonsScreen")
-        return keys
-    }
+            } + ControlPreferenceScreen.entries.flatMap { getKeysFromXml(context, it.xmlRes) }
 
     fun getDeveloperOptionsKeys(context: Context): Set<String> = getKeysFromXml(context, R.xml.preferences_developer_options).toSet()
 }

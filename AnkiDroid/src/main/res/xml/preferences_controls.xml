@@ -10,12 +10,6 @@
 
     <SwitchPreferenceCompat
         android:defaultValue="false"
-        android:disableDependentsState="false"
-        android:key="@string/gestures_preference"
-        android:summary="@string/gestures_summ"
-        android:title="@string/gestures" />
-    <SwitchPreferenceCompat
-        android:defaultValue="false"
         android:key="@string/gestures_corner_touch_preference"
         android:summary="@string/gestures_corner_touch_summary"
         android:title="@string/gestures_corner_touch" />

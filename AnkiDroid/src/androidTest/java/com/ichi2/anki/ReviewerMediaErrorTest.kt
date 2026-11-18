@@ -2,7 +2,6 @@
 
 package com.ichi2.anki
 
-import android.content.Intent
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -15,17 +14,21 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.webkit.WebViewCompat
+import androidx.webkit.WebViewFeature
 import com.ichi2.anki.pages.PostRequestBridge
+import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.anki.tests.InstrumentedTest
 import com.ichi2.anki.tests.checkWithTimeout
 import com.ichi2.anki.testutil.AvoidDayRolloverRule
 import com.ichi2.anki.testutil.GrantStoragePermission.storagePermission
-import com.ichi2.anki.testutil.ResetMediaErrorHandlerRule
 import com.ichi2.anki.testutil.ensureWebViewIsSupported
 import com.ichi2.anki.testutil.grantPermissions
 import com.ichi2.anki.testutil.notificationPermission
 import com.ichi2.anki.testutil.waitUntil
+import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
 import org.hamcrest.Matchers.allOf
+import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import java.net.InetSocketAddress
@@ -40,9 +43,6 @@ import com.google.android.material.R as MaterialR
 class ReviewerMediaErrorTest : InstrumentedTest() {
     @get:Rule(order = 0)
     val avoidDayRollover = AvoidDayRolloverRule()
-
-    @get:Rule(order = 1)
-    val resetMediaErrorHandler = ResetMediaErrorHandlerRule()
 
     @get:Rule
     val runtimePermissionRule = grantPermissions(storagePermission, notificationPermission)
@@ -81,15 +81,15 @@ class ReviewerMediaErrorTest : InstrumentedTest() {
         }
     }
 
-    private fun withReviewer(block: (ActivityScenario<Reviewer>) -> Unit) {
+    private fun withReviewer(block: (ActivityScenario<CardViewerActivity>) -> Unit) {
         ensureWebViewIsSupported()
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.GET_WEB_VIEW_CLIENT))
         val originalDeckId = col.decks.selected()
         val deckId = col.decks.addNormalDeckWithName("ReviewerMediaErrorTest-${UUID.randomUUID()}").id
         try {
             col.decks.select(deckId)
             addNoteUsingBasicNoteType("Media error integration test").firstCard(col).update { did = deckId }
-            // Launch the legacy reviewer explicitly: the new study screen does not implement this API.
-            ActivityScenario.launch<Reviewer>(Intent(testContext, Reviewer::class.java)).use { scenario ->
+            ActivityScenario.launch<CardViewerActivity>(ReviewerFragment.getIntent(testContext)).use { scenario ->
                 scenario.awaitCardLoaded()
                 block(scenario)
             }
@@ -125,11 +125,11 @@ class ReviewerMediaErrorTest : InstrumentedTest() {
         )
     }
 
-    private fun ActivityScenario<Reviewer>.awaitCardLoaded() {
+    private fun ActivityScenario<CardViewerActivity>.awaitCardLoaded() {
         val ready = AtomicBoolean(false)
         waitUntil(message = { "Reviewer card did not finish loading" }) {
             onActivity { reviewer ->
-                reviewer.webView?.evaluateJavascript(
+                reviewer.cardWebView.evaluateJavascript(
                     "document.readyState === 'complete' && document.body.innerText.includes('Media error integration test')",
                 ) { ready.set(it == "true") }
             }
@@ -137,12 +137,16 @@ class ReviewerMediaErrorTest : InstrumentedTest() {
         }
     }
 
+    private val CardViewerActivity.cardWebView: WebView
+        get() = (fragment as ReviewerFragment).binding.webViewLayout.getChildAt(0) as WebView
+
     /** @param errorBaseUrl its requests are answered by [errorResponse] */
-    private fun ActivityScenario<Reviewer>.recordWebViewErrors(errorBaseUrl: String): LinkedBlockingQueue<Pair<String?, Int>> {
+    private fun ActivityScenario<CardViewerActivity>.recordWebViewErrors(errorBaseUrl: String): LinkedBlockingQueue<Pair<String?, Int>> {
         val errors = LinkedBlockingQueue<Pair<String?, Int>>()
         onActivity { reviewer ->
-            val client = checkNotNull(reviewer.webViewClient)
-            checkNotNull(reviewer.webView).webViewClient =
+            val webView = reviewer.cardWebView
+            val client = WebViewCompat.getWebViewClient(webView)
+            webView.webViewClient =
                 object : WebViewClient() {
                     override fun shouldInterceptRequest(
                         view: WebView,
@@ -177,13 +181,13 @@ class ReviewerMediaErrorTest : InstrumentedTest() {
         return errors
     }
 
-    private fun ActivityScenario<Reviewer>.evaluateJavascript(script: String) {
+    private fun ActivityScenario<CardViewerActivity>.evaluateJavascript(script: String) {
         onActivity { reviewer ->
-            checkNotNull(reviewer.webView).evaluateJavascript(script, null)
+            reviewer.cardWebView.evaluateJavascript(script, null)
         }
     }
 
-    private fun ActivityScenario<Reviewer>.assertMissingImageIsReported(
+    private fun ActivityScenario<CardViewerActivity>.assertMissingImageIsReported(
         baseUrl: String,
         errors: LinkedBlockingQueue<Pair<String?, Int>>,
     ) {

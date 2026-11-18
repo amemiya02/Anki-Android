@@ -53,6 +53,7 @@ import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.storage.grantedStoragePermissions
 import com.ichi2.anki.common.utils.android.HandlerUtils
 import com.ichi2.anki.dialogs.help.HelpDialog
+import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.workarounds.FullDraggableContainerFix
 import com.ichi2.utils.IntentUtil
@@ -347,7 +348,6 @@ abstract class NavigationDrawerActivity(
 
     private val preferencesLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            val preferences = preferences
             Timber.i(
                 "Handling Activity Result: %d. Result: %d",
                 REQUEST_PREFERENCES_UPDATE,
@@ -358,15 +358,7 @@ abstract class NavigationDrawerActivity(
             // from within the app, which should cause the notification channel names to be reloaded to
             // match the new locale
             setupNotificationChannels(applicationContext)
-            // Restart the activity on preference change
-            // collection path hasn't been changed so just restart the current activity
-            if (this is Reviewer && preferences.getBoolean("tts", false)) {
-                // Workaround to kick user back to StudyOptions after opening settings from Reviewer
-                // because onDestroy() of old Activity interferes with TTS in new Activity
-                finish()
-            } else {
-                ActivityCompat.recreate(this)
-            }
+            ActivityCompat.recreate(this)
         }
 
     /**
@@ -551,7 +543,7 @@ abstract class NavigationDrawerActivity(
             }
             // Review Cards Shortcut
             val intentReviewCards =
-                Reviewer.getIntent(context).apply {
+                ReviewerFragment.getIntent(context).apply {
                     action = Intent.ACTION_VIEW
                     flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                     putExtra(EXTRA_STARTED_WITH_SHORTCUT, true)

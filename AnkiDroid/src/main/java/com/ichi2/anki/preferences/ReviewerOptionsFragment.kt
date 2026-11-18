@@ -11,7 +11,6 @@ import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.enums.HideSystemBars
 import com.ichi2.anki.utils.CollectionPreferences
-import com.ichi2.preferences.HtmlHelpPreference
 
 class ReviewerOptionsFragment :
     SettingsFragment(),
@@ -24,29 +23,10 @@ class ReviewerOptionsFragment :
             requirePreference<SwitchPreferenceCompat>(R.string.ignore_display_cutout_key).apply {
                 isEnabled = Prefs.hideSystemBars != HideSystemBars.NONE
             }
-        val hideSystemBars =
-            requirePreference<ListPreference>(R.string.hide_system_bars_key).apply {
-                setOnPreferenceChangeListener { value ->
-                    ignoreDisplayCutout.isEnabled = value != getString(HideSystemBars.NONE.entryResId)
-                }
+        requirePreference<ListPreference>(R.string.hide_system_bars_key).apply {
+            setOnPreferenceChangeListener { value ->
+                ignoreDisplayCutout.isEnabled = value != getString(HideSystemBars.NONE.entryResId)
             }
-        val newReviewerPref = requirePreference<SwitchPreferenceCompat>(R.string.new_reviewer_options_key)
-
-        fun setPrefsEnableState(newValue: Boolean) {
-            val prefs = preferenceScreen.allPreferences() - newReviewerPref
-            for (pref in prefs) {
-                if (pref is HtmlHelpPreference) continue
-                if (pref.key == ignoreDisplayCutout.key && newValue) {
-                    ignoreDisplayCutout.isEnabled = hideSystemBars.value != getString(HideSystemBars.NONE.entryResId)
-                    continue
-                }
-                pref.isEnabled = newValue
-            }
-        }
-
-        setPrefsEnableState(newReviewerPref.isChecked)
-        newReviewerPref.setOnPreferenceChangeListener { newValue ->
-            setPrefsEnableState(newValue)
         }
 
         // Show play buttons on cards with audio

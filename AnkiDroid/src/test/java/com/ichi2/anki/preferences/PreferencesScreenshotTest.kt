@@ -146,7 +146,6 @@ class PreferencesScreenshotTest : ScreenshotTest() {
     fun capturePreferenceFragment(
         @TestParameter(valuesProvider = PreferenceFragmentsProvider::class) fragmentClass: KClass<out Fragment>,
     ) {
-        Prefs.isNewStudyScreenEnabled = true
         withPreferencesActivity(
             fragmentClass,
             fullHeightList = fragmentClass.fullHeightList(),

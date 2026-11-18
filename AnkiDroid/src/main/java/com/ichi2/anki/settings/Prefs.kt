@@ -436,7 +436,6 @@ open class PrefsRepository protected constructor(
     //endregion
     // ************************************** Accessibility ************************************* //
 
-    val answerButtonsSize: Int by intPref(R.string.answer_button_size_preference, 100)
     val cardZoom: Int by intPref(R.string.card_zoom_preference, 100)
     val imageZoom: Int by intPref(R.string.image_zoom_preference, 100)
 
@@ -466,8 +465,6 @@ open class PrefsRepository protected constructor(
         set(value) {
             isDeveloperOptionsEnabledByUser = value
         }
-
-    var isNewStudyScreenEnabled by booleanPref(R.string.new_reviewer_options_key, true)
 
     @set:VisibleForTesting
     var devIsCardBrowserFragmented: Boolean by booleanPref(R.string.dev_card_browser_fragmented, false)

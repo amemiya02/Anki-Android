@@ -271,10 +271,8 @@ class GraphicsUseFoundationTest {
          */
         private val CONTENT_COLOURS =
             mapOf(
-                "com/ichi2/anki/Whiteboard.kt" to "the old study screen's whiteboard: pen and ink colours the person picks",
                 "com/ichi2/anki/ui/windows/reviewer/whiteboard/" to "the whiteboard: brush and ink colours the person picks",
                 "com/ichi2/anki/DrawingFragment.kt" to "a drawing saved into a Note: its paper is Card Content",
-                "com/ichi2/anki/AbstractFlashcardViewer.kt#Color.argb(" to "the Card Content's web view: 1/255 alpha, never seen",
             )
     }
 }

@@ -10,11 +10,9 @@ import android.content.pm.PackageManager
 import android.webkit.WebView
 import androidx.core.net.toUri
 import androidx.test.core.app.ActivityScenario
-import com.ichi2.anki.AbstractFlashcardViewerTest.NonAbstractFlashcardViewer
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.browser.IdsFile
-import com.ichi2.anki.loadInitialCard
 import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.anki.previewer.PreviewerFragment
 import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
@@ -29,7 +27,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
-import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -156,31 +153,20 @@ class CardLinkNavigationTest(
 
     private fun withWebView(block: (WebView) -> Unit) {
         val note = addBasicAndReversedNote()
-        if (viewerType != ViewerType.LEGACY) {
-            val intent =
-                if (viewerType == ViewerType.PREVIEWER) {
+        val intent =
+            when (viewerType) {
+                ViewerType.PREVIEWER ->
                     PreviewerFragment.getIntent(
                         targetContext,
                         idsFile = IdsFile(createTransientDirectory(), note.cardIds(col), IdsFile.Purpose.PREVIEW),
                         currentIndex = 0,
                     )
-                } else {
-                    ReviewerFragment.getIntent(targetContext)
-                }
-            ActivityScenario.launch<CardViewerActivity>(intent).use { scenario ->
-                scenario.onActivity { activity ->
-                    block(activity.findViewById<SafeWebViewLayout>(R.id.web_view_layout).webView)
-                }
+                ViewerType.STUDY -> ReviewerFragment.getIntent(targetContext)
             }
-        } else {
-            val controller = Robolectric.buildActivity(NonAbstractFlashcardViewer::class.java).setup()
-            saveControllerForCleanup(controller)
-            val viewer = controller.get()
-            viewer.onCollectionLoaded(col)
-            viewer.loadInitialCard()
-            advanceRobolectricLooper()
-            advanceRobolectricLooper()
-            block(assertNotNull(viewer.webView))
+        ActivityScenario.launch<CardViewerActivity>(intent).use { scenario ->
+            scenario.onActivity { activity ->
+                block(activity.findViewById<SafeWebViewLayout>(R.id.web_view_layout).webView)
+            }
         }
     }
 
@@ -190,5 +176,5 @@ class CardLinkNavigationTest(
         fun viewers() = ViewerType.entries.map { arrayOf(it) }
     }
 
-    enum class ViewerType { LEGACY, PREVIEWER, STUDY }
+    enum class ViewerType { PREVIEWER, STUDY }
 }

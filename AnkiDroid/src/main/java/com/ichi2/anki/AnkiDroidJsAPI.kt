@@ -6,7 +6,6 @@ package com.ichi2.anki
 import android.content.Context
 import anki.scheduler.CardAnswer.Rating
 import com.github.zafarkhaja.semver.Version
-import com.google.android.material.snackbar.Snackbar
 import com.ichi2.anki.AnkiDroidJsAPIConstants.ANKI_JS_ERROR_CODE_BURT_NOTE
 import com.ichi2.anki.AnkiDroidJsAPIConstants.ANKI_JS_ERROR_CODE_BURY_CARD
 import com.ichi2.anki.AnkiDroidJsAPIConstants.ANKI_JS_ERROR_CODE_ERROR
@@ -17,10 +16,7 @@ import com.ichi2.anki.AnkiDroidJsAPIConstants.ANKI_JS_ERROR_CODE_SUSPEND_CARD
 import com.ichi2.anki.AnkiDroidJsAPIConstants.ANKI_JS_ERROR_CODE_SUSPEND_NOTE
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.browser.search.SearchString
-import com.ichi2.anki.cardviewer.ViewerCommand
 import com.ichi2.anki.common.annotations.NeedsTest
-import com.ichi2.anki.common.destinations.BrowserDestination
-import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.ext.stringIterable
 import com.ichi2.anki.libanki.Card
@@ -34,10 +30,6 @@ import com.ichi2.anki.reviewer.FullScreenMode
 import com.ichi2.anki.security.AppPermissions
 import com.ichi2.anki.security.DangerousJsApiPermission
 import com.ichi2.anki.security.DangerousJsPermissionDeniedException
-import com.ichi2.anki.servicelayer.rescheduleCards
-import com.ichi2.anki.servicelayer.resetCards
-import com.ichi2.anki.snackbar.setMaxLines
-import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.utils.NetworkUtils
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -57,26 +49,12 @@ typealias JvmFloat = Float
 typealias JvmLong = Long
 typealias JvmString = String
 
-open class AnkiDroidJsAPI internal constructor(
+class AnkiDroidJsAPI internal constructor(
     private val context: Context,
     private val showMessage: (String) -> Unit,
     private val cardApi: CardApi,
     private val showDeveloperMessage: (String) -> Unit,
 ) {
-    constructor(activity: AbstractFlashcardViewer) : this(
-        context = activity,
-        showMessage = { activity.showSnackbar(it) },
-        cardApi = LegacyCardApi(activity),
-        showDeveloperMessage = {
-            activity.showSnackbar(it, Snackbar.LENGTH_INDEFINITE) {
-                setMaxLines(3)
-                setAction(CommonString.reviewer_invalid_api_version_visit_documentation) {
-                    activity.openUrl("https://github.com/ankidroid/Anki-Android/wiki")
-                }
-            }
-        },
-    )
-
     /**
      Javascript Interface class for calling Java function from AnkiDroid WebView
      see js-api.js for available functions
@@ -95,22 +73,22 @@ open class AnkiDroidJsAPI internal constructor(
         if (speechRecognizerDelegate.isInitialized()) speechRecognizer.cancel()
     }
 
-    open fun convertToByteArray(
+    private fun convertToByteArray(
         apiContract: ApiContract,
         boolean: Boolean,
     ): ByteArray = ApiResult.Boolean(apiContract.isValid, boolean).toString().toByteArray()
 
-    open fun convertToByteArray(
+    private fun convertToByteArray(
         apiContract: ApiContract,
         int: Int,
     ): ByteArray = ApiResult.Integer(apiContract.isValid, int).toString().toByteArray()
 
-    open fun convertToByteArray(
+    private fun convertToByteArray(
         apiContract: ApiContract,
         long: Long,
     ): ByteArray = ApiResult.Long(apiContract.isValid, long).toString().toByteArray()
 
-    open fun convertToByteArray(
+    private fun convertToByteArray(
         apiContract: ApiContract,
         string: String,
     ): ByteArray = ApiResult.String(apiContract.isValid, string).toString().toByteArray()
@@ -192,25 +170,15 @@ open class AnkiDroidJsAPI internal constructor(
         return false
     }
 
-    /**
-     * Handle js api request,
-     * some of the methods are overridden in Reviewer.kt and default values are returned.
-     * @param methodName
-     * @param bytes
-     * @param returnDefaultValues `true` if default values should be returned (if non-[Reviewer])
-     * @return
-     */
+    /** Handles a request from an initialized study Card Template. */
     @NeedsTest("setNoteTags: Test that tags are set for all edge cases")
-    open suspend fun handleJsApiRequest(
+    suspend fun handleJsApiRequest(
         methodName: String,
         bytes: ByteArray,
-        returnDefaultValues: Boolean = true,
     ) = withContext(Dispatchers.Main) {
         // the method will call to set the card supplied data and is valid version for each api request
         val apiContract = parseJsApiContract(bytes)!!
-        // if api not init or is api not called from reviewer then return default -1
-        // also other action will not be modified
-        if (!apiContract.isValid or returnDefaultValues) {
+        if (!apiContract.isValid) {
             return@withContext convertToByteArray(apiContract, -1)
         }
 
@@ -636,105 +604,5 @@ open class AnkiDroidJsAPI internal constructor(
          */
         const val VALUE_KEY = "value"
         const val SUCCESS_KEY = "success"
-    }
-}
-
-private class LegacyCardApi(
-    private val activity: AbstractFlashcardViewer,
-) : AnkiDroidJsAPI.CardApi {
-    override val isDisplayingAnswer: Boolean get() = activity.isDisplayingAnswer
-    override val isFullscreen: Boolean get() = activity.isFullscreen
-    override val isTopbarShown: Boolean get() = activity.prefShowTopbar
-    override val isInNightMode: Boolean get() = activity.isInNightMode
-
-    override suspend fun getCard(): Card = checkNotNull(activity.currentCard)
-
-    override suspend fun getCardData(includeEta: Boolean) = activity.getCardDataForJsApi()
-
-    override suspend fun showOrAnswer(rating: Rating?) {
-        if (rating == null) activity.displayCardAnswer() else activity.flipOrAnswerCard(rating)
-    }
-
-    override suspend fun toggleFlag(flag: Flag): Boolean =
-        activity.executeCommand(AnkiDroidJsAPIConstants.flagCommands.getValue(flag.name.lowercase()))
-
-    override suspend fun performAction(action: ViewerAction): Boolean =
-        when (action) {
-            ViewerAction.MARK -> activity.executeCommand(ViewerCommand.MARK)
-            ViewerAction.BURY_CARD -> activity.buryCard()
-            ViewerAction.BURY_NOTE -> activity.buryNote()
-            ViewerAction.SUSPEND_CARD -> activity.suspendCard()
-            ViewerAction.SUSPEND_NOTE -> activity.suspendNote()
-            ViewerAction.TAG -> {
-                activity.showTagsDialog()
-                true
-            }
-            else -> error("Unsupported Card action: $action")
-        }
-
-    override suspend fun setCardDue(days: Int): Boolean {
-        val id = getCard().id
-        activity.launchCatchingTask { activity.rescheduleCards(listOf(id), days) }
-        return true
-    }
-
-    override suspend fun resetProgress(): Boolean {
-        val id = getCard().id
-        activity.launchCatchingTask { activity.resetCards(listOf(id)) }
-        return true
-    }
-
-    override suspend fun updateNoteTags(
-        card: Card,
-        noteId: NoteId,
-        update: Collection.(Note) -> Unit,
-    ): Boolean {
-        withCol {
-            val note = getNote(noteId)
-            update(note)
-            updateNote(note)
-        }
-        return true
-    }
-
-    override fun searchCard(query: String): Boolean {
-        with(activity) { navigate(BrowserDestination.Search(query = query, allDecks = false)) }
-        return true
-    }
-
-    override fun setFullscreenMode(mode: FullScreenMode): Boolean = (activity as? Reviewer)?.setFullscreenMode(mode) ?: false
-
-    override fun setScrollbar(
-        horizontal: Boolean,
-        enabled: Boolean,
-    ): Boolean {
-        val webView = activity.webView ?: return false
-        if (horizontal) webView.isHorizontalScrollBarEnabled = enabled else webView.isVerticalScrollBarEnabled = enabled
-        return true
-    }
-
-    override fun showNavigation(): Boolean {
-        activity.onNavigationPressed()
-        return true
-    }
-
-    override fun showOptionsMenu(): Boolean {
-        activity.openOptionsMenu()
-        return true
-    }
-
-    override fun canStartSpeechRecognition(): Boolean = true
-
-    override fun captureCallback(): (String) -> Unit {
-        val webView = activity.webView
-        val card = activity.currentCard
-        val isAnswer = activity.isDisplayingAnswer
-        return { js ->
-            webView?.post {
-                if (webView === activity.webView && card === activity.currentCard && isAnswer == activity.isDisplayingAnswer) {
-                    webView.evaluateJavascript(js, null)
-                }
-            }
-        }
     }
 }

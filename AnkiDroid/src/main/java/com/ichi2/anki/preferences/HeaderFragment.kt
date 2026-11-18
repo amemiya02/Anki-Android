@@ -15,7 +15,6 @@ import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.common.android.AdaptionUtil
-import com.ichi2.anki.compat.CompatHelper
 import com.ichi2.anki.preferences.profiles.SwitchProfilesFragment
 import com.ichi2.anki.preferences.reviewer.ReviewerMenuSettingsFragment
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
@@ -116,10 +115,6 @@ class HeaderFragment : SettingsFragment() {
                 }
 
                 index(R.xml.preferences_appearance)
-                if (!Prefs.isNewStudyScreenEnabled) {
-                    index(R.xml.preferences_custom_buttons)
-                        .addBreadcrumb(TR.preferencesAppearance())
-                }
                 index(R.xml.preferences_controls)
                 index(R.xml.preferences_reviewer_controls)
                     .addBreadcrumb(activity.getString(CommonString.pref_cat_controls))
@@ -169,16 +164,6 @@ class HeaderFragment : SettingsFragment() {
                     .addBreadcrumb(activity.getString(CommonString.pref_cat_general))
                     .addBreadcrumb(activity.getString(CommonString.pref_cat_system_wide))
 
-                if (!Prefs.isNewStudyScreenEnabled) {
-                    indexItem()
-                        .withKey(activity.getString(R.string.show_audio_play_buttons_key))
-                        .withTitle(
-                            TR.preferencesShowPlayButtonsOnCardsWith(),
-                        ).withResId(R.xml.preferences_appearance)
-                        .addBreadcrumb(TR.preferencesAppearance())
-                        .addBreadcrumb(activity.getString(CommonString.pref_cat_reviewer))
-                }
-
                 indexItem()
                     .withKey(activity.getString(R.string.one_way_sync_key))
                     .withTitle(
@@ -212,23 +197,9 @@ class HeaderFragment : SettingsFragment() {
                 searchConfiguration.ignorePreference(activity.getString(R.string.pref_notifications_blink_key))
             }
 
-            // From [AdvancedSettingsFragment.removeUnnecessaryAdvancedPrefs]
-            if (!CompatHelper.hasScrollKeys()) {
-                searchConfiguration.ignorePreference(activity.getString(R.string.double_scrolling_gap_key))
-            }
-
             searchConfiguration.ignorePreference(activity.getString(R.string.user_actions_controls_category_key))
 
-            if (Prefs.isNewStudyScreenEnabled) {
-                searchConfiguration.index(R.xml.preferences_reviewer)
-                val legacySettings =
-                    AdvancedSettingsFragment.legacyStudyScreenSettings + AccessibilitySettingsFragment.legacyStudyScreenSettings +
-                        AppearanceSettingsFragment.legacyStudyScreenSettings + ControlsSettingsFragment.legacyStudyScreenSettings
-                for (key in legacySettings) {
-                    val keyString = activity.getString(key)
-                    searchConfiguration.ignorePreference(keyString)
-                }
-            }
+            searchConfiguration.index(R.xml.preferences_reviewer)
         }
 
         /**
@@ -245,12 +216,12 @@ class HeaderFragment : SettingsFragment() {
                 is SyncSettingsFragment, is CustomSyncServerSettingsFragment -> R.string.pref_sync_screen_key
                 is NotificationsSettingsFragment -> R.string.pref_notifications_screen_key
                 is ScheduleRemindersFragment -> R.string.pref_review_reminders_screen_key
-                is AppearanceSettingsFragment, is CustomButtonsSettingsFragment -> R.string.pref_appearance_screen_key
+                is AppearanceSettingsFragment -> R.string.pref_appearance_screen_key
                 is ControlsSettingsFragment -> R.string.pref_controls_screen_key
                 is AccessibilitySettingsFragment -> R.string.pref_accessibility_screen_key
                 is BackupLimitsSettingsFragment -> R.string.pref_backup_limits_screen_key
                 is AdvancedSettingsFragment -> R.string.pref_advanced_screen_key
-                is ReviewerOptionsFragment, is ReviewerMenuSettingsFragment -> R.string.new_reviewer_options_key
+                is ReviewerOptionsFragment, is ReviewerMenuSettingsFragment -> R.string.pref_study_screen_key
                 is DeveloperOptionsFragment -> R.string.pref_developer_options_screen_key
                 is AboutFragment -> R.string.about_screen_key
                 is SwitchProfilesFragment -> R.string.pref_switch_profile_screen_key

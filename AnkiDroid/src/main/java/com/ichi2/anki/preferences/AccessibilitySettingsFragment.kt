@@ -2,11 +2,9 @@
 
 package com.ichi2.anki.preferences
 
-import androidx.preference.Preference
 import androidx.preference.SwitchPreferenceCompat
 import com.ichi2.anki.R
 import com.ichi2.anki.common.android.Animations
-import com.ichi2.anki.settings.Prefs
 
 /**
  * Fragment with preferences related to notifications
@@ -17,32 +15,11 @@ class AccessibilitySettingsFragment : SettingsFragment() {
     override val analyticsScreenNameConstant: String
         get() = "prefs.accessibility"
 
-    override fun initSubscreen() {
-        setupNewStudyScreenSettings()
-    }
-
-    private fun setupNewStudyScreenSettings() {
-        if (!Prefs.isNewStudyScreenEnabled) return
-
-        requirePreference<Preference>(R.string.answer_button_size_pref_key).isVisible = true
-
-        for (key in legacyStudyScreenSettings) {
-            val keyString = getString(key)
-            findPreference<Preference>(keyString)?.isVisible = false
-        }
-    }
+    override fun initSubscreen() = Unit
 
     override fun onResume() {
         super.onResume()
         requirePreference<SwitchPreferenceCompat>(R.string.safe_display_key).isEnabled =
             Animations.areSystemAnimationsEnabled(requireContext())
-    }
-
-    companion object {
-        val legacyStudyScreenSettings =
-            listOf(
-                R.string.show_large_answer_buttons_preference,
-                R.string.answer_button_size_preference,
-            )
     }
 }

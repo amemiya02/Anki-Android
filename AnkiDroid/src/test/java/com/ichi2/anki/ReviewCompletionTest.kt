@@ -4,18 +4,18 @@ package com.ichi2.anki
 import android.content.Intent
 import android.view.KeyEvent
 import anki.scheduler.CardAnswer.Rating
-import com.ichi2.anki.AbstractFlashcardViewer.Companion.RESULT_NO_MORE_CARDS
 import com.ichi2.anki.NavigationDrawerActivity.Companion.EXTRA_STARTED_WITH_SHORTCUT
 import com.ichi2.anki.libanki.Consts.DEFAULT_DECK_ID
-import com.ichi2.anki.settings.Prefs
+import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.anki.study.FinishedFragment
+import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
+import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment.Companion.RESULT_NO_MORE_CARDS
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.json.JSONArray
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
-import org.robolectric.shadows.ShadowToast
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -28,13 +28,6 @@ class ReviewCompletionTest : RobolectricTest() {
     var fromShortcut = false
 
     override fun getCollectionStorageMode() = CollectionStorageMode.IN_MEMORY_WITH_MEDIA
-
-    @Before
-    fun configureCompletionScreen() {
-        // these cases are the old study screen's, which is no longer the default
-        Prefs.isNewStudyScreenEnabled = false
-        ShadowToast.reset()
-    }
 
     @Test
     fun `finished parent with cards only in its child still shows completion`() {
@@ -77,18 +70,15 @@ class ReviewCompletionTest : RobolectricTest() {
     private fun completeReview(finishCards: () -> Unit) {
         if (fromShortcut) {
             runTest {
-                val reviewer =
-                    startActivityNormallyOpenCollectionWithIntent(
-                        Reviewer::class.java,
-                        Intent().putExtra(EXTRA_STARTED_WITH_SHORTCUT, true),
-                    )
-                advanceRobolectricLooper()
-                assertNotNull(reviewer.currentCardId)
                 finishCards()
                 val selected = col.decks.selected()
                 val undoStatus = col.undoStatus()
-
-                reviewer.updateCardAndRedraw()
+                val intent = ReviewerFragment.getIntent(targetContext).putExtra(EXTRA_STARTED_WITH_SHORTCUT, true)
+                val reviewer = startActivityNormallyOpenCollectionWithIntent(CardViewerActivity::class.java, intent)
+                val fragment = reviewer.fragment as ReviewerFragment
+                // Robolectric does not run the WebView page load callback.
+                fragment.viewModel.onPageFinished(false)
+                advanceUntilIdle()
                 advanceRobolectricLooper()
 
                 assertTrue(reviewer.isFinishing)
@@ -105,7 +95,8 @@ class ReviewCompletionTest : RobolectricTest() {
                 assertTrue(onKeyUp(KeyEvent.KEYCODE_S, KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_S)))
                 advanceRobolectricLooperUntil { shadow.peekNextStartedActivity() != null }
                 val review = assertNotNull(shadow.nextStartedActivityForResult)
-                assertEquals(Reviewer::class.java.name, review.intent.component?.className)
+                assertEquals(CardViewerActivity::class.java.name, review.intent.component?.className)
+                assertEquals(ReviewerFragment::class.java.name, review.intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME))
                 shadow.clearNextStartedActivities()
                 finishCards()
                 val selected = col.decks.selected()

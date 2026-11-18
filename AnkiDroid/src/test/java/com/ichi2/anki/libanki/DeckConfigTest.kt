@@ -5,8 +5,8 @@ package com.ichi2.anki.libanki
 
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import com.ichi2.anki.libanki.DeckConfig.New
-import com.ichi2.anki.reviewer.AutomaticAnswerAction
-import com.ichi2.anki.reviewer.AutomaticAnswerAction.Companion.answerAction
+import com.ichi2.anki.ui.windows.reviewer.autoadvance.AnswerAction
+import com.ichi2.anki.ui.windows.reviewer.autoadvance.AnswerAction.Companion.answerAction
 import com.ichi2.anki.ui.windows.reviewer.autoadvance.QuestionAction
 import com.ichi2.anki.ui.windows.reviewer.autoadvance.QuestionAction.Companion.questionAction
 import com.ichi2.testutils.isJsonHolderEqual
@@ -41,12 +41,12 @@ class DeckConfigTest {
 
     @Test
     fun testAnswerAction() {
-        val dc = DeckConfig("""{"answerAction": ${AutomaticAnswerAction.ANSWER_AGAIN.configValue}}""")
-        assertEquals(AutomaticAnswerAction.ANSWER_AGAIN, dc.answerAction)
+        val dc = DeckConfig("""{"answerAction": ${AnswerAction.ANSWER_AGAIN.code}}""")
+        assertEquals(AnswerAction.ANSWER_AGAIN, dc.answerAction)
         dc.removeAnswerAction()
-        assertEquals(AutomaticAnswerAction.BURY_CARD, dc.answerAction)
+        assertEquals(AnswerAction.BURY_CARD, dc.answerAction)
         val dcError = DeckConfig("""{"answerAction": 42}""")
-        assertEquals(AutomaticAnswerAction.BURY_CARD, dcError.answerAction)
+        assertEquals(AnswerAction.BURY_CARD, dcError.answerAction)
     }
 
     @Test

@@ -14,15 +14,11 @@ import androidx.preference.SwitchPreferenceCompat
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.DeckPicker
-import com.ichi2.anki.MetaDB
 import com.ichi2.anki.R
 import com.ichi2.anki.common.storage.CollectionHelper
-import com.ichi2.anki.compat.CompatHelper
 import com.ichi2.anki.exception.StorageAccessException
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.provider.CardContentProvider
-import com.ichi2.anki.settings.Prefs
-import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.startup.getDefaultAnkiDroidDirectory
 import com.ichi2.anki.utils.openUrl
 import com.ichi2.preferences.ExternalDirectorySelectionPreference
@@ -60,8 +56,6 @@ class AdvancedSettingsFragment : SettingsFragment() {
         }
 
     override fun initSubscreen() {
-        removeUnnecessaryAdvancedPrefs()
-
         // Check that input is valid before committing change in the collection path
         requirePreference<ExternalDirectorySelectionPreference>(CollectionHelper.PREF_COLLECTION_PATH).apply {
             setOnPreferenceChangeListener { _, newValue: Any? ->
@@ -88,39 +82,6 @@ class AdvancedSettingsFragment : SettingsFragment() {
                     false
                 }
             }
-        }
-
-        val ttsPref = requirePreference<SwitchPreferenceCompat>(R.string.tts_key)
-        ttsPref.setOnPreferenceChangeListener { _, isChecked ->
-            if (!(isChecked as Boolean)) return@setOnPreferenceChangeListener true
-            AlertDialog.Builder(requireContext()).show {
-                setIcon(R.drawable.symbol_warning)
-                setMessage(CommonString.readtext_deprecation_warn)
-                setNegativeButton(CommonString.dialog_cancel) { _, _ -> ttsPref.isChecked = false }
-                setNeutralButton(CommonString.scoped_storage_learn_more) { _, _ ->
-                    ttsPref.isChecked = false
-                    requireContext().openUrl(R.string.link_tts)
-                }
-                setPositiveButton(CommonString.dialog_ok) { _, _ -> }
-                setOnCancelListener { ttsPref.isChecked = false }
-            }
-            return@setOnPreferenceChangeListener true
-        }
-
-        // Configure "Reset languages" preference
-        requirePreference<Preference>(R.string.pref_reset_languages_key).setOnPreferenceClickListener {
-            AlertDialog.Builder(requireContext()).show {
-                setTitle(CommonString.reset_languages)
-                setIcon(R.drawable.symbol_warning)
-                setMessage(CommonString.reset_languages_question)
-                setPositiveButton(CommonString.dialog_ok) { _, _ ->
-                    if (MetaDB.resetLanguages(requireContext())) {
-                        showSnackbar(CommonString.reset_confirmation)
-                    }
-                }
-                setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
-            }
-            false
         }
 
         requirePreference<SwitchPreferenceCompat>(R.string.pref_allow_template_audio_recording).apply {
@@ -159,36 +120,5 @@ class AdvancedSettingsFragment : SettingsFragment() {
                 }
             requireActivity().packageManager.setComponentEnabledSetting(providerName, state, PackageManager.DONT_KILL_APP)
         }
-
-        setupNewStudyScreenSettings()
-    }
-
-    private fun removeUnnecessaryAdvancedPrefs() {
-        /* These preferences should be searchable or not based
-         * on this same condition at [HeaderFragment.configureSearchBar] */
-        // Disable the double scroll preference if no scrolling keys
-        if (!CompatHelper.hasScrollKeys()) {
-            val doubleScrolling = findPreference<SwitchPreferenceCompat>("double_scrolling")
-            if (doubleScrolling != null) {
-                preferenceScreen.removePreference(doubleScrolling)
-            }
-        }
-    }
-
-    private fun setupNewStudyScreenSettings() {
-        if (!Prefs.isNewStudyScreenEnabled) return
-        for (key in legacyStudyScreenSettings) {
-            val keyString = getString(key)
-            findPreference<Preference>(keyString)?.isVisible = false
-        }
-    }
-
-    companion object {
-        val legacyStudyScreenSettings =
-            listOf(
-                R.string.pref_reset_languages_key,
-                R.string.double_scrolling_gap_key,
-                R.string.tts_key,
-            )
     }
 }

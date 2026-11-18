@@ -27,7 +27,6 @@ class MediaErrorHandler : MediaErrorListener {
         this.onTtsError = onTtsError
     }
 
-    // TODO turn into `val` once the legacy study screen is removed
     @VisibleForTesting
     var onMediaError: ((String) -> Unit)? = null
 

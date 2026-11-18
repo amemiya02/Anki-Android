@@ -15,14 +15,12 @@ import com.google.android.material.tabs.TabLayout
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
-import com.ichi2.anki.cardviewer.ViewerCommand
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.previewer.PreviewerAction
 import com.ichi2.anki.reviewer.CardSide
 import com.ichi2.anki.reviewer.MappableAction
 import com.ichi2.anki.reviewer.MappableBinding.Companion.toPreferenceString
-import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.sharedPrefs
 import com.ichi2.preferences.ControlPreference
@@ -56,7 +54,6 @@ class ControlsSettingsFragment :
         }
         setControlPreferencesDefaultValues(initialScreen)
         setDynamicTitle()
-        setupNewStudyScreenSettings()
         setupAnswerCommands()
     }
 
@@ -113,7 +110,6 @@ class ControlsSettingsFragment :
         addPreferencesFromResource(screen.xmlRes)
         setControlPreferencesDefaultValues(screen)
         setDynamicTitle()
-        setupNewStudyScreenSettings()
         setupAnswerCommands()
     }
 
@@ -129,6 +125,8 @@ class ControlsSettingsFragment :
     override fun onTabReselected(tab: TabLayout.Tab?) = Unit
 
     private fun setDynamicTitle() {
+        findPreference<ControlPreference>(R.string.browse_command_key)?.title = TR.qtMiscBrowse()
+        findPreference<ControlPreference>(R.string.statistics_command_key)?.title = TR.statisticsTitle()
         findPreference<ControlPreference>(getString(R.string.reschedule_command_key))?.let {
             val preferenceTitle = TR.sentenceCase.setDueDate
             it.title = preferenceTitle
@@ -199,36 +197,6 @@ class ControlsSettingsFragment :
         }
     }
 
-    private fun setupNewStudyScreenSettings() {
-        if (!Prefs.isNewStudyScreenEnabled) {
-            findPreference<Preference>(R.string.gestures_corner_touch_preference)?.dependency = getString(R.string.gestures_preference)
-            findPreference<Preference>(R.string.pref_swipe_sensitivity_key)?.dependency = getString(R.string.gestures_preference)
-            findPreference<Preference>(R.string.pref_key_whiteboard_undo)?.isVisible = false
-            findPreference<Preference>(R.string.pref_key_whiteboard_toggle_eraser)?.isVisible = false
-            findPreference<Preference>(R.string.pref_key_whiteboard_redo)?.isVisible = false
-            findPreference<Preference>(R.string.pref_key_whiteboard_clear)?.isVisible = false
-            return
-        }
-        for (keyRes in legacyStudyScreenSettings) {
-            val key = getString(keyRes)
-            findPreference<Preference>(key)?.isVisible = false
-        }
-        findPreference<ControlPreference>(getString(R.string.browse_command_key))?.apply {
-            title = TR.qtMiscBrowse()
-            isVisible = true
-            if (value == null) {
-                value = ViewerAction.BROWSE.getBindings(sharedPrefs()).toPreferenceString()
-            }
-        }
-        findPreference<ControlPreference>(getString(R.string.statistics_command_key))?.apply {
-            title = TR.statisticsTitle()
-            isVisible = true
-            if (value == null) {
-                value = ViewerAction.STATISTICS.getBindings(sharedPrefs()).toPreferenceString()
-            }
-        }
-    }
-
     private fun setupAnswerCommands() {
         val showAnswerPref = (findPreference<ControlPreference>(R.string.show_answer_command_key) as? ReviewerControlPreference)
 
@@ -278,15 +246,6 @@ class ControlsSettingsFragment :
                     screen.getActions().map { action -> action.preferenceKey to screen }
                 }.toMap()
         }
-
-        val legacyStudyScreenSettings =
-            listOf(
-                R.string.save_voice_command_key,
-                R.string.toggle_eraser_command_key,
-                R.string.clear_whiteboard_command_key,
-                R.string.change_whiteboard_pen_color_command_key,
-                R.string.gestures_preference,
-            )
     }
 }
 
@@ -299,7 +258,7 @@ enum class ControlPreferenceScreen(
 
     fun getActions(): List<MappableAction<*>> =
         when (this) {
-            REVIEWER -> if (Prefs.isNewStudyScreenEnabled) ViewerAction.entries else ViewerCommand.entries
+            REVIEWER -> ViewerAction.entries
             PREVIEWER -> PreviewerAction.entries
         }
 }

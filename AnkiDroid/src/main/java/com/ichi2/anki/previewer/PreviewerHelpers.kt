@@ -92,7 +92,7 @@ fun bodyClassForCardOrd(
 private fun bodyClass(nightMode: Boolean = Themes.isNightTheme): String = if (nightMode) "nightMode night_mode" else ""
 
 fun MaterialCardView.setFrameStyle() {
-    if (Prefs.frameStyle == FrameStyle.BOX && Prefs.isNewStudyScreenEnabled) {
+    if (Prefs.frameStyle == FrameStyle.BOX) {
         updateLayoutParams<MarginLayoutParams> {
             leftMargin = 0
             rightMargin = 0

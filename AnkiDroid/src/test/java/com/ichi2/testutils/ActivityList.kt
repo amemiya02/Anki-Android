@@ -23,7 +23,6 @@ import com.ichi2.anki.IntroductionActivity
 import com.ichi2.anki.NoteEditorActivity
 import com.ichi2.anki.NoteEditorFragment
 import com.ichi2.anki.NoteTypeFieldEditor
-import com.ichi2.anki.Reviewer
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.StoragePermissionSet
@@ -81,7 +80,6 @@ object ActivityList {
             ),
             get(NoteEditorActivity::class.java, normalIntent = { Intent().putExtras(NoteEditorFragment.addNoteArgs()) }),
             // Likely has unhandled intents
-            get(Reviewer::class.java),
             get(PreferencesActivity::class.java, normalIntent = { PreferencesActivity.getIntent(targetContext) }),
             get(Info::class.java),
             get(CardTemplateEditor::class.java, normalIntent = { note -> intentForCardTemplateEditor(note.noteTypeId) }) {

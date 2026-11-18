@@ -2,20 +2,18 @@
 
 package com.ichi2.anki.ui.windows.reviewer
 
+import androidx.annotation.IntDef
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import anki.collection.OpChanges
 import anki.frontend.SetSchedulingStatesRequest
 import anki.scheduler.CardAnswer.Rating
-import com.ichi2.anki.AbstractFlashcardViewer
-import com.ichi2.anki.AbstractFlashcardViewer.Companion.RESULT_NO_MORE_CARDS
 import com.ichi2.anki.AnkiDroidJsAPI
 import com.ichi2.anki.AnkiDroidJsAPI.CardDataForJsApi
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonPlurals
 import com.ichi2.anki.Flag
-import com.ichi2.anki.Reviewer
 import com.ichi2.anki.asyncIO
 import com.ichi2.anki.cardviewer.SingleCardSide
 import com.ichi2.anki.cardviewer.appendNoSuggestAttributes
@@ -58,6 +56,8 @@ import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.enums.NightTheme
 import com.ichi2.anki.tryRedo
 import com.ichi2.anki.tryUndo
+import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment.Companion.RESULT_DEFAULT
+import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment.Companion.RESULT_NO_MORE_CARDS
 import com.ichi2.anki.ui.windows.reviewer.autoadvance.AnswerAction
 import com.ichi2.anki.ui.windows.reviewer.autoadvance.AutoAdvance
 import com.ichi2.anki.ui.windows.reviewer.autoadvance.AutoAdvanceAction
@@ -570,8 +570,12 @@ class ReviewerViewModel(
         actionFeedbackFlow.emit(tryRedo())
     }
 
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(1, 2, 3, 4, 5, 6, 7, 8, 9)
+    private annotation class UserAction
+
     private suspend fun userAction(
-        @Reviewer.UserAction number: Int,
+        @UserAction number: Int,
     ) {
         eval.emit("ankidroid.userAction($number);")
     }
@@ -1002,7 +1006,7 @@ class ReviewerViewModel(
                     ViewerAction.REPLAY_VOICE -> replayVoiceFlow.emit(Unit)
                     ViewerAction.PAGE_UP -> pageUpFlow.emit(Unit)
                     ViewerAction.PAGE_DOWN -> pageDownFlow.emit(Unit)
-                    ViewerAction.EXIT -> finishResultFlow.emit(AbstractFlashcardViewer.RESULT_DEFAULT)
+                    ViewerAction.EXIT -> finishResultFlow.emit(RESULT_DEFAULT)
                     ViewerAction.USER_ACTION_1 -> userAction(1)
                     ViewerAction.USER_ACTION_2 -> userAction(2)
                     ViewerAction.USER_ACTION_3 -> userAction(3)

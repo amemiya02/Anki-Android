@@ -31,7 +31,6 @@ class PreferenceFragmentsProvider : TestParameterValuesProvider() {
                 NotificationsSettingsFragment::class,
                 ScheduleRemindersFragment::class,
                 AppearanceSettingsFragment::class,
-                CustomButtonsSettingsFragment::class,
                 ControlsSettingsFragment::class,
                 AccessibilitySettingsFragment::class,
                 ReviewerOptionsFragment::class,

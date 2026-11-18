@@ -2,8 +2,6 @@
 
 package com.ichi2.anki
 
-import android.app.Activity
-import android.content.Intent
 import android.view.View
 import android.webkit.WebView
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
@@ -22,6 +20,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import anki.config.ConfigKey
 import anki.config.copy
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.ext.cardStateCustomizer
@@ -47,6 +46,7 @@ import com.ichi2.anki.testutil.waitUntil
 import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
+import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
@@ -55,6 +55,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.UUID
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
@@ -73,10 +76,6 @@ class ReviewerFragmentTest : InstrumentedTest() {
 
     @Before
     fun setUp() {
-        testContext.sharedPrefs().edit {
-            putBoolean("newReviewer", true)
-            putBoolean("newReviewerOptions", true)
-        }
         testDeckId = col.decks.addNormalDeckWithName("ReviewerFragmentTest-${UUID.randomUUID()}").id
         col.decks.select(testDeckId)
     }
@@ -540,9 +539,43 @@ class ReviewerFragmentTest : InstrumentedTest() {
     }
 
     @Test
-    fun cardTemplateReadsTheSameValuesInBothStudyScreens() {
+    fun audioAndSpeechPlayButtonsFollowTheCollectionSetting() {
+        val noteType = col.notetypes.copy(col.notetypes.byName("Basic")!!)
+        val key = ConfigKey.Bool.HIDE_AUDIO_PLAY_BUTTONS
+        val original = col.config.getBool(key)
+        try {
+            noteType.templates[0].qfmt = "<p id='audio-question'>{{Front}}</p>{{tts en_GB:Back}}"
+            col.notetypes.save(noteType)
+            val note =
+                col.newNote(noteType).apply {
+                    setField(0, "Audio question [sound:recording.mp3]")
+                    setField(1, "Text to speak")
+                }
+            col.addNote(note, testDeckId)
+            for (hide in listOf(false, true)) {
+                col.config.setBool(key, hide)
+                withReviewerWebView { webView ->
+                    webView.awaitJavascript("document.getElementById('audio-question')?.textContent.includes('Audio question')")
+                    assertEquals(
+                        if (hide) "0" else "2",
+                        webView.evaluate("document.querySelectorAll('a.replay-button').length"),
+                    )
+                }
+            }
+        } finally {
+            col.config.setBool(key, original)
+            col.notetypes.remove(noteType.id)
+        }
+    }
+
+    @Test
+    fun cardTemplateReadsTheReviewerApiValuesOnBothSides() {
         val noteType = col.notetypes.copy(col.notetypes.byName("Basic")!!)
         val preferences = col.getPreferences()
+        val sharedPrefs = testContext.sharedPrefs()
+        val etaKey = "showETA"
+        val storedEta = sharedPrefs.all[etaKey] as? Boolean
+        sharedPrefs.edit { putBoolean(etaKey, false) }
         col.setPreferences(preferences.copy { reviewing = reviewing.copy { showIntervalsOnButtons = true } })
         try {
             noteType.templates[0].qfmt = cardDataTemplate("question", "Front")
@@ -556,10 +589,54 @@ class ReviewerFragmentTest : InstrumentedTest() {
                 }
             col.addNote(note, testDeckId)
 
-            val legacy = readCardData(Intent(testContext, Reviewer::class.java))
-            val study = readCardData(ReviewerFragment.getIntent(testContext))
-            assertThat(study, equalTo(legacy))
+            val card = note.firstCard(col)
+            // Compare the public JSON responses with the fixture, including types and values
+            // previously compared across both reviewers in ticket 22.
+            val cardData =
+                mapOf(
+                    "NewCardCount" to 1,
+                    "LrnCardCount" to 0,
+                    "RevCardCount" to 0,
+                    "ETA" to 0,
+                    "CardMark" to true,
+                    "CardFlag" to 0,
+                    "CardReps" to 0,
+                    "CardInterval" to 0,
+                    "CardFactor" to card.factor,
+                    "CardMod" to card.mod,
+                    "CardId" to card.id,
+                    "CardNid" to note.id,
+                    "CardType" to 0,
+                    "CardDid" to testDeckId,
+                    "CardLeft" to 0,
+                    "CardODid" to 0,
+                    "CardODue" to 0,
+                    "CardQueue" to 0,
+                    "CardLapses" to 0,
+                    "CardDue" to card.due,
+                    "DeckName" to col.decks.name(testDeckId),
+                    "NoteTags" to JSONArray(listOf("marked")).toString(),
+                )
+            val queue = assertNotNull(col.sched.currentQueueState())
+            val intervals =
+                col.sched
+                    .describeNextStates(queue.states)
+                    .mapIndexed { index, interval -> "NextTime${index + 1}" to interval }
+                    .toMap()
+            withReviewerWebView { webView ->
+                val question = webView.readCardDataSide("question")
+                assertCardData(question, cardData + intervals.mapValues { "" } + ("IsDisplayingAnswer" to false))
+
+                webView.evaluate("void window.flipTestCard()")
+
+                val answer = webView.readCardDataSide("answer")
+                assertCardData(answer, cardData + intervals + ("IsDisplayingAnswer" to true))
+                onView(withText(CommonString.feature_not_supported_by_study_screen)).check(doesNotExist())
+            }
         } finally {
+            sharedPrefs.edit {
+                if (storedEta == null) remove(etaKey) else putBoolean(etaKey, storedEta)
+            }
             col.setPreferences(preferences)
             col.notetypes.remove(noteType.id)
         }
@@ -598,28 +675,33 @@ class ReviewerFragmentTest : InstrumentedTest() {
         </script>
         """.trimIndent()
 
-    private fun readCardData(intent: Intent): List<String> =
-        ActivityScenario.launch<Activity>(intent).use { scenario ->
-            lateinit var webView: WebView
-            scenario.onActivity { activity ->
-                webView =
-                    when (activity) {
-                        is Reviewer -> checkNotNull(activity.webView)
-                        is CardViewerActivity -> (activity.fragment as ReviewerFragment).binding.webViewLayout.getChildAt(0) as WebView
-                        else -> error("Expected a study screen")
-                    }
+    private fun assertCardData(
+        response: JSONObject,
+        expected: Map<String, Any>,
+    ) {
+        assertEquals(expected.keys, response.keys().asSequence().toSet())
+        for ((name, value) in expected) {
+            val raw = response.get(name)
+            val result =
+                if (name.startsWith("NextTime") || name == "DeckName") {
+                    JSONObject(assertIs<String>(raw, name))
+                } else {
+                    assertIs<JSONObject>(raw, name)
+                }
+            assertEquals(true, result.get("success"), name)
+            val actual = result.get("value")
+            if (value is Number) {
+                assertEquals(value.toLong(), assertIs<Number>(actual, name).toLong(), name)
+            } else {
+                assertEquals(value, actual, name)
             }
-            val question = webView.readCardDataSide("question")
-            webView.evaluate("void window.flipTestCard()")
-            val answer = webView.readCardDataSide("answer")
-            onView(withText(CommonString.feature_not_supported_by_study_screen)).check(doesNotExist())
-            listOf(question, answer)
         }
+    }
 
-    private fun WebView.readCardDataSide(side: String): String {
+    private fun WebView.readCardDataSide(side: String): JSONObject {
         val data = "document.getElementById('$side-data').textContent"
         awaitJavascript("Boolean(document.getElementById('$side-data')?.textContent)")
-        return evaluate("JSON.parse($data)")
+        return JSONObject(evaluate("JSON.parse($data)"))
     }
 
     private fun withReviewerWebView(block: (WebView) -> Unit) {

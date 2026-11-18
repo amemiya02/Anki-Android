@@ -7546,11 +7546,6 @@ Lcom/google/protobuf/WireFormat$JavaType;
 SPLcom/google/protobuf/WireFormat$JavaType;->$values()[Lcom/google/protobuf/WireFormat$JavaType;
 SPLcom/google/protobuf/WireFormat$JavaType;-><clinit>()V
 SPLcom/google/protobuf/WireFormat$JavaType;-><init>(Ljava/lang/String;ILjava/lang/Object;)V
-Lcom/ichi2/anki/AbstractFlashcardViewer;
-SPLcom/ichi2/anki/AbstractFlashcardViewer;-><clinit>()V
-Lcom/ichi2/anki/AbstractFlashcardViewer$Companion;
-SPLcom/ichi2/anki/AbstractFlashcardViewer$Companion;-><init>()V
-SPLcom/ichi2/anki/AbstractFlashcardViewer$Companion;-><init>(Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 Lcom/ichi2/anki/AbstractIntentHandler;
 SPLcom/ichi2/anki/AbstractIntentHandler;-><clinit>()V
 SPLcom/ichi2/anki/AbstractIntentHandler;-><init>()V
@@ -8456,16 +8451,6 @@ Lcom/ichi2/anki/R$layout;
 Lcom/ichi2/anki/R$menu;
 Lcom/ichi2/anki/R$string;
 Lcom/ichi2/anki/R$style;
-Lcom/ichi2/anki/Reviewer;
-SPLcom/ichi2/anki/Reviewer;-><clinit>()V
-Lcom/ichi2/anki/Reviewer$$ExternalSyntheticLambda17;
-SPLcom/ichi2/anki/Reviewer$$ExternalSyntheticLambda17;-><init>()V
-Lcom/ichi2/anki/Reviewer$$ExternalSyntheticLambda18;
-SPLcom/ichi2/anki/Reviewer$$ExternalSyntheticLambda18;-><init>()V
-Lcom/ichi2/anki/Reviewer$Companion;
-SPLcom/ichi2/anki/Reviewer$Companion;-><init>()V
-SPLcom/ichi2/anki/Reviewer$Companion;-><init>(Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-SPLcom/ichi2/anki/Reviewer$Companion;->getIntent(Landroid/content/Context;)Landroid/content/Intent;
 Lcom/ichi2/anki/StoragePermissionSet;
 SPLcom/ichi2/anki/StoragePermissionSet;->$values()[Lcom/ichi2/anki/StoragePermissionSet;
 SPLcom/ichi2/anki/StoragePermissionSet;-><clinit>()V
@@ -8547,7 +8532,6 @@ SPLcom/ichi2/anki/TtsVoicesFieldFilter$Companion;-><init>(Lkotlin/jvm/internal/D
 SPLcom/ichi2/anki/TtsVoicesFieldFilter$Companion;->ensureApplied()V
 Lcom/ichi2/anki/TtsVoicesKt;
 SPLcom/ichi2/anki/TtsVoicesKt;->toTtsVoice(Landroid/speech/tts/Voice;Ljava/lang/String;)Lcom/ichi2/anki/AndroidTtsVoice;
-Lcom/ichi2/anki/WhiteboardMultiTouchMethods;
 Lcom/ichi2/anki/analytics/AnalyticsConstants;
 SPLcom/ichi2/anki/analytics/AnalyticsConstants;-><clinit>()V
 SPLcom/ichi2/anki/analytics/AnalyticsConstants;-><init>()V
@@ -8654,7 +8638,6 @@ Lcom/ichi2/anki/cardviewer/MediaErrorHandler$Companion;
 SPLcom/ichi2/anki/cardviewer/MediaErrorHandler$Companion;-><init>()V
 SPLcom/ichi2/anki/cardviewer/MediaErrorHandler$Companion;-><init>(Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 Lcom/ichi2/anki/cardviewer/MediaErrorListener;
-Lcom/ichi2/anki/cardviewer/ViewerCommand$CommandProcessor;
 Lcom/ichi2/anki/common/analytics/Analytics;
 SPLcom/ichi2/anki/common/analytics/Analytics;-><clinit>()V
 SPLcom/ichi2/anki/common/analytics/Analytics;-><init>()V
@@ -9881,9 +9864,7 @@ SPLcom/ichi2/anki/recorder/VoiceRecorder$Companion;->removeExpiredRecordings$def
 SPLcom/ichi2/anki/recorder/VoiceRecorder$Companion;->removeExpiredRecordings(Ljava/io/File;J)V
 Lcom/ichi2/anki/recorder/VoiceRecorder$Companion$$ExternalSyntheticLambda0;
 SPLcom/ichi2/anki/recorder/VoiceRecorder$Companion$$ExternalSyntheticLambda0;-><init>()V
-Lcom/ichi2/anki/reviewer/AutomaticAnswer$AutomaticallyAnswered;
 Lcom/ichi2/anki/reviewer/BindingProcessor;
-Lcom/ichi2/anki/reviewer/ReviewerUi;
 Lcom/ichi2/anki/reviewreminders/ReminderLogTree;
 SPLcom/ichi2/anki/reviewreminders/ReminderLogTree;-><clinit>()V
 SPLcom/ichi2/anki/reviewreminders/ReminderLogTree;-><init>(Landroid/content/Context;)V
@@ -9982,7 +9963,6 @@ SPLcom/ichi2/anki/settings/PrefsRepository;->intPref(II)Lkotlin/properties/ReadW
 SPLcom/ichi2/anki/settings/PrefsRepository;->isAutoSyncEnabled()Z
 SPLcom/ichi2/anki/settings/PrefsRepository;->isBackgroundEnabled()Z
 SPLcom/ichi2/anki/settings/PrefsRepository;->isCustomSyncEnabled()Z
-SPLcom/ichi2/anki/settings/PrefsRepository;->isNewStudyScreenEnabled()Z
 SPLcom/ichi2/anki/settings/PrefsRepository;->isWebDebugEnabled()Z
 SPLcom/ichi2/anki/settings/PrefsRepository;->key(I)Ljava/lang/String;
 SPLcom/ichi2/anki/settings/PrefsRepository;->longPref(IJ)Lkotlin/properties/ReadWriteProperty;

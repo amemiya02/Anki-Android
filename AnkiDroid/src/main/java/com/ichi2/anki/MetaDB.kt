@@ -11,9 +11,6 @@ import androidx.annotation.WorkerThread
 import androidx.core.database.sqlite.transaction
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.libanki.DeckId
-import com.ichi2.anki.model.WhiteboardPenColor
-import com.ichi2.anki.model.WhiteboardPenColor.Companion.default
-import com.ichi2.anki.reviewer.CardSide
 import com.ichi2.widget.SmallWidgetStatus
 import timber.log.Timber
 
@@ -199,22 +196,6 @@ object MetaDB {
         return false
     }
 
-    /** Reset the language associations for all the decks and card models.  */
-    fun resetLanguages(context: Context): Boolean {
-        openDBIfClosed(context)
-        try {
-            Timber.i("MetaDB:: Resetting all language assignments")
-            metaDb!!.run {
-                execSQL("DROP TABLE IF EXISTS languages;")
-                upgradeDB(this, DATABASE_VERSION)
-            }
-            return true
-        } catch (e: Exception) {
-            Timber.e(e, "Error resetting MetaDB ")
-        }
-        return false
-    }
-
     /** Reset the widget status.  */
     private fun resetWidget(context: Context): Boolean {
         openDBIfClosed(context)
@@ -230,87 +211,6 @@ object MetaDB {
             Timber.e(e, "Error resetting widgetStatus and smallWidgetStatus")
         }
         return false
-    }
-
-    /**
-     * Associates a language to a deck, model, and card model for a given type.
-     *
-     * @param qa the part of the card for which to store the association, [.LANGUAGES_QA_QUESTION],
-     * [.LANGUAGES_QA_ANSWER], or [.LANGUAGES_QA_UNDEFINED]
-     * @param language the language to associate, as a two-characters, lowercase string
-     */
-    fun storeLanguage(
-        context: Context,
-        did: DeckId,
-        ord: Int,
-        qa: CardSide,
-        language: String,
-    ) {
-        openDBIfClosed(context)
-        try {
-            if ("" == getLanguage(context, did, ord, qa)) {
-                metaDb!!.execSQL(
-                    "INSERT INTO languages (did, ord, qa, language)  VALUES (?, ?, ?, ?);",
-                    arrayOf<Any>(
-                        did,
-                        ord,
-                        qa.int,
-                        language,
-                    ),
-                )
-                Timber.v("Store language for deck %d", did)
-            } else {
-                metaDb!!.execSQL(
-                    "UPDATE languages SET language = ? WHERE did = ? AND ord = ? AND qa = ?;",
-                    arrayOf<Any>(
-                        language,
-                        did,
-                        ord,
-                        qa.int,
-                    ),
-                )
-                Timber.v("Update language for deck %d", did)
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "Error storing language in MetaDB ")
-        }
-    }
-
-    /**
-     * Returns the language associated with the given deck, model and card model, for the given type.
-     *
-     * @param qa the part of the card for which to store the association, [.LANGUAGES_QA_QUESTION],
-     * [.LANGUAGES_QA_ANSWER], or [.LANGUAGES_QA_UNDEFINED] return the language associate with
-     * the type, as a two-characters, lowercase string, or the empty string if no association is defined
-     */
-    fun getLanguage(
-        context: Context,
-        did: DeckId,
-        ord: Int,
-        qa: CardSide,
-    ): String {
-        openDBIfClosed(context)
-        var language = ""
-        val query = "SELECT language FROM languages WHERE did = ? AND ord = ? AND qa = ? LIMIT 1"
-        try {
-            metaDb!!
-                .rawQuery(
-                    query,
-                    arrayOf(
-                        did.toString(),
-                        ord.toString(),
-                        qa.int.toString(),
-                    ),
-                ).use { cur ->
-                    Timber.v("getLanguage: %s", query)
-                    if (cur.moveToNext()) {
-                        language = cur.getString(0)
-                    }
-                }
-        } catch (e: Exception) {
-            Timber.e(e, "Error fetching language ")
-        }
-        return language
     }
 
     /** Whether the Deck has a whiteboard state of its own */
@@ -420,89 +320,6 @@ object MetaDB {
     }
 
     /**
-     * Returns the state of the whiteboard stylus mode for the given deck.
-     *
-     * @return true if the whiteboard stylus mode should be enabled, false otherwise
-     */
-    fun getWhiteboardStylusState(
-        context: Context,
-        did: DeckId,
-    ): Boolean {
-        openDBIfClosed(context)
-        try {
-            metaDb!!
-                .rawQuery(
-                    "SELECT stylus FROM whiteboardState WHERE did = ?",
-                    arrayOf(did.toString()),
-                ).use { cur -> return DatabaseUtil.getScalarBoolean(cur) }
-        } catch (e: Exception) {
-            Timber.e(e, "Error retrieving whiteboard stylus mode state from MetaDB ")
-            return false
-        }
-    }
-
-    /**
-     * Stores the state of the whiteboard stylus mode for a given deck.
-     *
-     * @param did deck id to store whiteboard stylus mode state for
-     * @param whiteboardStylusState true if the whiteboard stylus mode should be enabled, false otherwise
-     */
-    fun storeWhiteboardStylusState(
-        context: Context,
-        did: DeckId,
-        whiteboardStylusState: Boolean,
-    ) {
-        val state = if (whiteboardStylusState) 1 else 0
-        openDBIfClosed(context)
-        try {
-            val metaDb = metaDb!!
-            metaDb
-                .rawQuery(
-                    "SELECT _id FROM whiteboardState WHERE did = ?",
-                    arrayOf(did.toString()),
-                ).use { cur ->
-                    if (cur.moveToNext()) {
-                        metaDb.execSQL(
-                            "UPDATE whiteboardState SET did = ?, stylus=? WHERE _id=?;",
-                            arrayOf<Any>(did, state, cur.getString(0)),
-                        )
-                        Timber.d("Store whiteboard stylus mode state (%d) for deck %d", state, did)
-                    } else {
-                        metaDb.execSQL(
-                            "INSERT INTO whiteboardState (did, stylus) VALUES (?, ?)",
-                            arrayOf<Any>(did, state),
-                        )
-                        Timber.d("Store whiteboard stylus mode state (%d) for deck %d", state, did)
-                    }
-                }
-        } catch (e: Exception) {
-            Timber.e(e, "Error storing whiteboard stylus mode state in MetaDB ")
-        }
-    }
-
-    /**
-     * Returns the state of the whiteboard for the given deck.
-     *
-     * @return 1 if the whiteboard should be shown, 0 otherwise
-     */
-    fun getWhiteboardVisibility(
-        context: Context,
-        did: DeckId,
-    ): Boolean {
-        openDBIfClosed(context)
-        try {
-            metaDb!!
-                .rawQuery(
-                    "SELECT visible FROM whiteboardState WHERE did = ?",
-                    arrayOf(did.toString()),
-                ).use { cur -> return DatabaseUtil.getScalarBoolean(cur) }
-        } catch (e: Exception) {
-            Timber.e(e, "Error retrieving whiteboard state from MetaDB ")
-            return false
-        }
-    }
-
-    /**
      * Stores the state of the whiteboard for a given deck.
      *
      * @param did deck id to store whiteboard state for
@@ -538,69 +355,6 @@ object MetaDB {
                 }
         } catch (e: Exception) {
             Timber.e(e, "Error storing whiteboard visibility in MetaDB ")
-        }
-    }
-
-    /**
-     * Returns the pen color of the whiteboard for the given deck.
-     */
-    fun getWhiteboardPenColor(
-        context: Context,
-        did: DeckId,
-    ): WhiteboardPenColor {
-        openDBIfClosed(context)
-        try {
-            metaDb!!
-                .rawQuery(
-                    "SELECT lightpencolor, darkpencolor FROM whiteboardState WHERE did = ?",
-                    arrayOf(did.toString()),
-                ).use { cur ->
-                    cur.moveToFirst()
-                    val light = DatabaseUtil.getInteger(cur, 0)
-                    val dark = DatabaseUtil.getInteger(cur, 1)
-                    return WhiteboardPenColor(light, dark)
-                }
-        } catch (e: Exception) {
-            Timber.e(e, "Error retrieving whiteboard pen color from MetaDB ")
-            return default
-        }
-    }
-
-    /**
-     * Stores the pen color of the whiteboard for a given deck.
-     *
-     * @param did deck id to store whiteboard state for
-     * @param isLight if dark mode is disabled
-     * @param value The new color code to store
-     */
-    fun storeWhiteboardPenColor(
-        context: Context,
-        did: DeckId,
-        isLight: Boolean,
-        value: Int?,
-    ) {
-        openDBIfClosed(context)
-        val columnName = if (isLight) "lightpencolor" else "darkpencolor"
-        try {
-            val metaDb = metaDb!!
-            metaDb
-                .rawQuery(
-                    "SELECT _id FROM whiteboardState WHERE did  = ?",
-                    arrayOf(did.toString()),
-                ).use { cur ->
-                    if (cur.moveToNext()) {
-                        metaDb.execSQL(
-                            "UPDATE whiteboardState SET did = ?, $columnName= ?  WHERE _id=?;",
-                            arrayOf<Any?>(did, value, cur.getString(0)),
-                        )
-                    } else {
-                        val sql = "INSERT INTO whiteboardState (did, $columnName) VALUES (?, ?)"
-                        metaDb.execSQL(sql, arrayOf<Any?>(did, value))
-                    }
-                    Timber.d("Store whiteboard %s (%d) for deck %d", columnName, value, did)
-                }
-        } catch (e: Exception) {
-            Timber.w(e, "Error storing whiteboard color in MetaDB")
         }
     }
 

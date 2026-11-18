@@ -17,15 +17,6 @@
             android:defaultValue="/sdcard/AnkiDroid"
             android:key="@string/pref_ankidroid_directory_key"
             android:title="@string/col_path"/>
-        <Preference
-            android:summary="@string/reset_languages_summ"
-            android:title="@string/reset_languages"
-            android:key="@string/pref_reset_languages_key" />
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:key="@string/double_scrolling_gap_key"
-            android:summary="@string/double_scrolling_gap_summ"
-            android:title="@string/double_scrolling_gap" />
         <PreferenceCategory
             android:key="@string/pref_cat_workarounds_key"
             android:title="@string/pref_cat_workarounds" >
@@ -89,12 +80,6 @@
                 android:title="@string/thirdparty_apps_title">
             </Preference>
         </PreferenceCategory>
-    <SwitchPreferenceCompat
-        android:defaultValue="false"
-        android:icon="@drawable/symbol_warning"
-        android:key="@string/tts_key"
-        android:summary="@string/tts_summ"
-        android:title="@string/tts" />
         <PreferenceCategory
             android:title="@string/pref_cat_security" >
             <SwitchPreferenceCompat

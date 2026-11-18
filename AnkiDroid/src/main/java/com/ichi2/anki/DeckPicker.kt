@@ -210,6 +210,7 @@ import com.ichi2.anki.ui.BottomFadeFrameLayout
 import com.ichi2.anki.ui.ResizablePaneManager
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.ui.windows.permissions.PermissionsActivity
+import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
 import com.ichi2.anki.utils.Destination
 import com.ichi2.anki.utils.ShortcutUtils
 import com.ichi2.anki.utils.ext.collectInLifecycle
@@ -252,7 +253,7 @@ import com.ichi2.anki.common.android.R as CommonR
  *
  * On a tablet, this is a fragmented view, with [StudyOptionsFragment] to the right: [tryShowStudyOptionsPanel]
  *
- * Often used as navigation to: [Reviewer], [NoteEditorFragment] (adding notes), [StudyOptionsFragment] [SharedDecksDownloadFragment]
+ * Often used as navigation to: [ReviewerFragment], [NoteEditorFragment] (adding notes), [StudyOptionsFragment] [SharedDecksDownloadFragment]
  *
  * Responsibilities:
  * * Setup/upgrades of the application: [handleStartup]
@@ -1569,7 +1570,7 @@ open class DeckPicker :
     }
 
     private fun processReviewResults(resultCode: Int) {
-        if (resultCode == AbstractFlashcardViewer.RESULT_NO_MORE_CARDS) {
+        if (resultCode == ReviewerFragment.RESULT_NO_MORE_CARDS) {
             launchCatchingTask {
                 val state = withCol { currentDeckStudyState() }
                 StudyCompletionUi.onReviewsCompleted(this@DeckPicker, state)

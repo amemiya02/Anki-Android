@@ -38,7 +38,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import anki.scheduler.CardAnswer.Rating
 import com.google.android.material.snackbar.Snackbar
-import com.ichi2.anki.AbstractFlashcardViewer.Companion.RESULT_NO_MORE_CARDS
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.AnkiDroidJsAPI
 import com.ichi2.anki.CollectionManager
@@ -165,6 +164,7 @@ class ReviewerFragment :
                         override suspend fun getCard(): Card = viewModel.currentCard.await()
 
                         override suspend fun getCardData(includeEta: Boolean): AnkiDroidJsAPI.CardDataForJsApi {
+                            // The JavaScript API still honors the saved ETA setting from older profiles.
                             val reportEta = includeEta && sharedPrefs().getBoolean(getString(R.string.show_eta_preference), false)
                             return viewModel.getCardDataForJsApi(reportEta)
                         }
@@ -249,7 +249,7 @@ class ReviewerFragment :
             return byteArrayOf()
         }
         val methodName = uri.jsApiMethodName ?: return super.handlePostRequest(uri, bytes)
-        return jsApi.handleJsApiRequest(methodName, bytes, returnDefaultValues = false)
+        return jsApi.handleJsApiRequest(methodName, bytes)
     }
 
     private fun focusNativeAnswerField() {
@@ -697,12 +697,11 @@ class ReviewerFragment :
     }
 
     private fun applySystemBarVisibility() {
-        val mode = viewModel.cardTemplateFullscreenMode
         val barsToHide =
-            when {
-                mode?.isFullScreenReview() == true -> WindowInsetsCompat.Type.systemBars()
-                mode == FullScreenMode.BUTTONS_AND_MENU -> 0
-                else ->
+            when (viewModel.cardTemplateFullscreenMode) {
+                FullScreenMode.BUTTONS_ONLY, FullScreenMode.FULLSCREEN_ALL_GONE -> WindowInsetsCompat.Type.systemBars()
+                FullScreenMode.BUTTONS_AND_MENU -> 0
+                null ->
                     when (Prefs.hideSystemBars) {
                         HideSystemBars.NONE -> 0
                         HideSystemBars.STATUS_BAR -> WindowInsetsCompat.Type.statusBars()
@@ -1026,6 +1025,9 @@ class ReviewerFragment :
     }
 
     companion object {
+        const val RESULT_DEFAULT = 50
+        const val RESULT_NO_MORE_CARDS = 52
+
         fun getIntent(context: Context): Intent = CardViewerActivity.getIntent(context, ReviewerFragment::class)
     }
 }

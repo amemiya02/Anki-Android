@@ -5,11 +5,9 @@ package com.ichi2.anki
 import android.webkit.WebView
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.performClick
-import androidx.core.content.edit
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.previewer.CardViewerActivity
@@ -47,24 +45,15 @@ class ReviewerFragmentScrollTest : InstrumentedTest() {
     val composeRule = createEmptyComposeRule()
 
     private var testDeckId: DeckId = 0
-    private val newReviewerOptionsKey get() = testContext.getString(R.string.new_reviewer_options_key)
-    private var originalNewReviewerOptions: Boolean? = null
 
     @Before
     fun setUp() {
-        val preferences = testContext.sharedPrefs()
-        originalNewReviewerOptions = preferences.all[newReviewerOptionsKey] as Boolean?
-        preferences.edit { putBoolean(newReviewerOptionsKey, true) }
         testDeckId = col.decks.addNormalDeckWithName("ReviewerFragmentScrollTest-${UUID.randomUUID()}").id
         col.decks.select(testDeckId)
     }
 
     @After
     fun tearDown() {
-        testContext.sharedPrefs().edit {
-            val original = originalNewReviewerOptions
-            if (original == null) remove(newReviewerOptionsKey) else putBoolean(newReviewerOptionsKey, original)
-        }
         col.decks.remove(listOf(testDeckId))
     }
 

@@ -2,7 +2,6 @@
 
 package com.ichi2.anki.cardviewer
 
-import android.app.Activity
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import android.webkit.WebView
@@ -10,19 +9,12 @@ import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.performClick
 import androidx.core.content.edit
 import androidx.test.core.app.ActivityScenario
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.ichi2.anki.R
-import com.ichi2.anki.Reviewer
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.NoteTypeId
 import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.anki.tests.InstrumentedTest
-import com.ichi2.anki.tests.checkWithTimeout
 import com.ichi2.anki.testutil.AvoidDayRolloverRule
 import com.ichi2.anki.testutil.GrantStoragePermission.storagePermission
 import com.ichi2.anki.testutil.TestInputMethodRule
@@ -44,15 +36,11 @@ import java.util.UUID
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 
-/** Checks the real reviewers' HTML, script loading, and WebView keyboard support together. */
+/** Checks the study screen’s HTML, script loading, and WebView keyboard support together. */
 @RunWith(Parameterized::class)
 class HtmlTypeAnswerReviewerTest : InstrumentedTest() {
     @JvmField // required for Parameter
     @Parameterized.Parameter
-    var newReviewer = false
-
-    @JvmField // required for Parameter
-    @Parameterized.Parameter(1)
     var autoFocus = false
 
     @get:Rule
@@ -82,12 +70,10 @@ class HtmlTypeAnswerReviewerTest : InstrumentedTest() {
 
     private fun configurePreferences() {
         val preferences = testContext.sharedPrefs()
-        val newReviewerKey = testContext.getString(R.string.new_reviewer_options_key)
         val doubleTapKey = testContext.getString(R.string.double_tap_timeout_pref_key)
         originalPreferences =
-            listOf(newReviewerKey, "useInputTag", "autoFocusTypeInAnswer", doubleTapKey).associateWith { preferences.all[it] }
+            listOf("useInputTag", "autoFocusTypeInAnswer", doubleTapKey).associateWith { preferences.all[it] }
         preferences.edit {
-            putBoolean(newReviewerKey, newReviewer)
             putBoolean("useInputTag", true)
             putBoolean("autoFocusTypeInAnswer", autoFocus)
             // These tests intentionally grade immediately after Done.
@@ -182,13 +168,7 @@ class HtmlTypeAnswerReviewerTest : InstrumentedTest() {
                 keyboard.perform("done")
                 webView.awaitJavascript("document.querySelector('#typeans .typeGood')?.textContent === 'été'")
                 if (question != "Third") {
-                    if (newReviewer) {
-                        composeRule.awaitDisplayed { goodButton() }.performClick()
-                    } else {
-                        onView(withId(R.id.flashcard_layout_ease3))
-                            .also { it.checkWithTimeout(matches(isDisplayed())) }
-                            .perform(click())
-                    }
+                    composeRule.awaitDisplayed { goodButton() }.performClick()
                 }
             }
         }
@@ -211,16 +191,11 @@ class HtmlTypeAnswerReviewerTest : InstrumentedTest() {
     }
 
     private fun withReviewer(block: (WebView) -> Unit) {
-        ActivityScenario.launch<Activity>(Reviewer.getIntent(testContext)).use { scenario ->
+        ActivityScenario.launch<CardViewerActivity>(ReviewerFragment.getIntent(testContext)).use { scenario ->
             lateinit var webView: WebView
             scenario.onActivity { activity ->
-                webView =
-                    if (newReviewer) {
-                        val fragment = assertIs<ReviewerFragment>(assertIs<CardViewerActivity>(activity).fragment)
-                        assertIs<TypeAnswerWebView>(fragment.binding.webViewLayout.getChildAt(0))
-                    } else {
-                        assertNotNull(assertIs<Reviewer>(activity).webView)
-                    }
+                val fragment = assertIs<ReviewerFragment>(activity.fragment)
+                webView = assertIs<TypeAnswerWebView>(fragment.binding.webViewLayout.getChildAt(0))
             }
             webView.awaitJavascript("document.getElementById('typeans') !== null")
             block(webView)
@@ -229,7 +204,7 @@ class HtmlTypeAnswerReviewerTest : InstrumentedTest() {
 
     companion object {
         @JvmStatic // required for Parameters
-        @Parameterized.Parameters(name = "newReviewer={0}, autoFocus={1}")
-        fun reviewers() = listOf(arrayOf(false, false), arrayOf(false, true), arrayOf(true, false), arrayOf(true, true))
+        @Parameterized.Parameters(name = "autoFocus={0}")
+        fun autofocusValues() = listOf(arrayOf(false), arrayOf(true))
     }
 }

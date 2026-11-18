@@ -6,7 +6,6 @@ import android.media.MediaPlayer
 import android.net.Uri
 import androidx.annotation.CheckResult
 import androidx.annotation.VisibleForTesting
-import com.ichi2.anki.AbstractFlashcardViewer.Companion.getMediaBaseUrl
 import com.ichi2.anki.AndroidTtsError
 import com.ichi2.anki.AndroidTtsPlayer
 import com.ichi2.anki.CollectionManager.withCol
@@ -85,7 +84,8 @@ class CardMediaPlayer : Closeable {
         this.mediaErrorListener = mediaErrorListener
         this.soundTagPlayer =
             SoundTagPlayer(
-                soundUriBase = getMediaBaseUrl(getMediaDirectory(appContext)),
+                // Uri.fromFile preserves the UTF-8 encoding expected by the media player.
+                soundUriBase = "${Uri.fromFile(getMediaDirectory(appContext))}/",
                 videoPlayer = VideoPlayer(javascriptEvaluator),
             )
         this.ttsPlayer = scope.async { AndroidTtsPlayer.createInstance(scope) }

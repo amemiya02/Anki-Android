@@ -6,7 +6,6 @@ import android.content.Context
 import android.util.AttributeSet
 import androidx.fragment.app.DialogFragment
 import com.ichi2.anki.R
-import com.ichi2.anki.cardviewer.GestureProcessor
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.dialogs.CardSideSelectionDialog
 import com.ichi2.anki.preferences.allPreferences
@@ -15,7 +14,6 @@ import com.ichi2.anki.reviewer.CardSide
 import com.ichi2.anki.reviewer.MappableBinding
 import com.ichi2.anki.reviewer.MappableBinding.Companion.toPreferenceString
 import com.ichi2.anki.reviewer.ReviewerBinding
-import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.utils.ext.usingStyledAttributes
 
 open class ReviewerControlPreference : ControlPreference {
@@ -57,7 +55,7 @@ open class ReviewerControlPreference : ControlPreference {
         }
 
     override val areGesturesEnabled: Boolean
-        get() = Prefs.isNewStudyScreenEnabled || sharedPreferences?.getBoolean(GestureProcessor.PREF_KEY, false) ?: false
+        get() = true
 
     override fun makeDialogFragment(): DialogFragment = ReviewerControlPreferenceDialogFragment()
 
