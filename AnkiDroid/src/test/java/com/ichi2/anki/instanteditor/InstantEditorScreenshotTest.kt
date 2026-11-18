@@ -37,7 +37,7 @@ class InstantEditorScreenshotTest : ScreenshotTest() {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, "Tokyo 東京")
             }
-        openSharedInstantNote(intent)
+        openSharedInstantNote(intent, compose)
         val word = compose.onNodeWithText("Tokyo")
         word.performScrollTo().performClick()
         word.assertIsSelected()

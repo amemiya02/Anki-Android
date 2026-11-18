@@ -140,7 +140,11 @@ abstract class NavigationDrawerActivity(
         )
         // Setup toolbar and hamburger
         // Phones' layout holds no drawer (see hasNavigationDrawer)
-        navigationView = drawerLayout.findViewById<TabletDrawer>(R.id.navdrawer_items_container)?.also(::setupDrawerInsets)
+        navigationView = drawerLayout.findViewById(R.id.navdrawer_items_container)
+        ViewCompat.setOnApplyWindowInsetsListener(drawerLayout) { _, insets ->
+            applyDrawerInsets(insets)
+            insets
+        }
         val toolbar: Toolbar? = mainView.findViewById(R.id.toolbar)
         if (toolbar != null) {
             setSupportActionBar(toolbar)
@@ -201,20 +205,19 @@ abstract class NavigationDrawerActivity(
      * Edge to edge: the header image and rows extend to the window edge. The text labels
      * are not drawn underneath the system UI.
      */
-    private fun setupDrawerInsets(navigationView: TabletDrawer) {
+    protected fun applyDrawerInsets(insets: WindowInsetsCompat) {
+        val drawer = navigationView ?: return
         val contentWidth = resources.getDimensionPixelSize(R.dimen.nav_drawer_width)
-        ViewCompat.setOnApplyWindowInsetsListener(navigationView) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
-            val start = if (view.layoutDirection == View.LAYOUT_DIRECTION_RTL) bars.right else bars.left
-            view.updatePadding(
-                left = if (view.layoutDirection == View.LAYOUT_DIRECTION_LTR) start else 0,
-                top = bars.top,
-                right = if (view.layoutDirection == View.LAYOUT_DIRECTION_RTL) start else 0,
-                bottom = bars.bottom,
-            )
-            if (view.layoutParams.width != contentWidth + start) view.updateLayoutParams { width = contentWidth + start }
-            insets
-        }
+        val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+        val rtl = drawer.layoutDirection == View.LAYOUT_DIRECTION_RTL
+        val start = if (rtl) bars.right else bars.left
+        drawer.updatePadding(
+            left = if (rtl) 0 else start,
+            top = bars.top,
+            right = if (rtl) start else 0,
+            bottom = bars.bottom,
+        )
+        if (drawer.layoutParams.width != contentWidth + start) drawer.updateLayoutParams { width = contentWidth + start }
     }
 
     /**

@@ -915,6 +915,7 @@ open class DeckPicker :
             val bars = insets.getInsets(systemBars() or displayCutout())
             val navigation = insets.getInsets(navigationBars() or displayCutout())
             binding.toolbarContainer.updatePadding(left = bars.left, top = bars.top, right = bars.right)
+            applyDrawerInsets(insets)
             binding.bottomNavigation?.updatePadding(left = navigation.left, right = navigation.right, bottom = navigation.bottom)
             systemBottom = navigation.bottom
             keyboardBottom = insets.getInsets(ime()).bottom

@@ -167,6 +167,6 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, text)
             }
-        return openSharedInstantNote(intent)
+        return openSharedInstantNote(intent, compose)
     }
 }

@@ -44,7 +44,7 @@ class InstantEditorNoClozeSnapshotReviewTest : RobolectricTest() {
                     type = "text/plain"
                     putExtra(Intent.EXTRA_TEXT, originalText)
                 }
-            val activity = openSharedInstantNote(intent)
+            val activity = openSharedInstantNote(intent, compose)
             compose.onNodeWithContentDescription(getResourceString(CommonString.change_editor_mode)).performClick()
             val editor = requireNotNull(ShadowDialog.getLatestDialog())
             val viewModel = ViewModelProvider(checkNotNull(activity.currentScreenFragment))[InstantEditorViewModel::class.java]

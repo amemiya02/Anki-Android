@@ -305,7 +305,10 @@ class InstantNoteEditorFragment : Fragment() {
                         closeEditor()
                     },
                 )
-            }.apply { show() }
+            }.apply {
+                setOnCancelListener { closeEditor() }
+                show()
+            }
     }
 
     private fun setupErrorListeners() {
@@ -335,7 +338,7 @@ class InstantNoteEditorFragment : Fragment() {
                 message = message,
                 onDismissRequest = {
                     dialog.dismiss()
-                    instantAlertDialog?.dismiss()
+                    closeEditor()
                 },
                 primaryAction =
                     DialogAction(getString(CommonString.try_again), {

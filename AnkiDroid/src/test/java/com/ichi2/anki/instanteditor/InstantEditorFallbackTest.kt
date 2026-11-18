@@ -37,7 +37,7 @@ class InstantEditorFallbackTest : RobolectricTest() {
                     type = "text/plain"
                     putExtra(Intent.EXTRA_TEXT, text)
                 }
-            val editor = openSharedInstantNote(intent)
+            val editor = openSharedInstantNote(intent, compose)
             compose.onNodeWithText(getResourceString(CommonString.cloze_note_required)).assertIsDisplayed()
             compose.onNodeWithText(getResourceString(CommonString.open)).performClick()
             val destination = assertIs<NoteEditorPaneFragment>(editor.currentScreenFragment)
