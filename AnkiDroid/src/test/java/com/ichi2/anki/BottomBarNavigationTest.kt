@@ -79,6 +79,7 @@ class BottomBarNavigationTest : RobolectricTest() {
         withDeckPicker(deckCount = 1) { deckPicker ->
             listOf(NavigationItem.BROWSER, NavigationItem.STATS, NavigationItem.MORE).forEach { tab ->
                 deckPicker.select(tab)
+                deckPicker.title = "Edit note"
 
                 deckPicker.onBackPressedDispatcher.onBackPressed()
                 composeRule.waitUntil(10_000) {
@@ -87,6 +88,7 @@ class BottomBarNavigationTest : RobolectricTest() {
 
                 assertThat("$tab: back selects Decks", deckPicker.bottomBar.selectedItemId, equalTo(NavigationItem.HOME.id))
                 assertThat("$tab: back shows Decks", deckPicker.binding.deckPickerContentWrapper!!.isShown, equalTo(true))
+                assertThat("$tab: back restores the Decks host title", deckPicker.title.toString(), equalTo(deckPicker.getString(R.string.app_name)))
                 assertThat("$tab: back stays in the app", deckPicker.isFinishing, equalTo(false))
             }
         }
