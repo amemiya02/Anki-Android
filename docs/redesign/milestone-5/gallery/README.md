@@ -36,7 +36,7 @@ Open a sheet to compare the Official App with Hayaki in Light, Dark and Black. T
 | --- | --- | --- | --- |
 | Note Types, Note Type fields, Note Type field actions, Card Template editor | [English](en-walk-12.webp) | [Simplified Chinese](zh-walk-12.webp) | [Japanese](ja-walk-12.webp) |
 | Card Template actions, Card Template preview · Question, Card Template preview · Answer, Card Template browser appearance | [English](en-walk-13.webp) | [Simplified Chinese](zh-walk-13.webp) | [Japanese](ja-walk-13.webp) |
-| Change Note Type, Bundled Change Note Type page | [English](en-walk-14.webp) | [Simplified Chinese](zh-walk-14.webp) | [Japanese](ja-walk-14.webp) |
+| Change Note Type, Change Note Type mappings | [English](en-walk-14.webp) | [Simplified Chinese](zh-walk-14.webp) | [Japanese](ja-walk-14.webp) |
 
 ## Settings
 

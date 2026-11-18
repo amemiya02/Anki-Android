@@ -23,4 +23,4 @@ The decisions record links the confirmed design choices, the Foundation and the 
 
 The Android 15 emulator walk recorded 97 screen states per profile and 873 screenshot and accessibility-tree pairs across the nine profiles. The galleries use 60 genuine Official App before captures and earlier Upstream frames where available. The committed archives preserve the original frames. [Walkthrough evidence](../../../docs/redesign/milestone-5/README.md)
 
-The final pass refreshed Decks, the Add menu and overflow on the build with the loading-indicator fix. All nine profiles showed the correct theme and a clear space between the Add button and navigation bar. [Emulator baselines](../../../docs/redesign/milestone-5/baselines/README.md)
+The final review repeated 199 captures, including the single-activity navigation, account settings, incoming shares, imports, Change Note Type and widget flows. The baseline index identifies the source APK for each frame. [Emulator baselines](../../../docs/redesign/milestone-5/baselines/README.md)
