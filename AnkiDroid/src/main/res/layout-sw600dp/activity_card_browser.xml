@@ -12,7 +12,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/appBarColor">
-            <include layout="@layout/include_toolbar" />
+            <include
+                layout="@layout/include_toolbar"
+                android:theme="@style/ActionBarStyle.Browser" />
         </FrameLayout>
         <com.ichi2.anki.ui.ResizablePaneLayout
             android:id="@+id/card_browser_xl_view"
