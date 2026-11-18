@@ -9,6 +9,8 @@ import anki.frontend.SetSchedulingStatesRequest
 import anki.scheduler.CardAnswer.Rating
 import com.ichi2.anki.AbstractFlashcardViewer
 import com.ichi2.anki.AbstractFlashcardViewer.Companion.RESULT_NO_MORE_CARDS
+import com.ichi2.anki.AnkiDroidJsAPI
+import com.ichi2.anki.AnkiDroidJsAPI.CardDataForJsApi
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.Flag
@@ -206,6 +208,52 @@ class ReviewerViewModel(
 
     fun onShowAnswer() {
         executeAction(ViewerAction.SHOW_ANSWER)
+    }
+
+    internal suspend fun onCardTemplateAction(
+        rating: Rating?,
+        waitForFlip: Boolean = false,
+    ) {
+        val requestedCard = currentCard
+        val requestedSide = showingAnswer.value
+        val requestedQueue = queueState
+        val action =
+            launchCatchingIO {
+                actionsMutex.withLock {
+                    if (requestedCard !== currentCard || requestedSide != showingAnswer.value || requestedQueue !== queueState) {
+                        return@withLock
+                    }
+                    val state = requestedQueue.await() ?: return@withLock
+                    if (state.timeboxReached != null) return@withLock
+                    if (!requestedSide) {
+                        showAnswerInternal()
+                    } else if (rating != null) {
+                        answerCardInternal(rating)
+                    }
+                }
+            }
+        // A template can inspect the answer side as soon as its API call to flip the Card resolves.
+        if (waitForFlip && !requestedSide) action.join()
+    }
+
+    internal suspend fun getCardDataForJsApi(reportEta: Boolean): CardDataForJsApi {
+        val data = CardDataForJsApi()
+        val state = queueState.await() ?: return data
+        val counts = state.counts
+        data.newCardCount = counts.new
+        data.lrnCardCount = counts.lrn
+        data.revCardCount = counts.rev
+        data.eta = if (reportEta) withCol { sched.eta(counts, false) } else 0
+        // Intervals are available to templates on the answer side when the collection displays them.
+        if (showingAnswer.value) {
+            answerButtonsNextTimeFlow.value?.let { times ->
+                data.nextTime1 = times.again
+                data.nextTime2 = times.hard
+                data.nextTime3 = times.good
+                data.nextTime4 = times.easy
+            }
+        }
+        return data
     }
 
     fun answerCard(rating: Rating) {
@@ -462,7 +510,7 @@ class ReviewerViewModel(
         uri: PostRequestUri,
         bytes: ByteArray,
     ): ByteArray {
-        when (uri.ankidroidMethodName) {
+        when (val method = uri.ankidroidMethodName) {
             "focusin" -> {
                 isInputFocused = true
                 return byteArrayOf()
@@ -475,6 +523,15 @@ class ReviewerViewModel(
                 onStateMutationCallback()
                 return byteArrayOf()
             }
+            "showAnswer" -> {
+                onCardTemplateAction(null)
+                return byteArrayOf()
+            }
+            else ->
+                AnkiDroidJsAPI.answerRating(method)?.let { rating ->
+                    onCardTemplateAction(rating)
+                    return byteArrayOf()
+                }
         }
         return when (uri.backendMethodName) {
             "getSchedulingStatesWithContext" -> getSchedulingStatesWithContext()

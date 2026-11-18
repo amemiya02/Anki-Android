@@ -39,7 +39,7 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import kotlin.time.Duration.Companion.seconds
 
-interface PostRequestHandler {
+fun interface PostRequestHandler {
     suspend fun handlePostRequest(
         uri: PostRequestUri,
         bytes: ByteArray,

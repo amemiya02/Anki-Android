@@ -34,7 +34,9 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import anki.scheduler.CardAnswer.Rating
 import com.ichi2.anki.AbstractFlashcardViewer.Companion.RESULT_NO_MORE_CARDS
+import com.ichi2.anki.AnkiDroidJsAPI
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.DispatchKeyEventListener
@@ -52,7 +54,9 @@ import com.ichi2.anki.databinding.FragmentReviewerBinding
 import com.ichi2.anki.dialogs.showDeckOptionsSelectionDialog
 import com.ichi2.anki.dialogs.tags.TagsDialogFactory
 import com.ichi2.anki.dialogs.tags.TagsDialogListener
+import com.ichi2.anki.libanki.Card
 import com.ichi2.anki.model.CardStateFilter
+import com.ichi2.anki.pages.PostRequestUri
 import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.preferences.reviewer.WhiteboardAction
 import com.ichi2.anki.previewer.CardViewerActivity
@@ -130,10 +134,46 @@ class ReviewerFragment :
 
     private lateinit var tagsDialogFactory: TagsDialogFactory
 
+    private val jsApi by lazy {
+        AnkiDroidJsAPI(
+            context = requireContext(),
+            showMessage = { if (view != null) showSnackbar(it) },
+            cardApi =
+                object : AnkiDroidJsAPI.CardApi {
+                    override val isDisplayingAnswer: Boolean get() = viewModel.showingAnswer.value
+
+                    override suspend fun getCard(): Card = viewModel.currentCard.await()
+
+                    override suspend fun getCardData(includeEta: Boolean): AnkiDroidJsAPI.CardDataForJsApi {
+                        val reportEta = includeEta && sharedPrefs().getBoolean(getString(R.string.show_eta_preference), false)
+                        return viewModel.getCardDataForJsApi(reportEta)
+                    }
+
+                    override suspend fun showOrAnswer(rating: Rating?) {
+                        viewModel.onCardTemplateAction(rating, waitForFlip = true)
+                    }
+                },
+        )
+    }
+
+    override suspend fun handlePostRequest(
+        uri: PostRequestUri,
+        bytes: ByteArray,
+    ): ByteArray {
+        val methodName = uri.jsApiMethodName ?: return super.handlePostRequest(uri, bytes)
+        return jsApi.handleCardRequest(methodName, bytes) ?: run {
+            reviewerWebViewClient.showUnsupportedFeatureWarning()
+            AnkiDroidJsAPI.ApiResult
+                .failure("Unsupported method: $methodName")
+                .toString()
+                .encodeToByteArray()
+        }
+    }
+
     override fun onLoadInitialHtml(): String =
         stdHtml(
             context = requireContext(),
-            extraJsAssets = listOf("scripts/ankidroid-reviewer.js", "scripts/type-answer.js"),
+            extraJsAssets = listOf("scripts/ankidroid-reviewer.js", "scripts/type-answer.js", "scripts/js-api.js"),
             nightMode = Themes.isNightTheme,
             // "Image zoom" in settings scales the Card's images apart from its text
             extraCss =
@@ -722,6 +762,16 @@ class ReviewerFragment :
         }
         private var hasShownUnsupportedFeatureWarning = false
 
+        fun showUnsupportedFeatureWarning() {
+            if (hasShownUnsupportedFeatureWarning) return
+            val context = context ?: return
+            hasShownUnsupportedFeatureWarning = true
+            AlertDialog.Builder(context).show {
+                setMessage(CommonString.feature_not_supported_by_study_screen)
+                setPositiveButton(CommonString.dialog_ok) { _, _ -> }
+            }
+        }
+
         /** Resets pinch zoom, leaving the viewport untouched when already at the initial scale. */
         fun resetZoom() {
             val factor = initialScale / scale
@@ -770,12 +820,7 @@ class ReviewerFragment :
                     true
                 }
                 "signal" -> {
-                    if (hasShownUnsupportedFeatureWarning) return true
-                    hasShownUnsupportedFeatureWarning = true
-                    AlertDialog.Builder(requireContext()).show {
-                        setMessage(CommonString.feature_not_supported_by_study_screen)
-                        setPositiveButton(CommonString.dialog_ok) { _, _ -> }
-                    }
+                    showUnsupportedFeatureWarning()
                     true
                 }
                 else -> super.handleUrl(webView, url)

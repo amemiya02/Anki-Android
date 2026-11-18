@@ -35,6 +35,8 @@ import com.ichi2.anki.compat.CompatHelper.Companion.resolveActivityCompat
 import com.ichi2.anki.dialogs.TtsVoicesDialogFragment
 import com.ichi2.anki.localizedErrorMessage
 import com.ichi2.anki.pages.PostRequestBridge
+import com.ichi2.anki.pages.PostRequestHandler
+import com.ichi2.anki.pages.PostRequestUri
 import com.ichi2.anki.security.AppPermissions
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
@@ -207,7 +209,7 @@ abstract class CardViewerFragment(
                 // allow videos to autoplay via our JavaScript eval
                 mediaPlaybackRequiresUserGesture = false
             }
-            PostRequestBridge(viewModel, viewLifecycleOwner.lifecycleScope).attachTo(this)
+            PostRequestBridge(PostRequestHandler(::handlePostRequest), viewLifecycleOwner.lifecycleScope).attachTo(this)
             loadDataWithBaseURL(
                 PostRequestBridge.BASE_URL,
                 onLoadInitialHtml(),
@@ -217,6 +219,11 @@ abstract class CardViewerFragment(
             )
         }
     }
+
+    protected open suspend fun handlePostRequest(
+        uri: PostRequestUri,
+        bytes: ByteArray,
+    ): ByteArray = viewModel.handlePostRequest(uri, bytes)
 
     private fun setupErrorListeners() {
         viewModel.onError.collectInViewLifecycle { errorMessage ->

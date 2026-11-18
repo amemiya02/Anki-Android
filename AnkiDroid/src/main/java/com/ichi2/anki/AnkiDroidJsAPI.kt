@@ -57,9 +57,33 @@ typealias JvmFloat = Float
 typealias JvmLong = Long
 typealias JvmString = String
 
-open class AnkiDroidJsAPI(
-    private val activity: AbstractFlashcardViewer,
+open class AnkiDroidJsAPI internal constructor(
+    private val context: Context,
+    private val showMessage: (String) -> Unit,
+    private val cardApi: CardApi,
+    private val legacyActivity: AbstractFlashcardViewer? = null,
 ) {
+    constructor(activity: AbstractFlashcardViewer) : this(
+        context = activity,
+        showMessage = { activity.showSnackbar(it) },
+        cardApi =
+            object : CardApi {
+                override val isDisplayingAnswer: Boolean get() = activity.isDisplayingAnswer
+
+                override suspend fun getCard(): Card = checkNotNull(activity.currentCard)
+
+                override suspend fun getCardData(includeEta: Boolean) = activity.getCardDataForJsApi()
+
+                override suspend fun showOrAnswer(rating: Rating?) {
+                    if (rating == null) activity.displayCardAnswer() else activity.flipOrAnswerCard(rating)
+                }
+            },
+        legacyActivity = activity,
+    )
+
+    private val activity: AbstractFlashcardViewer
+        get() = checkNotNull(legacyActivity)
+
     private val currentCard: Card
         get() = activity.currentCard!!
 
@@ -71,14 +95,13 @@ open class AnkiDroidJsAPI(
      see js-api.js for available functions
      */
 
-    private val context: Context = activity
-    private val permissions = AppPermissions(context) { msg -> activity.showSnackbar(msg) }
+    private val permissions by lazy { AppPermissions(context, showMessage) }
 
     // Text to speech
-    private val talker = JavaScriptTTS()
+    private val talker by lazy { JavaScriptTTS() }
 
     // Speech to Text
-    private val speechRecognizer = JavaScriptSTT(context)
+    private val speechRecognizer by lazy { JavaScriptSTT(context) }
 
     open fun convertToByteArray(
         apiContract: ApiContract,
@@ -115,9 +138,7 @@ open class AnkiDroidJsAPI(
             return ApiContract(isValid, cardSuppliedDeveloperContact, cardSuppliedData)
         } catch (j: JSONException) {
             Timber.w(j)
-            activity.runOnUiThread {
-                activity.showSnackbar(context.getString(CommonString.invalid_json_data, j.localizedMessage))
-            }
+            showMessage(context.getString(CommonString.invalid_json_data, j.localizedMessage))
         }
         return null
     }
@@ -154,9 +175,7 @@ open class AnkiDroidJsAPI(
     ): Boolean {
         try {
             if (apiDevContact.isEmpty() || apiVer.isEmpty()) {
-                activity.runOnUiThread {
-                    activity.showSnackbar(context.getString(CommonString.invalid_json_data, ""))
-                }
+                showMessage(context.getString(CommonString.invalid_json_data, ""))
                 return false
             }
             val versionCurrent = Version.parse(AnkiDroidJsAPIConstants.CURRENT_JS_API_VERSION)
@@ -172,15 +191,11 @@ open class AnkiDroidJsAPI(
                     true
                 }
                 versionSupplied.isLowerThan(versionCurrent) -> {
-                    activity.runOnUiThread {
-                        activity.showSnackbar(context.getString(CommonString.update_js_api_version, apiDevContact))
-                    }
+                    showMessage(context.getString(CommonString.update_js_api_version, apiDevContact))
                     versionSupplied.isHigherThanOrEquivalentTo(Version.parse(AnkiDroidJsAPIConstants.MINIMUM_JS_API_VERSION))
                 }
                 else -> {
-                    activity.runOnUiThread {
-                        activity.showSnackbar(context.getString(CommonString.valid_js_api_version, apiDevContact))
-                    }
+                    showMessage(context.getString(CommonString.valid_js_api_version, apiDevContact))
                     false
                 }
             }
@@ -212,20 +227,12 @@ open class AnkiDroidJsAPI(
             return@withContext convertToByteArray(apiContract, -1)
         }
 
-        val cardDataForJsAPI = activity.getCardDataForJsApi()
+        handleCardRequest(methodName, apiContract)?.let { return@withContext it }
+
         val apiParams = apiContract.cardSuppliedData
 
         return@withContext try {
             when (methodName) {
-                "init" -> convertToByteArray(apiContract, true)
-                "newCardCount" -> convertToByteArray(apiContract, cardDataForJsAPI.newCardCount)
-                "lrnCardCount" -> convertToByteArray(apiContract, cardDataForJsAPI.lrnCardCount)
-                "revCardCount" -> convertToByteArray(apiContract, cardDataForJsAPI.revCardCount)
-                "eta" -> convertToByteArray(apiContract, cardDataForJsAPI.eta)
-                "nextTime1" -> convertToByteArray(apiContract, cardDataForJsAPI.nextTime1)
-                "nextTime2" -> convertToByteArray(apiContract, cardDataForJsAPI.nextTime2)
-                "nextTime3" -> convertToByteArray(apiContract, cardDataForJsAPI.nextTime3)
-                "nextTime4" -> convertToByteArray(apiContract, cardDataForJsAPI.nextTime4)
                 "toggleFlag" -> {
                     if (apiParams !in flagCommands) {
                         showDeveloperContact(
@@ -306,33 +313,6 @@ open class AnkiDroidJsAPI(
                     convertToByteArray(apiContract, true)
                 }
 
-                "cardMark" ->
-                    convertToByteArray(
-                        apiContract,
-                        currentCard.note(getColUnsafe).hasTag(getColUnsafe, "marked"),
-                    )
-
-                "cardFlag" -> convertToByteArray(apiContract, currentCard.userFlag())
-                "cardReps" -> convertToByteArray(apiContract, currentCard.reps)
-                "cardInterval" -> convertToByteArray(apiContract, currentCard.ivl)
-                "cardFactor" -> convertToByteArray(apiContract, currentCard.factor)
-                "cardMod" -> convertToByteArray(apiContract, currentCard.mod)
-                "cardId" -> convertToByteArray(apiContract, currentCard.id)
-                "cardNid" -> convertToByteArray(apiContract, currentCard.nid)
-                "cardType" -> convertToByteArray(apiContract, currentCard.type.code)
-                "cardDid" -> convertToByteArray(apiContract, currentCard.did)
-                "cardLeft" -> convertToByteArray(apiContract, currentCard.left)
-                "cardODid" -> convertToByteArray(apiContract, currentCard.oDid)
-                "cardODue" -> convertToByteArray(apiContract, currentCard.oDue)
-                "cardQueue" -> convertToByteArray(apiContract, currentCard.queue.code)
-                "cardLapses" -> convertToByteArray(apiContract, currentCard.lapses)
-                "cardDue" -> convertToByteArray(apiContract, currentCard.due)
-                "deckName" ->
-                    convertToByteArray(
-                        apiContract,
-                        Decks.basename(activity.getColUnsafe.decks.name(currentCard.did)),
-                    )
-
                 "isActiveNetworkMetered" ->
                     convertToByteArray(
                         apiContract,
@@ -373,7 +353,6 @@ open class AnkiDroidJsAPI(
                 }
 
                 "searchCardWithCallback" -> ankiSearchCardWithCallback(apiContract)
-                "isDisplayingAnswer" -> convertToByteArray(apiContract, activity.isDisplayingAnswer)
                 "addTagToCard" -> {
                     activity.runOnUiThread { activity.showTagsDialog() }
                     convertToByteArray(apiContract, true)
@@ -414,31 +393,6 @@ open class AnkiDroidJsAPI(
                     convertToByteArray(apiContract, true)
                 }
 
-                "showAnswer" -> {
-                    activity.displayCardAnswer()
-                    convertToByteArray(apiContract, true)
-                }
-
-                "answerEase1" -> {
-                    activity.flipOrAnswerCard(Rating.AGAIN)
-                    convertToByteArray(apiContract, true)
-                }
-
-                "answerEase2" -> {
-                    activity.flipOrAnswerCard(Rating.HARD)
-                    convertToByteArray(apiContract, true)
-                }
-
-                "answerEase3" -> {
-                    activity.flipOrAnswerCard(Rating.GOOD)
-                    convertToByteArray(apiContract, true)
-                }
-
-                "answerEase4" -> {
-                    activity.flipOrAnswerCard(Rating.EASY)
-                    convertToByteArray(apiContract, true)
-                }
-
                 "addTagToNote" -> {
                     val jsonObject = JSONObject(apiParams)
                     val noteId = jsonObject.getLong("noteId")
@@ -476,15 +430,6 @@ open class AnkiDroidJsAPI(
                         updateNote(note)
                     }
                     convertToByteArray(apiContract, true)
-                }
-
-                "getNoteTags" -> {
-                    val noteId = currentCard.nid
-                    val noteTags =
-                        withCol {
-                            getNote(noteId).tags
-                        }
-                    convertToByteArray(apiContract, JSONArray(noteTags).toString())
                 }
 
                 "sttSetLanguage" ->
@@ -548,11 +493,97 @@ open class AnkiDroidJsAPI(
         }
     }
 
+    /** The subset available in the study screen. Remaining methods require the old reviewer. */
+    internal suspend fun handleCardRequest(
+        methodName: String,
+        bytes: ByteArray,
+    ): ByteArray? =
+        withContext(Dispatchers.Main) {
+            val contract = requireNotNull(parseJsApiContract(bytes))
+            if (!contract.isValid) return@withContext convertToByteArray(contract, -1)
+            handleCardRequest(methodName, contract)
+        }
+
+    private suspend fun handleCardRequest(
+        methodName: String,
+        contract: ApiContract,
+    ): ByteArray? =
+        when (methodName) {
+            "init" -> convertToByteArray(contract, true)
+            "newCardCount" -> convertToByteArray(contract, cardApi.getCardData().newCardCount)
+            "lrnCardCount" -> convertToByteArray(contract, cardApi.getCardData().lrnCardCount)
+            "revCardCount" -> convertToByteArray(contract, cardApi.getCardData().revCardCount)
+            "eta" -> convertToByteArray(contract, cardApi.getCardData(includeEta = true).eta)
+            "nextTime1" -> convertToByteArray(contract, cardApi.getCardData().nextTime1)
+            "nextTime2" -> convertToByteArray(contract, cardApi.getCardData().nextTime2)
+            "nextTime3" -> convertToByteArray(contract, cardApi.getCardData().nextTime3)
+            "nextTime4" -> convertToByteArray(contract, cardApi.getCardData().nextTime4)
+
+            "cardMark" ->
+                convertToByteArray(
+                    contract,
+                    cardApi.getCard().let { card ->
+                        withCol { card.note(this).hasTag(this, "marked") }
+                    },
+                )
+
+            "cardFlag" -> convertToByteArray(contract, cardApi.getCard().userFlag())
+            "cardReps" -> convertToByteArray(contract, cardApi.getCard().reps)
+            "cardInterval" -> convertToByteArray(contract, cardApi.getCard().ivl)
+            "cardFactor" -> convertToByteArray(contract, cardApi.getCard().factor)
+            "cardMod" -> convertToByteArray(contract, cardApi.getCard().mod)
+            "cardId" -> convertToByteArray(contract, cardApi.getCard().id)
+            "cardNid" -> convertToByteArray(contract, cardApi.getCard().nid)
+            "cardType" -> convertToByteArray(contract, cardApi.getCard().type.code)
+            "cardDid" -> convertToByteArray(contract, cardApi.getCard().did)
+            "cardLeft" -> convertToByteArray(contract, cardApi.getCard().left)
+            "cardODid" -> convertToByteArray(contract, cardApi.getCard().oDid)
+            "cardODue" -> convertToByteArray(contract, cardApi.getCard().oDue)
+            "cardQueue" -> convertToByteArray(contract, cardApi.getCard().queue.code)
+            "cardLapses" -> convertToByteArray(contract, cardApi.getCard().lapses)
+            "cardDue" -> convertToByteArray(contract, cardApi.getCard().due)
+            "deckName" ->
+                convertToByteArray(
+                    contract,
+                    cardApi.getCard().did.let { did ->
+                        withCol { Decks.basename(decks.name(did)) }
+                    },
+                )
+
+            "getNoteTags" -> {
+                val noteId = cardApi.getCard().nid
+                val noteTags =
+                    withCol {
+                        getNote(noteId).tags
+                    }
+                convertToByteArray(contract, JSONArray(noteTags).toString())
+            }
+
+            "isDisplayingAnswer" -> convertToByteArray(contract, cardApi.isDisplayingAnswer)
+
+            "showAnswer", "answerEase1", "answerEase2", "answerEase3", "answerEase4" -> {
+                cardApi.showOrAnswer(answerRating(methodName))
+                convertToByteArray(contract, true)
+            }
+            else -> null
+        }
+
+    internal interface CardApi {
+        val isDisplayingAnswer: Boolean
+
+        suspend fun getCard(): Card
+
+        suspend fun getCardData(includeEta: Boolean = false): CardDataForJsApi
+
+        /** Flip the Card if the question is showing. With a rating, grade an already flipped Card. */
+        suspend fun showOrAnswer(rating: Rating?)
+    }
+
     private fun setFullscreenMode(
         mode: FullScreenMode,
         apiContract: ApiContract,
     ): ByteArray {
-        val result = if (activity is Reviewer) activity.setFullscreenMode(mode) else false
+        val result = (legacyActivity as? Reviewer)?.setFullscreenMode(mode) ?: false
         return convertToByteArray(apiContract, result)
     }
 
@@ -697,6 +728,15 @@ open class AnkiDroidJsAPI(
     )
 
     companion object {
+        internal fun answerRating(methodName: String?): Rating? =
+            when (methodName) {
+                "answerEase1" -> Rating.AGAIN
+                "answerEase2" -> Rating.HARD
+                "answerEase3" -> Rating.GOOD
+                "answerEase4" -> Rating.EASY
+                else -> null
+            }
+
         /**
          * Key for a success value.
          */
