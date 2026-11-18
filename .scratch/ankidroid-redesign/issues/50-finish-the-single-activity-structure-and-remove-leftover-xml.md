@@ -22,4 +22,6 @@ Android's launcher opened Browse with 13 cards and Study with a real question. E
 
 The 25 focused navigation, restoration, insets, drawing and widget checks passed. The launcher and external-intent checks passed all 17 cases. The final compatibility run passed both previously pinned shortcut tests and all six Study launch tests. The Engine suite passed 143 tests with seven existing skips. App test fixtures now follow the hosted navigation and exercise the original screen behavior.
 
+On the Android 15 tablet, the Settings category list stayed visible while Compose navigation opened the Timebox detail. With a sidebar search active, the first Back cleared the query and kept Timebox open. The next Back returned to Studying, and Back again returned to Decks in the same activity. The phone instrumentation also verified search from More and the Create Deck input after a theme change. These checks ran against app and test APKs built from `c2a9578731`.
+
 The wider device walkthrough is tracked in [Milestone 5 sign-off](51-milestone-5-sign-off-the-redesign-is-done.md).
