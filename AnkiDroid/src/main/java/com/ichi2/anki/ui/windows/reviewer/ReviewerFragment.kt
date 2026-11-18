@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -32,29 +33,39 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import anki.scheduler.CardAnswer.Rating
+import com.google.android.material.snackbar.Snackbar
 import com.ichi2.anki.AbstractFlashcardViewer.Companion.RESULT_NO_MORE_CARDS
+import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.AnkiDroidJsAPI
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.DispatchKeyEventListener
 import com.ichi2.anki.Flag
 import com.ichi2.anki.R
 import com.ichi2.anki.android.AnkiShakeDetector
 import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.destinations.BrowserDestination
 import com.ichi2.anki.common.destinations.DeckOptionsDestination
 import com.ichi2.anki.common.destinations.PreferencesDestination
+import com.ichi2.anki.common.destinations.StatisticsDestination
 import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.utils.android.isRobolectric
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.databinding.FragmentReviewerBinding
+import com.ichi2.anki.dialogs.help.HelpDialog
 import com.ichi2.anki.dialogs.showDeckOptionsSelectionDialog
 import com.ichi2.anki.dialogs.tags.TagsDialogFactory
 import com.ichi2.anki.dialogs.tags.TagsDialogListener
 import com.ichi2.anki.libanki.Card
+import com.ichi2.anki.libanki.Collection
+import com.ichi2.anki.libanki.Note
+import com.ichi2.anki.libanki.NoteId
 import com.ichi2.anki.model.CardStateFilter
 import com.ichi2.anki.pages.PostRequestUri
 import com.ichi2.anki.preferences.reviewer.ViewerAction
@@ -65,6 +76,7 @@ import com.ichi2.anki.previewer.TypeAnswer
 import com.ichi2.anki.previewer.setFrameStyle
 import com.ichi2.anki.previewer.stdHtml
 import com.ichi2.anki.reviewer.BindingMap
+import com.ichi2.anki.reviewer.FullScreenMode
 import com.ichi2.anki.reviewer.ReviewerBinding
 import com.ichi2.anki.scheduling.ForgetCardsDialog
 import com.ichi2.anki.scheduling.SetDueDateDialog
@@ -75,6 +87,7 @@ import com.ichi2.anki.settings.enums.HideSystemBars
 import com.ichi2.anki.settings.enums.ToolbarPosition
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
 import com.ichi2.anki.snackbar.SnackbarBuilder
+import com.ichi2.anki.snackbar.setMaxLines
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.study.StudyCompletionUi
 import com.ichi2.anki.ui.windows.reviewer.audiorecord.CheckPronunciationFragment
@@ -83,10 +96,12 @@ import com.ichi2.anki.utils.ext.collectInViewLifecycle
 import com.ichi2.anki.utils.ext.sharedPrefs
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.utils.ext.window
+import com.ichi2.anki.utils.openUrl
 import com.ichi2.anki.workarounds.SafeWebViewLayout
 import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.themes.Themes
 import com.ichi2.ui.TypeAnswerEditText
+import com.ichi2.utils.IntentUtil
 import com.ichi2.utils.ViewGroupUtils.setRenderWorkaround
 import com.ichi2.utils.show
 import com.squareup.seismic.ShakeDetector
@@ -133,40 +148,118 @@ class ReviewerFragment :
     }
 
     private lateinit var tagsDialogFactory: TagsDialogFactory
+    private var templateNavigationDialog: AlertDialog? = null
 
-    private val jsApi by lazy {
-        AnkiDroidJsAPI(
-            context = requireContext(),
-            showMessage = { if (view != null) showSnackbar(it) },
-            cardApi =
-                object : AnkiDroidJsAPI.CardApi {
-                    override val isDisplayingAnswer: Boolean get() = viewModel.showingAnswer.value
+    private val jsApiDelegate =
+        lazy {
+            AnkiDroidJsAPI(
+                context = requireContext(),
+                showMessage = { if (view != null) showSnackbar(it) },
+                cardApi =
+                    object : AnkiDroidJsAPI.CardApi {
+                        override val isDisplayingAnswer: Boolean get() = viewModel.showingAnswer.value
+                        override val isFullscreen: Boolean get() = !isTopbarShown
+                        override val isTopbarShown: Boolean get() = binding.studyBar.isVisible
+                        override val isInNightMode: Boolean get() = Themes.isNightTheme
 
-                    override suspend fun getCard(): Card = viewModel.currentCard.await()
+                        override suspend fun getCard(): Card = viewModel.currentCard.await()
 
-                    override suspend fun getCardData(includeEta: Boolean): AnkiDroidJsAPI.CardDataForJsApi {
-                        val reportEta = includeEta && sharedPrefs().getBoolean(getString(R.string.show_eta_preference), false)
-                        return viewModel.getCardDataForJsApi(reportEta)
-                    }
+                        override suspend fun getCardData(includeEta: Boolean): AnkiDroidJsAPI.CardDataForJsApi {
+                            val reportEta = includeEta && sharedPrefs().getBoolean(getString(R.string.show_eta_preference), false)
+                            return viewModel.getCardDataForJsApi(reportEta)
+                        }
 
-                    override suspend fun showOrAnswer(rating: Rating?) {
-                        viewModel.onCardTemplateAction(rating, waitForFlip = true)
+                        override suspend fun showOrAnswer(rating: Rating?) {
+                            viewModel.onCardTemplateAction(rating, waitForFlip = true)
+                        }
+
+                        override suspend fun toggleFlag(flag: Flag): Boolean = viewModel.onCardTemplateToggleFlag(flag)
+
+                        override suspend fun performAction(action: ViewerAction): Boolean = viewModel.onCardTemplateCommand(action)
+
+                        override suspend fun setCardDue(days: Int): Boolean = viewModel.onCardTemplateSetDue(days)
+
+                        override suspend fun resetProgress(): Boolean = viewModel.onCardTemplateResetProgress()
+
+                        override suspend fun updateNoteTags(
+                            card: Card,
+                            noteId: NoteId,
+                            update: Collection.(Note) -> Unit,
+                        ): Boolean = viewModel.onCardTemplateUpdateTags(card, noteId, update)
+
+                        override fun searchCard(query: String): Boolean {
+                            navigate(BrowserDestination.Search(query, allDecks = false))
+                            return true
+                        }
+
+                        override fun setFullscreenMode(mode: FullScreenMode): Boolean {
+                            viewModel.cardTemplateFullscreenMode = mode
+                            applyStudyScreenVisibility()
+                            return true
+                        }
+
+                        override fun setScrollbar(
+                            horizontal: Boolean,
+                            enabled: Boolean,
+                        ): Boolean = webViewLayout.setScrollbar(horizontal, enabled)
+
+                        override fun showNavigation(): Boolean = showTemplateNavigation()
+
+                        override fun showOptionsMenu(): Boolean = binding.reviewerMenuView.showOptionsMenu(binding.cardIndicators)
+
+                        override fun canStartSpeechRecognition(): Boolean = Prefs.allowTemplatesToRecordAudio
+
+                        override fun captureCallback(): (String) -> Unit {
+                            val owner = viewLifecycleOwner
+                            val layout = webViewLayout
+                            val client = reviewerWebViewClient
+                            val card = viewModel.currentCard
+                            val renderVersion = viewModel.cardTemplateRenderVersion
+                            return { script ->
+                                if (owner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED) &&
+                                    client === reviewerWebViewClient &&
+                                    card === viewModel.currentCard &&
+                                    renderVersion == viewModel.cardTemplateRenderVersion
+                                ) {
+                                    layout.evaluateJavascript(script)
+                                }
+                            }
+                        }
+                    },
+                showDeveloperMessage = { message ->
+                    if (view != null) {
+                        showSnackbar(message, Snackbar.LENGTH_INDEFINITE) {
+                            setMaxLines(3)
+                            setAction(CommonString.reviewer_invalid_api_version_visit_documentation) {
+                                openUrl("https://github.com/ankidroid/Anki-Android/wiki".toUri())
+                            }
+                        }
                     }
                 },
-        )
-    }
+            )
+        }
+    private val jsApi by jsApiDelegate
 
     override suspend fun handlePostRequest(
         uri: PostRequestUri,
         bytes: ByteArray,
     ): ByteArray {
+        if (uri.ankidroidMethodName == "relinquishFocus") {
+            focusNativeAnswerField()
+            return byteArrayOf()
+        }
         val methodName = uri.jsApiMethodName ?: return super.handlePostRequest(uri, bytes)
-        return jsApi.handleCardRequest(methodName, bytes) ?: run {
-            reviewerWebViewClient.showUnsupportedFeatureWarning()
-            AnkiDroidJsAPI.ApiResult
-                .failure("Unsupported method: $methodName")
-                .toString()
-                .encodeToByteArray()
+        return jsApi.handleJsApiRequest(methodName, bytes, returnDefaultValues = false)
+    }
+
+    private fun focusNativeAnswerField() {
+        if (Prefs.autoFocusTypeAnswer && binding.typeAnswerContainer.isVisible) {
+            binding.typeAnswerEditText.apply {
+                requestFocus()
+                WindowInsetsControllerCompat(window, this).show(WindowInsetsCompat.Type.ime())
+            }
+        } else {
+            binding.rootLayout.requestFocus()
         }
     }
 
@@ -194,6 +287,7 @@ class ReviewerFragment :
             viewModel.stopAutoAdvance()
         }
         shakeDetector?.stop()
+        if (jsApiDelegate.isInitialized()) jsApi.cancelSpeechRecognition()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -218,6 +312,7 @@ class ReviewerFragment :
         setupStudyBar()
         setupMenu()
         setupToolbarPosition()
+        applyStudyScreenVisibility()
         setupAnswerTimer()
         setupMargins()
         setupResetProgress()
@@ -257,6 +352,7 @@ class ReviewerFragment :
             .onEach { showingAnswer ->
                 // reset zoom if flipped
                 if (showingAnswer) reviewerWebViewClient.resetZoom()
+                if (jsApiDelegate.isInitialized()) jsApi.cancelSpeechRecognition()
                 // focus on the whole layout so motion controllers can be captured
                 // without navigating the other View elements
                 binding.rootLayout.requestFocus()
@@ -266,6 +362,7 @@ class ReviewerFragment :
             .onEach {
                 // reset zoom if the card changes (incl. bury/suspend)
                 reviewerWebViewClient.resetZoom()
+                if (jsApiDelegate.isInitialized()) jsApi.cancelSpeechRecognition()
                 binding.typeAnswerEditText.text = null
                 whiteboardFragment?.resetCanvas()
             }.launchIn(viewScope)
@@ -308,8 +405,15 @@ class ReviewerFragment :
     }
 
     override fun onWebViewRecreated() {
+        if (jsApiDelegate.isInitialized()) jsApi.cancelSpeechRecognition()
         super.onWebViewRecreated()
         setRenderWorkaround(requireActivity())
+    }
+
+    override fun onDestroyView() {
+        templateNavigationDialog?.dismiss()
+        templateNavigationDialog = null
+        super.onDestroyView()
     }
 
     private fun setupTypeAnswer() {
@@ -440,15 +544,10 @@ class ReviewerFragment :
         bindingMap.isBound(gesture) || BindingMap(sharedPrefs(), WhiteboardAction.entries).isBound(gesture)
 
     private fun setupAnswerButtons() {
-        if (!Prefs.showAnswerButtons) {
-            binding.answerArea.isVisible = false
-            return
-        }
-
         val insetsController = WindowInsetsControllerCompat(window, binding.rootLayout)
         viewModel.showingAnswer
             .onEach { isAnswerShown ->
-                if (isAnswerShown) {
+                if (isAnswerShown && binding.answerArea.isVisible) {
                     insetsController.hide(WindowInsetsCompat.Type.ime())
                 }
             }.launchIn(viewLifecycleOwner.lifecycleScope)
@@ -517,20 +616,8 @@ class ReviewerFragment :
     }
 
     private fun setupImmersiveMode() {
-        val barsToHide =
-            when (Prefs.hideSystemBars) {
-                HideSystemBars.NONE -> return
-                HideSystemBars.STATUS_BAR -> WindowInsetsCompat.Type.statusBars()
-                HideSystemBars.NAVIGATION_BAR -> WindowInsetsCompat.Type.navigationBars()
-                HideSystemBars.ALL -> WindowInsetsCompat.Type.systemBars()
-            }
-
-        val window = requireActivity().window
-        with(WindowInsetsControllerCompat(window, window.decorView)) {
-            hide(barsToHide)
-            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        }
-
+        applySystemBarVisibility()
+        if (Prefs.hideSystemBars == HideSystemBars.NONE && viewModel.cardTemplateFullscreenMode == null) return
         val minTopPadding =
             if (Prefs.frameStyle == FrameStyle.CARD && Prefs.toolbarPosition != ToolbarPosition.TOP) {
                 8F.dp.toPx(requireContext())
@@ -560,36 +647,116 @@ class ReviewerFragment :
     }
 
     private fun setupToolbarPosition() {
-        when (Prefs.toolbarPosition) {
-            ToolbarPosition.TOP -> return
-            ToolbarPosition.NONE -> binding.studyBar.isVisible = false
-            ToolbarPosition.BOTTOM -> {
-                binding.mainLayout.removeView(binding.studyBar)
-                binding.mainLayout.addView(binding.studyBar)
-                // the progress line stays between the Card and the bar
-                binding.studyBar.removeView(binding.studyProgress)
-                binding.studyBar.addView(binding.studyProgress, 0)
+        if (Prefs.toolbarPosition != ToolbarPosition.BOTTOM) return
+        binding.mainLayout.removeView(binding.studyBar)
+        binding.mainLayout.addView(binding.studyBar)
+        // the progress line stays between the Card and the bar
+        binding.studyBar.removeView(binding.studyProgress)
+        binding.studyBar.addView(binding.studyProgress, 0)
+    }
 
-                // Put the answer buttons inside the toolbar on big screens
-                if (!isBigScreen || !Prefs.showAnswerButtons) return
-                binding.bottomLayout.removeView(binding.answerArea)
-                binding.toolsLayout.addView(binding.answerArea)
-                binding.answerArea.updateLayoutParams<ConstraintLayout.LayoutParams> {
-                    width = 0
-                    matchConstraintPercentWidth = 0.6F
-                    matchConstraintMaxWidth = 480.dp.toPx(requireContext())
-                    topToTop = ConstraintLayout.LayoutParams.PARENT_ID
-                    bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
-                    startToStart = ConstraintLayout.LayoutParams.PARENT_ID
-                    endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+    private fun applyStudyScreenVisibility() {
+        val mode = viewModel.cardTemplateFullscreenMode
+        val showToolbar =
+            if (mode == null) Prefs.toolbarPosition != ToolbarPosition.NONE else mode == FullScreenMode.BUTTONS_AND_MENU
+        val showAnswers = if (mode == null) Prefs.showAnswerButtons else mode != FullScreenMode.FULLSCREEN_ALL_GONE
+        binding.studyBar.isVisible = showToolbar
+        binding.answerArea.isVisible = showAnswers
+        if (isBigScreen && Prefs.toolbarPosition == ToolbarPosition.BOTTOM) {
+            placeTabletAnswerButtons(inToolbar = showToolbar && showAnswers)
+        }
+        if (mode != null) setupImmersiveMode()
+    }
+
+    private fun placeTabletAnswerButtons(inToolbar: Boolean) {
+        val answerArea = binding.answerArea
+        if (inToolbar == (answerArea.parent === binding.toolsLayout)) return
+        if (inToolbar) {
+            binding.bottomLayout.removeView(answerArea)
+            binding.toolsLayout.addView(answerArea)
+            answerArea.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                width = 0
+                matchConstraintPercentWidth = 0.6F
+                matchConstraintMaxWidth = 480.dp.toPx(requireContext())
+                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+                startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+                endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+            }
+        } else {
+            binding.toolsLayout.removeView(answerArea)
+            binding.bottomLayout.addView(
+                answerArea,
+                LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT),
+            )
+        }
+        binding.reviewerMenuView.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            width = if (inToolbar) 0 else ConstraintLayout.LayoutParams.WRAP_CONTENT
+            matchConstraintPercentWidth = if (inToolbar) 0.16F else 1F
+        }
+    }
+
+    private fun applySystemBarVisibility() {
+        val mode = viewModel.cardTemplateFullscreenMode
+        val barsToHide =
+            when {
+                mode?.isFullScreenReview() == true -> WindowInsetsCompat.Type.systemBars()
+                mode == FullScreenMode.BUTTONS_AND_MENU -> 0
+                else ->
+                    when (Prefs.hideSystemBars) {
+                        HideSystemBars.NONE -> 0
+                        HideSystemBars.STATUS_BAR -> WindowInsetsCompat.Type.statusBars()
+                        HideSystemBars.NAVIGATION_BAR -> WindowInsetsCompat.Type.navigationBars()
+                        HideSystemBars.ALL -> WindowInsetsCompat.Type.systemBars()
+                    }
+            }
+        val window = requireActivity().window
+        with(WindowInsetsControllerCompat(window, window.decorView)) {
+            systemBarsBehavior =
+                if (barsToHide == 0) {
+                    WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+                } else {
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                 }
-                binding.reviewerMenuView.updateLayoutParams<ConstraintLayout.LayoutParams> {
-                    width = 0
-                    matchConstraintPercentWidth = 0.16F
-                    startToEnd = ConstraintLayout.LayoutParams.UNSET
+            show(WindowInsetsCompat.Type.systemBars() and barsToHide.inv())
+            if (barsToHide != 0) hide(barsToHide)
+        }
+    }
+
+    private fun showTemplateNavigation(): Boolean {
+        if (templateNavigationDialog?.isShowing == true) return true
+        val destinations =
+            arrayOf(
+                CollectionManager.TR.actionsDecks(),
+                CollectionManager.TR.qtMiscBrowse(),
+                CollectionManager.TR.qtMiscStats(),
+                getString(CommonString.settings),
+                getString(CommonString.help),
+                getString(CommonString.help_title_support_ankidroid),
+            )
+        templateNavigationDialog =
+            AlertDialog.Builder(requireContext()).show {
+                setItems(destinations) { _, item ->
+                    when (item) {
+                        0 ->
+                            startActivity(
+                                DeckPicker
+                                    .getIntent(
+                                        requireContext(),
+                                    ).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                            )
+                        1 -> navigate(BrowserDestination.Open)
+                        2 -> navigate(StatisticsDestination)
+                        3 -> navigate(PreferencesDestination.Root)
+                        4 -> showDialogFragment(HelpDialog.newHelpInstance())
+                        5 -> {
+                            val canRateApp = IntentUtil.canOpenIntent(requireContext(), AnkiDroidApp.getMarketIntent(requireContext()))
+                            showDialogFragment(HelpDialog.newSupportInstance(canRateApp))
+                        }
+                    }
                 }
             }
-        }
+        return true
     }
 
     /**
@@ -700,7 +867,9 @@ class ReviewerFragment :
         }
 
         viewModel.editNoteTagsFlow.collectInViewLifecycle { noteId ->
-            tagsDialogFactory.show(requireActivity(), noteIds = listOf(noteId))
+            if (tagsDialogFactory.show(requireActivity(), noteIds = listOf(noteId))) {
+                viewModel.editingNoteId = noteId
+            }
         }
 
         viewModel.setDueDateFlow.collectInViewLifecycle { cardId ->
@@ -760,17 +929,6 @@ class ReviewerFragment :
                 isDoubleTapEnabled = bindingMap.isBound(Gesture.DOUBLE_TAP),
             )
         }
-        private var hasShownUnsupportedFeatureWarning = false
-
-        fun showUnsupportedFeatureWarning() {
-            if (hasShownUnsupportedFeatureWarning) return
-            val context = context ?: return
-            hasShownUnsupportedFeatureWarning = true
-            AlertDialog.Builder(context).show {
-                setMessage(CommonString.feature_not_supported_by_study_screen)
-                setPositiveButton(CommonString.dialog_ok) { _, _ -> }
-            }
-        }
 
         /** Resets pinch zoom, leaving the viewport untouched when already at the initial scale. */
         fun resetZoom() {
@@ -820,7 +978,17 @@ class ReviewerFragment :
                     true
                 }
                 "signal" -> {
-                    showUnsupportedFeatureWarning()
+                    when (url.schemeSpecificPart) {
+                        "relinquishFocus" -> focusNativeAnswerField()
+                        "reload_card_html" -> viewLifecycleOwner.lifecycleScope.launch { viewModel.onCardTemplateReload() }
+                        "show_answer" -> viewLifecycleOwner.lifecycleScope.launch { viewModel.onCardTemplateAction(null) }
+                        "answer_ease1", "answer_ease2", "answer_ease3", "answer_ease4" -> {
+                            val method = "answerEase${url.schemeSpecificPart.last()}"
+                            val rating = AnkiDroidJsAPI.answerRating(method)
+                            viewLifecycleOwner.lifecycleScope.launch { viewModel.onCardTemplateAction(rating) }
+                        }
+                        // signal:typefocus is a legacy no-op.
+                    }
                     true
                 }
                 else -> super.handleUrl(webView, url)
@@ -852,24 +1020,8 @@ class ReviewerFragment :
 
     private inner class ReviewerWebChromeClient : CardViewerWebChromeClient() {
         override fun onHideCustomView() {
-            val barsToHide = Prefs.hideSystemBars
-            if (barsToHide == HideSystemBars.NONE) {
-                super.onHideCustomView()
-            } else {
-                val window = requireActivity().window
-                (window.decorView as FrameLayout).removeView(paramView)
-
-                val barsToShowBack =
-                    when (barsToHide) {
-                        HideSystemBars.STATUS_BAR -> WindowInsetsCompat.Type.navigationBars()
-                        HideSystemBars.NAVIGATION_BAR -> WindowInsetsCompat.Type.statusBars()
-                        HideSystemBars.ALL, HideSystemBars.NONE -> return
-                    }
-                with(WindowInsetsControllerCompat(window, window.decorView)) {
-                    show(barsToShowBack)
-                    systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                }
-            }
+            (window.decorView as FrameLayout).removeView(paramView)
+            applySystemBarVisibility()
         }
     }
 

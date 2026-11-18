@@ -58,6 +58,15 @@ open class SafeWebViewLayout :
             activeWebView?.scrollBarStyle = value
         }
 
+    fun setScrollbar(
+        horizontal: Boolean,
+        enabled: Boolean,
+    ): Boolean {
+        val webView = activeWebView ?: return false
+        if (horizontal) webView.isHorizontalScrollBarEnabled = enabled else webView.isVerticalScrollBarEnabled = enabled
+        return true
+    }
+
     @NeedsTest("Verify background color applies to inner WebView")
     override fun setBackgroundColor(color: Int) {
         super.setBackgroundColor(color)

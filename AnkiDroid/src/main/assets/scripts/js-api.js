@@ -171,3 +171,28 @@ Object.keys(jsApiList).forEach(method => {
         return await this.handleRequest(endpoint, data);
     };
 });
+
+const searchCardHook = [];
+const speechToTextHook = [];
+
+/** Add a callback that receives the decoded result of a search or speech recognition. */
+function addHook(event, callback) {
+    if (event === "ankiSearchCard") searchCardHook.push(callback);
+    if (event === "ankiSttResult") speechToTextHook.push(callback);
+}
+
+function ankiSearchCard(result) {
+    const cards = JSON.parse(result);
+    for (const callback of searchCardHook) callback(cards);
+}
+
+function ankiSttResult(result) {
+    const response = JSON.parse(result);
+    if (response.success) response.value = JSON.parse(response.value);
+    for (const callback of speechToTextHook) callback(response);
+}
+
+function resetCardTemplateHooks() {
+    searchCardHook.length = 0;
+    speechToTextHook.length = 0;
+}

@@ -305,11 +305,15 @@ function buttonAnswerEase4() {
     fetch("/ankidroid/answerEase4", { method: "POST" });
 }
 
-// These helpers still show the unsupported-feature warning in the study screen.
 function taFocus() {
     window.location.href = "signal:typefocus";
 }
 
 function reloadPage() {
-    window.location.href = "signal:reload_card_html";
+    fetch("/ankidroid/reloadCard", { method: "POST" });
+}
+
+function _relinquishFocus() {
+    document.body.style.cursor = "default";
+    fetch("/ankidroid/relinquishFocus", { method: "POST" });
 }

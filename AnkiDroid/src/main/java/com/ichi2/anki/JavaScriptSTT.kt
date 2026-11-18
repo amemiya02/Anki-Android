@@ -15,7 +15,6 @@ class JavaScriptSTT(
     private val context: Context,
 ) {
     private var speechRecognizer: SpeechRecognizer? = null
-    private var recognitionCallback: SpeechRecognitionCallback? = null
     private var language: String? = null
 
     interface SpeechRecognitionCallback {
@@ -29,33 +28,31 @@ class JavaScriptSTT(
         return true
     }
 
-    fun setRecognitionCallback(callback: SpeechRecognitionCallback) {
-        this.recognitionCallback = callback
-    }
-
-    fun start(): Boolean {
+    fun start(callback: SpeechRecognitionCallback): Boolean {
         if (!canRecordAudio(context)) {
-            recognitionCallback?.onError("Record audio permission not granted.")
+            callback.onError("Record audio permission not granted.")
             return false
         }
 
         if (!SpeechRecognizer.isRecognitionAvailable(context)) {
-            recognitionCallback?.onError("Speech recognition is not available on this device.")
+            callback.onError("Speech recognition is not available on this device.")
             return false
         }
-
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
-        speechRecognizer?.setRecognitionListener(createRecognitionListener())
 
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, language)
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
 
+        cancel()
         try {
-            speechRecognizer?.startListening(intent)
+            val recognizer = SpeechRecognizer.createSpeechRecognizer(context)
+            speechRecognizer = recognizer
+            recognizer.setRecognitionListener(createRecognitionListener(recognizer, callback))
+            recognizer.startListening(intent)
             return true
         } catch (e: Exception) {
-            recognitionCallback?.onError("Error starting speech recognition.")
+            cancel()
+            callback.onError("Error starting speech recognition.")
         }
         return false
     }
@@ -65,7 +62,16 @@ class JavaScriptSTT(
         return true
     }
 
-    private fun createRecognitionListener(): RecognitionListener =
+    fun cancel() {
+        val recognizer = speechRecognizer
+        speechRecognizer = null
+        recognizer?.destroy()
+    }
+
+    private fun createRecognitionListener(
+        recognizer: SpeechRecognizer,
+        callback: SpeechRecognitionCallback,
+    ): RecognitionListener =
         object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {}
 
@@ -78,6 +84,8 @@ class JavaScriptSTT(
             override fun onEndOfSpeech() {}
 
             override fun onError(error: Int) {
+                if (speechRecognizer !== recognizer) return
+                cancel()
                 val errorMessage =
                     when (error) {
                         SpeechRecognizer.ERROR_AUDIO -> "Audio error"
@@ -91,15 +99,17 @@ class JavaScriptSTT(
                         SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "Speech timeout"
                         else -> "Unknown error"
                     }
-                recognitionCallback?.onError(errorMessage)
+                callback.onError(errorMessage)
             }
 
             override fun onResults(results: Bundle?) {
+                if (speechRecognizer !== recognizer) return
+                cancel()
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
-                    recognitionCallback?.onResult(matches)
+                    callback.onResult(matches)
                 } else {
-                    recognitionCallback?.onError("No speech recognition results found.")
+                    callback.onError("No speech recognition results found.")
                 }
             }
 

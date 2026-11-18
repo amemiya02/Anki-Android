@@ -4,15 +4,19 @@ package com.ichi2.anki.preferences.reviewer
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuItemImpl
 import androidx.appcompat.widget.ActionMenuView
+import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.children
 import androidx.core.view.size
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -43,6 +47,7 @@ class ReviewerMenuView : LinearLayout {
         binding.overflowMenuView.menu.apply {
             (this as? MenuBuilder)?.setOptionalIconsVisible(true)
         }
+    private var onMenuItemClickListener: ActionMenuView.OnMenuItemClickListener? = null
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -60,8 +65,44 @@ class ReviewerMenuView : LinearLayout {
     fun findItem(id: Int): MenuItemImpl? = (frontMenu.findItem(id) ?: overflowMenu.findItem(id)) as? MenuItemImpl
 
     fun setOnMenuItemClickListener(listener: ActionMenuView.OnMenuItemClickListener) {
+        onMenuItemClickListener = listener
         binding.frontMenuView.setOnMenuItemClickListener(listener)
         binding.overflowMenuView.setOnMenuItemClickListener(listener)
+    }
+
+    /** Opens the configured Card actions even when a template has hidden the toolbar. */
+    fun showOptionsMenu(anchor: View): Boolean {
+        if (isShown && binding.overflowMenuView.showOverflowMenu()) return true
+        val popup = PopupMenu(context, anchor, Gravity.END)
+        copyVisibleItems(frontMenu, popup.menu)
+        copyVisibleItems(overflowMenu, popup.menu)
+        if (!popup.menu.hasVisibleItems()) return false
+        popup.setOnMenuItemClickListener { onMenuItemClickListener?.onMenuItemClick(it) ?: false }
+        popup.show()
+        return true
+    }
+
+    private fun copyVisibleItems(
+        from: Menu,
+        to: Menu,
+    ) {
+        for (item in from.children.filter { it.isVisible }) {
+            val submenu = item.subMenu
+            val copy =
+                if (submenu == null) {
+                    to.add(item.groupId, item.itemId, item.order, item.title)
+                } else {
+                    to
+                        .addSubMenu(item.groupId, item.itemId, item.order, item.title)
+                        .also {
+                            copyVisibleItems(submenu, it)
+                        }.item
+                }
+            copy.isEnabled = item.isEnabled
+            copy.isCheckable = item.isCheckable
+            copy.isChecked = item.isChecked
+            copy.icon = item.icon
+        }
     }
 
     fun addActions(

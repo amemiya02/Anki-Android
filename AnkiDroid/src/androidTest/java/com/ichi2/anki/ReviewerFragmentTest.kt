@@ -4,20 +4,32 @@ package com.ichi2.anki
 
 import android.app.Activity
 import android.content.Intent
+import android.view.View
 import android.webkit.WebView
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.performClick
 import androidx.core.content.edit
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import anki.config.copy
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.ext.cardStateCustomizer
 import com.ichi2.anki.libanki.Card
+import com.ichi2.anki.libanki.CardType
 import com.ichi2.anki.libanki.DeckId
+import com.ichi2.anki.libanki.QueueType
+import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.tests.InstrumentedTest
@@ -35,6 +47,7 @@ import com.ichi2.anki.testutil.waitUntil
 import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
+import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
@@ -207,6 +220,326 @@ class ReviewerFragmentTest : InstrumentedTest() {
     }
 
     @Test
+    fun cardTemplateCanMarkAndToggleEveryFlag() {
+        val card = addCardToTestDeck()
+        withReviewerWebView { webView ->
+            val result =
+                webView.runCardApiScript(
+                    """
+                    const marked = await api.ankiMarkCard();
+                    const values = [marked.value, (await api.ankiGetCardMark()).value];
+                    for (const flag of ["red", "orange", "green", "blue", "pink", "turquoise", "purple", "purple", "red", "none"]) {
+                        values.push((await api.ankiToggleFlag(flag)).value);
+                        values.push((await api.ankiGetCardFlag()).value);
+                    }
+                    return values;
+                    """.trimIndent(),
+                )
+            assertThat(result, equalTo("[true,true,true,1,true,2,true,3,true,4,true,5,true,6,true,7,true,0,true,1,true,0]"))
+            assertThat(col.getNote(card.nid).tags, equalTo(listOf("marked")))
+            assertThat(col.getCard(card.id).userFlag(), equalTo(0))
+        }
+    }
+
+    @Test
+    fun cardTemplateCanBuryOneCard() = assertCardTemplateChangesQueue("ankiBuryCard", QueueType.ManuallyBuried, allCards = false)
+
+    @Test
+    fun cardTemplateCanBuryTheWholeNote() = assertCardTemplateChangesQueue("ankiBuryNote", QueueType.ManuallyBuried, allCards = true)
+
+    @Test
+    fun cardTemplateCanSuspendOneCard() = assertCardTemplateChangesQueue("ankiSuspendCard", QueueType.Suspended, allCards = false)
+
+    @Test
+    fun cardTemplateCanSuspendTheWholeNote() = assertCardTemplateChangesQueue("ankiSuspendNote", QueueType.Suspended, allCards = true)
+
+    private fun assertCardTemplateChangesQueue(
+        method: String,
+        expectedQueue: QueueType,
+        allCards: Boolean,
+    ) {
+        val note = col.newNote(checkNotNull(col.notetypes.byName("Basic (and reversed card)")))
+        note.setField(0, "Front of a two-card Note")
+        note.setField(1, "Back of a two-card Note")
+        col.addNote(note, testDeckId)
+        val cards = note.cards(col)
+        assertThat(cards.size, equalTo(2))
+        val nextNote = addCardToTestDeck()
+
+        withReviewerWebView { webView ->
+            val currentCardId =
+                JSONObject(webView.runCardApiScript("return { id: (await api.ankiGetCardId()).value };")).getLong("id")
+            assertThat(cards.any { it.id == currentCardId }, equalTo(true))
+            assertThat(webView.runCardApiScript("return (await api.$method()).value;"), equalTo("true"))
+            for (card in cards) {
+                val expected = if (card.id == currentCardId || allCards) expectedQueue else QueueType.New
+                assertThat(col.getCard(card.id).queue, equalTo(expected))
+            }
+            assertThat(col.getCard(nextNote.id).queue, equalTo(QueueType.New))
+            assertThat(
+                webView.runCardApiScript("return (await api.ankiGetCardId()).value !== $currentCardId;"),
+                equalTo("true"),
+            )
+        }
+    }
+
+    @Test
+    fun cardTemplateCanSetTheCurrentCardsDueDate() {
+        val card = addCardToTestDeck()
+        addCardToTestDeck()
+        withReviewerWebView { webView ->
+            assertThat(webView.runCardApiScript("return (await api.ankiSetCardDue(10000)).value;"), equalTo("false"))
+            assertThat(webView.runCardApiScript("return (await api.ankiSetCardDue(15)).value;"), equalTo("true"))
+            assertThat(col.getCard(card.id).due, equalTo(col.sched.today + 15))
+        }
+    }
+
+    @Test
+    fun cardTemplateCanResetTheCurrentCardsProgress() {
+        val card = addCardToTestDeck()
+        card.ivl = 8
+        card.moveToReviewQueue()
+
+        withReviewerWebView { webView ->
+            assertThat(webView.runCardApiScript("return (await api.ankiResetProgress()).value;"), equalTo("true"))
+            val reset = col.getCard(card.id)
+            assertThat(reset.type, equalTo(CardType.New))
+            assertThat(reset.ivl, equalTo(0))
+        }
+    }
+
+    @Test
+    fun cardTemplateKeepsPermissionChecksForSearchAndCrossNoteTags() {
+        val card = addCardToTestDeck()
+        val back = """A "quoted" field with <em>markup</em>"""
+        val otherNote = addNoteUsingBasicNoteType("searchCallbackTarget", back)
+        val otherCard = otherNote.firstCard(col)
+        val prefs = testContext.sharedPrefs()
+        val key = testContext.getString(R.string.pref_allow_dangerous_js_api)
+        val originalValue = prefs.getBoolean(key, false)
+
+        try {
+            prefs.edit { putBoolean(key, false) }
+            withReviewerWebView { webView ->
+                val denied =
+                    webView.runCardApiScript(
+                        """
+                        window.searchResults = null;
+                        addHook("ankiSearchCard", results => { window.searchResults = results; });
+                        return [
+                            (await api.ankiSearchCardWithCallback("searchCallbackTarget")).value,
+                            (await api.ankiAddTagToNote(${otherNote.id}, "remote")).value,
+                            (await api.ankiAddTagToNote(${card.nid}, "local")).value,
+                            JSON.parse((await api.ankiGetNoteTags()).value),
+                            window.searchResults,
+                        ];
+                        """.trimIndent(),
+                    )
+                assertThat(denied, equalTo("""[false,false,true,["local"],null]"""))
+                assertThat(col.getNote(otherNote.id).tags, equalTo(emptyList()))
+
+                prefs.edit { putBoolean(key, true) }
+                val allowed =
+                    webView.runCardApiScript(
+                        """
+                        return [
+                            (await api.ankiSearchCardWithCallback("searchCallbackTarget")).value,
+                            (await api.ankiAddTagToNote(${otherNote.id}, "remote")).value,
+                            (await api.ankiSetNoteTags(["a tag", "kept"])).value,
+                            JSON.parse((await api.ankiGetNoteTags()).value),
+                        ];
+                        """.trimIndent(),
+                    )
+                assertThat(allowed, equalTo("""[true,true,true,["a_tag","kept"]]"""))
+                webView.awaitJavascript("Boolean(window.searchResults)")
+                val match = webView.evaluate("window.searchResults.find(result => result.noteId === ${otherNote.id})")
+                val data = JSONObject(match)
+                assertThat(data.getLong("cardId"), equalTo(otherCard.id))
+                assertThat(data.getJSONObject("fieldsData").getString("Back"), equalTo(back))
+                assertThat(col.getNote(otherNote.id).tags, equalTo(listOf("remote")))
+            }
+        } finally {
+            prefs.edit { putBoolean(key, originalValue) }
+            col.removeNotes(listOf(otherNote.id))
+        }
+    }
+
+    @Test
+    fun cardTemplateCanControlTheCardFrameAndOpenMenus() {
+        addCardToTestDeck()
+        withReviewerWebView { webView ->
+            val instrumentation = InstrumentationRegistry.getInstrumentation()
+            val device = UiDevice.getInstance(instrumentation)
+
+            fun assertFrame(
+                toolbarVisible: Boolean,
+                answersVisible: Boolean,
+            ) {
+                instrumentation.runOnMainSync {
+                    val frame = webView.rootView
+                    assertThat(frame.requireViewById<View>(R.id.study_bar).isShown, equalTo(toolbarVisible))
+                    assertThat(frame.requireViewById<View>(R.id.answer_area).isShown, equalTo(answersVisible))
+                }
+            }
+
+            assertThat(
+                webView.runCardApiScript(
+                    """
+                    return [
+                        (await api.ankiSetFullscreenButtonsOnly()).value,
+                        (await api.ankiIsInFullscreen()).value,
+                        (await api.ankiIsTopbarShown()).value,
+                    ];
+                    """.trimIndent(),
+                ),
+                equalTo("[true,true,false]"),
+            )
+            assertFrame(toolbarVisible = false, answersVisible = true)
+
+            assertThat(webView.runCardApiScript("return (await api.ankiSetFullscreenAllGone()).value;"), equalTo("true"))
+            assertFrame(toolbarVisible = false, answersVisible = false)
+
+            assertThat(webView.runCardApiScript("return (await api.ankiShowOptionsMenu()).value;"), equalTo("true"))
+            assertThat(device.wait(Until.hasObject(By.text(ViewerAction.MARK.title(testContext))), 10000), equalTo(true))
+            device.pressBack()
+
+            assertThat(
+                webView.runCardApiScript(
+                    """
+                    return [
+                        (await api.ankiSetFullscreenButtonsAndMenu()).value,
+                        (await api.ankiIsInFullscreen()).value,
+                        (await api.ankiIsTopbarShown()).value,
+                        (await api.ankiEnableHorizontalScrollbar(false)).value,
+                        (await api.ankiEnableVerticalScrollbar(true)).value,
+                    ];
+                    """.trimIndent(),
+                ),
+                equalTo("[true,false,true,true,true]"),
+            )
+            assertFrame(toolbarVisible = true, answersVisible = true)
+            instrumentation.runOnMainSync {
+                assertThat(webView.isHorizontalScrollBarEnabled, equalTo(false))
+                assertThat(webView.isVerticalScrollBarEnabled, equalTo(true))
+            }
+
+            assertThat(webView.runCardApiScript("return (await api.ankiShowNavigationDrawer()).value;"), equalTo("true"))
+            assertThat(device.wait(Until.hasObject(By.text(CollectionManager.TR.actionsDecks())), 10000), equalTo(true))
+            device.pressBack()
+        }
+    }
+
+    @Test
+    fun cardTemplateCanOpenTagsAndSearchInTheBrowser() {
+        addCardToTestDeck()
+        withReviewerWebView { webView ->
+            assertThat(webView.runCardApiScript("return (await api.ankiAddTagToCard()).value;"), equalTo("true"))
+            onView(withId(R.id.tags_list)).check(matches(isDisplayed()))
+            pressBack()
+
+            val instrumentation = InstrumentationRegistry.getInstrumentation()
+            val browserMonitor = instrumentation.addMonitor(CardBrowser::class.java.name, null, false)
+            try {
+                assertThat(webView.runCardApiScript("""return (await api.ankiSearchCard("foo")).value;"""), equalTo("true"))
+                checkNotNull(browserMonitor.waitForActivityWithTimeout(5000)) { "Card Browser did not open" }
+            } finally {
+                instrumentation.removeMonitor(browserMonitor)
+                browserMonitor.lastActivity?.let { activity -> instrumentation.runOnMainSync { activity.finish() } }
+            }
+        }
+    }
+
+    @Test
+    fun cardTemplateCanReloadItsCurrentContent() {
+        addCardToTestDeck()
+        withReviewerWebView { webView ->
+            val content = "document.getElementById('qa').textContent"
+            val original = webView.evaluate(content)
+            webView.evaluate(
+                """
+                document.getElementById("qa").textContent = "Temporary Card Content";
+                reloadPage();
+                """.trimIndent(),
+            )
+            var actual = ""
+            waitUntil(message = { "Card Content after reload was $actual. Expected $original" }) {
+                actual = webView.evaluate(content)
+                actual == original
+            }
+        }
+    }
+
+    @Test
+    fun cardTemplateCanCallTheAndroidTextToSpeechEngine() {
+        addCardToTestDeck()
+        withReviewerWebView { webView ->
+            val response =
+                webView.runCardApiScript(
+                    """
+                    await api.ankiTtsIsSpeaking();
+                    const deadline = Date.now() + 4000;
+                    let language;
+                    do {
+                        language = await api.ankiTtsSetLanguage("en-US");
+                        if (language.value >= 0) break;
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                    } while (Date.now() < deadline);
+                    return {
+                        language: language.value,
+                        pitch: (await api.ankiTtsSetPitch(1.1)).value,
+                        rate: (await api.ankiTtsSetSpeechRate(1)).value,
+                        speak: (await api.ankiTtsSpeak("Study Card.", 0)).value,
+                        isSpeaking: (await api.ankiTtsIsSpeaking()).value,
+                        stop: (await api.ankiTtsStop()).value,
+                    };
+                    """.trimIndent(),
+                )
+            val results = JSONObject(response)
+            assertThat(results.getInt("language") in -2..2, equalTo(true))
+            assertThat(results.getInt("pitch"), equalTo(0))
+            assertThat(results.getInt("rate"), equalTo(0))
+            assertThat(results.get("isSpeaking") is Boolean, equalTo(true))
+            // Some system images contain no synthesizer or usable voice.
+            val engineReady = results.getInt("language") >= 0
+            assertThat(results.getInt("speak") in (if (engineReady) 0..0 else -1..0), equalTo(true))
+            assertThat(results.getInt("stop") in (if (engineReady) 0..0 else -1..0), equalTo(true))
+        }
+    }
+
+    @Test
+    fun cardTemplateGetsASpeechRecognitionErrorWithoutRecordingConsent() {
+        addCardToTestDeck()
+        val originalValue = Prefs.allowTemplatesToRecordAudio
+        try {
+            Prefs.allowTemplatesToRecordAudio = false
+            withReviewerWebView { webView ->
+                val response =
+                    webView.runCardApiScript(
+                        """
+                        window.recognition = null;
+                        addHook("ankiSttResult", result => { window.recognition = result; });
+                        return [
+                            (await api.ankiSttSetLanguage("en-US")).value,
+                            (await api.ankiSttStart()).value,
+                            (await api.ankiSttStop()).value,
+                            (await api.ankiTtsFieldModifierIsAvailable()).value,
+                            (await api.ankiShowToast(encodeURIComponent("日本語 + English"), false)).value,
+                        ];
+                        """.trimIndent(),
+                    )
+                assertThat(response, equalTo("[true,false,true,false,true]"))
+                webView.awaitJavascript("Boolean(window.recognition)")
+                assertThat(
+                    webView.evaluate("window.recognition"),
+                    equalTo("""{"success":false,"value":"Audio recording is disabled for card templates."}"""),
+                )
+            }
+        } finally {
+            Prefs.allowTemplatesToRecordAudio = originalValue
+        }
+    }
+
+    @Test
     fun cardTemplateReadsTheSameValuesInBothStudyScreens() {
         val noteType = col.notetypes.copy(col.notetypes.byName("Basic")!!)
         val preferences = col.getPreferences()
@@ -287,6 +620,34 @@ class ReviewerFragmentTest : InstrumentedTest() {
         val data = "document.getElementById('$side-data').textContent"
         awaitJavascript("Boolean(document.getElementById('$side-data')?.textContent)")
         return evaluate("JSON.parse($data)")
+    }
+
+    private fun withReviewerWebView(block: (WebView) -> Unit) {
+        ActivityScenario.launch<CardViewerActivity>(ReviewerFragment.getIntent(testContext)).use { scenario ->
+            lateinit var webView: WebView
+            scenario.onActivity { activity ->
+                webView = (activity.fragment as ReviewerFragment).binding.webViewLayout.getChildAt(0) as WebView
+            }
+            webView.awaitJavascript("Boolean(document.getElementById('qa')?.textContent.trim())")
+            block(webView)
+        }
+    }
+
+    private fun WebView.runCardApiScript(script: String): String {
+        evaluate(
+            """
+            window.testApiResult = null;
+            void (async () => {
+                const api = AnkiDroidJS.init($JS_API_OPTIONS);
+                $script
+            })().then(
+                value => { window.testApiResult = JSON.stringify(value); },
+                error => { window.testApiResult = JSON.stringify(String(error)); }
+            );
+            """.trimIndent(),
+        )
+        awaitJavascript("Boolean(window.testApiResult)")
+        return evaluate("JSON.parse(window.testApiResult)")
     }
 
     private fun addCardToTestDeck(): Card = addNoteUsingBasicNoteType("foo", "bar").firstCard(col).update { did = testDeckId }

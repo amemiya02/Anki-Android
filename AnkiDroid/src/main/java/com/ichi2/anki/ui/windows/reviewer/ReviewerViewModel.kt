@@ -13,11 +13,13 @@ import com.ichi2.anki.AnkiDroidJsAPI
 import com.ichi2.anki.AnkiDroidJsAPI.CardDataForJsApi
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
+import com.ichi2.anki.CommonPlurals
 import com.ichi2.anki.Flag
 import com.ichi2.anki.Reviewer
 import com.ichi2.anki.asyncIO
 import com.ichi2.anki.cardviewer.SingleCardSide
 import com.ichi2.anki.cardviewer.appendNoSuggestAttributes
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.destinations.BrowserDestination
 import com.ichi2.anki.common.destinations.CardInfoDestination
@@ -32,6 +34,7 @@ import com.ichi2.anki.libanki.CardId
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.Decks
+import com.ichi2.anki.libanki.Note
 import com.ichi2.anki.libanki.NoteId
 import com.ichi2.anki.libanki.redoLabel
 import com.ichi2.anki.libanki.sched.CurrentQueueState
@@ -45,6 +48,7 @@ import com.ichi2.anki.previewer.TypeAnswer
 import com.ichi2.anki.previewer.typeAnsRe
 import com.ichi2.anki.reviewer.BindingProcessor
 import com.ichi2.anki.reviewer.CardSide
+import com.ichi2.anki.reviewer.FullScreenMode
 import com.ichi2.anki.reviewer.ReviewerBinding
 import com.ichi2.anki.servicelayer.MARKED_TAG
 import com.ichi2.anki.servicelayer.NoteService
@@ -134,6 +138,18 @@ class ReviewerViewModel(
     private val isHtmlTypeAnswerEnabled = repository.isHtmlTypeAnswerEnabled
     val answerTimer = AnswerTimer()
     private val actionsMutex = Mutex()
+    internal var cardTemplateFullscreenMode: FullScreenMode?
+        get() = savedStateHandle.get<String>(KEY_TEMPLATE_FULLSCREEN)?.let(FullScreenMode::valueOf)
+        set(value) {
+            savedStateHandle[KEY_TEMPLATE_FULLSCREEN] = value?.name
+        }
+    internal var cardTemplateRenderVersion = 0
+        private set
+    internal var editingNoteId: NoteId?
+        get() = savedStateHandle[KEY_EDITING_NOTE_ID]
+        set(value) {
+            savedStateHandle[KEY_EDITING_NOTE_ID] = value
+        }
 
     /**
      * A flag that determines if the SchedulingStates in CurrentQueueState are
@@ -256,6 +272,85 @@ class ReviewerViewModel(
         return data
     }
 
+    private suspend inline fun withTemplateCard(action: (Card) -> Boolean): Boolean {
+        val requestedCard = currentCard
+        val requestedQueue = queueState
+        return actionsMutex.withLock {
+            val state = requestedQueue.await() ?: return@withLock false
+            if (requestedCard !== currentCard || requestedQueue !== queueState || state.timeboxReached != null) {
+                return@withLock false
+            }
+            action(requestedCard.await())
+        }
+    }
+
+    internal suspend fun onCardTemplateCommand(action: ViewerAction): Boolean =
+        withTemplateCard {
+            when (action) {
+                ViewerAction.MARK -> toggleMark()
+                ViewerAction.BURY_CARD -> buryCard()
+                ViewerAction.BURY_NOTE -> buryNote()
+                ViewerAction.SUSPEND_CARD -> suspendCard()
+                ViewerAction.SUSPEND_NOTE -> suspendNote()
+                ViewerAction.TAG -> editNoteTags()
+                else -> error("Unsupported Card action: $action")
+            }
+            true
+        }
+
+    internal suspend fun onCardTemplateToggleFlag(flag: Flag): Boolean =
+        withTemplateCard {
+            toggleFlag(flag)
+            true
+        }
+
+    internal suspend fun onCardTemplateSetDue(days: Int): Boolean =
+        withTemplateCard { card ->
+            undoableOp(handler = this) { sched.reschedCards(listOf(card.id), days, days) }
+            actionFeedbackFlow.emit(TR.schedulingSetDueDateDone(1))
+            updateCurrentCard()
+            true
+        }
+
+    internal suspend fun onCardTemplateResetProgress(): Boolean =
+        withTemplateCard { card ->
+            undoableOp(handler = this) { sched.forgetCards(listOf(card.id)) }
+            actionFeedbackFlow.emit(appContext.resources.getQuantityString(CommonPlurals.reset_cards_dialog_acknowledge, 1, 1))
+            updateCurrentCard()
+            true
+        }
+
+    internal suspend fun onCardTemplateUpdateTags(
+        requestedCard: Card,
+        noteId: NoteId,
+        update: Collection.(Note) -> Unit,
+    ): Boolean =
+        withTemplateCard { card ->
+            if (card !== requestedCard) return@withTemplateCard false
+            undoableOp(handler = this) {
+                val note = getNote(noteId)
+                update(note)
+                updateNote(note)
+            }
+            if (noteId == card.nid) {
+                val note = withCol { card.note(this, reload = true) }
+                isMarkedFlow.emit(NoteService.isMarked(note))
+            }
+            true
+        }
+
+    internal suspend fun onCardTemplateReload() {
+        withTemplateCard {
+            if (showingAnswer.value) {
+                showAnswer()
+            } else {
+                resetCardTemplateHooks()
+                super.showQuestion()
+            }
+            true
+        }
+    }
+
     fun answerCard(rating: Rating) {
         val action =
             when (rating) {
@@ -309,16 +404,17 @@ class ReviewerViewModel(
         Timber.v("ReviewerViewModel::toggleMark")
         val card = currentCard.await()
         val note = withCol { card.note(this@withCol) }
-        NoteService.toggleMark(note)
+        NoteService.toggleMark(note, handler = this)
         isMarkedFlow.emit(NoteService.isMarked(note))
     }
 
     private suspend fun setFlag(flag: Flag) {
         Timber.v("ReviewerViewModel::setFlag")
         val card = currentCard.await()
-        undoableOp {
+        undoableOp(handler = this) {
             setUserFlagForCards(listOf(card.id), flag)
         }
+        card.setUserFlag(flag.code)
         flagFlow.emit(flag)
     }
 
@@ -429,7 +525,7 @@ class ReviewerViewModel(
     private suspend fun buryCard() {
         val cardId = currentCard.await().id
         val noteCount =
-            undoableOp {
+            undoableOp(handler = this) {
                 sched.buryCards(cids = listOf(cardId))
             }.count
         actionFeedbackFlow.emit(TR.studyingCardsBuried(noteCount))
@@ -439,7 +535,7 @@ class ReviewerViewModel(
     private suspend fun buryNote() {
         val noteId = currentCard.await().nid
         val noteCount =
-            undoableOp {
+            undoableOp(handler = this) {
                 sched.buryNotes(nids = listOf(noteId))
             }.count
         actionFeedbackFlow.emit(TR.studyingCardsBuried(noteCount))
@@ -448,7 +544,7 @@ class ReviewerViewModel(
 
     private suspend fun suspendCard() {
         val cardId = currentCard.await().id
-        undoableOp {
+        undoableOp(handler = this) {
             sched.suspendCards(ids = listOf(cardId))
         }.count
         actionFeedbackFlow.emit(TR.studyingCardSuspended())
@@ -457,7 +553,7 @@ class ReviewerViewModel(
 
     private suspend fun suspendNote() {
         val noteId = currentCard.await().nid
-        undoableOp {
+        undoableOp(handler = this) {
             sched.suspendNotes(ids = listOf(noteId))
         }
         actionFeedbackFlow.emit(TR.studyingNoteSuspended())
@@ -527,6 +623,10 @@ class ReviewerViewModel(
                 onCardTemplateAction(null)
                 return byteArrayOf()
             }
+            "reloadCard" -> {
+                onCardTemplateReload()
+                return byteArrayOf()
+            }
             else ->
                 AnkiDroidJsAPI.answerRating(method)?.let { rating ->
                     onCardTemplateAction(rating)
@@ -547,6 +647,7 @@ class ReviewerViewModel(
         if (mutationSignal.isCompleted) {
             mutationSignal = CompletableDeferred()
         }
+        resetCardTemplateHooks()
         super.showQuestion()
         runStateMutationHook()
         updateMarkIcon()
@@ -554,6 +655,16 @@ class ReviewerViewModel(
         if (!autoAdvance.shouldWaitForAudio()) {
             autoAdvance.onShowQuestion()
         } // else run in onMediaGroupCompleted
+    }
+
+    override suspend fun showAnswer() {
+        resetCardTemplateHooks()
+        super.showAnswer()
+    }
+
+    private suspend fun resetCardTemplateHooks() {
+        cardTemplateRenderVersion++
+        eval.emit("resetCardTemplateHooks()")
     }
 
     private suspend fun runStateMutationHook() {
@@ -788,9 +899,10 @@ class ReviewerViewModel(
     }
 
     fun onEditedTags(selectedTags: List<String>) {
+        val noteId = editingNoteId ?: return
+        editingNoteId = null
         launchCatchingIO {
-            val card = currentCard.await()
-            val note = withCol { card.note(this@withCol) }
+            val note = withCol { getNote(noteId) }
             if (note.tags == selectedTags) {
                 Timber.d("No changed tags")
                 return@launchCatchingIO
@@ -971,6 +1083,8 @@ class ReviewerViewModel(
     }
 
     companion object {
+        private const val KEY_EDITING_NOTE_ID = "editingNoteId"
+        private const val KEY_TEMPLATE_FULLSCREEN = "cardTemplateFullscreenMode"
         private const val KEY_PREVIOUS_CARD_ID = "key_previous_card_id"
         private const val KEY_COUNTS = "counts"
         private const val KEY_SESSION_SIZE = "sessionSize"
