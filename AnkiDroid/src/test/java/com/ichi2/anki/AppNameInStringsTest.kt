@@ -22,7 +22,7 @@ class AppNameInStringsTest {
         val offending =
             interfaceText()
                 .filter { it.name !in REFERS_TO_UPSTREAM }
-                .filter { UPSTREAM_NAME.containsMatchIn(it.text) }
+                .filter { UPSTREAM_NAME.containsMatchIn(it.text.replace("/storage/emulated/0/AnkiDroid", "")) }
                 .map { it.toString() }
         assertEquals(emptyList(), offending, "${offending.size} strings call the app AnkiDroid")
     }
@@ -172,6 +172,12 @@ class AppNameInStringsTest {
                 "thirdparty_apps_summary",
                 // the Fork's own text about Upstream and the Official App
                 "sync_setup_explanation",
+                "paper_sync_import_steps",
+                "paper_welcome_import_hint",
+                "paper_welcome_unofficial",
+                "paper_welcome_migration_lead",
+                "paper_welcome_migration_sync",
+                "paper_welcome_migration_export_hint",
                 "about_fork_description",
                 "about_fork_title",
                 // never shown: tests the translation platform
