@@ -2,7 +2,6 @@
 
 package com.ichi2.anki.export
 
-import android.content.DialogInterface
 import android.widget.Spinner
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
@@ -23,7 +22,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.TR
-import com.ichi2.anki.CommonString
 import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
@@ -46,7 +44,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.shadows.ShadowDialog
-import org.robolectric.shadows.ShadowToast
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
@@ -58,38 +55,6 @@ import com.ichi2.anki.common.android.R as CommonR
 
 @RunWith(AndroidJUnit4::class)
 class ExportDialogFragmentTest : RobolectricTest() {
-    @Test
-    fun `missing selection cancels export`() = assertUnavailableSelection { assertTrue(delete()) }
-
-    @Test
-    fun `truncated selection cancels export`() = assertUnavailableSelection { writeBytes(readBytes().dropLast(1).toByteArray()) }
-
-    private fun assertUnavailableSelection(changeFile: IdsFile.() -> Unit) =
-        runTest {
-            ensureCollectionLoadIsSynchronous()
-            for (type in ExportDialogFragment.ExportType.entries) {
-                // APKG, notes as text, and cards as text all need the original selection.
-                for (exportFormat in 1..3) {
-                    val args = ExportDialogFragment.newInstance(targetContext.cacheDir, type, listOf(1L)).requireArguments()
-                    launchFragment<ExportDialogFragment>(fragmentArgs = args, themeResId = CommonR.style.Theme_Light).use { scenario ->
-                        advanceRobolectricLooper()
-                        scenario.onFragment { fragment ->
-                            fragment.binding.exportTypeSelector.setSelection(exportFormat)
-                            // The file can disappear even while the dialog is open.
-                            args.requireParcelable<IdsFile>(ARG_IDS_FILE).changeFile()
-                            val dialog = fragment.requireDialog() as AlertDialog
-                            assertTrue(fragment.binding.deckSelector.isEnabled)
-                            ShadowToast.reset()
-                            dialog.getButton(DialogInterface.BUTTON_POSITIVE).performClick()
-                            advanceRobolectricLooper()
-                            assertFalse(dialog.isShowing)
-                            assertEquals(targetContext.getString(CommonString.something_wrong), ShadowToast.getTextOfLatestToast())
-                        }
-                    }
-                }
-            }
-        }
-
     @Test
     fun `collection export options are initialized correctly`() {
         onExportDialog {

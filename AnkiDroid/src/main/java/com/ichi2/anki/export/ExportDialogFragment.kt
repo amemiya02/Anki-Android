@@ -106,7 +106,7 @@ class ExportDialogFragment : AnalyticsDialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        if (arguments?.getBoolean(ARG_USE_PAPER) == true) return createDeckListDialog(savedInstanceState)
+        if (arguments?.getBoolean(ARG_USE_PAPER) == true || hasSelection) return createExportDialog(savedInstanceState)
         binding = DialogExportOptionsBinding.inflate(requireActivity().layoutInflater, null, false)
         binding.apply {
             initializeCommonUi()
@@ -147,8 +147,11 @@ class ExportDialogFragment : AnalyticsDialogFragment() {
             }.create()
     }
 
-    private fun createDeckListDialog(savedInstanceState: Bundle?): Dialog {
+    private val hasSelection: Boolean get() = arguments?.containsKey(ARG_TYPE) == true
+
+    private fun createExportDialog(savedInstanceState: Bundle?): Dialog {
         val requestedDeck = arguments?.getLongOrNull(ARG_DECK_ID)
+        if (hasSelection) return createPaperDialog(requireContext()) { ExportContent(ExportConfiguration.Apkg) }
         val initialFormat = if (requestedDeck == null) ExportConfiguration.Collection else ExportConfiguration.Apkg
         registerChildDeckSelectedHandler(REQUEST_EXPORT_DECK) { deck -> if (deck != null) selectedDeck = deck }
         lifecycleScope.launch {
@@ -156,11 +159,11 @@ class ExportDialogFragment : AnalyticsDialogFragment() {
             selectedDeck =
                 withCol { decks.get(deckId, default = false) }?.let { SelectableDeck.Deck(it.id, it.name) } ?: SelectableDeck.AllDecks
         }
-        return createPaperDialog(requireContext()) { DeckListExportContent(initialFormat) }
+        return createPaperDialog(requireContext()) { ExportContent(initialFormat) }
     }
 
     @Composable
-    private fun DeckListExportContent(initialFormat: ExportConfiguration) {
+    private fun ExportContent(initialFormat: ExportConfiguration) {
         var index by rememberSaveable { mutableIntStateOf(initialFormat.index) }
         var choosingFormat by rememberSaveable { mutableStateOf(false) }
         BackHandler(choosingFormat) { choosingFormat = false }
@@ -241,11 +244,13 @@ class ExportDialogFragment : AnalyticsDialogFragment() {
                                 }
                         }
                         dismiss()
-                    }, DialogActionStyle.Filled, enabled = format == ExportConfiguration.Collection || deck != null),
+                    }, DialogActionStyle.Filled, enabled = hasSelection || format == ExportConfiguration.Collection || deck != null),
                 ),
         ) {
             ExportSelector(exportType, formats[index]) { choosingFormat = true }
-            if (format != ExportConfiguration.Collection) {
+            if (format != ExportConfiguration.Collection && hasSelection) {
+                DialogDetail(TR.exportingSelectedNotes())
+            } else if (format != ExportConfiguration.Collection) {
                 val include = HtmlCompat.fromHtml(TR.exportingInclude(), HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
                 ExportSelector(
                     include,
