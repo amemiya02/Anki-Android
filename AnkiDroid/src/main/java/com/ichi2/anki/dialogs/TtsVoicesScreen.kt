@@ -5,10 +5,8 @@ package com.ichi2.anki.dialogs
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -30,7 +29,6 @@ import com.ichi2.anki.AndroidTtsVoice
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.dialogs.viewmodel.TtsVoicesViewModel.VoiceLoadingState
-import com.ichi2.anki.preferences.SettingsDivider
 import com.ichi2.anki.preferences.SettingsPage
 import com.ichi2.anki.preferences.SettingsRow
 import com.ichi2.anki.preferences.SettingsSwitchRow
@@ -58,6 +56,7 @@ internal fun TtsVoicesScreen(
     snackbar: SnackbarHostState,
 ) {
     val foundation = MaterialTheme.foundation
+    val locale = LocalConfiguration.current.locales[0]
     SettingsPage(stringResource(CommonString.tts_error_dialog_supported_voices_button_text), onBack) {
         Box(Modifier.fillMaxSize()) {
             LazyColumn(Modifier.fillMaxSize()) {
@@ -70,7 +69,7 @@ internal fun TtsVoicesScreen(
                             state.text,
                             onText,
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text(stringResource(CommonString.tts_voices_default_text)) },
+                            label = { Text(stringResource(R.string.tts_voices_sample_text)) },
                             leadingIcon = { Icon(painterResource(CommonR.drawable.symbol_mic), null) },
                             singleLine = true,
                         )
@@ -92,29 +91,22 @@ internal fun TtsVoicesScreen(
                 }
                 if (state.voices is VoiceLoadingState.Success) {
                     items(state.voices.voices) { voice ->
-                        Row(
-                            Modifier.fillMaxWidth().heightIn(min = foundation.spacing.touchTarget),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Column(Modifier.weight(1f)) {
-                                SettingsRow(
-                                    title = voice.normalizedLocale.displayName,
-                                    summary = voice.tryDisplayLocalizedName(),
-                                    icon = if (voice.isNetworkConnectionRequired) R.drawable.symbol_wifi else R.drawable.symbol_offline_pin,
-                                    onClick = { onPlay(voice) },
-                                )
-                            }
-                            IconButton(onClick = { if (voice.unavailable()) onSettings() else onCopy(voice) }) {
-                                Icon(
-                                    painterResource(
-                                        if (voice.unavailable()) R.drawable.symbol_download else R.drawable.symbol_content_copy,
-                                    ),
-                                    stringResource(if (voice.unavailable()) CommonString.settings else android.R.string.copy),
-                                    tint = foundation.colors.onBackground,
-                                )
-                            }
-                        }
-                        SettingsDivider()
+                        val unavailable = voice.unavailable()
+                        SettingsRow(
+                            title = voice.normalizedLocale.getDisplayName(locale),
+                            summary = voice.tryDisplayLocalizedName(),
+                            icon = if (voice.isNetworkConnectionRequired) R.drawable.symbol_wifi else R.drawable.symbol_offline_pin,
+                            onClick = { onPlay(voice) },
+                            trailing = {
+                                IconButton(onClick = { if (unavailable) onSettings() else onCopy(voice) }) {
+                                    Icon(
+                                        painterResource(if (unavailable) R.drawable.symbol_download else R.drawable.symbol_content_copy),
+                                        stringResource(if (unavailable) CommonString.settings else android.R.string.copy),
+                                        tint = foundation.colors.onBackground,
+                                    )
+                                }
+                            },
+                        )
                     }
                 } else {
                     item { LinearProgressIndicator(Modifier.fillMaxWidth()) }

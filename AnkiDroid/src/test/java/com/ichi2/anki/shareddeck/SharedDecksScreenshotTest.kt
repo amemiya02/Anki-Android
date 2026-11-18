@@ -20,6 +20,13 @@ import androidx.core.view.WindowInsetsCompat.Type.navigationBars
 import androidx.core.view.WindowInsetsCompat.Type.statusBars
 import androidx.fragment.app.commit
 import com.google.testing.junit.testparameterinjector.TestParameter
+import com.ichi2.anki.CheckAccessibility
+import com.ichi2.anki.FontSizeConfig.PERCENT_200
+import com.ichi2.anki.IncludeFontSizes
+import com.ichi2.anki.IncludeLanguages
+import com.ichi2.anki.LanguageConfig.ARABIC
+import com.ichi2.anki.LanguageConfig.JAPANESE
+import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.R
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.anki.common.utils.dp
@@ -42,6 +49,9 @@ import java.time.Duration
  *
  * `./gradlew :AnkiDroid:verifyRoborazziPlayDebug -Pscreenshot --tests "com.ichi2.anki.shareddeck.SharedDecksScreenshotTest"`
  */
+@CheckAccessibility
+@IncludeLanguages(SIMPLIFIED_CHINESE, JAPANESE, ARABIC)
+@IncludeFontSizes(PERCENT_200)
 class SharedDecksScreenshotTest : ScreenshotTest() {
     @Test
     fun sharedDecksPortrait() =

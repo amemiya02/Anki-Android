@@ -14,13 +14,13 @@ import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
-import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
 import com.ichi2.anki.AnkiActivity
@@ -248,7 +248,8 @@ class SharedDecksActivity :
         webView = SafeWebViewLayout(this).apply { id = R.id.web_view }
         setupWebView()
         setContentView(
-            FrameLayout(this).apply {
+            CoordinatorLayout(this).apply {
+                id = R.id.root_layout
                 addView(
                     ComposeView(this@SharedDecksActivity).apply {
                         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
@@ -265,11 +266,17 @@ class SharedDecksActivity :
                             }
                         }
                     },
-                    FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT),
+                    CoordinatorLayout.LayoutParams(
+                        CoordinatorLayout.LayoutParams.MATCH_PARENT,
+                        CoordinatorLayout.LayoutParams.MATCH_PARENT,
+                    ),
                 )
                 addView(
                     FragmentContainerView(this@SharedDecksActivity).apply { id = R.id.shared_decks_fragment_container },
-                    FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT),
+                    CoordinatorLayout.LayoutParams(
+                        CoordinatorLayout.LayoutParams.MATCH_PARENT,
+                        CoordinatorLayout.LayoutParams.MATCH_PARENT,
+                    ),
                 )
             },
         )

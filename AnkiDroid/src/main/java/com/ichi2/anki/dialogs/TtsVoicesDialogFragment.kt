@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ichi2.anki.AndroidTtsVoice
 import com.ichi2.anki.CommonString
@@ -61,6 +62,7 @@ class TtsVoicesDialogFragment : DialogFragment() {
     ): View =
         settingsComposeView(R.id.tts_voices_screen) {
             val context = LocalContext.current
+            val lifecycle = LocalLifecycleOwner.current.lifecycle
             val voices by viewModel.availableVoicesFlow.collectAsStateWithLifecycle(VoiceLoadingState.Pending)
             val showInternet by viewModel.showInternetEnabled.collectAsStateWithLifecycle()
             val showUninstalled by viewModel.showNotInstalled.collectAsStateWithLifecycle()

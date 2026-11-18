@@ -59,6 +59,7 @@ internal fun SettingsPage(
     onBack: (() -> Unit)?,
     modifier: Modifier = Modifier,
     titleBelowNavigation: Boolean = false,
+    actions: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val foundation = MaterialTheme.foundation
@@ -85,7 +86,8 @@ internal fun SettingsPage(
                     )
                 }
             }
-            if (!titleBelowNavigation) SettingsPageTitle(title)
+            if (!titleBelowNavigation) SettingsPageTitle(title, if (actions == null) Modifier else Modifier.weight(1f))
+            actions?.invoke()
         }
         if (titleBelowNavigation) {
             SettingsPageTitle(title, Modifier.padding(horizontal = foundation.spacing.screenMargin))

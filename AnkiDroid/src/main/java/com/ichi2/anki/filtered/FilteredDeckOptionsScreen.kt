@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,7 +21,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,8 +72,18 @@ internal fun FilteredDeckOptionsScreen(
     onErrorClosed: () -> Unit,
     onExit: () -> Unit,
 ) {
-    val spacing = MaterialTheme.foundation.spacing
-    SettingsPage((state as? FilteredDeckOptions)?.title ?: TR.actionsOptions(), onBack) {
+    val foundation = MaterialTheme.foundation
+    SettingsPage(
+        (state as? FilteredDeckOptions)?.title ?: TR.actionsOptions(),
+        onBack,
+        actions = {
+            if (state is FilteredDeckOptions) {
+                IconButton(onClick = onHelp) {
+                    Icon(painterResource(CommonR.drawable.symbol_help), stringResource(CommonString.help))
+                }
+            }
+        },
+    ) {
         when (state) {
             is Initializing -> {
                 if (state.throwable == null) {
@@ -130,9 +140,6 @@ internal fun FilteredDeckOptionsScreen(
                     }
                     SettingsSwitchRow(TR.decksCreateEvenIfEmpty(), state.allowEmpty, onAllowEmpty)
                     SettingsRow(TR.decksUnmovableCards(), onClick = onExcludedCards, trailing = { SettingsChevron() })
-                    TextButton(onClick = onHelp, modifier = Modifier.heightIn(min = spacing.touchTarget)) {
-                        Text(stringResource(CommonString.help))
-                    }
                 }
                 if (state.isBuildingBrowserSearch) {
                     LinearProgressIndicator(Modifier.fillMaxWidth())
@@ -140,7 +147,12 @@ internal fun FilteredDeckOptionsScreen(
                 Button(
                     onClick = onBuild,
                     enabled = state.isBuildingAllowed,
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp).heightIn(min = spacing.touchTarget),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            disabledContainerColor = foundation.colors.progressTrack,
+                            disabledContentColor = foundation.colors.onBackground,
+                        ),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp).heightIn(min = foundation.spacing.touchTarget),
                 ) {
                     Text(if (state.id == null) TR.decksBuild() else TR.actionsRebuild())
                 }

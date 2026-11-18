@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,7 +30,7 @@ internal fun PermissionsScreen(
     onBack: (() -> Unit)?,
     onContinue: (() -> Unit)?,
 ) {
-    val spacing = MaterialTheme.foundation.spacing
+    val foundation = MaterialTheme.foundation
     SettingsPage(title, onBack) {
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(bottom = 12.dp)) {
             rows.groupBy { it.request.optional }.forEach { (optional, group) ->
@@ -52,8 +53,13 @@ internal fun PermissionsScreen(
         if (onContinue != null) {
             Button(
                 onClick = onContinue,
-                modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp).heightIn(min = spacing.touchTarget),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp).heightIn(min = foundation.spacing.touchTarget),
                 enabled = rows.isNotEmpty() && rows.all { it.granted },
+                colors =
+                    ButtonDefaults.buttonColors(
+                        disabledContainerColor = foundation.colors.progressTrack,
+                        disabledContentColor = foundation.colors.onBackground,
+                    ),
             ) {
                 Text(stringResource(CommonString.dialog_continue))
             }
