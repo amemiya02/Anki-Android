@@ -2,8 +2,9 @@
 
 package com.ichi2.anki
 
-import android.content.DialogInterface
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.work.NetworkType
 import androidx.work.WorkInfo
@@ -32,13 +33,16 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.shadows.ShadowDialog
 import kotlin.test.assertNotNull
 
 @RunWith(AndroidJUnit4::class)
 class ForegroundMediaNetworkTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     private var metered = false
     private var syncRequired = SyncCollectionResponse.ChangesRequired.NO_CHANGES
     private var fullSyncRequest: FullUploadOrDownloadRequest? = null
@@ -203,29 +207,29 @@ class ForegroundMediaNetworkTest : RobolectricTest() {
         val manager = WorkManager.getInstance(this)
         sync()
         if (confirmWarning) {
-            (ShadowDialog.getLatestDialog() as AlertDialog).getButton(DialogInterface.BUTTON_POSITIVE).performClick()
+            compose.onNodeWithText(getString(CommonString.dialog_continue)).performClick()
         }
         advanceRobolectricLooperUntil { Prefs.lastSyncTime != 0L }
         if (resolveConflict != null) {
             Prefs.lastSyncTime = 0
             val button =
                 when (resolveConflict) {
-                    ConflictResolution.FULL_UPLOAD -> DialogInterface.BUTTON_POSITIVE
-                    ConflictResolution.FULL_DOWNLOAD -> DialogInterface.BUTTON_NEGATIVE
+                    ConflictResolution.FULL_UPLOAD -> CommonString.paper_sync_keep_phone
+                    ConflictResolution.FULL_DOWNLOAD -> CommonString.paper_sync_keep_server
                 }
-            conflictDialog().getButton(button).performClick()
+            clickConflictAction(button)
             advanceRobolectricLooper()
-            conflictDialog().getButton(DialogInterface.BUTTON_POSITIVE).performClick()
+            clickConflictAction(CommonString.paper_dialog_replace_collection)
             advanceRobolectricLooperUntil { Prefs.lastSyncTime != 0L }
         }
         return manager.getWorkInfosForUniqueWork(UniqueWorkNames.SYNC_MEDIA).get().single { !it.state.isFinished }
     }
 
-    private fun DeckPicker.conflictDialog(): AlertDialog {
+    private fun DeckPicker.clickConflictAction(label: Int) {
         // A later deck-refresh progress dialog can replace ShadowDialog's latest dialog.
         val fragment = assertNotNull(supportFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG) as? SyncErrorDialog)
-        val dialog = assertNotNull(fragment.dialog as? AlertDialog)
+        val dialog = assertNotNull(fragment.dialog)
         assertThat("isShowing", dialog.isShowing, equalTo(true))
-        return dialog
+        compose.onNodeWithText(getString(label)).performClick()
     }
 }
