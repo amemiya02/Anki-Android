@@ -26,9 +26,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.common.util.Util
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.DefaultTrackNameProvider
 import androidx.media3.ui.PlayerView
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
@@ -101,6 +103,7 @@ class AudioVideoFragment : MultimediaFragment() {
     @OptIn(UnstableApi::class)
     override fun createMediaView(): View {
         setupMediaPlayer()
+        val trackNames = DefaultTrackNameProvider(resources)
         return settingsComposeView(R.id.multimedia_clip_screen) {
             val file by viewModel.currentMultimediaPath.collectAsStateWithLifecycle()
             var playback by remember { mutableStateOf(AttachmentPlaybackState()) }
@@ -111,6 +114,11 @@ class AudioVideoFragment : MultimediaFragment() {
                             position = mediaPlayer.currentPosition,
                             duration = mediaPlayer.duration.coerceAtLeast(0),
                             playing = !Util.shouldShowPlayButton(mediaPlayer),
+                            speed = mediaPlayer.playbackParameters.speed,
+                            tracks = audioTracks(trackNames),
+                            selectedTrack =
+                                mediaPlayer.trackSelectionParameters.overrides.values
+                                    .firstOrNull { it.type == C.TRACK_TYPE_AUDIO },
                         )
                     delay(200)
                 }
@@ -126,6 +134,8 @@ class AudioVideoFragment : MultimediaFragment() {
                         onBack = { mediaPlayer.seekBack() },
                         onForward = { mediaPlayer.seekForward() },
                         onSeek = { mediaPlayer.seekTo(it) },
+                        onSpeed = mediaPlayer::setPlaybackSpeed,
+                        onAudioTrack = ::selectAudioTrack,
                     )
                 }
                 MediaDoneButton(enabled = file != null && viewModel.selectedMediaFileSize > 0) {
@@ -146,6 +156,32 @@ class AudioVideoFragment : MultimediaFragment() {
         } else if (savedInstanceState == null) {
             handleSelectedMediaOptions()
         }
+    }
+
+    @OptIn(UnstableApi::class)
+    private fun audioTracks(trackNames: DefaultTrackNameProvider): List<AttachmentAudioTrack> =
+        buildList {
+            mediaPlayer.currentTracks.groups.filter { it.type == C.TRACK_TYPE_AUDIO }.forEach { group ->
+                for (index in 0 until group.length) {
+                    if (group.isTrackSupported(index)) {
+                        add(
+                            AttachmentAudioTrack(
+                                trackNames.getTrackName(group.getTrackFormat(index)),
+                                TrackSelectionOverride(group.mediaTrackGroup, index),
+                            ),
+                        )
+                    }
+                }
+            }
+        }
+
+    private fun selectAudioTrack(selection: TrackSelectionOverride?) {
+        mediaPlayer.trackSelectionParameters =
+            mediaPlayer.trackSelectionParameters
+                .buildUpon()
+                .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
+                .apply { selection?.let(::setOverrideForType) }
+                .build()
     }
 
     private fun handleSelectedMediaOptions() {
