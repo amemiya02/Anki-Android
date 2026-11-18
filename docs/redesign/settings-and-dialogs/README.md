@@ -30,6 +30,8 @@ Start the Mockups with `npm install && npm run dev` in `mockups/`, then open the
 | `decide-theme.png` | Decision 1, A beside B, in English and Chinese | `/?settings=decide-theme` |
 | `decide-destructive.png` | Decision 2, A beside B | `/?settings=decide-destructive` |
 
+[Settings parity](settings-parity.md) records the original settings and where each is reached in the Redesign.
+
 ## Decisions for the owner
 
 The surface pictures above all show the recommended answer, A.
