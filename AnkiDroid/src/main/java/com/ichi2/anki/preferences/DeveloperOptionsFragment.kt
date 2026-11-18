@@ -2,7 +2,6 @@
 
 package com.ichi2.anki.preferences
 
-import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
 import androidx.preference.Preference
@@ -24,7 +23,6 @@ import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.withProgress
 import com.ichi2.preferences.IncrementerNumberRangePreferenceCompat
 import com.ichi2.utils.setWebContentsDebuggingEnabled
-import com.ichi2.utils.show
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -35,7 +33,7 @@ import java.io.File
  * Fragment exclusive to DEBUG builds which can be used
  * to add options useful for developers or WIP features.
  */
-class DeveloperOptionsFragment : SettingsFragment() {
+class DeveloperOptionsFragment : RemainingSettingsFragment(R.id.settings_developer) {
     override val preferenceResource: Int
         get() = R.xml.preferences_developer_options
     override val analyticsScreenNameConstant: String
@@ -69,29 +67,23 @@ class DeveloperOptionsFragment : SettingsFragment() {
                     defaultConfig.jsonObject.put("fsrsParams6", invalidFsrsConfig)
                     decks.save(defaultConfig)
                 }
-                showThemedToast(requireContext(), "Parameters corrupted. Optimize to fix", false)
+                showThemedToast(requireContext(), getString(R.string.settings_dev_fsrs_corrupted), false)
             }
             false
         }
 
         // Make it possible to test crash reporting
         requirePreference<Preference>(R.string.pref_set_database_path_debug_key).setOnPreferenceClickListener {
-            AlertDialog.Builder(requireContext()).show {
-                setTitle("Warning!")
-                setMessage(
-                    "This will most likely make it so that you cannot access your collection. " +
-                        "It will be very difficult to recover your data.",
-                )
-                setPositiveButton(CommonString.dialog_ok) { _, _ ->
-                    Timber.w("Setting collection path to /storage/emulated/0/AnkiDroid")
-                    AnkiDroidApp.sharedPrefs().edit {
-                        putString(
-                            CollectionHelper.PREF_COLLECTION_PATH,
-                            "/storage/emulated/0/AnkiDroid",
-                        )
-                    }
+            confirmSettingChange(
+                title = getString(R.string.settings_dev_set_database_path),
+                message = getString(R.string.settings_dev_set_database_path_warning),
+                confirmText = getString(R.string.settings_dev_set_database_path_action),
+                destructive = true,
+            ) {
+                Timber.w("Setting collection path to /storage/emulated/0/AnkiDroid")
+                AnkiDroidApp.sharedPrefs().edit {
+                    putString(CollectionHelper.PREF_COLLECTION_PATH, "/storage/emulated/0/AnkiDroid")
                 }
-                setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
             }
             false
         }
@@ -110,17 +102,11 @@ class DeveloperOptionsFragment : SettingsFragment() {
          */
         requirePreference<Preference>(R.string.pref_fill_default_deck_key).setOnPreferenceClickListener {
             val numberOfNotes = numberOfNotesPreference.getValue()
-            AlertDialog.Builder(requireContext()).show {
-                setTitle("Warning!")
-                setMessage(
-                    "You'll add $numberOfNotes notes with no meaningful content in $numberOfNotes new decks. " +
-                        "Do not do it on a collection you care about.",
-                )
-                setPositiveButton("OK") { _, _ ->
-                    generateNotes(numberOfNotes)
-                }
-                setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
-            }
+            confirmSettingChange(
+                title = getString(R.string.settings_dev_create_notes),
+                message = getString(R.string.settings_dev_create_notes_warning, numberOfNotes),
+                confirmText = getString(R.string.settings_dev_create_notes),
+            ) { generateNotes(numberOfNotes) }
             true
         }
 
@@ -135,18 +121,12 @@ class DeveloperOptionsFragment : SettingsFragment() {
         requirePreference<Preference>(R.string.pref_fill_collection_key).setOnPreferenceClickListener {
             val sizeOfFiles = sizePreference.getValue()
             val numberOfFiles = numberOfFilePreference.getValue()
-            AlertDialog.Builder(requireContext()).show {
-                setTitle("Warning!")
-                setMessage(
-                    "You'll add $numberOfFiles files with no meaningful content, " +
-                        "potentially overriding existing files. " +
-                        "Do not do it on a collection you care about.",
-                )
-                setPositiveButton("OK") { _, _ ->
-                    generateFiles(sizeOfFiles, numberOfFiles)
-                }
-                setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
-            }
+            confirmSettingChange(
+                title = getString(R.string.settings_dev_create_files),
+                message = getString(R.string.settings_dev_create_files_warning, numberOfFiles),
+                confirmText = getString(R.string.settings_dev_create_files),
+                destructive = true,
+            ) { generateFiles(sizeOfFiles, numberOfFiles) }
             true
         }
 
@@ -178,9 +158,7 @@ class DeveloperOptionsFragment : SettingsFragment() {
         val enableDeveloperOptionsPref =
             requirePreference<SwitchPreferenceCompat>(R.string.developer_options_enabled_by_user_key)
 
-        if (BuildConfig.DEBUG) {
-            enableDeveloperOptionsPref.isVisible = false
-        } else {
+        if (!BuildConfig.DEBUG) {
             enableDeveloperOptionsPref.setOnPreferenceChangeListener { _, _ ->
                 showDisableDeveloperOptionsDialog()
                 false
@@ -190,7 +168,6 @@ class DeveloperOptionsFragment : SettingsFragment() {
 
     private fun setupWebDebugPreference() {
         requirePreference<SwitchPreferenceCompat>(R.string.html_javascript_debugging_key).apply {
-            isVisible = !BuildConfig.DEBUG
             setOnPreferenceChangeListener { isEnabled ->
                 setWebContentsDebuggingEnabled(isEnabled)
             }
@@ -203,7 +180,7 @@ class DeveloperOptionsFragment : SettingsFragment() {
     private fun generateNotes(numberOfNotes: Int) {
         Timber.d("numberOf notes: $numberOfNotes")
         launchCatchingTask {
-            withProgress("Generating $numberOfNotes notes") {
+            withProgress(getString(R.string.settings_dev_notes_progress, numberOfNotes)) {
                 for (i in 1..numberOfNotes) {
                     fun deckName(noteNumber: Int): String {
                         if (noteNumber < 10) {
@@ -219,10 +196,10 @@ class DeveloperOptionsFragment : SettingsFragment() {
                         )
                     }
                     if (i % 1000 == 0) {
-                        showThemedToast(requireContext(), "$i notes added.", true)
+                        showThemedToast(requireContext(), getString(R.string.settings_dev_notes_progress_count, i), true)
                     }
                 }
-                showThemedToast(requireContext(), "$numberOfNotes notes added successfully", false)
+                showThemedToast(requireContext(), getString(R.string.settings_dev_notes_progress_count, numberOfNotes), false)
             }
         }
     }
@@ -233,7 +210,7 @@ class DeveloperOptionsFragment : SettingsFragment() {
     ) {
         Timber.d("numberOf files: $numberOfFiles, size: $size")
         launchCatchingTask {
-            withProgress("Generating $numberOfFiles files of size $size bytes") {
+            withProgress(getString(R.string.settings_dev_files_progress, numberOfFiles, size)) {
                 val suffix = ".$size"
                 for (i in 1..numberOfFiles) {
                     val f =
@@ -246,10 +223,10 @@ class DeveloperOptionsFragment : SettingsFragment() {
                         media.addFile(f)
                     }
                     if (i % 1000 == 0) {
-                        showThemedToast(requireContext(), "$i files added.", true)
+                        showThemedToast(requireContext(), getString(R.string.settings_dev_files_progress_count, i), true)
                     }
                 }
-                showThemedToast(requireContext(), "$numberOfFiles files added successfully", false)
+                showThemedToast(requireContext(), getString(R.string.settings_dev_files_progress_count, numberOfFiles), false)
             }
         }
     }
@@ -258,14 +235,12 @@ class DeveloperOptionsFragment : SettingsFragment() {
      * Shows dialog to confirm if developer options should be disabled
      */
     private fun showDisableDeveloperOptionsDialog() {
-        AlertDialog.Builder(requireContext()).show {
-            setTitle(CommonString.disable_dev_options)
-            setPositiveButton(CommonString.dialog_ok) { _, _ ->
-                Prefs.isDeveloperOptionsEnabled = false
-                parentFragmentManager.popBackStack()
-                ActivityCompat.recreate(requireActivity())
-            }
-            setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
+        confirmSettingChange(
+            title = getString(CommonString.disable_dev_options),
+        ) {
+            Prefs.isDeveloperOptionsEnabled = false
+            parentFragmentManager.popBackStack()
+            ActivityCompat.recreate(requireActivity())
         }
     }
 }

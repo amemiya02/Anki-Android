@@ -44,6 +44,13 @@ class VersatileTextWithASwitchPreference(
 
     private val canBeSwitchedOn get() = !text.isNullOrEmpty()
 
+    var switchChecked: Boolean
+        get() = preferences.getBoolean(switchKey, false)
+        set(checked) {
+            preferences.edit { putBoolean(switchKey, checked && canBeSwitchedOn) }
+            notifyChanged()
+        }
+
     // * If there is no text, we make the switch not focusable and not clickable.
     //   This is exactly how SwitchPreference sets up its widget;
     //   if you tap on the switch, it will behave as if you tapped on the preference itself.

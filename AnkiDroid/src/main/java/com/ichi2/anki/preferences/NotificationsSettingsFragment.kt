@@ -7,10 +7,8 @@ import android.content.Context.ALARM_SERVICE
 import android.content.Intent
 import androidx.core.app.PendingIntentCompat
 import androidx.preference.ListPreference
-import androidx.preference.SwitchPreferenceCompat
 import com.ichi2.anki.CommonPreferenceKey
 import com.ichi2.anki.R
-import com.ichi2.anki.common.android.AdaptionUtil
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.services.BootService.Companion.scheduleNotification
 import com.ichi2.anki.services.NotificationService
@@ -18,26 +16,20 @@ import com.ichi2.anki.services.NotificationService
 /**
  * Fragment with preferences related to notifications
  */
-class NotificationsSettingsFragment : SettingsFragment() {
+class NotificationsSettingsFragment : RemainingSettingsFragment(R.id.settings_notifications) {
     override val preferenceResource: Int
         get() = R.xml.preferences_notifications
     override val analyticsScreenNameConstant: String
         get() = "prefs.notifications"
 
     override fun initSubscreen() {
-        if (AdaptionUtil.isXiaomiRestrictedLearningDevice) {
-            /* These preferences should be searchable or not based
-             * on this same condition at the settings search index */
-            preferenceScreen.removePreference(requirePreference<SwitchPreferenceCompat>(R.string.pref_notifications_vibrate_key))
-            preferenceScreen.removePreference(requirePreference<SwitchPreferenceCompat>(R.string.pref_notifications_blink_key))
-        }
         // Minimum cards due
         // The number of cards that should be due today in a deck to justify adding a notification.
         requirePreference<ListPreference>(CommonPreferenceKey.pref_notifications_minimum_cards_due_key).apply {
-            updateNotificationPreference(this)
-            setOnPreferenceChangeListener { preference, newValue ->
-                updateNotificationPreference(preference as ListPreference)
-                if ((newValue as String).toInt() < PENDING_NOTIFICATIONS_ONLY) {
+            setOnPreferenceChangeListener { _, newValue ->
+                // BootService checks the saved threshold when deciding whether to schedule an alarm.
+                value = newValue as String
+                if (value.toInt() < PENDING_NOTIFICATIONS_ONLY) {
                     scheduleNotification(TimeManager.time, requireContext())
                 } else {
                     val intent =
@@ -56,17 +48,5 @@ class NotificationsSettingsFragment : SettingsFragment() {
                 true
             }
         }
-    }
-
-    private fun updateNotificationPreference(listPreference: ListPreference) {
-        val entries = listPreference.entries
-        val values = listPreference.entryValues
-        for (i in entries.indices) {
-            val value = values[i].toString().toInt()
-            if (entries[i].toString().contains("%d")) {
-                entries[i] = String.format(entries[i].toString(), value)
-            }
-        }
-        listPreference.entries = entries
     }
 }

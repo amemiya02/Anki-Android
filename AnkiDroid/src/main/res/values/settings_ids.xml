@@ -6,4 +6,12 @@
     <item type="id" name="settings_studying" />
     <item type="id" name="settings_controls" />
     <item type="id" name="settings_toolbar_actions" />
+    <item type="id" name="settings_general" />
+    <item type="id" name="settings_accessibility" />
+    <item type="id" name="settings_notifications" />
+    <item type="id" name="settings_backups" />
+    <item type="id" name="settings_advanced" />
+    <item type="id" name="settings_developer" />
+    <item type="id" name="settings_sync" />
+    <item type="id" name="settings_sync_server" />
 </resources>

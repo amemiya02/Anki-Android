@@ -3,19 +3,14 @@
 package com.ichi2.anki.preferences
 
 import android.content.Context
-import android.content.res.XmlResourceParser
 import androidx.annotation.StringRes
-import androidx.annotation.XmlRes
 import androidx.fragment.app.Fragment
-import com.ichi2.anki.BuildConfig
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
-import com.ichi2.anki.common.android.AdaptionUtil
 import com.ichi2.anki.preferences.reviewer.ReviewerMenuSettingsFragment
 import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.ui.internationalization.sentenceCase
-import org.xmlpull.v1.XmlPullParser
 import java.text.Normalizer
 import java.util.Locale
 import kotlin.reflect.KClass
@@ -52,36 +47,49 @@ private fun String.matches(terms: List<String>): Boolean {
 
 private fun String.searchable(): String = Normalizer.normalize(lowercase(Locale.ROOT), Normalizer.Form.NFKD).replace(marks, "")
 
-/** Indexes the localized metadata of settings that still use Preference XML, without opening their screens. */
+/** Indexes setting titles, summaries and choices without opening their screens. */
 internal fun buildSettingsSearchIndex(
     fragment: Fragment,
     groups: List<SettingsGroup>,
 ): List<SettingsSearchEntry> =
     with(fragment.requireContext()) {
-        val hidden = hiddenSettings()
         groups
             .flatMap { group ->
                 val title = getString(group.title)
                 val groupEntry = SettingsSearchEntry(title, getString(CommonString.settings), group.destination)
                 val entries =
                     when (group) {
-                        SettingsGroup.GENERAL -> readSettings(R.xml.preferences_general, title, group.destination)
+                        SettingsGroup.GENERAL -> remainingSettingsSearchEntries(R.xml.preferences_general, title, group.destination)
                         SettingsGroup.APPEARANCE -> appearanceSearchEntries(title)
                         SettingsGroup.STUDYING -> studyingSearchEntries(title) + toolbarSearchEntries(title)
                         SettingsGroup.CONTROLS -> controlsSearchEntries(title, fragment::controlPreferenceTitle)
-                        SettingsGroup.ACCESSIBILITY -> readSettings(R.xml.preferences_accessibility, title, group.destination)
+                        SettingsGroup.ACCESSIBILITY ->
+                            remainingSettingsSearchEntries(
+                                R.xml.preferences_accessibility,
+                                title,
+                                group.destination,
+                            )
                         SettingsGroup.SYNC -> syncSearchEntries(title)
-                        SettingsGroup.NOTIFICATIONS -> readSettings(R.xml.preferences_notifications, title, group.destination)
+                        SettingsGroup.NOTIFICATIONS ->
+                            remainingSettingsSearchEntries(
+                                R.xml.preferences_notifications,
+                                title,
+                                group.destination,
+                            )
                         SettingsGroup.REVIEW_REMINDERS -> emptyList()
-                        SettingsGroup.BACKUPS -> readSettings(R.xml.preferences_backup_limits, title, group.destination)
-                        SettingsGroup.ADVANCED -> readSettings(R.xml.preferences_advanced, title, group.destination)
+                        SettingsGroup.BACKUPS -> remainingSettingsSearchEntries(R.xml.preferences_backup_limits, title, group.destination)
+                        SettingsGroup.ADVANCED -> remainingSettingsSearchEntries(R.xml.preferences_advanced, title, group.destination)
                         SettingsGroup.ABOUT -> aboutSearchEntries(title)
-                        SettingsGroup.DEVELOPER -> readSettings(R.xml.preferences_developer_options, title, group.destination)
+                        SettingsGroup.DEVELOPER ->
+                            remainingSettingsSearchEntries(
+                                R.xml.preferences_developer_options,
+                                title,
+                                group.destination,
+                            )
                         SettingsGroup.SWITCH_PROFILE -> emptyList()
                     }
                 listOf(groupEntry) + entries
-            }.filterNot { it.key in hidden }
-            .distinctBy { it.id }
+            }.distinctBy { it.id }
     }
 
 private fun Context.appearanceSearchEntries(path: String): List<SettingsSearchEntry> {
@@ -138,8 +146,8 @@ private fun Context.toolbarSearchEntries(studying: String): List<SettingsSearchE
     }
 
 private fun Context.syncSearchEntries(sync: String): List<SettingsSearchEntry> =
-    readSettings(R.xml.preferences_sync, sync, SyncSettingsFragment::class) +
-        readSettings(
+    remainingSettingsSearchEntries(R.xml.preferences_sync, sync, SyncSettingsFragment::class) +
+        remainingSettingsSearchEntries(
             R.xml.preferences_custom_sync_server,
             breadcrumb(sync, getString(CommonString.sync_server_title)),
             CustomSyncServerSettingsFragment::class,
@@ -157,82 +165,5 @@ private fun Context.aboutSearchEntries(path: String): List<SettingsSearchEntry> 
         SettingsSearchEntry(getString(CommonString.open_changelog), path, AboutFragment::class, "open_changelog"),
         SettingsSearchEntry(TR.sentenceCase.copyDebugInfo, path, AboutFragment::class, "copy_debug_info"),
     )
-
-private fun Context.hiddenSettings(): Set<String> =
-    buildSet {
-        if (resources.getBoolean(R.bool.bottom_navigation_available)) add(getString(R.string.nav_drawer_gesture_key))
-        if (BuildConfig.DEBUG) add(getString(R.string.developer_options_enabled_by_user_key))
-        if (AdaptionUtil.isXiaomiRestrictedLearningDevice) {
-            add(getString(R.string.pref_notifications_vibrate_key))
-            add(getString(R.string.pref_notifications_blink_key))
-        }
-    }
-
-private const val ANDROID_NS = "http://schemas.android.com/apk/res/android"
-
-private fun Context.readSettings(
-    @XmlRes xml: Int,
-    groupPath: String,
-    destination: KClass<out Fragment>,
-): List<SettingsSearchEntry> =
-    buildList {
-        resources.getXml(xml).use { parser ->
-            val sections = mutableListOf<Pair<Int, String>>()
-            while (parser.next() != XmlPullParser.END_DOCUMENT) {
-                if (parser.eventType != XmlPullParser.START_TAG || parser.depth == 1) continue
-                sections.removeAll { (depth, _) -> depth >= parser.depth }
-                val key = parser.androidText(this@readSettings, "key")
-                val kind = parser.name.substringAfterLast('.')
-                val title = settingTitle(key) ?: parser.androidText(this@readSettings, "title")
-                if (kind.endsWith("Category")) {
-                    title?.let { sections.add(parser.depth to it) }
-                    continue
-                }
-                val submenu =
-                    when (key) {
-                        getString(R.string.custom_sync_server_key) -> CustomSyncServerSettingsFragment::class
-                        else -> null
-                    }
-                if (key == null || title == null || key == getString(R.string.pref_backups_help_key)) continue
-
-                val path = breadcrumb(groupPath, *sections.map { it.second }.toTypedArray())
-                val summary = settingSummary(key) ?: parser.androidText(this@readSettings, "summary")
-                val choices = parser.getAttributeResourceValue(ANDROID_NS, "entries", 0)
-                val details =
-                    listOfNotNull(summary) + if (choices == 0) emptyList() else resources.getStringArray(choices).toList()
-
-                add(SettingsSearchEntry(title, path, submenu ?: destination, key.takeIf { submenu == null }, details))
-            }
-        }
-    }
-
-private fun Context.settingTitle(key: String?): String? =
-    when (key) {
-        getString(R.string.paste_png_key) -> TR.preferencesPasteClipboardImagesAsPng()
-        getString(R.string.anki_card_external_context_menu_key) ->
-            getString(CommonString.card_browser_enable_external_context_menu, getString(CommonString.context_menu_anki_card_label))
-        getString(R.string.card_browser_external_context_menu_key) ->
-            getString(CommonString.card_browser_enable_external_context_menu, getString(CommonString.card_browser_context_menu))
-        getString(R.string.sync_io_timeout_secs_key) -> TR.preferencesNetworkTimeout()
-        else -> null
-    }
-
-private fun Context.settingSummary(key: String): String? =
-    when (key) {
-        getString(R.string.one_way_sync_key) -> TR.preferencesOnNextSyncForceChangesIn()
-        getString(R.string.anki_card_external_context_menu_key) ->
-            getString(CommonString.card_browser_enable_external_context_menu_summary, getString(CommonString.context_menu_anki_card_label))
-        getString(R.string.card_browser_external_context_menu_key) ->
-            getString(CommonString.card_browser_enable_external_context_menu_summary, getString(CommonString.card_browser_context_menu))
-        else -> null
-    }
-
-private fun XmlResourceParser.androidText(
-    context: Context,
-    attribute: String,
-): String? {
-    val resource = getAttributeResourceValue(ANDROID_NS, attribute, 0)
-    return if (resource != 0) context.getText(resource).toString() else getAttributeValue(ANDROID_NS, attribute)
-}
 
 private fun breadcrumb(vararg parts: String): String = parts.joinToString(" › ")

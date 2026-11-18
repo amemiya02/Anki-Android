@@ -7,9 +7,7 @@ import androidx.core.os.LocaleListCompat
 import androidx.preference.ListPreference
 import androidx.preference.SwitchPreferenceCompat
 import com.ichi2.anki.CollectionManager
-import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
-import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.common.utils.ext.AddingDefaultsMode
 import com.ichi2.anki.common.utils.ext.addingDefaultsMode
@@ -18,23 +16,17 @@ import com.ichi2.anki.contextmenu.AnkiCardContextMenu
 import com.ichi2.anki.contextmenu.CardBrowserContextMenu
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.utils.LanguageUtil
-import com.ichi2.utils.LanguageUtil.getStringByLocale
-import com.ichi2.utils.LanguageUtil.getSystemLocale
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
-class GeneralSettingsFragment : SettingsFragment() {
+class GeneralSettingsFragment : RemainingSettingsFragment(R.id.settings_general) {
     override val preferenceResource: Int
         get() = R.xml.preferences_general
     override val analyticsScreenNameConstant: String
         get() = "prefs.general"
 
     override fun initSubscreen() {
-        // Build languages
         initializeLanguagePref()
-        // Phones have no side drawer, so no gesture to open it
-        requirePreference<SwitchPreferenceCompat>(R.string.nav_drawer_gesture_key).isVisible =
-            !resources.getBoolean(R.bool.bottom_navigation_available)
 
         // Deck for new cards
         requirePreference<ListPreference>(R.string.deck_for_new_cards_key).apply {
@@ -47,7 +39,6 @@ class GeneralSettingsFragment : SettingsFragment() {
         // Represents in the collection's pref "pastePNG" , i.e.
         // whether to convert clipboard uri to png format or not.
         requirePreference<SwitchPreferenceCompat>(R.string.paste_png_key).apply {
-            title = TR.preferencesPasteClipboardImagesAsPng()
             launchCatchingTask { isChecked = withCol { config.pasteImagesAsPng } }
             setOnPreferenceChangeListener { newValue ->
                 launchCatchingTask { withCol { config.pasteImagesAsPng = newValue } }
@@ -55,25 +46,12 @@ class GeneralSettingsFragment : SettingsFragment() {
         }
         // Anki card context menu
         requirePreference<SwitchPreferenceCompat>(R.string.anki_card_external_context_menu_key).apply {
-            title =
-                getString(CommonString.card_browser_enable_external_context_menu, getString(CommonString.context_menu_anki_card_label))
-            summary =
-                getString(
-                    CommonString.card_browser_enable_external_context_menu_summary,
-                    getString(CommonString.context_menu_anki_card_label),
-                )
             setOnPreferenceChangeListener { newValue ->
                 AnkiCardContextMenu.ensureConsistentStateWithPreferenceStatus(requireContext(), newValue)
             }
         }
         // Card browser context menu
         requirePreference<SwitchPreferenceCompat>(R.string.card_browser_external_context_menu_key).apply {
-            title = getString(CommonString.card_browser_enable_external_context_menu, getString(CommonString.card_browser_context_menu))
-            summary =
-                getString(
-                    CommonString.card_browser_enable_external_context_menu_summary,
-                    getString(CommonString.card_browser_context_menu),
-                )
             setOnPreferenceChangeListener { newValue ->
                 CardBrowserContextMenu.ensureConsistentStateWithPreferenceStatus(requireContext(), newValue)
             }
@@ -81,11 +59,7 @@ class GeneralSettingsFragment : SettingsFragment() {
     }
 
     private fun initializeLanguagePref() {
-        val sortedLanguages = LanguageUtil.APP_LANGUAGES.toSortedMap(java.lang.String.CASE_INSENSITIVE_ORDER)
-        val systemLocale = getSystemLocale()
         requirePreference<ListPreference>(R.string.pref_language_key).apply {
-            entries = arrayOf(getStringByLocale(CommonString.language_system, systemLocale), *sortedLanguages.keys.toTypedArray())
-            entryValues = arrayOf(LanguageUtil.SYSTEM_LANGUAGE_TAG, *sortedLanguages.values.toTypedArray())
             setOnPreferenceChangeListener { selectedLanguage ->
                 LanguageUtil.setDefaultBackendLanguages(selectedLanguage)
                 runBlocking { CollectionManager.discardBackend() }

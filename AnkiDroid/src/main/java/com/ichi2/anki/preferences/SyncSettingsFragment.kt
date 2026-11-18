@@ -2,7 +2,6 @@
 
 package com.ichi2.anki.preferences
 
-import androidx.appcompat.app.AlertDialog
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import com.google.android.material.snackbar.Snackbar
@@ -18,12 +17,11 @@ import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.syncServerAddress
 import com.ichi2.preferences.NumberRangePreferenceCompat
-import com.ichi2.utils.show
 
 /**
  * Fragment with preferences related to syncing
  */
-class SyncSettingsFragment : SettingsFragment() {
+class SyncSettingsFragment : RemainingSettingsFragment(R.id.settings_sync) {
     override val preferenceResource: Int
         get() = R.xml.preferences_sync
     override val analyticsScreenNameConstant: String
@@ -39,7 +37,6 @@ class SyncSettingsFragment : SettingsFragment() {
         // Configure 'Network timeout'
         // TODO: add 'reset to default' functionality
         requirePreference<NumberRangePreferenceCompat>(R.string.sync_io_timeout_secs_key).apply {
-            title = TR.preferencesNetworkTimeout()
             summaryProvider =
                 Preference.SummaryProvider<EditTextPreference> {
                     runCatchingWithReport("network_timeout") {
@@ -50,18 +47,15 @@ class SyncSettingsFragment : SettingsFragment() {
 
         // Configure one-way sync option
         requirePreference<Preference>(R.string.one_way_sync_key).apply {
-            setSummary(TR.preferencesOnNextSyncForceChangesIn())
             setOnPreferenceClickListener {
-                AlertDialog.Builder(requireContext()).show {
-                    setTitle(CommonString.one_way_sync_title)
-                    setMessage(TR.preferencesOnNextSyncForceChangesIn())
-                    setPositiveButton(CommonString.dialog_ok) { _, _ ->
-                        launchCatchingTask {
-                            withCol { modSchema(check = false) }
-                            showSnackbar(CommonString.one_way_sync_confirmation, Snackbar.LENGTH_SHORT)
-                        }
+                confirmSettingChange(
+                    title = getString(CommonString.one_way_sync_title),
+                    message = TR.preferencesOnNextSyncForceChangesIn(),
+                ) {
+                    launchCatchingTask {
+                        withCol { modSchema(check = false) }
+                        showSnackbar(CommonString.one_way_sync_confirmation, Snackbar.LENGTH_SHORT)
                     }
-                    setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
                 }
                 false
             }

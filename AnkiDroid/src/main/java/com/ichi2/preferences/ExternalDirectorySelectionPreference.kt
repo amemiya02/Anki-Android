@@ -61,7 +61,7 @@ class ExternalDirectorySelectionPreference(
      * Builds the candidate paths to show: the current value, the default
      * directory, and anything found by scanning storage.
      */
-    private fun loadDirectories(): List<String> =
+    fun loadDirectories(): List<String> =
         buildList {
             if (value?.isNotEmpty() == true) {
                 add(File(value))

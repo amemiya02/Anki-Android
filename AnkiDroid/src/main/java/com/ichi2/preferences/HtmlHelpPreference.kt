@@ -47,12 +47,9 @@ class HtmlHelpPreference(
             )
         }
 
-    override fun getSummary() =
-        super
-            .getSummary()
-            .toString()
-            .format(*substitutions)
-            .parseAsHtml()
+    val htmlSummary get() = super.getSummary().toString().format(*substitutions)
+
+    override fun getSummary() = htmlSummary.parseAsHtml()
 
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)

@@ -258,10 +258,12 @@ internal fun SettingsSwitchRow(
     enabled: Boolean = true,
     highlighted: Boolean = false,
     modifier: Modifier = Modifier,
+    @DrawableRes icon: Int? = null,
 ) {
     val colors = MaterialTheme.foundation.colors
     SettingsRow(
         title = title,
+        icon = icon,
         summary = summary,
         enabled = enabled,
         highlighted = highlighted,

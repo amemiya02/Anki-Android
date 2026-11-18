@@ -44,9 +44,12 @@ class SliderPreference(
     context: Context,
     attrs: AttributeSet? = null,
 ) : Preference(context, attrs) {
-    private var valueFrom: Int = 0
-    private var valueTo: Int = 0
-    private var stepSize: Float = 1F
+    var valueFrom: Int = 0
+        private set
+    var valueTo: Int = 0
+        private set
+    var stepSize: Float = 1F
+        private set
 
     private var summaryFormatResource: Int? = null
     private var displayValue: Boolean = false
@@ -110,6 +113,8 @@ class SliderPreference(
     override fun onSetInitialValue(defaultValue: Any?) {
         value = getPersistedInt(defaultValue as Int? ?: valueFrom)
     }
+
+    fun valueLabel(value: Int): String? = displayFormat?.format(value) ?: value.toString().takeIf { displayValue }
 
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)

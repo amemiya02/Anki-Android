@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="settings_dev_web_debug">HTML / JavaScript デバッグ</string>
+    <string name="settings_dev_web_debug_summary">WebView へのリモート接続を許可し、カードの HTML を Hayaki フォルダーに保存します</string>
+    <string name="settings_dev_test_crash">テスト用のクラッシュを起こす</string>
+    <string name="settings_dev_test_crash_summary">テストのためアプリを直ちにクラッシュさせます</string>
+    <string name="settings_dev_lock_database">データベースをロック</string>
+    <string name="settings_dev_lock_database_summary">同じプロセス内のスレッドをブロックします。他のプロセスでは例外が発生します。</string>
+    <string name="settings_dev_corrupt_fsrs">FSRS パラメーターを破損させる</string>
+    <string name="settings_dev_corrupt_fsrs_summary">既定のデッキの FSRS パラメーターを破損させます。リセットまたは最適化で修復できます。</string>
+    <string name="settings_dev_set_database_path">以前のデータベースパスを使う</string>
+    <string name="settings_dev_set_database_path_summary">コレクションフォルダーを /storage/emulated/0/AnkiDroid に設定します</string>
+    <string name="settings_dev_set_database_path_warning">パスを変更すると、コレクションにアクセスできなくなり、復元が難しくなることがあります。</string>
+    <string name="settings_dev_set_database_path_action">パスを変更</string>
+    <string name="settings_dev_tts_voices">読み上げ音声を選択</string>
+    <string name="settings_dev_tts_voices_summary">{{tts-voices:}} のショートカット</string>
+    <string name="settings_dev_test_notes">テスト用ノート</string>
+    <string name="settings_dev_note_count">生成するノートの数</string>
+    <string name="settings_dev_create_notes">ノートを作成</string>
+    <string name="settings_dev_create_notes_warning">テスト用ノートを %1$d 件追加します。ノートごとに新しいデッキを作ります。テスト用のコレクションで実行してください。</string>
+    <string name="settings_dev_test_media">テスト用メディア</string>
+    <string name="settings_dev_file_count">生成するファイルの数</string>
+    <string name="settings_dev_file_size">ファイルサイズ（バイト）</string>
+    <string name="settings_dev_create_files">ファイルを作成</string>
+    <string name="settings_dev_create_files_warning">テスト用ファイルを %1$d 件追加します。既存のファイルを上書きする可能性があります。テスト用のコレクションで実行してください。</string>
+    <string name="settings_dev_in_progress">開発中</string>
+    <string name="settings_dev_in_progress_summary">テスト専用です。これらの機能の報告先はこのフォークです。</string>
+    <string name="settings_dev_reminders">新しい通知を有効にする</string>
+    <string name="settings_dev_profiles">プロファイルの切り替えを表示</string>
+    <string name="settings_dev_notes_progress">テスト用ノートを %1$d 件生成中</string>
+    <string name="settings_dev_notes_progress_count">追加したノート数 %1$d</string>
+    <string name="settings_dev_files_progress">テスト用ファイルを %1$d 件生成中（各 %2$d バイト）</string>
+    <string name="settings_dev_files_progress_count">追加したファイル数 %1$d</string>
+    <string name="settings_dev_fsrs_corrupted">パラメーターが破損しました。最適化で修復できます。</string>
+</resources>

@@ -4,7 +4,6 @@ package com.ichi2.anki.preferences
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
 import androidx.preference.Preference
 import com.ichi2.anki.CollectionManager
@@ -16,8 +15,8 @@ import com.ichi2.anki.isLoggedIn
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.syncServerAddress
+import com.ichi2.compose.ui.dialogs.ErrorDialog
 import com.ichi2.preferences.VersatileTextPreference
-import com.ichi2.utils.show
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
 /**
@@ -26,7 +25,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
  * Sign-in is only possible once an address is set: the Fork never signs in to or syncs with
  * AnkiWeb (ADR-0001). The screen also explains how to bring decks in from AnkiWeb.
  */
-class CustomSyncServerSettingsFragment : SettingsFragment() {
+class CustomSyncServerSettingsFragment : RemainingSettingsFragment(R.id.settings_sync_server) {
     override val preferenceResource = R.xml.preferences_custom_sync_server
     override val analyticsScreenNameConstant = "prefs.custom_sync_server"
 
@@ -47,10 +46,12 @@ class CustomSyncServerSettingsFragment : SettingsFragment() {
 
             // Empty string input causes the certificate to be unset in the backend, i.e., no error
             if (!CollectionManager.updateCustomCertificate(newCert)) {
-                AlertDialog.Builder(requireContext()).show {
-                    setTitle(CommonString.dialog_invalid_custom_certificate_title)
-                    setMessage(CommonString.dialog_invalid_custom_certificate)
-                    setPositiveButton(CommonString.dialog_ok) { _, _ -> }
+                showSettingsDialog { dismiss ->
+                    ErrorDialog(
+                        title = getString(CommonString.dialog_invalid_custom_certificate_title),
+                        message = getString(CommonString.dialog_invalid_custom_certificate),
+                        onDismissRequest = dismiss,
+                    )
                 }
                 return@setOnPreferenceChangeListener false
             }

@@ -15,77 +15,77 @@
     <SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="@string/html_javascript_debugging_key"
-        android:summary="Enable remote WebView connections, and save card HTML to Hayaki directory"
-        android:title="HTML / JavaScript debugging"/>
+        android:summary="@string/settings_dev_web_debug_summary"
+        android:title="@string/settings_dev_web_debug"/>
     <Preference
-        android:title="Trigger test crash"
-        android:summary="Touch here for an immediate test crash"
+        android:title="@string/settings_dev_test_crash"
+        android:summary="@string/settings_dev_test_crash_summary"
         android:key="@string/pref_trigger_crash_key"/>
     <Preference
-        android:title="Lock database"
-        android:summary="Touch here to lock the database (all threads block in-process, exception if using second process)"
+        android:title="@string/settings_dev_lock_database"
+        android:summary="@string/settings_dev_lock_database_summary"
         android:key="@string/pref_lock_database_key"/>
     <Preference
-        android:title="Corrupt FSRS parameters"
-        android:summary="Corrupts the FSRS parameters of the default deck. Fixed by resetting/optimization"
+        android:title="@string/settings_dev_corrupt_fsrs"
+        android:summary="@string/settings_dev_corrupt_fsrs_summary"
         android:key="@string/pref_corrupt_fsrs_params"/>
     <Preference
-        android:title="Set Database to pre-Scoped Storage default"
-        android:summary="Touch here to set the database path to /storage/emulated/0/AnkiDroid"
+        android:title="@string/settings_dev_set_database_path"
+        android:summary="@string/settings_dev_set_database_path_summary"
         android:key="@string/pref_set_database_path_debug_key"/>
     <Preference
-        android:title="Open TTS voice selection"
-        android:summary="shortcut for {{tts-voices:}}"
+        android:title="@string/settings_dev_tts_voices"
+        android:summary="@string/settings_dev_tts_voices_summary"
         android:key="@string/dev_open_tts_voices"/>
     <PreferenceCategory
-        android:title="Create meaningless cards notes"
+        android:title="@string/settings_dev_test_notes"
         >
         <com.ichi2.preferences.IncrementerNumberRangePreferenceCompat
             android:key="@string/pref_fill_default_deck_number_key"
-            android:title="Number of notes to generate"
+            android:title="@string/settings_dev_note_count"
             app:useSimpleSummaryProvider="true"
             android:defaultValue="200"
             app:min="1"
             />
         <Preference
             android:key="@string/pref_fill_default_deck_key"
-            android:title="Create notes"
+            android:title="@string/settings_dev_create_notes"
             />
     </PreferenceCategory>
     <PreferenceCategory
-        android:title="Create fake media"
+        android:title="@string/settings_dev_test_media"
         >
         <com.ichi2.preferences.IncrementerNumberRangePreferenceCompat
             android:key="@string/pref_fill_collection_number_file_key"
-            android:title="Number of files to generate"
+            android:title="@string/settings_dev_file_count"
             app:useSimpleSummaryProvider="true"
             android:defaultValue="20"
             app:min="1"
             />
         <com.ichi2.preferences.IncrementerNumberRangePreferenceCompat
             android:key="@string/pref_fill_collection_size_file_key"
-            android:title="Size of the files to generate (in byte)"
+            android:title="@string/settings_dev_file_size"
             app:useSimpleSummaryProvider="true"
             android:defaultValue="1000000"
             app:min="1"
             />
         <Preference
             android:key="@string/pref_fill_collection_key"
-            android:title="Create files"
+            android:title="@string/settings_dev_create_files"
             />
     </PreferenceCategory>
 
     <com.ichi2.anki.preferences.ExtendedPreferenceCategory
         android:key="@string/pref_cat_wip_key"
-        android:title="Work in progress"
-        android:summary="Only for testing. Not suited for use. Don't create reports about them">
+        android:title="@string/settings_dev_in_progress"
+        android:summary="@string/settings_dev_in_progress_summary">
 
         <SwitchPreferenceCompat
-            android:title="Enable new notifications"
+            android:title="@string/settings_dev_reminders"
             android:key="@string/pref_new_review_reminders"
             android:defaultValue="false"/>
         <SwitchPreferenceCompat
-            android:title="Switch Profile option"
+            android:title="@string/settings_dev_profiles"
             android:key="@string/pref_enable_switch_profile_key"
             android:defaultValue="false"/>
     </com.ichi2.anki.preferences.ExtendedPreferenceCategory>

@@ -7,7 +7,6 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.preference.Preference
 import androidx.preference.SwitchPreferenceCompat
@@ -21,14 +20,15 @@ import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.provider.CardContentProvider
 import com.ichi2.anki.startup.getDefaultAnkiDroidDirectory
 import com.ichi2.anki.utils.openUrl
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.ErrorDialog
 import com.ichi2.preferences.ExternalDirectorySelectionPreference
 import com.ichi2.utils.Permissions
 import com.ichi2.utils.Permissions.openAppSettingsScreen
-import com.ichi2.utils.show
 import timber.log.Timber
 import java.io.File
 
-class AdvancedSettingsFragment : SettingsFragment() {
+class AdvancedSettingsFragment : RemainingSettingsFragment(R.id.settings_advanced) {
     override val preferenceResource: Int
         get() = R.xml.preferences_advanced
     override val analyticsScreenNameConstant: String
@@ -45,14 +45,10 @@ class AdvancedSettingsFragment : SettingsFragment() {
                 return@registerForActivityResult
             }
 
-            AlertDialog.Builder(requireContext()).show {
-                setTitle(CommonString.permission_denied)
-                setMessage(CommonString.microphone_permission_denied_message)
-                setPositiveButton(CommonString.dialog_ok) { _, _ ->
-                    openAppSettingsScreen()
-                }
-                setNegativeButton(CommonString.dialog_cancel, null)
-            }
+            confirmSettingChange(
+                title = getString(CommonString.permission_denied),
+                message = getString(CommonString.microphone_permission_denied_message),
+            ) { openAppSettingsScreen() }
         }
 
     override fun initSubscreen() {
@@ -72,12 +68,18 @@ class AdvancedSettingsFragment : SettingsFragment() {
                 } catch (e: StorageAccessException) {
                     // TODO: Request MANAGE_EXTERNAL_STORAGE
                     Timber.e(e, "Could not initialize directory: %s", newPath)
-                    AlertDialog.Builder(requireContext()).show {
-                        setTitle(CommonString.dialog_collection_path_not_dir)
-                        setPositiveButton(CommonString.dialog_ok) { _, _ -> }
-                        setNegativeButton(CommonString.reset_custom_buttons) { _, _ ->
-                            value = getDefaultAnkiDroidDirectory(requireContext()).absolutePath
-                        }
+                    showSettingsDialog { dismiss ->
+                        ErrorDialog(
+                            title = getString(CommonString.dialog_collection_path_not_dir),
+                            message = "",
+                            onDismissRequest = dismiss,
+                            dismissText = getString(CommonString.dialog_ok),
+                            primaryAction =
+                                DialogAction(getString(CommonString.reset_custom_buttons), {
+                                    value = getDefaultAnkiDroidDirectory(requireContext()).absolutePath
+                                    dismiss()
+                                }),
+                        )
                     }
                     false
                 }

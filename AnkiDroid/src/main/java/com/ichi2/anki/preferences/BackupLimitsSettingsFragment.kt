@@ -9,7 +9,7 @@ import com.ichi2.anki.ui.preferences.screens.BackupLimitsPresenter
 /**
  * Fragment with preferences related to backup.
  */
-class BackupLimitsSettingsFragment : SettingsFragment() {
+class BackupLimitsSettingsFragment : RemainingSettingsFragment(R.id.settings_backups) {
     init {
         BackupLimitsPresenter(this).also { it.observeLifecycle() }
     }
@@ -24,8 +24,6 @@ class BackupLimitsSettingsFragment : SettingsFragment() {
         // initialization handled by BackupLimitsPresenter
     }
 
-    override fun onStart() {
-        super.onStart()
-        requireActivity().title = CollectionManager.TR.preferencesBackups()
-    }
+    override val settingsPageTitle: String
+        get() = CollectionManager.TR.preferencesBackups()
 }

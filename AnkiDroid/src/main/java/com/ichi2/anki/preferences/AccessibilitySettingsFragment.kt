@@ -9,7 +9,7 @@ import com.ichi2.anki.common.android.Animations
 /**
  * Fragment with preferences related to notifications
  */
-class AccessibilitySettingsFragment : SettingsFragment() {
+class AccessibilitySettingsFragment : RemainingSettingsFragment(R.id.settings_accessibility) {
     override val preferenceResource: Int
         get() = R.xml.preferences_accessibility
     override val analyticsScreenNameConstant: String

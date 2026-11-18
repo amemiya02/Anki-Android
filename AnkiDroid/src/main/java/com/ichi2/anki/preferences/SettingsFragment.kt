@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.XmlRes
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewGroupCompat
 import androidx.core.view.WindowInsetsCompat.Type.displayCutout
@@ -58,6 +59,7 @@ abstract class SettingsFragment :
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
+        if (view is ComposeView) return
         val title = preferenceManager?.preferenceScreen?.title ?: ""
         binding.toolbar.apply {
             setTitle(title)

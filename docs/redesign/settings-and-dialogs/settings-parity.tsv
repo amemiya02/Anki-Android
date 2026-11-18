@@ -1,0 +1,209 @@
+source	kind	key	title	summary	dependency	default	after_group	condition_or_change
+preference_headers	PreferenceScreen		@string/settings				Settings	Retained
+preference_headers	SearchPreference	@string/search_preference_key					Settings › Search settings	Retained
+preference_headers	HeaderPreference	@string/pref_general_screen_key	@string/pref_cat_general				General	Retained
+preference_headers	HeaderPreference	@string/pref_study_screen_key	@string/pref_cat_reviewer				Studying	Retained
+preference_headers	HeaderPreference	@string/pref_reviewing_screen_key	@string/pref_cat_reviewing				Studying	Retained
+preference_headers	HeaderPreference	@string/pref_sync_screen_key	@string/pref_cat_sync				Sync	Retained
+preference_headers	HeaderPreference	@string/pref_notifications_screen_key	@string/notification_pref				Notifications	Default unless the new review reminders developer option is enabled
+preference_headers	HeaderPreference	@string/pref_review_reminders_screen_key	@string/review_reminders_title				Review reminders	New review reminders developer option
+preference_headers	HeaderPreference	@string/pref_appearance_screen_key					Appearance	Retained
+preference_headers	HeaderPreference	@string/pref_switch_profile_screen_key	@string/switch_profile				Switch profile	Switch profile developer option
+preference_headers	HeaderPreference	@string/pref_controls_screen_key	@string/pref_cat_controls				Controls	Retained
+preference_headers	HeaderPreference	@string/pref_accessibility_screen_key	@string/accessibility				Accessibility	Retained
+preference_headers	HeaderPreference	@string/pref_backup_limits_screen_key					Backups	Retained
+preference_headers	HeaderPreference	@string/pref_advanced_screen_key	@string/pref_cat_advanced				Advanced	Unrestricted devices
+preference_headers	HeaderPreference	@string/pref_developer_options_screen_key	@string/pref_cat_dev_options				Developer options	Developer options enabled or a debug build
+preference_headers	HeaderPreference	@string/about_screen_key	@string/pref_cat_about_title				About	Retained
+preferences_accessibility	PreferenceScreen	@string/pref_accessibility_screen_key	@string/accessibility				Accessibility	Retained
+preferences_accessibility	SliderPreference	@string/card_zoom_preference	@string/card_zoom			100	Accessibility	Retained
+preferences_accessibility	SliderPreference	@string/image_zoom_preference	@string/image_zoom			100	Accessibility	Retained
+preferences_accessibility	SliderPreference	@string/answer_button_size_pref_key	@string/button_size			100	Accessibility	Retained
+preferences_accessibility	SliderPreference	@string/pref_card_browser_font_scale_key	@string/card_browser_font_size			100	Accessibility	Retained
+preferences_accessibility	SliderPreference	@string/pref_card_minimal_click_time	@string/pref_show_answer_long_press_time	@string/pref_show_answer_long_press_time_summary		0	Accessibility	Retained
+preferences_accessibility	SliderPreference	@string/double_tap_timeout_pref_key	@string/pref_double_tap_time_interval	@string/pref_double_tap_time_interval_summary		200	Accessibility	Retained
+preferences_accessibility	PreferenceCategory		@string/screen				Accessibility	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_accessibility	SwitchPreferenceCompat	@string/safe_display_key	@string/remove_animations	@string/remove_animations_summary		false	Accessibility	Unavailable while Android animations are disabled
+preferences_advanced	PreferenceScreen	@string/pref_advanced_screen_key	@string/pref_cat_advanced				Advanced	Unrestricted devices
+preferences_advanced	ExternalDirectorySelectionPreference	@string/pref_ankidroid_directory_key	@string/col_path			/sdcard/AnkiDroid	Advanced	Retained
+preferences_advanced	PreferenceCategory	@string/pref_cat_workarounds_key	@string/pref_cat_workarounds				Advanced	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_advanced	SwitchPreferenceCompat	@string/disable_hardware_render_key	@string/software_render	@string/software_render_summ		false	Advanced	Retained
+preferences_advanced	SwitchPreferenceCompat	@string/use_input_tag_key	@string/use_input_tag	@string/use_input_tag_summ		false	Advanced	Retained
+preferences_advanced	SwitchPreferenceCompat	@string/disable_single_field_edit_key	@string/disable_extended_text_ui	@string/disable_extended_text_ui_summ		false	Advanced	Retained
+preferences_advanced	SwitchPreferenceCompat	@string/note_editor_newline_replace_key	@string/note_editor_replace_newlines	@string/note_editor_replace_newlines_summ		true	Advanced	Retained
+preferences_advanced	SwitchPreferenceCompat	@string/type_in_answer_focus_key	@string/type_in_answer_focus	@string/type_in_answer_focus_summ		true	Advanced	Retained
+preferences_advanced	SwitchPreferenceCompat	@string/media_import_allow_all_files_key	@string/media_import_allow_all_files	@string/media_import_allow_all_files_summ		false	Advanced	Retained
+preferences_advanced	SwitchPreferenceCompat	@string/pref_allow_template_audio_recording	@string/allow_templates_to_record_audio			false	Advanced	Retained
+preferences_advanced	PreferenceCategory	@string/pref_cat_plugins_key	@string/pref_cat_plugins				Advanced	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_advanced	SwitchPreferenceCompat	@string/enable_api_key	@string/enable_api_title	@string/enable_api_summary		true	Advanced	Retained
+preferences_advanced	Preference	@string/thirdparty_apps_key	@string/thirdparty_apps_title	@string/thirdparty_apps_summary			Advanced	Retained
+preferences_advanced	PreferenceCategory		@string/pref_cat_security				Advanced	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_advanced	SwitchPreferenceCompat	@string/pref_allow_dangerous_js_api	@string/allow_dangerous_js_api_title	@string/allow_dangerous_js_api_summ		false	Advanced	Retained
+preferences_advanced	SwitchPreferenceCompat	@string/pref_allow_card_external_launch_key	@string/allow_card_external_launch_title	@string/allow_card_external_launch_summ		false	Advanced	Retained
+preferences_appearance	PreferenceScreen	@string/pref_appearance_screen_key					Appearance	Retained
+preferences_appearance	PreferenceCategory		@string/pref_cat_themes				Appearance	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_appearance	ListPreference	@string/app_theme_key	@string/app_theme			@string/theme_follow_system_value	Appearance	Retained
+preferences_appearance	ListPreference	@string/night_theme_key	@string/night_theme			@string/theme_dark_value	Appearance	Retained
+preferences_appearance	PreferenceCategory		@string/background_image_title				Appearance	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_appearance	Preference	@string/pref_deck_picker_background_key				false	Appearance	Retained
+preferences_appearance	Preference	@string/pref_remove_wallpaper_key	@string/remove_wallpaper_image				Appearance	Retained
+preferences_appearance	PreferenceCategory		@string/card_browser				General	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_appearance	SwitchPreferenceCompat	@string/pref_display_filenames_in_browser_key	@string/card_browser_hide_media	@string/card_browser_hide_media_summary		false	General	Moved from Appearance to General
+preferences_backup_limits	PreferenceScreen	@string/pref_backups_screen_key	@string/button_backup				Backups	Retained
+preferences_backup_limits	HtmlHelpPreference	@string/pref_backups_help_key		@string/pref__backups_help__summary			Backups	Explanatory text above the backup options
+preferences_backup_limits	IncrementerNumberRangePreferenceCompat	@string/pref_minutes_between_automatic_backups_key	@string/pref__minutes_between_automatic_backups__title				Backups	Retained
+preferences_backup_limits	IncrementerNumberRangePreferenceCompat	@string/pref_daily_backups_to_keep_key	@string/pref__daily_backups_to_keep__title				Backups	Retained
+preferences_backup_limits	IncrementerNumberRangePreferenceCompat	@string/pref_weekly_backups_to_keep_key	@string/pref__weekly_backups_to_keep__title				Backups	Retained
+preferences_backup_limits	IncrementerNumberRangePreferenceCompat	@string/pref_monthly_backups_to_keep_key	@string/pref__monthly_backups_to_keep__title				Backups	Retained
+preferences_controls	PreferenceScreen	@string/pref_controls_screen_key	@string/pref_cat_controls				Controls	Retained
+preferences_controls	SwitchPreferenceCompat	@string/gestures_corner_touch_preference	@string/gestures_corner_touch	@string/gestures_corner_touch_summary		false	Controls	Retained
+preferences_controls	SliderPreference	@string/pref_swipe_sensitivity_key	@string/swipe_sensitivity			100	Controls	Retained
+preferences_controls	Preference	@string/pref_keyboard_shortcuts_key	@string/show_keyboard_shortcuts				Controls	Hardware keyboard available
+preferences_controls	ControlsTabPreference	@string/pref_controls_tab_layout_key					Controls	Study screen and Previewer tabs
+preferences_custom_sync_server	PreferenceScreen	@string/pref_custom_sync_server_screen_key	@string/sync_server_title				Sync › Sync server	Retained
+preferences_custom_sync_server	VersatileTextWithASwitchPreference	@string/custom_sync_server_collection_url_key	@string/custom_sync_server_base_url_title				Sync › Sync server	Retained
+preferences_custom_sync_server	VersatileTextPreference	@string/custom_sync_certificate_key	@string/custom_sync_certificate_title				Sync › Sync server	Retained
+preferences_custom_sync_server	Preference	@string/sync_setup_account_key	@string/menu_my_account				Sync › Sync server	Available once a custom sync server address is configured
+preferences_developer_options	PreferenceScreen	@string/pref_developer_options_screen_key	@string/pref_cat_dev_options				Developer options	Developer options enabled or a debug build
+preferences_developer_options	SwitchPreferenceCompat	@string/developer_options_enabled_by_user_key	@string/dev_options_enabled_pref			true	Developer options	Release builds with Developer options enabled
+preferences_developer_options	SwitchPreferenceCompat	@string/html_javascript_debugging_key	HTML / JavaScript debugging	Enable remote WebView connections, and save card HTML to Hayaki directory		false	Developer options	Release builds with Developer options enabled. Debug builds enable WebView debugging directly.
+preferences_developer_options	Preference	@string/pref_trigger_crash_key	Trigger test crash	Touch here for an immediate test crash			Developer options	Retained
+preferences_developer_options	Preference	@string/pref_lock_database_key	Lock database	Touch here to lock the database (all threads block in-process, exception if using second process)			Developer options	Retained
+preferences_developer_options	Preference	@string/pref_corrupt_fsrs_params	Corrupt FSRS parameters	Corrupts the FSRS parameters of the default deck. Fixed by resetting/optimization			Developer options	Retained
+preferences_developer_options	Preference	@string/pref_set_database_path_debug_key	Set Database to pre-Scoped Storage default	Touch here to set the database path to /storage/emulated/0/AnkiDroid			Developer options	Retained
+preferences_developer_options	Preference	@string/dev_open_tts_voices	Open TTS voice selection	shortcut for {{tts-voices:}}			Developer options	Retained
+preferences_developer_options	PreferenceCategory		Create meaningless cards notes				Developer options	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_developer_options	IncrementerNumberRangePreferenceCompat	@string/pref_fill_default_deck_number_key	Number of notes to generate			200	Developer options	Retained
+preferences_developer_options	Preference	@string/pref_fill_default_deck_key	Create notes				Developer options	Retained
+preferences_developer_options	PreferenceCategory		Create fake media				Developer options	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_developer_options	IncrementerNumberRangePreferenceCompat	@string/pref_fill_collection_number_file_key	Number of files to generate			20	Developer options	Retained
+preferences_developer_options	IncrementerNumberRangePreferenceCompat	@string/pref_fill_collection_size_file_key	Size of the files to generate (in byte)			1000000	Developer options	Retained
+preferences_developer_options	Preference	@string/pref_fill_collection_key	Create files				Developer options	Retained
+preferences_developer_options	ExtendedPreferenceCategory	@string/pref_cat_wip_key	Work in progress	Only for testing. Not suited for use. Don't create reports about them			Developer options	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_developer_options	SwitchPreferenceCompat	@string/pref_new_review_reminders	Enable new notifications			false	Developer options	Retained
+preferences_developer_options	SwitchPreferenceCompat	@string/pref_enable_switch_profile_key	Switch Profile option			false	Developer options	Retained
+preferences_general	PreferenceScreen	@string/pref_general_screen_key	@string/pref_cat_general				General	Retained
+preferences_general	ListPreference	@string/pref_language_key	@string/language			@string/empty_string	General	Retained
+preferences_general	SwitchPreferenceCompat	@string/nav_drawer_gesture_key	@string/gestures_full_screen_nav_drawer	@string/gestures_fullscreen_nav_drawer_summary		false	General	Tablet layouts only
+preferences_general	PreferenceCategory		@string/pref_cat_editing				General	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_general	SwitchPreferenceCompat	@string/paste_png_key				true	General	Retained
+preferences_general	PreferenceCategory		@string/pref_cat_studying				General	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_general	ListPreference	@string/deck_for_new_cards_key	@string/use_current				General	Retained
+preferences_general	SwitchPreferenceCompat	@string/exit_via_double_tap_back_key	@string/exit_via_double_tap_back	@string/exit_via_double_tap_back_summ		false	General	Retained
+preferences_general	PreferenceCategory		@string/pref_cat_system_wide				General	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_general	SwitchPreferenceCompat	@string/anki_card_external_context_menu_key				true	General	Retained
+preferences_general	SwitchPreferenceCompat	@string/card_browser_external_context_menu_key				false	General	Retained
+preferences_notifications	PreferenceScreen	@string/pref_notifications_screen_key	@string/notification_pref				Notifications	Default unless the new review reminders developer option is enabled
+preferences_notifications	ListPreference	@string/pref_notifications_minimum_cards_due_key	@string/notification_pref_title			1000000	Notifications	Default notification system
+preferences_notifications	SwitchPreferenceCompat	@string/pref_notifications_vibrate_key	@string/notification_minimum_cards_due_vibrate			false	Notifications	Default notification system on unrestricted devices
+preferences_notifications	SwitchPreferenceCompat	@string/pref_notifications_blink_key	@string/notification_minimum_cards_due_blink			false	Notifications	Default notification system on unrestricted devices
+preferences_previewer_controls	ControlPreference	@string/previewer_back_key	@string/previewer_back				Controls › Previewer	Retained
+preferences_previewer_controls	ControlPreference	@string/previewer_next_key	@string/previewer_next				Controls › Previewer	Retained
+preferences_previewer_controls	ControlPreference	@string/previewer_mark_key					Controls › Previewer	Retained
+preferences_previewer_controls	ControlPreference	@string/previewer_edit_key	@string/cardeditor_title_edit_card				Controls › Previewer	Retained
+preferences_previewer_controls	ControlPreference	@string/previewer_replay_media_key	@string/replay_media				Controls › Previewer	Retained
+preferences_previewer_controls	ControlPreference	@string/previewer_backside_only_action_key	@string/toggle_backside_only				Controls › Previewer	Retained
+preferences_previewer_controls	PreferenceCategory		@string/filter_by_flags				Controls › Previewer	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_previewer_controls	ControlPreference	@string/previewer_flag_red_key	@string/gesture_flag_red				Controls › Previewer	Retained
+preferences_previewer_controls	ControlPreference	@string/previewer_flag_orange_key	@string/gesture_flag_orange				Controls › Previewer	Retained
+preferences_previewer_controls	ControlPreference	@string/previewer_flag_green_key	@string/gesture_flag_green				Controls › Previewer	Retained
+preferences_previewer_controls	ControlPreference	@string/previewer_flag_blue_key	@string/gesture_flag_blue				Controls › Previewer	Retained
+preferences_previewer_controls	ControlPreference	@string/previewer_flag_pink_key	@string/gesture_flag_pink				Controls › Previewer	Retained
+preferences_previewer_controls	ControlPreference	@string/previewer_flag_turquoise_key	@string/gesture_flag_turquoise				Controls › Previewer	Retained
+preferences_previewer_controls	ControlPreference	@string/previewer_flag_purple_key	@string/gesture_flag_purple				Controls › Previewer	Retained
+preferences_previewer_controls	ControlPreference	@string/previewer_unset_flag_key	@string/gesture_flag_remove				Controls › Previewer	Retained
+preferences_reviewer	PreferenceScreen		@string/pref_cat_reviewer				Studying › Study screen	Retained
+preferences_reviewer	PreferenceCategory		@string/screen				Studying › Study screen	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_reviewer	ListPreference	@string/reviewer_frame_style_key	@string/reviewer_frame_style			@string/reviewer_frame_style_card_value	Studying › Study screen	Retained
+preferences_reviewer	ListPreference	@string/hide_system_bars_key	@string/hide_system_bars			@string/hide_system_bars_none_value	Studying › Study screen	Retained
+preferences_reviewer	SwitchPreferenceCompat	@string/ignore_display_cutout_key	@string/ignore_display_cutout			false	Studying › Study screen	Retained
+preferences_reviewer	SwitchPreferenceCompat	@string/center_vertically_preference	@string/vertical_centering	@string/vertical_centering_summ		false	Studying › Study screen	Retained
+preferences_reviewer	PreferenceCategory	@string/pref_review_category_key					Studying › Study screen	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_reviewer	SwitchPreferenceCompat	@string/show_answer_feedback_key	@string/show_answer_feedback			true	Studying › Study screen	Retained
+preferences_reviewer	SwitchPreferenceCompat	@string/show_progress_preference				true	Studying › Study screen	Retained
+preferences_reviewer	SwitchPreferenceCompat	@string/show_audio_play_buttons_key				true	Studying › Study screen	Retained
+preferences_reviewer	PreferenceCategory		@string/toolbar				Studying › Study screen	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_reviewer	Preference	@string/reviewer_menu_settings_key	@string/toolbar_actions				Studying › Study screen	Opens Toolbar actions
+preferences_reviewer	ListPreference	@string/reviewer_toolbar_position_key	@string/toolbar_position			@string/reviewer_toolbar_value_top	Studying › Study screen	Retained
+preferences_reviewer	PreferenceCategory		@string/answer_buttons				Studying › Study screen	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_reviewer	SwitchPreferenceCompat	@string/show_answer_buttons_key	@string/show_answer_buttons			true	Studying › Study screen	Retained
+preferences_reviewer	SwitchPreferenceCompat	@string/show_estimates_preference			@string/show_answer_buttons_key		Studying › Study screen	Enabled when the answer buttons are shown
+preferences_reviewer	SwitchPreferenceCompat	@string/hide_hard_and_easy_key	@string/hide_hard_and_easy		@string/show_answer_buttons_key	false	Studying › Study screen	Enabled when the answer buttons are shown
+preferences_reviewer_controls	PreferenceCategory		@string/answer_buttons				Controls › Study screen	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_reviewer_controls	ReviewerControlPreference	@string/show_answer_command_key	@string/show_answer				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/answer_again_command_key					Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/answer_hard_command_key					Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/answer_good_command_key					Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/answer_easy_command_key	@string/answer_easy				Controls › Study screen	Retained
+preferences_reviewer_controls	PreferenceCategory		@string/filter_by_flags				Controls › Study screen	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_reviewer_controls	ReviewerControlPreference	@string/flag_red_command_key	@string/gesture_flag_red				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/flag_orange_command_key	@string/gesture_flag_orange				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/flag_green_command_key	@string/gesture_flag_green				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/flag_blue_command_key	@string/gesture_flag_blue				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/flag_pink_command_key	@string/gesture_flag_pink				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/flag_turquoise_command_key	@string/gesture_flag_turquoise				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/flag_purple_command_key	@string/gesture_flag_purple				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/remove_flag_command_key	@string/gesture_flag_remove				Controls › Study screen	Retained
+preferences_reviewer_controls	PreferenceCategory		@string/card				Controls › Study screen	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_reviewer_controls	ReviewerControlPreference	@string/bury_card_command_key					Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/suspend_card_command_key					Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/reschedule_command_key					Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/card_info_command_key					Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/previous_card_info_command_key					Controls › Study screen	Retained
+preferences_reviewer_controls	PreferenceCategory		@string/note				Controls › Study screen	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_reviewer_controls	ReviewerControlPreference	@string/bury_note_command_key					Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/suspend_note_command_key					Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/delete_command_key					Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/mark_command_key					Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/edit_command_key	@string/cardeditor_title_edit_card				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/tag_command_key	@string/menu_edit_tags				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/add_note_command_key	@string/menu_add_note				Controls › Study screen	Retained
+preferences_reviewer_controls	PreferenceCategory		@string/navigation				Controls › Study screen	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_reviewer_controls	ReviewerControlPreference	@string/page_up_command_key	@string/gesture_page_up				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/page_down_command_key	@string/gesture_page_down				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/browse_command_key					Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/statistics_command_key					Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/abort_command_key	@string/gesture_abort_learning				Controls › Study screen	Retained
+preferences_reviewer_controls	PreferenceCategory		@string/media				Controls › Study screen	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_reviewer_controls	ReviewerControlPreference	@string/play_media_command_key	@string/replay_media				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/record_voice_command_key	@string/record_voice				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/replay_voice_command_key	@string/replay_voice				Controls › Study screen	Retained
+preferences_reviewer_controls	PreferenceCategory		@string/pref_cat_whiteboard				Controls › Study screen	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_reviewer_controls	ReviewerControlPreference	@string/toggle_whiteboard_command_key	@string/gesture_toggle_whiteboard				Controls › Study screen	Retained
+preferences_reviewer_controls	WhiteboardControlPreference	@string/pref_key_whiteboard_toggle_eraser	@string/gesture_toggle_eraser				Controls › Study screen	Retained
+preferences_reviewer_controls	WhiteboardControlPreference	@string/pref_key_whiteboard_undo	@string/undo				Controls › Study screen	Retained
+preferences_reviewer_controls	WhiteboardControlPreference	@string/pref_key_whiteboard_redo	@string/redo				Controls › Study screen	Retained
+preferences_reviewer_controls	WhiteboardControlPreference	@string/pref_key_whiteboard_clear	@string/clear_whiteboard				Controls › Study screen	Retained
+preferences_reviewer_controls	PreferenceCategory		@string/misc				Controls › Study screen	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_reviewer_controls	ReviewerControlPreference	@string/undo_command_key	@string/undo				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/redo_command_key	@string/redo				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/toggle_auto_advance_command_key	@string/toggle_auto_advance				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/show_hint_command_key	@string/gesture_show_hint				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/show_all_hints_command_key	@string/gesture_show_all_hints				Controls › Study screen	Retained
+preferences_reviewer_controls	ExtendedPreferenceCategory	@string/user_actions_controls_category_key	@string/user_actions	@string/user_actions_summary			Controls › Study screen	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_reviewer_controls	ReviewerControlPreference	@string/user_action_1_key	@string/user_action_1				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/user_action_2_key	@string/user_action_2				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/user_action_3_key	@string/user_action_3				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/user_action_4_key	@string/user_action_4				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/user_action_5_key	@string/user_action_5				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/user_action_6_key	@string/user_action_6				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/user_action_7_key	@string/user_action_7				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/user_action_8_key	@string/user_action_8				Controls › Study screen	Retained
+preferences_reviewer_controls	ReviewerControlPreference	@string/user_action_9_key	@string/user_action_9				Controls › Study screen	Retained
+preferences_reviewing	PreferenceScreen	@string/pref_reviewing_screen_key	@string/pref_cat_reviewing				Studying › Scheduling	Retained
+preferences_reviewing	PreferenceCategory		@string/pref_cat_scheduling				Studying › Scheduling	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_reviewing	SliderPreference	@string/day_offset_preference	@string/day_offset_with_description				Studying › Scheduling	Retained
+preferences_reviewing	IncrementerNumberRangePreferenceCompat	@string/learn_cutoff_preference	@string/learn_cutoff				Studying › Scheduling	Retained
+preferences_reviewing	Preference	@string/time_limit_preference	@string/time_limit	@string/disabled			Studying › Scheduling	Opens the Timebox screen
+preferences_reviewing	PreferenceCategory		@string/pref_cat_advanced				Studying › Scheduling	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_reviewing	SwitchPreferenceCompat	@string/keep_screen_on_preference	@string/pref_keep_screen_on	@string/pref_keep_screen_on_summ		false	Studying › Study screen	Moved into Study screen
+preferences_sync	PreferenceScreen	@string/pref_sync_screen_key	@string/pref_cat_sync				Sync	Retained
+preferences_sync	Preference	@string/sync_account_key	@string/menu_my_account	@string/sync_account_summ_logged_out			Sync	Retained
+preferences_sync	ListPreference	@string/sync_fetch_media_key	@string/sync_fetch_missing_media			@string/sync_media_always_value	Sync	Retained
+preferences_sync	SwitchPreferenceCompat	@string/automatic_sync_choice_key	@string/automatic_sync_choice	@string/automatic_sync_choice_summ		false	Sync	Retained
+preferences_sync	SwitchPreferenceCompat	@string/sync_status_badge_key	@string/sync_status_badge	@string/sync_status_badge_summ		true	Sync	Retained
+preferences_sync	SwitchPreferenceCompat	@string/metered_sync_key	@string/metered_sync_title	@string/metered_sync_summary		false	Sync	Retained
+preferences_sync	PreferenceCategory		@string/pref_cat_advanced				Sync	Grouping heading in the baseline, with its leaf settings listed individually
+preferences_sync	IncrementerNumberRangePreferenceCompat	@string/sync_io_timeout_secs_key				60	Sync	Retained
+preferences_sync	Preference	@string/one_way_sync_key	@string/one_way_sync_title				Sync	Available when signed in to the sync server
+preferences_sync	Preference	@string/custom_sync_server_key	@string/sync_server_title				Sync	Opens the custom server settings

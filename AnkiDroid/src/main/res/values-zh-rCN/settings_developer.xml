@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="settings_dev_web_debug">HTML / JavaScript 调试</string>
+    <string name="settings_dev_web_debug_summary">允许远程连接 WebView，并将卡片 HTML 保存到 Hayaki 目录</string>
+    <string name="settings_dev_test_crash">触发测试崩溃</string>
+    <string name="settings_dev_test_crash_summary">立即使应用崩溃以进行测试</string>
+    <string name="settings_dev_lock_database">锁定数据库</string>
+    <string name="settings_dev_lock_database_summary">阻塞进程内的线程。其他进程会收到异常。</string>
+    <string name="settings_dev_corrupt_fsrs">破坏 FSRS 参数</string>
+    <string name="settings_dev_corrupt_fsrs_summary">破坏默认牌组的 FSRS 参数。重置或优化参数可恢复。</string>
+    <string name="settings_dev_set_database_path">使用旧数据库路径</string>
+    <string name="settings_dev_set_database_path_summary">将集合目录设为 /storage/emulated/0/AnkiDroid</string>
+    <string name="settings_dev_set_database_path_warning">更改路径可能导致无法访问集合，也难以恢复。</string>
+    <string name="settings_dev_set_database_path_action">更改路径</string>
+    <string name="settings_dev_tts_voices">打开文字转语音的声音列表</string>
+    <string name="settings_dev_tts_voices_summary">{{tts-voices:}} 的快捷方式</string>
+    <string name="settings_dev_test_notes">测试笔记</string>
+    <string name="settings_dev_note_count">要生成的笔记数量</string>
+    <string name="settings_dev_create_notes">创建笔记</string>
+    <string name="settings_dev_create_notes_warning">此操作将创建 %1$d 条测试笔记，每条位于一个新牌组。请使用测试集合。</string>
+    <string name="settings_dev_test_media">测试媒体</string>
+    <string name="settings_dev_file_count">要生成的文件数量</string>
+    <string name="settings_dev_file_size">文件大小（字节）</string>
+    <string name="settings_dev_create_files">创建文件</string>
+    <string name="settings_dev_create_files_warning">此操作将创建 %1$d 个测试文件，可能覆盖现有文件。请使用测试集合。</string>
+    <string name="settings_dev_in_progress">开发中</string>
+    <string name="settings_dev_in_progress_summary">仅供测试。请仅在此分支中反馈这些功能的问题。</string>
+    <string name="settings_dev_reminders">启用新版通知</string>
+    <string name="settings_dev_profiles">显示「切换配置」</string>
+    <string name="settings_dev_notes_progress">正在生成 %1$d 条测试笔记</string>
+    <string name="settings_dev_notes_progress_count">已添加 %1$d 条笔记</string>
+    <string name="settings_dev_files_progress">正在生成 %1$d 个测试文件，每个 %2$d 字节</string>
+    <string name="settings_dev_files_progress_count">已添加 %1$d 个文件</string>
+    <string name="settings_dev_fsrs_corrupted">参数已破坏。请优化参数以恢复。</string>
+</resources>
