@@ -2,6 +2,7 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <resources>
     <item type="id" name="settings_home" />
+    <item type="id" name="settings_about" />
     <item type="id" name="settings_appearance" />
     <item type="id" name="settings_studying" />
     <item type="id" name="settings_controls" />
