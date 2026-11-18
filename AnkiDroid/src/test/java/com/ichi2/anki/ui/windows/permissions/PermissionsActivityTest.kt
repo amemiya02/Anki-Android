@@ -56,8 +56,10 @@ class PermissionsActivityTest : RobolectricTest() {
             host.startActivity(PermissionsActivity.getIntent(host, StoragePermissionSet.LEGACY_ACCESS))
             advanceRobolectricLooper()
 
+            continueButton.assertIsDisplayed()
             assertNull(shadowOf(host).nextStartedActivity)
             host.onBackPressedDispatcher.onBackPressed()
+            assertFalse(host.isFinishing)
             continueButton.assertIsDisplayed().performClick()
             advanceRobolectricLooper()
 
