@@ -32,6 +32,7 @@ import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import anki.notetypes.StockNotetype
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.FontSizeConfig.PERCENT_200
 import com.ichi2.anki.LanguageConfig.ARABIC
@@ -40,6 +41,7 @@ import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.common.destinations.NoteEditorDestination
 import com.ichi2.anki.common.ui.TransitionDirection
 import com.ichi2.anki.common.utils.dp
+import com.ichi2.anki.libanki.getStockNotetype
 import com.ichi2.anki.noteeditor.toIntent
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.testutils.dispatchInsets
@@ -73,10 +75,10 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
 
     @Test
     fun duplicateFirstField() {
-        addBasicNote("熟悉", "familiar with")
+        addNoteUsingNoteTypeName(basicNoteType.name, "熟悉", "familiar with")
         withNoteEditor {
             val front =
-                col.notetypes.basic.fields
+                basicNoteType.fields
                     .first()
                     .name
             onView(allOf(withContentDescription(front), isDisplayed())).perform(replaceText("熟悉"))
@@ -89,8 +91,8 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
     fun noteTypeAndDeckSelection() {
         val deckName = "Nihongo"
         addDeck(deckName)
-        val basic = col.notetypes.basic
-        val cloze = col.notetypes.cloze
+        val basic = basicNoteType
+        val cloze = clozeNoteType
         withNoteEditor(addNoteIntent(basic.id)) {
             composeRule.onNodeWithText(basic.name).performClick()
             onView(withText(cloze.name)).inRoot(isDialog()).perform(click())
@@ -116,7 +118,7 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
 
     @Test
     fun draftSurvivesCancelingDiscard() {
-        val basic = col.notetypes.basic
+        val basic = basicNoteType
         withNoteEditor(addNoteIntent(basic.id)) {
             val front = basic.fields.first().name
             onView(allOf(withContentDescription(front), isDisplayed())).perform(replaceText("下書き"))
@@ -131,10 +133,10 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
 
     @Test
     fun editExistingNote() {
-        val card = addBasicNote("熟悉", "familiar with").firstCard()
+        val card = addNoteUsingNoteTypeName(basicNoteType.name, "熟悉", "familiar with").firstCard()
         val destination = NoteEditorDestination.EditSelection(listOf(card.id), TransitionDirection.DEFAULT)
         withNoteEditor(destination.toIntent(targetContext)) {
-            val basic = col.notetypes.basic
+            val basic = basicNoteType
             val template = basic.templates.first().name
             composeRule.onNodeWithText(template).assertIsDisplayed()
             val back = basic.fields.last().name
@@ -145,7 +147,7 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
         }
         withNoteEditor(destination.toIntent(targetContext)) {
             val back =
-                col.notetypes.basic.fields
+                basicNoteType.fields
                     .last()
                     .name
             onView(allOf(withContentDescription(back), isDisplayed())).check(matches(withText("well acquainted")))
@@ -161,7 +163,7 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
                 putExtra(Intent.EXTRA_TEXT, "日本語の例")
             }
         withNoteEditor(NoteEditorDestination.PassArguments.from(intent, intent.extras!!).toIntent(targetContext)) {
-            val basic = col.notetypes.basic
+            val basic = basicNoteType
             val front = basic.fields.first().name
             val back = basic.fields.last().name
             onView(allOf(withContentDescription(front), isDisplayed())).check(matches(withText("日本語")))
@@ -248,7 +250,7 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
             val tabs = activity.binding.previewerTabLayout!!
             assertThat(tabs.tabCount, equalTo(1))
             val name =
-                col.notetypes.basic.templates
+                basicNoteType.templates
                     .first()
                     .name
             assertThat(
@@ -258,6 +260,14 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
             assertThat(tabs.selectedTabPosition, equalTo(0))
         }
     }
+
+    private val basicNoteType
+        get() = noteType(StockNotetype.Kind.KIND_BASIC)
+
+    private val clozeNoteType
+        get() = noteType(StockNotetype.Kind.KIND_CLOZE)
+
+    private fun noteType(kind: StockNotetype.Kind) = requireNotNull(col.notetypes.byName(col.getStockNotetype(kind).name))
 
     private fun composeWithIme(
         composing: String,
