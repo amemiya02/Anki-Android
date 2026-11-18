@@ -7,6 +7,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.hasText
@@ -57,7 +58,7 @@ class BrowserColumnsScreenTest : RobolectricTest() {
             waitForText("Basic")
 
             openColumns()
-            composeRule.onNode(inColumns and hasText("Cards")).performClick()
+            composeRule.onNode(inColumns and hasClickAction() and hasText("Cards")).performClick()
             val columns = composeRule.onNode(inColumns and hasScrollToIndexAction())
             columns.performScrollToNode(hasContentDescription("Show Due"))
             composeRule.onNodeWithContentDescription("Show Due").performClick()

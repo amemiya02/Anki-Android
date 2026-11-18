@@ -3,7 +3,6 @@
 
 package com.ichi2.anki
 
-import com.ichi2.anki.browser.BrowserColumnSelectionRecyclerItem
 import com.ichi2.anki.notifications.NotificationId
 import com.ichi2.anki.worker.UniqueWorkNames
 import org.junit.Test
@@ -19,7 +18,6 @@ class ConstantUniquenessTest {
     fun testConstantUniqueness() {
         assertConstantUniqueness(NotificationId::class)
         assertConstantUniqueness(UniqueWorkNames::class)
-        assertConstantUniqueness(BrowserColumnSelectionRecyclerItem.Companion::class)
     }
 
     companion object {

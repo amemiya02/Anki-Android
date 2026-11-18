@@ -13,6 +13,8 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollToNode
 import androidx.core.view.WindowInsetsCompat
+import com.ichi2.anki.CommonString
+import com.ichi2.anki.R
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.model.CardsOrNotes
@@ -63,19 +65,23 @@ class BrowserColumnSelectionFragmentScreenshotTest : ScreenshotTest() {
         name: String,
         insets: WindowInsetsCompat,
     ) = withCardBrowser(noteCount = 1) { browser ->
-        val fragment = BrowserColumnSelectionFragment.createInstance(CardsOrNotes.CARDS)
+        val mode = CardsOrNotes.CARDS
+        val position = col.allBrowserColumns().first { it.key == CardBrowserColumn.ORIGINAL_POSITION.ankiColumnKey }.getLabel(mode)
+        val fragment = BrowserColumnSelectionFragment.createInstance(mode)
         fragment.showNow(browser.supportFragmentManager, "columns")
         try {
             fragment.requireDialog().window!!.simulateSystemBars(insets)
+            val shown = browser.getString(R.string.browse_columns_shown)
             composeRule.waitUntil(10_000) {
                 ShadowLooper.idleMainLooper()
-                composeRule.onAllNodesWithText("Shown").fetchSemanticsNodes().isNotEmpty()
+                composeRule.onAllNodesWithText(shown).fetchSemanticsNodes().isNotEmpty()
             }
             captureScreen(name)
 
-            val inColumns = hasAnyAncestor(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, "Columns"))
-            composeRule.onNode(inColumns and hasScrollToIndexAction()).performScrollToNode(hasText("Position"))
-            composeRule.onNodeWithText("Position").assertIsDisplayed()
+            val title = browser.getString(CommonString.browse_manage_columns_main_heading)
+            val inColumns = hasAnyAncestor(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, title))
+            composeRule.onNode(inColumns and hasScrollToIndexAction()).performScrollToNode(hasText(position))
+            composeRule.onNodeWithText(position).assertIsDisplayed()
             captureScreen("${name}_scrolled_to_bottom")
         } finally {
             fragment.dismissNow()
