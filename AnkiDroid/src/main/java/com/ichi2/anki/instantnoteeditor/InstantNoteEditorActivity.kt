@@ -155,7 +155,6 @@ class InstantNoteEditorActivity : AnkiActivity() {
                             allowAll = false,
                             allowFiltered = false,
                             skipEmptyDefault = true,
-                            usePaperDialog = true,
                         )
                     },
                     onSwitchEditMode = {
