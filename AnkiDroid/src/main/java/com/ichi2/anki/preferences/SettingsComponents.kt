@@ -86,7 +86,7 @@ internal fun SettingsPage(
             }
             Text(
                 text = title,
-                style = foundation.type.screenTitle,
+                style = foundation.type.pageTitle,
                 color = foundation.colors.onBackground,
                 modifier = Modifier.semantics { heading() },
             )
