@@ -14,6 +14,10 @@ An external app shared text into Hayaki. Both quick Add and saving from the full
 
 The Roborazzi test harness writes its rendered baselines under `AnkiDroid/build/outputs/roborazzi/`. [Milestone 1 baseline decision](../../../.scratch/ankidroid-redesign/issues/13-milestone-1-sign-off-the-foundation-on-a-device.md)
 
+## Final regression run
+
+At `b0a0715495`, the arm64 Play debug APK built and the unfiltered app suite reported 4,192 passes and 88 skips across 533 test classes. The libraries and build tooling reported 660 passes and nine skips. The Engine contributed 143 passes and seven skips to the library total. The final run reported zero failures and zero errors. The phone and tablet instrumentation checks covered Settings search, Back and the Create Deck dialog after a theme change. [Navigation verification](../../../.scratch/ankidroid-redesign/issues/50-finish-the-single-activity-structure-and-remove-leftover-xml.md)
+
 ## Package exchange
 
 Both apps imported a reviewed Deck and a collection exported by the other. The four receiver comparisons matched the exported Cards, Notes, scheduling, review history and media. [Captures and verification](round-trip/README.md)
