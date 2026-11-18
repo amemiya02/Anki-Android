@@ -66,12 +66,13 @@ internal fun AttachmentPlaybackControls(
     onSpeed: (Float) -> Unit,
     onAudioTrack: (TrackSelectionOverride?) -> Unit,
 ) {
+    val foundation = MaterialTheme.foundation
     var menu by rememberSaveable { mutableStateOf<PlaybackMenu?>(null) }
     var scrubPosition by remember { mutableStateOf<Float?>(null) }
     val position = scrubPosition ?: state.position.toFloat()
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(position.toLong().milliseconds.formatAsString(), style = MaterialTheme.foundation.type.caption)
-        Text(state.duration.milliseconds.formatAsString(), style = MaterialTheme.foundation.type.caption)
+        Text(position.toLong().milliseconds.formatAsString(), color = foundation.colors.onBackgroundMuted, style = foundation.type.caption)
+        Text(state.duration.milliseconds.formatAsString(), color = foundation.colors.onBackgroundMuted, style = foundation.type.caption)
     }
     Slider(
         modifier = Modifier.fillMaxWidth(),
