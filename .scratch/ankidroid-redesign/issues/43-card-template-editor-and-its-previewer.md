@@ -4,7 +4,7 @@
 
 **Blocked by:** 41 (Mockups for the rest)
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [x] The front, back and styling of a Card Template can be edited and saved.
 - [x] Card Templates can be added, removed and reordered for a Note Type.
@@ -12,7 +12,7 @@
 - [x] The template editor stays usable with a hardware keyboard.
 - [x] On a tablet-sized screen the surface still works in its existing layout.
 - [x] It matches the agreed Mockup.
-- [ ] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
+- [x] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
 - [x] Screen-logic tests and Engine tests still pass unchanged.
 
 ## Implementation
@@ -27,4 +27,4 @@ The keyboard regression failed on the old editor and passed after the redesign. 
 
 On Android, the Note Type detail regression reproduced an ICU regex crash when opening Basic. It passed after the placeholder pattern was fixed. The same device test opened the template, edited its source and switched to the Back template with Ctrl+2. The MathJax preview test passed. The emulator showed an unsaved source edit in the phone preview and refreshed the displayed answer after typing in the tablet pane.
 
-The screenshot suite covers the editor with the IME open, the actions sheet, standalone preview and tablet preview. The first full run identified selected-section contrast, clipped touch targets in the field row, and overlapping editor and preview roots in the capture test. After those fixes, all 24 Dark cases passed across English, Simplified Chinese, Japanese and Arabic at normal and 200% font size. They produced 32 captures. The Light and Black reruns are pending.
+The screenshot suite covers the editor with the IME open, the actions sheet, standalone preview and tablet preview. The first full run identified selected-section contrast, clipped touch targets in the field row, and overlapping editor and preview roots in the capture test. After those fixes, all 24 Dark cases passed across English, Simplified Chinese, Japanese and Arabic at normal and 200% font size. They produced 32 captures. The subsequent full run passed all 72 cases in Light, Dark and Black and produced 96 captures.

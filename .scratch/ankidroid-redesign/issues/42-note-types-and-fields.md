@@ -26,3 +26,5 @@
 - The rendered matrix drives the Note Types list, add sheet, detail page, field actions and full-sync warning on the running activity. The matrix covers Light, Dark and Black in English, Simplified Chinese, Japanese and Arabic at normal and 200% font size.
 
 All 43 focused cases passed across the initial run and targeted reruns. The activity tests cover opening the selected template, restoring a pending field change, and confirming the full-sync warning before writing. All 24 rendered configurations passed, producing 120 captures. The Engine suite passed 143 tests and skipped seven existing cases.
+
+On Android 15, opening Basic originally crashed while reading its template fields. The device regression now opens Basic, checks Front and Back, opens Card 1 and edits the template. Ticket 43 fixed the shared field-reference pattern for Android ICU.
