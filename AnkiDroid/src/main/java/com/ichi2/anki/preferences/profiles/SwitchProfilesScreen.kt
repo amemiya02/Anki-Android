@@ -14,14 +14,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,6 +37,7 @@ import com.ichi2.anki.multiprofile.ProfileName
 import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.compose.theme.dimensions
 import com.ichi2.compose.ui.components.AnkiDroidExtendedFab
+import com.ichi2.compose.ui.dialogs.ErrorDialog
 import com.ichi2.compose.ui.dialogs.MessageDialog
 import com.ichi2.compose.ui.preview.ThemePreviews
 import androidx.appcompat.R as AppCompatR
@@ -140,26 +139,20 @@ fun SwitchProfilesScreen(
     }
 
     if (isSwitchBlocked) {
-        AlertDialog(
+        ErrorDialog(
+            title = stringResource(CommonString.switch_profile),
+            message = stringResource(CommonString.switch_profile_blocked, stringResource(CommonString.app_name)),
             onDismissRequest = onSwitchBlockedDismiss,
-            text = { Text(stringResource(CommonString.switch_profile_blocked, stringResource(CommonString.app_name))) },
-            confirmButton = {
-                TextButton(onClick = onSwitchBlockedDismiss) {
-                    Text(stringResource(CommonString.dialog_ok))
-                }
-            },
+            dismissText = stringResource(CommonString.dialog_ok),
         )
     }
 
     profileSwitchFailed?.let { profile ->
-        AlertDialog(
+        ErrorDialog(
+            title = stringResource(CommonString.switch_profile),
+            message = stringResource(CommonString.switch_profile_failed, profile.name),
             onDismissRequest = onSwitchFailedDismiss,
-            text = { Text(stringResource(CommonString.switch_profile_failed, profile.name)) },
-            confirmButton = {
-                TextButton(onClick = onSwitchFailedDismiss) {
-                    Text(stringResource(CommonString.dialog_ok))
-                }
-            },
+            dismissText = stringResource(CommonString.dialog_ok),
         )
     }
 }
