@@ -4,12 +4,15 @@
 package com.ichi2.anki.widget.deckpicker
 
 import android.content.Intent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipe
 import androidx.core.os.bundleOf
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CommonString
@@ -75,6 +78,24 @@ class DeckPickerWidgetConfigTest : RobolectricTest() {
             compose.onNodeWithText(activity.getString(CommonString.save)).performClick()
 
             assertEquals(listOf(second), preferences.getSelectedDeckIdsFromPreferences(widgetId).toList())
+        }
+
+    @Test
+    fun `dragging a Deck by its handle changes the saved order`() =
+        runTest {
+            val first = addDeck("Japanese")
+            val second = addDeck("Chinese")
+            val preferences = DeckPickerWidgetPreferences(targetContext)
+            preferences.saveSelectedDecks(widgetId, listOf(first.toString(), second.toString()))
+            val activity = openSetup()
+            advanceUntilIdle()
+
+            compose.onNodeWithContentDescription(activity.getString(R.string.widget_config_reorder, "Japanese")).performTouchInput {
+                swipe(center, center + Offset(0f, height.toFloat() * 1.8f), durationMillis = 600)
+            }
+            compose.onNodeWithText(activity.getString(CommonString.save)).performClick()
+
+            assertEquals(listOf(second, first), preferences.getSelectedDeckIdsFromPreferences(widgetId).toList())
         }
 
     private fun openSetup() =

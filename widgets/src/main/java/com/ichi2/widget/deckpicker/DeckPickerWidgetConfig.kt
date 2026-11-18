@@ -8,7 +8,9 @@ import android.os.Bundle
 import androidx.activity.compose.BackHandler
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,7 +44,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -282,19 +283,16 @@ private fun DeckListWidgetSetup(
                             canMoveDown = index < selected.lastIndex,
                             onMove = { onMove(index, index + it) },
                             modifier =
-                                Modifier.pointerInput(deck.deckId, selected.size) {
-                                    detectDragGestures(
-                                        onDragStart = { draggedId = deck.deckId },
-                                        onDragEnd = { drop() },
-                                        onDragCancel = {
-                                            draggedId = null
-                                            dragOffset = 0f
-                                        },
-                                    ) { change, amount ->
-                                        change.consume()
-                                        dragOffset += amount.y
-                                    }
-                                },
+                                Modifier.draggable(
+                                    state = rememberDraggableState { delta -> dragOffset += delta },
+                                    orientation = Orientation.Vertical,
+                                    enabled = selected.size > 1,
+                                    onDragStarted = {
+                                        draggedId = deck.deckId
+                                        dragOffset = 0f
+                                    },
+                                    onDragStopped = { drop() },
+                                ),
                         )
                         Text(name, Modifier.weight(1f), color = paper.colors.onBackground, style = paper.type.rowTitle)
                         IconButton(onClick = { onRemove(deck.deckId) }) {
@@ -344,12 +342,12 @@ private fun ReorderDeck(
     val paper = MaterialTheme.foundation
     val moveUp = stringResource(R.string.widget_config_move_up)
     val moveDown = stringResource(R.string.widget_config_move_down)
-    Box {
+    Box(modifier) {
         IconButton(
             onClick = { menu = true },
             enabled = canMoveUp || canMoveDown,
             modifier =
-                modifier.size(paper.spacing.touchTarget).semantics {
+                Modifier.size(paper.spacing.touchTarget).semantics {
                     customActions =
                         buildList {
                             if (canMoveUp) {
