@@ -68,24 +68,32 @@ class FindAndReplaceDialogFragment : AnalyticsDialogFragment() {
         requireArguments().requireParcelable(ARG_IDS)
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog = createPaperDialog(requireContext()) { FindAndReplaceContent() }
+    private var noteIds: List<NoteId>? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        noteIds = runCatching { idsFile.getIdsOrNull() }.getOrNull()
+        if (noteIds == null) {
+            requireActivity().showSnackbar(CommonString.something_wrong)
+            dismiss()
+        }
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+        createPaperDialog(requireContext()) {
+            noteIds?.let { FindAndReplaceContent(it) }
+        }
 
     @Composable
-    private fun FindAndReplaceContent() {
+    private fun FindAndReplaceContent(noteIds: List<NoteId>) {
         val selection by produceState<Selection?>(null) {
-            val noteIds = runCatching { idsFile.getIdsOrNull() }.getOrNull()
-            if (noteIds == null) {
-                requireActivity().showSnackbar(CommonString.something_wrong)
-                dismiss()
-            } else {
-                val choices =
-                    buildList {
-                        add(FieldChoice(ALL_FIELDS_AS_FIELD, TR.sentenceCase.allFields))
-                        add(FieldChoice(TAGS_AS_FIELD, TR.editingTags()))
-                        addAll(withCol { fieldNamesForNoteIds(noteIds) }.map { FieldChoice(it, it) })
-                    }
-                value = Selection(noteIds.isNotEmpty(), choices)
-            }
+            val choices =
+                buildList {
+                    add(FieldChoice(ALL_FIELDS_AS_FIELD, TR.sentenceCase.allFields))
+                    add(FieldChoice(TAGS_AS_FIELD, TR.editingTags()))
+                    addAll(withCol { fieldNamesForNoteIds(noteIds) }.map { FieldChoice(it, it) })
+                }
+            value = Selection(noteIds.isNotEmpty(), choices)
         }
         val loaded = selection
         var search by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
@@ -201,7 +209,7 @@ class FindAndReplaceDialogFragment : AnalyticsDialogFragment() {
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-        if (activity?.isChangingConfigurations != true) idsFile.removeSafely(TAG)
+        if (activity?.isChangingConfigurations != true && arguments?.containsKey(ARG_IDS) == true) idsFile.removeSafely(TAG)
     }
 
     companion object {

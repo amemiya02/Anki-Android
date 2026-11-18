@@ -2,8 +2,12 @@
 
 package com.ichi2.anki.browser.search
 
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
@@ -34,9 +38,10 @@ class SortOrderBottomSheetFragmentTest : RobolectricTest() {
         advanceRobolectricLooper()
         compose.onNodeWithContentDescription(getResourceString(R.string.browse_sort)).performClick()
         compose.onNodeWithText(getResourceString(CommonString.card_browser_order_no_sorting_title)).assertIsDisplayed()
-        compose.onNodeWithText("Sort Field").assertIsSelected()
+        val option = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton)
+        compose.onNode(hasText("Sort Field") and option).assertIsSelected()
         val descending = getResourceString(CommonString.sort_pill_a11y_descending)
-        compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasText(descending))
+        compose.onNode(hasScrollToIndexAction() and hasAnyDescendant(option)).performScrollToNode(hasText(descending))
         compose.onNodeWithText(descending).assertIsSelected()
     }
 }

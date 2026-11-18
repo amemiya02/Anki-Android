@@ -11,6 +11,7 @@ import com.ichi2.anki.preferences.PreferenceTestUtils
 import com.ichi2.anki.preferences.PreferenceTestUtils.getAttrsFromXml
 import com.ichi2.anki.preferences.PreferenceTestUtils.resValue
 import com.ichi2.anki.preferences.PreferenceXmlSource
+import com.ichi2.anki.preferences.StudySetting
 import com.ichi2.anki.settings.enums.AppTheme
 import com.ichi2.anki.settings.enums.NightTheme
 import com.ichi2.anki.settings.enums.PrefEnum
@@ -143,9 +144,14 @@ class PrefsRobolectricTest : RobolectricTest() {
                         PreferenceTestUtils.attrToStringArray(it["entryValues"]!!, targetContext).toList()
                 }
 
+        val studyChoices =
+            StudySetting.entries
+                .filter { it.values != 0 }
+                .associate { targetContext.getString(it.key) to targetContext.resources.getStringArray(it.values).toList() }
+        val choiceValues = listPreferences + studyChoices
         for ((key, enumValues) in prefsEnumKeysAndValues) {
-            assertContains(listPreferences, key)
-            assertEquals(enumValues, listPreferences[key])
+            assertContains(choiceValues, key)
+            assertEquals(enumValues, choiceValues[key])
         }
     }
 }

@@ -2,9 +2,11 @@
 
 package com.ichi2.anki.preferences
 
+import android.os.Looper
 import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.MotionEvent
+import android.view.ViewConfiguration
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.ViewRootForTest
@@ -43,6 +45,8 @@ import org.hamcrest.Matchers.not
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Shadows.shadowOf
+import java.time.Duration
 
 @RunWith(AndroidJUnit4::class)
 class ControlsSettingsFragmentTest : RobolectricTest() {
@@ -130,16 +134,17 @@ class ControlsSettingsFragmentTest : RobolectricTest() {
     fun aGestureCanBeDemonstratedOnThePad() =
         withUndoBindingEditor {
             val gestureLabel = getResourceString(CommonString.binding_add_gesture)
-            compose.onNodeWithText(gestureLabel).performClick()
-            compose.onNodeWithContentDescription(gestureLabel).performTouchInput {
-                click(Offset(width * 0.12f, height * 0.12f))
+                compose.onNodeWithText(gestureLabel).performClick()
+                compose.onNodeWithContentDescription(gestureLabel).performTouchInput {
+                    click(Offset(width * 0.12f, height * 0.12f))
+                }
+                advanceRobolectricLooper()
+                compose.onNodeWithText(Gesture.TAP_TOP_LEFT.toDisplayString(targetContext)).assertIsDisplayed()
+                compose.onNodeWithText(getResourceString(CommonString.dialog_ok)).performClick()
+                compose.onNodeWithText(getResourceString(CommonString.card_side_question)).performClick()
+                assertThat(bindings(ViewerAction.UNDO), hasItem(equalTo(Binding.GestureInput(Gesture.TAP_TOP_LEFT) to CardSide.QUESTION)))
             }
-            advanceRobolectricLooper()
-            compose.onNodeWithText(Gesture.TAP_TOP_LEFT.toDisplayString(targetContext)).assertIsDisplayed()
-            compose.onNodeWithText(getResourceString(CommonString.dialog_ok)).performClick()
-            compose.onNodeWithText(getResourceString(CommonString.card_side_question)).performClick()
-            assertThat(bindings(ViewerAction.UNDO), hasItem(equalTo(Binding.GestureInput(Gesture.TAP_TOP_LEFT) to CardSide.QUESTION)))
-        }
+    }
 
     @Test
     fun aGamepadAxisCanOnlyBeAssignedAtAnObservedExtremity() =

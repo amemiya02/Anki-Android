@@ -3,6 +3,7 @@
 package com.ichi2.compose.ui.dialogs
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
@@ -12,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import com.ichi2.compose.theme.foundation
 
 /** An outlined, labelled field for dialogs that combine several inputs or choices. */
@@ -41,7 +43,7 @@ fun DialogField(
             ),
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
-        suffix = suffix?.let { { Text(it) } },
+        trailingIcon = suffix?.let { { Text(it, Modifier.padding(end = 12.dp), style = foundation.type.caption) } },
         supportingText = supportingText?.let { { Text(it) } },
         singleLine = true,
     )

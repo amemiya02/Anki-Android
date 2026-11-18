@@ -6,12 +6,14 @@ package com.ichi2.anki.dialogs
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextReplacement
 import androidx.fragment.app.testing.launchFragment
 import anki.decks.SetDeckCollapsedRequest
@@ -160,8 +162,10 @@ class DeckSelectionDialogTest : RobolectricTest() {
         addDeck("Parent::Child")
         addDeck("Unrelated")
         launchDeckSelectionDialog(allDecks()).use {
+            advanceRobolectricLooper()
             search.performTextReplacement("Parent")
-            compose.onNodeWithText("Parent::Child").assertIsDisplayed()
+            compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasText("Parent::Child"))
+            deck("Parent::Child").assertIsDisplayed()
 
             compose.onNodeWithContentDescription(getResourceString(CommonString.collapse)).performClick()
 

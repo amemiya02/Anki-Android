@@ -2,6 +2,9 @@
 
 package com.ichi2.anki.preferences
 
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
@@ -82,7 +85,8 @@ class RemainingSettingsNavigationTest : RobolectricTest() {
             val directory = compose.onNodeWithText(targetContext.getString(CommonString.col_path))
             directory.performScrollTo().performClick()
             val default = getDefaultAnkiDroidDirectory(targetContext).absolutePath
-            val defaultRow = compose.onNode(hasText(default) and hasClickAction())
+            val option = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton)
+            val defaultRow = compose.onNode(hasText(default) and option)
             compose.waitUntil(5_000) { defaultRow.isDisplayed() }
             defaultRow.assertIsDisplayed()
             compose.onNodeWithText(targetContext.getString(CommonString.pref_custom_path)).performClick()
