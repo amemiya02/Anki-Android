@@ -19,7 +19,9 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
@@ -103,13 +105,16 @@ internal class AppNavigation(
     val currentFragment: Fragment?
         get() = controller?.currentBackStackEntry?.id?.let(fragments::get)
 
+    val showsStandaloneScreen: Boolean
+        get() = controller?.currentDestination?.route?.let { it !in tabRouteNames } == true
+
     @Composable
     fun Content() {
         val navigation = rememberNavController()
         NavHost(
             navController = navigation,
             startDestination = if (showWelcome) WELCOME else HOME,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().nestedScroll(rememberNestedScrollInteropConnection()),
             // Fragment-backed screens own their view lifecycle and system insets.
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None },

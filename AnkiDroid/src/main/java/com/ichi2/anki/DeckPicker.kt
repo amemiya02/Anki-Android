@@ -305,6 +305,8 @@ open class DeckPicker :
     CollectionPermissionScreenLauncher,
     WelcomeFragment.Host {
     private lateinit var appNavigation: AppNavigation
+    private val showsStandaloneScreen: Boolean
+        get() = ::appNavigation.isInitialized && appNavigation.showsStandaloneScreen
     private var awaitingWelcome = false
     private var collectionReadyForEntry = false
     private var pendingEntry: Intent? = null
@@ -1811,7 +1813,7 @@ open class DeckPicker :
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         val current = currentScreenFragment
         if (current is DispatchKeyEventListener && current.dispatchKeyEvent(event)) return true
-        if (!bottomNavigationEnabled || event.action != KeyEvent.ACTION_DOWN || !event.isAltPressed) {
+        if (showsStandaloneScreen || !bottomNavigationEnabled || event.action != KeyEvent.ACTION_DOWN || !event.isAltPressed) {
             return super.dispatchKeyEvent(event)
         }
 
@@ -1832,6 +1834,7 @@ open class DeckPicker :
         keyCode: Int,
         event: KeyEvent,
     ): Boolean {
+        if (showsStandaloneScreen) return super.onKeyUp(keyCode, event)
         if (selectedBottomNavItem() == NavigationItem.BROWSER) {
             val browser = currentScreenFragment as? CardBrowserFragment
             if (browser?.isVisible == true) {
