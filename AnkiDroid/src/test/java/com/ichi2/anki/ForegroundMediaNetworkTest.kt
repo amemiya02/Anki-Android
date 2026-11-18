@@ -2,6 +2,8 @@
 
 package com.ichi2.anki
 
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -230,6 +232,6 @@ class ForegroundMediaNetworkTest : RobolectricTest() {
         val fragment = assertNotNull(supportFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG) as? SyncErrorDialog)
         val dialog = assertNotNull(fragment.dialog)
         assertThat("isShowing", dialog.isShowing, equalTo(true))
-        compose.onNodeWithText(getString(label)).performClick()
+        compose.onNode(hasText(getString(label)) and hasClickAction()).performClick()
     }
 }
