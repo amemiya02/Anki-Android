@@ -42,6 +42,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
@@ -262,7 +263,8 @@ fun DialogActions(
         modifier = modifier.fillMaxWidth().padding(top = 20.dp),
         content = {
             actions.forEachIndexed { index, action ->
-                DialogActionButton(action, if (index == safeAction) Modifier.focusRequester(focus) else Modifier)
+                val modifier = if (index == safeAction) Modifier.focusProperties { canFocus = true }.focusRequester(focus) else Modifier
+                DialogActionButton(action, modifier)
             }
         },
     ) { measurables, constraints ->
