@@ -183,13 +183,15 @@ class DatabaseErrorDialog : AsyncDialogFragment() {
                     confirm =
                         if (type == DIALOG_REPAIR_COLLECTION) {
                             primary(CommonString.dialog_positive_repair) {
-                                requireDeckPicker().repairCollection()
-                                requireActivity().dismissAllDialogFragments()
+                                val deckPicker = requireDeckPicker()
+                                deckPicker.dismissAllDialogFragments()
+                                deckPicker.repairCollection()
                             }
                         } else {
                             primary(CommonString.dialog_ok) {
-                                requireDeckPicker().integrityCheck()
-                                requireActivity().dismissAllDialogFragments()
+                                val deckPicker = requireDeckPicker()
+                                deckPicker.dismissAllDialogFragments()
+                                deckPicker.integrityCheck()
                             }
                         },
                     onDismissRequest = ::dismiss,
