@@ -3,6 +3,7 @@
 
 package com.ichi2.anki
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -173,7 +174,7 @@ class IntentHandler : AbstractIntentHandler() {
     }
 
     /**
-     * Opens [CardBrowser] standalone in response to `anki://x-callback-url/browser`.
+     * Opens Browse in response to `anki://x-callback-url/browser` or Android's text selection menu.
      */
     private fun handleBrowserIntent(intent: Intent) {
         Timber.i("Handling intent to open the Card Browser")
@@ -185,7 +186,8 @@ class IntentHandler : AbstractIntentHandler() {
                 val browser = if (search == null) BrowserDestination.Open else BrowserDestination.Search(query = search, allDecks = false)
                 browser.toIntent(this)
             }
-        startActivity(DeckPicker.getEntryIntent(this, destination))
+        val fromShortcut = intent.getBooleanExtra(NavigationDrawerActivity.EXTRA_STARTED_WITH_SHORTCUT, false)
+        startActivity(DeckPicker.getEntryIntent(this, destination, resetTask = fromShortcut))
         finish()
     }
 
@@ -373,10 +375,23 @@ class IntentHandler : AbstractIntentHandler() {
         private const val ACTION_DO_SYNC = "com.ichi2.anki.DO_SYNC"
         const val EXTRA_DECK_ID = "EXTRA_DECK_ID"
         private const val PROCESS_TEXT_BROWSER_COMPONENT = "com.ichi2.anki.CardBrowserContextMenuAction"
+        private const val BROWSER_DEEP_LINK_COMPONENT = "com.ichi2.anki.CardBrowserDeepLink"
+        private const val BROWSER_DEEP_LINK = "anki://x-callback-url/browser"
         private const val FORMER_REVIEWER_COMPONENT = "com.ichi2.anki.Reviewer"
         private const val FORMER_REVIEWER_DECK_ID = "deckId"
         private const val ACTION_COPY_DEBUG_INFO = "com.ichi2.anki.COPY_DEBUG_INFO"
         private const val EXTRA_CLIPBOARD_DATA = "clip_data"
+
+        // Android persists published shortcut extras. Build the full navigation payload after launch.
+        internal fun getReviewShortcutIntent(context: Context): Intent =
+            Intent(Intent.ACTION_VIEW)
+                .setComponent(ComponentName(context.packageName, FORMER_REVIEWER_COMPONENT))
+                .putExtra(NavigationDrawerActivity.EXTRA_STARTED_WITH_SHORTCUT, true)
+
+        internal fun getBrowseShortcutIntent(context: Context): Intent =
+            Intent(Intent.ACTION_VIEW, Uri.parse(BROWSER_DEEP_LINK))
+                .setComponent(ComponentName(context.packageName, BROWSER_DEEP_LINK_COMPONENT))
+                .putExtra(NavigationDrawerActivity.EXTRA_STARTED_WITH_SHORTCUT, true)
 
         private fun isValidViewIntent(intent: Intent): Boolean {
             // Negating a negative because we want to call specific attention to the fact that it's invalid

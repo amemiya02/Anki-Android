@@ -48,16 +48,13 @@ import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.NoteEditorFragment.Companion.NoteEditorCaller
 import com.ichi2.anki.common.android.animationEnabled
 import com.ichi2.anki.common.destinations.BrowserDestination
-import com.ichi2.anki.common.destinations.DeferredNavigation
 import com.ichi2.anki.common.destinations.PreferencesDestination
 import com.ichi2.anki.common.destinations.StatisticsDestination
 import com.ichi2.anki.common.destinations.navigate
-import com.ichi2.anki.common.destinations.toIntent
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.storage.grantedStoragePermissions
 import com.ichi2.anki.common.utils.android.HandlerUtils
 import com.ichi2.anki.dialogs.help.HelpDialog
-import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.workarounds.FullDraggableContainerFix
 import com.ichi2.utils.IntentUtil
@@ -553,23 +550,13 @@ abstract class NavigationDrawerActivity(
                 return
             }
             // Review Cards Shortcut
-            val intentReviewCards =
-                ReviewerFragment.getIntent(context).apply {
-                    action = Intent.ACTION_VIEW
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    putExtra(EXTRA_STARTED_WITH_SHORTCUT, true)
-                }
-            val deckPickerIntent =
-                Intent(context, IntentHandler::class.java).apply {
-                    action = Intent.ACTION_VIEW
-                }
             val reviewCardsShortcut =
                 ShortcutInfoCompat
                     .Builder(context, "reviewCardsShortcutId")
                     .setShortLabel(context.getString(CommonString.studyoptions_start))
                     .setLongLabel(context.getString(CommonString.studyoptions_start))
                     .setIcon(IconCompat.createWithResource(context, R.drawable.review_shortcut))
-                    .setIntents(arrayOf(deckPickerIntent, intentReviewCards))
+                    .setIntent(IntentHandler.getReviewShortcutIntent(context))
                     .build()
 
             // Add Shortcut
@@ -587,16 +574,13 @@ abstract class NavigationDrawerActivity(
                     .build()
 
             // CardBrowser Shortcut
-            val intentCardBrowser = with(DeferredNavigation) { BrowserDestination.Open.toIntent() }
-            intentCardBrowser.action = Intent.ACTION_VIEW
-            intentCardBrowser.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
             val cardBrowserShortcut =
                 ShortcutInfoCompat
                     .Builder(context, "cardBrowserShortcutId")
                     .setShortLabel(context.getString(CommonString.card_browser))
                     .setLongLabel(context.getString(CommonString.card_browser))
                     .setIcon(IconCompat.createWithResource(context, R.drawable.browse_shortcut))
-                    .setIntent(intentCardBrowser)
+                    .setIntent(IntentHandler.getBrowseShortcutIntent(context))
                     .build()
             ShortcutManagerCompat.addDynamicShortcuts(
                 context,

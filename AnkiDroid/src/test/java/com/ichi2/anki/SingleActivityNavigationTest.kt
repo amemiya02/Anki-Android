@@ -27,6 +27,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 
 @RunWith(AndroidJUnit4::class)
@@ -76,9 +77,15 @@ class SingleActivityNavigationTest : RobolectricTest() {
         NavigationDrawerActivity.enablePostShortcut(targetContext)
         val shortcut = ShortcutManagerCompat.getDynamicShortcuts(targetContext).single { it.id == "cardBrowserShortcutId" }
         val entry = shortcut.intents.single()
-        assertEquals(DeckPicker::class.java.name, entry.component?.className)
+        assertEquals(IntentHandler.LaunchType.OPEN_BROWSER, IntentHandler.getLaunchType(entry))
 
-        val host = startActivityNormallyOpenCollectionWithIntent(DeckPicker::class.java, entry)
+        val launch =
+            Robolectric.buildActivity(IntentHandler::class.java, entry).use { controller ->
+                val handler = controller.create().get()
+                shadowOf(handler).nextStartedActivity
+            }
+        assertEquals(DeckPicker::class.java.name, launch.component?.className)
+        val host = startActivityNormallyOpenCollectionWithIntent(DeckPicker::class.java, launch)
         composeRule.waitUntil(10_000) {
             advanceRobolectricLooper()
             host.currentScreenFragment is CardBrowserPaneFragment
