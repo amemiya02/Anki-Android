@@ -3,15 +3,20 @@ package com.ichi2.anki
 
 import android.content.Intent
 import android.view.KeyEvent
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.core.content.edit
 import anki.scheduler.CardAnswer.Rating
 import com.ichi2.anki.NavigationDrawerActivity.Companion.EXTRA_STARTED_WITH_SHORTCUT
 import com.ichi2.anki.libanki.Consts.DEFAULT_DECK_ID
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.anki.study.FinishedFragment
 import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
 import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment.Companion.RESULT_NO_MORE_CARDS
+import com.ichi2.testutils.BackupManagerTestUtilities
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.json.JSONArray
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
@@ -23,6 +28,9 @@ import kotlin.test.assertTrue
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class ReviewCompletionTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @ParameterizedRobolectricTestRunner.Parameter(0)
     @JvmField
     var fromShortcut = false
@@ -88,24 +96,29 @@ class ReviewCompletionTest : RobolectricTest() {
                 assertEquals(undoStatus, col.undoStatus())
             }
         } else {
+            BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
+            getPreferences().edit { putBoolean("backupPromptDisabled", true) }
             deckPicker {
                 advanceRobolectricLooper()
                 val shadow = shadowOf(this)
                 shadow.clearNextStartedActivities()
                 assertTrue(onKeyUp(KeyEvent.KEYCODE_S, KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_S)))
-                advanceRobolectricLooperUntil { shadow.peekNextStartedActivity() != null }
-                val review = assertNotNull(shadow.nextStartedActivityForResult)
-                assertEquals(CardViewerActivity::class.java.name, review.intent.component?.className)
-                assertEquals(ReviewerFragment::class.java.name, review.intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME))
-                shadow.clearNextStartedActivities()
+                compose.waitUntil(10_000) {
+                    advanceRobolectricLooper()
+                    currentScreenFragment is ReviewerFragment
+                }
+                val reviewer = assertNotNull(currentScreenFragment)
                 finishCards()
                 val selected = col.decks.selected()
                 val undoStatus = col.undoStatus()
 
-                activityResultRegistry.dispatchResult(review.requestCode, RESULT_NO_MORE_CARDS, null)
+                reviewer.finishScreen(RESULT_NO_MORE_CARDS)
 
-                advanceRobolectricLooperUntil { shadow.peekNextStartedActivity() != null }
-                assertFinishedScreenIntent(shadow.nextStartedActivity)
+                compose.waitUntil(10_000) {
+                    advanceRobolectricLooper()
+                    currentScreenFragment is FinishedFragment
+                }
+                assertNull(shadow.nextStartedActivity)
                 assertEquals(selected, col.decks.selected())
                 assertEquals(undoStatus, col.undoStatus())
             }
