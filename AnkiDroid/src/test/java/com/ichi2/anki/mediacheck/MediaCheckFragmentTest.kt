@@ -4,6 +4,12 @@ package com.ichi2.anki.mediacheck
 
 import android.webkit.WebView
 import android.widget.Button
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.performClick
 import androidx.core.view.isVisible
 import androidx.fragment.app.commitNow
 import androidx.lifecycle.ViewModelProvider
@@ -13,12 +19,12 @@ import anki.backend.backendError
 import anki.media.CheckMediaResponse
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CommonPlurals
+import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.workarounds.SafeWebViewLayout
 import com.ichi2.testutils.rules.BackendOverrideRule
-import com.ichi2.utils.positiveButton
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -42,6 +48,9 @@ import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class MediaCheckFragmentTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     private val failure =
         BackendIoException(
             backendError {
@@ -67,7 +76,7 @@ class MediaCheckFragmentTest : RobolectricTest() {
 
             startMediaCheck()
 
-            assertEquals(failure.localizedMessage, getAlertDialogText(checkDismissed = true))
+            dialogText(requireNotNull(failure.localizedMessage)).assertIsDisplayed()
         }
 
     @Test
@@ -150,8 +159,8 @@ class MediaCheckFragmentTest : RobolectricTest() {
 
             mediaCheck.confirmDeletion()
 
-            assertEquals(oneFileDeleted, getAlertDialogText(checkDismissed = true))
-            clickAlertDialogButton { positiveButton }
+            dialogText(oneFileDeleted).assertIsDisplayed()
+            clickDialogButton(CommonString.dialog_ok)
             assertTrue(mediaCheck.get().isFinishing)
         }
 
@@ -167,7 +176,7 @@ class MediaCheckFragmentTest : RobolectricTest() {
             advanceRobolectricLooper()
 
             assertNotSame(shownBeforeRecreation, ShadowDialog.getLatestDialog())
-            assertEquals(oneFileDeleted, getAlertDialogText(checkDismissed = true))
+            dialogText(oneFileDeleted).assertIsDisplayed()
         }
 
     @Test
@@ -192,7 +201,7 @@ class MediaCheckFragmentTest : RobolectricTest() {
 
             startMediaCheck().confirmDeletion()
 
-            assertEquals(failure.localizedMessage, getAlertDialogText(checkDismissed = true))
+            dialogText(requireNotNull(failure.localizedMessage)).assertIsDisplayed()
         }
 
     @Test
@@ -207,7 +216,7 @@ class MediaCheckFragmentTest : RobolectricTest() {
             advanceRobolectricLooper()
 
             assertNotSame(shownBeforeRecreation, ShadowDialog.getLatestDialog())
-            assertEquals(failure.localizedMessage, getAlertDialogText(checkDismissed = true))
+            dialogText(requireNotNull(failure.localizedMessage)).assertIsDisplayed()
         }
 
     @Test
@@ -216,7 +225,7 @@ class MediaCheckFragmentTest : RobolectricTest() {
             failDeletion()
             val mediaCheck = startMediaCheck()
             mediaCheck.confirmDeletion()
-            clickAlertDialogButton { positiveButton }
+            clickDialogButton(CommonString.dialog_ok)
             val dismissed = ShadowDialog.getLatestDialog()
 
             mediaCheck.recreate()
@@ -238,7 +247,7 @@ class MediaCheckFragmentTest : RobolectricTest() {
             }
             advanceRobolectricLooper()
 
-            assertEquals(failure.localizedMessage, getAlertDialogText(checkDismissed = true))
+            dialogText(requireNotNull(failure.localizedMessage)).assertIsDisplayed()
         }
 
     @Test
@@ -253,12 +262,12 @@ class MediaCheckFragmentTest : RobolectricTest() {
                 advanceUntilIdle()
             }
             advanceRobolectricLooper()
-            assertNull(getAlertDialogText(checkDismissed = true))
+            dialogText(requireNotNull(failure.localizedMessage)).assertDoesNotExist()
 
             mediaCheck.start().resume()
             advanceRobolectricLooper()
 
-            assertEquals(failure.localizedMessage, getAlertDialogText(checkDismissed = true))
+            dialogText(requireNotNull(failure.localizedMessage)).assertIsDisplayed()
         }
 
     private suspend fun failDeletion() {
@@ -278,7 +287,7 @@ class MediaCheckFragmentTest : RobolectricTest() {
     private fun ActivityController<SingleFragmentActivity>.confirmDeletion() {
         get().findViewById<Button>(R.id.delete_used_media_button).performClick()
         advanceRobolectricLooper()
-        clickAlertDialogButton { positiveButton }
+        clickDialogButton(CommonString.dialog_positive_delete)
     }
 
     private suspend fun <T> TestScope.withQueuedCollectionAccess(block: suspend () -> T): T {
@@ -288,6 +297,13 @@ class MediaCheckFragmentTest : RobolectricTest() {
         } finally {
             CollectionManager.setTestDispatcher(previousQueue)
         }
+    }
+
+    private fun dialogText(text: String) = compose.onNode(hasText(text) and hasAnyAncestor(isDialog()))
+
+    private fun clickDialogButton(text: Int) {
+        dialogText(targetContext.getString(text)).performClick()
+        advanceRobolectricLooper()
     }
 
     private fun startMediaCheck(): ActivityController<SingleFragmentActivity> =

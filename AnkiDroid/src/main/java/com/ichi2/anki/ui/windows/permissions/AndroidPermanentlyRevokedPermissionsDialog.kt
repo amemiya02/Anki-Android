@@ -4,16 +4,18 @@ package com.ichi2.anki.ui.windows.permissions
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.DialogInterface
-import androidx.appcompat.app.AlertDialog
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.R
 import com.ichi2.anki.common.storage.CollectionHelper
 import com.ichi2.anki.dialogs.DatabaseErrorDialog.DatabaseErrorDialogType
 import com.ichi2.anki.dialogs.DatabaseErrorDialog.UninstallListItem.Companion.createNoStorageList
-import com.ichi2.utils.cancelable
-import com.ichi2.utils.listItemsAndMessage
-import com.ichi2.utils.show
+import com.ichi2.compose.ui.dialogs.DialogBody
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.DialogChoiceRow
+import com.ichi2.compose.ui.dialogs.DialogMark
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import timber.log.Timber
 
 /**
@@ -39,19 +41,26 @@ object AndroidPermanentlyRevokedPermissionsDialog {
                 "WRITE_EXTERNAL_STORAGE",
                 getCurrentAnkiDroidDirectoryPath(context),
             )
-        AlertDialog.Builder(context).show {
-            listItemsAndMessage(
-                message = message,
-                listItemData.map { context.getString(it.stringRes) },
-            ) { dialog: DialogInterface, index: Int ->
-                val listItem = listItemData[index]
-                listItem.onClick(context)
-                if (listItem.dismissesDialog) {
-                    dialog.dismiss()
+        createPaperDialog(context) { dialog ->
+            PaperDialog(
+                title = context.getString(CommonString.vague_error),
+                onDismissRequest = {},
+                mark = DialogMark(R.drawable.symbol_warning, warning = true),
+            ) {
+                DialogBody(message)
+                listItemData.forEach { item ->
+                    DialogChoiceRow(
+                        DialogChoice(context.getString(item.stringRes)),
+                        checked = false,
+                        onClick = {
+                            item.onClick(context)
+                            if (item.dismissesDialog) dialog.dismiss()
+                        },
+                        multiple = false,
+                    )
                 }
             }
-            cancelable(false)
-        }
+        }.apply { setCancelable(false) }.show()
     }
 
     private fun getCurrentAnkiDroidDirectoryPath(context: Context): String =

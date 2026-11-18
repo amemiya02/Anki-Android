@@ -15,7 +15,6 @@ import android.os.Message
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import androidx.annotation.CheckResult
-import androidx.appcompat.app.AlertDialog
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.CollectionManager.TR
@@ -33,6 +32,12 @@ import com.ichi2.anki.servicelayer.DebugInfoService
 import com.ichi2.anki.showImportDialog
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.MimeTypeUtils
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogBody
+import com.ichi2.compose.ui.dialogs.DialogMark
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.utils.IntentUtil.resolveMimeType
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.Contract
@@ -358,26 +363,28 @@ object ImportUtils {
 
             Timber.d("showImportUnsuccessfulDialog() message %s", failure.humanReadableMessage)
             val title = failure.title ?: activity.getString(CommonString.import_title_error)
-            val dialog =
-                AlertDialog.Builder(activity).show {
-                    title(text = title)
-                    message(text = failure.humanReadableMessage)
-                    setCancelable(false)
-                    positiveButton(CommonString.dialog_ok) {
-                        if (exitActivity) {
-                            activity.finish()
-                        }
-                    }
-                    if (failure.toDebugInfo() != null) {
-                        negativeButton(text = with(activity) { TR.sentenceCase.copyDebugInfo })
-                    }
+            val debugInfo = failure.toDebugInfo()
+            createPaperDialog(activity) { dialog ->
+                PaperDialog(
+                    title = title,
+                    onDismissRequest = {},
+                    mark = DialogMark(R.drawable.symbol_warning, warning = true),
+                    actions =
+                        buildList {
+                            if (debugInfo != null) {
+                                add(DialogAction(with(activity) { TR.sentenceCase.copyDebugInfo }, { copyDebugInfo(debugInfo) }))
+                            }
+                            add(
+                                DialogAction(activity.getString(CommonString.dialog_ok), {
+                                    dialog.dismiss()
+                                    if (exitActivity) activity.finish()
+                                }, DialogActionStyle.Filled),
+                            )
+                        },
+                ) {
+                    DialogBody(failure.humanReadableMessage)
                 }
-            // 'copy' should not close the dialog
-            failure.toDebugInfo()?.let { debugInfo ->
-                dialog.negativeButton.setOnClickListener {
-                    copyDebugInfo(debugInfo)
-                }
-            }
+            }.apply { setCancelable(false) }.show()
         }
 
         /**

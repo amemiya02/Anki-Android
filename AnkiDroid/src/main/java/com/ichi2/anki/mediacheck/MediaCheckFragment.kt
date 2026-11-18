@@ -12,7 +12,6 @@ import android.view.MenuItem
 import android.view.View
 import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -34,12 +33,11 @@ import com.ichi2.anki.utils.observeMessages
 import com.ichi2.anki.utils.showAndAwaitDismissal
 import com.ichi2.anki.workarounds.OnWebViewRecreatedListener
 import com.ichi2.anki.workarounds.SafeWebViewClient
-import com.ichi2.utils.cancelable
-import com.ichi2.utils.message
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
-import com.ichi2.utils.title
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.ErrorDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.utils.toRGBHex
 import dev.androidbroadcast.vbpd.viewBinding
 
@@ -179,11 +177,18 @@ class MediaCheckFragment :
     }
 
     private fun deleteConfirmationDialog() {
-        AlertDialog.Builder(requireContext()).show {
-            message(text = TR.mediaCheckDeleteUnusedConfirm())
-            positiveButton(CommonString.dialog_positive_delete) { viewModel.deleteUnusedMedia() }
-            negativeButton(CommonString.dialog_cancel)
-        }
+        createPaperDialog(requireContext()) { dialog ->
+            ConfirmationDialog(
+                title = TR.sentenceCase.checkMediaDeleteUnused,
+                message = TR.mediaCheckDeleteUnusedConfirm(),
+                confirm =
+                    DialogAction(getString(CommonString.dialog_positive_delete), {
+                        dialog.dismiss()
+                        viewModel.deleteUnusedMedia()
+                    }, DialogActionStyle.Destructive),
+                onDismissRequest = dialog::dismiss,
+            )
+        }.show()
     }
 
     private suspend fun showMessage(message: MediaCheckMessage) {
@@ -208,20 +213,31 @@ class MediaCheckFragment :
         @StringRes titleRes: Int? = null,
         message: String,
     ) {
-        AlertDialog.Builder(requireContext()).showAndAwaitDismissal {
-            titleRes?.let { title(it) }
-            message(text = message)
-            positiveButton(CommonString.dialog_ok) { requireActivity().finish() }
-            cancelable(false)
-        }
+        createPaperDialog(requireContext()) { dialog ->
+            ConfirmationDialog(
+                title = titleRes?.let(::getString).orEmpty(),
+                message = message,
+                confirm =
+                    DialogAction(getString(CommonString.dialog_ok), {
+                        requireActivity().finish()
+                        dialog.dismiss()
+                    }),
+                onDismissRequest = dialog::dismiss,
+                dismissText = null,
+            )
+        }.apply { setCancelable(false) }.showAndAwaitDismissal()
     }
 
     private suspend fun showErrorDialog(exception: Exception) {
-        AlertDialog.Builder(requireContext()).showAndAwaitDismissal {
-            title(CommonString.vague_error)
-            message(text = exception.localizedMessage ?: exception.toString())
-            positiveButton(CommonString.dialog_ok)
-        }
+        createPaperDialog(requireContext()) { dialog ->
+            ErrorDialog(
+                title = getString(CommonString.vague_error),
+                message = exception.localizedMessage ?: exception.toString(),
+                onDismissRequest = dialog::dismiss,
+                dismissText = null,
+                primaryAction = DialogAction(getString(CommonString.dialog_ok), dialog::dismiss),
+            )
+        }.showAndAwaitDismissal()
         exception.toCrashReportData(requireActivity()).sendCrashReport()
     }
 

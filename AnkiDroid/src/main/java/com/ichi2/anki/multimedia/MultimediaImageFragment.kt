@@ -20,7 +20,6 @@ import android.webkit.WebView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.annotation.VisibleForTesting
-import androidx.appcompat.app.AlertDialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -55,16 +54,19 @@ import com.ichi2.anki.workarounds.OnWebViewRecreatedListener
 import com.ichi2.anki.workarounds.SafeWebViewClient
 import com.ichi2.anki.workarounds.SafeWebViewLayout
 import com.ichi2.compose.theme.AnkiDroidTheme
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogBody
+import com.ichi2.compose.ui.dialogs.DialogMark
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.imagecropper.ImageCropper
 import com.ichi2.imagecropper.ImageCropper.Companion.EXTRA_CROP_IMAGE_RESULT
 import com.ichi2.utils.BitmapUtil
 import com.ichi2.utils.ExifUtil
 import com.ichi2.utils.FileUtil
-import com.ichi2.utils.message
-import com.ichi2.utils.negativeButton
 import com.ichi2.utils.openInputStreamSafe
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
 import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -509,22 +511,28 @@ class MultimediaImageFragment :
     }
 
     private fun showCompressImageDialog(message: String) {
-        AlertDialog.Builder(requireActivity()).show {
-            message(text = message)
-            positiveButton(CommonString.compress) {
-                viewModel.currentMultimediaPath.value.let {
-                    if (it == null) return@positiveButton
-                    if (!rotateAndCompress(it)) {
-                        Timber.d("Unable to compress the clicked image")
-                        showErrorDialog(errorMessage = resources.getString(CommonString.multimedia_editor_image_compression_failed))
-                        return@positiveButton
-                    }
-                }
-            }
-            negativeButton(CommonString.dialog_no) {
-                finishAddingImage()
-            }
-        }
+        createPaperDialog(requireActivity()) { dialog ->
+            PaperDialog(
+                title = "",
+                onDismissRequest = dialog::dismiss,
+                mark = DialogMark(com.ichi2.anki.common.android.R.drawable.symbol_info),
+                actions =
+                    listOf(
+                        DialogAction(getString(CommonString.dialog_no), {
+                            dialog.dismiss()
+                            finishAddingImage()
+                        }),
+                        DialogAction(getString(CommonString.compress), {
+                            dialog.dismiss()
+                            val path = viewModel.currentMultimediaPath.value
+                            if (path != null && !rotateAndCompress(path)) {
+                                Timber.d("Unable to compress the clicked image")
+                                showErrorDialog(errorMessage = getString(CommonString.multimedia_editor_image_compression_failed))
+                            }
+                        }, DialogActionStyle.Filled),
+                    ),
+            ) { DialogBody(message) }
+        }.show()
     }
 
     private fun showCropDialog(message: String) {
@@ -533,13 +541,19 @@ class MultimediaImageFragment :
             return
         }
 
-        AlertDialog.Builder(requireActivity()).show {
-            message(text = message)
-            positiveButton(CommonString.dialog_yes) {
-                requestCrop()
-            }
-            negativeButton(CommonString.dialog_no)
-        }
+        createPaperDialog(requireActivity()) { dialog ->
+            ConfirmationDialog(
+                title = "",
+                message = message,
+                confirm =
+                    DialogAction(getString(CommonString.dialog_yes), {
+                        dialog.dismiss()
+                        requestCrop()
+                    }),
+                dismissText = getString(CommonString.dialog_no),
+                onDismissRequest = dialog::dismiss,
+            )
+        }.show()
     }
 
     /**

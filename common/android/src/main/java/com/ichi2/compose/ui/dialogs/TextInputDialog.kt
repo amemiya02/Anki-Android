@@ -29,6 +29,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import com.ichi2.anki.common.android.R
 import com.ichi2.compose.theme.foundation
@@ -70,6 +71,7 @@ fun TextInputDialog(
     enabled: Boolean = true,
     singleLine: Boolean = true,
     onTextChanged: (String) -> Unit = {},
+    keyboardType: KeyboardType = KeyboardType.Text,
 ) {
     var input by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(initialText, selection = initialSelection))
@@ -149,6 +151,7 @@ fun TextInputDialog(
             keyboardOptions =
                 KeyboardOptions(
                     capitalization = capitalization,
+                    keyboardType = keyboardType,
                     imeAction = if (singleLine) ImeAction.Done else ImeAction.Default,
                 ),
             keyboardActions = KeyboardActions(onDone = { confirmIfValid() }),

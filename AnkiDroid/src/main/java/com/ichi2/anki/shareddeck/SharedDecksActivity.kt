@@ -3,6 +3,7 @@
 
 package com.ichi2.anki.shareddeck
 
+import android.app.Dialog
 import android.app.DownloadManager
 import android.graphics.Color
 import android.os.Bundle
@@ -20,7 +21,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.VisibleForTesting
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -38,13 +38,11 @@ import com.ichi2.anki.databinding.ActivitySharedDecksBinding
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.workarounds.OnWebViewRecreatedListener
 import com.ichi2.anki.workarounds.SafeWebViewClient
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.themes.Themes
 import com.ichi2.utils.FileNameAndExtension
-import com.ichi2.utils.message
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
-import com.ichi2.utils.title
 import dev.androidbroadcast.vbpd.viewBinding
 import timber.log.Timber
 import java.io.Serializable
@@ -68,7 +66,7 @@ class SharedDecksActivity :
 
     private val pagesBeforeLogin = mutableListOf<String>()
 
-    private var loginRequiredDialog: AlertDialog? = null
+    private var loginRequiredDialog: Dialog? = null
 
     private val allowedHosts = listOf(Regex("""^(?:.*\.)?ankiweb\.net$"""), Regex("""^ankiuser\.net$"""), Regex("""^ankisrs\.net$"""))
     private val onBackPressedCallback =
@@ -180,14 +178,19 @@ class SharedDecksActivity :
         if (loginRequiredDialog?.isShowing == true) return
         Timber.i("HTTP 429, asking the user to log in")
         loginRequiredDialog =
-            AlertDialog.Builder(this).show {
-                title(CommonString.not_logged_in_title)
-                message(CommonString.shared_decks_ankiweb_login_limit)
-                // no AnkiWeb sign-up link (ADR-0001). Logging in on AnkiWeb's website stays:
-                // shared decks are browser access
-                positiveButton(text = TR.sentenceCase.logIn) { redirectToLogin() }
-                negativeButton(CommonString.dialog_cancel)
-            }
+            createPaperDialog(this) { dialog ->
+                ConfirmationDialog(
+                    title = getString(CommonString.not_logged_in_title),
+                    message = getString(CommonString.shared_decks_ankiweb_login_limit),
+                    // Shared decks use AnkiWeb in the browser (ADR-0001).
+                    confirm =
+                        DialogAction(TR.sentenceCase.logIn, {
+                            dialog.dismiss()
+                            redirectToLogin()
+                        }),
+                    onDismissRequest = dialog::dismiss,
+                )
+            }.also { it.show() }
     }
 
     /** Loads the AnkiWeb login page in the WebView, where the user can log in. */

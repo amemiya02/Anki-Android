@@ -3,16 +3,11 @@
 package com.ichi2.anki.notetype
 
 import android.content.Context
-import android.text.InputType
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.text.input.KeyboardType
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CommonString
-import com.ichi2.utils.getInputField
-import com.ichi2.utils.input
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
-import com.ichi2.anki.common.android.R as CommonR
+import com.ichi2.compose.ui.dialogs.TextInputDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 
 class RepositionCardTemplateDialog {
     companion object {
@@ -21,36 +16,23 @@ class RepositionCardTemplateDialog {
             numberOfTemplates: Int,
             result: (Int) -> Unit,
         ) {
-            var displayedDialog: AlertDialog? = null
-
-            displayedDialog =
-                AlertDialog
-                    .Builder(context)
-                    .show {
-                        positiveButton(CommonString.dialog_ok) {
-                            result(
-                                displayedDialog!!
-                                    .getInputField()
-                                    .text
-                                    .toString()
-                                    .toInt(),
-                            )
-                        }
-                        negativeButton(CommonString.dialog_cancel)
-                        setMessage(CollectionManager.TR.cardTemplatesEnterNewCardPosition1(numberOfTemplates))
-                        setView(CommonR.layout.dialog_generic_text_input)
-                    }.input(
-                        inputType = InputType.TYPE_CLASS_NUMBER,
-                        displayKeyboard = true,
-                        waitForPositiveButton = false,
-                    ) { dialog, text: CharSequence ->
-                        val number = text.toString().toIntOrNull()
-                        if (number == null || number < 1 || number > numberOfTemplates) {
-                            dialog.positiveButton.isEnabled = false
-                            return@input
-                        }
-                        dialog.positiveButton.isEnabled = true
-                    }
+            createPaperDialog(context) { dialog ->
+                val message = CollectionManager.TR.cardTemplatesEnterNewCardPosition1(numberOfTemplates)
+                TextInputDialog(
+                    title = "",
+                    label = message,
+                    confirmText = context.getString(CommonString.dialog_ok),
+                    keyboardType = KeyboardType.Number,
+                    errorMessageFor = { text ->
+                        if (text.toIntOrNull()?.let { it in 1..numberOfTemplates } == true) null else ""
+                    },
+                    onConfirm = {
+                        result(it.toInt())
+                        dialog.dismiss()
+                    },
+                    onDismissRequest = dialog::dismiss,
+                )
+            }.show()
         }
     }
 }

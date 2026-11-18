@@ -48,7 +48,7 @@ class RemainingDialogsTest : RobolectricTest() {
         val args = ImportDialog.newInstance(ImportDialog.Type.DIALOG_IMPORT_REPLACE_CONFIRM, "/cache/My%20Collection.colpkg").arguments
         launchFragment<ImportDialog>(fragmentArgs = args, themeResId = CommonR.style.Theme_Light).use {
             composeRule.onNodeWithText("My Collection.colpkg", substring = true).assertIsDisplayed()
-            composeRule.onNodeWithText(targetContext.getString(CommonString.dialog_positive_replace)).assertIsDisplayed()
+            composeRule.onNodeWithText(targetContext.getString(CommonString.paper_dialog_replace_collection)).assertIsDisplayed()
             composeRule.onNodeWithText(targetContext.getString(CommonString.dialog_cancel)).performClick()
             composeRule.onNodeWithText("My Collection.colpkg", substring = true).assertDoesNotExist()
         }

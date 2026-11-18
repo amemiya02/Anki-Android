@@ -2,7 +2,6 @@
 
 package com.ichi2.anki.noteeditor
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.graphics.Canvas
@@ -13,7 +12,6 @@ import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import androidx.annotation.DrawableRes
 import androidx.annotation.VisibleForTesting
-import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -61,9 +59,10 @@ import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.noteeditor.presentation.ToolbarLayoutMode
 import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.compose.theme.foundation
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.utils.AndroidUiUtils.showSoftInput
-import com.ichi2.utils.show
-import com.ichi2.utils.title
 import timber.log.Timber
 import com.ichi2.anki.common.android.R as CommonR
 import com.ichi2.anki.noteeditor.R as NoteEditorR
@@ -247,52 +246,47 @@ class Toolbar(
      *
      * @see [R.array.html_size_codes]
      */
-    @SuppressLint("CheckResult")
     private fun displayFontSizeDialog() {
         val results = resources.getStringArray(R.array.html_size_codes)
-
-        // Might be better to add this as a fragment - let's see.
-        AlertDialog.Builder(context).show {
-            setItems(R.array.html_size_code_labels) { _, index ->
-                val formatter =
-                    TextWrapper(
-                        prefix = "<span style=\"font-size:${results[index]}\">",
-                        suffix = "</span>",
-                    )
-                onFormat(formatter)
-            }
-            title(CommonString.menu_font_size)
+        showFormattingChoices(CommonString.menu_font_size, resources.getStringArray(R.array.html_size_code_labels).toList()) { index ->
+            onFormat(TextWrapper(prefix = "<span style=\"font-size:${results[index]}\">", suffix = "</span>"))
         }
     }
 
-    /**
-     * Displays a dialog which allows `<h1>` to `<h6>` to be inserted
-     */
-    @SuppressLint("CheckResult")
+    /** Displays a dialog for inserting an HTML heading. */
     private fun displayInsertHeadingDialog() {
-        val headingList = arrayOf("h1", "h2", "h3", "h4", "h5")
-        AlertDialog.Builder(context).show {
-            setItems(headingList) { _, index ->
-                val charSequence = headingList[index]
-                val formatter = TextWrapper(prefix = "<$charSequence>", suffix = "</$charSequence>")
-                onFormat(formatter)
-            }
-            title(CommonString.insert_heading)
+        val headings = listOf("h1", "h2", "h3", "h4", "h5")
+        showFormattingChoices(CommonString.insert_heading, headings) { index ->
+            val heading = headings[index]
+            onFormat(TextWrapper(prefix = "<$heading>", suffix = "</$heading>"))
         }
     }
 
-    /**
-     * Displays a dialog that allows the user to insert a MathJax equation in different formats.
-     */
+    /** Displays the available formats for inserting a MathJax equation. */
     private fun displayInsertMathJaxEquationsDialog() {
         val options = MathJaxFormat.entries
-        val labels = options.map { it.label() }.toTypedArray()
-        AlertDialog.Builder(context).show {
-            setItems(labels) { _, index ->
-                onFormat(options[index].toTextWrapper())
-            }
-            title(CommonString.insert_mathjax)
+        showFormattingChoices(CommonString.insert_mathjax, options.map { it.label() }) { index ->
+            onFormat(options[index].toTextWrapper())
         }
+    }
+
+    private fun showFormattingChoices(
+        title: Int,
+        choices: List<String>,
+        onSelect: (Int) -> Unit,
+    ) {
+        createPaperDialog(context) { dialog ->
+            SingleChoiceDialog(
+                title = context.getString(title),
+                choices = choices.map { DialogChoice(it) },
+                selectedIndex = null,
+                onSelect = { index ->
+                    dialog.dismiss()
+                    onSelect(index)
+                },
+                onDismissRequest = dialog::dismiss,
+            )
+        }.show()
     }
 
     fun onFormat(formatter: TextFormatter) {

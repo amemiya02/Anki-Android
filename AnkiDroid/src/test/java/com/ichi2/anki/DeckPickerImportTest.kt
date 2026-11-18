@@ -9,7 +9,6 @@ import android.database.MatrixCursor
 import android.net.Uri
 import android.os.Looper
 import android.provider.OpenableColumns
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
 import androidx.core.content.getSystemService
 import androidx.core.net.toUri
@@ -225,7 +224,7 @@ class DeckPickerImportTest : RobolectricTest() {
         val activity = startActivityNormallyOpenCollectionWithIntent(EmptyAnkiActivity::class.java, Intent())
 
         val fragment = assertNotNull(activity.supportFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG) as? DatabaseErrorDialog)
-        assertTrue(assertNotNull(fragment.dialog as? AlertDialog).isShowing)
+        assertTrue(assertNotNull(fragment.dialog).isShowing)
         assertNull(activity.dialogHandler.popMessage())
     }
 
@@ -320,7 +319,7 @@ class DeckPickerImportTest : RobolectricTest() {
         assertEquals(Looper.getMainLooper().thread, thread)
         assertEquals(type.code, fragment.requireArguments().getInt(ImportDialog.ARG_DIALOG_TYPE))
         assertEquals(path, fragment.requireArguments().getString(ImportDialog.ARG_PACKAGE_PATH))
-        assertTrue(assertNotNull(fragment.dialog as? AlertDialog).isShowing)
+        assertTrue(assertNotNull(fragment.dialog).isShowing)
     }
 
     @Test
@@ -377,7 +376,7 @@ class DeckPickerImportTest : RobolectricTest() {
 
     private fun DeckPicker.assertImportConfirmationVisible() {
         val fragment = assertNotNull(supportFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG) as? ImportDialog)
-        assertTrue(assertNotNull(fragment.dialog as? AlertDialog).isShowing)
+        assertTrue(assertNotNull(fragment.dialog).isShowing)
     }
 
     @Test

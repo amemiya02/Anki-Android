@@ -17,7 +17,6 @@ import android.os.ParcelFileDescriptor
 import android.provider.OpenableColumns
 import android.view.ContentInfo
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.core.view.ContentInfoCompat
@@ -92,7 +91,7 @@ class ImportRoutingTest : RobolectricTest() {
             saveControllerForCleanup(controller)
             val activity = controller.create().get()
 
-            val dialog = assertIs<AlertDialog>(ShadowDialog.getLatestDialog())
+            val dialog = assertNotNull(ShadowDialog.getLatestDialog())
             assertTrue(dialog.isShowing)
             assertFalse(activity.isFinishing)
         }
@@ -424,7 +423,7 @@ class ImportRoutingTest : RobolectricTest() {
 
             val activity = launchImport(intent)
 
-            val dialog = assertIs<AlertDialog>(ShadowDialog.getLatestDialog())
+            val dialog = assertNotNull(ShadowDialog.getLatestDialog())
             assertTrue(dialog.isShowing)
             assertFalse(activity.isFinishing)
             assertNull(shadowOf(activity).nextStartedActivity)

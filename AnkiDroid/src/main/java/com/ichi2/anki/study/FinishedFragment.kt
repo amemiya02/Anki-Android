@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -38,9 +37,10 @@ import com.ichi2.anki.pages.CongratsViewModel
 import com.ichi2.anki.pages.UnburyState
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.compose.theme.AnkiDroidTheme
-import com.ichi2.utils.listItems
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.show
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.ErrorDialog
+import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -104,11 +104,9 @@ class FinishedFragment :
         viewModel.onError
             .flowWithLifecycle(lifecycle)
             .onEach { errorMessage ->
-                AlertDialog
-                    .Builder(requireContext())
-                    .setTitle(CommonString.vague_error)
-                    .setMessage(errorMessage)
-                    .show()
+                createPaperDialog(requireContext()) { dialog ->
+                    ErrorDialog(getString(CommonString.vague_error), errorMessage, onDismissRequest = dialog::dismiss)
+                }.show()
             }.launchIn(lifecycleScope)
 
         viewModel.unburyState
@@ -163,20 +161,19 @@ class FinishedFragment :
                 TR.studyingBuriedSiblings(),
                 TR.studyingAllBuriedCards(),
             )
-        AlertDialog.Builder(requireContext()).show {
-            setTitle(TR.studyingWhatWouldYouLikeToUnbury())
-            negativeButton(CommonString.dialog_cancel)
-            listItems(unburyOptions) { _, position ->
-                val mode =
-                    when (position) {
-                        0 -> UnburyDeckRequest.Mode.USER_ONLY
-                        1 -> UnburyDeckRequest.Mode.SCHED_ONLY
-                        2 -> UnburyDeckRequest.Mode.ALL
-                        else -> error("Unhandled unbury option: ${unburyOptions[position]}")
-                    }
-                viewModel.onUnburyModeSelected(mode)
-            }
-        }
+        val modes = listOf(UnburyDeckRequest.Mode.USER_ONLY, UnburyDeckRequest.Mode.SCHED_ONLY, UnburyDeckRequest.Mode.ALL)
+        createPaperDialog(requireContext()) { dialog ->
+            SingleChoiceDialog(
+                title = TR.studyingWhatWouldYouLikeToUnbury(),
+                choices = unburyOptions.map { DialogChoice(it) },
+                selectedIndex = null,
+                onSelect = { index ->
+                    dialog.dismiss()
+                    viewModel.onUnburyModeSelected(modes[index])
+                },
+                onDismissRequest = dialog::dismiss,
+            )
+        }.show()
     }
 
     /** Unburying returns straight to studying the Deck. */
@@ -195,7 +192,7 @@ class FinishedFragment :
     @androidx.annotation.VisibleForTesting
     internal fun onCustomStudy() {
         launchCatchingTask {
-            val customStudy = CustomStudyDialog.createInstance(deckId = withCol { decks.selected() })
+            val customStudy = CustomStudyDialog.createInstance(deckId = withCol { decks.selected() }, usePaperDialog = true)
             requireActivity().showDialogFragment(customStudy)
         }
     }

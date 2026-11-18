@@ -3,18 +3,20 @@
 
 package com.ichi2.anki.dialogs
 
+import android.app.Dialog
 import android.os.Bundle
 import androidx.annotation.CheckResult
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.dialogs.ImportDialog.Type.DIALOG_IMPORT_ADD_CONFIRM
 import com.ichi2.anki.dialogs.ImportDialog.Type.DIALOG_IMPORT_REPLACE_CONFIRM
 import com.ichi2.anki.utils.ext.dismissAllDialogFragments
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.utils.ImportUtils
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
 import timber.log.Timber
 import java.net.URLDecoder
 
@@ -41,32 +43,32 @@ class ImportDialog : AsyncDialogFragment() {
     private val packagePath: String
         get() = requireArguments().getString(ARG_PACKAGE_PATH)!!
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog {
-        val dialog = AlertDialog.Builder(requireActivity())
-        dialog.setCancelable(true)
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val displayFileName = filenameFromPath(convertToDisplayName(packagePath))
+        val replacingCollection = dialogType == DIALOG_IMPORT_REPLACE_CONFIRM
+        val messageRes =
+            if (replacingCollection) CommonString.import_message_replace_confirm else CommonString.import_dialog_message_add
+        val actionRes = if (replacingCollection) CommonString.paper_dialog_replace_collection else CommonString.import_message_add
 
-        return when (dialogType) {
-            DIALOG_IMPORT_ADD_CONFIRM -> {
-                dialog
-                    .setTitle(CommonString.import_title)
-                    .setMessage(res().getString(CommonString.import_dialog_message_add, displayFileName))
-                    .positiveButton(CommonString.import_message_add) {
-                        importViewModel.triggerImportAdd(packagePath)
-                        activity?.dismissAllDialogFragments()
-                    }.negativeButton(CommonString.dialog_cancel)
-                    .create()
-            }
-            DIALOG_IMPORT_REPLACE_CONFIRM -> {
-                dialog
-                    .setTitle(CommonString.import_title)
-                    .setMessage(res().getString(CommonString.import_message_replace_confirm, displayFileName))
-                    .positiveButton(CommonString.dialog_positive_replace) {
-                        importViewModel.triggerImportReplace(packagePath)
-                        activity?.dismissAllDialogFragments()
-                    }.negativeButton(CommonString.dialog_cancel)
-                    .create()
-            }
+        return createPaperDialog(requireContext()) {
+            ConfirmationDialog(
+                title = getString(CommonString.import_title),
+                message = getString(messageRes, displayFileName),
+                confirm =
+                    DialogAction(
+                        label = getString(actionRes),
+                        style = if (replacingCollection) DialogActionStyle.Destructive else DialogActionStyle.Filled,
+                        onClick = {
+                            if (replacingCollection) {
+                                importViewModel.triggerImportReplace(packagePath)
+                            } else {
+                                importViewModel.triggerImportAdd(packagePath)
+                            }
+                            activity?.dismissAllDialogFragments()
+                        },
+                    ),
+                onDismissRequest = ::dismiss,
+            )
         }
     }
 

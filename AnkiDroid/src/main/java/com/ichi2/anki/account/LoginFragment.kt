@@ -20,7 +20,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.CrashReportData.Companion.toCrashReportData
@@ -43,9 +42,10 @@ import com.ichi2.anki.utils.hideKeyboard
 import com.ichi2.anki.utils.observeMessages
 import com.ichi2.anki.utils.showAndAwaitDismissal
 import com.ichi2.anki.utils.showSnackbarAndAwaitDismissal
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.utils.Permissions
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
 import dev.androidbroadcast.vbpd.viewBinding
 import timber.log.Timber
 
@@ -266,15 +266,24 @@ class LoginFragment : Fragment(R.layout.fragment_my_account) {
             requireActivity().finish()
         }
 
-        MaterialAlertDialogBuilder(requireContext()).showAndAwaitDismissal {
-            Timber.i("Showing dialog: 'Sync now?'")
-            setTitle(CommonString.login_successful)
-            setIcon(R.drawable.symbol_sync)
-            setMessage(CommonString.sync_now)
-            positiveButton(CommonString.button_sync) { openDeckPickerAndSync() }
-            negativeButton(CommonString.dialog_continue) { showLoggedInView() }
-            setOnCancelListener { showLoggedInView() }
-        }
+        Timber.i("Showing dialog: 'Sync now?'")
+        createPaperDialog(requireContext()) { dialog ->
+            ConfirmationDialog(
+                title = getString(CommonString.login_successful),
+                message = getString(CommonString.sync_now),
+                markIcon = R.drawable.symbol_sync,
+                confirm =
+                    DialogAction(getString(CommonString.button_sync), {
+                        dialog.dismiss()
+                        openDeckPickerAndSync()
+                    }),
+                dismissText = getString(CommonString.dialog_continue),
+                onDismissRequest = {
+                    dialog.dismiss()
+                    showLoggedInView()
+                },
+            )
+        }.apply { setOnCancelListener { showLoggedInView() } }.showAndAwaitDismissal()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

@@ -181,6 +181,7 @@ class DeckPickerWidgetConfig :
                 allowAll = false,
                 skipEmptyDefault = true,
                 allowMultipleSelection = true,
+                usePaperDialog = true,
             )
         }
 

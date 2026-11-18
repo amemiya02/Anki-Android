@@ -13,7 +13,6 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
@@ -36,7 +35,9 @@ import com.ichi2.anki.multimediacard.fields.IField
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.bottomCornerClearance
 import com.ichi2.anki.utils.ext.setSupportActionBarText
-import com.ichi2.utils.show
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.ErrorDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -210,13 +211,20 @@ abstract class MultimediaFragment(
      * the current activity.
      */
     fun showErrorDialog(errorMessage: String? = null) {
-        AlertDialog.Builder(requireContext()).show {
-            setMessage(errorMessage ?: resources.getString(CommonString.something_wrong))
-            setPositiveButton(getString(CommonString.dialog_ok)) { _, _ ->
-                requireActivity().finish()
-            }
-            setOnCancelListener { requireActivity().finish() }
-        }
+        val activity = requireActivity()
+        createPaperDialog(requireContext()) { dialog ->
+            ErrorDialog(
+                title = getString(CommonString.vague_error),
+                message = errorMessage ?: getString(CommonString.something_wrong),
+                onDismissRequest = dialog::dismiss,
+                dismissText = null,
+                primaryAction =
+                    DialogAction(getString(CommonString.dialog_ok), {
+                        dialog.dismiss()
+                        activity.finish()
+                    }),
+            )
+        }.apply { setOnCancelListener { activity.finish() } }.show()
     }
 
     /**

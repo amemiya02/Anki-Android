@@ -32,19 +32,23 @@ import android.view.ViewGroup.MarginLayoutParams
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.addCallback
+import androidx.activity.compose.BackHandler
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CheckResult
 import androidx.annotation.VisibleForTesting
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.content.FileProvider
 import androidx.core.content.edit
@@ -64,7 +68,6 @@ import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
-import androidx.core.widget.doAfterTextChanged
 import androidx.draganddrop.DropHelper
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -72,9 +75,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import anki.notes.NoteFieldsCheckResponse
 import anki.search.SearchNode
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.TextInputLayout
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.NoteEditorFragment.Companion.NoteEditorCaller.Companion.fromValue
@@ -178,6 +179,14 @@ import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.utils.insetsOf
 import com.ichi2.anki.utils.openUrl
 import com.ichi2.compose.theme.AnkiDroidTheme
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogBody
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.imagecropper.ImageCropper
 import com.ichi2.imagecropper.ImageCropper.Companion.EXTRA_CROP_IMAGE_RESULT
 import com.ichi2.imagecropper.ImageCropperLauncher
@@ -190,13 +199,6 @@ import com.ichi2.utils.IntentUtil.resolveMimeType
 import com.ichi2.utils.NoteFieldDecorator
 import com.ichi2.utils.TextViewUtil
 import com.ichi2.utils.configureView
-import com.ichi2.utils.iconAttr
-import com.ichi2.utils.message
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.neutralButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
-import com.ichi2.utils.title
 import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.launch
 import net.ankiweb.rsdroid.Backend
@@ -516,15 +518,18 @@ class NoteEditorFragment :
     }
 
     private fun noClozeDialog(errorMessage: String) {
-        AlertDialog.Builder(requireContext()).show {
-            message(text = errorMessage)
-            positiveButton(text = TR.actionsSave()) {
-                lifecycleScope.launch {
-                    saveNoteWithProgress()
-                }
-            }
-            negativeButton(CommonString.dialog_cancel)
-        }
+        createPaperDialog(requireContext()) { dialog ->
+            ConfirmationDialog(
+                title = "",
+                message = errorMessage,
+                confirm =
+                    DialogAction(TR.actionsSave(), {
+                        dialog.dismiss()
+                        lifecycleScope.launch { saveNoteWithProgress() }
+                    }),
+                onDismissRequest = dialog::dismiss,
+            )
+        }.show()
     }
 
     // Sets the delegate to receive callbacks when note editor events occur (ready, saved, changed, etc.)
@@ -705,7 +710,7 @@ class NoteEditorFragment :
     ) = NoteEditorMenuAction(getString(label), { performEditorAction(actionId) }, enabled, checked)
 
     private fun chooseDeck() {
-        startDeckSelection(allowAll = false, allowFiltered = false, requestKey = REQUEST_DECK_SELECTION_NOTE_EDITOR)
+        startDeckSelection(allowAll = false, allowFiltered = false, requestKey = REQUEST_DECK_SELECTION_NOTE_EDITOR, usePaperDialog = true)
     }
 
     private fun chooseNoteType() {
@@ -714,16 +719,18 @@ class NoteEditorFragment :
             return
         }
         val noteTypes = getColUnsafe.notetypes.all().sortedWith(NamedJSONComparator.INSTANCE)
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(CommonString.select_note_type)
-            .setSingleChoiceItems(
-                noteTypes.map { it.name }.toTypedArray(),
-                noteTypes.indexOfFirst { it.id == editorNote?.noteTypeId },
-            ) { dialog, position ->
-                dialog.dismiss()
-                changeNoteType(noteTypes[position].id)
-            }.setNegativeButton(CommonString.dialog_cancel, null)
-            .show()
+        createPaperDialog(requireContext()) { dialog ->
+            SingleChoiceDialog(
+                title = getString(CommonString.select_note_type),
+                choices = noteTypes.map { DialogChoice(it.name) },
+                selectedIndex = noteTypes.indexOfFirst { it.id == editorNote?.noteTypeId },
+                onSelect = { position ->
+                    dialog.dismiss()
+                    changeNoteType(noteTypes[position].id)
+                },
+                onDismissRequest = dialog::dismiss,
+            )
+        }.show()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -2128,15 +2135,19 @@ class NoteEditorFragment :
         val fileSizeStr = fileSize.toBytesShortString(context)
         val limitStr = Backend.MAX_INDIVIDUAL_MEDIA_FILE_SIZE.toBytesShortString(context)
 
-        MaterialAlertDialogBuilder(context).show {
-            title(CommonString.media_file_size_warning_title)
-            iconAttr(R.drawable.symbol_warning)
-            message(text = getString(CommonString.media_file_size_warning_message, fileName, fileSizeStr, limitStr))
-            positiveButton(CommonString.dialog_cancel)
-            negativeButton(CommonString.media_file_size_add_anyway) {
-                onForceAdd()
-            }
-        }
+        createPaperDialog(context) { dialog ->
+            ConfirmationDialog(
+                title = getString(CommonString.media_file_size_warning_title),
+                message = getString(CommonString.media_file_size_warning_message, fileName, fileSizeStr, limitStr),
+                markIcon = R.drawable.symbol_warning,
+                confirm =
+                    DialogAction(getString(CommonString.media_file_size_add_anyway), {
+                        dialog.dismiss()
+                        onForceAdd()
+                    }),
+                onDismissRequest = dialog::dismiss,
+            )
+        }.show()
     }
 
     private fun onToggleStickyText(
@@ -2521,20 +2532,6 @@ class NoteEditorFragment :
         updateToolbar()
     }
 
-    private fun suggestRemoveButton(
-        button: CustomToolbarButton,
-        editToolbarItemDialog: AlertDialog,
-    ) {
-        AlertDialog.Builder(requireContext()).show {
-            title(CommonString.remove_toolbar_item)
-            positiveButton(CommonString.dialog_positive_delete) {
-                editToolbarItemDialog.dismiss()
-                removeButton(button)
-            }
-            negativeButton(CommonString.dialog_cancel)
-        }
-    }
-
     private fun removeButton(button: CustomToolbarButton) {
         val toolbarButtons = toolbarButtons
         toolbarButtons.removeAt(button.index)
@@ -2542,111 +2539,111 @@ class NoteEditorFragment :
         updateToolbar()
     }
 
-    private val toolbarDialog: AlertDialog.Builder
-        get() =
-            AlertDialog
-                .Builder(requireContext())
-                .neutralButton(CommonString.help) {
-                    requireContext().openUrl(R.string.link_manual_note_format_toolbar)
-                }.negativeButton(CommonString.dialog_cancel)
+    private fun displayAddToolbarDialog() = showToolbarButtonDialog(null)
 
-    @NeedsTest("Create button disabled until name + one HTML field are filled")
-    private fun displayAddToolbarDialog() {
-        val v = layoutInflater.inflate(R.layout.dialog_note_editor_toolbar_add_custom_item, null)
+    private fun displayEditToolbarDialog(currentButton: CustomToolbarButton) = showToolbarButtonDialog(currentButton)
 
-        val etIcon = v.findViewById<EditText>(R.id.note_editor_toolbar_item_icon)
-        val etBefore = v.findViewById<EditText>(R.id.note_editor_toolbar_before)
-        val etAfter = v.findViewById<EditText>(R.id.note_editor_toolbar_after)
+    private fun showToolbarButtonDialog(currentButton: CustomToolbarButton?) {
+        createPaperDialog(requireContext()) { dialog ->
+            var icon by rememberSaveable { mutableStateOf(currentButton?.buttonText.orEmpty()) }
+            var prefix by rememberSaveable { mutableStateOf(currentButton?.prefix.orEmpty()) }
+            var suffix by rememberSaveable { mutableStateOf(currentButton?.suffix.orEmpty()) }
+            var edited by rememberSaveable { mutableStateOf(false) }
+            var confirmingRemoval by rememberSaveable { mutableStateOf(false) }
+            BackHandler(confirmingRemoval) { confirmingRemoval = false }
+            val hasHtml = prefix.isNotBlank() || suffix.isNotBlank()
+            val needsIcon = currentButton == null && icon.isBlank()
 
-        val etIconLayout = v.findViewById<TextInputLayout>(R.id.note_editor_toolbar_item_icon_layout)
-        val etBeforeLayout = v.findViewById<TextInputLayout>(R.id.note_editor_toolbar_before_layout)
-        val etAfterLayout = v.findViewById<TextInputLayout>(R.id.note_editor_toolbar_after_layout)
-
-        // Both HTML fields share one error message, displayed under etAfterLayout only.
-        // etBeforeLayout still receives the message so accessibility services report the field as
-        // invalid, but its text is hidden and it is not a live region, which would announce the message twice
-        etBeforeLayout.setErrorTextAppearance(R.style.TextAppearance_AnkiDroid_HiddenError)
-        etBeforeLayout.errorAccessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_NONE
-
-        val dialog =
-            toolbarDialog.show {
-                title(CommonString.add_toolbar_item)
-                setView(v)
-                positiveButton(CommonString.dialog_positive_create) {
-                    addToolbarButton(etIcon.text.toString(), etBefore.text.toString(), etAfter.text.toString())
+            if (confirmingRemoval && currentButton != null) {
+                ConfirmationDialog(
+                    title = getString(CommonString.remove_toolbar_item),
+                    message = "",
+                    confirm =
+                        DialogAction(getString(CommonString.dialog_positive_delete), {
+                            dialog.dismiss()
+                            removeButton(currentButton)
+                        }, DialogActionStyle.Destructive),
+                    onDismissRequest = { confirmingRemoval = false },
+                )
+            } else {
+                PaperDialog(
+                    title = getString(if (currentButton == null) CommonString.add_toolbar_item else CommonString.edit_toolbar_item),
+                    onDismissRequest = dialog::dismiss,
+                    actions =
+                        buildList {
+                            add(
+                                DialogAction(getString(CommonString.help), {
+                                    dialog.dismiss()
+                                    requireContext().openUrl(R.string.link_manual_note_format_toolbar)
+                                }),
+                            )
+                            if (currentButton != null) {
+                                add(DialogAction(getString(CommonString.remove_toolbar_item), { confirmingRemoval = true }))
+                            }
+                            add(DialogAction(getString(CommonString.dialog_cancel), dialog::dismiss))
+                            add(
+                                DialogAction(
+                                    getString(if (currentButton == null) CommonString.dialog_positive_create else CommonString.save),
+                                    {
+                                        dialog.dismiss()
+                                        if (currentButton == null) {
+                                            addToolbarButton(icon, prefix, suffix)
+                                        } else {
+                                            editToolbarButton(icon, prefix, suffix, currentButton)
+                                        }
+                                    },
+                                    DialogActionStyle.Filled,
+                                    enabled = hasHtml && !needsIcon,
+                                ),
+                            )
+                        },
+                ) {
+                    DialogBody(getString(CommonString.toolbar_item_explain_edit_or_remove))
+                    OutlinedTextField(
+                        value = icon,
+                        onValueChange = {
+                            icon = it
+                            edited = true
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(getString(CommonString.note_editor_toolbar_icon)) },
+                        isError = edited && needsIcon,
+                        supportingText =
+                            if (edited && needsIcon) {
+                                { Text(getString(CommonString.note_editor_toolbar_icon_requirement_error)) }
+                            } else {
+                                null
+                            },
+                    )
+                    OutlinedTextField(
+                        value = prefix,
+                        onValueChange = {
+                            prefix = it
+                            edited = true
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(getString(CommonString.before_text)) },
+                        isError = edited && !hasHtml && currentButton == null,
+                    )
+                    OutlinedTextField(
+                        value = suffix,
+                        onValueChange = {
+                            suffix = it
+                            edited = true
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(getString(CommonString.after_text)) },
+                        isError = edited && !hasHtml && currentButton == null,
+                        supportingText =
+                            if (edited && !hasHtml && currentButton == null) {
+                                { Text(getString(CommonString.before_after_text_requirement_error)) }
+                            } else {
+                                null
+                            },
+                    )
                 }
             }
-
-        val posButton = dialog.positiveButton
-        posButton.isEnabled = false
-
-        // Setting an unchanged error would re-announce it to screen readers on every keystroke
-        fun TextInputLayout.setErrorIfChanged(message: String) {
-            if (error == message) return
-            error = message
-        }
-
-        fun updateToolbarItemValidationState() {
-            val hasIcon = etIcon.text.toString().isNotBlank()
-            val hasHtml = etBefore.text.toString().isNotBlank() || etAfter.text.toString().isNotBlank()
-            posButton.isEnabled = hasIcon && hasHtml
-
-            if (hasIcon) {
-                etIconLayout.isErrorEnabled = false
-            } else {
-                etIconLayout.setErrorIfChanged(getString(CommonString.note_editor_toolbar_icon_requirement_error))
-            }
-
-            if (hasHtml) {
-                etBeforeLayout.isErrorEnabled = false
-                etAfterLayout.isErrorEnabled = false
-            } else {
-                val message = getString(CommonString.before_after_text_requirement_error)
-                etBeforeLayout.setErrorIfChanged(message)
-                etAfterLayout.setErrorIfChanged(message)
-            }
-        }
-
-        etIcon.doAfterTextChanged { updateToolbarItemValidationState() }
-        etBefore.doAfterTextChanged { updateToolbarItemValidationState() }
-        etAfter.doAfterTextChanged { updateToolbarItemValidationState() }
-    }
-
-    private fun displayEditToolbarDialog(currentButton: CustomToolbarButton) {
-        val view = layoutInflater.inflate(R.layout.dialog_note_editor_toolbar_edit_custom_item, null)
-        val etIcon = view.findViewById<EditText>(R.id.note_editor_toolbar_item_icon)
-        val et = view.findViewById<EditText>(R.id.note_editor_toolbar_before)
-        val et2 = view.findViewById<EditText>(R.id.note_editor_toolbar_after)
-        val btnDelete = view.findViewById<ImageButton>(R.id.note_editor_toolbar_btn_delete)
-        etIcon.setText(currentButton.buttonText)
-        et.setText(currentButton.prefix)
-        et2.setText(currentButton.suffix)
-        val editToolbarDialog =
-            toolbarDialog
-                .setView(view)
-                .positiveButton(CommonString.save) {
-                    editToolbarButton(
-                        etIcon.text.toString(),
-                        et.text.toString(),
-                        et2.text.toString(),
-                        currentButton,
-                    )
-                }.create()
-        btnDelete.setOnClickListener {
-            suggestRemoveButton(
-                currentButton,
-                editToolbarDialog,
-            )
-        }
-        editToolbarDialog.show()
-
-        fun updateSaveButton() {
-            editToolbarDialog.positiveButton.isEnabled = !et.text.isNullOrBlank() || !et2.text.isNullOrBlank()
-        }
-
-        et.doAfterTextChanged { updateSaveButton() }
-        et2.doAfterTextChanged { updateSaveButton() }
-        updateSaveButton()
+        }.show()
     }
 
     override val shortcuts

@@ -6,14 +6,11 @@ import android.view.WindowManager
 import android.webkit.JsResult
 import android.webkit.WebChromeClient
 import android.webkit.WebView
-import androidx.appcompat.app.AlertDialog
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.common.crashreporting.CrashReportService
-import com.ichi2.utils.cancelable
-import com.ichi2.utils.message
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import timber.log.Timber
 
 open class PageChromeClient : WebChromeClient() {
@@ -25,11 +22,7 @@ open class PageChromeClient : WebChromeClient() {
     ): Boolean {
         Timber.d("Displaying alert() dialog")
         try {
-            AlertDialog.Builder(view.context).show {
-                message?.let { message(text = message) }
-                positiveButton(CommonString.dialog_ok) { result?.confirm() }
-                setOnCancelListener { result?.cancel() }
-            }
+            showScriptDialog(view, message, result, confirm = false)
         } catch (e: IllegalStateException) {
             // window count is over max!!
             Timber.w(e, "onJsAlert: message ignored")
@@ -53,12 +46,7 @@ open class PageChromeClient : WebChromeClient() {
     ): Boolean {
         Timber.d("Displaying confirm() dialog")
         try {
-            AlertDialog.Builder(view.context).show {
-                message?.let { message(text = message) }
-                positiveButton(CommonString.dialog_ok) { result?.confirm() }
-                negativeButton(CommonString.dialog_cancel) { result?.cancel() }
-                cancelable(false)
-            }
+            showScriptDialog(view, message, result, confirm = true)
         } catch (e: IllegalStateException) {
             Timber.w(e, "onJsConfirm: message ignored")
             // Report without opening a consent dialog while the window limit is exhausted.
@@ -69,5 +57,33 @@ open class PageChromeClient : WebChromeClient() {
             result?.cancel()
         }
         return true
+    }
+
+    private fun showScriptDialog(
+        view: WebView,
+        message: String?,
+        result: JsResult?,
+        confirm: Boolean,
+    ) {
+        val context = view.context
+        createPaperDialog(context) { dialog ->
+            ConfirmationDialog(
+                title = "",
+                message = message.orEmpty(),
+                confirm =
+                    DialogAction(context.getString(CommonString.dialog_ok), {
+                        result?.confirm()
+                        dialog.dismiss()
+                    }),
+                dismissText = if (confirm) context.getString(CommonString.dialog_cancel) else null,
+                onDismissRequest = {
+                    result?.cancel()
+                    dialog.dismiss()
+                },
+            )
+        }.apply {
+            setCancelable(!confirm)
+            setOnCancelListener { result?.cancel() }
+        }.show()
     }
 }

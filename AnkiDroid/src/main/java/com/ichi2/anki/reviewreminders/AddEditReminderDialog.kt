@@ -183,7 +183,13 @@ class AddEditReminderDialog : DialogFragment() {
     }
 
     private fun setInitialDeckSelection() {
-        binding.addEditReminderDeckName.setOnClickListener { startDeckSelection(allowAll = true, allowFiltered = true) }
+        binding.addEditReminderDeckName.setOnClickListener {
+            startDeckSelection(
+                allowAll = true,
+                allowFiltered = true,
+                usePaperDialog = true,
+            )
+        }
         launchCatchingTask {
             Timber.d("Setting up deck name view")
             val (selectedDeckId, selectedDeckName) = getValidDeckSelection()

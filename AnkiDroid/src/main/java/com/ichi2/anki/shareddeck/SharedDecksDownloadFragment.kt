@@ -3,6 +3,7 @@
 
 package com.ichi2.anki.shareddeck
 
+import android.app.Dialog
 import android.app.DownloadManager
 import android.content.ActivityNotFoundException
 import android.content.BroadcastReceiver
@@ -21,7 +22,6 @@ import android.view.ViewGroup
 import android.webkit.CookieManager
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.VisibleForTesting
-import androidx.appcompat.app.AlertDialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
@@ -51,8 +51,10 @@ import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.ext.collectInLifecycle
 import com.ichi2.anki.utils.openUrl
 import com.ichi2.compose.theme.AnkiDroidTheme
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.utils.ImportUtils
-import com.ichi2.utils.create
 import timber.log.Timber
 import java.io.File
 import java.net.URLConnection
@@ -90,7 +92,7 @@ class SharedDecksDownloadFragment : Fragment() {
 
     var isDownloadInProgress = false
 
-    private var downloadCancelConfirmationDialog: AlertDialog? = null
+    private var downloadCancelConfirmationDialog: Dialog? = null
     private val onBackPressedCallback =
         object : OnBackPressedCallback(isDownloadInProgress) {
             override fun handleOnBackPressed() {
@@ -631,19 +633,25 @@ class SharedDecksDownloadFragment : Fragment() {
     private fun showCancelConfirmationDialog() {
         Timber.i("displaying cancel download confirmation dialog")
         downloadCancelConfirmationDialog =
-            AlertDialog.Builder(requireContext()).create {
-                setTitle(CommonString.cancel_download_question_title)
-                setPositiveButton(CommonString.dialog_yes) { _, _ ->
-                    Timber.i("cancelling download")
-                    downloadManager.remove(downloadId)
-                    isDownloadInProgress = false
-                    onBackPressedCallback.isEnabled = isDownloadInProgress
-                    parentFragmentManager.popBackStack()
-                }
-                setNegativeButton(CommonString.dialog_no) { _, _ ->
-                    Timber.i("dismissed cancel download confirmation dialog")
-                    downloadCancelConfirmationDialog?.dismiss()
-                }
+            createPaperDialog(requireContext()) { dialog ->
+                ConfirmationDialog(
+                    title = getString(CommonString.cancel_download_question_title),
+                    message = "",
+                    confirm =
+                        DialogAction(getString(CommonString.dialog_yes), {
+                            dialog.dismiss()
+                            Timber.i("cancelling download")
+                            downloadManager.remove(downloadId)
+                            isDownloadInProgress = false
+                            onBackPressedCallback.isEnabled = isDownloadInProgress
+                            parentFragmentManager.popBackStack()
+                        }),
+                    dismissText = getString(CommonString.dialog_no),
+                    onDismissRequest = {
+                        Timber.i("dismissed cancel download confirmation dialog")
+                        dialog.dismiss()
+                    },
+                )
             }
         downloadCancelConfirmationDialog?.show()
     }

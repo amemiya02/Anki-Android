@@ -3,16 +3,10 @@
 package com.ichi2.anki.notetype
 
 import android.content.Context
-import androidx.appcompat.app.AlertDialog
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CommonString
-import com.ichi2.utils.ValidationResult
-import com.ichi2.utils.input
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
-import com.ichi2.utils.title
-import com.ichi2.anki.common.android.R as CommonR
+import com.ichi2.compose.ui.dialogs.TextInputDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 
 class RenameCardTypeDialog {
     companion object {
@@ -29,32 +23,27 @@ class RenameCardTypeDialog {
             existingNames: List<CardTypeName>,
             block: (result: CardTypeName) -> Unit,
         ) {
-            AlertDialog
-                .Builder(context)
-                .show {
-                    title(CommonString.rename_card_type)
-                    positiveButton(CommonString.rename) { }
-                    negativeButton(CommonString.dialog_cancel)
-                    setView(CommonR.layout.dialog_generic_text_input)
-                }.input(
-                    hint = CollectionManager.TR.actionsNewName().removeSuffix(":"),
-                    displayKeyboard = true,
-                    allowEmpty = false,
-                    prefill = prefill,
-                    validator = { text ->
+            createPaperDialog(context) { dialog ->
+                TextInputDialog(
+                    title = context.getString(CommonString.rename_card_type),
+                    label = CollectionManager.TR.actionsNewName().removeSuffix(":"),
+                    confirmText = context.getString(CommonString.rename),
+                    initialText = prefill,
+                    errorMessageFor = { text ->
                         val name = CardTypeName.fromString(text)
                         when {
-                            name.value.replace("\"", "").isBlank() -> ValidationResult.REJECTED
-                            currentName == name -> ValidationResult.REJECTED
-                            !existingNames.contains(name) -> ValidationResult.VALID
-                            else -> ValidationResult.error(context.getString(CommonString.error_name_exists))
+                            name.value.replace("\"", "").isBlank() || currentName == name -> ""
+                            name in existingNames -> context.getString(CommonString.error_name_exists)
+                            else -> null
                         }
                     },
-                    callback = { dialog, result ->
-                        block(CardTypeName.fromString(result.toString()))
+                    onConfirm = {
+                        block(CardTypeName.fromString(it))
                         dialog.dismiss()
                     },
+                    onDismissRequest = dialog::dismiss,
                 )
+            }.show()
         }
     }
 }

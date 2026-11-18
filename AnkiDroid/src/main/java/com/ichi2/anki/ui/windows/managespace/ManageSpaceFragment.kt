@@ -9,6 +9,15 @@ import android.os.Bundle
 import android.text.format.Formatter
 import android.view.View
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.AndroidViewModel
@@ -29,11 +38,17 @@ import com.ichi2.anki.progress.HasProgress
 import com.ichi2.anki.progress.ProgressManager
 import com.ichi2.anki.progress.observeProgress
 import com.ichi2.anki.snackbar.showSnackbar
-import com.ichi2.anki.ui.dialogs.tools.AsyncDialogBuilder.CheckedItems
-import com.ichi2.anki.ui.dialogs.tools.DialogResult
-import com.ichi2.anki.ui.dialogs.tools.awaitDialog
 import com.ichi2.anki.utils.ext.collectInViewLifecycle
 import com.ichi2.anki.utils.getUserFriendlyErrorText
+import com.ichi2.anki.utils.showAndAwaitDismissal
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.DialogChoiceRow
+import com.ichi2.compose.ui.dialogs.DialogMark
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.preferences.TextWidgetPreference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -264,19 +279,14 @@ class ManageSpaceFragment : SettingsFragment() {
             val unusedFiles = size.files
             val unusedFileNames = unusedFiles.map { it.name }
 
-            val deleteFilesPromptResult =
-                requireContext().awaitDialog {
-                    setTitle(CommonString.dialog__delete_unused_media_files__title)
-                    setMultiChoiceItems(unusedFileNames, CheckedItems.All)
-                    setPositiveButton(CommonString.dialog_positive_delete)
-                    setNegativeButton(CommonString.dialog_cancel)
-                }
-
-            if (deleteFilesPromptResult is DialogResult.Ok.MultipleChoice) {
-                val checkedItems = deleteFilesPromptResult.checkedItems
-                val filesNamesToDelete = unusedFileNames.filterIndexed { index, _ -> checkedItems[index] }
-
-                viewModel.deleteMediaFiles(filesNamesToDelete)
+            val selected =
+                chooseFilesForDeletion(
+                    title = getString(CommonString.dialog__delete_unused_media_files__title),
+                    names = unusedFileNames,
+                    initiallySelected = unusedFileNames.indices.toSet(),
+                )
+            if (selected != null) {
+                viewModel.deleteMediaFiles(unusedFileNames.filterIndexed { index, _ -> index in selected })
             }
         } else {
             showSnackbarIfCalculatingOrError(size)
@@ -292,19 +302,14 @@ class ManageSpaceFragment : SettingsFragment() {
             val backupFiles = size.files
             val backupNames = backupFiles.map { formatter.getTimeOfBackupAsText(it) }
 
-            val chooseBackupsPromptResult =
-                requireContext().awaitDialog {
-                    setTitle(CommonString.dialog__delete_backups__title)
-                    setMultiChoiceItems(backupNames, CheckedItems.None)
-                    setPositiveButton(CommonString.dialog_positive_delete)
-                    setNegativeButton(CommonString.dialog_cancel)
-                }
-
-            if (chooseBackupsPromptResult is DialogResult.Ok.MultipleChoice) {
-                val checkedItems = chooseBackupsPromptResult.checkedItems
-                val backupsToDelete = backupFiles.filterIndexed { index, _ -> checkedItems[index] }
-
-                viewModel.deleteBackups(backupsToDelete)
+            val selected =
+                chooseFilesForDeletion(
+                    title = getString(CommonString.dialog__delete_backups__title),
+                    names = backupNames,
+                    initiallySelected = emptySet(),
+                )
+            if (selected != null) {
+                viewModel.deleteBackups(backupFiles.filterIndexed { index, _ -> index in selected })
             }
         } else {
             showSnackbarIfCalculatingOrError(size)
@@ -323,15 +328,7 @@ class ManageSpaceFragment : SettingsFragment() {
     private suspend fun onDeleteCollectionClick() {
         val size = viewModel.flowOfDeleteCollectionSize.value
         if (size is Size.Bytes) {
-            val deleteCollectionPromptResult =
-                requireContext().awaitDialog {
-                    setTitle(CommonString.dialog__delete_collection__title)
-                    setMessage(CommonString.dialog__delete_collection__message)
-                    setPositiveButton(CommonString.dialog_positive_delete)
-                    setNegativeButton(CommonString.dialog_cancel)
-                }
-
-            if (deleteCollectionPromptResult is DialogResult.Ok) {
+            if (confirmDeletion(CommonString.dialog__delete_collection__title, CommonString.dialog__delete_collection__message)) {
                 try {
                     viewModel.deleteCollection()
                 } finally {
@@ -364,17 +361,67 @@ class ManageSpaceFragment : SettingsFragment() {
     }
 
     private suspend fun onDeleteEverythingClick() {
-        val deleteEverythingPromptResult =
-            requireContext().awaitDialog {
-                setTitle(deleteEverythingDialogTitle)
-                setMessage(deleteEverythingDialogMessage)
-                setPositiveButton(CommonString.dialog_positive_delete)
-                setNegativeButton(CommonString.dialog_cancel)
-            }
-
-        if (deleteEverythingPromptResult is DialogResult.Ok) {
+        if (confirmDeletion(deleteEverythingDialogTitle, deleteEverythingDialogMessage)) {
             viewModel.deleteEverything()
         }
+    }
+
+    private suspend fun confirmDeletion(
+        @StringRes title: Int,
+        @StringRes message: Int,
+    ): Boolean {
+        var confirmed = false
+        createPaperDialog(requireContext()) { dialog ->
+            ConfirmationDialog(
+                title = getString(title),
+                message = getString(message),
+                confirm =
+                    DialogAction(getString(CommonString.dialog_positive_delete), {
+                        confirmed = true
+                        dialog.dismiss()
+                    }, DialogActionStyle.Destructive),
+                onDismissRequest = dialog::dismiss,
+            )
+        }.showAndAwaitDismissal()
+        return confirmed
+    }
+
+    private suspend fun chooseFilesForDeletion(
+        title: String,
+        names: List<String>,
+        initiallySelected: Set<Int>,
+    ): Set<Int>? {
+        var result: Set<Int>? = null
+        createPaperDialog(requireContext()) { dialog ->
+            var selected by remember { mutableStateOf(initiallySelected) }
+            PaperDialog(
+                title = title,
+                onDismissRequest = dialog::dismiss,
+                mark = DialogMark(R.drawable.symbol_warning, warning = true),
+                actions =
+                    listOf(
+                        DialogAction(getString(CommonString.dialog_cancel), dialog::dismiss),
+                        DialogAction(getString(CommonString.dialog_positive_delete), {
+                            result = selected
+                            dialog.dismiss()
+                        }, DialogActionStyle.Destructive),
+                    ),
+            ) {
+                LazyColumn(Modifier.heightIn(max = 380.dp)) {
+                    itemsIndexed(names) { index, name ->
+                        DialogChoiceRow(
+                            DialogChoice(name),
+                            checked = index in selected,
+                            onClick = {
+                                selected = if (index in selected) selected - index else selected + index
+                            },
+                            multiple = true,
+                        )
+                    }
+                }
+            }
+        }.showAndAwaitDismissal()
+        return result
     }
 
     /**********************************************************************************************

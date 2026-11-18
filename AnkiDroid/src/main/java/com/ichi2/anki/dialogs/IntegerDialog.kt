@@ -3,20 +3,33 @@
 
 package com.ichi2.anki.dialogs
 
+import android.app.Dialog
 import android.os.Bundle
-import android.text.InputType
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.analytics.AnalyticsDialogFragment
-import com.ichi2.anki.snackbar.showSnackbar
-import com.ichi2.utils.input
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
-import com.ichi2.utils.title
-import timber.log.Timber
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogBody
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import java.util.function.Consumer
-import com.ichi2.anki.common.android.R as CommonR
 
 // TODO: Pass optional validation condition i.e. Positive button not enabled if condition is true
 open class IntegerDialog : AnalyticsDialogFragment() {
@@ -43,36 +56,43 @@ open class IntegerDialog : AnalyticsDialogFragment() {
         arguments = args
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog {
-        super.onCreateDialog(savedInstanceState)
-        return AlertDialog
-            .Builder(requireActivity())
-            .show {
-                title(text = requireArguments().getString("title"))
-                positiveButton(CommonString.dialog_ok)
-                negativeButton(CommonString.dialog_cancel)
-                setMessage(requireArguments().getString("content"))
-                setView(CommonR.layout.dialog_generic_text_input)
-            }.input(
-                hint = requireArguments().getString("prompt"),
-                inputType = InputType.TYPE_CLASS_NUMBER,
-                maxLength = requireArguments().getInt("digits"),
-                prefill = requireArguments().getString("defaultValue"),
-                displayKeyboard = true,
-            ) { _, text: CharSequence ->
-                // #18504: IME bugs can allow a user to send in a non-integer
-                val input =
-                    try {
-                        text.toString().toInt()
-                    } catch (e: Exception) {
-                        Timber.w(e)
-                        // TODO: find a good place in the foreground to show snackbar
-                        showSnackbar(CommonString.something_wrong)
-                        return@input
-                    }
-
-                consumer!!.accept(input)
-                dismiss()
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val args = requireArguments()
+        return createPaperDialog(requireContext()) {
+            var input by rememberSaveable { mutableStateOf(args.getString("defaultValue").orEmpty()) }
+            val keyboard = LocalSoftwareKeyboardController.current
+            val focus = remember { FocusRequester() }
+            val value = input.toIntOrNull()
+            val applyValue: () -> Unit = {
+                if (value != null) {
+                    consumer?.accept(value)
+                    dismiss()
+                }
             }
+            PaperDialog(
+                title = args.getString("title").orEmpty(),
+                onDismissRequest = ::dismiss,
+                actions =
+                    listOf(
+                        DialogAction(getString(CommonString.dialog_cancel), ::dismiss),
+                        DialogAction(getString(CommonString.dialog_ok), applyValue, DialogActionStyle.Filled, enabled = value != null),
+                    ),
+            ) {
+                args.getString("content")?.let { DialogBody(it) }
+                OutlinedTextField(
+                    value = input,
+                    onValueChange = { input = it.filter(Char::isDigit).take(args.getInt("digits")) },
+                    modifier = Modifier.fillMaxWidth().focusRequester(focus),
+                    label = args.getString("prompt")?.let { { Text(it) } },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { applyValue() }),
+                )
+                LaunchedEffect(focus) {
+                    focus.requestFocus()
+                    keyboard?.show()
+                }
+            }
+        }
     }
 }

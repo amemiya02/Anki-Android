@@ -5,7 +5,6 @@
 package com.ichi2.anki
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -29,7 +28,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CheckResult
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
@@ -112,11 +110,15 @@ import com.ichi2.anki.utils.ext.dismissAllDialogFragments
 import com.ichi2.anki.utils.ext.doOnTabSelected
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.utils.postDelayed
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.ErrorDialog
+import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.themes.Themes
 import com.ichi2.utils.TruncatedString
 import com.ichi2.utils.copyToClipboard
-import com.ichi2.utils.listItems
-import com.ichi2.utils.show
 import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.launch
 import net.ankiweb.rsdroid.Translations
@@ -132,6 +134,7 @@ import kotlin.math.min
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog as PaperConfirmationDialog
 
 private typealias BackendCardTemplate = com.ichi2.anki.libanki.CardTemplate
 
@@ -1066,18 +1069,16 @@ open class CardTemplateEditor : AnkiActivity(R.layout.activity_card_template_edi
             }
         }
 
-        /* showOrphanNoteDialog shows a AlertDialog if the deletionWouldOrphanNote returns true
-         * it displays a warning for the user when they attempt to delete a card type that
-            would leave some notes without any cards (orphan notes) */
         private fun showOrphanNoteDialog() {
-            val builder =
-                AlertDialog
-                    .Builder(requireContext())
-                    .setTitle(CommonString.orphan_note_title)
-                    .setMessage(CommonString.orphan_note_message)
-                    .setPositiveButton(android.R.string.ok, null)
-
-            builder.show()
+            createPaperDialog(requireContext()) { dialog ->
+                ErrorDialog(
+                    title = getString(CommonString.orphan_note_title),
+                    message = getString(CommonString.orphan_note_message),
+                    onDismissRequest = dialog::dismiss,
+                    dismissText = null,
+                    primaryAction = DialogAction(getString(android.R.string.ok), dialog::dismiss),
+                )
+            }.show()
         }
 
         fun openBrowserAppearance(): Boolean {
@@ -1243,16 +1244,18 @@ open class CardTemplateEditor : AnkiActivity(R.layout.activity_card_template_edi
                     Timber.i("CardTemplateEditor:: Restore to default button pressed")
 
                     fun askUser(kind: StockNotetype.Kind? = null) {
-                        AlertDialog.Builder(requireContext()).show {
-                            setTitle(TR.sentenceCase.restoreToDefault)
-                            setMessage(TR.cardTemplatesRestoreToDefaultConfirmation())
-                            setPositiveButton(CommonString.restore) { _, _ ->
-                                launchCatchingTask {
-                                    restoreNotetypeToStock(kind)
-                                }
-                            }
-                            setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
-                        }
+                        createPaperDialog(requireContext()) { dialog ->
+                            PaperConfirmationDialog(
+                                title = TR.sentenceCase.restoreToDefault,
+                                message = TR.cardTemplatesRestoreToDefaultConfirmation(),
+                                confirm =
+                                    DialogAction(getString(CommonString.restore), {
+                                        dialog.dismiss()
+                                        launchCatchingTask { restoreNotetypeToStock(kind) }
+                                    }, DialogActionStyle.Destructive),
+                                onDismissRequest = dialog::dismiss,
+                            )
+                        }.show()
                     }
 
                     val originalStockKind = tempModel.notetype.originalStockKind
@@ -1269,14 +1272,18 @@ open class CardTemplateEditor : AnkiActivity(R.layout.activity_card_template_edi
                             withCol {
                                 stockNotetypeKinds.map { getStockNotetype(it).name }
                             }
-                        AlertDialog.Builder(requireContext()).show {
-                            setTitle(TR.sentenceCase.restoreToDefault)
-                            setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
-                            listItems(stockNotetypesNames) { _: DialogInterface, index: Int ->
-                                val kind = stockNotetypeKinds[index]
-                                askUser(kind)
-                            }
-                        }
+                        createPaperDialog(requireContext()) { dialog ->
+                            SingleChoiceDialog(
+                                title = TR.sentenceCase.restoreToDefault,
+                                choices = stockNotetypesNames.map { DialogChoice(it) },
+                                selectedIndex = null,
+                                onSelect = { index ->
+                                    dialog.dismiss()
+                                    askUser(stockNotetypeKinds[index])
+                                },
+                                onDismissRequest = dialog::dismiss,
+                            )
+                        }.show()
                     }
                     true
                 }
@@ -1360,7 +1367,13 @@ open class CardTemplateEditor : AnkiActivity(R.layout.activity_card_template_edi
                 val explanation = getString(CommonString.deck_override_explanation, name)
                 // Anki Desktop allows Dynamic decks, have reported this as a bug:
                 // https://forums.ankiweb.net/t/minor-bug-deck-override-to-filtered-deck/1493
-                startDeckSelection(title = title, templateEditorMessage = explanation, allowAll = false, allowFiltered = false)
+                startDeckSelection(
+                    title = title,
+                    templateEditorMessage = explanation,
+                    allowAll = false,
+                    allowFiltered = false,
+                    usePaperDialog = true,
+                )
             }
 
         private fun getCurrentTemplateName(tempModel: CardTemplateNotetype): String =

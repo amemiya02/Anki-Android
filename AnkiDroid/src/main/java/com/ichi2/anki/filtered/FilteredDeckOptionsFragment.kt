@@ -15,7 +15,6 @@ import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.Spinner
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat.Type.displayCutout
 import androidx.core.view.WindowInsetsCompat.Type.ime
@@ -40,12 +39,10 @@ import com.ichi2.anki.utils.ConfigAwareSingleFragmentActivity
 import com.ichi2.anki.utils.ext.collectInViewLifecycle
 import com.ichi2.anki.utils.ext.window
 import com.ichi2.anki.utils.openUrl
-import com.ichi2.utils.cancelable
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.ErrorDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.utils.configureIconsDirection
-import com.ichi2.utils.message
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
-import com.ichi2.utils.title
 import dev.androidbroadcast.vbpd.viewBinding
 import java.util.Locale.getDefault
 
@@ -117,12 +114,19 @@ class FilteredDeckOptionsFragment : Fragment(R.layout.fragment_filtered_deck_opt
                 is Initializing -> {
                     if (state.throwable != null) {
                         // we can't recover from an initialization error so just exit
-                        AlertDialog.Builder(requireActivity()).show {
-                            setTitle(CommonString.import_title_error)
-                            message(text = state.throwable.toString())
-                            cancelable(false)
-                            positiveButton(CommonString.dialog_exit) { requireActivity().finish() }
-                        }
+                        createPaperDialog(requireActivity()) { dialog ->
+                            ErrorDialog(
+                                title = getString(CommonString.import_title_error),
+                                message = state.throwable.toString(),
+                                onDismissRequest = dialog::dismiss,
+                                dismissText = null,
+                                primaryAction =
+                                    DialogAction(getString(CommonString.dialog_exit), {
+                                        dialog.dismiss()
+                                        requireActivity().finish()
+                                    }),
+                            )
+                        }.apply { setCancelable(false) }.show()
                     } else {
                         binding.loadingIndicator.isVisible = true
                         binding.scrollView.isVisible = false
@@ -142,12 +146,15 @@ class FilteredDeckOptionsFragment : Fragment(R.layout.fragment_filtered_deck_opt
                     bindState(state)
                     // show any errors we might have
                     if (state.throwable != null) {
-                        AlertDialog.Builder(requireActivity()).show {
-                            title(CommonString.import_title_error)
-                            message(text = state.throwable.message)
-                            positiveButton(CommonString.dialog_ok)
-                            setOnDismissListener { viewModel.clearError() }
-                        }
+                        createPaperDialog(requireActivity()) { dialog ->
+                            ErrorDialog(
+                                title = getString(CommonString.import_title_error),
+                                message = state.throwable.message.orEmpty(),
+                                onDismissRequest = dialog::dismiss,
+                                dismissText = null,
+                                primaryAction = DialogAction(getString(CommonString.dialog_ok), dialog::dismiss),
+                            )
+                        }.apply { setOnDismissListener { viewModel.clearError() } }.show()
                         return@collectInViewLifecycle
                     }
                     if (state.browserQuery != null) {

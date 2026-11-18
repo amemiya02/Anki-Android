@@ -13,7 +13,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.CheckResult
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat.Type.displayCutout
 import androidx.core.view.WindowInsetsCompat.Type.ime
@@ -26,11 +25,11 @@ import com.ichi2.anki.databinding.ActivityCardBrowserAppearanceBinding
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.libanki.CardTemplate
 import com.ichi2.anki.ui.internationalization.sentenceCase
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.themes.Themes
-import com.ichi2.utils.message
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
 import dev.androidbroadcast.vbpd.viewBinding
 import org.jetbrains.annotations.Contract
 import timber.log.Timber
@@ -131,14 +130,18 @@ class CardTemplateBrowserAppearanceEditor : AnkiActivity(R.layout.activity_card_
     }
 
     private fun showRestoreDefaultDialog() {
-        AlertDialog.Builder(this).show {
-            setTitle(TR.sentenceCase.restoreToDefault)
-            positiveButton(CommonString.restore) {
-                restoreDefaultAndClose()
-            }
-            negativeButton(CommonString.dialog_cancel)
-            message(CommonString.card_template_browser_appearance_restore_default_dialog)
-        }
+        createPaperDialog(this) { dialog ->
+            ConfirmationDialog(
+                title = TR.sentenceCase.restoreToDefault,
+                message = getString(CommonString.card_template_browser_appearance_restore_default_dialog),
+                confirm =
+                    DialogAction(getString(CommonString.restore), {
+                        dialog.dismiss()
+                        restoreDefaultAndClose()
+                    }, DialogActionStyle.Destructive),
+                onDismissRequest = dialog::dismiss,
+            )
+        }.show()
     }
 
     public override fun onSaveInstanceState(outState: Bundle) {

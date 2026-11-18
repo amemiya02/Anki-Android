@@ -4,6 +4,7 @@
 package com.ichi2.anki.instantnoteeditor
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -12,14 +13,13 @@ import android.text.TextWatcher
 import android.view.ActionMode
 import android.view.KeyEvent
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.widget.EditText
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
@@ -49,15 +49,14 @@ import com.ichi2.anki.progress.observeProgress
 import com.ichi2.anki.servicelayer.NoteService
 import com.ichi2.anki.startup.ensureStorageIsReady
 import com.ichi2.anki.withProgress
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.ErrorDialog
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.themes.setTransparentBackground
 import com.ichi2.utils.AndroidUiUtils.hideKeyboard
 import com.ichi2.utils.AssetHelper.TEXT_PLAIN
-import com.ichi2.utils.message
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.rawHitTest
-import com.ichi2.utils.show
-import com.ichi2.utils.title
 import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
@@ -87,7 +86,7 @@ class InstantNoteEditorActivity : AnkiActivity(R.layout.activity_instant_note_ed
     private val updatedTextKey = "updatedText"
 
     private lateinit var clozeEditTextField: TextInputEditText
-    private lateinit var instantAlertDialog: AlertDialog
+    private lateinit var instantAlertDialog: Dialog
 
     /** Gets the actual cloze field text value **/
     private val clozeFieldText: String?
@@ -208,34 +207,29 @@ class InstantNoteEditorActivity : AnkiActivity(R.layout.activity_instant_note_ed
 
         setLayoutVisibility(dialogBinding)
 
+        dialogBinding.spinnerLayout.setOnClickListener {
+            startDeckSelection(allowAll = false, allowFiltered = false, skipEmptyDefault = true, usePaperDialog = true)
+        }
+        dialogBinding.actionSaveNote.setOnClickListener {
+            Timber.d("Save note button pressed")
+            checkAndSave()
+        }
         instantAlertDialog =
-            AlertDialog.Builder(this).show {
-                setView(dialogBinding.root)
+            createPaperDialog(this, onOutsideClick = onBackPressedDispatcher::onBackPressed) {
+                PaperDialog(title = "", onDismissRequest = onBackPressedDispatcher::onBackPressed) {
+                    AndroidView(factory = { dialogBinding.root })
+                }
+            }.apply {
                 setCancelable(false)
-                setFinishOnTouchOutside(false)
-                dialogBinding.spinnerLayout.setOnClickListener {
-                    startDeckSelection(allowAll = false, allowFiltered = false, skipEmptyDefault = true)
-                }
-                dialogBinding.actionSaveNote.setOnClickListener {
-                    Timber.d("Save note button pressed")
-                    checkAndSave()
-                }
-
-                // required due to setCancelable(false)
                 setOnKeyListener { _, keyCode, event ->
-                    if (!(keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP)) {
+                    if (keyCode != KeyEvent.KEYCODE_BACK || event.action != KeyEvent.ACTION_UP) {
                         return@setOnKeyListener false
                     }
-
                     this@InstantNoteEditorActivity.onBackPressedDispatcher.onBackPressed()
-                    false
+                    true
                 }
+                show()
             }
-
-        // consume the touch event outside the dialog
-        dialogBinding.root.rootView.userClickOutsideDialog(
-            exclude = dialogBinding.root,
-        )
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -468,16 +462,21 @@ class InstantNoteEditorActivity : AnkiActivity(R.layout.activity_instant_note_ed
     /** Show a dialog when there is no cloze note type is found, allowing user either to cancel or to open
      * AnkiDroid Note Editor **/
     private fun noClozeNoteTypesFoundDialog() {
-        AlertDialog.Builder(this).show {
-            title(CommonString.cloze_note_required)
-            message(CommonString.cloze_not_found_message)
-            positiveButton(CommonString.open) {
-                openNoteEditor()
-            }
-            negativeButton(CommonString.dialog_cancel) {
-                finish()
-            }
-        }
+        createPaperDialog(this) { dialog ->
+            ConfirmationDialog(
+                title = getString(CommonString.cloze_note_required),
+                message = getString(CommonString.cloze_not_found_message),
+                confirm =
+                    DialogAction(getString(CommonString.open), {
+                        dialog.dismiss()
+                        openNoteEditor()
+                    }),
+                onDismissRequest = {
+                    dialog.dismiss()
+                    finish()
+                },
+            )
+        }.show()
     }
 
     private fun setupErrorListeners() {
@@ -485,11 +484,9 @@ class InstantNoteEditorActivity : AnkiActivity(R.layout.activity_instant_note_ed
         viewModel.onError
             .flowWithLifecycle(lifecycle)
             .onEach { errorMessage ->
-                AlertDialog
-                    .Builder(this)
-                    .setTitle(CommonString.vague_error)
-                    .setMessage(errorMessage)
-                    .show()
+                createPaperDialog(this) { dialog ->
+                    ErrorDialog(getString(CommonString.vague_error), errorMessage, onDismissRequest = dialog::dismiss)
+                }.show()
             }.launchIn(lifecycleScope)
 
         viewModel.instantEditorError
@@ -513,27 +510,39 @@ class InstantNoteEditorActivity : AnkiActivity(R.layout.activity_instant_note_ed
 
     /** In case saving the note fails we, want to allow user to cancel and try again, or exist the activity **/
     private fun savingErrorDialog(message: String) {
-        AlertDialog.Builder(this).show {
-            message(text = message)
-            positiveButton(CommonString.try_again) {
-                checkAndSave()
-            }
-            negativeButton(CommonString.dialog_cancel) {
-                instantAlertDialog.dismiss()
-            }
-        }
+        createPaperDialog(this) { dialog ->
+            ErrorDialog(
+                title = getString(CommonString.vague_error),
+                message = message,
+                onDismissRequest = {
+                    dialog.dismiss()
+                    instantAlertDialog.dismiss()
+                },
+                primaryAction =
+                    DialogAction(getString(CommonString.try_again), {
+                        dialog.dismiss()
+                        checkAndSave()
+                    }),
+                dismissText = getString(CommonString.dialog_cancel),
+            )
+        }.show()
     }
 
     /** Warns the user for no cloze in the cloze field, and provide the choice to proceed or
      * to abort save and go back to the editor  **/
     private fun noClozeDialog(errorMessage: String) {
-        AlertDialog.Builder(this).show {
-            message(text = errorMessage)
-            positiveButton(text = TR.actionsSave()) {
-                if (!isSaveIgnored()) saveNoteWithProgress(skipClozeCheck = true)
-            }
-            negativeButton(CommonString.dialog_cancel)
-        }
+        createPaperDialog(this) { dialog ->
+            ConfirmationDialog(
+                title = "",
+                message = errorMessage,
+                confirm =
+                    DialogAction(TR.actionsSave(), {
+                        dialog.dismiss()
+                        if (!isSaveIgnored()) saveNoteWithProgress(skipClozeCheck = true)
+                    }),
+                onDismissRequest = dialog::dismiss,
+            )
+        }.show()
     }
 
     private fun saveNoteWithProgress(skipClozeCheck: Boolean) {
@@ -587,17 +596,6 @@ class InstantNoteEditorActivity : AnkiActivity(R.layout.activity_instant_note_ed
                 }
             },
         )
-
-    private fun View.userClickOutsideDialog(exclude: View) {
-        setOnTouchListener { _, event ->
-            if (event.action != MotionEvent.ACTION_DOWN) return@setOnTouchListener false
-            if (exclude.rawHitTest(event)) {
-                return@setOnTouchListener false
-            }
-            this@InstantNoteEditorActivity.onBackPressedDispatcher.onBackPressed()
-            false
-        }
-    }
 
     private fun intentTextChanged(): Boolean {
         Timber.d("Checking if the original text was changed")

@@ -72,6 +72,7 @@ import com.ichi2.anki.utils.ext.requireLongArray
 import com.ichi2.anki.utils.ext.setFragmentResultListener
 import com.ichi2.anki.withProgress
 import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogBody
 import com.ichi2.compose.ui.dialogs.PaperDialog
 import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.ui.AccessibleSearchView
@@ -100,6 +101,13 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
         private set
     private lateinit var decksAdapter: DecksArrayAdapter
     private lateinit var decksRoot: DeckNode
+    private var paperTree: DeckNode? = null
+    private var removedDeckIds by mutableStateOf(longArrayOf())
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putLongArray(STATE_REMOVED_DECK_IDS, removedDeckIds)
+    }
     private val title: String
         get() =
             requireArguments().getString(ARG_TITLE, null)
@@ -114,7 +122,10 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         isCancelable = true
-        if (usePaperDialog) return createPaperDialog(requireContext()) { DeckSelectionContent() }
+        if (usePaperDialog) {
+            removedDeckIds = savedInstanceState?.getLongArray(STATE_REMOVED_DECK_IDS) ?: longArrayOf()
+            return createPaperDialog(requireContext()) { DeckSelectionContent() }
+        }
         binding = DialogDeckPickerBinding.inflate(LayoutInflater.from(context))
         binding.templateEditorMessage.isVisible = templateEditorMessage != null
         binding.templateEditorMessage.text = templateEditorMessage
@@ -139,20 +150,32 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
 
     @Composable
     private fun DeckSelectionContent() {
-        val root by produceState<DeckNode?>(null) { value = withCol { sched.deckDueTree() } }
+        val root by produceState<DeckNode?>(null) {
+            value = withCol { sched.deckDueTree() }
+            paperTree = value
+        }
         var query by rememberSaveable { mutableStateOf("") }
         var toggled by rememberSaveable { mutableStateOf(longArrayOf()) }
         val filters = DeckFilters.create(query)
-        val allowed = getDeckIds().toSet()
+        val allowed = getDeckIds().toSet() - removedDeckIds.toSet()
         PaperDialog(
             title = title,
             onDismissRequest = ::dismiss,
             actions =
-                listOf(
-                    DialogAction(getString(CommonString.dialog_cancel), ::dismiss),
-                    DialogAction(TR.sentenceCase.createDeck, ::showDeckDialog),
-                ),
+                buildList {
+                    add(DialogAction(getString(CommonString.dialog_cancel), ::dismiss))
+                    if (templateEditorMessage != null) {
+                        add(
+                            DialogAction(getString(CommonString.restore_default), {
+                                onDeckSelected(null)
+                                dismiss()
+                            }),
+                        )
+                    }
+                    add(DialogAction(TR.sentenceCase.createDeck, ::showDeckDialog))
+                },
         ) {
+            templateEditorMessage?.let { DialogBody(it) }
             OutlinedTextField(
                 query,
                 { query = it },
@@ -337,16 +360,19 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
     private fun selectDeckAndClose(deck: SelectableDeck) {
         Timber.d("selected deck '%s'", deck)
         onDeckSelected(deck)
-        if (allowMultipleSelection) {
+        if (!allowMultipleSelection) {
+            dismiss()
+            return
+        }
+        if (usePaperDialog) {
             if (deck is SelectableDeck.Deck) {
-                decksAdapter.removeDeck(deck.deckId)
+                val subtree = paperTree?.find(deck.deckId)?.map { it.did }.orEmpty()
+                removedDeckIds = removedDeckIds + subtree.toLongArray()
             }
-            // dismiss dialog when all decks have been selected
-            if (decksAdapter.remainingDeckCount == 0) {
-                dialog!!.dismiss()
-            }
+            if (getDeckIds().all { it in removedDeckIds }) dismiss()
         } else {
-            dialog!!.dismiss()
+            if (deck is SelectableDeck.Deck) decksAdapter.removeDeck(deck.deckId)
+            if (decksAdapter.remainingDeckCount == 0) dismiss()
         }
     }
 
@@ -558,6 +584,7 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
         private const val ARG_TEMPLATE_EDITOR_MESSAGE = "arg_template_editor_message"
         private const val ARG_DECK_IDS = "arg_deck_ids"
         private const val ARG_ALLOW_MULTIPLE_SELECTION = "arg_allow_multiple_selection"
+        private const val STATE_REMOVED_DECK_IDS = "removed_deck_ids"
         private const val ARG_USE_PAPER_DIALOG = "arg_use_paper_dialog"
 
         /** Creates a new instance of [DeckSelectionDialog]. */

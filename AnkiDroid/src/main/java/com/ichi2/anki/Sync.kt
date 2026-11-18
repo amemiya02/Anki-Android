@@ -4,7 +4,7 @@
 package com.ichi2.anki
 
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.runtime.mutableStateOf
 import androidx.work.NetworkType
 import anki.collection.Progress
 import anki.sync.SyncCollectionResponse
@@ -27,6 +27,11 @@ import com.ichi2.anki.sync.fullUploadOrDownload
 import com.ichi2.anki.sync.syncCollection
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.worker.SyncMediaWorker
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogBody
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.preferences.VersatileTextWithASwitchPreference
 import com.ichi2.utils.NetworkUtils
 import com.ichi2.utils.dismissSafely
@@ -382,18 +387,27 @@ suspend fun monitorMediaSync(deckPicker: DeckPicker) {
     val scope = CoroutineScope(Dispatchers.IO)
     var isAborted = false
 
+    val progress = mutableStateOf("")
     val dialog =
         withContext(Dispatchers.Main) {
-            AlertDialog
-                .Builder(deckPicker)
-                .setTitle(with(deckPicker) { TR.sentenceCase.mediaSyncLog })
-                .setMessage("")
-                .setPositiveButton(CommonString.dialog_continue) { _, _ ->
-                    scope.cancel()
-                }.setNegativeButton(TR.syncAbortButton()) { _, _ ->
-                    isAborted = true
-                    cancelMediaSync(backend)
-                }.show()
+            createPaperDialog(deckPicker) { window ->
+                PaperDialog(
+                    title = with(deckPicker) { TR.sentenceCase.mediaSyncLog },
+                    onDismissRequest = window::dismiss,
+                    actions =
+                        listOf(
+                            DialogAction(TR.syncAbortButton(), {
+                                isAborted = true
+                                window.dismiss()
+                                cancelMediaSync(backend)
+                            }),
+                            DialogAction(deckPicker.getString(CommonString.dialog_continue), {
+                                window.dismiss()
+                                scope.cancel()
+                            }, DialogActionStyle.Filled),
+                        ),
+                ) { DialogBody(progress.value) }
+            }.also { it.show() }
         }
 
     fun showMessage(msg: String) = deckPicker.showSnackbar(msg, Snackbar.LENGTH_SHORT)
@@ -407,7 +421,7 @@ suspend fun monitorMediaSync(deckPicker: DeckPicker) {
                     break
                 }
                 val text = resp.progress.run { "$added\n$removed\n$checked" }
-                dialog.setMessage(text)
+                progress.value = text
                 delay(100.milliseconds)
             }
             showMessage(if (isAborted) TR.syncMediaAborted() else TR.syncMediaComplete())

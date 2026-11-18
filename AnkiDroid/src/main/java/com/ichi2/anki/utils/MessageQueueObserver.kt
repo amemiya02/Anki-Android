@@ -3,7 +3,7 @@
 
 package com.ichi2.anki.utils
 
-import androidx.appcompat.app.AlertDialog
+import android.app.Dialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -44,12 +44,12 @@ fun <T> Fragment.observeMessages(
     }
 }
 
-/** Shows the dialog and returns once it is dismissed. Cancelling the caller dismisses it. */
-suspend fun AlertDialog.Builder.showAndAwaitDismissal(block: AlertDialog.Builder.() -> Unit) {
-    block()
+/** Shows the dialog until the user dismisses it or its caller is cancelled. */
+suspend fun Dialog.showAndAwaitDismissal() {
     suspendCancellableCoroutine { continuation ->
-        val dialog = setOnDismissListener { continuation.resume(Unit) }.show()
-        continuation.invokeOnCancellation { dialog.dismiss() }
+        setOnDismissListener { if (continuation.isActive) continuation.resume(Unit) }
+        continuation.invokeOnCancellation { dismiss() }
+        if (continuation.isActive) show()
     }
 }
 

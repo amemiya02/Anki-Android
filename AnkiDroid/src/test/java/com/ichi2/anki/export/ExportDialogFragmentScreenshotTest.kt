@@ -3,12 +3,19 @@
 package com.ichi2.anki.export
 
 import android.os.Bundle
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.anki.libanki.Consts.DEFAULT_DECK_ID
 import com.ichi2.testutils.launchFragment
+import org.junit.Rule
 import org.junit.Test
 
 class ExportDialogFragmentScreenshotTest : ScreenshotTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Test
     fun collapsed() =
         withExportDialog {
@@ -18,27 +25,24 @@ class ExportDialogFragmentScreenshotTest : ScreenshotTest() {
     @Test
     fun expanded() =
         withExportDialog {
-            binding.exportTypeSelector.performClick()
-            // BUG(Roborazzi): a popup is positioned relative to the screen, rather than the parent
+            compose.onNodeWithText("(.colpkg)", substring = true).performClick()
             captureScreen("expanded")
         }
 
     @Test
     fun deck() =
-        withExportDialog(ExportDialogFragment.newInstance(DEFAULT_DECK_ID).arguments) {
+        withExportDialog(ExportDialogFragment.forDeckList(DEFAULT_DECK_ID).arguments) {
             captureScreen("deck")
         }
 
     private fun withExportDialog(
         fragmentArgs: Bundle? = null,
-        action: ExportDialogFragment.() -> Unit,
+        action: () -> Unit,
     ) {
         ensureCollectionLoadIsSynchronous()
-        launchFragment<ExportDialogFragment>(fragmentArgs).use { scenario ->
-            scenario.onFragment { fragment ->
-                advanceRobolectricLooper()
-                action(fragment)
-            }
+        launchFragment<ExportDialogFragment>(fragmentArgs).use {
+            advanceRobolectricLooper()
+            action()
         }
     }
 }

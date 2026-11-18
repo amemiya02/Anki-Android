@@ -3,9 +3,9 @@
 
 package com.ichi2.anki.dialogs
 
+import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.setFragmentResult
@@ -14,11 +14,10 @@ import com.ichi2.anki.R
 import com.ichi2.anki.utils.ext.ifNullOrEmpty
 import com.ichi2.anki.utils.ext.requireString
 import com.ichi2.anki.utils.ext.setFragmentResultListener
-import com.ichi2.utils.create
-import com.ichi2.utils.message
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.title
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.createPaperDialog
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog as PaperConfirmationDialog
 
 /**
  * This is a reusable convenience class which makes it easy to show a confirmation dialog as a DialogFragment.
@@ -59,12 +58,14 @@ class ConfirmationDialog : DialogFragment() {
         title: String?,
         message: String,
         positiveButtonText: String? = null,
+        destructive: Boolean = false,
     ) {
         arguments =
             Bundle().apply {
                 putString(ARG_MESSAGE, message)
                 putString(ARG_TITLE, title)
                 putString(ARG_POSITIVE_BUTTON_TEXT, positiveButtonText)
+                putBoolean(ARG_DESTRUCTIVE, destructive)
             }
     }
 
@@ -76,15 +77,26 @@ class ConfirmationDialog : DialogFragment() {
         this.cancel = cancel
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog =
-        AlertDialog.Builder(requireContext()).create {
-            title(text = title)
-            message(text = message)
-            positiveButton(text = positiveButtonText) {
-                setConfirmationResult()
-                confirm.run()
-            }
-            negativeButton(CommonString.dialog_cancel) { cancel.run() }
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+        createPaperDialog(requireContext()) {
+            PaperConfirmationDialog(
+                title = title,
+                message = message,
+                confirm =
+                    DialogAction(
+                        positiveButtonText,
+                        {
+                            setConfirmationResult()
+                            confirm.run()
+                            dismiss()
+                        },
+                        if (requireArguments().getBoolean(ARG_DESTRUCTIVE)) DialogActionStyle.Destructive else DialogActionStyle.Filled,
+                    ),
+                onDismissRequest = {
+                    cancel.run()
+                    dismiss()
+                },
+            )
         }
 
     private fun setConfirmationResult() {
@@ -104,6 +116,7 @@ class ConfirmationDialog : DialogFragment() {
         /** Optional text for the positive button. Default: "OK" */
         private const val ARG_POSITIVE_BUTTON_TEXT = "positiveButtonText"
 
+        private const val ARG_DESTRUCTIVE = "destructive"
         private const val ARG_REQUEST_KEY = "requestKey"
         private const val ARG_RESULT = "result"
 

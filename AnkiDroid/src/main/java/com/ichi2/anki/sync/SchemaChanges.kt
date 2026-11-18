@@ -2,7 +2,6 @@
 
 package com.ichi2.anki.sync
 
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.CollectionManager.TR
@@ -13,12 +12,10 @@ import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.exception.ConfirmModSchemaException
 import com.ichi2.anki.utils.ext.showDialogFragment
-import com.ichi2.utils.message
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
+import com.ichi2.anki.utils.showAndAwaitDismissal
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.createPaperDialog
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog as PaperConfirmationDialog
 
 /**
  * [launchCatchingTask], showing a one-way sync dialog: [CommonString.full_sync_confirmation]
@@ -83,15 +80,19 @@ suspend fun AnkiActivity.userAcceptsSchemaChange(): Boolean {
     if (withCol { schemaChanged() }) {
         return true
     }
-    val hasAcceptedSchemaChange =
-        suspendCoroutine { coroutine ->
-            AlertDialog.Builder(this).show {
-                message(text = TR.deckConfigWillRequireFullSync().replace("\\s+".toRegex(), " "))
-                positiveButton(CommonString.dialog_ok) { coroutine.resume(true) }
-                negativeButton(CommonString.dialog_cancel) { coroutine.resume(false) }
-                setOnCancelListener { coroutine.resume(false) }
-            }
-        }
+    var hasAcceptedSchemaChange = false
+    createPaperDialog(this) { dialog ->
+        PaperConfirmationDialog(
+            title = "",
+            message = TR.deckConfigWillRequireFullSync().replace("\s+".toRegex(), " "),
+            confirm =
+                DialogAction(getString(CommonString.dialog_ok), {
+                    hasAcceptedSchemaChange = true
+                    dialog.dismiss()
+                }),
+            onDismissRequest = dialog::dismiss,
+        )
+    }.showAndAwaitDismissal()
     if (hasAcceptedSchemaChange) {
         withCol { modSchema(check = false) }
     }
