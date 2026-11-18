@@ -3,7 +3,6 @@
 package com.ichi2.anki.notetype
 
 import android.content.Context
-
 import android.widget.Toast
 import anki.notetypes.Notetype
 import anki.notetypes.NotetypeNameIdUseCount

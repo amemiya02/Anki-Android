@@ -214,6 +214,7 @@ internal fun NoteTypeDetailPage(
     onTemplate: (NoteTemplateRow) -> Unit,
 ) {
     val paper = MaterialTheme.foundation
+    val addField = with(LocalContext.current) { TR.sentenceCase.addField }
     val scroll = rememberScrollState()
     var menu by remember { mutableStateOf(false) }
     val fields = detail?.fields.orEmpty()
@@ -261,7 +262,7 @@ internal fun NoteTypeDetailPage(
                 SectionHeading(stringResource(R.string.note_type_fields)) {
                     TextButton(onClick = onAddField, contentPadding = PaddingValues(horizontal = 4.dp)) {
                         Icon(painterResource(CommonR.drawable.symbol_add), contentDescription = null, Modifier.size(18.dp))
-                        Text(with(LocalContext.current) { TR.sentenceCase.addField }, Modifier.padding(start = 4.dp), style = paper.type.button)
+                        Text(addField, Modifier.padding(start = 4.dp), style = paper.type.button)
                     }
                 }
                 NoteTypeDivider()

@@ -243,7 +243,12 @@ internal fun FieldNameDialog(
     onDismiss: () -> Unit,
     onSave: (String) -> Unit,
 ) {
-    val title = if (field == null) with(LocalContext.current) { TR.sentenceCase.addField } else stringResource(CommonString.model_field_editor_rename)
+    val title =
+        if (field == null) {
+            with(LocalContext.current) { TR.sentenceCase.addField }
+        } else {
+            stringResource(CommonString.model_field_editor_rename)
+        }
     val emptyName = stringResource(CommonString.toast_empty_name)
     val duplicate = stringResource(CommonString.toast_duplicate_field)
     TextInputDialog(
