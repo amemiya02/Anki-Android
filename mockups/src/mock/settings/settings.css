@@ -1,0 +1,888 @@
+/*
+ * Settings and dialogs (ticket 32), Quiet paper only.
+ *
+ * Colours are only the --v-* values from docs/redesign/quiet-paper.values.json
+ * that the phone passes in; no new colour pairing is introduced. Sizes are in
+ * px, where 1px stands for 1dp.
+ */
+
+/* ---------- Settings pages ---------- */
+
+.s-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 64px;
+  padding: 4px 20px 4px 8px;
+}
+
+.s-iconbtn {
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.s-title {
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.s-page {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px;
+}
+
+.s-section {
+  margin: 22px 0 6px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--v-onBackgroundMuted);
+}
+
+.s-lead,
+.s-note {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--v-onBackgroundMuted);
+  text-wrap: pretty;
+}
+
+.s-lead {
+  margin-top: 4px;
+}
+
+.s-note {
+  margin: 12px 0 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.s-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--v-outline);
+}
+
+.s-list-top {
+  margin-top: 4px;
+}
+
+.s-list-home {
+  margin-top: 12px;
+}
+
+.s-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 56px;
+  padding-block: 8px;
+  border-bottom: 1px solid var(--v-outline);
+}
+
+.s-row-two {
+  min-height: 64px;
+}
+
+.s-list-home .s-row {
+  min-height: 62px;
+}
+
+.s-row-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+}
+
+.s-row-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.s-row-title {
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.s-row-sub {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--v-onBackgroundMuted);
+}
+
+/* The current value of a setting reads as part of it, in the body size. */
+.s-row-value {
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--v-onBackgroundMuted);
+}
+
+.s-row-trailing {
+  flex: none;
+  display: flex;
+  align-items: center;
+  color: var(--v-onBackgroundMuted);
+}
+
+.s-row-trailing .msym {
+  --icon-size: 20px;
+}
+
+.s-row.is-muted {
+  color: var(--v-onBackgroundMuted);
+}
+
+/* Switch: the track and thumb only; on is the primary colour. */
+.s-switch {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  border: 1px solid var(--v-onBackgroundMuted);
+  border-radius: 999px;
+  background: transparent;
+}
+
+.s-switch-thumb {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--v-onBackgroundMuted);
+}
+
+.s-switch.is-on {
+  border-color: var(--v-primary);
+  background: var(--v-primary);
+}
+
+.s-switch.is-on .s-switch-thumb {
+  top: 3px;
+  left: 23px;
+  width: 20px;
+  height: 20px;
+  background: var(--v-onPrimary);
+}
+
+/* Slider: the progress colours, so it reads like the Core Loop's bars. */
+.s-row-slider {
+  min-height: 72px;
+}
+
+.s-slider {
+  position: relative;
+  display: block;
+  height: 3px;
+  margin: 14px 10px 6px 0;
+  background: var(--v-progressTrack);
+}
+
+.s-slider-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--v-progressFill);
+}
+
+.s-slider-thumb {
+  position: absolute;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border-radius: 50%;
+  background: var(--v-progressFill);
+}
+
+.s-slider-value {
+  align-self: flex-end;
+  padding-bottom: 2px;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--v-onBackground);
+}
+
+/* Search */
+.s-search {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 48px;
+  margin-top: 4px;
+  padding: 0 8px 0 14px;
+  border: 1px solid var(--v-outline);
+  border-radius: 6px;
+  color: var(--v-onBackgroundMuted);
+}
+
+.s-search.is-active {
+  border-color: var(--v-onBackground);
+  color: var(--v-onBackground);
+}
+
+.s-search-placeholder {
+  font-size: 16px;
+}
+
+.s-search-query {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+}
+
+.s-search-clear {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+}
+
+.s-caret {
+  display: inline-block;
+  width: 1.5px;
+  height: 1.2em;
+  margin-left: 1px;
+  background: var(--v-emphasis);
+}
+
+.s-count {
+  margin: 16px 0 4px;
+  font-size: 13px;
+  color: var(--v-onBackgroundMuted);
+}
+
+.s-match {
+  font-weight: 700;
+}
+
+/* A plain system keyboard, so the search reads as in progress. */
+.s-keyboard {
+  position: absolute;
+  inset: auto 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 4px 34px;
+  background: #d3d5da;
+  font:
+    400 19px/1 system-ui,
+    sans-serif;
+  color: #111;
+}
+
+[data-theme="dark"] .s-keyboard,
+[data-theme="black"] .s-keyboard {
+  background: #26272b;
+  color: #eee;
+}
+
+.s-keys {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.s-key {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 42px;
+  border-radius: 5px;
+  background: #fff;
+}
+
+[data-theme="dark"] .s-key,
+[data-theme="black"] .s-key {
+  background: #46474c;
+}
+
+.s-key-wide {
+  width: 64px;
+  font-size: 14px;
+}
+
+.s-key-space {
+  flex: 1;
+  max-width: 200px;
+  font-size: 14px;
+}
+
+/* Theme tiles: a small deck list in each theme. */
+.s-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.s-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0 6px;
+  border: 1px solid var(--v-outline);
+  border-radius: 6px;
+}
+
+.s-tile.is-chosen {
+  border: 2px solid var(--v-emphasis);
+  padding: 7px 0 5px;
+}
+
+.s-tile-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  gap: 2px;
+  font-size: 13px;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.s-tile.is-chosen .s-tile-label {
+  font-weight: 600;
+}
+
+.s-tile {
+  position: relative;
+}
+
+.s-tile-check {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--v-primary);
+  color: var(--v-onPrimary);
+}
+
+.s-tile-check .msym {
+  --icon-size: 16px;
+}
+
+.s-thumb {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 56px;
+  height: 84px;
+  padding: 10px 8px;
+  border: 1px solid #8b8b8b;
+  border-radius: 4px;
+}
+
+/* The thumbnails show each theme as it is, whatever theme the page is in. */
+.s-thumb-light {
+  background: #f5f0e6;
+  --ink: #211e19;
+}
+.s-thumb-dark {
+  background: #1c1a17;
+  --ink: #ece5d8;
+}
+.s-thumb-black {
+  background: #000;
+  --ink: #ece5d8;
+}
+.s-thumb-system {
+  background: linear-gradient(135deg, #f5f0e6 50%, #1c1a17 50%);
+  --ink: #8b8b8b;
+}
+
+.s-thumb-line {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--ink);
+  opacity: 0.55;
+}
+
+.s-thumb-title {
+  width: 70%;
+  height: 6px;
+  margin-bottom: 4px;
+  opacity: 1;
+}
+
+.s-thumb-short {
+  width: 60%;
+}
+
+/* The one cinnabar mark of the theme: the primary button. */
+.s-thumb::after {
+  content: "";
+  height: 8px;
+  margin-top: auto;
+  border-radius: 2px;
+  background: #a63d25;
+}
+
+.s-thumb-dark::after,
+.s-thumb-black::after {
+  background: #c0492a;
+}
+
+.s-thumb-system::after {
+  background: linear-gradient(135deg, #a63d25 50%, #c0492a 50%);
+}
+
+.s-list-tight .s-row {
+  min-height: 56px;
+}
+
+.s-segmented {
+  display: flex;
+  border: 1px solid var(--v-outline);
+  border-radius: 6px;
+  overflow: hidden;
+  color: var(--v-onBackground);
+}
+
+.s-segmented > span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 15px;
+}
+
+.s-segmented > span + span {
+  border-left: 1px solid var(--v-outline);
+}
+
+.s-segmented .is-chosen {
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--v-emphasis);
+}
+
+.s-segmented .is-chosen .msym {
+  --icon-size: 16px;
+  color: var(--v-emphasis);
+}
+
+/* Controls */
+.s-tabs {
+  display: flex;
+  gap: 24px;
+  margin-top: 18px;
+  border-bottom: 1px solid var(--v-outline);
+}
+
+.s-tabs > span {
+  position: relative;
+  padding: 12px 0;
+  font-size: 15px;
+  color: var(--v-onBackgroundMuted);
+}
+
+.s-tabs > .is-current {
+  font-weight: 600;
+  color: var(--v-onBackground);
+}
+
+.s-tabs > .is-current::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 2px;
+  background: var(--v-emphasis);
+}
+
+.s-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  max-width: 190px;
+}
+
+.s-chip {
+  min-width: 32px;
+  padding: 3px 8px;
+  border: 1px solid var(--v-outline);
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--v-onBackground);
+}
+
+/* Toolbar actions: drag and drop */
+.s-action {
+  min-height: 52px;
+}
+
+.s-handle {
+  color: var(--v-onBackgroundMuted);
+}
+
+.s-handle .msym {
+  --icon-size: 24px;
+}
+
+/* The lifted row: no shadow (surfaces are flat), a cinnabar edge instead. */
+.s-action.is-dragging {
+  position: relative;
+  z-index: 1;
+  margin: -46px -6px 0 10px;
+  padding-inline: 12px;
+  border: 1px solid var(--v-emphasis);
+  border-radius: 6px;
+  background: var(--v-background);
+  rotate: -1.5deg;
+}
+
+.s-action.is-dragging .s-handle {
+  color: var(--v-emphasis);
+}
+
+.s-drop {
+  height: 52px;
+  border-bottom: 1px solid var(--v-outline);
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent 0 6px,
+    color-mix(in srgb, var(--v-outline) 70%, transparent) 6px 7px
+  );
+}
+
+/* ---------- Dialogs ---------- */
+
+.d-page {
+  display: contents;
+}
+
+.d-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(0 0 0 / 0.45);
+}
+
+[data-theme="dark"] .d-scrim,
+[data-theme="black"] .d-scrim {
+  background: rgb(0 0 0 / 0.68);
+}
+
+/* Flat, like every surface: a hairline edge and small corners, no shadow. */
+.d-dialog {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px 24px 16px;
+  border: 1px solid var(--v-outline);
+  border-radius: 6px;
+  background: var(--v-background);
+  color: var(--v-onBackground);
+}
+
+[data-theme="black"] .d-dialog {
+  border-color: var(--v-onBackgroundMuted);
+}
+
+.d-mark {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--v-outline);
+  border-radius: 50%;
+}
+
+.d-mark .msym {
+  --icon-size: 24px;
+}
+
+.d-mark-warn {
+  color: var(--v-emphasis);
+}
+
+.d-title {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.d-body {
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.d-detail,
+.d-help {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--v-onBackgroundMuted);
+}
+
+.d-detail {
+  margin-top: -4px;
+}
+
+.d-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.d-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 64px;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--v-onBackground);
+  background: transparent;
+  border: 0;
+}
+
+.d-btn-text {
+  padding: 0 14px;
+}
+
+.d-btn-filled {
+  background: var(--v-primary);
+  color: var(--v-onPrimary);
+}
+
+/* The destructive choice: named for what it does, marked, never filled. */
+.d-btn-danger {
+  border: 1px solid var(--v-emphasis);
+  color: var(--v-emphasis);
+}
+
+.d-btn .msym {
+  --icon-size: 20px;
+}
+
+/* Input */
+.d-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.d-field-label {
+  font-size: 13px;
+  color: var(--v-onBackgroundMuted);
+}
+
+.d-field-box {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 2px solid var(--v-onBackground);
+  border-radius: 6px;
+  font-size: 17px;
+}
+
+.d-help {
+  margin-top: -2px;
+}
+
+/* Choices */
+.d-choices {
+  display: flex;
+  flex-direction: column;
+  margin: 0 -4px;
+}
+
+.d-choice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 52px;
+  padding: 6px 4px;
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.d-radio,
+.d-check {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--v-onBackgroundMuted);
+}
+
+.d-radio {
+  border-radius: 50%;
+}
+
+.d-radio.is-on {
+  border-color: var(--v-primary);
+}
+
+.d-radio.is-on::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--v-primary);
+}
+
+.d-check {
+  border-radius: 4px;
+}
+
+.d-check.is-on {
+  border-color: var(--v-primary);
+  background: var(--v-primary);
+  color: var(--v-onPrimary);
+}
+
+.d-check .msym {
+  --icon-size: 18px;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 600,
+    "GRAD" 0,
+    "opsz" 20;
+}
+
+.d-choice-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.d-choice-sub {
+  font-size: 13px;
+  color: var(--v-onBackgroundMuted);
+}
+
+/* Progress */
+.d-progress {
+  display: block;
+  height: 3px;
+  margin-top: 4px;
+  background: var(--v-progressTrack);
+}
+
+.d-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--v-progressFill);
+}
+
+.d-progress-count {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Error */
+.d-disclosure {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
+  font-size: 15px;
+  color: var(--v-onBackgroundMuted);
+}
+
+.d-disclosure .msym {
+  --icon-size: 20px;
+}
+
+/* ---------- The map of every setting (not a phone) ---------- */
+
+.map {
+  width: 1640px;
+  padding: 40px 44px 44px;
+  border-radius: 8px;
+  background: #f5f0e6;
+  color: #211e19;
+  font-family: "Newsreader Variable", "LXGW WenKai", serif;
+}
+
+.map:lang(zh) {
+  font-family: "Newsreader Variable", "LXGW WenKai", serif;
+}
+
+.map-columns {
+  columns: 4;
+  column-gap: 36px;
+}
+
+.map-group {
+  break-inside: avoid;
+  margin-bottom: 26px;
+}
+
+.map-group h3 {
+  padding-bottom: 6px;
+  border-bottom: 1px solid #211e19;
+  font-size: 21px;
+  font-weight: 500;
+}
+
+.map-group h4 {
+  margin: 10px 0 2px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #675f53;
+}
+
+.map-group li {
+  display: flex;
+  flex-direction: column;
+  padding: 5px 0;
+  border-bottom: 1px solid #d8cfbe;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.map-group li small {
+  font-size: 12.5px;
+  color: #675f53;
+}
+
+.map-group li small.is-change {
+  color: #a63d25;
+}
+
+.map-aside li {
+  color: #675f53;
+}
+
+.map-aside li span {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}

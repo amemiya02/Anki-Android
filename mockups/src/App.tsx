@@ -19,6 +19,7 @@ import {
   Phone,
   StudyScreen,
 } from "@/mock/screens"
+import { SettingsBoard } from "@/mock/settings/boards"
 
 const langName: Record<Lang, string> = { en: "English", zh: "简体中文" }
 const themeName: Record<Theme, string> = {
@@ -418,9 +419,11 @@ export function App() {
   const core = params.get("core") as CoreKey | "overview" | null
   const decide = params.get("decide") as DecisionKey | null
   const find = params.get("find")
+  const settings = params.get("settings")
 
   let board
-  if (identity) board = <IdentityBoard />
+  if (settings) board = <SettingsBoard which={settings} lang={lang} />
+  else if (identity) board = <IdentityBoard />
   else if (find) board = <FindBoard which={find} lang={lang} />
   else if (core === "overview") board = <CoreOverview lang={lang} />
   else if (core) board = <CoreThemeBoard k={core} lang={lang} />
