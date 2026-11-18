@@ -104,7 +104,7 @@ class StandardSearchFragment :
     private fun setupChips() {
         binding.decksChip.setOnClickListener {
             // TODO: see onDeckSelected
-            startDeckSelection(title = getString(CommonString.search_deck), asChild = true, skipEmptyDefault = true, usePaperDialog = true)
+            startDeckSelection(title = getString(CommonString.search_deck), asChild = true, skipEmptyDefault = true)
         }
 
         binding.tagsChip.setOnClickListener {

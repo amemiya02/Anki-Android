@@ -208,7 +208,7 @@ class InstantNoteEditorActivity : AnkiActivity(R.layout.activity_instant_note_ed
         setLayoutVisibility(dialogBinding)
 
         dialogBinding.spinnerLayout.setOnClickListener {
-            startDeckSelection(allowAll = false, allowFiltered = false, skipEmptyDefault = true, usePaperDialog = true)
+            startDeckSelection(allowAll = false, allowFiltered = false, skipEmptyDefault = true)
         }
         dialogBinding.actionSaveNote.setOnClickListener {
             Timber.d("Save note button pressed")

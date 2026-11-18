@@ -3,10 +3,20 @@
 
 package com.ichi2.anki.dialogs
 
+import android.app.Dialog
 import android.content.ContextWrapper
 import android.os.Looper
-import android.view.inputmethod.EditorInfo
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
+import androidx.compose.ui.test.performTextReplacement
 import androidx.core.content.edit
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
@@ -18,19 +28,15 @@ import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.IntroductionActivity
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.dialogs.CreateDeckDialog.DeckDialogType
-import com.ichi2.anki.dialogs.utils.input
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.testutils.ext.snackbarText
-import com.ichi2.utils.getInputField
-import com.ichi2.utils.getInputTextLayout
-import com.ichi2.utils.positiveButton
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import okhttp3.internal.closeQuietly
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.nullValue
-import org.hamcrest.Matcher
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -42,12 +48,13 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
 import kotlin.test.fail
 
 @RunWith(RobolectricTestRunner::class)
 class CreateDeckDialogTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     private lateinit var activityScenario: ActivityScenario<DeckPicker>
 
     override fun setUp() {
@@ -113,12 +120,9 @@ class CreateDeckDialogTest : RobolectricTest() {
     fun `creating a child of a filtered deck shows an error`() {
         addDynamicDeck("Filtered Deck 1")
         val deckCount = col.decks.count()
-        withCreateDeckDialog(DeckDialogType.DECK) {
-            onNewDeckCreated = { fail("the deck was not created") }
-            showDialog().apply {
-                input = "Filtered Deck 1::Child"
-                positiveButton.performClick()
-            }
+        testDialog(DeckDialogType.DECK) {
+            replaceName("Filtered Deck 1::Child")
+            confirm.assertIsEnabled().performClick()
         }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
 
@@ -153,12 +157,9 @@ class CreateDeckDialogTest : RobolectricTest() {
         val parentId = addDeck("Parent")
         addDynamicDeck("Parent::Filtered")
         val deckCount = col.decks.count()
-        withCreateDeckDialog(DeckDialogType.SUB_DECK, parentId) {
-            onNewDeckCreated = { fail("the deck was not created") }
-            showDialog().apply {
-                input = "Filtered::Child"
-                positiveButton.performClick()
-            }
+        testDialog(DeckDialogType.SUB_DECK, parentId) {
+            replaceName("Filtered::Child")
+            confirm.assertIsEnabled().performClick()
         }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
 
@@ -212,33 +213,26 @@ class CreateDeckDialogTest : RobolectricTest() {
         // The correct way to order a deck is ['01', '02', '10']
         val expectedText = "If you have deck ordering issues (e.g. ‘10’ appears before ‘2’), replace ‘2’ with ‘02’"
         testDialog(DeckDialogType.DECK) {
-            fun assertHelperText(
-                reason: String?,
-                matcher: Matcher<in CharSequence?>,
-            ) = assertThat(reason, getInputTextLayout().helperText, matcher)
-
-            input = "test"
-            assertHelperText("no number suggestion if text-only", nullValue())
-            input = "1. Cheese"
-            assertHelperText("no number suggestion if number is less than 10", nullValue())
-            input = "10. Cheese"
-            assertHelperText(
-                "Number suggestion if number is greater than or equal to 10",
-                equalTo(expectedText),
-            )
-            input = "1. Cheese"
-            assertHelperText("hint is removed if the number is removed", nullValue())
+            val hint = compose.onNodeWithText(expectedText)
+            replaceName("test")
+            hint.assertDoesNotExist()
+            replaceName("1. Cheese")
+            hint.assertDoesNotExist()
+            replaceName("10. Cheese")
+            hint.assertIsDisplayed()
+            replaceName("1. Cheese")
+            hint.assertDoesNotExist()
         }
     }
 
     @Test
     fun nameMayNotBeZeroLength() {
         testDialog(DeckDialogType.DECK) {
-            assertThat("Ok is disabled if zero length input", positiveButton.isEnabled, equalTo(false))
-            input = "NotEmpty"
-            assertThat("Ok is enabled if not zero length input", positiveButton.isEnabled, equalTo(true))
-            input = "A::B"
-            assertThat("OK is enabled if fully qualified input provided ('A::B')", positiveButton.isEnabled, equalTo(true))
+            confirm.assertIsNotEnabled()
+            replaceName("NotEmpty")
+            confirm.assertIsEnabled()
+            replaceName("A::B")
+            confirm.assertIsEnabled()
         }
     }
 
@@ -246,10 +240,10 @@ class CreateDeckDialogTest : RobolectricTest() {
     fun `subdeck name may not be blank`() {
         val parentId = addDeck("Parent")
         testDialog(DeckDialogType.SUB_DECK, parentId) {
-            input = "   "
-            assertThat("Create is disabled if the subdeck name is blank", positiveButton.isEnabled, equalTo(false))
-            input = "Child"
-            assertThat("Create is enabled if the subdeck name is not blank", positiveButton.isEnabled, equalTo(true))
+            replaceName("   ")
+            confirm.assertIsNotEnabled()
+            replaceName("Child")
+            confirm.assertIsEnabled()
         }
     }
 
@@ -330,17 +324,18 @@ class CreateDeckDialogTest : RobolectricTest() {
     fun positiveButtonEnabledOnMatchingDeckNames() {
         val previousDeckName = "Deck Name"
         testRenameDialog(currentName = previousDeckName) {
-            input = previousDeckName
-            assertThat("no error is displayed", getInputTextLayout().error, nullValue())
+            replaceName(previousDeckName)
+            duplicateNameError.assertDoesNotExist()
+            confirm.assertIsEnabled()
         }
     }
 
     @Test
     fun `renaming a deck with an extra colon does not conflict with itself`() {
         testRenameDialog(currentName = "a::b") {
-            input = "a:::b"
-            assertThat("no error is displayed", getInputTextLayout().error, nullValue())
-            assertThat("rename is enabled", positiveButton.isEnabled, equalTo(true))
+            replaceName("a:::b")
+            duplicateNameError.assertDoesNotExist()
+            confirm.assertIsEnabled()
         }
     }
 
@@ -348,13 +343,9 @@ class CreateDeckDialogTest : RobolectricTest() {
     fun `renaming a deck to an existing deck name shows an error`() {
         col.decks.id("c")
         testRenameDialog(currentName = "a::b") {
-            input = "c"
-            assertThat(
-                "error is displayed",
-                getInputTextLayout().error?.toString(),
-                equalTo(getResourceString(CommonString.error_name_exists)),
-            )
-            assertThat("rename is disabled", positiveButton.isEnabled, equalTo(false))
+            replaceName("c")
+            duplicateNameError.assertIsDisplayed()
+            confirm.assertIsNotEnabled()
         }
     }
 
@@ -389,26 +380,46 @@ class CreateDeckDialogTest : RobolectricTest() {
 
     private fun testRenameDialog(
         currentName: String,
-        callback: (AlertDialog.() -> Unit),
-    ) {
-        val deckId = col.decks.id(currentName)
-        withRenameDeckDialog(deckId) {
-            deckName = currentName
-            callback(this.showDialog())
-        }
-    }
+        callback: DeckDialogInput.() -> Unit,
+    ) = testDialog(
+        DeckDialogType.RENAME_DECK,
+        renamedDeckId = col.decks.id(currentName),
+        initialName = currentName,
+        callback = callback,
+    )
 
-    /**
-     * Executes [callback] on the [AlertDialog] created from [CreateDeckDialog]
-     */
     private fun testDialog(
         deckDialogType: DeckDialogType,
         parentId: DeckId? = null,
         renamedDeckId: DeckId? = null,
-        callback: (AlertDialog.() -> Unit),
+        initialName: String = "",
+        callback: DeckDialogInput.() -> Unit,
     ) {
+        lateinit var dialog: Dialog
         withCreateDeckDialog(deckDialogType, parentId, renamedDeckId) {
-            callback(this.showDialog())
+            deckName = initialName
+            onNewDeckCreated = { fail("Unexpected deck change: $it") }
+            dialog = showComposeDialog()
+        }
+        try {
+            DeckDialogInput(deckDialogType).callback()
+        } finally {
+            activityScenario.onActivity { dialog.dismiss() }
+        }
+    }
+
+    private inner class DeckDialogInput(
+        type: DeckDialogType,
+    ) {
+        private val confirmLabel =
+            getResourceString(if (type == DeckDialogType.RENAME_DECK) CommonString.rename else CommonString.dialog_positive_create)
+        val confirm get() = compose.onNode(hasText(confirmLabel) and hasClickAction())
+        val input get() = compose.onNode(hasSetTextAction())
+        val duplicateNameError get() = compose.onNodeWithText(getResourceString(CommonString.error_name_exists))
+
+        fun replaceName(name: String) {
+            input.performTextReplacement(name)
+            compose.waitForIdle()
         }
     }
 
@@ -614,31 +625,25 @@ class CreateDeckDialogTest : RobolectricTest() {
     }
 
     @Test
-    fun `create is disabled while the name check is pending`() {
-        activityScenario.onActivity { activity ->
-            val dialog = CreateDeckDialog(activity, "Create deck", DeckDialogType.DECK, null).apply { onNewDeckCreated = {} }.showDialog()
-            withPendingNameChecks {
-                dialog.input = "New"
-                assertFalse(dialog.positiveButton.isEnabled, "Create is enabled before the name is checked")
+    fun `create is disabled while the name check is pending`() =
+        testDialog(DeckDialogType.DECK) {
+            withPendingNameChecks { scheduler ->
+                replaceName("New")
+                confirm.assertIsNotEnabled()
+                scheduler.advanceUntilIdle()
+                advanceRobolectricLooper()
+                confirm.assertIsEnabled()
             }
-            assertTrue(dialog.positiveButton.isEnabled, "Create is enabled once the name is checked")
         }
-    }
 
     @Test
     fun `renaming before the name check finishes does not rename onto an existing deck`() {
         addDeck("Existing")
         val did = addDeck("Old")
-        activityScenario.onActivity { activity ->
-            val dialog =
-                CreateDeckDialog(activity, "Rename deck", DeckDialogType.RENAME_DECK, null, did)
-                    .apply {
-                        deckName = "Old"
-                        onNewDeckCreated = {}
-                    }.showDialog()
+        testDialog(DeckDialogType.RENAME_DECK, renamedDeckId = did, initialName = "Old") {
             withPendingNameChecks { scheduler ->
-                dialog.input = "Existing"
-                dialog.getInputField().onEditorAction(EditorInfo.IME_ACTION_DONE)
+                replaceName("Existing")
+                input.performImeAction()
                 scheduler.advanceUntilIdle()
             }
         }
@@ -646,28 +651,25 @@ class CreateDeckDialogTest : RobolectricTest() {
     }
 
     @Test
-    fun `a name check finishing after the name is cleared does not enable create`() {
-        activityScenario.onActivity { activity ->
-            val dialog = CreateDeckDialog(activity, "Create deck", DeckDialogType.DECK, null).apply { onNewDeckCreated = {} }.showDialog()
+    fun `a name check finishing after the name is cleared does not enable create`() =
+        testDialog(DeckDialogType.DECK) {
             withPendingNameChecks { scheduler ->
-                dialog.input = "New"
-                dialog.input = ""
+                replaceName("New")
+                replaceName("")
                 scheduler.advanceUntilIdle()
-                assertFalse(dialog.positiveButton.isEnabled, "Create is enabled for an empty name")
+                confirm.assertIsNotEnabled()
             }
         }
-    }
 
     @Test
     fun `a name check finishing after the name is cleared shows no error`() {
         addDeck("Existing")
-        activityScenario.onActivity { activity ->
-            val dialog = CreateDeckDialog(activity, "Create deck", DeckDialogType.DECK, null).apply { onNewDeckCreated = {} }.showDialog()
+        testDialog(DeckDialogType.DECK) {
             withPendingNameChecks { scheduler ->
-                dialog.input = "Existing"
-                dialog.input = ""
+                replaceName("Existing")
+                replaceName("")
                 scheduler.advanceUntilIdle()
-                assertNull(dialog.getInputTextLayout().error, "an error is shown for an empty name")
+                duplicateNameError.assertDoesNotExist()
             }
         }
     }

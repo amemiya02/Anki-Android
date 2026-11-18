@@ -57,10 +57,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
-import androidx.preference.PreferenceGroup
-import androidx.preference.PreferenceManager
-import androidx.preference.PreferenceScreen
-import androidx.preference.children
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
@@ -76,6 +72,9 @@ import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.openUrl
 import com.ichi2.compose.theme.foundation
 import com.ichi2.preferences.ControlPreference
+import com.ichi2.preferences.PreferenceGroup
+import com.ichi2.preferences.PreferenceScreen
+import com.ichi2.preferences.loadSettings
 import kotlin.math.roundToInt
 
 class ControlsSettingsFragment : Fragment() {
@@ -110,9 +109,7 @@ private fun Context.controlPreferences(
     tab: ControlPreferenceScreen,
     controlTitle: (String) -> String?,
 ): PreferenceScreen {
-    val manager = PreferenceManager(this)
-    val screen = manager.inflateFromResource(this, tab.xmlRes, null)
-    manager.setPreferences(screen)
+    val screen = loadSettings(tab.xmlRes)
     val prefs = sharedPrefs()
     val actions = tab.searchableActions().associateBy { it.preferenceKey }
     for (pref in screen.allPreferences().filterIsInstance<ControlPreference>()) {

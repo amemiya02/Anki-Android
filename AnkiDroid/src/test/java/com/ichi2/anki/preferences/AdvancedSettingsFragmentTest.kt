@@ -4,7 +4,6 @@ package com.ichi2.anki.preferences
 
 import android.Manifest
 import android.content.pm.PackageManager
-import androidx.preference.SwitchPreferenceCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
@@ -12,6 +11,7 @@ import com.ichi2.anki.common.destinations.DeferredNavigation
 import com.ichi2.anki.common.destinations.PreferencesDestination
 import com.ichi2.anki.common.destinations.launchActivity
 import com.ichi2.anki.settings.Prefs
+import com.ichi2.preferences.SwitchPreference
 import com.ichi2.testutils.denyPermissions
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
@@ -105,7 +105,7 @@ class AdvancedSettingsFragmentTest : RobolectricTest() {
 }
 
 private val AdvancedSettingsFragment.allowTemplatesToRecordAudioSwitch
-    get() = requirePreference<SwitchPreferenceCompat>(R.string.pref_allow_template_audio_recording)
+    get() = requirePreference<SwitchPreference>(R.string.pref_allow_template_audio_recording)
 
 /** Runs [block] on the 'Advanced' settings screen */
 context(_: DeferredNavigation)
@@ -115,7 +115,7 @@ private fun withAdvancedSettings(block: AdvancedSettingsFragment.() -> Unit) = w
  * Opens the settings screen at [destination] and runs [block] on the fragment which displays it.
  */
 context(_: DeferredNavigation)
-private inline fun <reified F : SettingsFragment> withPreferences(
+private inline fun <reified F : RemainingSettingsFragment> withPreferences(
     destination: PreferencesDestination,
     crossinline block: F.() -> Unit,
 ) {

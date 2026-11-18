@@ -7,22 +7,27 @@ import android.app.ActivityManager
 import android.app.Application
 import android.os.Bundle
 import android.text.format.Formatter
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import androidx.preference.Preference
 import com.ichi2.anki.BackupManager
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.withCol
@@ -30,15 +35,18 @@ import com.ichi2.anki.CommonPlurals
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.LocalizedUnambiguousBackupTimeFormatter
 import com.ichi2.anki.R
+import com.ichi2.anki.common.analytics.Analytics
+import com.ichi2.anki.common.analytics.AnalyticsEvent
 import com.ichi2.anki.ioDispatcher
 import com.ichi2.anki.launchCatchingTask
-import com.ichi2.anki.preferences.SettingsFragment
-import com.ichi2.anki.preferences.requirePreference
+import com.ichi2.anki.preferences.SettingsRow
+import com.ichi2.anki.preferences.SettingsScrollPage
+import com.ichi2.anki.preferences.settingsBackAction
+import com.ichi2.anki.preferences.settingsComposeView
 import com.ichi2.anki.progress.HasProgress
 import com.ichi2.anki.progress.ProgressManager
 import com.ichi2.anki.progress.observeProgress
 import com.ichi2.anki.snackbar.showSnackbar
-import com.ichi2.anki.utils.ext.collectInViewLifecycle
 import com.ichi2.anki.utils.getUserFriendlyErrorText
 import com.ichi2.anki.utils.showAndAwaitDismissal
 import com.ichi2.compose.ui.dialogs.ConfirmationDialog
@@ -49,9 +57,8 @@ import com.ichi2.compose.ui.dialogs.DialogChoiceRow
 import com.ichi2.compose.ui.dialogs.DialogMark
 import com.ichi2.compose.ui.dialogs.PaperDialog
 import com.ichi2.compose.ui.dialogs.createPaperDialog
-import com.ichi2.preferences.TextWidgetPreference
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -229,46 +236,91 @@ enum class ManageSpaceProgress {
  ******************************************** Fragment ********************************************
  **************************************************************************************************/
 
-class ManageSpaceFragment : SettingsFragment() {
-    override val preferenceResource = R.xml.manage_space
-    override val analyticsScreenNameConstant = "manageSpace"
-
+class ManageSpaceFragment : Fragment() {
     private val viewModel: ManageSpaceViewModel by viewModels()
 
-    override fun initSubscreen() {
-        val deleteUnusedMediaPreference = requirePreference<TextWidgetPreference>(R.string.pref_delete_media_key)
-        val deleteBackupsPreference = requirePreference<TextWidgetPreference>(R.string.pref_delete_backups_key)
-        val deleteCollectionPreference = requirePreference<TextWidgetPreference>(R.string.pref_delete_collection_key)
-        val deleteEverythingPreference = requirePreference<TextWidgetPreference>(R.string.pref_delete_everything_key)
+    private val collectionRemovedWithApp: Boolean
+        get() = viewModel.collectionDirectory.isInsideDirectoriesRemovedWithTheApp(requireContext())
 
-        deleteUnusedMediaPreference.launchOnPreferenceClick { onDeleteUnusedMediaClick() }
-        deleteBackupsPreference.launchOnPreferenceClick { onDeleteBackupsClick() }
-        deleteCollectionPreference.launchOnPreferenceClick { onDeleteCollectionClick() }
-        deleteEverythingPreference.launchOnPreferenceClick { onDeleteEverythingClick() }
-
-        adjustDeleteEverythingStringsDependingOnCollectionLocation(deleteEverythingPreference)
-
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Analytics.sendAnalyticsScreenView("manageSpace")
         observeProgress(viewModel) { progress -> getString(progress.messageRes) }
     }
 
-    override fun onViewCreated(
-        view: View,
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ) {
-        super.onViewCreated(view, savedInstanceState)
-        binding.toolbar.apply {
-            title = getString(CommonString.pref__manage_space__screen_title)
+    ): View =
+        settingsComposeView(R.id.settings_manage_space) {
+            SettingsScrollPage(stringResource(CommonString.pref__manage_space__screen_title), settingsBackAction) {
+                DeletionRow(
+                    R.string.pref_delete_media_key,
+                    CommonString.pref__delete_unused_media_files__title,
+                    CommonString.pref__delete_unused_media_files__summary,
+                    viewModel.flowOfDeleteUnusedMediaSize,
+                    ::onDeleteUnusedMediaClick,
+                )
+                DeletionRow(
+                    R.string.pref_delete_backups_key,
+                    CommonString.pref__delete_backups__title,
+                    null,
+                    viewModel.flowOfDeleteBackupsSize,
+                    ::onDeleteBackupsClick,
+                )
+                DeletionRow(
+                    R.string.pref_delete_collection_key,
+                    CommonString.pref__delete_collection__title,
+                    CommonString.pref__delete_collection__summary,
+                    viewModel.flowOfDeleteCollectionSize,
+                    ::onDeleteCollectionClick,
+                )
+                val deleteTitle: Int
+                val deleteSummary: Int
+                if (collectionRemovedWithApp) {
+                    deleteTitle = CommonString.pref__delete_everything__title
+                    deleteSummary = CommonString.pref__delete_everything__summary
+                } else {
+                    deleteTitle = CommonString.pref__delete_app_data__title
+                    deleteSummary = CommonString.pref__delete_app_data__summary
+                }
+                DeletionRow(
+                    R.string.pref_delete_everything_key,
+                    deleteTitle,
+                    deleteSummary,
+                    viewModel.flowOfDeleteEverythingSize,
+                    ::onDeleteEverythingClick,
+                )
+            }
         }
 
-        listOf(
-            viewModel.flowOfDeleteUnusedMediaSize to R.string.pref_delete_media_key,
-            viewModel.flowOfDeleteCollectionSize to R.string.pref_delete_collection_key,
-            viewModel.flowOfDeleteEverythingSize to R.string.pref_delete_everything_key,
-            viewModel.flowOfDeleteBackupsSize to R.string.pref_delete_backups_key,
-        ).forEach { (flowOfSize, key) ->
-            val preference = requirePreference<TextWidgetPreference>(key)
-            flowOfSize.collectInViewLifecycle { size -> preference.setWidgetTextBy(size) }
-        }
+    @Composable
+    private fun DeletionRow(
+        @StringRes key: Int,
+        @StringRes title: Int,
+        @StringRes summary: Int?,
+        sizes: StateFlow<Size>,
+        action: suspend () -> Unit,
+    ) {
+        val size by sizes.collectAsStateWithLifecycle()
+        val current = size
+        val empty =
+            when (current) {
+                is Size.Bytes -> current.totalSize == 0L
+                is Size.FilesAndBytes -> current.files.isEmpty()
+                else -> false
+            }
+        SettingsRow(
+            title = stringResource(title),
+            summary = summary?.let { stringResource(it) },
+            value = current.displayText(),
+            enabled = !empty,
+            onClick = {
+                Analytics.send(AnalyticsEvent.SettingTapped(getString(key)))
+                launchCatchingTask { action() }
+            },
+        )
     }
 
     /************************************ Delete unused media *************************************/
@@ -342,28 +394,14 @@ class ManageSpaceFragment : SettingsFragment() {
 
     /************************************* Delete everything **************************************/
 
-    @StringRes private var deleteEverythingDialogTitle: Int = 0
-
-    @StringRes private var deleteEverythingDialogMessage: Int = 0
-
-    private fun adjustDeleteEverythingStringsDependingOnCollectionLocation(preference: Preference) {
-        if (viewModel.collectionDirectory.isInsideDirectoriesRemovedWithTheApp(requireContext())) {
-            preference.setTitle(CommonString.pref__delete_everything__title)
-            preference.setSummary(CommonString.pref__delete_everything__summary)
-            deleteEverythingDialogTitle = CommonString.dialog__delete_everything__title
-            deleteEverythingDialogMessage = CommonString.dialog__delete_everything__message
-        } else {
-            preference.setTitle(CommonString.pref__delete_app_data__title)
-            preference.setSummary(CommonString.pref__delete_app_data__summary)
-            deleteEverythingDialogTitle = CommonString.dialog__delete_app_data__title
-            deleteEverythingDialogMessage = CommonString.dialog__delete_app_data__message
-        }
-    }
-
     private suspend fun onDeleteEverythingClick() {
-        if (confirmDeletion(deleteEverythingDialogTitle, deleteEverythingDialogMessage)) {
-            viewModel.deleteEverything()
-        }
+        val (title, message) =
+            if (collectionRemovedWithApp) {
+                CommonString.dialog__delete_everything__title to CommonString.dialog__delete_everything__message
+            } else {
+                CommonString.dialog__delete_app_data__title to CommonString.dialog__delete_app_data__message
+            }
+        if (confirmDeletion(title, message)) viewModel.deleteEverything()
     }
 
     private suspend fun confirmDeletion(
@@ -428,38 +466,19 @@ class ManageSpaceFragment : SettingsFragment() {
      ************************************* Misplaced methods **************************************
      **********************************************************************************************/
 
-    // TODO Android N and earlier, formatFileSize & formatShortFileSize use powers of 1024.
-    //   Perhaps correct input so that powers of 1000 are used on every API level?
-    private fun TextWidgetPreference.setWidgetTextBy(size: Size) {
-        fun Long.toHumanReadableSize() = Formatter.formatShortFileSize(requireContext(), this)
-
-        widgetText =
-            when (size) {
-                is Size.Calculating -> getString(CommonString.pref__widget_text__calculating)
-                is Size.Error -> getString(size.widgetTextId)
-                is Size.Bytes -> size.totalSize.toHumanReadableSize()
-                is Size.FilesAndBytes ->
-                    resources.getQuantityString(
-                        CommonPlurals.pref__widget_text__n_files_n_bytes,
-                        size.files.size,
-                        size.files.size,
-                        size.totalSize.toHumanReadableSize(),
-                    )
-            }
-
-        isEnabled =
-            !(
-                (size is Size.Bytes && size.totalSize == 0L) ||
-                    (size is Size.FilesAndBytes && size.files.isEmpty())
-            )
-    }
-
-    private fun Preference.launchOnPreferenceClick(block: suspend CoroutineScope.() -> Unit) {
-        setOnPreferenceClickListener {
-            launchCatchingTask { block() }
-            true
+    private fun Size.displayText(): String =
+        when (this) {
+            Size.Calculating -> getString(CommonString.pref__widget_text__calculating)
+            is Size.Error -> getString(widgetTextId)
+            is Size.Bytes -> Formatter.formatShortFileSize(requireContext(), totalSize)
+            is Size.FilesAndBytes ->
+                resources.getQuantityString(
+                    CommonPlurals.pref__widget_text__n_files_n_bytes,
+                    files.size,
+                    files.size,
+                    Formatter.formatShortFileSize(requireContext(), totalSize),
+                )
         }
-    }
 
     private fun showSnackbarIfCalculatingOrError(size: Size) {
         when (size) {

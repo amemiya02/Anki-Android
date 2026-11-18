@@ -30,8 +30,10 @@ class ManageSpaceActionsTest : RobolectricTest() {
 
         val clearData = compose.onNodeWithText(targetContext.getString(CommonString.pref__delete_everything__title))
         clearData.performScrollTo().performClick()
-        compose.onNodeWithText(targetContext.getString(CommonString.dialog__delete_everything__title)).assertIsDisplayed()
+        val confirmation = compose.onNodeWithText(targetContext.getString(CommonString.dialog__delete_everything__message))
+        confirmation.assertIsDisplayed()
         compose.onNodeWithText(targetContext.getString(CommonString.dialog_cancel)).performClick()
+        confirmation.assertDoesNotExist()
         clearData.assertIsDisplayed()
     }
 }

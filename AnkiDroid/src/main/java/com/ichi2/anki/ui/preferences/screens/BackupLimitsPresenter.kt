@@ -2,21 +2,20 @@
 
 package com.ichi2.anki.ui.preferences.screens
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
-import androidx.preference.EditTextPreference
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
 import anki.config.Preferences.BackupLimits
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.launchCatchingTask
+import com.ichi2.anki.preferences.RemainingSettingsFragment
 import com.ichi2.anki.preferences.requirePreference
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.ui.windows.managespace.CollectionDirectoryProvider
@@ -25,7 +24,7 @@ import com.ichi2.anki.ui.windows.managespace.ensureCanWriteToOrCreateCollectionD
 import com.ichi2.anki.utils.getUserFriendlyErrorText
 import com.ichi2.preferences.HtmlHelpPreference
 import com.ichi2.preferences.IncrementerNumberRangePreferenceCompat
-import com.ichi2.preferences.NumberRangePreferenceCompat.ShouldShowDialog
+import com.ichi2.preferences.Preference
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -88,7 +87,7 @@ class BackupLimitsViewModel :
 }
 
 /**
- * A backup limit preferences presenter for [PreferenceFragmentCompat].
+ * A backup limit preferences presenter for [RemainingSettingsFragment].
  * Adds preferences from [R.xml.preferences_backup_limits] to current hierarchy, and manages them.
  *
  * To use, simply say
@@ -101,7 +100,7 @@ class BackupLimitsViewModel :
  *     backupLimitsPresenter.refresh()
  */
 class BackupLimitsPresenter(
-    private val fragment: PreferenceFragmentCompat,
+    private val fragment: RemainingSettingsFragment,
 ) : DefaultLifecycleObserver {
     private val viewModel: BackupLimitsViewModel by fragment.viewModels()
 
@@ -129,23 +128,23 @@ class BackupLimitsPresenter(
 
         // TODO Make NumberRangePreferenceCompat, and perhaps other preferences,
         //   aware of the idea that the value may not have loaded yet, and simplify this.
+        val stateForSummary = mutableStateOf<State>(State.Fetching)
         listOf(
             minutesBetweenAutomaticBackupsPreference,
             dailyBackupsToKeepPreference,
             weeklyBackupsToKeepPreference,
             monthlyBackupsToKeepPreference,
         ).forEach { preference ->
-            preference.summaryProvider =
-                Preference.SummaryProvider<EditTextPreference> {
-                    when (viewModel.flowOfState.value) {
-                        is State.Fetching -> fragment.getString(CommonString.pref__etc__summary__fetching)
-                        is State.Error.NoCollection -> fragment.getString(CommonString.pref__etc__summary__no_collection)
-                        is State.Error.Exception -> fragment.getString(CommonString.pref__etc__summary__error)
-                        is State.Fetched -> preference.text
-                    }
+            preference.setSummaryProvider {
+                when (stateForSummary.value) {
+                    is State.Fetching -> fragment.getString(CommonString.pref__etc__summary__fetching)
+                    is State.Error.NoCollection -> fragment.getString(CommonString.pref__etc__summary__no_collection)
+                    is State.Error.Exception -> fragment.getString(CommonString.pref__etc__summary__error)
+                    is State.Fetched -> preference.text
                 }
+            }
 
-            preference.onClickListener = listener@{
+            preference.canOpenEditor = listener@{
                 when (val state = viewModel.flowOfState.value) {
                     is State.Fetching -> fragment.showSnackbar(CommonString.pref__etc__snackbar__fetching)
                     is State.Error.NoCollection -> fragment.showSnackbar(CommonString.pref__etc__snackbar__no_collection)
@@ -153,17 +152,16 @@ class BackupLimitsPresenter(
                         fragment.showSnackbar(
                             text = fragment.requireContext().getUserFriendlyErrorText(state.exception),
                         )
-                    is State.Fetched -> return@listener ShouldShowDialog.Yes
+                    is State.Fetched -> return@listener true
                 }
-                return@listener ShouldShowDialog.No
+                return@listener false
             }
         }
 
-        // We don't have any useful data in case the state isn't State.Fetched, but
-        // we still need to trigger the summary providers. Setting dummy values is one simple way.
         fragment.lifecycleScope.launch {
             viewModel.flowOfState.collect { state ->
-                val limits = if (state is State.Fetched) state.backupLimits else BackupLimits.getDefaultInstance()
+                stateForSummary.value = state
+                val limits = (state as? State.Fetched)?.backupLimits ?: return@collect
                 minutesBetweenAutomaticBackupsPreference.setValue(limits.minimumIntervalMins)
                 dailyBackupsToKeepPreference.setValue(limits.daily)
                 weeklyBackupsToKeepPreference.setValue(limits.weekly)

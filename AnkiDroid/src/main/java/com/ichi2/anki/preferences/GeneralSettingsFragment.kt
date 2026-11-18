@@ -4,8 +4,6 @@ package com.ichi2.anki.preferences
 
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
-import androidx.preference.ListPreference
-import androidx.preference.SwitchPreferenceCompat
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.R
@@ -17,6 +15,8 @@ import com.ichi2.anki.contextmenu.AnkiCardContextMenu
 import com.ichi2.anki.contextmenu.CardBrowserContextMenu
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.setupNotificationChannels
+import com.ichi2.preferences.ListPreference
+import com.ichi2.preferences.SwitchPreference
 import com.ichi2.utils.LanguageUtil
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
@@ -40,20 +40,20 @@ class GeneralSettingsFragment : RemainingSettingsFragment(R.id.settings_general)
         // Paste PNG
         // Represents in the collection's pref "pastePNG" , i.e.
         // whether to convert clipboard uri to png format or not.
-        requirePreference<SwitchPreferenceCompat>(R.string.paste_png_key).apply {
+        requirePreference<SwitchPreference>(R.string.paste_png_key).apply {
             launchCatchingTask { isChecked = withCol { config.pasteImagesAsPng } }
             setOnPreferenceChangeListener { newValue ->
                 launchCatchingTask { withCol { config.pasteImagesAsPng = newValue } }
             }
         }
         // Anki card context menu
-        requirePreference<SwitchPreferenceCompat>(R.string.anki_card_external_context_menu_key).apply {
+        requirePreference<SwitchPreference>(R.string.anki_card_external_context_menu_key).apply {
             setOnPreferenceChangeListener { newValue ->
                 AnkiCardContextMenu.ensureConsistentStateWithPreferenceStatus(requireContext(), newValue)
             }
         }
         // Card browser context menu
-        requirePreference<SwitchPreferenceCompat>(R.string.card_browser_external_context_menu_key).apply {
+        requirePreference<SwitchPreference>(R.string.card_browser_external_context_menu_key).apply {
             setOnPreferenceChangeListener { newValue ->
                 CardBrowserContextMenu.ensureConsistentStateWithPreferenceStatus(requireContext(), newValue)
             }

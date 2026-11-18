@@ -3,12 +3,9 @@
 package com.ichi2.anki.preferences
 
 import androidx.annotation.StringRes
-import androidx.preference.ListPreference
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceGroup
-import androidx.preference.PreferenceScreen
-import androidx.preference.SwitchPreferenceCompat
+import com.ichi2.preferences.ListPreference
+import com.ichi2.preferences.Preference
+import com.ichi2.preferences.SwitchPreference
 
 /**
  * Sets the callback to be invoked when this preference is changed by the user
@@ -16,7 +13,7 @@ import androidx.preference.SwitchPreferenceCompat
  * returning true on it by default
  * @param onPreferenceChangeListener The callback to be invoked
  */
-fun SwitchPreferenceCompat.setOnPreferenceChangeListener(onPreferenceChangeListener: (newValue: Boolean) -> Unit) {
+fun SwitchPreference.setOnPreferenceChangeListener(onPreferenceChangeListener: (newValue: Boolean) -> Unit) {
     this.setOnPreferenceChangeListener { _, newValue ->
         if (newValue !is Boolean) return@setOnPreferenceChangeListener false
         onPreferenceChangeListener(newValue)
@@ -39,7 +36,7 @@ fun ListPreference.setOnPreferenceChangeListener(onPreferenceChangeListener: (ne
 }
 
 /** Obtains a non-null reference to the preference defined by the key, or throws  */
-inline fun <reified T : Preference> PreferenceFragmentCompat.requirePreference(key: String): T {
+inline fun <reified T : Preference> RemainingSettingsFragment.requirePreference(key: String): T {
     val preference =
         findPreference<Preference>(key)
             ?: throw IllegalStateException("missing preference: '$key'")
@@ -53,31 +50,16 @@ inline fun <reified T : Preference> PreferenceFragmentCompat.requirePreference(k
  * the preference whose key is `@string/night_theme_key`
  * The resource IDs with preferences keys can be found on `res/values/preferences.xml`
  */
-inline fun <reified T : Preference> PreferenceFragmentCompat.requirePreference(
+inline fun <reified T : Preference> RemainingSettingsFragment.requirePreference(
     @StringRes resId: Int,
 ): T {
     val key = getString(resId)
     return requirePreference(key)
 }
 
-inline fun <reified T : Preference> PreferenceFragmentCompat.findPreference(
+inline fun <reified T : Preference> RemainingSettingsFragment.findPreference(
     @StringRes resId: Int,
 ): T? {
     val key = getString(resId)
     return findPreference(key)
-}
-
-fun PreferenceScreen.allPreferences(): List<Preference> {
-    val allPreferences = mutableListOf<Preference>()
-    for (i in 0 until preferenceCount) {
-        val pref = getPreference(i)
-        if (pref is PreferenceGroup) {
-            for (j in 0 until pref.preferenceCount) {
-                allPreferences.add(pref.getPreference(j))
-            }
-        } else {
-            allPreferences.add(pref)
-        }
-    }
-    return allPreferences
 }

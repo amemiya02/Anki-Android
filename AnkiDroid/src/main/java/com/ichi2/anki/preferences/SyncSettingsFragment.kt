@@ -2,8 +2,6 @@
 
 package com.ichi2.anki.preferences
 
-import androidx.preference.EditTextPreference
-import androidx.preference.Preference
 import com.google.android.material.snackbar.Snackbar
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
@@ -17,6 +15,7 @@ import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.syncServerAddress
 import com.ichi2.preferences.NumberRangePreferenceCompat
+import com.ichi2.preferences.Preference
 
 /**
  * Fragment with preferences related to syncing
@@ -37,12 +36,11 @@ class SyncSettingsFragment : RemainingSettingsFragment(R.id.settings_sync) {
         // Configure 'Network timeout'
         // TODO: add 'reset to default' functionality
         requirePreference<NumberRangePreferenceCompat>(R.string.sync_io_timeout_secs_key).apply {
-            summaryProvider =
-                Preference.SummaryProvider<EditTextPreference> {
-                    runCatchingWithReport("network_timeout") {
-                        TR.qtMiscSecond(this.getValue())
-                    }.getOrNull() ?: getString(CommonString.pref__etc__summary__error)
-                }
+            setSummaryProvider {
+                runCatchingWithReport("network_timeout") {
+                    TR.qtMiscSecond(getValue())
+                }.getOrNull() ?: getString(CommonString.pref__etc__summary__error)
+            }
         }
 
         // Configure one-way sync option

@@ -74,7 +74,7 @@ class ImageOcclusion : PageFragment(R.layout.page_image_occlusion) {
         }
 
         deckNameView = view.findViewById(R.id.deck_name)
-        deckNameView.setOnClickListener { startDeckSelection(allowAll = false, allowFiltered = false, usePaperDialog = true) }
+        deckNameView.setOnClickListener { startDeckSelection(allowAll = false, allowFiltered = false) }
 
         @NeedsTest("#17393 verify that the added image occlusion cards are put in the correct deck")
         view.findViewById<MaterialToolbar>(R.id.toolbar).setOnMenuItemClickListener {

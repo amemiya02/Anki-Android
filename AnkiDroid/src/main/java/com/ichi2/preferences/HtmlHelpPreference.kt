@@ -3,12 +3,7 @@
 package com.ichi2.preferences
 
 import android.content.Context
-import android.text.method.LinkMovementMethod
 import android.util.AttributeSet
-import android.widget.TextView
-import androidx.core.text.parseAsHtml
-import androidx.preference.Preference
-import androidx.preference.PreferenceViewHolder
 import com.ichi2.anki.R
 import com.ichi2.anki.utils.ext.usingStyledAttributes
 
@@ -24,7 +19,7 @@ import com.ichi2.anki.utils.ext.usingStyledAttributes
  *         app:substitution1="@string/substitution1"
  *         />
  *
- * The summary HTML can contain all tags that TextViews can display,
+ * The summary supports HTML formatting,
  * including new lines and links. Raw HTML can be entered using the CDATA tag, e.g.
  *
  *     <string name="format_string"><![CDATA[<b>Hello, %s</b>]]></string>
@@ -35,7 +30,6 @@ class HtmlHelpPreference(
 ) : Preference(context, attrs) {
     init {
         isSelectable = false
-        isPersistent = false
     }
 
     private val substitutions =
@@ -47,14 +41,5 @@ class HtmlHelpPreference(
             )
         }
 
-    val htmlSummary get() = super.getSummary().toString().format(*substitutions)
-
-    override fun getSummary() = htmlSummary.parseAsHtml()
-
-    override fun onBindViewHolder(holder: PreferenceViewHolder) {
-        super.onBindViewHolder(holder)
-        val summary = holder.findViewById(android.R.id.summary) as TextView
-        summary.movementMethod = LinkMovementMethod.getInstance()
-        summary.maxHeight = Int.MAX_VALUE
-    }
+    val htmlSummary get() = summary.toString().format(*substitutions)
 }

@@ -3,103 +3,51 @@
 package com.ichi2.preferences
 
 import android.content.Context
+import android.text.InputType
 import android.util.AttributeSet
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.AppCompatEditText
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.content.res.use
-import androidx.core.widget.addTextChangedListener
-import androidx.preference.EditTextPreference
-import androidx.preference.EditTextPreferenceDialogFragmentCompat
-import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
-import com.ichi2.anki.databinding.DialogVersatileTextPreferenceBinding
-import com.ichi2.utils.positiveButton
-import kotlin.jvm.Throws
 
-/**
- * A drop-in alternative to [EditTextPreference] with some extra functionality.
- *
- *   * It supports changing input type via `android:inputType` XML attribute,
- *     which can help the keyboard app with choosing a more suitable keyboard layout.
- *     For the list of available input types, see [TextView.getInputType].
- *
- *   * If [continuousValidator] is set, the dialog uses it to prevent user
- *     from entering invalid data. On each text change, the validator is run;
- *     if it throws, the positive button gets disabled.
- */
+/** A text field with a configurable keyboard and validation while editing. */
 open class VersatileTextPreference(
     context: Context,
     attrs: AttributeSet?,
-) : EditTextPreference(context, attrs),
-    DialogFragmentProvider {
+) : DialogPreference(context, attrs) {
     fun interface Validator {
         @Throws(Exception::class)
         fun validate(value: String)
     }
 
-    // Floating label shown on the dialog text field
     val dialogHint: CharSequence? =
         context.obtainStyledAttributes(attrs, R.styleable.CustomPreference).use {
             it.getText(R.styleable.CustomPreference_dialogHint)
         }
 
-    val referenceEditText = AppCompatEditText(context, attrs)
+    val inputType: Int =
+        context.obtainStyledAttributes(attrs, intArrayOf(android.R.attr.inputType)).use {
+            it.getInt(0, InputType.TYPE_CLASS_TEXT)
+        }
 
     var continuousValidator: Validator? = null
+    private var currentText by mutableStateOf<String?>(null)
+    var text: String?
+        get() = currentText
+        set(value) {
+            currentText = value
+            saveString(value)
+        }
 
-    override fun makeDialogFragment() = VersatileTextPreferenceDialogFragment()
-}
-
-open class VersatileTextPreferenceDialogFragment : EditTextPreferenceDialogFragmentCompat() {
-    private val versatileTextPreference get() = preference as VersatileTextPreference
-
-    protected lateinit var editText: EditText
-
-    override fun onCreateDialogView(context: Context): View =
-        DialogVersatileTextPreferenceBinding.inflate(LayoutInflater.from(context)).root
-
-    // This changes input type first, as it resets the cursor,
-    // And only then calls super, which sets up text and moves the cursor to end.
-    //
-    // Positive button isn't present in a dialog until it is shown, which happens around onStart;
-    // for simplicity, obtain it in the listener itself.
-    override fun onBindDialogView(contentView: View) {
-        val binding = DialogVersatileTextPreferenceBinding.bind(contentView)
-
-        editText = binding.textInputLayout.editText!!
-        editText.inputType = versatileTextPreference.referenceEditText.inputType
-
-        super.onBindDialogView(contentView)
-
-        binding.textInputLayout.hint =
-            versatileTextPreference.dialogHint ?: preference.dialogTitle ?: preference.title
-
-        versatileTextPreference.continuousValidator?.let {
-            editText.addTextChangedListener(afterTextChanged = { updatePositiveButtonState() })
+    init {
+        if (useSimpleSummary) {
+            setSummaryProvider { text?.takeIf(String::isNotEmpty) ?: context.getString(androidx.preference.R.string.not_set) }
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-
-        (dialog as? AlertDialog)?.positiveButton?.text = TR.actionsSave()
-
-        updatePositiveButtonState()
-    }
-
-    private fun updatePositiveButtonState() {
-        val validator = versatileTextPreference.continuousValidator ?: return
-        val positiveButton = (dialog as? AlertDialog)?.positiveButton ?: return
-
-        positiveButton.isEnabled =
-            try {
-                validator.validate(editText.text.toString())
-                true
-            } catch (_: Exception) {
-                false
-            }
+    override fun loadValue() {
+        currentText = storage?.getString(key, initialValue) ?: initialValue
+        if (initialValue != null && storage?.contains(key) == false) saveString(currentText)
     }
 }

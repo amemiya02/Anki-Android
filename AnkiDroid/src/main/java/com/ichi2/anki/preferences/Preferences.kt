@@ -18,8 +18,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
@@ -32,9 +30,7 @@ import com.ichi2.utils.FragmentFactoryUtils
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmName
 
-class PreferencesFragment :
-    Fragment(R.layout.fragment_preferences),
-    PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
+class PreferencesFragment : Fragment(R.layout.fragment_preferences) {
     internal val settingsIsSplit get() = !resources.isWindowCompact()
 
     private val childBack =
@@ -107,15 +103,6 @@ class PreferencesFragment :
         val current = childFragmentManager.findFragmentById(R.id.settings_container)
         (childFragmentManager.findFragmentById(R.id.lateral_nav_container) as? HeaderFragment)
             ?.select(current?.let(SettingsGroup::forFragment))
-    }
-
-    override fun onPreferenceStartFragment(
-        caller: PreferenceFragmentCompat,
-        pref: Preference,
-    ): Boolean {
-        val className = pref.fragment ?: return false
-        openSubpage(FragmentFactoryUtils.instantiate<Fragment>(requireActivity(), className))
-        return true
     }
 
     internal fun openGroup(group: SettingsGroup) {

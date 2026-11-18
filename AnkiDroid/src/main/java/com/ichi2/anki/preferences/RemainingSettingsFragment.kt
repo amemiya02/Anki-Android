@@ -7,13 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.IdRes
+import androidx.annotation.XmlRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -23,69 +23,58 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.preference.DialogPreference
-import androidx.preference.Preference
-import androidx.preference.PreferenceCategory
-import androidx.preference.PreferenceGroupAdapter
-import androidx.recyclerview.widget.RecyclerView
+import androidx.fragment.app.Fragment
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.common.analytics.Analytics
+import com.ichi2.anki.common.analytics.AnalyticsEvent
 import com.ichi2.compose.theme.foundation
 import com.ichi2.compose.ui.dialogs.ConfirmationDialog
 import com.ichi2.compose.ui.dialogs.DialogAction
 import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.preferences.DialogPreference
 import com.ichi2.preferences.HtmlHelpPreference
+import com.ichi2.preferences.Preference
+import com.ichi2.preferences.PreferenceCategory
+import com.ichi2.preferences.PreferenceGroup
+import com.ichi2.preferences.PreferenceScreen
+import com.ichi2.preferences.loadSettings
+import com.ichi2.utils.FragmentFactoryUtils
 
-/** Uses the existing typed preference model and callbacks with a Compose-only presentation. */
+/** Hosts the Compose Settings page and its editor in the existing Settings navigation. */
 abstract class RemainingSettingsFragment(
     @IdRes private val composeViewId: Int,
-) : SettingsFragment() {
-    private lateinit var modelChanges: PreferenceGroupAdapter
-    private var revision by mutableIntStateOf(0)
+) : Fragment(),
+    PreferenceXmlSource {
+    private lateinit var screen: PreferenceScreen
     private var activePreferenceKey by mutableStateOf<String?>(null)
     private var dialogContent by mutableStateOf<(@Composable (() -> Unit) -> Unit)?>(null)
-    private val updates =
-        object : RecyclerView.AdapterDataObserver() {
-            override fun onChanged() {
-                revision++
-            }
 
-            override fun onItemRangeChanged(
-                positionStart: Int,
-                itemCount: Int,
-                payload: Any?,
-            ) {
-                revision++
-            }
-        }
+    protected abstract val analyticsScreenNameConstant: String
 
-    override fun onCreatePreferences(
-        savedInstanceState: Bundle?,
-        rootKey: String?,
-    ) {
+    protected abstract fun initSubscreen()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         Analytics.sendAnalyticsScreenView(analyticsScreenNameConstant)
-        // Install only the model, bypassing PreferenceFragmentCompat's RecyclerView binding.
-        val screen = preferenceManager.inflateFromResource(requireContext(), preferenceResource, null)
-        preferenceManager.setPreferences(screen)
+        activePreferenceKey = savedInstanceState?.getString(ACTIVE_PREFERENCE)
+        screen = requireContext().loadSettings(preferenceResource)
+        screen.onSettingTapped = { Analytics.send(AnalyticsEvent.SettingTapped(it.key)) }
+        screen.openEditor = { activePreferenceKey = it.key }
+        screen.openSubpage = {
+            val parent = parentFragment as? PreferencesFragment
+            parent?.openSubpage(FragmentFactoryUtils.instantiate<Fragment>(requireActivity(), it))
+        }
         screen.applySettingsMetadata(preferenceResource)
         initSubscreen()
-        activePreferenceKey = savedInstanceState?.getString(ACTIVE_PREFERENCE)
-        modelChanges = PreferenceGroupAdapter(screen)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View {
-        preferenceScreen.onAttached()
-        modelChanges.registerAdapterDataObserver(updates)
-        return settingsComposeView(composeViewId) { SettingsBody(revision) }
-    }
+    ): View = settingsComposeView(composeViewId) { SettingsBody() }
 
     override fun onDestroyView() {
-        modelChanges.unregisterAdapterDataObserver(updates)
-        preferenceScreen.onDetached()
         dialogContent = null
         super.onDestroyView()
     }
@@ -95,9 +84,7 @@ abstract class RemainingSettingsFragment(
         outState.putString(ACTIVE_PREFERENCE, activePreferenceKey)
     }
 
-    override fun onDisplayPreferenceDialog(preference: Preference) {
-        activePreferenceKey = preference.key
-    }
+    fun <T : Preference> findPreference(key: String): T? = screen.findPreference(key)
 
     protected fun showSettingsDialog(content: @Composable (dismiss: () -> Unit) -> Unit) {
         dialogContent = content
@@ -127,17 +114,12 @@ abstract class RemainingSettingsFragment(
     }
 
     protected open val settingsPageTitle: String
-        get() = preferenceScreen.title.toString()
+        get() = screen.title.toString()
 
     @Composable
-    private fun SettingsBody(revision: Int) {
+    private fun SettingsBody() {
         SettingsScrollPage(settingsPageTitle, settingsBackAction) {
-            for (index in 0 until modelChanges.itemCount) {
-                val preference = checkNotNull(modelChanges.getItem(index))
-                key(preference) {
-                    PreferenceContent(preference, revision)
-                }
-            }
+            PreferenceGroupContent(screen)
         }
         val preference = activePreferenceKey?.let { findPreference<DialogPreference>(it) }
         if (preference != null) {
@@ -149,10 +131,18 @@ abstract class RemainingSettingsFragment(
     }
 
     @Composable
-    private fun PreferenceContent(
-        preference: Preference,
-        revision: Int,
-    ) {
+    private fun PreferenceGroupContent(group: PreferenceGroup) {
+        for (preference in group.children) {
+            if (!preference.isVisible) continue
+            key(preference) {
+                PreferenceContent(preference)
+                if (preference is PreferenceGroup) PreferenceGroupContent(preference)
+            }
+        }
+    }
+
+    @Composable
+    private fun PreferenceContent(preference: Preference) {
         when (preference) {
             is PreferenceCategory -> {
                 preference.title?.let { SettingsSectionTitle(it.toString()) }
@@ -181,11 +171,16 @@ abstract class RemainingSettingsFragment(
                 )
             }
             else ->
-                SettingsSearchTarget(preference.key != null && preference.key == settingsSearchTarget) { modifier, highlighted ->
-                    PreferenceRow(preference, modifier, highlighted, revision)
+                SettingsSearchTarget(preference.key == settingsSearchTarget) { modifier, highlighted ->
+                    PreferenceRow(preference, modifier, highlighted)
                 }
         }
     }
 }
 
 private const val ACTIVE_PREFERENCE = "active_preference"
+
+interface PreferenceXmlSource {
+    @get:XmlRes
+    val preferenceResource: Int
+}

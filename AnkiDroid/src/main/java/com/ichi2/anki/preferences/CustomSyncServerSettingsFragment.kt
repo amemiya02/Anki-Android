@@ -5,7 +5,6 @@ package com.ichi2.anki.preferences
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.core.content.edit
-import androidx.preference.Preference
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
@@ -16,6 +15,7 @@ import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.syncServerAddress
 import com.ichi2.compose.ui.dialogs.ErrorDialog
+import com.ichi2.preferences.Preference
 import com.ichi2.preferences.VersatileTextPreference
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
@@ -93,14 +93,14 @@ class CustomSyncServerSettingsFragment : RemainingSettingsFragment(R.id.settings
     // See discussion at https://github.com/ankidroid/Anki-Android/pull/12367#discussion_r967681337
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        preferenceManager.sharedPreferences
-            ?.registerOnSharedPreferenceChangeListener(preferenceChangeListener)
+        Prefs.sharedPrefs
+            .registerOnSharedPreferenceChangeListener(preferenceChangeListener)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        preferenceManager.sharedPreferences
-            ?.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener)
+        Prefs.sharedPrefs
+            .unregisterOnSharedPreferenceChangeListener(preferenceChangeListener)
     }
 
     private val preferenceChangeListener =

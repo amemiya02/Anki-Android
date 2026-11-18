@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import androidx.preference.SwitchPreferenceCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.R
@@ -21,6 +20,7 @@ import com.ichi2.anki.preferences.PreferencesActivity
 import com.ichi2.anki.preferences.PreferencesFragment
 import com.ichi2.anki.preferences.requirePreference
 import com.ichi2.anki.settings.Prefs
+import com.ichi2.preferences.SwitchPreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -106,7 +106,7 @@ class SwitchProfilesRoundTripReviewTest : RobolectricTest() {
                 )
             val settings = (activity.fragment as PreferencesFragment).childFragmentManager
             val developerOptions = settings.fragments.filterIsInstance<DeveloperOptionsFragment>().single()
-            val toggle = developerOptions.requirePreference<SwitchPreferenceCompat>(R.string.pref_enable_switch_profile_key)
+            val toggle = developerOptions.requirePreference<SwitchPreference>(R.string.pref_enable_switch_profile_key)
 
             // Switching the preference off and on follows TwoStatePreference's real persistence path.
             toggle.isChecked = false

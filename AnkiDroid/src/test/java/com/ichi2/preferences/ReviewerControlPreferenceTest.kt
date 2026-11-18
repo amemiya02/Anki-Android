@@ -3,7 +3,6 @@
 
 package com.ichi2.preferences
 
-import androidx.preference.PreferenceManager
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.reviewer.Binding
@@ -73,10 +72,9 @@ class ReviewerControlPreferenceTest : AndroidTest {
     }
 
     private fun buildScreen(vararg preferences: ReviewerControlPreference) {
-        val preferenceManager = PreferenceManager(targetContext)
-        val screen = preferenceManager.createPreferenceScreen(targetContext)
-        preferenceManager.setPreferences(screen)
-        preferences.forEach { screen.addPreference(it) }
+        val screen = PreferenceScreen(targetContext)
+        preferences.forEach(screen::addPreference)
+        screen.attach()
         preferences.forEach { pref ->
             bindingsToPersist[pref]?.let { binding ->
                 val side = requireNotNull(pref.getSideForTest())

@@ -6,7 +6,6 @@ import android.content.Context
 import android.util.AttributeSet
 import com.ichi2.anki.R
 import com.ichi2.anki.common.annotations.NeedsTest
-import com.ichi2.anki.preferences.allPreferences
 import com.ichi2.anki.reviewer.Binding
 import com.ichi2.anki.reviewer.CardSide
 import com.ichi2.anki.reviewer.MappableBinding
@@ -14,35 +13,20 @@ import com.ichi2.anki.reviewer.MappableBinding.Companion.toPreferenceString
 import com.ichi2.anki.reviewer.ReviewerBinding
 import com.ichi2.anki.utils.ext.usingStyledAttributes
 
-open class ReviewerControlPreference : ControlPreference {
-    open var side: CardSide? = null
-        protected set
-
-    @Suppress("unused")
-    constructor(context: Context) : this(context, null)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, androidx.preference.R.attr.dialogPreferenceStyle)
-    constructor(
-        context: Context,
-        attrs: AttributeSet?,
-        defStyleAttr: Int,
-    ) : this(context, attrs, defStyleAttr, android.R.attr.dialogPreferenceStyle)
-    constructor(
-        context: Context,
-        attrs: AttributeSet?,
-        defStyleAttr: Int,
-        defStyleRes: Int,
-    ) : super(context, attrs, defStyleAttr, defStyleRes) {
-        side =
-            context.usingStyledAttributes(attrs, R.styleable.ReviewerControlPreference) {
-                val value = getInt(R.styleable.ReviewerControlPreference_cardSide, -1)
-                when (value) {
-                    0 -> CardSide.QUESTION
-                    1 -> CardSide.ANSWER
-                    2 -> CardSide.BOTH
-                    else -> null
-                }
+open class ReviewerControlPreference(
+    context: Context,
+    attrs: AttributeSet? = null,
+) : ControlPreference(context, attrs) {
+    open var side: CardSide? =
+        context.usingStyledAttributes(attrs, R.styleable.ReviewerControlPreference) {
+            when (getInt(R.styleable.ReviewerControlPreference_cardSide, -1)) {
+                0 -> CardSide.QUESTION
+                1 -> CardSide.ANSWER
+                2 -> CardSide.BOTH
+                else -> null
             }
-    }
+        }
+        protected set
 
     override fun displayBinding(binding: MappableBinding): String =
         if (side != null) binding.binding.toDisplayString(context) else super.displayBinding(binding)
@@ -54,8 +38,7 @@ open class ReviewerControlPreference : ControlPreference {
 
     @Suppress("UNCHECKED_CAST")
     override fun getRelatedPreferences(): List<ReviewerControlPreference> =
-        preferenceManager.preferenceScreen
-            .allPreferences()
+        relatedSettings
             .filter {
                 it::class == ReviewerControlPreference::class
             } as List<ReviewerControlPreference>

@@ -5,17 +5,16 @@ package com.ichi2.anki.preferences
 import android.content.Context
 import androidx.annotation.XmlRes
 import androidx.fragment.app.Fragment
-import androidx.preference.ListPreference
-import androidx.preference.Preference
-import androidx.preference.PreferenceCategory
-import androidx.preference.PreferenceDataStore
-import androidx.preference.PreferenceGroup
-import androidx.preference.PreferenceManager
-import androidx.preference.PreferenceScreen
 import com.ichi2.anki.BuildConfig
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
+import com.ichi2.preferences.ListPreference
+import com.ichi2.preferences.Preference
+import com.ichi2.preferences.PreferenceCategory
+import com.ichi2.preferences.PreferenceGroup
+import com.ichi2.preferences.PreferenceScreen
+import com.ichi2.preferences.loadSettings
 import com.ichi2.utils.LanguageUtil
 import com.ichi2.utils.LanguageUtil.getStringByLocale
 import kotlin.reflect.KClass
@@ -66,21 +65,19 @@ internal fun Context.remainingSettingsSearchEntries(
     path: String,
     destination: KClass<out Fragment>,
 ): List<SettingsSearchEntry> {
-    val manager = PreferenceManager(this).apply { preferenceDataStore = SearchMetadataOnly }
-    val screen = manager.inflateFromResource(this, resource, null)
+    val screen = loadSettings(resource, storage = null)
     screen.applySettingsMetadata(resource)
     return buildList {
         fun append(
             group: PreferenceGroup,
             breadcrumb: String,
         ) {
-            for (index in 0 until group.preferenceCount) {
-                val row = group.getPreference(index)
+            for (row in group.children) {
                 if (!row.isVisible) continue
                 val title = row.title?.toString() ?: continue
                 if (row is PreferenceCategory) {
                     append(row, "$breadcrumb › $title")
-                } else if (row.isSelectable && row.key != null) {
+                } else if (row.isSelectable && row.key.isNotEmpty()) {
                     val opensServer = row.key == getString(R.string.custom_sync_server_key)
                     val choices = (row as? ListPreference)?.entries.orEmpty().map(CharSequence::toString)
                     add(
@@ -97,21 +94,4 @@ internal fun Context.remainingSettingsSearchEntries(
         }
         append(screen, path)
     }
-}
-
-private object SearchMetadataOnly : PreferenceDataStore() {
-    override fun putBoolean(
-        key: String,
-        value: Boolean,
-    ) = Unit
-
-    override fun putInt(
-        key: String,
-        value: Int,
-    ) = Unit
-
-    override fun putString(
-        key: String,
-        value: String?,
-    ) = Unit
 }

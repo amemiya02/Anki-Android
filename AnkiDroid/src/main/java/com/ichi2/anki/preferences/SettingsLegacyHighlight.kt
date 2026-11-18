@@ -6,21 +6,8 @@ import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.view.View
 import androidx.core.view.doOnPreDraw
-import androidx.preference.PreferenceGroup
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import com.ichi2.anki.common.android.R as CommonR
-
-/** Highlights a row in a settings page that still uses Views. */
-internal fun SettingsFragment.highlightSearchPreference(key: String) {
-    if (view == null) return
-    val list = listView
-    val adapter = list.adapter as? PreferenceGroup.PreferencePositionCallback ?: return
-    val position = adapter.getPreferenceAdapterPosition(key)
-    if (position == RecyclerView.NO_POSITION) return
-    list.scrollToPosition(position)
-    list.doOnPreDraw { list.findViewHolderForAdapterPosition(position)?.itemView?.markSettingsSearchTarget() }
-}
 
 internal fun View.markSettingsSearchTarget() {
     val mark =

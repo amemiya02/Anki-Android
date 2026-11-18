@@ -217,7 +217,7 @@ class ExportDialogFragment : AnalyticsDialogFragment() {
     private fun showDeckListSelection() {
         childFragmentManager.executePendingTransactions()
         if (deckSelection?.isActive == true || childFragmentManager.findFragmentByTag(DeckSelectionDialog.TAG) != null) return
-        deckSelection = startDeckSelection(asChild = true, requestKey = REQUEST_EXPORT_DECK, usePaperDialog = true)
+        deckSelection = startDeckSelection(asChild = true, requestKey = REQUEST_EXPORT_DECK)
     }
 
     @Composable

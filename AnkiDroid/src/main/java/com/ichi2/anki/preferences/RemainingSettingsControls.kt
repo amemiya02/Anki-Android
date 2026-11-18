@@ -45,10 +45,6 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.preference.DialogPreference
-import androidx.preference.ListPreference
-import androidx.preference.Preference
-import androidx.preference.TwoStatePreference
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
@@ -63,11 +59,15 @@ import com.ichi2.compose.ui.dialogs.ErrorDialog
 import com.ichi2.compose.ui.dialogs.PaperDialog
 import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
 import com.ichi2.compose.ui.dialogs.TextInputDialog
+import com.ichi2.preferences.DialogPreference
 import com.ichi2.preferences.ExternalDirectorySelectionPreference
 import com.ichi2.preferences.IncrementerNumberRangePreferenceCompat
 import com.ichi2.preferences.IncrementerNumberRangePreferenceCompat.Companion.ValidationResult
+import com.ichi2.preferences.ListPreference
 import com.ichi2.preferences.NumberRangePreferenceCompat
+import com.ichi2.preferences.Preference
 import com.ichi2.preferences.SliderPreference
+import com.ichi2.preferences.SwitchPreference
 import com.ichi2.preferences.VersatileTextPreference
 import com.ichi2.preferences.VersatileTextWithASwitchPreference
 import kotlinx.coroutines.CancellationException
@@ -83,14 +83,10 @@ internal fun PreferenceRow(
     preference: Preference,
     modifier: Modifier,
     highlighted: Boolean,
-    revision: Int,
 ) {
-    // Preference models mutate in place. Read a new snapshot whenever the model notifies us.
-    val (label, summary, enabled) =
-        remember(preference, revision) {
-            Triple(preference.title?.toString(), preference.summary?.toString(), preference.isEnabled)
-        }
-    val title = label ?: return
+    val title = preference.title?.toString() ?: return
+    val summary = preference.summary?.toString()
+    val enabled = preference.isEnabled
     val warningIcon =
         when (preference.key) {
             stringResource(R.string.pref_allow_dangerous_js_api),
@@ -99,10 +95,10 @@ internal fun PreferenceRow(
             else -> null
         }
     when (preference) {
-        is TwoStatePreference ->
+        is SwitchPreference ->
             SettingsSwitchRow(
                 title = title,
-                checked = remember(preference, revision) { preference.isChecked },
+                checked = preference.isChecked,
                 onChange = { preference.performClick() },
                 summary = summary,
                 enabled = enabled,
@@ -122,13 +118,9 @@ internal fun PreferenceRow(
                 trailing = {
                     if (preference is VersatileTextWithASwitchPreference) {
                         val colors = MaterialTheme.foundation.colors
-                        val (canToggle, checked) =
-                            remember(preference, revision) {
-                                val hasAddress = !preference.text.isNullOrEmpty()
-                                hasAddress to (hasAddress && preference.switchChecked)
-                            }
+                        val canToggle = !preference.text.isNullOrEmpty()
                         Switch(
-                            checked = checked,
+                            checked = preference.switchChecked,
                             onCheckedChange = if (canToggle) { checked -> preference.switchChecked = checked } else null,
                             enabled = enabled,
                             modifier =
@@ -239,9 +231,9 @@ internal fun SettingEditor(
                 confirmText = TR.actionsSave(),
                 initialText = preference.text.orEmpty(),
                 capitalization = KeyboardCapitalization.None,
-                singleLine = preference.referenceEditText.inputType and InputType.TYPE_TEXT_FLAG_MULTI_LINE == 0,
+                singleLine = preference.inputType and InputType.TYPE_TEXT_FLAG_MULTI_LINE == 0,
                 keyboardType =
-                    if (preference.referenceEditText.inputType and InputType.TYPE_MASK_VARIATION == InputType.TYPE_TEXT_VARIATION_URI) {
+                    if (preference.inputType and InputType.TYPE_MASK_VARIATION == InputType.TYPE_TEXT_VARIATION_URI) {
                         KeyboardType.Uri
                     } else {
                         KeyboardType.Text
@@ -273,7 +265,7 @@ private fun NumberEditor(
     title: String,
     onDismiss: () -> Unit,
 ) {
-    val initial = preference.text ?: preference.getValue().toString()
+    val initial = preference.text
     var input by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue(initial, TextRange(initial.length))) }
     val min = preference.min
     val max = preference.max

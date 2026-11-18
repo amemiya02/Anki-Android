@@ -4,8 +4,6 @@ package com.ichi2.anki.preferences
 
 import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
-import androidx.preference.Preference
-import androidx.preference.SwitchPreferenceCompat
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.BuildConfig
 import com.ichi2.anki.CollectionManager.withCol
@@ -21,6 +19,8 @@ import com.ichi2.anki.utils.ext.defaultConfig
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.withProgress
 import com.ichi2.preferences.IncrementerNumberRangePreferenceCompat
+import com.ichi2.preferences.Preference
+import com.ichi2.preferences.SwitchPreference
 import com.ichi2.utils.setWebContentsDebuggingEnabled
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -145,7 +145,7 @@ class DeveloperOptionsFragment : RemainingSettingsFragment(R.id.settings_develop
      */
     private fun setupEnableDeveloperOptions() {
         val enableDeveloperOptionsPref =
-            requirePreference<SwitchPreferenceCompat>(R.string.developer_options_enabled_by_user_key)
+            requirePreference<SwitchPreference>(R.string.developer_options_enabled_by_user_key)
 
         if (!BuildConfig.DEBUG) {
             enableDeveloperOptionsPref.setOnPreferenceChangeListener { _, _ ->
@@ -156,7 +156,7 @@ class DeveloperOptionsFragment : RemainingSettingsFragment(R.id.settings_develop
     }
 
     private fun setupWebDebugPreference() {
-        requirePreference<SwitchPreferenceCompat>(R.string.html_javascript_debugging_key).apply {
+        requirePreference<SwitchPreference>(R.string.html_javascript_debugging_key).apply {
             setOnPreferenceChangeListener { isEnabled ->
                 setWebContentsDebuggingEnabled(isEnabled)
             }

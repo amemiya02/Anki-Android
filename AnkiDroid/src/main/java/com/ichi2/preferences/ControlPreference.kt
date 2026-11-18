@@ -4,9 +4,7 @@ package com.ichi2.preferences
 
 import android.content.Context
 import android.util.AttributeSet
-import androidx.preference.DialogPreference
 import com.ichi2.anki.dialogs.GestureSelectionDialogUtils
-import com.ichi2.anki.preferences.allPreferences
 import com.ichi2.anki.reviewer.Binding
 import com.ichi2.anki.reviewer.MappableBinding
 import com.ichi2.anki.reviewer.MappableBinding.Companion.toPreferenceString
@@ -17,24 +15,10 @@ import com.ichi2.ui.GesturePicker
  *
  * Users can add or remove bindings. Adding a binding can replace its assignment to another related action.
  */
-open class ControlPreference : DialogPreference {
-    @Suppress("unused")
-    constructor(
-        context: Context,
-        attrs: AttributeSet?,
-        defStyleAttr: Int,
-        defStyleRes: Int,
-    ) : super(context, attrs, defStyleAttr, defStyleRes)
-
-    @Suppress("unused")
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
-
-    @Suppress("unused")
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-
-    @Suppress("unused")
-    constructor(context: Context) : super(context)
-
+open class ControlPreference(
+    context: Context,
+    attrs: AttributeSet? = null,
+) : DialogPreference(context, attrs) {
     open fun getMappableBindings(): List<MappableBinding> = MappableBinding.fromPreferenceString(value)
 
     open val areGesturesEnabled: Boolean = false
@@ -51,13 +35,12 @@ open class ControlPreference : DialogPreference {
     }
 
     var value: String?
-        get() = getPersistedString(defaultBindingValue)
+        get() = storage?.getString(key, defaultBindingValue) ?: defaultBindingValue
         set(value) {
-            if (value != getPersistedString(null)) {
-                persistString(value)
-                notifyChanged()
-            }
+            if (value != storage?.getString(key, null)) saveString(value)
         }
+
+    protected val relatedSettings get() = page?.allPreferences().orEmpty()
 
     internal open fun createGesturePicker(): GesturePicker = GestureSelectionDialogUtils.getGesturePicker(context)
 
@@ -84,8 +67,7 @@ open class ControlPreference : DialogPreference {
     /**
      * @return a list of preferences related to the same context or screen.
      */
-    protected open fun getRelatedPreferences(): List<ControlPreference> =
-        preferenceManager.preferenceScreen.allPreferences().filterIsInstance<ControlPreference>()
+    protected open fun getRelatedPreferences(): List<ControlPreference> = relatedSettings.filterIsInstance<ControlPreference>()
 
     /**
      * Checks if any other related preference

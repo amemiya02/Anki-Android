@@ -2,23 +2,18 @@
 package com.ichi2.anki.preferences
 
 import androidx.fragment.app.Fragment
-import androidx.preference.PreferenceFragmentCompat
-import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
-import com.google.testing.junit.testparameterinjector.TestParameter
-import com.ichi2.anki.R
 import com.ichi2.anki.ScreenshotTest
-import com.ichi2.anki.preferences.reviewer.ReviewerMenuSettingsFragment
+import com.ichi2.anki.preferences.profiles.SwitchProfilesFragment
+import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.utils.CollectionPreferences
 import com.ichi2.testutils.ext.clear
-import com.ichi2.testutils.launchForFullHeightScreenshot
 import com.ichi2.testutils.simulateSystemBars
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
 import kotlin.reflect.KClass
-import kotlin.reflect.full.isSubclassOf
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -49,73 +44,19 @@ class PreferencesScreenshotTest : ScreenshotTest() {
             }
         }
 
-    /** One test per fragment: capturing all of them in a single test risks a timeout */
     @Test
-    fun capturePreferenceFragment(
-        @TestParameter(valuesProvider = PreferenceFragmentsProvider::class) fragmentClass: KClass<out Fragment>,
-    ) {
-        if (fragmentClass.isSubclassOf(RemainingSettingsFragment::class)) return
-        if (fragmentClass in
-            setOf(
-                HeaderFragment::class,
-                AppearanceSettingsFragment::class,
-                StudyingSettingsFragment::class,
-                ControlsSettingsFragment::class,
-                ReviewerMenuSettingsFragment::class,
-            )
-        ) {
-            return
-        }
-        withPreferencesActivity(
-            fragmentClass,
-            fullHeightList = fragmentClass.fullHeightList(),
-            setup = { activity -> activity.stabilizeContent() },
-        ) {
-            captureScreen(fragmentClass.simpleName!!)
-        }
-    }
+    fun switchProfiles() = withPreferencesActivity(SwitchProfilesFragment::class) { captureScreen("SwitchProfilesFragment") }
 
-    /** Replaces content which changes between runs, so it does not appear in diffs */
-    private fun PreferencesActivity.stabilizeContent() {
-        val settingsFragment = settingsFragment
-        (settingsFragment as? AboutFragment)?.apply {
-            binding.buildDate.text = "May 18, 2026"
-        }
-    }
+    @Test
+    fun reviewReminders() = withPreferencesActivity(ScheduleRemindersFragment::class) { captureScreen("ScheduleRemindersFragment") }
 
-    /**
-     * @param fullHeightList if set, the screenshot is full height: the screen is sized to show the whole list
-     * @param setup run after each launch of the screen, before [block]
-     */
     private fun withPreferencesActivity(
         fragmentClass: KClass<out Fragment>,
-        fullHeightList: ((PreferencesActivity) -> RecyclerView)? = null,
-        setup: (PreferencesActivity) -> Unit = {},
         block: (PreferencesActivity) -> Unit,
     ) {
         val intent = PreferencesActivity.getIntent(targetContext, fragmentClass)
-        if (fullHeightList != null) {
-            launchForFullHeightScreenshot(intent, fullHeightList, setup, block)
-            return
-        }
         ActivityScenario.launch<PreferencesActivity>(intent).use { scenario ->
-            scenario.onActivity { activity ->
-                setup(activity)
-                block(activity)
-            }
+            scenario.onActivity(block)
         }
     }
-
-    /** The fragment displayed in the settings pane */
-    private val PreferencesActivity.settingsFragment: Fragment?
-        get() = (fragment as PreferencesFragment).childFragmentManager.findFragmentById(R.id.settings_container)
-
-    /** @return the list which makes the screenshot full height, or null to capture at the device height */
-    private fun KClass<out Fragment>.fullHeightList(): ((PreferencesActivity) -> RecyclerView)? =
-        when {
-            isSubclassOf(PreferenceFragmentCompat::class) -> { activity ->
-                (activity.settingsFragment as PreferenceFragmentCompat).listView
-            }
-            else -> null
-        }
 }

@@ -709,7 +709,7 @@ class NoteEditorFragment :
     ) = NoteEditorMenuAction(getString(label), { performEditorAction(actionId) }, enabled, checked)
 
     private fun chooseDeck() {
-        startDeckSelection(allowAll = false, allowFiltered = false, requestKey = REQUEST_DECK_SELECTION_NOTE_EDITOR, usePaperDialog = true)
+        startDeckSelection(allowAll = false, allowFiltered = false, requestKey = REQUEST_DECK_SELECTION_NOTE_EDITOR)
     }
 
     private fun chooseNoteType() {

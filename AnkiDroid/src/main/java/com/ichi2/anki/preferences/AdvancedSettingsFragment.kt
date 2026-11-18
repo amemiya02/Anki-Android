@@ -8,8 +8,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
-import androidx.preference.Preference
-import androidx.preference.SwitchPreferenceCompat
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.DeckPicker
@@ -23,6 +21,8 @@ import com.ichi2.anki.utils.openUrl
 import com.ichi2.compose.ui.dialogs.DialogAction
 import com.ichi2.compose.ui.dialogs.ErrorDialog
 import com.ichi2.preferences.ExternalDirectorySelectionPreference
+import com.ichi2.preferences.Preference
+import com.ichi2.preferences.SwitchPreference
 import com.ichi2.utils.Permissions
 import com.ichi2.utils.Permissions.openAppSettingsScreen
 import timber.log.Timber
@@ -37,7 +37,7 @@ class AdvancedSettingsFragment : RemainingSettingsFragment(R.id.settings_advance
     private val microphonePermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
-                requirePreference<SwitchPreferenceCompat>(R.string.pref_allow_template_audio_recording).isChecked = true
+                requirePreference<SwitchPreference>(R.string.pref_allow_template_audio_recording).isChecked = true
                 return@registerForActivityResult
             }
 
@@ -86,7 +86,7 @@ class AdvancedSettingsFragment : RemainingSettingsFragment(R.id.settings_advance
             }
         }
 
-        requirePreference<SwitchPreferenceCompat>(R.string.pref_allow_template_audio_recording).apply {
+        requirePreference<SwitchPreference>(R.string.pref_allow_template_audio_recording).apply {
             isChecked = isChecked && Permissions.canRecordAudio(requireContext())
             setOnPreferenceChangeListener { _, newValue ->
                 if (newValue !is Boolean) return@setOnPreferenceChangeListener false
@@ -110,7 +110,7 @@ class AdvancedSettingsFragment : RemainingSettingsFragment(R.id.settings_advance
         }
 
         // Enable API
-        requirePreference<SwitchPreferenceCompat>(R.string.enable_api_key).setOnPreferenceChangeListener { newValue ->
+        requirePreference<SwitchPreference>(R.string.enable_api_key).setOnPreferenceChangeListener { newValue ->
             val providerName = ComponentName(requireContext(), CardContentProvider::class.java.name)
             val state =
                 if (newValue) {

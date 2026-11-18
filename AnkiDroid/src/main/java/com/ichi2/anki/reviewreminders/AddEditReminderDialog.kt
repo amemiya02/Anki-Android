@@ -87,7 +87,7 @@ class AddEditReminderDialog : DialogFragment() {
                 editing = mode is DialogMode.Edit,
                 onDraftChange = { viewModel.draft.value = it },
                 onTime = { ReviewReminderTimeDialog.newInstance(draft.time).show(childFragmentManager, "reminder_time") },
-                onDeck = { startDeckSelection(allowAll = true, allowFiltered = true, skipEmptyDefault = true, usePaperDialog = true) },
+                onDeck = { startDeckSelection(allowAll = true, allowFiltered = true, skipEmptyDefault = true) },
                 onDismiss = ::dismiss,
                 onSave = ::saveReminder,
                 onDelete = ::confirmDelete,

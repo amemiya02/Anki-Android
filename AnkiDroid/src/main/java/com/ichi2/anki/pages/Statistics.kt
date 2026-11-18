@@ -46,7 +46,7 @@ class Statistics : PageFragment(R.layout.page_statistics) {
         }
 
         binding.deckName.setOnClickListener {
-            startDeckSelection(allowAll = false, allowFiltered = false, skipEmptyDefault = true, usePaperDialog = true)
+            startDeckSelection(allowAll = false, allowFiltered = false, skipEmptyDefault = true)
         }
 
         binding.toolbar.apply {
