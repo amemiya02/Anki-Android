@@ -188,10 +188,12 @@ import com.ichi2.anki.dialogs.setDeckPickerContextMenuResultListener
 import com.ichi2.anki.export.ExportDialogFragment
 import com.ichi2.anki.filtered.FilteredDeckOptionsFragment
 import com.ichi2.anki.introduction.CollectionPermissionScreenLauncher
+import com.ichi2.anki.introduction.WelcomeFragment
 import com.ichi2.anki.introduction.hasCollectionStoragePermissions
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.sched.DeckNode
 import com.ichi2.anki.mediacheck.MediaCheckFragment
+import com.ichi2.anki.navigation.AppNavigation
 import com.ichi2.anki.multiprofile.ProfileManager
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.pages.AnkiPackageImporterFragment
@@ -295,7 +297,11 @@ open class DeckPicker :
     BaseSnackbarBuilderProvider,
     ApkgImportResultLauncherProvider,
     CsvImportResultLauncherProvider,
-    CollectionPermissionScreenLauncher {
+    CollectionPermissionScreenLauncher,
+    WelcomeFragment.Host {
+    private lateinit var appNavigation: AppNavigation
+    private var awaitingWelcome = false
+
     val viewModel: DeckPickerViewModel by viewModels()
 
     private val importViewModel: ImportViewModel by viewModels()
@@ -575,17 +581,7 @@ open class DeckPicker :
 
         binding = ActivityHomescreenBinding.inflate(layoutInflater)
 
-        // handle the first load: display the app introduction
-        // This screen is currently better equipped to handle errors than IntroductionActivity
-        if (!hasShownAppIntro() && AnkiDroidApp.fatalError == null) {
-            Timber.i("Displaying app intro")
-            val appIntro = Intent(this, IntroductionActivity::class.java)
-            appIntro.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(appIntro)
-            finish() // calls onDestroy() immediately
-            return
-        }
-        Timber.d("Not displaying app intro")
+        awaitingWelcome = !hasShownAppIntro() && AnkiDroidApp.fatalError == null
         if (intent.hasExtra(EXTRA_SYNC_FROM_LOGIN)) {
             Timber.d("launched from introduction activity login: syncing")
             syncOnResume = true
@@ -609,7 +605,7 @@ open class DeckPicker :
         //  It seems that the original idea was for this to only run once, on app start.
         //  This method triggers backups, sync, and may re-show dialogs
         //  that may have been dismissed. Make this run only once?
-        handleStartup()
+        if (!awaitingWelcome) handleStartup()
 
         registerReceiver()
 
@@ -732,6 +728,32 @@ open class DeckPicker :
 
         observeProgress(viewModel) { progress -> progressMessage(progress) }
         setupFlows()
+        installScreenNavigation()
+    }
+
+    private fun installScreenNavigation() {
+        val home = drawerLayout.getChildAt(0)
+        appNavigation = AppNavigation(this, home, showWelcome = awaitingWelcome)
+        val host = ComposeView(this).apply {
+            id = R.id.app_navigation
+            setContent { AnkiDroidTheme { appNavigation.Content() } }
+        }
+        val params = home.layoutParams
+        drawerLayout.removeViewAt(0)
+        drawerLayout.addView(host, 0, params)
+    }
+
+    override fun launchInApp(intent: Intent): Boolean = ::appNavigation.isInitialized && appNavigation.launch(intent)
+
+    internal fun popScreen(): Boolean = ::appNavigation.isInitialized && appNavigation.pop()
+
+    override fun onWelcomeCompleted(nextAction: String?) {
+        if (!awaitingWelcome || isFinishing) return
+        awaitingWelcome = false
+        if (nextAction != null) intent.putExtra(nextAction, true)
+        appNavigation.completeWelcome()
+        handleStartup()
+        viewModel.onScreenResumed()
     }
 
     override fun setupBackPressedCallbacks() {
@@ -967,6 +989,7 @@ open class DeckPicker :
                     invalidateOptionsMenu()
                     showStartupScreensAndDialogs(sharedPrefs(), 0)
                     showProfileLoadFailureIfAny()
+                    if (intent.hasExtra(EXTRA_IMPORT) || intent.hasExtra(EXTRA_SYNC_SETUP)) refreshState()
 
                     if (tryShowStudyOptionsPanel()) {
                         ResizablePaneManager(
@@ -1602,10 +1625,12 @@ open class DeckPicker :
         super.onResume()
         // the title shows today's date: the day may have changed while the app was away
         deckListDate.value = Date(TimeManager.time.intTimeMS())
-        if (navDrawerIsReady() && hasCollectionStoragePermissions()) {
-            refreshState()
+        if (!awaitingWelcome) {
+            if (navDrawerIsReady() && hasCollectionStoragePermissions()) {
+                refreshState()
+            }
+            viewModel.onScreenResumed()
         }
-        viewModel.onScreenResumed()
         message?.let { dialogHandler.sendStoredMessage(it) }
     }
 

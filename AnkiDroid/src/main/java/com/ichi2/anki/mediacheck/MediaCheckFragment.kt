@@ -10,12 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +31,7 @@ import com.ichi2.anki.CommonPlurals
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.CrashReportData.Companion.toCrashReportData
 import com.ichi2.anki.SingleFragmentActivity
+import com.ichi2.anki.navigation.closeScreen
 import com.ichi2.anki.preferences.SettingsPage
 import com.ichi2.anki.progress.observeProgress
 import com.ichi2.anki.ui.internationalization.sentenceCase
@@ -73,8 +69,6 @@ class MediaCheckFragment : Fragment() {
                     onEmptyTrash = viewModel::deleteTrash,
                     onTagMissing = { viewModel.tagMissing(TR.mediaCheckMissingMediaTag()) },
                     onDeleteUnused = ::deleteConfirmationDialog,
-                    // SingleFragmentActivity pads its fragment container for both.
-                    modifier = Modifier.consumeWindowInsets(WindowInsets.systemBars.union(WindowInsets.displayCutout)),
                 )
             }
         }
@@ -133,7 +127,7 @@ class MediaCheckFragment : Fragment() {
                 message = message,
                 confirm =
                     DialogAction(getString(CommonString.dialog_ok), {
-                        requireActivity().finish()
+                        closeScreen()
                         dialog.dismiss()
                     }),
                 onDismissRequest = dialog::dismiss,

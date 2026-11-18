@@ -336,10 +336,13 @@ open class AnkiActivity(
         intent: Intent,
         animation: TransitionDirection,
     ) {
+        if (launchInApp(intent)) return
         enableIntentAnimation(intent)
         super.startActivity(intent)
         enableActivityAnimation(animation, open = true)
     }
+
+    internal open fun launchInApp(intent: Intent): Boolean = false
 
     override fun finish() {
         finishWithAnimation(DEFAULT)
