@@ -34,11 +34,9 @@ class ActivityStartupMetaTest : AndroidTest {
         val testedActivityClassNames = ActivityList.allActivitiesAndIntents().map { it.className }.toSet()
         val manifestActivityNames =
             manifestActivities
+                .filter { it.targetActivity == null }
                 .map { it.name }
                 .filter { it != "com.ichi2.anki.TestCardTemplatePreviewer" }
-                // activity aliases
-                .filter { it != "com.ichi2.anki.AnkiCardContextMenuAction" }
-                .filter { it != "com.ichi2.anki.CardBrowserDeepLink" }
                 .filter { !it.startsWith("androidx") }
                 .filter { !it.startsWith("leakcanary.internal") }
                 .filter { it != "com.canhub.cropper.CropImageActivity" }
