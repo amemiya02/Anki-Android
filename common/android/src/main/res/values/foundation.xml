@@ -291,6 +291,14 @@
     </style>
     <style name="TextAppearance.Foundation.Body" parent="Base.TextAppearance.Foundation.Body" />
 
+    <!-- Field content in the Note Editor -->
+    <style name="Base.TextAppearance.Foundation.EditorField" parent="TextAppearance.Foundation">
+        <item name="android:textSize">18sp</item>
+        <item name="foundationTextWeight">400</item>
+        <item name="lineHeight">27sp</item>
+    </style>
+    <style name="TextAppearance.Foundation.EditorField" parent="Base.TextAppearance.Foundation.EditorField" />
+
     <!-- Remaining counts on the study screen -->
     <style name="Base.TextAppearance.Foundation.StudyCount" parent="TextAppearance.Foundation">
         <item name="android:textSize">14.5sp</item>

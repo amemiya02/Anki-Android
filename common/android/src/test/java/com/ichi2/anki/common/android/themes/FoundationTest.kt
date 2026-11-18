@@ -245,6 +245,7 @@ class FoundationTest {
                 "lead" to type.lead,
                 "answer" to type.answer,
                 "body" to type.body,
+                "editorField" to type.editorField,
                 "studyCount" to type.studyCount,
                 "caption" to type.caption,
                 "label" to type.label,

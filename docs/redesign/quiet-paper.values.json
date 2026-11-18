@@ -100,6 +100,13 @@
             "use": "Again, Hard, Good and Easy"
         },
         {
+            "role": "editorField",
+            "size": 18,
+            "weight": 400,
+            "lineHeight": 1.5,
+            "use": "Editable field content in the Note Editor"
+        },
+        {
             "role": "body",
             "size": 15,
             "weight": 400,
