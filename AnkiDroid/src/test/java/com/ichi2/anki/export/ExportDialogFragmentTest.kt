@@ -157,6 +157,42 @@ class ExportDialogFragmentTest : RobolectricTest() {
     }
 
     @Test
+    fun `collection export says the other app's collection will be replaced`() {
+        onExportDialog {
+            onView(withId(R.id.export_type_selector)).inRoot(isDialog()).perform(scrollTo(), click())
+            onData(containsString("Anki collection package"))
+                .inAdapterView(withId(R.id.export_type_selector))
+                .perform(click())
+
+            onView(withText(containsString("replaces everything")))
+                .inRoot(isDialog())
+                .perform(scrollTo())
+                .check(matches(isDisplayed()))
+            onView(withText(containsString("merges into")))
+                .inRoot(isDialog())
+                .check(matches(withEffectiveVisibility(GONE)))
+        }
+    }
+
+    @Test
+    fun `deck export says it merges into the other app's collection`() {
+        onExportDialog {
+            onView(withId(R.id.export_type_selector)).inRoot(isDialog()).perform(scrollTo(), click())
+            onData(containsString("Anki deck package"))
+                .inAdapterView(withId(R.id.export_type_selector))
+                .perform(click())
+
+            onView(withText(containsString("merges into")))
+                .inRoot(isDialog())
+                .perform(scrollTo())
+                .check(matches(isDisplayed()))
+            onView(withText(containsString("replaces everything")))
+                .inRoot(isDialog())
+                .check(matches(withEffectiveVisibility(GONE)))
+        }
+    }
+
+    @Test
     fun `Legacy export checkbox(default false) is shown only for collection and apkg`() {
         onExportDialog {
             // check legacy checkboxes status for collection export

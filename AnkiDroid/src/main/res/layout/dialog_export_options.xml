@@ -40,6 +40,16 @@
             android:layout_height="wrap_content"
             android:checked="false"
             tools:text="Support older Anki versions (slower/ larger files)" />
+
+        <com.ichi2.ui.FixedTextView
+            android:id="@+id/collection_replaces_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:paddingHorizontal="4dp"
+            android:textAppearance="@style/TextAppearance.Foundation.Caption"
+            android:textColor="?attr/foundationOnBackgroundMuted"
+            android:text="@string/export_collection_replaces" />
     </LinearLayout>
 
 
@@ -78,6 +88,16 @@
                 android:layout_height="wrap_content"
                 android:checked="false"
                 tools:text="Support older Anki versions (slower/ larger files)" />
+
+            <com.ichi2.ui.FixedTextView
+                android:id="@+id/apkg_merges_note"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingHorizontal="4dp"
+                android:textAppearance="@style/TextAppearance.Foundation.Caption"
+                android:textColor="?attr/foundationOnBackgroundMuted"
+                android:text="@string/export_deck_merges" />
         </LinearLayout>
 
 
