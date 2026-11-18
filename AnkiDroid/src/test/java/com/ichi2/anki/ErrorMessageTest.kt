@@ -2,23 +2,29 @@
 
 package com.ichi2.anki
 
-import android.text.Spanned
-import android.text.style.TypefaceSpan
-import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.utils.formatSearchError
 import com.ichi2.anki.utils.showSearchError
 import com.ichi2.testutils.EmptyAnkiActivity
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.shadows.ShadowDialog
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
-import kotlin.test.assertIs
 
 @RunWith(AndroidJUnit4::class)
 class ErrorMessageTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Test
     fun `inline code is rendered in monospace`() {
         val message = showMessage("Invalid search: an `and` was found. Try `\"and\"`.")
@@ -89,13 +95,13 @@ class ErrorMessageTest : RobolectricTest() {
             val browser = startRegularActivity<CardBrowser>()
             browser.searchCardsSync("and")
             advanceRobolectricLooper()
-            assertEquals(listOf("and", "\"and\""), codeSpans(latestMessage()))
+            assertEquals(listOf("and", "\"and\""), codeSpans(latestMessage("and")))
             ShadowDialog.getLatestDialog().dismiss()
 
             for (regex in listOf("b[", "</pre>[")) {
                 browser.searchCardsSync("re:$regex")
                 advanceRobolectricLooper()
-                val diagnostic = latestMessage()
+                val diagnostic = latestMessage("regex parse error")
                 assertContains(diagnostic.toString(), "(?i)$regex")
                 assertEquals(listOf(diagnostic.toString()), codeSpans(diagnostic))
                 ShadowDialog.getLatestDialog().dismiss()
@@ -105,23 +111,24 @@ class ErrorMessageTest : RobolectricTest() {
     private fun showMessage(
         message: String,
         searchError: Boolean = true,
-    ): CharSequence {
+    ): AnnotatedString {
         throwOnShowError = false
         val activity = startRegularActivity<EmptyAnkiActivity>()
         if (searchError) activity.showSearchError(message) else activity.showError(message, crashReportData = null)
-        return latestMessage()
+        val displayed = if (searchError) formatSearchError(message).toString() else message
+        return latestMessage(displayed)
     }
 
-    private fun latestMessage(): CharSequence {
-        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-        return requireNotNull(dialog.findViewById<TextView>(android.R.id.message)).text
-    }
+    private fun latestMessage(containing: String): AnnotatedString =
+        compose
+            .onNode(hasText(containing, substring = true) and hasAnyAncestor(isDialog()))
+            .fetchSemanticsNode()
+            .config[SemanticsProperties.Text]
+            .single()
 
-    private fun codeSpans(message: CharSequence): List<String> {
-        val spanned = assertIs<Spanned>(message)
-        return spanned.getSpans(0, spanned.length, TypefaceSpan::class.java).map {
-            assertEquals("monospace", it.family)
-            spanned.subSequence(spanned.getSpanStart(it), spanned.getSpanEnd(it)).toString()
+    private fun codeSpans(message: AnnotatedString): List<String> =
+        message.spanStyles.map { range ->
+            assertEquals(FontFamily.Monospace, range.item.fontFamily)
+            message.text.substring(range.start, range.end)
         }
-    }
 }

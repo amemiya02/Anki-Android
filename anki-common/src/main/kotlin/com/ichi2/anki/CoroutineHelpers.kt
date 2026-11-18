@@ -378,7 +378,7 @@ private fun Context.showErrorDialog(
                         },
                         DialogAction(getString(CommonString.dialog_ok), dialog::dismiss, DialogActionStyle.Filled),
                     ),
-            ) { DialogBody(message.toString()) }
+            ) { DialogBody(message) }
         }.apply {
             setOnDismissListener {
                 reportOnDismiss?.sendCrashReport()

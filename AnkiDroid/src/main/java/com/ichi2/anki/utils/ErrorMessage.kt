@@ -3,11 +3,11 @@
 package com.ichi2.anki.utils
 
 import android.content.Context
-import android.text.Spanned
-import android.text.style.TypefaceSpan
-import androidx.core.text.buildSpannedString
-import androidx.core.text.inSpans
-import androidx.core.text.toSpanned
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.withStyle
 import com.ichi2.anki.showError
 
 /** Search errors have a formatting contract that does not apply to arbitrary exceptions. */
@@ -22,22 +22,22 @@ internal fun Context.showSearchError(message: String) = showError(formatSearchEr
  * Regex diagnostics contain raw user input, so remove only the outer wrapper, without parsing HTML:
  * https://github.com/ankitects/anki/blob/fe4f9e039a4e283b71e611fc1ffb87029b1cdc05/rslib/src/error/mod.rs#L161
  */
-internal fun formatSearchError(message: String): Spanned {
+internal fun formatSearchError(message: String): AnnotatedString {
     if (message.startsWith("<pre>") && message.endsWith("</pre>")) {
-        return buildSpannedString {
-            inSpans(TypefaceSpan("monospace")) {
+        return buildAnnotatedString {
+            withStyle(SpanStyle(fontFamily = FontFamily.Monospace)) {
                 append(message.removeSurrounding("<pre>", "</pre>"))
             }
         }
     }
 
     val parts = message.split('`')
-    if (!supportsInlineCode(message, parts)) return message.toSpanned()
+    if (!supportsInlineCode(message, parts)) return AnnotatedString(message)
 
-    return buildSpannedString {
+    return buildAnnotatedString {
         parts.forEachIndexed { index, part ->
             if (index % 2 == 1) {
-                inSpans(TypefaceSpan("monospace")) { append(part.trim()) }
+                withStyle(SpanStyle(fontFamily = FontFamily.Monospace)) { append(part.trim()) }
             } else {
                 append(part)
             }

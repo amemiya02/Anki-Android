@@ -51,6 +51,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
@@ -235,8 +236,8 @@ fun DialogTitle(text: String) {
 }
 
 @Composable
-fun DialogBody(text: String) {
-    Text(text)
+fun DialogBody(text: CharSequence) {
+    if (text is AnnotatedString) Text(text) else Text(text.toString())
 }
 
 @Composable

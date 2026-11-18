@@ -2,24 +2,31 @@
 
 package com.ichi2.anki.browser
 
+import android.app.Dialog
 import android.content.Intent
-import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.setIntroductionSlidesShown
 import com.ichi2.anki.throwOnShowError
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.shadows.ShadowDialog
-import kotlin.test.assertContains
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class CardBrowserSearchErrorTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @ParameterizedRobolectricTestRunner.Parameter
     @JvmField
     var embedded: Boolean = false
@@ -36,11 +43,10 @@ class CardBrowserSearchErrorTest : RobolectricTest() {
             }
         }
 
-    private fun assertSearchError(expected: String): AlertDialog {
-        val dialog = assertNotNull(ShadowDialog.getLatestDialog(), "search error is shown") as AlertDialog
+    private fun assertSearchError(expected: String): Dialog {
+        val dialog = assertNotNull(ShadowDialog.getLatestDialog(), "search error is shown")
         assertTrue(dialog.isShowing, "expected a new error dialog containing '$expected'")
-        val message = assertNotNull(dialog.findViewById<TextView>(android.R.id.message)).text.toString()
-        assertContains(message, expected)
+        compose.onNode(hasText(expected, substring = true) and hasAnyAncestor(isDialog())).assertIsDisplayed()
         return dialog
     }
 
