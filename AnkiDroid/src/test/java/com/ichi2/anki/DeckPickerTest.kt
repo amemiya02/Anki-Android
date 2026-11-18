@@ -15,7 +15,6 @@ import android.view.KeyEvent
 import android.view.Menu
 import android.view.MotionEvent
 import android.view.View
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -119,7 +118,6 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.Matchers.instanceOf
 import org.hamcrest.Matchers.not
 import org.hamcrest.Matchers.notNullValue
@@ -798,27 +796,47 @@ class DeckPickerTest : RobolectricTest() {
     fun `dragging next to the tablet divider resizes the panes`() {
         assumeTrue("We are running on a tablet", qualifiers!!.contains("xlarge"))
         addBasicNote()
-        val deckPicker = super.startActivityNormallyOpenCollectionWithIntent(DeckPickerEx::class.java, Intent())
-        advanceRobolectricLooper()
-        val divider = deckPicker.findViewById<View>(R.id.resizing_divider)
-        val deckPickerPane = deckPicker.findViewById<View>(R.id.deck_picker_pane)
-        val weightBefore = (deckPickerPane.layoutParams as LinearLayout.LayoutParams).weight
+        BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
+        getPreferences().edit { putBoolean("backupPromptDisabled", true) }
+        val deckPicker = startActivityNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent())
+        val divider = requireNotNull(deckPicker.binding.resizingDivider)
+        val deckPickerPane = deckPicker.deckPickerBinding.root
+        val studyPane = requireNotNull(deckPicker.binding.studyoptionsFragment)
+        composeRule.waitUntil(10_000) {
+            ShadowLooper.idleMainLooper()
+            divider.isShown && divider.width > 0 && divider.height > 0 && deckPicker.sidePanel?.view?.isShown == true
+        }
+        val deckWidthBefore = deckPickerPane.width
+        val studyWidthBefore = studyPane.width
         val location = IntArray(2).also { divider.getLocationInWindow(it) }
         val startX = location[0] + divider.width / 2f - 16 * divider.resources.displayMetrics.density
         val y = location[1] + divider.height / 2f
         val window = deckPicker.window.decorView
         val downTime = SystemClock.uptimeMillis()
 
-        window.dispatchTouchEvent(MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, startX, y, 0))
-        for (step in 1..10) {
-            window.dispatchTouchEvent(
-                MotionEvent.obtain(downTime, downTime + step * 10L, MotionEvent.ACTION_MOVE, startX + step * 10f, y, 0),
-            )
+        fun sendTouch(
+            action: Int,
+            x: Float,
+            elapsed: Long,
+        ) {
+            val event = MotionEvent.obtain(downTime, downTime + elapsed, action, x, y, 0)
+            try {
+                window.dispatchTouchEvent(event)
+            } finally {
+                event.recycle()
+            }
         }
-        window.dispatchTouchEvent(MotionEvent.obtain(downTime, downTime + 200, MotionEvent.ACTION_UP, startX + 100f, y, 0))
 
-        val weightAfter = (deckPickerPane.layoutParams as LinearLayout.LayoutParams).weight
-        assertThat("the deck list grows when dragged towards the end", weightAfter, greaterThan(weightBefore))
+        sendTouch(MotionEvent.ACTION_DOWN, startX, 0L)
+        for (step in 1..10) {
+            sendTouch(MotionEvent.ACTION_MOVE, startX + step * 10f, step * 10L)
+        }
+        sendTouch(MotionEvent.ACTION_UP, startX + 100f, 200L)
+
+        composeRule.waitUntil(10_000) {
+            ShadowLooper.idleMainLooper()
+            deckPickerPane.width > deckWidthBefore && studyPane.width < studyWidthBefore
+        }
     }
 
     @Test
