@@ -27,6 +27,7 @@ import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.cardviewer.TypeAnswerWebView
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.dialogs.tags.TagsDialog
+import com.ichi2.anki.preferences.reviewer.ReviewerMenuRepository
 import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.preferences.reviewer.WhiteboardAction
 import com.ichi2.anki.previewer.CardViewerActivity
@@ -107,6 +108,28 @@ class ReviewerFragmentTest : RobolectricTest() {
             withReviewer {
                 val page = shadowOf(assertIs<WebView>(binding.webViewLayout.getChildAt(0))).lastLoadDataWithBaseURL.data
                 assertContains(page, "img { zoom: 1.5 }")
+            }
+        }
+
+    @Test
+    fun `the study bar shows the toolbar actions chosen in settings`() =
+        runTest {
+            addBasicNote()
+            ReviewerMenuRepository(targetContext.sharedPrefs()).setDisplayTypeActions(
+                alwaysShowActions = listOf(ViewerAction.MARK, ViewerAction.TOGGLE_WHITEBOARD),
+                menuOnlyActions = listOf(ViewerAction.CARD_INFO),
+                disabledActions = listOf(ViewerAction.UNDO),
+            )
+
+            withReviewer {
+                val menu = binding.reviewerMenuView
+                assertTrue(assertNotNull(menu.findItem(ViewerAction.MARK.menuId)).requiresActionButton(), "mark in the bar")
+                assertTrue(
+                    assertNotNull(menu.findItem(ViewerAction.TOGGLE_WHITEBOARD.menuId)).requiresActionButton(),
+                    "whiteboard in the bar",
+                )
+                assertFalse(assertNotNull(menu.findItem(ViewerAction.CARD_INFO.menuId)).requiresActionButton(), "Card info in the menu")
+                assertNull(menu.findItem(ViewerAction.UNDO.menuId), "undo switched off")
             }
         }
 
