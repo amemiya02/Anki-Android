@@ -58,7 +58,7 @@ class PreferencesNavigationTest {
             onView(withId(R.id.nav_more)).perform(click())
             composeRule.onNodeWithText(context.getString(CommonString.settings)).performClick()
 
-            val settings = awaitResumedActivity<PreferencesActivity>()
+            val settings = awaitSettingsHost()
             val appearance = context.getString(R.string.settings_appearance)
             val search = composeRule.onNodeWithContentDescription(context.getString(R.string.settings_search))
             search.performTextInput(appearance)
@@ -87,7 +87,7 @@ class PreferencesNavigationTest {
             }
 
             repeat(2) {
-                val settings = awaitResumedActivity<PreferencesActivity>()
+                val settings = awaitSettingsHost()
                 composeRule.runOnIdle { settings.onBackPressedDispatcher.onBackPressed() }
             }
             awaitResumedActivity<DeckPicker>()
@@ -126,11 +126,17 @@ class PreferencesNavigationTest {
             onView(withId(R.id.drawer_layout)).perform(DrawerActions.open())
             onView(withId(R.id.nav_settings)).perform(click())
 
-            awaitResumedActivity<PreferencesActivity>()
+            awaitSettingsHost()
             val search = composeRule.onNodeWithContentDescription(context.getString(R.string.settings_search))
             composeRule.onNodeWithText(context.getString(R.string.settings_appearance)).performClick()
             composeRule.onNodeWithText(context.getString(R.string.settings_theme_light)).assertIsDisplayed()
             search.assertIsDisplayed()
         }
+    }
+
+    private fun awaitSettingsHost(): DeckPicker {
+        val host = awaitResumedActivity<DeckPicker>()
+        composeRule.waitUntil(10_000) { host.currentScreenFragment is PreferencesFragment }
+        return host
     }
 }
