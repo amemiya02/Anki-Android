@@ -29,8 +29,10 @@ import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.ichi2.anki.CollectionManager.withCol
@@ -169,9 +171,14 @@ internal fun BrowserResult(
                         enabled = row != null,
                         onClick = onClick,
                         onLongClick = onLongClick,
-                        onLongClickLabel = stringResource(R.string.browse_card_actions),
-                    ).then(if (isInSelection) Modifier.semantics { selected = isSelected } else Modifier)
-                    .padding(vertical = 8.dp),
+                        onLongClickLabel =
+                            stringResource(
+                                if (isInSelection) R.string.browse_select_range else R.string.browse_select_row,
+                            ),
+                        role = if (isInSelection) Role.Checkbox else null,
+                    ).then(
+                        if (isInSelection) Modifier.semantics { toggleableState = ToggleableState(isSelected) } else Modifier,
+                    ).padding(horizontal = foundation.spacing.screenMargin, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
@@ -179,7 +186,12 @@ internal fun BrowserResult(
                 Checkbox(
                     checked = isSelected,
                     onCheckedChange = null,
-                    colors = CheckboxDefaults.colors(checkedColor = colors.emphasis, checkmarkColor = colors.background),
+                    colors =
+                        CheckboxDefaults.colors(
+                            checkedColor = colors.emphasis,
+                            checkmarkColor = colors.background,
+                            uncheckedColor = colors.onBackgroundMuted,
+                        ),
                 )
             }
             if (row != null) {
@@ -224,7 +236,11 @@ internal fun BrowserResult(
                 }
             }
         }
-        HorizontalDivider(thickness = foundation.shapes.hairline, color = colors.outline)
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = foundation.spacing.screenMargin),
+            thickness = foundation.shapes.hairline,
+            color = colors.outline,
+        )
     }
 }
 

@@ -2,25 +2,33 @@
 
 package com.ichi2.anki.browser
 
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasScrollToIndexAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollToNode
 import androidx.core.view.WindowInsetsCompat
-import androidx.recyclerview.widget.RecyclerView
-import com.ichi2.anki.R
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.model.CardsOrNotes
 import com.ichi2.anki.withCardBrowser
-import com.ichi2.testutils.scrollToEnd
 import com.ichi2.testutils.simulateSystemBars
 import com.ichi2.testutils.windowInsetsOf
+import org.junit.Rule
 import org.junit.Test
 import org.robolectric.RuntimeEnvironment
+import org.robolectric.shadows.ShadowLooper
 
-/**
- * Edge-to-edge regressions for the full-screen Manage columns dialog (Issue 22092).
- *
- * `./gradlew :AnkiDroid:verifyRoborazziPlayDebug -Pscreenshot --tests "com.ichi2.anki.browser.BrowserColumnSelectionFragmentScreenshotTest"`
- */
+/** Covers the status bar, cutout, and last column on the full-screen Columns page. */
 class BrowserColumnSelectionFragmentScreenshotTest : ScreenshotTest() {
+    @get:Rule
+    val composeRule = createEmptyComposeRule()
+
     @Test
     fun portrait() =
         captureColumns(
@@ -51,24 +59,23 @@ class BrowserColumnSelectionFragmentScreenshotTest : ScreenshotTest() {
         )
     }
 
-    /** Captures the toolbar on opening, then the final column's clearance when fully scrolled. */
     private fun captureColumns(
         name: String,
         insets: WindowInsetsCompat,
     ) = withCardBrowser(noteCount = 1) { browser ->
-        // The backend uses the real clock; stabilize the created and modified column previews.
-        val timestamp = 1_594_105_200L
-        col.db.execute("update notes set id = ?, mod = ?", timestamp * 1000, timestamp)
-        col.db.execute("update cards set nid = ?, mod = ?", timestamp * 1000, timestamp)
-
         val fragment = BrowserColumnSelectionFragment.createInstance(CardsOrNotes.CARDS)
         fragment.showNow(browser.supportFragmentManager, "columns")
-        advanceRobolectricLooper()
         try {
             fragment.requireDialog().window!!.simulateSystemBars(insets)
+            composeRule.waitUntil(10_000) {
+                ShadowLooper.idleMainLooper()
+                composeRule.onAllNodesWithText("Shown").fetchSemanticsNodes().isNotEmpty()
+            }
             captureScreen(name)
 
-            fragment.requireView().findViewById<RecyclerView>(R.id.recycler_view).scrollToEnd()
+            val inColumns = hasAnyAncestor(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, "Columns"))
+            composeRule.onNode(inColumns and hasScrollToIndexAction()).performScrollToNode(hasText("Position"))
+            composeRule.onNodeWithText("Position").assertIsDisplayed()
             captureScreen("${name}_scrolled_to_bottom")
         } finally {
             fragment.dismissNow()

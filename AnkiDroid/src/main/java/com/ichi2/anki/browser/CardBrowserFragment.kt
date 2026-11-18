@@ -91,7 +91,7 @@ import com.ichi2.anki.requireNavigationDrawerActivity
 import com.ichi2.anki.scheduling.ForgetCardsDialog
 import com.ichi2.anki.scheduling.SetDueDateDialog
 import com.ichi2.anki.scheduling.registerOnForgetHandler
-import com.ichi2.anki.setBrowserSearchVisible
+import com.ichi2.anki.setBrowserFullScreen
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.undoAndShowSnackbar
@@ -173,8 +173,8 @@ class CardBrowserFragment :
         }
     }
 
-    internal fun searchVisibilityChanged(visible: Boolean) {
-        (activity as? DeckPicker)?.setBrowserSearchVisible(visible)
+    internal fun browserChromeChanged(takingOver: Boolean) {
+        (activity as? DeckPicker)?.setBrowserFullScreen(takingOver && !isHidden)
     }
 
     internal fun browserBack() = requireNavigationDrawerActivity().onNavigationPressed()
@@ -199,78 +199,152 @@ class CardBrowserFragment :
 
     internal fun browserMenu(
         selecting: Boolean,
-        count: Int,
         state: SearchState,
         search: SearchRequest,
-        showSheet: (BrowserSheet) -> Unit,
     ): List<BrowserMenuEntry> =
         buildList {
             fun addAction(
                 label: String,
                 action: () -> Unit,
-            ) = add(
-                BrowserMenuEntry(label) {
-                    prepareForUndoableOperation()
-                    action()
-                },
-            )
+            ) = add(BrowserMenuEntry(label, action))
 
             if (state is SearchState.Completed && getColUnsafe().undoAvailable()) {
                 getColUnsafe().undoLabel()?.let { addAction(it) { onUndo() } }
             }
-            if (!selecting) {
-                if (activityViewModel.rowCount > 0 && !activityViewModel.isFragmented) {
-                    addAction(getString(CommonString.card_editor_preview_card)) { onPreview() }
-                }
-                if (activityViewModel.rowCount > 0) {
-                    addAction(getString(CommonString.card_browser_select_all)) { activityViewModel.selectAll() }
-                }
-                if (search.query.isNotBlank() || search.filters.activeFilters.isNotEmpty()) {
-                    addAction(getString(CommonString.card_browser_list_my_searches_save)) { saveSubmittedSearch(search) }
-                }
-                addAction(getString(CommonString.new_dynamic_deck), ::showFilteredDeckScreen)
-                addAction(TR.sentenceCase.findAndReplace, ::showFindAndReplaceDialog)
-                addAction(getString(CommonString.browse_manage_columns_main_heading)) {
-                    BrowserColumnSelectionFragment.createInstance(activityViewModel.cardsOrNotes).show(parentFragmentManager, null)
-                }
-                addAction(getString(CommonString.rename_flag), ::renameFlags)
-                addAction(TR.sentenceCase.browserOptions, ::showOptionsDialog)
+            if (selecting) {
+                addAction(getString(CommonString.card_browser_select_none)) { activityViewModel.selectNone() }
                 return@buildList
             }
-            if (count == 0) return@buildList
-            addAction(getString(CommonString.card_browser_select_none)) { activityViewModel.selectNone() }
-            addAction(TR.sentenceCase.changeDeck, ::showChangeDeckDialog)
-            addAction(TR.sentenceCase.flagCard) { showSheet(BrowserSheet.SELECTED_FLAG) }
-            addAction(getString(CommonString.menu_edit_tags), ::showEditTagsDialog)
-            addAction(TR.sentenceCase.toggleSuspend) { toggleSuspendCards() }
-            if (count == 1) {
-                addAction(getString(CommonString.cardeditor_title_edit_card), ::openNoteEditorForCurrentlySelectedRow)
-                addAction(TR.sentenceCase.cardInfo) { displayCardInfo() }
+            if (activityViewModel.rowCount > 0 && !activityViewModel.isFragmented) {
+                addAction(getString(CommonString.card_editor_preview_card), ::onPreview)
             }
-            addAction(getString(CommonString.card_editor_preview_card), ::onPreview)
-            addAction(TR.sentenceCase.toggleMark) { toggleMark() }
-            addAction(TR.sentenceCase.changeNoteType) { activityViewModel.requestChangeNoteType() }
+            if (activityViewModel.rowCount > 0) {
+                addAction(getString(CommonString.card_browser_select_all)) { activityViewModel.selectAll() }
+            }
+            if (search.query.isNotBlank() || search.filters.activeFilters.isNotEmpty()) {
+                addAction(getString(CommonString.card_browser_list_my_searches_save)) { saveSubmittedSearch(search) }
+            }
+            addAction(getString(CommonString.new_dynamic_deck), ::showFilteredDeckScreen)
             addAction(TR.sentenceCase.findAndReplace, ::showFindAndReplaceDialog)
-            addAction(
+            addAction(getString(CommonString.browse_manage_columns_main_heading)) {
+                BrowserColumnSelectionFragment.createInstance(activityViewModel.cardsOrNotes).show(parentFragmentManager, null)
+            }
+            addAction(getString(CommonString.rename_flag), ::renameFlags)
+            addAction(TR.sentenceCase.browserOptions, ::showOptionsDialog)
+        }.map { item ->
+            item.copy(action = {
+                prepareForUndoableOperation()
+                item.action()
+            })
+        }
+
+    internal fun selectionShortcuts(
+        onFlag: () -> Unit,
+        onMore: () -> Unit,
+    ): List<BrowserSelectionShortcut> =
+        listOf(
+            BrowserSelectionShortcut(
+                getString(R.string.browse_action_deck),
+                TR.sentenceCase.changeDeck,
+                R.drawable.symbol_move_selection_right,
+            ) {
+                prepareForUndoableOperation()
+                showChangeDeckDialog()
+            },
+            BrowserSelectionShortcut(
+                getString(R.string.browse_action_flag),
+                TR.sentenceCase.flagCard,
+                R.drawable.symbol_flag,
+                onFlag,
+            ),
+            BrowserSelectionShortcut(
+                getString(R.string.browse_action_tags),
+                getString(CommonString.menu_edit_tags),
+                R.drawable.symbol_label,
+            ) {
+                prepareForUndoableOperation()
+                showEditTagsDialog()
+            },
+            BrowserSelectionShortcut(
+                getString(R.string.browse_action_suspend),
+                TR.sentenceCase.toggleSuspend,
+                R.drawable.symbol_pause_circle,
+            ) { toggleSuspendCards() },
+            BrowserSelectionShortcut(
+                getString(R.string.browse_action_more),
+                getString(R.string.browse_action_more),
+                R.drawable.symbol_more_horiz,
+                onMore,
+            ),
+        )
+
+    internal fun selectionActions(count: Int): List<BrowserSelectionAction> {
+        val mode = activityViewModel.cardsOrNotes
+        val editDetail =
+            when {
+                count == 1 -> null
+                mode == CARDS -> getString(R.string.browse_edit_single_selection)
+                else -> getString(R.string.browse_edit_single_note_selection)
+            }
+        return listOf(
+            BrowserSelectionAction(
+                getString(CommonString.cardeditor_title_edit_card),
+                R.drawable.symbol_edit_note,
+                detail = editDetail,
+                enabled = count == 1,
+                action = ::openNoteEditorForCurrentlySelectedRow,
+            ),
+            BrowserSelectionAction(getString(CommonString.card_editor_preview_card), R.drawable.symbol_visibility, action = ::onPreview),
+            BrowserSelectionAction(TR.sentenceCase.cardInfo, R.drawable.symbol_info) { displayCardInfo() },
+            BrowserSelectionAction(
+                getString(R.string.browse_action_mark),
+                R.drawable.symbol_star,
+                detail = getString(R.string.browse_mark_selection_note),
+            ) { toggleMark() },
+            BrowserSelectionAction(
+                TR.sentenceCase.changeNoteType,
+                R.drawable.symbol_swap_horiz,
+            ) { activityViewModel.requestChangeNoteType() },
+            BrowserSelectionAction(TR.sentenceCase.findAndReplace, R.drawable.symbol_find_replace, action = ::showFindAndReplaceDialog),
+            BrowserSelectionAction(
                 resources.getQuantityString(
-                    if (activityViewModel.cardsOrNotes ==
-                        CARDS
-                    ) {
-                        CommonPlurals.card_browser_export_cards
-                    } else {
-                        CommonPlurals.card_browser_export_notes
-                    },
+                    if (mode == CARDS) CommonPlurals.card_browser_export_cards else CommonPlurals.card_browser_export_notes,
                     count,
                 ),
-                ::exportSelected,
-            )
-            addAction(TR.sentenceCase.setDueDate, ::rescheduleSelectedCards)
-            addAction(getString(CommonString.card_editor_reposition_card)) { repositionSelectedCards() }
-            addAction(TR.sentenceCase.gradeNow) { openGradeNow() }
-            addAction(getString(CommonString.card_editor_reset_card), ::onResetProgress)
-            addAction(TR.sentenceCase.toggleBury) { toggleBury() }
-            addAction(resources.getQuantityString(CommonPlurals.card_browser_delete_notes, count)) { deleteSelectedNotes() }
+                R.drawable.symbol_file_export,
+                action = ::exportSelected,
+            ),
+            BrowserSelectionAction(
+                TR.sentenceCase.setDueDate,
+                R.drawable.symbol_calendar_today,
+                startsGroup = true,
+                action = ::rescheduleSelectedCards,
+            ),
+            BrowserSelectionAction(
+                getString(CommonString.card_editor_reposition_card),
+                R.drawable.symbol_low_priority,
+                detail = getString(R.string.browse_reposition_new_cards),
+            ) { repositionSelectedCards() },
+            BrowserSelectionAction(TR.sentenceCase.gradeNow, R.drawable.symbol_grading) { openGradeNow() },
+            BrowserSelectionAction(
+                getString(CommonString.card_editor_reset_card),
+                R.drawable.symbol_restart_alt,
+                action = ::onResetProgress,
+            ),
+            BrowserSelectionAction(getString(R.string.browse_action_bury), R.drawable.symbol_visibility_off) { toggleBury() },
+            BrowserSelectionAction(
+                resources.getQuantityString(CommonPlurals.card_browser_delete_notes, count),
+                CommonR.drawable.symbol_delete,
+                destructive = true,
+                startsGroup = true,
+            ) { deleteSelectedNotes() },
+        ).map { item ->
+            item.copy(action = {
+                prepareForUndoableOperation()
+                item.action()
+            })
         }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -403,7 +477,10 @@ class CardBrowserFragment :
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
-        if (hidden) searchViewModel.closeBrowserSearch(activityViewModel.searchRequestFlow.value)
+        if (hidden) {
+            searchViewModel.closeBrowserSearch(activityViewModel.searchRequestFlow.value)
+        }
+        browserChromeChanged(!hidden && activityViewModel.isInMultiSelectMode)
     }
 
     override fun onResume() {
@@ -692,7 +769,11 @@ class CardBrowserFragment :
             activityViewModel.toggleMark()
         }
 
-    fun toggleSuspendCards() = launchCatchingTask { activityViewModel.toggleSuspendCards().join() }
+    fun toggleSuspendCards() =
+        launchCatchingTask {
+            prepareForUndoableOperation()
+            activityViewModel.toggleSuspendCards().join()
+        }
 
     /** @see CardBrowserViewModel.toggleBury */
     fun toggleBury() =
@@ -841,6 +922,7 @@ class CardBrowserFragment :
 
     fun updateFlagForSelectedRows(flag: Flag) =
         launchCatchingTask {
+            prepareForUndoableOperation()
             activityViewModel.updateSelectedCardsFlag(flag)
         }
 

@@ -62,10 +62,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -119,6 +122,7 @@ internal fun CardBrowserScreen(
     var sheet by rememberSaveable { mutableStateOf<BrowserSheet?>(null) }
     LaunchedEffect(host) { host.sheetRequests.collect { sheet = it } }
     var menu by remember { mutableStateOf(false) }
+    var showSelectionActions by rememberSaveable { mutableStateOf(false) }
     var revision by remember { mutableIntStateOf(0) }
     val rowCache =
         remember(results, columns, revision) {
@@ -150,14 +154,20 @@ internal fun CardBrowserScreen(
         search.closeBrowserSearch(request)
     }
 
-    DisposableEffect(searchOpen, host) {
-        host.searchVisibilityChanged(searchOpen)
+    fun endSelection() = vm.endMultiSelectMode(SingleSelectCause.NavigateBack)
+
+    val takesOverBottomNavigation = searchOpen || selectionMode
+    DisposableEffect(takesOverBottomNavigation, host) {
+        host.browserChromeChanged(takesOverBottomNavigation)
         onDispose {
-            if (searchOpen) host.searchVisibilityChanged(false)
+            if (takesOverBottomNavigation) host.browserChromeChanged(false)
         }
     }
+    LaunchedEffect(selectionMode) {
+        if (!selectionMode) showSelectionActions = false
+    }
     BackHandler(enabled = searchOpen || (embedded && selectionMode)) {
-        if (searchOpen) closeSearch() else vm.endMultiSelectMode(SingleSelectCause.NavigateBack)
+        if (searchOpen) closeSearch() else endSelection()
     }
 
     LaunchedEffect(vm) {
@@ -181,7 +191,10 @@ internal fun CardBrowserScreen(
                 Modifier.windowInsetsPadding(
                     WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
                 )
-            embedded && !searchOpen -> Modifier.windowInsetsPadding(WindowInsets.statusBars.union(WindowInsets.displayCutout))
+            embedded && !takesOverBottomNavigation ->
+                Modifier.windowInsetsPadding(
+                    WindowInsets.statusBars.union(WindowInsets.displayCutout),
+                )
             else -> Modifier.windowInsetsPadding(WindowInsets.safeDrawing).imePadding()
         }
     Box(Modifier.fillMaxSize().background(colors.background).then(insets)) {
@@ -219,110 +232,149 @@ internal fun CardBrowserScreen(
                         ?.offset ?: 0,
                 )
             }
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.fillMaxSize().nestedScroll(rememberNestedScrollInteropConnection()),
-                contentPadding =
-                    PaddingValues(
-                        start = foundation.spacing.screenMargin,
-                        end = foundation.spacing.screenMargin,
-                        bottom = 88.dp,
-                    ),
-            ) {
-                item {
-                    Column {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            if (selectionMode) {
-                                BrowserIcon(CommonR.drawable.symbol_arrow_back, stringResource(CommonString.dialog_cancel)) {
-                                    vm.endMultiSelectMode(SingleSelectCause.NavigateBack)
+            val toolbar: @Composable () -> Unit = {
+                Row(
+                    modifier =
+                        Modifier.fillMaxWidth().padding(
+                            start = foundation.spacing.screenMargin,
+                            end = foundation.spacing.screenMargin,
+                            top = 8.dp,
+                            bottom = 12.dp,
+                        ),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (selectionMode) {
+                        BrowserIcon(CommonR.drawable.symbol_close, stringResource(CommonString.dialog_cancel), ::endSelection)
+                    } else if (!embedded && !vm.isFragmented) {
+                        BrowserIcon(
+                            CommonR.drawable.symbol_arrow_back,
+                            stringResource(CommonString.dialog_cancel),
+                            host::browserBack,
+                        )
+                    }
+                    Text(
+                        if (selectionMode) {
+                            stringResource(R.string.browse_selected_count, selectedCount)
+                        } else {
+                            TR.qtMiscBrowse()
+                        },
+                        modifier =
+                            Modifier.weight(1f).semantics {
+                                heading()
+                                if (selectionMode) liveRegion = LiveRegionMode.Polite
+                            },
+                        style = if (selectionMode) foundation.type.pageTitle else foundation.type.screenTitle,
+                        color = colors.onBackground,
+                    )
+                    if (selectionMode) {
+                        BrowserIcon(R.drawable.symbol_select_all, stringResource(CommonString.card_browser_select_all)) {
+                            vm.selectAll()
+                        }
+                    }
+                    Box {
+                        BrowserIcon(CommonR.drawable.symbol_more_vert, stringResource(R.string.browse_more_actions)) { menu = true }
+                        if (menu) {
+                            BrowserMenu(
+                                expanded = true,
+                                onDismiss = { menu = false },
+                                entries = host.browserMenu(selectionMode, state, request),
+                            )
+                        }
+                    }
+                }
+            }
+            Column(Modifier.fillMaxSize()) {
+                if (selectionMode) toolbar()
+                Box(Modifier.weight(1f)) {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize().nestedScroll(rememberNestedScrollInteropConnection()),
+                        contentPadding = PaddingValues(bottom = if (selectionMode) 0.dp else 88.dp),
+                    ) {
+                        item {
+                            if (!selectionMode) toolbar()
+                            Column(Modifier.padding(horizontal = foundation.spacing.screenMargin)) {
+                                BrowserSearchLauncher(submittedText, mode) {
+                                    if (selectionMode) endSelection()
+                                    host.openSearch()
                                 }
-                            } else if (!embedded && !vm.isFragmented) {
-                                BrowserIcon(
-                                    CommonR.drawable.symbol_arrow_back,
-                                    stringResource(CommonString.dialog_cancel),
-                                    host::browserBack,
+                                BrowserChips(displayRequest.filters, flagNames, { sheet = it })
+                                BrowserResultControls(
+                                    state = state,
+                                    mode = mode,
+                                    sort = sort,
+                                    onSort = { sheet = BrowserSheet.SORT },
+                                    onMode = {
+                                        if (mode != it) {
+                                            if (selectionMode) endSelection()
+                                            vm.setCardsOrNotes(it)
+                                        }
+                                    },
                                 )
+                                HorizontalDivider(color = colors.outline, thickness = foundation.shapes.hairline)
                             }
-                            Text(
-                                if (selectionMode) selectedCount.toString() else TR.qtMiscBrowse(),
-                                modifier = Modifier.weight(1f).semantics { heading() },
-                                style = foundation.type.screenTitle,
-                                color = colors.onBackground,
-                            )
-                            if (selectionMode) {
-                                BrowserIcon(R.drawable.symbol_select_all, stringResource(CommonString.card_browser_select_all)) {
-                                    vm.selectAll()
-                                }
-                            }
-                            Box {
-                                BrowserIcon(CommonR.drawable.symbol_more_vert, stringResource(R.string.browse_more_actions)) { menu = true }
-                                if (menu) {
-                                    BrowserMenu(
-                                        expanded = true,
-                                        onDismiss = { menu = false },
-                                        entries = host.browserMenu(selectionMode, selectedCount, state, request) { sheet = it },
+                        }
+                        if (state is SearchState.Completed && results.ids.isEmpty()) {
+                            item {
+                                Column(Modifier.fillMaxWidth().padding(horizontal = foundation.spacing.screenMargin, vertical = 20.dp)) {
+                                    Text(
+                                        stringResource(
+                                            if (mode ==
+                                                CardsOrNotes.CARDS
+                                            ) {
+                                                R.string.browse_no_cards
+                                            } else {
+                                                R.string.browse_no_notes
+                                            },
+                                        ),
+                                        style = foundation.type.rowTitle,
+                                        color = colors.onBackground,
                                     )
+                                    if (request.query.isNotBlank() || request.filters.activeFilters.isNotEmpty()) {
+                                        TextButton(onClick = { search.submitCurrentSearch(SearchRequest("")) }) {
+                                            Text(stringResource(R.string.browse_clear), style = foundation.type.button)
+                                        }
+                                    }
                                 }
                             }
                         }
-                        if (!selectionMode) {
-                            BrowserSearchLauncher(submittedText, mode, host::openSearch)
-                            BrowserChips(displayRequest.filters, flagNames, { sheet = it })
-                            BrowserResultControls(
-                                state = state,
-                                mode = mode,
-                                sort = sort,
-                                onSort = { sheet = BrowserSheet.SORT },
-                                onMode = { vm.setCardsOrNotes(it) },
-                            )
-                        }
-                        HorizontalDivider(color = colors.outline, thickness = foundation.shapes.hairline)
-                    }
-                }
-                if (state is SearchState.Completed && results.ids.isEmpty()) {
-                    item {
-                        Column(Modifier.fillMaxWidth().padding(vertical = 20.dp)) {
-                            Text(
-                                stringResource(if (mode == CardsOrNotes.CARDS) R.string.browse_no_cards else R.string.browse_no_notes),
-                                style = foundation.type.rowTitle,
-                                color = colors.onBackground,
-                            )
-                            if (request.query.isNotBlank() || request.filters.activeFilters.isNotEmpty()) {
-                                TextButton(onClick = { search.submitCurrentSearch(SearchRequest("")) }) {
-                                    Text(stringResource(R.string.browse_clear), style = foundation.type.button)
+                        items(
+                            count = results.ids.size,
+                            key = { "${results.mode}:${results.ids[it].cardOrNoteId}" },
+                        ) { index ->
+                            val id = results.ids[index]
+                            val row by produceState(rowCache.get(id), id, rowCache) {
+                                value = rowCache.get(id) ?: loadBrowserResultRow(id, results.mode, vm.showMediaFilenames)?.also {
+                                    rowCache.put(id, it)
                                 }
                             }
+                            BrowserResult(
+                                row = row,
+                                flagNames = flagNames,
+                                isSelected = remember(id, selectionMode, selectionRevision) { selectionMode && id in vm.selectedRows },
+                                isInSelection = selectionMode,
+                                isInPane = id == paneRow,
+                                truncated = truncated,
+                                fontScale = vm.rowFontScale,
+                                onClick = { vm.onTap(selectedSelection(id, index + 1)) },
+                                onLongClick = { vm.handleRowLongPress(selectedSelection(id, index + 1)) },
+                                onRightClick = { vm.handleRightClick(selectedSelection(id, index + 1)) },
+                            )
                         }
                     }
+                    BrowserScrollbar(listState, results.ids.size, Modifier.align(Alignment.CenterEnd))
                 }
-                items(
-                    count = results.ids.size,
-                    key = { "${results.mode}:${results.ids[it].cardOrNoteId}" },
-                ) { index ->
-                    val id = results.ids[index]
-                    val row by produceState(rowCache.get(id), id, rowCache) {
-                        value = rowCache.get(id) ?: loadBrowserResultRow(id, results.mode, vm.showMediaFilenames)?.also {
-                            rowCache.put(id, it)
-                        }
-                    }
-                    BrowserResult(
-                        row = row,
-                        flagNames = flagNames,
-                        isSelected = remember(id, selectionMode, selectionRevision) { selectionMode && id in vm.selectedRows },
-                        isInSelection = selectionMode,
-                        isInPane = id == paneRow,
-                        truncated = truncated,
-                        fontScale = vm.rowFontScale,
-                        onClick = { vm.onTap(selectedSelection(id, index + 1)) },
-                        onLongClick = { vm.handleRowLongPress(selectedSelection(id, index + 1)) },
-                        onRightClick = { vm.handleRightClick(selectedSelection(id, index + 1)) },
+                if (selectionMode) {
+                    BrowserSelectionBar(
+                        enabled = selectedCount > 0,
+                        actions =
+                            host.selectionShortcuts(
+                                onFlag = { sheet = BrowserSheet.SELECTED_FLAG },
+                                onMore = { showSelectionActions = true },
+                            ),
                     )
                 }
             }
-            BrowserScrollbar(listState, results.ids.size, Modifier.align(Alignment.CenterEnd))
             if (!selectionMode) {
                 FloatingActionButton(
                     onClick = host::addNote,
@@ -337,6 +389,15 @@ internal fun CardBrowserScreen(
         }
     }
 
+    if (selectionMode && selectedCount > 0 && showSelectionActions) {
+        val countResource = if (mode == CardsOrNotes.CARDS) R.plurals.browse_selection_cards else R.plurals.browse_selection_notes
+        BrowserSelectionActionsSheet(
+            title = pluralStringResource(countResource, selectedCount, selectedCount),
+            entries = host.selectionActions(selectedCount),
+            onDismiss = { showSelectionActions = false },
+        )
+    }
+
     sheet?.let { active ->
         val current = if (searchOpen) draftRequest else displayRequest
         BrowserChoiceSheet(
@@ -348,7 +409,12 @@ internal fun CardBrowserScreen(
             onApply = { filters ->
                 sheet = null
                 val updated = current.copy(filters = filters)
-                if (searchOpen) host.replaceSearchDraft(updated) else search.submitCurrentSearch(updated)
+                if (searchOpen) {
+                    host.replaceSearchDraft(updated)
+                } else {
+                    if (selectionMode && updated != current) endSelection()
+                    search.submitCurrentSearch(updated)
+                }
             },
             onFlag = {
                 host.updateFlagForSelectedRows(it)
@@ -406,25 +472,35 @@ private fun BrowserResultControls(
                 style = foundation.type.caption,
             )
         }
-        Row(Modifier.clip(foundation.shapes.button).border(1.dp, colors.onBackgroundMuted, foundation.shapes.button)) {
-            for ((option, label) in listOf(
-                CardsOrNotes.CARDS to R.string.browse_mode_cards,
-                CardsOrNotes.NOTES to R.string.browse_mode_notes,
-            )) {
-                val active = mode == option
-                Text(
-                    text = stringResource(label),
-                    style = foundation.type.caption,
-                    color = if (active) colors.onBackground else colors.onBackgroundMuted,
-                    modifier =
-                        Modifier
-                            .background(if (active) colors.progressTrack else colors.background)
-                            .heightIn(min = foundation.spacing.touchTarget)
-                            .semantics { selected = active }
-                            .clickable(role = Role.Tab) { onMode(option) }
-                            .padding(horizontal = 11.dp, vertical = 14.dp),
-                )
-            }
+        BrowserModeSwitch(mode, onMode)
+    }
+}
+
+@Composable
+internal fun BrowserModeSwitch(
+    mode: CardsOrNotes,
+    onMode: (CardsOrNotes) -> Unit,
+) {
+    val foundation = MaterialTheme.foundation
+    val colors = foundation.colors
+    Row(Modifier.clip(foundation.shapes.button).border(1.dp, colors.onBackgroundMuted, foundation.shapes.button)) {
+        for ((option, label) in listOf(
+            CardsOrNotes.CARDS to R.string.browse_mode_cards,
+            CardsOrNotes.NOTES to R.string.browse_mode_notes,
+        )) {
+            val active = mode == option
+            Text(
+                text = stringResource(label),
+                style = foundation.type.caption,
+                color = if (active) colors.onBackground else colors.onBackgroundMuted,
+                modifier =
+                    Modifier
+                        .background(if (active) colors.progressTrack else colors.background)
+                        .heightIn(min = foundation.spacing.touchTarget)
+                        .semantics { selected = active }
+                        .clickable(role = Role.Tab) { onMode(option) }
+                        .padding(horizontal = 11.dp, vertical = 14.dp),
+            )
         }
     }
 }

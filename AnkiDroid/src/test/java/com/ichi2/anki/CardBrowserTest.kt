@@ -212,7 +212,7 @@ class CardBrowserTest : RobolectricTest() {
         getBrowserWithNotes(noteCount = 3)
         openBrowseMenu()
         composeRule.onNodeWithText("Select all").performClick()
-        composeRule.onNodeWithText("3").assertIsDisplayed()
+        composeRule.onNodeWithText("3 selected").assertIsDisplayed()
     }
 
     @Test
@@ -1225,9 +1225,9 @@ class CardBrowserTest : RobolectricTest() {
         getBrowserWithNotes(noteCount = 0)
 
         composeRule.onNodeWithText("First result").performTouchInput { longClick() }
-        composeRule.onNodeWithText("1").assertIsDisplayed()
+        composeRule.onNodeWithText("1 selected").assertIsDisplayed()
         composeRule.onNodeWithText("Second result").performClick()
-        composeRule.onNodeWithText("2").assertIsDisplayed()
+        composeRule.onNodeWithText("2 selected").assertIsDisplayed()
     }
 
     @Test
@@ -1596,15 +1596,16 @@ class CardBrowserTest : RobolectricTest() {
     }
 
     @Test
-    fun `the selection menu offers existing bulk operations`() {
+    fun `the selection bar offers frequent bulk actions and More opens the other actions`() {
         addBasicNote("Selected result")
         getBrowserWithNotes(noteCount = 0)
         composeRule.onNodeWithText("Selected result").performTouchInput { longClick() }
-        openBrowseMenu()
-
-        listOf("Change deck", "Flag card", "Edit tags", "Toggle suspend", "Find and replace").forEach {
-            composeRule.onNodeWithText(it).assertExists()
+        listOf("Change deck", "Flag card", "Edit tags", "Toggle suspend").forEach {
+            composeRule.onNodeWithContentDescription(it).assertIsDisplayed()
         }
+        composeRule.onNodeWithContentDescription("More").performClick()
+        composeRule.onNodeWithText("Find and replace").assertIsDisplayed()
+        composeRule.onNodeWithText("Preview").assertIsDisplayed()
     }
 
     @Test

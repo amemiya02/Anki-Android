@@ -23,5 +23,33 @@
     <string name="browse_loading_results">正在加载结果</string>
     <string name="browse_more_actions">更多操作</string>
     <string name="browse_hide_keyboard">提交搜索</string>
-    <string name="browse_card_actions">卡片操作</string>
+    <string name="browse_action_deck">牌组</string>
+    <string name="browse_action_flag">旗标</string>
+    <string name="browse_action_tags">标签</string>
+    <string name="browse_action_suspend">暂停</string>
+    <string name="browse_action_more">更多</string>
+    <string name="browse_action_mark">标记</string>
+    <string name="browse_action_bury">搁置</string>
+    <string name="browse_select_row">选择</string>
+    <string name="browse_select_range">选择范围</string>
+    <string name="browse_selected_count">已选择 %1$d 项</string>
+    <string name="browse_edit_single_selection">仅限选择一张卡片时</string>
+    <string name="browse_edit_single_note_selection">仅限选择一条笔记时</string>
+    <string name="browse_mark_selection_note">切换所选笔记的标记标签</string>
+    <string name="browse_reposition_new_cards">仅限新卡片</string>
+    <string name="browse_back_from_columns">返回浏览</string>
+    <string name="browse_columns_explanation">第一列用作每行的标题，其余列按顺序显示在标题下方。</string>
+    <string name="browse_columns_shown">已显示</string>
+    <string name="browse_columns_row_title">每行的标题</string>
+    <string name="browse_columns_hide">隐藏%1$s</string>
+    <string name="browse_columns_show">显示%1$s</string>
+    <string name="browse_columns_reorder">调整%1$s的顺序</string>
+    <string name="browse_columns_move_up">上移</string>
+    <string name="browse_columns_move_down">下移</string>
+    <plurals name="browse_selection_cards">
+        <item quantity="other">%1$d 张卡片</item>
+    </plurals>
+    <plurals name="browse_selection_notes">
+        <item quantity="other">%1$d 条笔记</item>
+    </plurals>
 </resources>

@@ -1815,10 +1815,10 @@ class DeckPickerTest : RobolectricTest() {
 
                 composeRule.onNodeWithText("first").performTouchInput { longClick() }
                 composeRule.onNodeWithText("second").performClick()
-                composeRule.onNode(heading and hasText("2")).assertIsDisplayed()
+                composeRule.onNode(heading and hasText("2 selected")).assertIsDisplayed()
 
                 composeRule.onNodeWithText("first").performClick()
-                composeRule.onNode(heading and hasText("1")).assertIsDisplayed()
+                composeRule.onNode(heading and hasText("1 selected")).assertIsDisplayed()
             }
         }
 

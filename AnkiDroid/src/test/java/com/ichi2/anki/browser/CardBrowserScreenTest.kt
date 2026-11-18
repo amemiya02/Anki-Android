@@ -3,15 +3,19 @@
 package com.ichi2.anki.browser
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.performTouchInput
 import androidx.core.view.isVisible
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -23,6 +27,7 @@ import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.Flag
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.getBrowserWithNotes
+import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.anki.withDeckPicker
 import org.junit.Rule
 import org.junit.Test
@@ -30,6 +35,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -101,6 +107,69 @@ class CardBrowserScreenTest : RobolectricTest() {
             waitForText("Ginkgo")
             assertTrue(bar.isVisible)
         }
+    }
+
+    @Test
+    fun `long pressing extends the selection and Select all includes the remaining results`() {
+        listOf("Birch", "Ginkgo", "Lotus", "Maple").forEach { addBasicNote(it) }
+        getBrowserWithNotes(noteCount = 0)
+
+        composeRule.onNodeWithText("Birch").performTouchInput { longClick() }
+        waitForText("1 selected")
+        composeRule.onNodeWithText("Lotus").performTouchInput { longClick() }
+        waitForText("3 selected")
+        composeRule.onNodeWithText("Ginkgo").assertIsOn()
+        composeRule.onNodeWithText("Maple").assertIsOff()
+
+        composeRule.onNodeWithContentDescription("Select all").performClick()
+        waitForText("4 selected")
+        composeRule.onNodeWithText("Maple").assertIsOn()
+        composeRule.onNodeWithText("Ginkgo").performClick()
+        waitForText("3 selected")
+        composeRule.onNodeWithText("Ginkgo").assertIsOff()
+
+        composeRule.onNodeWithContentDescription("Toggle suspend").performClick()
+        composeRule.waitUntil(10_000) {
+            ShadowLooper.idleMainLooper()
+            composeRule.onAllNodesWithText("Suspended").fetchSemanticsNodes().size == 3
+        }
+    }
+
+    @Test
+    fun `flagging a selected note flags its sibling cards and a selected card opens preview`() {
+        addBasicAndReversedNote("Ginkgo", "Tree")
+        val browser = getBrowserWithNotes(noteCount = 0)
+        composeRule.onNodeWithText("Notes").performClick()
+        waitForText("1 note shown")
+
+        composeRule.onNodeWithText("Ginkgo").performTouchInput { longClick() }
+        waitForText("1 selected")
+        composeRule.onNodeWithContentDescription("Flag card").performClick()
+        val red = TR.actionsFlagRed()
+        waitForText(red)
+        composeRule.onNodeWithText(red).performClick()
+        composeRule.waitUntil(10_000) {
+            ShadowLooper.idleMainLooper()
+            composeRule.onAllNodesWithContentDescription(red).fetchSemanticsNodes().size == 1
+        }
+
+        composeRule.onNodeWithContentDescription("Cancel").performClick()
+        composeRule.onNodeWithText("Cards").performClick()
+        waitForText("2 cards shown")
+        composeRule.waitUntil(10_000) {
+            ShadowLooper.idleMainLooper()
+            composeRule.onAllNodesWithContentDescription(red).fetchSemanticsNodes().size == 2
+        }
+
+        composeRule.onAllNodesWithText("Ginkgo")[0].performTouchInput { longClick() }
+        waitForText("1 selected")
+        composeRule.onNodeWithContentDescription("More").performClick()
+        composeRule.onNodeWithText("Preview").performClick()
+        composeRule.waitUntil(10_000) {
+            ShadowLooper.idleMainLooper()
+            shadowOf(browser).peekNextStartedActivity() != null
+        }
+        assertEquals(CardViewerActivity::class.java.name, shadowOf(browser).nextStartedActivity.component?.className)
     }
 
     @Test

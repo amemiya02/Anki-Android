@@ -23,5 +23,36 @@
     <string name="browse_loading_results">Loading results</string>
     <string name="browse_more_actions">More actions</string>
     <string name="browse_hide_keyboard">Submit search</string>
-    <string name="browse_card_actions">Card actions</string>
+    <string name="browse_action_deck">Deck</string>
+    <string name="browse_action_flag">Flag</string>
+    <string name="browse_action_tags">Tags</string>
+    <string name="browse_action_suspend">Suspend</string>
+    <string name="browse_action_more">More</string>
+    <string name="browse_action_mark">Mark</string>
+    <string name="browse_action_bury">Bury</string>
+    <string name="browse_select_row">Select</string>
+    <string name="browse_select_range">Select range</string>
+    <string name="browse_selected_count">%1$d selected</string>
+    <string name="browse_edit_single_selection">Only with one card selected</string>
+    <string name="browse_edit_single_note_selection">Only with one note selected</string>
+    <string name="browse_mark_selection_note">Toggle the marked tag on their notes</string>
+    <string name="browse_reposition_new_cards">New cards only</string>
+    <string name="browse_back_from_columns">Back to Browse</string>
+    <string name="browse_columns_explanation">The first column is the row’s title. The rest are listed under it, in this order.</string>
+    <string name="browse_columns_shown">Shown</string>
+    <string name="browse_columns_row_title">Title of each row</string>
+    <string name="browse_columns_hide">Hide %1$s</string>
+    <string name="browse_columns_show">Show %1$s</string>
+    <string name="browse_columns_reorder">Reorder %1$s</string>
+    <string name="browse_columns_move_up">Move up</string>
+    <string name="browse_columns_move_down">Move down</string>
+    <plurals name="browse_selection_cards">
+        <item quantity="one">%1$d card</item>
+        <item quantity="other">%1$d cards</item>
+    </plurals>
+    <plurals name="browse_selection_notes">
+        <item quantity="one">%1$d note</item>
+        <item quantity="other">%1$d notes</item>
+    </plurals>
+    <item name="browser_columns_compose" type="id" />
 </resources>

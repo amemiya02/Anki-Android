@@ -23,5 +23,33 @@
     <string name="browse_loading_results">結果を読み込み中</string>
     <string name="browse_more_actions">その他の操作</string>
     <string name="browse_hide_keyboard">検索を実行</string>
-    <string name="browse_card_actions">カードの操作</string>
+    <string name="browse_action_deck">デッキ</string>
+    <string name="browse_action_flag">フラグ</string>
+    <string name="browse_action_tags">タグ</string>
+    <string name="browse_action_suspend">保留</string>
+    <string name="browse_action_more">その他</string>
+    <string name="browse_action_mark">マーク</string>
+    <string name="browse_action_bury">延期</string>
+    <string name="browse_select_row">選択</string>
+    <string name="browse_select_range">範囲を選択</string>
+    <string name="browse_selected_count">%1$d件を選択中</string>
+    <string name="browse_edit_single_selection">カードを1枚だけ選択したときに使えます</string>
+    <string name="browse_edit_single_note_selection">ノートを1件だけ選択したときに使えます</string>
+    <string name="browse_mark_selection_note">対応するノートのマークタグを切り替えます</string>
+    <string name="browse_reposition_new_cards">新規カードのみ</string>
+    <string name="browse_back_from_columns">ブラウザーに戻る</string>
+    <string name="browse_columns_explanation">最初の列が各行のタイトルになります。残りの列はこの順番でタイトルの下に表示されます。</string>
+    <string name="browse_columns_shown">表示中</string>
+    <string name="browse_columns_row_title">各行のタイトル</string>
+    <string name="browse_columns_hide">%1$sを非表示</string>
+    <string name="browse_columns_show">%1$sを表示</string>
+    <string name="browse_columns_reorder">%1$sの順序を変更</string>
+    <string name="browse_columns_move_up">上に移動</string>
+    <string name="browse_columns_move_down">下に移動</string>
+    <plurals name="browse_selection_cards">
+        <item quantity="other">カード %1$d 枚</item>
+    </plurals>
+    <plurals name="browse_selection_notes">
+        <item quantity="other">ノート %1$d 件</item>
+    </plurals>
 </resources>

@@ -23,5 +23,39 @@
     <string name="browse_loading_results">جارٍ تحميل النتائج</string>
     <string name="browse_more_actions">إجراءات أخرى</string>
     <string name="browse_hide_keyboard">تنفيذ البحث</string>
-    <string name="browse_card_actions">إجراءات البطاقة</string>
+    <string name="browse_action_deck">الرزمة</string>
+    <string name="browse_action_flag">العلامة</string>
+    <string name="browse_action_tags">الوسوم</string>
+    <string name="browse_action_suspend">تعليق</string>
+    <string name="browse_action_more">المزيد</string>
+    <string name="browse_action_mark">تمييز</string>
+    <string name="browse_action_bury">إخفاء</string>
+    <string name="browse_select_row">تحديد</string>
+    <string name="browse_select_range">تحديد نطاق</string>
+    <string name="browse_selected_count">تم تحديد %1$d</string>
+    <string name="browse_edit_single_selection">عند تحديد بطاقة واحدة فقط</string>
+    <string name="browse_edit_single_note_selection">عند تحديد ملاحظة واحدة فقط</string>
+    <string name="browse_mark_selection_note">تبديل وسم التمييز على الملاحظات</string>
+    <string name="browse_reposition_new_cards">البطاقات الجديدة فقط</string>
+    <string name="browse_back_from_columns">العودة إلى التصفح</string>
+    <string name="browse_columns_explanation">يظهر العمود الأول عنوانًا للصف، وتظهر بقية الأعمدة تحته بهذا الترتيب.</string>
+    <string name="browse_columns_shown">معروضة</string>
+    <string name="browse_columns_row_title">عنوان كل صف</string>
+    <string name="browse_columns_hide">إخفاء %1$s</string>
+    <string name="browse_columns_show">إظهار %1$s</string>
+    <string name="browse_columns_reorder">تغيير ترتيب %1$s</string>
+    <string name="browse_columns_move_up">نقل لأعلى</string>
+    <string name="browse_columns_move_down">نقل لأسفل</string>
+    <plurals name="browse_selection_cards">
+        <item quantity="one">بطاقة واحدة</item>
+        <item quantity="two">بطاقتان</item>
+        <item quantity="few">%1$d بطاقات</item>
+        <item quantity="other">%1$d بطاقة</item>
+    </plurals>
+    <plurals name="browse_selection_notes">
+        <item quantity="one">ملاحظة واحدة</item>
+        <item quantity="two">ملاحظتان</item>
+        <item quantity="few">%1$d ملاحظات</item>
+        <item quantity="other">%1$d ملاحظة</item>
+    </plurals>
 </resources>

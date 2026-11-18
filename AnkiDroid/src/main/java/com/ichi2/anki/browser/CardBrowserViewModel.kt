@@ -317,7 +317,7 @@ class CardBrowserViewModel(
     val isInMultiSelectMode
         get() = flowOfMultiSelectModeChanged.value.resultedInMultiSelect
 
-    private val refreshSelectedRowsFlow = MutableSharedFlow<Unit>()
+    private val refreshSelectedRowsFlow = MutableSharedFlow<Unit>(replay = 1)
     val flowOfSelectedRows: Flow<Set<CardOrNoteId>> =
         flowOf(selectedRows)
             .combine(refreshSelectedRowsFlow) { row, _ -> row }
@@ -780,25 +780,16 @@ class CardBrowserViewModel(
     fun handleRowLongPress(rowSelection: RowSelection) =
         viewModelScope.launch {
             val id = rowSelection.rowId
-            if (isInMultiSelectMode && lastSelectedId != null) {
-                selectRowsBetween(lastSelectedId!!, id)
-            } else {
-                toggleRowSelection(rowSelection)
-            }
+            if (id !in cards) return@launch
+            val anchor = lastSelectedId?.takeIf { isInMultiSelectMode && it in cards }
+            if (anchor == null) toggleRowSelection(rowSelection) else selectRowsBetween(anchor, id)
         }
 
     /**
      * Handles right-click on a row, by default delegating to onLongPress
      */
     fun handleRightClick(rowSelection: RowSelection) {
-        viewModelScope.launch {
-            val id = rowSelection.rowId
-            if (isInMultiSelectMode && lastSelectedId != null) {
-                selectRowsBetween(lastSelectedId!!, id)
-            } else {
-                toggleRowSelection(rowSelection)
-            }
-        }
+        handleRowLongPress(rowSelection)
     }
 
     /**
@@ -906,6 +897,7 @@ class CardBrowserViewModel(
 
     fun selectNone(): Job? {
         if (_selectedRows.isEmpty()) return null
+        lastSelectedId = null
         Timber.d("selecting none")
         val removalReason =
             SingleSelectCause.Other.apply {
@@ -970,7 +962,7 @@ class CardBrowserViewModel(
         val startPos = cards.indexOf(start)
         val endPos = cards.indexOf(end)
 
-        selectRowsBetweenPositions(startPos, endPos)
+        if (startPos >= 0 && endPos >= 0) selectRowsBetweenPositions(startPos, endPos)
     }
 
     /**
@@ -1091,7 +1083,7 @@ class CardBrowserViewModel(
             Timber.d("updateColumns: no columns")
             return false
         }
-        if (activeColumns == columns) {
+        if (columnsForMode(cardsOrNotes) == columns) {
             Timber.d("updateColumns: no changes")
             return false
         }
@@ -1100,21 +1092,22 @@ class CardBrowserViewModel(
         val columnCollection =
             BrowserColumnCollection.replace(sharedPrefs(), cardsOrNotes, columns).newColumns
 
-        // A user can edit the non-active columns if they:
-        // * Edit the cards/notes setting in the browser options
-        // * Edit the visible columns
-        // * Save the columns and discard the options changes
+        // Reconfiguring the other mode updates only its saved list.
         val isEditingCurrentHeadings = cardsOrNotes == this.cardsOrNotes
         Timber.d("editing columns for current headings: %b", isEditingCurrentHeadings)
 
         if (isEditingCurrentHeadings) {
             viewModelScope.launch {
-                updateActiveColumns(columnCollection)
+                if (cardsOrNotes == this@CardBrowserViewModel.cardsOrNotes) {
+                    updateActiveColumns(columnCollection)
+                }
             }
         }
 
         return true
     }
+
+    internal fun columnsForMode(mode: CardsOrNotes): List<CardBrowserColumn> = BrowserColumnCollection.load(sharedPrefs(), mode).columns
 
     /**
      * Toggles the 'suspend' state of the selected cards
@@ -1457,6 +1450,7 @@ class CardBrowserViewModel(
      * Turn off [Multi-Select Mode][isInMultiSelectMode] and return to normal state
      */
     fun endMultiSelectMode(reason: SingleSelectCause) {
+        lastSelectedId = null
         reason.previouslySelectedRowIds = _selectedRows.toSet()
         _selectedRows.clear()
         flowOfMultiSelectModeChanged.value = reason
