@@ -20,6 +20,8 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.fragment.app.commitNow
+import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
@@ -36,6 +38,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -111,6 +114,34 @@ class SharedDecksActivityTest : RobolectricTest() {
         )
         assertEquals(1, activity.sharedPage.childFragmentManager.backStackEntryCount)
         verify(activity.sharedPage.downloadManager, times(2)).enqueue(any())
+    }
+
+    @Test
+    fun `returning to the covered download screen reuses the current download`() {
+        val activity = startSharedDeckDownload()
+        activity.receiveDownload()
+        val manager = activity.sharedPage.childFragmentManager
+        manager.executePendingTransactions()
+        val download = manager.fragments.single()
+
+        manager.commitNow { setMaxLifecycle(download, Lifecycle.State.CREATED) }
+        manager.commitNow { setMaxLifecycle(download, Lifecycle.State.RESUMED) }
+
+        composeRule.onNodeWithText(getResourceString(CommonString.cancel_download)).assertExists()
+        verify(activity.sharedPage.downloadManager).enqueue(any())
+    }
+
+    @Test
+    fun `system back asks before cancelling an active shared deck download`() {
+        val activity = startSharedDeckDownload()
+        activity.receiveDownload()
+        activity.sharedPage.childFragmentManager.executePendingTransactions()
+
+        activity.onBackPressedDispatcher.onBackPressed()
+
+        composeRule.onNodeWithText(getResourceString(CommonString.cancel_download_question_title)).assertExists()
+        assertFalse(activity.isFinishing)
+        verify(activity.sharedPage.downloadManager, never()).remove(any())
     }
 
     @Test
