@@ -25,8 +25,15 @@ import androidx.core.view.WindowInsetsCompat.Type.displayCutout
 import androidx.core.view.WindowInsetsCompat.Type.navigationBars
 import androidx.core.view.WindowInsetsCompat.Type.statusBars
 import com.google.android.material.snackbar.Snackbar
+import com.ichi2.anki.CheckAccessibility
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.FontSizeConfig.PERCENT_200
+import com.ichi2.anki.IncludeFontSizes
+import com.ichi2.anki.IncludeLanguages
+import com.ichi2.anki.LanguageConfig.ARABIC
+import com.ichi2.anki.LanguageConfig.JAPANESE
+import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.R
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.anki.common.utils.dp
@@ -52,6 +59,9 @@ import kotlin.test.assertTrue
  *
  * `./gradlew :AnkiDroid:verifyRoborazziPlayDebug -Pscreenshot --tests "com.ichi2.anki.multimedia.MultimediaScreenshotTest"`
  */
+@CheckAccessibility
+@IncludeLanguages(SIMPLIFIED_CHINESE, JAPANESE, ARABIC)
+@IncludeFontSizes(PERCENT_200)
 class MultimediaScreenshotTest : ScreenshotTest() {
     @get:Rule
     val composeRule = createEmptyComposeRule()
@@ -90,7 +100,7 @@ class MultimediaScreenshotTest : ScreenshotTest() {
             advanceRobolectricLooper()
             captureScreen("image_editor_error")
 
-            val controls = activity.findViewById<View>(R.id.image_actions)
+            val controls = activity.findViewById<View>(R.id.multimedia_controls_anchor)
             val controlsBounds = Rect().also { controls.getGlobalVisibleRect(it) }
             val snackbarBounds = Rect().also { snackbar.view.getGlobalVisibleRect(it) }
             assertTrue(
@@ -199,7 +209,7 @@ class MultimediaScreenshotTest : ScreenshotTest() {
                     .setInsets(navigationBars(), insetsOf(bottom = navBarHeight))
                     .build()
             }
-        ViewCompat.dispatchApplyWindowInsets(window.decorView, insets)
+        ViewCompat.dispatchApplyWindowInsets(findViewById(R.id.root_layout), insets)
         addNavBarOverlay(FrameLayout.LayoutParams.MATCH_PARENT, navBarHeight.toPx(targetContext), Gravity.BOTTOM)
     }
 
@@ -220,7 +230,7 @@ class MultimediaScreenshotTest : ScreenshotTest() {
                         )
                     }.build()
             }
-        ViewCompat.dispatchApplyWindowInsets(window.decorView, insets)
+        ViewCompat.dispatchApplyWindowInsets(findViewById(R.id.root_layout), insets)
         addNavBarOverlay(FrameLayout.LayoutParams.MATCH_PARENT, navBarHeight.toPx(targetContext), Gravity.BOTTOM)
     }
 
@@ -236,7 +246,7 @@ class MultimediaScreenshotTest : ScreenshotTest() {
                     .setInsets(displayCutout(), insetsOf(left = 32.dp))
                     .build()
             }
-        ViewCompat.dispatchApplyWindowInsets(window.decorView, insets)
+        ViewCompat.dispatchApplyWindowInsets(findViewById(R.id.root_layout), insets)
         addNavBarOverlay(navBarWidth.toPx(targetContext), FrameLayout.LayoutParams.MATCH_PARENT, Gravity.END)
     }
 

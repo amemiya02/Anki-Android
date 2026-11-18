@@ -7,9 +7,15 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
 import androidx.core.graphics.createBitmap
+import com.ichi2.anki.CheckAccessibility
+import com.ichi2.anki.FontSizeConfig.PERCENT_200
+import com.ichi2.anki.IncludeFontSizes
+import com.ichi2.anki.IncludeLanguages
+import com.ichi2.anki.LanguageConfig.ARABIC
+import com.ichi2.anki.LanguageConfig.JAPANESE
+import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.SingleFragmentScreenshotTest
-import com.ichi2.anki.databinding.FragmentImageCropperBinding
 import org.junit.Before
 import java.io.File
 
@@ -18,6 +24,9 @@ import java.io.File
  *
  * `./gradlew :AnkiDroid:verifyRoborazziPlayDebug -Pscreenshot --tests "com.ichi2.imagecropper.ImageCropperScreenshotTest"`
  */
+@CheckAccessibility
+@IncludeLanguages(SIMPLIFIED_CHINESE, JAPANESE, ARABIC)
+@IncludeFontSizes(PERCENT_200)
 class ImageCropperScreenshotTest : SingleFragmentScreenshotTest() {
     override fun buildIntent(): Intent = ImageCropperLauncher.ImageUri(createImage()).getIntent(targetContext)
 
@@ -36,8 +45,8 @@ class ImageCropperScreenshotTest : SingleFragmentScreenshotTest() {
 
     /** The image is decoded on a background thread; wait for it to be displayed */
     private fun SingleFragmentActivity.waitForImageToLoad() {
-        val binding = FragmentImageCropperBinding.bind(fragment!!.requireView())
-        advanceRobolectricLooperUntil { binding.cropImageView.wholeImageRect != null }
+        val cropper = fragment as ImageCropper
+        advanceRobolectricLooperUntil { cropper.cropImageView.wholeImageRect != null }
     }
 
     /** A solid-color image, large enough for the default crop window */

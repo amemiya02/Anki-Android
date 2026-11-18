@@ -202,7 +202,7 @@ class SafeWebViewLayoutTest : RobolectricTest() {
             Bundle().apply { putSerializable(EXTRA_MEDIA_OPTIONS, MultimediaImageFragment.ImageOptions.GALLERY) },
         ).use { scenario ->
             scenario.onFragment { fragment ->
-                block(fragment.binding.multimediaWebView, fragment)
+                block(fragment.previewWebView, fragment)
             }
         }
     }

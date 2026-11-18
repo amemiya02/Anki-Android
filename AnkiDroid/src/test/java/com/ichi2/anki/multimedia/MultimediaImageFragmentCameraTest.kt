@@ -54,7 +54,7 @@ class MultimediaImageFragmentCameraTest : RobolectricTest(loadBackend = false) {
                 deliverCameraResult(replacementRequest, Activity.RESULT_CANCELED)
                 assertThat(viewModel.currentMultimediaPath.value, equalTo(original))
                 assertThat(viewModel.selectedMediaFileSize, equalTo(original.length()))
-                assertThat(binding.imageFileSize.text.toString(), equalTo(original.toHumanReadableSize()))
+                composeRule.onNodeWithText(original.toHumanReadableSize()).assertExists()
                 assertThat(original.readText(), equalTo("original"))
             }
         }

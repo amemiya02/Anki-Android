@@ -12,26 +12,24 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
+import android.view.LayoutInflater
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
+import android.view.ViewGroup
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.os.BundleCompat
-import androidx.core.view.MenuProvider
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.canhub.cropper.CropImageView
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
-import com.ichi2.anki.databinding.FragmentImageCropperBinding
+import com.ichi2.anki.preferences.settingsComposeView
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.withProgress
 import com.ichi2.imagecropper.ImageCropper.Companion.DECODED_IMAGE_LIMIT
 import com.ichi2.utils.ContentResolverUtil
 import com.ichi2.utils.openInputStreamSafe
-import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import timber.log.Timber
@@ -45,24 +43,39 @@ import timber.log.Timber
  *
  * Attribution to the original authors of the CanHub/Android-Image-Cropper for their contributions.
  */
-class ImageCropper :
-    Fragment(R.layout.fragment_image_cropper),
-    MenuProvider {
-    private val binding by viewBinding(FragmentImageCropperBinding::bind)
+class ImageCropper : Fragment() {
+    internal lateinit var cropImageView: CropImageView
+        private set
+
+    private var tooLarge by mutableStateOf(false)
+    private var canCrop by mutableStateOf(false)
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        cropImageView = CropImageView(requireContext())
+        return settingsComposeView(R.id.image_cropper_screen) {
+            ImageCropperScreen(
+                preview = cropImageView,
+                tooLarge = tooLarge,
+                canCrop = canCrop,
+                onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() },
+                onRotate = { cropImageView.rotateImage(90) },
+                onFlipHorizontal = cropImageView::flipImageHorizontally,
+                onFlipVertical = cropImageView::flipImageVertically,
+                onDone = ::crop,
+            )
+        }
+    }
 
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as? AppCompatActivity)?.apply {
-            setSupportActionBar(binding.toolbar)
-            // there's no need for a title anyway and if we don't set it we end up with "AnkiDroid"
-            // as the title which is useless
-            supportActionBar?.title = ""
-            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        }
-        binding.cropImageView.apply {
+        cropImageView.apply {
             setOnSetImageUriCompleteListener(::onSetImageUriComplete)
             setOnCropImageCompleteListener(::onCropImageComplete)
             cropRect = Rect(100, 300, 500, 1200)
@@ -72,15 +85,10 @@ class ImageCropper :
                 ?: error("No image identifier was provided for cropping")
         viewLifecycleOwner.lifecycleScope.launch {
             withProgress {
-                if (isImageTooBig(originalImageUri)) {
-                    binding.cropImageSizeNotice.isVisible = true
-                } else {
-                    binding.cropImageView.setImageUriAsync(originalImageUri)
-                }
+                tooLarge = isImageTooBig(originalImageUri)
+                if (!tooLarge) cropImageView.setImageUriAsync(originalImageUri)
             }
         }
-
-        requireActivity().addMenuProvider(this, viewLifecycleOwner)
     }
 
     /**
@@ -105,47 +113,10 @@ class ImageCropper :
             false
         }
 
-    override fun onCreateMenu(
-        menu: Menu,
-        menuInflater: MenuInflater,
-    ) {
-        menuInflater.inflate(R.menu.image_cropper_menu, menu)
+    private fun crop() {
+        val imageFormat = cropImageView.imageUri?.let(::getImageCompressFormat) ?: return
+        cropImageView.croppedImageAsync(saveCompressFormat = imageFormat)
     }
-
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
-        when (menuItem.itemId) {
-            R.id.action_done -> {
-                Timber.d("Done clicked")
-                val imageFormat = binding.cropImageView.imageUri?.let { getImageCompressFormat(it) }
-                Timber.d("Compress format: $imageFormat")
-                if (imageFormat != null) {
-                    binding.cropImageView.croppedImageAsync(
-                        saveCompressFormat = imageFormat,
-                    )
-                }
-                true
-            }
-
-            R.id.action_rotate -> {
-                Timber.d("Rotate clicked")
-                binding.cropImageView.rotateImage(90)
-                true
-            }
-
-            R.id.action_flip_horizontally -> {
-                Timber.d("Flip horizontally clicked")
-                binding.cropImageView.flipImageHorizontally()
-                true
-            }
-
-            R.id.action_flip_vertically -> {
-                Timber.d("Flip vertically clicked")
-                binding.cropImageView.flipImageVertically()
-                true
-            }
-
-            else -> false
-        }
 
     private fun getImageCompressFormat(uri: Uri): Bitmap.CompressFormat {
         Timber.d("Original image URI: $uri")
@@ -181,6 +152,7 @@ class ImageCropper :
         @Suppress("UNUSED_PARAMETER") uri: Uri,
         error: Exception?,
     ) {
+        canCrop = error == null
         if (error != null) {
             Timber.e(error, "Failed to load image by URI")
             showSnackbar(CommonString.something_wrong)
@@ -210,8 +182,8 @@ class ImageCropper :
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding.cropImageView.setOnSetImageUriCompleteListener(null)
-        binding.cropImageView.setOnCropImageCompleteListener(null)
+        cropImageView.setOnSetImageUriCompleteListener(null)
+        cropImageView.setOnCropImageCompleteListener(null)
     }
 
     companion object {

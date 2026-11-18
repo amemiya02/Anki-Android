@@ -20,9 +20,13 @@ import android.webkit.WebView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.os.BundleCompat
@@ -39,13 +43,13 @@ import com.ichi2.anki.R
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.utils.ext.getParcelableExtraCompat
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
-import com.ichi2.anki.databinding.FragmentMultimediaImageBinding
 import com.ichi2.anki.multimedia.MultimediaActivity.Companion.EXTRA_MEDIA_OPTIONS
 import com.ichi2.anki.multimedia.MultimediaUtils.IMAGE_LIMIT
 import com.ichi2.anki.multimedia.MultimediaUtils.IMAGE_SAVE_MAX_WIDTH
 import com.ichi2.anki.multimedia.MultimediaUtils.createCachedFile
 import com.ichi2.anki.multimedia.MultimediaUtils.createImageFile
 import com.ichi2.anki.multimedia.MultimediaUtils.createNewCacheImageFile
+import com.ichi2.anki.preferences.settingsComposeView
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.ext.convertToString
 import com.ichi2.anki.utils.ext.toBase64Png
@@ -53,7 +57,6 @@ import com.ichi2.anki.utils.savedStateViewModelFactory
 import com.ichi2.anki.workarounds.OnWebViewRecreatedListener
 import com.ichi2.anki.workarounds.SafeWebViewClient
 import com.ichi2.anki.workarounds.SafeWebViewLayout
-import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.compose.ui.dialogs.ConfirmationDialog
 import com.ichi2.compose.ui.dialogs.DialogAction
 import com.ichi2.compose.ui.dialogs.DialogActionStyle
@@ -67,7 +70,6 @@ import com.ichi2.utils.BitmapUtil
 import com.ichi2.utils.ExifUtil
 import com.ichi2.utils.FileUtil
 import com.ichi2.utils.openInputStreamSafe
-import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
@@ -84,10 +86,13 @@ private const val SVG_IMAGE = "image/svg+xml"
 
 @NeedsTest("Ensure correct option is executed i.e. gallery or camera")
 class MultimediaImageFragment :
-    MultimediaFragment(R.layout.fragment_multimedia_image),
+    MultimediaFragment(),
     OnWebViewRecreatedListener {
     @VisibleForTesting
-    internal val binding by viewBinding(FragmentMultimediaImageBinding::bind)
+    internal lateinit var previewWebView: SafeWebViewLayout
+        private set
+
+    private var fileSizeLabel by mutableStateOf("")
 
     /** The image on screen, re-rendered if the WebView's render process dies */
     private var previewedImage: Uri? = null
@@ -223,44 +228,45 @@ class MultimediaImageFragment :
             }
         }
 
-    private fun setupImageActions() {
-        binding.imageActions.apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                AnkiDroidTheme {
-                    val imageUri by viewModel.currentMultimediaUri.collectAsStateWithLifecycle()
-                    val externalEdit by externalEditorViewModel.state.collectAsStateWithLifecycle()
-                    val editorAvailability =
-                        remember(viewModel, externalImageEditor) {
-                            viewModel.currentMultimediaPath.map { image ->
-                                image?.let { externalImageEditor.canEdit(it) } ?: false
-                            }
-                        }
-                    val hasExternalEditor by editorAvailability.collectAsStateWithLifecycle(
-                        initialValue = false,
-                        minActiveState = Lifecycle.State.RESUMED,
-                    )
-                    ImageEditorToolbar(
-                        hasImage = imageUri != null,
-                        hasExternalEditor = hasExternalEditor,
-                        enabled = externalEdit == null,
-                        replaceIcon =
-                            when (selectedImageOptions) {
-                                ImageOptions.GALLERY -> R.drawable.symbol_photo_library
-                                ImageOptions.CAMERA -> R.drawable.symbol_photo_camera
-                                ImageOptions.DRAWING -> R.drawable.symbol_draw
-                            },
-                        onReplace = ::replaceImage,
-                        onCrop = {
-                            viewModel.saveMultimediaForRevert(
-                                imagePath = viewModel.currentMultimediaPath.value,
-                                imageUri = viewModel.currentMultimediaUri.value,
-                            )
-                            requestCrop()
-                        },
-                        onEditExternally = ::requestExternalEdit,
-                    )
+    override fun createMediaView(): View {
+        previewWebView = SafeWebViewLayout(requireContext()).apply { id = R.id.multimedia_web_view }
+        return settingsComposeView(R.id.multimedia_image_screen) {
+            val imageUri by viewModel.currentMultimediaUri.collectAsStateWithLifecycle()
+            val externalEdit by externalEditorViewModel.state.collectAsStateWithLifecycle()
+            val editorAvailability =
+                remember(viewModel, externalImageEditor) {
+                    viewModel.currentMultimediaPath.map { image ->
+                        image?.let { externalImageEditor.canEdit(it) } ?: false
+                    }
                 }
+            val hasExternalEditor by editorAvailability.collectAsStateWithLifecycle(
+                initialValue = false,
+                minActiveState = Lifecycle.State.RESUMED,
+            )
+            MediaPreview(
+                fileSize = fileSizeLabel,
+                preview = { AndroidView(factory = { previewWebView }, modifier = Modifier.fillMaxSize()) },
+            ) {
+                ImageEditorToolbar(
+                    hasImage = imageUri != null,
+                    hasExternalEditor = hasExternalEditor,
+                    enabled = externalEdit == null,
+                    replaceIcon =
+                        when (selectedImageOptions) {
+                            ImageOptions.GALLERY -> R.drawable.symbol_photo_library
+                            ImageOptions.CAMERA -> R.drawable.symbol_photo_camera
+                            ImageOptions.DRAWING -> R.drawable.symbol_draw
+                        },
+                    onReplace = ::replaceImage,
+                    onCrop = {
+                        viewModel.saveMultimediaForRevert(
+                            imagePath = viewModel.currentMultimediaPath.value,
+                            imageUri = viewModel.currentMultimediaUri.value,
+                        )
+                        requestCrop()
+                    },
+                    onEditExternally = ::requestExternalEdit,
+                )
             }
         }
     }
@@ -305,7 +311,6 @@ class MultimediaImageFragment :
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-        setupImageActions()
         observeExternalEdit()
 
         setupWebView()
@@ -320,8 +325,8 @@ class MultimediaImageFragment :
 
     @NeedsTest("Verify the webview background color is transparent and matches the app theme")
     private fun setupWebView() {
-        binding.multimediaWebView.setWebViewClient(SafeWebViewClient())
-        binding.multimediaWebView.setBackgroundColor(Color.TRANSPARENT)
+        previewWebView.setWebViewClient(SafeWebViewClient())
+        previewWebView.setBackgroundColor(Color.TRANSPARENT)
     }
 
     /**
@@ -339,6 +344,11 @@ class MultimediaImageFragment :
         outState.putBoolean("HAS_STARTED_IMAGE_SELECTION", hasStartedImageSelection)
     }
 
+    override fun onDestroyView() {
+        previewWebView.destroy()
+        super.onDestroyView()
+    }
+
     override fun onDestroy() {
         if (isRemoving || activity?.isFinishing == true) {
             externalEditorViewModel.discard()
@@ -351,7 +361,7 @@ class MultimediaImageFragment :
         if (currentImageUri != null) {
             // The launch URI is only the initial image; cropping or replacement may have changed it.
             previewImage(currentImageUri)
-            binding.imageFileSize.text = Formatter.formatFileSize(requireContext(), viewModel.selectedMediaFileSize)
+            fileSizeLabel = Formatter.formatFileSize(requireContext(), viewModel.selectedMediaFileSize)
         } else if (imageUri != null) {
             // a content:// or a file:// already in our cache; resolveUriToFile handles both
             handleSelectImageIntent(imageUri)
@@ -499,7 +509,7 @@ class MultimediaImageFragment :
 
     private fun updateAndDisplayImageSize(file: File) {
         viewModel.selectedMediaFileSize = file.length()
-        binding.imageFileSize.text = file.toHumanReadableSize()
+        fileSizeLabel = file.toHumanReadableSize()
     }
 
     private fun showLargeFileCropDialog(length: Long) {
@@ -638,7 +648,7 @@ class MultimediaImageFragment :
         val mimeType = context?.contentResolver?.getType(imageUri)
 
         // Get the WebView and set it visible
-        binding.multimediaWebView.apply {
+        previewWebView.apply {
             visibility = View.VISIBLE
 
             // Load image based on its MIME type
@@ -737,7 +747,7 @@ class MultimediaImageFragment :
             </html>
             """.trimIndent()
 
-        binding.multimediaWebView.loadDataWithBaseURL(null, errorHtml, "text/html", "UTF-8", null)
+        previewWebView.loadDataWithBaseURL(null, errorHtml, "text/html", "UTF-8", null)
     }
 
     @VisibleForTesting

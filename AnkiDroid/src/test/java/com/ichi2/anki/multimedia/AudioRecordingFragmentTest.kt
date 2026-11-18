@@ -4,11 +4,18 @@ package com.ichi2.anki.multimedia
 
 import android.Manifest.permission.RECORD_AUDIO
 import android.app.Activity
-import android.os.SystemClock
-import android.view.MotionEvent
-import android.view.View
-import androidx.annotation.IdRes
-import androidx.core.view.isVisible
+import androidx.annotation.StringRes
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
@@ -25,6 +32,7 @@ import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.greaterThan
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
@@ -35,6 +43,9 @@ import kotlin.test.assertIs
 /** Tests for [AudioRecordingFragment]. */
 @RunWith(AndroidJUnit4::class)
 class AudioRecordingFragmentTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     private val mediaRecorderStub = MediaRecorderStub()
 
     @Before
@@ -51,38 +62,43 @@ class AudioRecordingFragmentTest : RobolectricTest() {
 
     @Test
     fun `done button is disabled when no media path is set`() =
-        withAudioRecordingFragment { fragment ->
-            assertThat("Done button should be disabled initially", fragment.binding.actionDone.isEnabled, equalTo(false))
+        withAudioRecordingFragment {
+            done.assertIsNotEnabled()
         }
 
     @Test
     fun `done button is enabled once a recording is saved`() =
-        withAudioRecordingFragment { fragment ->
-            fragment.record()
+        withAudioRecordingFragment {
+            record()
 
-            assertThat("Done button should be enabled after saving a recording", fragment.binding.actionDone.isEnabled, equalTo(true))
+            done.assertIsEnabled()
         }
 
     @Test
-    fun `the recorder is added to audio_recorder_layout`() =
-        withAudioRecordingFragment { fragment ->
-            assertThat(
-                "The recorder should inflate into audio_recorder_layout",
-                fragment.binding.audioRecorderLayout.childCount,
-                greaterThan(0),
-            )
-        }
+    fun `holding the record button saves on release`() {
+        val controller = startRecorder()
+        compose.onNodeWithContentDescription(getResourceString(CommonString.record_voice)).performTouchInput { longClick() }
+        advanceRobolectricLooper()
+        done.assertIsEnabled()
+        val result = controller.finishWithDone()
+        assertThat(result.field.mediaFile, equalTo(mediaRecorderStub.outputFiles.single()))
+    }
+
+    @Test
+    fun `the recorder shows the note fields and record action`() {
+        startRecorder()
+        compose.onNodeWithText("Front of the card").assertIsDisplayed()
+        compose.onNodeWithContentDescription(getResourceString(CommonString.record_voice)).assertIsDisplayed()
+    }
 
     @Test
     fun `a recording can be added after the reviewer's recorder was used`() {
         AudioRecordingController.tempAudioPath = AudioRecordingController.generateTempAudioFile(targetContext)
         AudioRecordingController.setEditorStatus(false)
         val controller = startRecorder()
-        val fragment = controller.fragment
+        record()
 
-        fragment.record()
-
-        assertThat("Done is enabled after saving", fragment.binding.actionDone.isEnabled, equalTo(true))
+        done.assertIsEnabled()
         val result = controller.finishWithDone()
         val recording = result.field.mediaFile!!
         assertThat("the recording exists", recording.exists(), equalTo(true))
@@ -92,11 +108,11 @@ class AudioRecordingFragmentTest : RobolectricTest() {
     @Test
     fun `a recording that fails to stop cannot be added and shows an error`() {
         mediaRecorderStub.failStop = true
-        val fragment = startRecorder().fragment
+        startRecorder()
 
-        fragment.record()
+        record()
 
-        assertThat("Done stays disabled", fragment.binding.actionDone.isEnabled, equalTo(false))
+        done.assertIsNotEnabled()
         assertThat(
             "error message",
             ShadowToast.getTextOfLatestToast(),
@@ -107,23 +123,22 @@ class AudioRecordingFragmentTest : RobolectricTest() {
     @Test
     fun `a saved recording can still be played after the screen is recreated`() {
         val controller = startRecorder()
-        controller.fragment.record()
+        record()
 
         controller.recreate()
         advanceRobolectricLooper()
 
-        val fragment = controller.fragment
-        assertThat("the play controls are shown", fragment.isShown(R.id.play_buttons_layout), equalTo(true))
-        assertThat("Done is enabled", fragment.binding.actionDone.isEnabled, equalTo(true))
+        compose.onNodeWithContentDescription(getResourceString(CommonString.play_recording)).assertIsDisplayed()
+        done.assertIsEnabled()
     }
 
     @Test
     fun `discarding a saved recording deletes it`() {
-        val fragment = startRecorder().fragment
-        fragment.record()
+        startRecorder()
+        record()
         val recording = mediaRecorderStub.outputFiles.single()
 
-        fragment.click(R.id.action_discard_recording)
+        click(CommonString.discard)
 
         assertThat("the discarded recording is deleted", recording.exists(), equalTo(false))
     }
@@ -131,13 +146,13 @@ class AudioRecordingFragmentTest : RobolectricTest() {
     @Test
     fun `a recording continues when the screen is recreated`() {
         val controller = startRecorder()
-        controller.fragment.pressRecord()
+        pressRecord()
 
         controller.recreate()
         advanceRobolectricLooper()
 
         verify(exactly = 0) { mediaRecorderStub.mediaRecorder.stop() }
-        controller.fragment.click(R.id.action_save_recording)
+        click(CommonString.save_voice)
         val result = controller.finishWithDone()
         val recording = mediaRecorderStub.outputFiles.single()
         assertThat("the recording started before recreation is added", result.field.mediaFile, equalTo(recording))
@@ -146,22 +161,21 @@ class AudioRecordingFragmentTest : RobolectricTest() {
     @Test
     fun `leaving the screen while recording keeps the recording`() {
         val controller = startRecorder()
-        controller.fragment.pressRecord()
+        pressRecord()
 
         controller.pause().stop()
         verify { mediaRecorderStub.mediaRecorder.stop() }
         controller.start().resume()
         advanceRobolectricLooper()
 
-        val fragment = controller.fragment
-        assertThat("the play controls are shown", fragment.isShown(R.id.play_buttons_layout), equalTo(true))
-        assertThat("Done is enabled", fragment.binding.actionDone.isEnabled, equalTo(true))
+        compose.onNodeWithContentDescription(getResourceString(CommonString.play_recording)).assertIsDisplayed()
+        done.assertIsEnabled()
     }
 
     @Test
     fun `the screen can turn off once leaving the screen ends a recording`() {
         val controller = startRecorder()
-        controller.fragment.pressRecord()
+        pressRecord()
         assertThat("the screen stays on while recording", controller.fragment.keepsScreenOn, equalTo(true))
 
         controller.pause().stop()
@@ -172,9 +186,9 @@ class AudioRecordingFragmentTest : RobolectricTest() {
     @Test
     fun `the screen can turn off while a recording is paused`() {
         val fragment = startRecorder().fragment
-        fragment.pressRecord()
+        pressRecord()
 
-        fragment.pressRecord()
+        pressRecord()
 
         verify { mediaRecorderStub.mediaRecorder.pause() }
         assertThat("the screen can turn off", fragment.keepsScreenOn, equalTo(false))
@@ -203,36 +217,35 @@ class AudioRecordingFragmentTest : RobolectricTest() {
         get() = get().supportFragmentManager.findFragmentById(R.id.fragment_container) as AudioRecordingFragment
 
     private fun ActivityController<MultimediaActivity>.finishWithDone(): MultimediaResult.Success {
-        fragment.binding.actionDone.performClick()
+        done.performClick()
         val shadow = shadowOf(get())
         assertThat("result code", shadow.resultCode, equalTo(Activity.RESULT_OK))
         return assertIs<MultimediaResult.Success>(MultimediaResultContract().parseResult(shadow.resultCode, shadow.resultIntent))
     }
 
-    private fun AudioRecordingFragment.record() {
+    private fun record() {
         pressRecord()
-        click(R.id.action_save_recording)
+        click(CommonString.save_voice)
     }
 
-    private fun AudioRecordingFragment.pressRecord() {
-        val button = requireView().findViewById<View>(R.id.action_start_recording)
-        val time = SystemClock.uptimeMillis()
-        button.dispatchTouchEvent(MotionEvent.obtain(time, time, MotionEvent.ACTION_DOWN, 0f, 0f, 0))
-        button.dispatchTouchEvent(MotionEvent.obtain(time, time, MotionEvent.ACTION_UP, 0f, 0f, 0))
+    private fun pressRecord() {
+        val control =
+            hasContentDescription(getResourceString(CommonString.record_voice)) or
+                hasContentDescription(getResourceString(R.string.note_editor_audio_pause_recording)) or
+                hasContentDescription(getResourceString(R.string.note_editor_audio_resume_recording))
+        compose.onNode(control).performTouchInput { click() }
         advanceRobolectricLooper()
     }
 
-    private fun AudioRecordingFragment.click(
-        @IdRes id: Int,
+    private fun click(
+        @StringRes label: Int,
     ) {
-        requireView().findViewById<View>(id).performClick()
+        compose.onNodeWithContentDescription(getResourceString(label)).performClick()
         advanceRobolectricLooper()
     }
+
+    private val done get() = compose.onNodeWithText(getResourceString(CommonString.multimedia_editor_field_editing_done))
 
     private val AudioRecordingFragment.keepsScreenOn: Boolean
-        get() = requireView().findViewById<View>(R.id.audioView).keepScreenOn
-
-    private fun AudioRecordingFragment.isShown(
-        @IdRes id: Int,
-    ): Boolean = requireView().findViewById<View>(id).isVisible
+        get() = requireView().keepScreenOn
 }

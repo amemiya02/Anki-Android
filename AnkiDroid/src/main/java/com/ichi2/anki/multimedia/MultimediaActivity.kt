@@ -8,37 +8,41 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import android.widget.LinearLayout
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableExtraCompat
-import com.ichi2.anki.databinding.ActivityMultimediaBinding
 import com.ichi2.anki.multimediacard.IMultimediaEditableNote
 import com.ichi2.anki.multimediacard.fields.IField
 import com.ichi2.anki.settings.enums.NightTheme
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
 import com.ichi2.anki.snackbar.SnackbarBuilder
 import com.ichi2.anki.startup.ensureStorageIsReady
+import com.ichi2.anki.utils.bottomCornerClearance
 import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.compose.ui.components.HeroToolbarActionButton
 import com.ichi2.themes.Themes
 import com.ichi2.utils.FragmentFactoryUtils
-import dev.androidbroadcast.vbpd.viewBinding
-import timber.log.Timber
 import java.io.File
 import java.io.Serializable
 import kotlin.reflect.KClass
@@ -64,9 +68,18 @@ data class MultimediaActivityExtra(
  * Multimedia activity that allows users to attach media files to an input field in NoteEditor.
  */
 class MultimediaActivity :
-    AnkiActivity(R.layout.activity_multimedia),
+    AnkiActivity(),
     BaseSnackbarBuilderProvider {
-    private val binding by viewBinding(ActivityMultimediaBinding::bind)
+    private var toolbarTitle by mutableStateOf("")
+    private var replaceMedia by mutableStateOf<MediaReplaceAction?>(null)
+
+    internal fun setMediaToolbar(
+        title: String,
+        action: MediaReplaceAction? = null,
+    ) {
+        toolbarTitle = title
+        replaceMedia = action
+    }
 
     internal var isImageEditorBusy by mutableStateOf(false)
 
@@ -93,10 +106,7 @@ class MultimediaActivity :
         if (!ensureStorageIsReady()) {
             return
         }
-        setupEdgeToEdge()
-        setSupportActionBar(binding.toolbar)
-        setupToolbarActions()
-        setupRecorderToolbar()
+        setupMediaContent()
 
         // avoid recreating the fragment on configuration changes
         if (savedInstanceState != null) {
@@ -120,65 +130,73 @@ class MultimediaActivity :
         supportFragmentManager.commit {
             replace(R.id.fragment_container, fragment)
         }
-
-        binding.toolbar.setNavigationOnClickListener {
-            Timber.d("MultimediaActivity:: Back pressed")
-            onBackPressedDispatcher.onBackPressed()
-        }
     }
 
-    private fun setupRecorderToolbar() {
-        if (intent.getStringExtra(EXTRA_FRAGMENT_NAME) != AudioRecordingFragment::class.jvmName) return
-        binding.toolbar.isVisible = false
-        binding.recordingToolbar.apply {
-            isVisible = true
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                AnkiDroidTheme {
-                    AttachmentAppBar(
-                        title = stringResource(CommonString.multimedia_editor_field_editing_audio),
-                        onBack = { onBackPressedDispatcher.onBackPressed() },
-                    )
+    private fun setupMediaContent() {
+        val imageEditor = intent.getStringExtra(EXTRA_FRAGMENT_NAME) == MultimediaImageFragment::class.jvmName
+        val appBar =
+            ComposeView(this).apply {
+                id = R.id.app_bar
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    AnkiDroidTheme {
+                        AttachmentAppBar(
+                            title = toolbarTitle,
+                            onBack = { onBackPressedDispatcher.onBackPressed() },
+                            actions = {
+                                if (imageEditor) {
+                                    HeroToolbarActionButton(enabled = !isImageEditorBusy, onClick = {
+                                        val image =
+                                            supportFragmentManager.findFragmentById(
+                                                R.id.fragment_container,
+                                            ) as? MultimediaImageFragment
+                                        image?.onDone()
+                                    })
+                                }
+                                replaceMedia?.let { replace ->
+                                    IconButton(onClick = replace.onClick) {
+                                        Icon(painterResource(replace.icon), stringResource(CommonString.reselect))
+                                    }
+                                }
+                            },
+                        )
+                    }
                 }
             }
-        }
-    }
-
-    private fun setupToolbarActions() {
-        binding.toolbarActions.isVisible = intent.getStringExtra(EXTRA_FRAGMENT_NAME) == MultimediaImageFragment::class.jvmName
-        if (!binding.toolbarActions.isVisible) return
-
-        binding.toolbarActions.apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                AnkiDroidTheme {
-                    HeroToolbarActionButton(enabled = !isImageEditorBusy, onClick = {
-                        val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as? MultimediaImageFragment
-                        fragment?.onDone()
-                    })
-                }
+        val content = FragmentContainerView(this).apply { id = R.id.fragment_container }
+        val layout =
+            LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                addView(appBar, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+                addView(content, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
             }
-        }
-    }
-
-    /**
-     * Applies edge-to-edge insets for the app bar. The hosted fragment insets its own root,
-     * see [MultimediaFragment].
-     */
-    private fun setupEdgeToEdge() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.appBar) { view, insets ->
-            val bars =
-                insets.getInsets(
-                    WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout(),
+        val root =
+            CoordinatorLayout(this).apply {
+                id = R.id.root_layout
+                addView(
+                    layout,
+                    CoordinatorLayout.LayoutParams(
+                        CoordinatorLayout.LayoutParams.MATCH_PARENT,
+                        CoordinatorLayout.LayoutParams.MATCH_PARENT,
+                    ),
                 )
-            view.updatePadding(left = bars.left, top = bars.top, right = bars.right)
+            }
+        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            appBar.updatePadding(left = bars.left, top = bars.top, right = bars.right)
+            content.updatePadding(
+                left = bars.left,
+                right = bars.right,
+                bottom = maxOf(bars.bottom, insets.bottomCornerClearance(view)),
+            )
             insets
         }
+        setContentView(root)
     }
 
     override val baseSnackbarBuilder: SnackbarBuilder = {
         // Keep error messages above the editor's bottom controls.
-        anchorView = findViewById<View>(R.id.image_actions) ?: findViewById<View>(R.id.action_done)
+        anchorView = findViewById<View>(R.id.multimedia_controls_anchor)
     }
 
     companion object {
@@ -201,3 +219,8 @@ class MultimediaActivity :
             }
     }
 }
+
+internal data class MediaReplaceAction(
+    val icon: Int,
+    val onClick: () -> Unit,
+)

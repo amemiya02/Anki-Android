@@ -75,7 +75,7 @@ class MultimediaImageFragmentTest : RobolectricTest() {
     @Test
     fun `onRenderProcessGone after view is destroyed cleans up the dead WebView - issue 21952`() =
         withImageFragment {
-            val layout = binding.multimediaWebView
+            val layout = previewWebView
             val webView = layout.getChildAt(0) as WebView
             parentFragmentManager.commitNow { detach(this@withImageFragment) }
             assertThat(view, nullValue())

@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -189,20 +190,27 @@ private fun AttachmentOption(
             tint = foundation.colors.onBackgroundMuted,
             modifier = Modifier.size(24.dp),
         )
-        Text(
-            text = stringResource(label),
-            color = foundation.colors.onBackground,
-            style = foundation.type.body,
-            modifier = Modifier.weight(1f),
-        )
-        if (hint != null) {
+        if (hint != null && LocalDensity.current.fontScale >= 1.5f) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(stringResource(label), style = foundation.type.body, color = foundation.colors.onBackground)
+                Text(stringResource(hint), style = foundation.type.caption, color = foundation.colors.onBackgroundMuted)
+            }
+        } else {
             Text(
-                text = stringResource(hint),
-                color = foundation.colors.onBackgroundMuted,
-                style = foundation.type.caption,
-                modifier = Modifier.weight(1.4f),
-                textAlign = TextAlign.End,
+                text = stringResource(label),
+                color = foundation.colors.onBackground,
+                style = foundation.type.body,
+                modifier = Modifier.weight(1f),
             )
+            if (hint != null) {
+                Text(
+                    text = stringResource(hint),
+                    color = foundation.colors.onBackgroundMuted,
+                    style = foundation.type.caption,
+                    modifier = Modifier.weight(1.4f),
+                    textAlign = TextAlign.End,
+                )
+            }
         }
     }
 }

@@ -13,34 +13,44 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.common.util.Util
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
-import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.compat.CompatHelper
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
-import com.ichi2.anki.databinding.FragmentAudioVideoBinding
 import com.ichi2.anki.multimedia.AudioVideoFragment.MediaOption.AUDIO_CLIP
 import com.ichi2.anki.multimedia.AudioVideoFragment.MediaOption.VIDEO_CLIP
 import com.ichi2.anki.multimedia.MultimediaActivity.Companion.EXTRA_MEDIA_OPTIONS
 import com.ichi2.anki.multimedia.MultimediaUtils.createCachedFile
+import com.ichi2.anki.preferences.settingsComposeView
 import com.ichi2.anki.utils.ext.sharedPrefs
 import com.ichi2.utils.ExceptionUtil.executeSafe
 import com.ichi2.utils.FileUtil
 import com.ichi2.utils.openInputStreamSafe
-import dev.androidbroadcast.vbpd.viewBinding
+import kotlinx.coroutines.delay
 import timber.log.Timber
 import java.io.File
 
 /** Handles the Multimedia Audio and Video attachment in the NoteEditor */
-class AudioVideoFragment : MultimediaFragment(R.layout.fragment_audio_video) {
-    private val binding by viewBinding(FragmentAudioVideoBinding::bind)
+class AudioVideoFragment : MultimediaFragment() {
+    private lateinit var playerView: PlayerView
     private lateinit var selectedMediaOptions: MediaOption
 
     override val title: String
@@ -65,32 +75,12 @@ class AudioVideoFragment : MultimediaFragment(R.layout.fragment_audio_video) {
             }
         }
 
-    /**
-     * Lazily initialized instance of MultimediaMenu.
-     * The instance is created only when first accessed.
-     */
-    @NeedsTest("The menu drawable icon should be correctly set")
-    private val multimediaMenu by lazy {
-        MultimediaMenuProvider(
-            menuResId = R.menu.multimedia_menu,
-            onCreateMenuCondition = { menu ->
-                setMenuItemIcon(
-                    menu.findItem(R.id.action_restart),
-                    if (selectedMediaOptions == AUDIO_CLIP) R.drawable.symbol_replace_audio else R.drawable.symbol_replace_video,
-                )
-                menu.findItem(R.id.action_crop).isVisible = false
-            },
-        ) { menuItem ->
-            when (menuItem.itemId) {
-                R.id.action_restart -> {
-                    handleSelectedMediaOptions()
-                    true
-                }
-
-                else -> false
-            }
-        }
-    }
+    override val replaceAction: MediaReplaceAction
+        get() =
+            MediaReplaceAction(
+                if (selectedMediaOptions == AUDIO_CLIP) R.drawable.symbol_replace_audio else R.drawable.symbol_replace_video,
+                ::handleSelectedMediaOptions,
+            )
 
     private lateinit var mediaPlayer: ExoPlayer
 
@@ -108,19 +98,54 @@ class AudioVideoFragment : MultimediaFragment(R.layout.fragment_audio_video) {
         }
     }
 
+    @OptIn(UnstableApi::class)
+    override fun createMediaView(): View {
+        setupMediaPlayer()
+        return settingsComposeView(R.id.multimedia_clip_screen) {
+            val file by viewModel.currentMultimediaPath.collectAsStateWithLifecycle()
+            var playback by remember { mutableStateOf(AttachmentPlaybackState()) }
+            LaunchedEffect(file) {
+                while (file != null) {
+                    playback =
+                        AttachmentPlaybackState(
+                            position = mediaPlayer.currentPosition,
+                            duration = mediaPlayer.duration.coerceAtLeast(0),
+                            playing = !Util.shouldShowPlayButton(mediaPlayer),
+                        )
+                    delay(200)
+                }
+            }
+            MediaPreview(
+                fileSize = file?.toHumanReadableSize().orEmpty(),
+                preview = { AndroidView(factory = { playerView }, modifier = Modifier.fillMaxSize()) },
+            ) {
+                if (file != null) {
+                    AttachmentPlaybackControls(
+                        state = playback,
+                        onPlayPause = { Util.handlePlayPauseButtonAction(mediaPlayer) },
+                        onBack = { mediaPlayer.seekBack() },
+                        onForward = { mediaPlayer.seekForward() },
+                        onSeek = { mediaPlayer.seekTo(it) },
+                    )
+                }
+                MediaDoneButton(enabled = file != null && viewModel.selectedMediaFileSize > 0) {
+                    if (viewModel.selectedMediaFileSize > 0) finishWithMedia()
+                }
+            }
+        }
+    }
+
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-
-        setupMenu(multimediaMenu)
-
-        setupMediaPlayer()
-
-        handleSelectedMediaOptions()
-
-        setupDoneButton()
+        val restoredFile = viewModel.currentMultimediaPath.value
+        if (restoredFile != null) {
+            prepareMediaPlayer(Uri.fromFile(restoredFile))
+        } else if (savedInstanceState == null) {
+            handleSelectedMediaOptions()
+        }
     }
 
     private fun handleSelectedMediaOptions() {
@@ -161,25 +186,14 @@ class AudioVideoFragment : MultimediaFragment(R.layout.fragment_audio_video) {
                         ).build(),
                     true,
                 ).build()
-        binding.playerView.player = mediaPlayer
-        binding.playerView.setControllerAnimationEnabled(true)
-
-        if (selectedMediaOptions == AUDIO_CLIP) {
-            Timber.d("Media file is of audio type, setting default artwork")
-            binding.playerView.defaultArtwork =
-                ContextCompat.getDrawable(requireContext(), R.drawable.symbol_audio_file)
-        }
-    }
-
-    private fun setupDoneButton() {
-        binding.actionDone.setOnClickListener {
-            Timber.d("MultimediaImageFragment:: Done button pressed")
-            if (viewModel.selectedMediaFileSize == 0L) {
-                Timber.d("Audio or Video length is not valid")
-                return@setOnClickListener
+        playerView =
+            PlayerView(requireContext()).apply {
+                useController = false
+                player = mediaPlayer
+                if (selectedMediaOptions == AUDIO_CLIP) {
+                    defaultArtwork = ContextCompat.getDrawable(requireContext(), R.drawable.symbol_audio_file)
+                }
             }
-            finishWithMedia()
-        }
     }
 
     /**
@@ -340,9 +354,8 @@ class AudioVideoFragment : MultimediaFragment(R.layout.fragment_audio_video) {
             requireContext().contentResolver.openInputStreamSafe(selectedMediaClip).use { inputStream ->
                 CompatHelper.compat.copyFile(inputStream!!, clipCopy.absolutePath)
 
-                viewModel.updateCurrentMultimediaPath(clipCopy)
                 viewModel.selectedMediaFileSize = clipCopy.length()
-                binding.mediaFileSize.text = clipCopy.toHumanReadableSize()
+                viewModel.updateCurrentMultimediaPath(clipCopy)
             }
         } catch (e: Exception) {
             Timber.e(e, "Unable to copy media file from ContentProvider")
@@ -351,10 +364,14 @@ class AudioVideoFragment : MultimediaFragment(R.layout.fragment_audio_video) {
         }
     }
 
+    @OptIn(UnstableApi::class)
     override fun onDestroyView() {
         super.onDestroyView()
         Timber.d("Releasing media player")
-        if (::mediaPlayer.isInitialized) mediaPlayer.release()
+        if (::mediaPlayer.isInitialized) {
+            playerView.player = null
+            mediaPlayer.release()
+        }
     }
 
     override fun onStop() {

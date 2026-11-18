@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.compose.ui.test.assertIsEnabled
@@ -18,6 +19,7 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.graphics.createBitmap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -386,8 +388,14 @@ class MultimediaImageFragmentExternalEditorTest : RobolectricTest(loadBackend = 
     }
 
     private fun MultimediaImageFragment.launchExternalEditor(): IntentForResult {
-        requireView().id = R.id.root_layout
-        val activity = shadowOf(requireActivity())
+        val host = requireActivity()
+        if (host.findViewById<CoordinatorLayout>(R.id.root_layout) == null) {
+            host.addContentView(
+                CoordinatorLayout(host).apply { id = R.id.root_layout },
+                ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT),
+            )
+        }
+        val activity = shadowOf(host)
         // Discard the gallery request made when the empty fragment starts.
         while (activity.nextStartedActivityForResult != null) { /* drain */ }
         advanceRobolectricLooper()

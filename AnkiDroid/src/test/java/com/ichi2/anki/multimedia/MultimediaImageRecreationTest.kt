@@ -7,6 +7,7 @@ import android.net.Uri
 import android.text.format.Formatter
 import android.webkit.WebView
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.testutils.ShadowFileProviderPathStrategy
@@ -71,12 +72,8 @@ class MultimediaImageRecreationTest : RobolectricTest(loadBackend = false) {
         assertEquals(editedFile, fragment.viewModel.currentMultimediaPath.value)
         assertEquals(expectedUri, fragment.viewModel.currentMultimediaUri.value)
         assertEquals(expectedImage.length(), fragment.viewModel.selectedMediaFileSize)
-        assertEquals(
-            Formatter.formatFileSize(targetContext, expectedImage.length()),
-            fragment.binding.imageFileSize.text
-                .toString(),
-        )
-        val webView = fragment.binding.multimediaWebView.getChildAt(0) as WebView
+        composeRule.onNodeWithText(Formatter.formatFileSize(targetContext, expectedImage.length())).assertExists()
+        val webView = fragment.previewWebView.getChildAt(0) as WebView
         assertContains(shadowOf(webView).lastLoadDataWithBaseURL.data, editedFile.name)
         assertNull(shadowOf(fragment.requireActivity()).nextStartedActivityForResult)
 

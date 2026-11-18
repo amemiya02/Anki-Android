@@ -18,8 +18,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.ichi2.anki.CommonString
 import com.ichi2.compose.theme.foundation
@@ -31,6 +34,7 @@ internal fun AttachmentAppBar(
     title: String,
     onBack: () -> Unit,
     onSave: (() -> Unit)? = null,
+    actions: @Composable () -> Unit = {},
 ) {
     val foundation = MaterialTheme.foundation
     Column(Modifier.fillMaxWidth().background(foundation.colors.background)) {
@@ -43,6 +47,11 @@ internal fun AttachmentAppBar(
                     painterResource(CommonR.drawable.symbol_arrow_back),
                     contentDescription = stringResource(AppCompatR.string.abc_action_bar_up_description),
                     tint = foundation.colors.onBackground,
+                    modifier =
+                        Modifier.scale(
+                            scaleX = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1f else 1f,
+                            scaleY = 1f,
+                        ),
                 )
             }
             Text(
@@ -51,6 +60,7 @@ internal fun AttachmentAppBar(
                 color = foundation.colors.onBackground,
                 style = foundation.type.studyTitle,
             )
+            actions()
             if (onSave != null) {
                 Button(
                     onClick = onSave,

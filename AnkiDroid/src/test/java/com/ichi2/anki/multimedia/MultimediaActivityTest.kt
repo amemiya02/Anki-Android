@@ -3,19 +3,19 @@
 package com.ichi2.anki.multimedia
 
 import android.Manifest.permission.RECORD_AUDIO
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
 import android.os.Parcel
-import android.os.SystemClock
-import android.view.MotionEvent
-import android.view.View
-import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
-import androidx.core.view.descendants
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
@@ -33,6 +33,7 @@ import org.hamcrest.Matchers.lessThan
 import org.hamcrest.Matchers.nullValue
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -44,6 +45,9 @@ import kotlin.test.assertIs
 
 @RunWith(AndroidJUnit4::class)
 class MultimediaActivityTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     private val mediaRecorderStub = MediaRecorderStub()
 
     @Before
@@ -62,9 +66,9 @@ class MultimediaActivityTest : RobolectricTest() {
         val argsFile = args.getSerializableCompat<File>(MultimediaActivity.EXTRA_FRAGMENT_ARGS)!!
 
         withAudioRecordingFragment(args) { scenario ->
-            scenario.withFragment { assertNotePreview(this) }
+            scenario.withFragment { assertNotePreview() }
             scenario.recreate()
-            scenario.withFragment { assertNotePreview(this) }
+            scenario.withFragment { assertNotePreview() }
             scenario.moveToState(Lifecycle.State.DESTROYED)
         }
 
@@ -81,10 +85,10 @@ class MultimediaActivityTest : RobolectricTest() {
             newArgs = largeNoteIntent().extras!!.parcelCopy()
             assertThat(argsFile.exists(), equalTo(true))
             scenario.recreate()
-            scenario.withFragment { assertNotePreview(this) }
+            scenario.withFragment { assertNotePreview() }
         }
         withAudioRecordingFragment(newArgs) { scenario ->
-            scenario.withFragment { assertNotePreview(this) }
+            scenario.withFragment { assertNotePreview() }
         }
     }
 
@@ -97,7 +101,7 @@ class MultimediaActivityTest : RobolectricTest() {
         }
 
         withAudioRecordingFragment(newArgs) { scenario ->
-            scenario.withFragment { assertNotePreview(this) }
+            scenario.withFragment { assertNotePreview() }
         }
     }
 
@@ -137,8 +141,8 @@ class MultimediaActivityTest : RobolectricTest() {
 
         assertThat(activity.supportFragmentManager.findFragmentById(R.id.fragment_container)!!.view, nullValue())
         activity.onRequestPermissionsResult(permissionRequest.requestCode, arrayOf(RECORD_AUDIO), intArrayOf(PERMISSION_GRANTED))
-        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-        dialog.getButton(DialogInterface.BUTTON_POSITIVE).performClick()
+        compose.onNodeWithText(getResourceString(CommonString.something_wrong)).assertExists()
+        compose.onNodeWithText(getResourceString(CommonString.dialog_ok)).performClick()
         advanceRobolectricLooper()
         assertThat(activity.isFinishing, equalTo(true))
     }
@@ -178,7 +182,7 @@ class MultimediaActivityTest : RobolectricTest() {
         controller.recreate()
         advanceRobolectricLooper()
         assertThat(argsFile.exists(), equalTo(true))
-        assertNotePreview(controller.get())
+        assertNotePreview()
 
         val savedState = Bundle()
         controller
@@ -189,15 +193,12 @@ class MultimediaActivityTest : RobolectricTest() {
         assertThat(argsFile.exists(), equalTo(true))
         val restored = restoreActivity(intent, savedState)
         val activity = restored.get()
-        assertNotePreview(activity)
+        assertNotePreview()
 
-        val fragment = activity.supportFragmentManager.findFragmentById(R.id.fragment_container) as AudioRecordingFragment
-        val recordButton = fragment.requireView().findViewById<View>(R.id.action_start_recording)
-        val time = SystemClock.uptimeMillis()
-        recordButton.dispatchTouchEvent(MotionEvent.obtain(time, time, MotionEvent.ACTION_DOWN, 0f, 0f, 0))
-        fragment.requireView().findViewById<View>(R.id.action_save_recording).performClick()
+        compose.onNodeWithContentDescription(getResourceString(CommonString.record_voice)).performTouchInput { click() }
+        compose.onNodeWithContentDescription(getResourceString(CommonString.save_voice)).performClick()
         advanceRobolectricLooper()
-        fragment.binding.actionDone.performClick()
+        compose.onNodeWithText(getResourceString(CommonString.multimedia_editor_field_editing_done)).performClick()
         val recording = mediaRecorderStub.outputFiles.single()
 
         val shadow = shadowOf(activity)
@@ -237,19 +238,9 @@ class MultimediaActivityTest : RobolectricTest() {
             }
     }
 
-    private fun assertNotePreview(activity: MultimediaActivity) {
-        val fragment = activity.supportFragmentManager.findFragmentById(R.id.fragment_container) as AudioRecordingFragment
-        assertNotePreview(fragment)
-    }
-
-    private fun assertNotePreview(fragment: AudioRecordingFragment) {
-        val texts =
-            fragment.binding.audioRecorderLayout.descendants
-                .filterIsInstance<TextView>()
-                .map { it.text.toString() }
-                .toList()
-        assertThat(texts.contains("front".repeat(30_000)), equalTo(true))
-        assertThat(texts.contains("back"), equalTo(true))
+    private fun assertNotePreview() {
+        compose.onNodeWithText("front".repeat(30_000)).assertExists()
+        compose.onNodeWithText("back").assertExists()
     }
 
     private fun largeNoteIntent(): Intent {

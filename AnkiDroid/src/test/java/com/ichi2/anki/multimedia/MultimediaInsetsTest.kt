@@ -8,7 +8,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.common.utils.dp
-import com.ichi2.anki.databinding.ActivityMultimediaBinding
 import com.ichi2.anki.multimediacard.fields.AudioRecordingField
 import com.ichi2.anki.multimediacard.fields.TextField
 import com.ichi2.anki.multimediacard.impl.MultimediaEditableNote
@@ -19,7 +18,7 @@ import org.hamcrest.Matchers.equalTo
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Edge-to-edge inset handling for [MultimediaActivity], applied by [MultimediaFragment]. */
+/** Edge-to-edge inset handling for the toolbar and attachment viewports. */
 @RunWith(AndroidJUnit4::class)
 class MultimediaInsetsTest : RobolectricTest() {
     @Test
@@ -29,12 +28,12 @@ class MultimediaInsetsTest : RobolectricTest() {
 
             assertThat(
                 "the root does not consume the top inset, so the app bar draws behind the status bar",
-                activity.binding.root.paddingTop,
+                activity.findViewById<View>(R.id.root_layout).paddingTop,
                 equalTo(0),
             )
             assertThat(
                 "app bar content is pushed clear of the status bar",
-                activity.binding.appBar.paddingTop,
+                activity.findViewById<View>(R.id.app_bar).paddingTop,
                 equalTo(24.dp.toPx(targetContext)),
             )
         }
@@ -46,8 +45,8 @@ class MultimediaInsetsTest : RobolectricTest() {
             // camera cutout is on the opposite side
             activity.dispatchInsets(navBarRight = 48.dp, cutoutLeft = 32.dp)
 
-            assertThat(activity.binding.appBar.paddingLeft, equalTo(32.dp.toPx(targetContext)))
-            assertThat(activity.binding.appBar.paddingRight, equalTo(48.dp.toPx(targetContext)))
+            assertThat(activity.findViewById<View>(R.id.app_bar).paddingLeft, equalTo(32.dp.toPx(targetContext)))
+            assertThat(activity.findViewById<View>(R.id.app_bar).paddingRight, equalTo(48.dp.toPx(targetContext)))
         }
 
     @Test
@@ -84,12 +83,9 @@ class MultimediaInsetsTest : RobolectricTest() {
             assertThat(activity.fragmentRoot.paddingBottom, equalTo(0))
         }
 
-    private val MultimediaActivity.binding: ActivityMultimediaBinding
-        get() = ActivityMultimediaBinding.bind(findViewById(R.id.root_layout))
-
     /** The hosted fragment's own root, which [MultimediaFragment] insets */
     private val MultimediaActivity.fragmentRoot: View
-        get() = supportFragmentManager.findFragmentById(R.id.fragment_container)!!.requireView()
+        get() = findViewById(R.id.fragment_container)
 
     private fun withMultimedia(block: (MultimediaActivity) -> Unit) {
         grantPermissions(RECORD_AUDIO)
