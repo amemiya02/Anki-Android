@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.edit
 import androidx.core.content.res.use
+import com.ichi2.anki.R
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.preferences.ExtendedPreferenceCategory
 import org.xmlpull.v1.XmlPullParser.END_DOCUMENT
@@ -24,16 +25,17 @@ open class Preference(
     attrs: AttributeSet? = null,
 ) {
     private val attributes =
-        context.obtainStyledAttributes(attrs, BASE_ATTRIBUTES).use {
+        context.obtainStyledAttributes(attrs, R.styleable.SettingsPreference).use {
             Attributes(
-                key = it.getString(0).orEmpty(),
-                title = it.getText(1),
-                summary = it.getText(2),
-                isPersistent = it.getBoolean(3, true),
-                icon = it.getResourceId(4, 0),
-                fragment = it.getString(5),
-                defaultValue = it.getString(6),
-                dialogTitle = it.getText(7),
+                key = it.getString(R.styleable.SettingsPreference_android_key).orEmpty(),
+                title = it.getText(R.styleable.SettingsPreference_android_title),
+                summary = it.getText(R.styleable.SettingsPreference_android_summary),
+                isPersistent = it.getBoolean(R.styleable.SettingsPreference_android_persistent, true),
+                icon = it.getResourceId(R.styleable.SettingsPreference_android_icon, 0),
+                fragment = it.getString(R.styleable.SettingsPreference_android_fragment),
+                defaultValue = it.getString(R.styleable.SettingsPreference_android_defaultValue),
+                dialogTitle = it.getText(R.styleable.SettingsPreference_android_dialogTitle),
+                useSimpleSummary = it.getBoolean(R.styleable.SettingsPreference_useSimpleSummaryProvider, false),
             )
         }
 
@@ -54,7 +56,7 @@ open class Preference(
     val fragment = attributes.fragment
     val dialogTitle = attributes.dialogTitle
     protected val initialValue = attributes.defaultValue
-    protected val useSimpleSummary = attrs?.getAttributeBooleanValue(APP_NAMESPACE, "useSimpleSummaryProvider", false) == true
+    protected val useSimpleSummary = attributes.useSimpleSummary
 
     private var onChange: ((Preference, Any?) -> Boolean)? = null
     private var onClick: ((Preference) -> Boolean)? = null
@@ -114,21 +116,8 @@ open class Preference(
         val fragment: String?,
         val defaultValue: String?,
         val dialogTitle: CharSequence?,
+        val useSimpleSummary: Boolean,
     )
-
-    companion object {
-        private val BASE_ATTRIBUTES =
-            intArrayOf(
-                android.R.attr.key,
-                android.R.attr.title,
-                android.R.attr.summary,
-                android.R.attr.persistent,
-                android.R.attr.icon,
-                android.R.attr.fragment,
-                android.R.attr.defaultValue,
-                android.R.attr.dialogTitle,
-            )
-    }
 }
 
 open class PreferenceGroup(
@@ -228,9 +217,9 @@ open class ListPreference(
         }
 
     init {
-        context.obtainStyledAttributes(attrs, intArrayOf(android.R.attr.entries, android.R.attr.entryValues)).use {
-            entries = it.getTextArray(0).orEmpty()
-            entryValues = it.getTextArray(1).orEmpty()
+        context.obtainStyledAttributes(attrs, R.styleable.SettingsChoice).use {
+            entries = it.getTextArray(R.styleable.SettingsChoice_android_entries).orEmpty()
+            entryValues = it.getTextArray(R.styleable.SettingsChoice_android_entryValues).orEmpty()
         }
         if (useSimpleSummary) {
             setSummaryProvider { entries.getOrNull(findIndexOfValue(value)) ?: context.getString(androidx.preference.R.string.not_set) }
@@ -287,5 +276,3 @@ internal fun Context.loadSettings(
         }
         checkNotNull(screen).also { it.attach(storage) }
     }
-
-private const val APP_NAMESPACE = "http://schemas.android.com/apk/res-auto"

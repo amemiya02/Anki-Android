@@ -10,6 +10,23 @@
     <attr name="min" format="integer" />
     <attr name="max" format="integer" />
 
+    <declare-styleable name="SettingsPreference">
+        <attr name="android:key" />
+        <attr name="android:title" />
+        <attr name="android:summary" />
+        <attr name="android:persistent" />
+        <attr name="android:icon" />
+        <attr name="android:fragment" />
+        <attr name="android:defaultValue" />
+        <attr name="android:dialogTitle" />
+        <attr name="useSimpleSummaryProvider" />
+    </declare-styleable>
+
+    <declare-styleable name="SettingsChoice">
+        <attr name="android:entries" />
+        <attr name="android:entryValues" />
+    </declare-styleable>
+
     <declare-styleable name="CustomPreference">
         <!-- Whether the preference should automatically set its summary to the value saved for the
              preference, and update the summary when the value is changed. Defaults to false -->

@@ -9,14 +9,19 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.res.use
 import com.ichi2.anki.R
+import com.google.android.material.R as MaterialR
 
 class SliderPreference(
     context: Context,
     attrs: AttributeSet? = null,
 ) : Preference(context, attrs) {
     private val range =
-        context.obtainStyledAttributes(attrs, intArrayOf(android.R.attr.valueFrom, android.R.attr.valueTo, android.R.attr.stepSize)).use {
-            Triple(it.getInt(0, 0), it.getInt(1, 0), it.getFloat(2, 1F))
+        context.obtainStyledAttributes(attrs, MaterialR.styleable.Slider).use {
+            Triple(
+                it.getInt(MaterialR.styleable.Slider_android_valueFrom, 0),
+                it.getInt(MaterialR.styleable.Slider_android_valueTo, 0),
+                it.getFloat(MaterialR.styleable.Slider_android_stepSize, 1F),
+            )
         }
     val valueFrom = range.first
     val valueTo = range.second
