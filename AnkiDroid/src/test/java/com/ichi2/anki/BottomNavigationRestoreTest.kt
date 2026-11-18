@@ -34,7 +34,6 @@ class BottomNavigationRestoreTest : RobolectricTest() {
         forEachTab { tab ->
             val controller = launchOn(tab)
             controller.recreate()
-            advanceRobolectricLooper()
 
             assertShowsTab(controller.get(), tab)
         }
@@ -69,12 +68,13 @@ class BottomNavigationRestoreTest : RobolectricTest() {
     fun `back returns to the deck list after a restore`() =
         forEachTab { tab ->
             val deckPicker = restoreAfterProcessDeath(launchOn(tab))
+            assertShowsTab(deckPicker, tab)
 
             deckPicker.onBackPressedDispatcher.onBackPressed()
-            advanceRobolectricLooper()
+            advanceRobolectricLooperUntil { deckPicker.deckList.isShown && deckPicker.bottomNav.selectedItemId == NavigationItem.HOME.id }
 
             assertThat("$tab: back selects Home", deckPicker.bottomNav.selectedItemId, equalTo(NavigationItem.HOME.id))
-            assertThat("$tab: back shows the deck list", deckPicker.deckList.isVisible, equalTo(true))
+            assertThat("$tab: back shows the deck list", deckPicker.deckList.isShown, equalTo(true))
         }
 
     @Test
@@ -85,8 +85,9 @@ class BottomNavigationRestoreTest : RobolectricTest() {
 
             val deckPicker = restoreAfterProcessDeath(controller)
 
+            advanceRobolectricLooperUntil { deckPicker.deckList.isShown }
             assertThat(deckPicker.bottomNav.selectedItemId, equalTo(NavigationItem.HOME.id))
-            assertThat(deckPicker.deckList.isVisible, equalTo(true))
+            assertThat(deckPicker.deckList.isShown, equalTo(true))
         }
 
     @Test
@@ -119,7 +120,12 @@ class BottomNavigationRestoreTest : RobolectricTest() {
 
     private fun DeckPicker.select(tab: NavigationItem) {
         bottomNav.selectedItemId = tab.id
-        advanceRobolectricLooper()
+        advanceRobolectricLooperUntil {
+            when (tab) {
+                NavigationItem.HOME -> currentScreenFragment == null && deckList.isShown
+                else -> currentScreenFragment?.isVisible == true
+            }
+        }
     }
 
     private fun restoreAfterProcessDeath(controller: ActivityController<DeckPicker>): DeckPicker {
@@ -147,10 +153,11 @@ class BottomNavigationRestoreTest : RobolectricTest() {
         deckPicker: DeckPicker,
         tab: NavigationItem,
     ) {
+        advanceRobolectricLooperUntil { deckPicker.currentScreenFragment?.isVisible == true && !deckPicker.deckList.isShown }
         val screen = deckPicker.currentScreenFragment!!
         assertThat("$tab is selected", deckPicker.bottomNav.selectedItemId, equalTo(tab.id))
         assertThat("$tab content is shown", screen.isVisible, equalTo(true))
-        assertThat("$tab hides the deck list", deckPicker.deckList.isVisible, equalTo(false))
+        assertThat("$tab hides the deck list", deckPicker.deckList.isShown, equalTo(false))
         assertThat("$tab fragment is not hidden", screen.isHidden, equalTo(false))
         assertThat(
             "$tab content clears the bar",

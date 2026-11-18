@@ -59,7 +59,7 @@ class BottomBarNavigationTest : RobolectricTest() {
                 val shown = deckPicker.currentScreenFragment
                 assertThat("$tab opens its screen", shown, instanceOf(screen))
                 assertThat("$tab is on screen", shown!!.isVisible, equalTo(true))
-                assertThat("$tab hides Decks", deckPicker.binding.deckPickerContentWrapper!!.isVisible, equalTo(false))
+                assertThat("$tab hides Decks", deckPicker.binding.deckPickerContentWrapper!!.isShown, equalTo(false))
             }
         }
 
@@ -70,10 +70,12 @@ class BottomBarNavigationTest : RobolectricTest() {
                 deckPicker.select(tab)
 
                 deckPicker.onBackPressedDispatcher.onBackPressed()
-                advanceRobolectricLooper()
+                advanceRobolectricLooperUntil {
+                    deckPicker.binding.deckPickerContentWrapper?.isShown == true && deckPicker.bottomBar.selectedItemId == NavigationItem.HOME.id
+                }
 
                 assertThat("$tab: back selects Decks", deckPicker.bottomBar.selectedItemId, equalTo(NavigationItem.HOME.id))
-                assertThat("$tab: back shows Decks", deckPicker.binding.deckPickerContentWrapper!!.isVisible, equalTo(true))
+                assertThat("$tab: back shows Decks", deckPicker.binding.deckPickerContentWrapper!!.isShown, equalTo(true))
                 assertThat("$tab: back stays in the app", deckPicker.isFinishing, equalTo(false))
             }
         }
@@ -96,11 +98,11 @@ class BottomBarNavigationTest : RobolectricTest() {
             deckPicker.select(NavigationItem.MORE)
 
             composeRule.onNodeWithText("Settings").performClick()
-            advanceRobolectricLooper()
+            advanceRobolectricLooperUntil { deckPicker.currentScreenFragment is PreferencesFragment }
             assertThat("Settings opens in the existing activity", shadowOf(deckPicker).nextStartedActivity, nullValue())
             assertThat(deckPicker.currentScreenFragment, instanceOf(PreferencesFragment::class.java))
             deckPicker.onBackPressedDispatcher.onBackPressed()
-            advanceRobolectricLooper()
+            advanceRobolectricLooperUntil { deckPicker.currentScreenFragment is MoreFragment }
 
             composeRule.onNodeWithText("Help").performClick()
             assertThat("Help opens the help menu", deckPicker.shownHelpMenuTitle(), equalTo(CommonR.string.help))
@@ -132,6 +134,11 @@ class BottomBarNavigationTest : RobolectricTest() {
 
     private fun DeckPicker.select(tab: NavigationItem) {
         bottomBar.selectedItemId = tab.id
-        advanceRobolectricLooper()
+        advanceRobolectricLooperUntil {
+            when (tab) {
+                NavigationItem.HOME -> currentScreenFragment == null && binding.deckPickerContentWrapper?.isShown == true
+                else -> currentScreenFragment?.isVisible == true
+            }
+        }
     }
 }

@@ -2277,11 +2277,12 @@ open class DeckPicker :
      * @return whether the panel was shown
      */
     private fun tryShowStudyOptionsPanel(): Boolean {
-        val containerId = binding.studyoptionsFragment?.id ?: return false
+        val container = binding.studyoptionsFragment ?: return false
+        supportFragmentManager.onContainerAvailable(container)
 
         // Only clear navigation when closing another side panel. Import dialogs can already
         // be on the back stack when startup finishes, and must survive panel initialization.
-        val sidePanel = supportFragmentManager.findFragmentById(containerId)
+        val sidePanel = supportFragmentManager.findFragmentById(container.id)
         if (sidePanel != null && sidePanel !is StudyOptionsFragment) {
             supportFragmentManager.popBackStackImmediate(
                 null,
@@ -2294,7 +2295,9 @@ open class DeckPicker :
             studyOptions.refreshInterface()
         } else {
             supportFragmentManager.commitNow {
-                replace(containerId, StudyOptionsFragment())
+                // Startup can restore a route above Decks before the AndroidView attaches the pane.
+                supportFragmentManager.findFragmentById(container.id)?.let { remove(it) }
+                add(container, StudyOptionsFragment(), null)
             }
         }
         return true
