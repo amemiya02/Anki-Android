@@ -28,6 +28,8 @@ import androidx.navigation.get
 import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.DrawingFragment
 import com.ichi2.anki.SingleFragmentActivity
+import com.ichi2.anki.account.AccountActivity
+import com.ichi2.anki.account.AccountFlowFragment
 import com.ichi2.anki.filtered.FilteredDeckOptionsFragment
 import com.ichi2.anki.introduction.WelcomeFragment
 import com.ichi2.anki.mediacheck.MediaCheckFragment
@@ -156,7 +158,7 @@ internal class AppNavigation(
 
     fun hasResultCaller(fragment: Fragment): Boolean =
         isCurrentScreen(fragment) &&
-            controller?.currentBackStackEntry?.arguments?.getInt(RESULT_REQUEST_CODE, NO_RESULT) != NO_RESULT
+            (controller?.currentBackStackEntry?.arguments?.getInt(RESULT_REQUEST_CODE, NO_RESULT) ?: NO_RESULT) != NO_RESULT
 
     private fun isCurrentScreen(fragment: Fragment): Boolean {
         val root = currentFragment ?: return false
@@ -177,6 +179,7 @@ internal class AppNavigation(
 
         val hostedComponents =
             setOf(
+                AccountActivity::class.java.name,
                 SingleFragmentActivity::class.java.name,
                 ConfigAwareSingleFragmentActivity::class.java.name,
                 PreferencesActivity::class.java.name,
@@ -185,6 +188,7 @@ internal class AppNavigation(
 
         val fragmentScreens =
             listOf(
+                AccountFlowFragment::class.java,
                 AnkiPackageImporterFragment::class.java,
                 CardInfoFragment::class.java,
                 CsvImporter::class.java,
