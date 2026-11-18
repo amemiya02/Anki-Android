@@ -59,7 +59,7 @@ class DrawingFragmentTest : RobolectricTest() {
     fun `the hosted drawing controls clear system bars and the display cutout`() =
         withDeckPicker(deckCount = 1) { deckPicker ->
             deckPicker.startActivity(DrawingFragment.getIntent(deckPicker))
-            advanceRobolectricLooperUntil { deckPicker.currentScreenFragment is DrawingFragment }
+            compose.waitUntil(10_000) { deckPicker.currentScreenFragment is DrawingFragment }
             val drawing = assertNotNull(deckPicker.currentScreenFragment).requireView()
 
             deckPicker.dispatchInsets(navBarBottom = 48.dp, cutoutLeft = 32.dp)

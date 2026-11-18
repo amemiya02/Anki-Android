@@ -71,7 +71,7 @@ class BottomNavigationRestoreTest : RobolectricTest() {
             assertShowsTab(deckPicker, tab)
 
             deckPicker.onBackPressedDispatcher.onBackPressed()
-            advanceRobolectricLooperUntil { deckPicker.deckList.isShown && deckPicker.bottomNav.selectedItemId == NavigationItem.HOME.id }
+            composeRule.waitUntil(10_000) { deckPicker.deckList.isShown && deckPicker.bottomNav.selectedItemId == NavigationItem.HOME.id }
 
             assertThat("$tab: back selects Home", deckPicker.bottomNav.selectedItemId, equalTo(NavigationItem.HOME.id))
             assertThat("$tab: back shows the deck list", deckPicker.deckList.isShown, equalTo(true))
@@ -85,7 +85,7 @@ class BottomNavigationRestoreTest : RobolectricTest() {
 
             val deckPicker = restoreAfterProcessDeath(controller)
 
-            advanceRobolectricLooperUntil { deckPicker.deckList.isShown }
+            composeRule.waitUntil(10_000) { deckPicker.deckList.isShown }
             assertThat(deckPicker.bottomNav.selectedItemId, equalTo(NavigationItem.HOME.id))
             assertThat(deckPicker.deckList.isShown, equalTo(true))
         }
@@ -120,7 +120,7 @@ class BottomNavigationRestoreTest : RobolectricTest() {
 
     private fun DeckPicker.select(tab: NavigationItem) {
         bottomNav.selectedItemId = tab.id
-        advanceRobolectricLooperUntil {
+        composeRule.waitUntil(10_000) {
             when (tab) {
                 NavigationItem.HOME -> currentScreenFragment == null && deckList.isShown
                 else -> currentScreenFragment?.isVisible == true
@@ -153,7 +153,7 @@ class BottomNavigationRestoreTest : RobolectricTest() {
         deckPicker: DeckPicker,
         tab: NavigationItem,
     ) {
-        advanceRobolectricLooperUntil { deckPicker.currentScreenFragment?.isVisible == true && !deckPicker.deckList.isShown }
+        composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment?.isVisible == true && !deckPicker.deckList.isShown }
         val screen = deckPicker.currentScreenFragment!!
         assertThat("$tab is selected", deckPicker.bottomNav.selectedItemId, equalTo(tab.id))
         assertThat("$tab content is shown", screen.isVisible, equalTo(true))

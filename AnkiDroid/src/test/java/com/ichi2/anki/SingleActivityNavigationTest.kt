@@ -59,7 +59,7 @@ class SingleActivityNavigationTest : RobolectricTest() {
         withDeckPicker(deckCount = 1) { deckPicker ->
             val search = BrowserDestination.Search(query = "is:new", allDecks = false).toIntent(deckPicker)
             deckPicker.startActivity(search)
-            advanceRobolectricLooperUntil { deckPicker.currentScreenFragment is CardBrowserPaneFragment }
+            composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment is CardBrowserPaneFragment }
 
             composeRule.onNodeWithText("Browse").assertIsDisplayed()
             assertTrue(deckPicker.findViewById<View>(R.id.root_layout).isShown)
@@ -73,12 +73,14 @@ class SingleActivityNavigationTest : RobolectricTest() {
         val editor = Intent(targetContext, NoteEditorActivity::class.java).putExtras(shared).setAction(shared.action)
         val incoming = DeckPicker.getEntryIntent(targetContext, editor, shared)
         val controller = startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, incoming)
+        val startEmpty = composeRule.onNodeWithText(controller.get().getString(CommonString.paper_welcome_start_empty))
+        startEmpty.assertIsDisplayed()
         controller.recreate()
         advanceRobolectricLooper()
 
         val host = controller.get()
-        composeRule.onNodeWithText(host.getString(CommonString.paper_welcome_start_empty)).performClick()
-        advanceRobolectricLooperUntil { host.currentScreenFragment is NoteEditorPaneFragment }
+        startEmpty.performClick()
+        composeRule.waitUntil(10_000) { host.currentScreenFragment is NoteEditorPaneFragment }
 
         assertEquals(
             "Text from another app",
@@ -92,7 +94,7 @@ class SingleActivityNavigationTest : RobolectricTest() {
         val controller = startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent())
         val deckPicker = controller.get()
         deckPicker.startActivity(MediaCheckFragment.getIntent(deckPicker))
-        advanceRobolectricLooperUntil { deckPicker.currentScreenFragment is MediaCheckFragment }
+        composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment is MediaCheckFragment }
 
         val shared = Intent(Intent.ACTION_SEND).putExtra(Intent.EXTRA_TEXT, "A second share")
         val editor = Intent(targetContext, NoteEditorActivity::class.java).putExtras(shared).setAction(shared.action)
@@ -101,12 +103,12 @@ class SingleActivityNavigationTest : RobolectricTest() {
         // A share starts in the sending app's task. Android must find the same DeckPicker across tasks.
         assertEquals(ActivityInfo.LAUNCH_SINGLE_TASK, host.launchMode)
         controller.pause().newIntent(incoming).resume()
-        advanceRobolectricLooperUntil { deckPicker.currentScreenFragment is NoteEditorPaneFragment }
+        composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment is NoteEditorPaneFragment }
 
         val noteEditor = deckPicker.currentScreenFragment as NoteEditorPaneFragment
         assertEquals("A second share", noteEditor.launchIntent.getStringExtra(Intent.EXTRA_TEXT))
         deckPicker.onBackPressedDispatcher.onBackPressed()
-        advanceRobolectricLooperUntil { deckPicker.currentScreenFragment is MediaCheckFragment }
+        composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment is MediaCheckFragment }
         assertNull(shadowOf(deckPicker).nextStartedActivity)
     }
 

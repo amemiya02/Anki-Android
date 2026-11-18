@@ -70,7 +70,7 @@ class BottomBarNavigationTest : RobolectricTest() {
                 deckPicker.select(tab)
 
                 deckPicker.onBackPressedDispatcher.onBackPressed()
-                advanceRobolectricLooperUntil {
+                composeRule.waitUntil(10_000) {
                     deckPicker.binding.deckPickerContentWrapper?.isShown == true && deckPicker.bottomBar.selectedItemId == NavigationItem.HOME.id
                 }
 
@@ -98,11 +98,11 @@ class BottomBarNavigationTest : RobolectricTest() {
             deckPicker.select(NavigationItem.MORE)
 
             composeRule.onNodeWithText("Settings").performClick()
-            advanceRobolectricLooperUntil { deckPicker.currentScreenFragment is PreferencesFragment }
+            composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment is PreferencesFragment }
             assertThat("Settings opens in the existing activity", shadowOf(deckPicker).nextStartedActivity, nullValue())
             assertThat(deckPicker.currentScreenFragment, instanceOf(PreferencesFragment::class.java))
             deckPicker.onBackPressedDispatcher.onBackPressed()
-            advanceRobolectricLooperUntil { deckPicker.currentScreenFragment is MoreFragment }
+            composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment is MoreFragment }
 
             composeRule.onNodeWithText("Help").performClick()
             assertThat("Help opens the help menu", deckPicker.shownHelpMenuTitle(), equalTo(CommonR.string.help))
@@ -134,7 +134,7 @@ class BottomBarNavigationTest : RobolectricTest() {
 
     private fun DeckPicker.select(tab: NavigationItem) {
         bottomBar.selectedItemId = tab.id
-        advanceRobolectricLooperUntil {
+        composeRule.waitUntil(10_000) {
             when (tab) {
                 NavigationItem.HOME -> currentScreenFragment == null && binding.deckPickerContentWrapper?.isShown == true
                 else -> currentScreenFragment?.isVisible == true
