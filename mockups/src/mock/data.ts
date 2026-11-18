@@ -283,7 +283,7 @@ export const directions: Record<
     name: "Quiet paper",
     line: "Warm paper, ink-dark text, one cinnabar accent. Editorial and calm.",
     fonts: "Newsreader · 霞鹜文楷 LXGW WenKai · クレー Klee One",
-    swatches: ["#F5F0E6", "#211E19", "#A63D25", "#2F4A6B", "#3E5B34"],
+    swatches: ["#FAFAF8", "#1F1E1C", "#A63D25", "#2F4A6B", "#3E5B34"],
   },
   crisp: {
     name: "Crisp tool",

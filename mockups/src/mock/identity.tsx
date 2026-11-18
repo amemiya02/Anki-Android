@@ -2,6 +2,8 @@ import type { ReactNode } from "react"
 
 /** Name candidates and launcher icon concepts for the Fork, in Quiet paper. */
 
+// The launcher icon's own colours: the paper and ink of the earlier cream Light
+// palette, which the icon keeps (the Light palette became Plain paper on 2026-11-18).
 const PAPER = "#F5F0E6"
 const INK = "#211E19"
 const CINNABAR = "#A63D25"
@@ -159,15 +161,15 @@ export function IdentityBoard() {
 
       <div className="flex items-center gap-14">
         <div
-          className="flex w-[420px] flex-col gap-3 rounded-[6px] border border-[#D8CFBE] bg-[#F5F0E6] p-8 text-[#211E19]"
+          className="flex w-[420px] flex-col gap-3 rounded-[6px] border border-[#E2E0DB] bg-[#FAFAF8] p-8 text-[#1F1E1C]"
           style={{
             fontFamily:
               "'Newsreader Variable', 'Klee One', 'LXGW WenKai', serif",
           }}
         >
-          <p className="text-[13px] text-[#675F53]">The Fork's name</p>
+          <p className="text-[13px] text-[#625F59]">The Fork's name</p>
           <p className="text-[64px] leading-none font-medium">Hayaki</p>
-          <p className="text-[16px] leading-snug text-[#675F53]">
+          <p className="text-[16px] leading-snug text-[#625F59]">
             Chosen by the owner. Written the same way in every language.
           </p>
         </div>
@@ -182,13 +184,13 @@ export function IdentityBoard() {
         {names.map((n, i) => (
           <div
             key={n.latin}
-            className="flex w-[420px] flex-col gap-3 rounded-[6px] border border-[#D8CFBE] bg-[#F5F0E6] p-8 text-[#211E19]"
+            className="flex w-[420px] flex-col gap-3 rounded-[6px] border border-[#E2E0DB] bg-[#FAFAF8] p-8 text-[#1F1E1C]"
             style={{
               fontFamily:
                 "'Newsreader Variable', 'Klee One', 'LXGW WenKai', serif",
             }}
           >
-            <p className="text-[13px] text-[#675F53]">Name {i + 1}</p>
+            <p className="text-[13px] text-[#625F59]">Name {i + 1}</p>
             <p className="flex items-baseline gap-4">
               <span className="text-[52px] leading-none font-medium">
                 {n.latin}
@@ -197,7 +199,7 @@ export function IdentityBoard() {
                 {n.cjk}
               </span>
             </p>
-            <p className="text-[16px] leading-snug text-[#675F53]">
+            <p className="text-[16px] leading-snug text-[#625F59]">
               {n.meaning}
             </p>
           </div>

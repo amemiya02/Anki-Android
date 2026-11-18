@@ -37,7 +37,7 @@ function ratio(a, b) {
 
 const palettes = {
   current: {
-    name: "Current Quiet paper",
+    name: "Current Light palette (Plain paper)",
     colour: values.colour.light,
     flags: flags.light,
   },

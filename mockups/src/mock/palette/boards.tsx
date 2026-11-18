@@ -1,6 +1,8 @@
 // Candidate Light palettes, drawn because the owner asked whether the Light
 // colour scheme can change. Each row shows the same five Light screens with
 // only the --v-* colour roles (and the flag colours) replaced.
+// The owner chose 白纸 Plain paper on 2026-11-18; it is now the values file's
+// Light palette, drawn as "current".
 // URLs: /?palette=compare&lang=en|zh, /?palette=<name>&lang=en|zh.
 
 import type { CSSProperties, ReactNode } from "react"
@@ -22,19 +24,13 @@ interface Palette {
   flags: Record<string, string>
 }
 
-export const paletteKeys = [
-  "current",
-  "plain",
-  "indigo",
-  "celadon",
-  "ink",
-] as const
+export const paletteKeys = ["current", "indigo", "celadon", "ink"] as const
 type PaletteKey = (typeof paletteKeys)[number]
 
 const all: Record<PaletteKey, Palette> = {
   current: {
-    name: "现在 Current",
-    line: "Quiet paper as accepted: warm cream paper, warm ink and cinnabar.",
+    name: "白纸 Plain paper (current)",
+    line: "The current Light palette, chosen by the owner on 2026-11-18: clean near-white paper with ink text; cinnabar stays the one accent.",
     colour: values.colour.light,
     flags: flags.light,
   },

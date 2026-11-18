@@ -1,5 +1,5 @@
 {
-  "note": "Proposed flag colours for Milestone 3 (ticket 25). Flags are marks, so each must reach 3:1 against the background. The first four reuse existing Foundation hues; pink, turquoise and purple are new. Checked by scripts/check-find-contrast.mjs. They join quiet-paper.values.json when the card browser is built.",
+  "note": "Proposed flag colours for Milestone 3 (ticket 25). Flags are marks, so each must reach 3:1 against the background. The first four reuse existing Foundation hues; pink, turquoise and purple are new. Checked by scripts/check-find-contrast.mjs. They join quiet-paper.values.json when the card browser is built. The Light values are 白纸 Plain paper's, the Light palette the owner chose on 2026-11-18 (the same hues as before).",
   "light": {
     "red": "#A63D25",
     "orange": "#8A5E10",

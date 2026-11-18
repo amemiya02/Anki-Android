@@ -1,40 +1,6 @@
 {
-  "note": "Candidate Light palettes, drawn because the owner asked whether the Light colour scheme can change. Each replaces the whole `light` block of docs/redesign/quiet-paper.values.json and the Light flag colours of src/mock/find/flags.json; Dark and Black are untouched. The current palette is read from those two files and is not repeated here. The card sheet roles stand for how the app draws Card Content today, so they are the same in every candidate. Checked by scripts/check-palette-contrast.mjs.",
+  "note": "Candidate Light palettes, drawn because the owner asked whether the Light colour scheme can change. Each replaces the whole `light` block of docs/redesign/quiet-paper.values.json and the Light flag colours of src/mock/find/flags.json; Dark and Black are untouched. The current palette is read from those two files and is not repeated here. The owner chose 白纸 Plain paper on 2026-11-18; it is now the current palette, so it is no longer listed as a candidate. The card sheet roles stand for how the app draws Card Content today, so they are the same in every candidate. Checked by scripts/check-palette-contrast.mjs.",
   "candidates": {
-    "plain": {
-      "name": "白纸 Plain paper",
-      "line": "Clean near-white paper with ink text; cinnabar stays the one accent, so it reads as Quiet paper without the cream.",
-      "colour": {
-        "background": "#FAFAF8",
-        "onBackground": "#1F1E1C",
-        "onBackgroundMuted": "#625F59",
-        "outline": "#E2E0DB",
-        "primary": "#A63D25",
-        "onPrimary": "#FFFFFF",
-        "emphasis": "#A63D25",
-        "countNew": "#2F4A6B",
-        "countLearning": "#A63D25",
-        "countDue": "#3E5B34",
-        "answerAgain": "#A63D25",
-        "answerHard": "#8A5E10",
-        "answerGood": "#3E5B34",
-        "answerEasy": "#2F4A6B",
-        "progressTrack": "#E6E4DF",
-        "progressFill": "#1F1E1C",
-        "cardSheet": "#FFFFFF",
-        "onCardSheet": "#000000",
-        "cardSheetRule": "#8B8B8B"
-      },
-      "flags": {
-        "red": "#A63D25",
-        "orange": "#8A5E10",
-        "green": "#3E5B34",
-        "blue": "#2F4A6B",
-        "pink": "#A3436F",
-        "turquoise": "#256B66",
-        "purple": "#6B4A8E"
-      }
-    },
     "indigo": {
       "name": "藍 Indigo",
       "line": "Cool grey paper and deep indigo, like an ai-zome cloth: calm and a little formal, the most like a tool.",

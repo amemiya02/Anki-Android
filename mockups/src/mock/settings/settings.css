@@ -391,8 +391,8 @@
 
 /* The thumbnails show each theme as it is, whatever theme the page is in. */
 .s-thumb-light {
-  background: #f5f0e6;
-  --ink: #211e19;
+  background: #fafaf8;
+  --ink: #1f1e1c;
 }
 .s-thumb-dark {
   background: #1c1a17;
@@ -403,7 +403,7 @@
   --ink: #ece5d8;
 }
 .s-thumb-system {
-  background: linear-gradient(135deg, #f5f0e6 50%, #1c1a17 50%);
+  background: linear-gradient(135deg, #fafaf8 50%, #1c1a17 50%);
   --ink: #8b8b8b;
 }
 
@@ -827,8 +827,8 @@
   width: 1640px;
   padding: 40px 44px 44px;
   border-radius: 8px;
-  background: #f5f0e6;
-  color: #211e19;
+  background: #fafaf8;
+  color: #1f1e1c;
   font-family: "Newsreader Variable", "LXGW WenKai", serif;
 }
 
@@ -848,7 +848,7 @@
 
 .map-group h3 {
   padding-bottom: 6px;
-  border-bottom: 1px solid #211e19;
+  border-bottom: 1px solid #1f1e1c;
   font-size: 21px;
   font-weight: 500;
 }
@@ -857,21 +857,21 @@
   margin: 10px 0 2px;
   font-size: 14px;
   font-weight: 400;
-  color: #675f53;
+  color: #625f59;
 }
 
 .map-group li {
   display: flex;
   flex-direction: column;
   padding: 5px 0;
-  border-bottom: 1px solid #d8cfbe;
+  border-bottom: 1px solid #e2e0db;
   font-size: 15px;
   line-height: 1.35;
 }
 
 .map-group li small {
   font-size: 12.5px;
-  color: #675f53;
+  color: #625f59;
 }
 
 .map-group li small.is-change {
@@ -879,7 +879,7 @@
 }
 
 .map-aside li {
-  color: #675f53;
+  color: #625f59;
 }
 
 .map-aside li span {
