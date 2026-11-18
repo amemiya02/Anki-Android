@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -118,11 +119,13 @@ internal fun ReviewRemindersScreen(
     onSettings: () -> Unit,
 ) {
     val paper = MaterialTheme.foundation
+    // At large text sizes the action needs its own space below multiline settings rows.
+    val reserveAddButton = LocalDensity.current.fontScale > 1f
     ReminderPage(onNavigateUp) {
         Box(Modifier.fillMaxSize()) {
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(top = 4.dp, bottom = 96.dp),
+                modifier = Modifier.fillMaxSize().padding(bottom = if (reserveAddButton) 76.dp else 0.dp),
+                contentPadding = PaddingValues(top = 4.dp, bottom = if (reserveAddButton) 4.dp else 96.dp),
             ) {
                 item {
                     if (onNavigateUp != null) ReminderPageTitle(stringResource(CommonString.review_reminders_title))

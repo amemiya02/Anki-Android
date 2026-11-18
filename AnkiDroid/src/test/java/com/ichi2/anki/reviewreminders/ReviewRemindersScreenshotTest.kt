@@ -33,7 +33,6 @@ import com.ichi2.anki.common.destinations.StudyOptionsDestination
 import com.ichi2.anki.common.destinations.launchActivity
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.preferences.PreferencesActivity
-import com.ichi2.anki.preferences.PreferencesFragment
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment.FragmentHost
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.windows.permissions.PermissionsBottomSheet
@@ -73,26 +72,16 @@ class ReviewRemindersScreenshotTest : ScreenshotTest() {
         insertReminder(ReviewReminderTime(21, 30), enabled = false, onlyIfNotStudied = true)
         col.decks.remove(listOf(deleted.did))
 
-        ActivityScenario.launch<PreferencesActivity>(PreferencesActivity.getIntent(targetContext)).use { scenario ->
-            scenario.onActivity { activity ->
-                val manager = (activity.fragment as PreferencesFragment).childFragmentManager
-                manager.commit {
-                    replace(
-                        R.id.settings_container,
-                        ScheduleRemindersFragment.newInstance(ReviewReminderScope.Global, FragmentHost.SETTINGS),
-                    )
-                    addToBackStack(null)
-                }
-                advanceRobolectricLooper()
-                compose.onNodeWithText(activity.getString(CommonString.review_reminders_title)).assertIsDisplayed()
-                captureScreen("review_reminders")
-                val check = activity.getString(R.string.review_reminders_check_action)
-                compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasText(check))
-                compose.onNodeWithText(check).performClick()
-                advanceRobolectricLooper()
-                compose.onNodeWithText(activity.getString(R.string.review_reminder_check_title)).assertIsDisplayed()
-                captureScreen("check_reminders")
-            }
+        setPhoneQualifiers()
+        val intent = PreferencesActivity.getIntent(targetContext, ScheduleRemindersFragment::class)
+        ActivityScenario.launch<PreferencesActivity>(intent).use {
+            compose.onNodeWithText(targetContext.getString(CommonString.review_reminders_title)).assertIsDisplayed()
+            val check = targetContext.getString(R.string.review_reminders_check_action)
+            captureScreen("review_reminders")
+            compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasText(check))
+            compose.onNodeWithText(check).performClick()
+            compose.onNodeWithText(targetContext.getString(R.string.review_reminder_check_title)).assertIsDisplayed()
+            captureScreen("check_reminders")
         }
     }
 
