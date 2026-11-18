@@ -206,31 +206,6 @@
         <item name="android:textSize">0sp</item>
     </style>
 
-    <style name="Widget.AnkiDroid.SortPillButton" parent="Widget.Material3.Button.UnelevatedButton">
-        <!-- wrap_content + 48dp min size so the pill grows with larger accessibility text scales -->
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:minWidth">48dp</item>
-        <item name="android:minHeight">48dp</item>
-        <!-- Override the parent's horizontal content padding (24dp) to maximise content area
-             in the 48dp-wide button. -->
-        <item name="android:paddingStart">0dp</item>
-        <item name="android:paddingEnd">0dp</item>
-        <item name="android:insetTop">8dp</item>
-        <item name="android:insetBottom">8dp</item>
-        <item name="android:textAppearance">@style/TextAppearance.Foundation.Caption</item>
-        <item name="android:textStyle">bold</item>
-        <!-- tabular numerals ensures correct centering -->
-        <item name="android:fontFeatureSettings">"tnum"</item>
-        <item name="android:textColor">@color/sort_pill_content_color</item>
-        <item name="iconSize">16dp</item>
-        <item name="iconPadding">2dp</item>
-        <item name="iconGravity">textEnd</item>
-        <item name="iconTint">@color/sort_pill_content_color</item>
-        <item name="backgroundTint">@color/sort_pill_background_color</item>
-        <item name="strokeWidth">?attr/widgetStrokeWidth</item>
-        <item name="strokeColor">?attr/widgetStrokeColor</item>
-    </style>
 
     <!-- A filter chip's check mark, drawn from Material Symbols like every interface icon -->
     <style name="Widget.Foundation.Chip.Filter" parent="Widget.Material3.Chip.Filter">

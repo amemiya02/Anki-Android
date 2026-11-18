@@ -42,7 +42,7 @@ import timber.log.Timber
  * - Previews
  */
 // This is an Activity ViewModel: The SearchView can be directly on the activity
-// The sub-fragments (StandardSearchFragment etc...) need to be able to modify/close the
+// Search actions share the state needed to modify or close the
 // EditText, but should not be coupled directly to the parent SearchView.
 class CardBrowserSearchViewModel(
     private val savedStateHandle: ViewModelSavedStateHandle,

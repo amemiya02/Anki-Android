@@ -3,38 +3,34 @@
 
 package com.ichi2.anki.browser.search
 
-import android.os.Looper
-import android.widget.CheckBox
-import androidx.recyclerview.widget.RecyclerView
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.R
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.RobolectricTest
-import com.ichi2.anki.browser.withCardBrowserFragment
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.equalTo
+import com.ichi2.anki.getBrowserWithNotes
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Shadows.shadowOf
 
-/** Test of [FlagsBottomSheetFragment] */
 @RunWith(AndroidJUnit4::class)
 class FlagsBottomSheetFragmentTest : RobolectricTest() {
-    // TalkBack users must hear which flag a checkbox toggles, not just "checked"/"not checked"
-    @Test
-    fun `flag checkbox exposes its label to TalkBack`() =
-        withCardBrowserFragment {
-            FlagsBottomSheetFragment.createInstance(requireContext()).show(childFragmentManager, FlagsBottomSheetFragment.TAG)
-            shadowOf(Looper.getMainLooper()).idle()
+    @get:Rule
+    val compose = createEmptyComposeRule()
 
-            onView(withId(R.id.list)).inRoot(isDialog()).check { view, _ ->
-                val recyclerView = view as RecyclerView
-                val holder = requireNotNull(recyclerView.findViewHolderForAdapterPosition(0))
-                val checkbox = holder.itemView.findViewById<CheckBox>(R.id.checkbox)
-                // position 0 is Flag.NONE
-                assertThat(checkbox.contentDescription, equalTo("No flag" as CharSequence))
-            }
-        }
+    @Test
+    fun flagCheckboxExposesItsLabelAndState() {
+        getBrowserWithNotes(noteCount = 0)
+        compose.onNodeWithContentDescription(TR.browsingSidebarFlags()).performScrollTo().performClick()
+        val option = compose.onNode(hasText("No flag") and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
+        option.assertIsOff().performClick().assertIsOn()
+    }
 }

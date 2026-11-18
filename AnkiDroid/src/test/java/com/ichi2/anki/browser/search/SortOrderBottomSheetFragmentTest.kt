@@ -2,65 +2,41 @@
 
 package com.ichi2.anki.browser.search
 
-import android.os.Bundle
-import androidx.lifecycle.Lifecycle
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasScrollToIndexAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.ichi2.anki.CommonString
+import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.browser.BrowserColumnKey
-import com.ichi2.anki.browser.createCardBrowserViewModel
-import com.ichi2.anki.browser.search.SortOrderBottomSheetFragment.Companion.ARG_CURRENT_SORT_TYPE
+import com.ichi2.anki.getBrowserWithNotes
 import com.ichi2.anki.model.SortType
-import com.ichi2.anki.testutils.SingleViewModelFactory
-import com.ichi2.testutils.launchFragment
-import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.test.assertEquals
 
-/** Tests [SortOrderBottomSheetFragment] */
 @RunWith(AndroidJUnit4::class)
 class SortOrderBottomSheetFragmentTest : RobolectricTest() {
-    private val defaultBrowserColumnKey = BrowserColumnKey("noteFld")
-
-    fun sampleSortType() =
-        SortType.CollectionOrdering(
-            key = defaultBrowserColumnKey,
-            reverse = true,
-        )
+    @get:Rule
+    val compose = createEmptyComposeRule()
 
     @Test
-    fun `sort order argument is used`() {
-        withFragment(currentSortType = sampleSortType()) {
-            assertEquals(
-                SortType.CollectionOrdering(
-                    key = defaultBrowserColumnKey,
-                    reverse = true,
-                ),
-                this.currentSortType,
-            )
-        }
-    }
-
-    fun withFragment(
-        currentSortType: SortType = SortType.NoOrdering,
-        block: suspend SortOrderBottomSheetFragment.() -> Unit,
-    ) {
-        val viewModelFactory = SingleViewModelFactory.create(createCardBrowserViewModel())
-
-        val fragmentArgs =
-            Bundle().apply {
-                putParcelable(ARG_CURRENT_SORT_TYPE, currentSortType)
-            }
-        launchFragment(fragmentArgs) {
-            SortOrderBottomSheetFragment(viewModelFactory)
-        }.use { scenario ->
-            scenario.moveToState(Lifecycle.State.RESUMED)
-
-            scenario.onFragment { fragment ->
-                runBlocking {
-                    block(fragment)
-                }
-            }
-        }
+    fun sortSheetShowsTheCurrentColumnAndDirection() {
+        val browser = getBrowserWithNotes(noteCount = 0)
+        browser.viewModel.setSortType(SortType.CollectionOrdering(BrowserColumnKey("noteFld"), reverse = true))
+        advanceRobolectricLooper()
+        compose.onNodeWithContentDescription(getResourceString(R.string.browse_sort)).performClick()
+        compose.onNodeWithText(getResourceString(CommonString.card_browser_order_no_sorting_title)).assertIsDisplayed()
+        compose.onNodeWithText("Sort Field").assertIsSelected()
+        val descending = getResourceString(CommonString.sort_pill_a11y_descending)
+        compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasText(descending))
+        compose.onNodeWithText(descending).assertIsSelected()
     }
 }

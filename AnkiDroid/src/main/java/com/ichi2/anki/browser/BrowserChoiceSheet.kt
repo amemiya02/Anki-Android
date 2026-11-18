@@ -183,15 +183,7 @@ private fun BrowserSortChoices(
     val mode = vm.cardsOrNotes
     val active by produceState<SortType?>(null, mode) { value = SortType.build(mode) }
     var chosen by remember(active) { mutableStateOf(active) }
-    val sortable =
-        vm.allColumns
-            .filter {
-                val sorting = if (mode == CardsOrNotes.CARDS) it.sortingCards else it.sortingNotes
-                sorting != Sorting.SORTING_NONE
-            }.sortedBy { it.getLabel(mode) }
-            .sortedBy { column ->
-                vm.activeColumns.indexOfFirst { it.ankiColumnKey == column.key }.takeIf { it >= 0 } ?: Int.MAX_VALUE
-            }.map { BrowserColumnKey.from(it) to it.getLabel(mode) }
+    val sortable = vm.sortableColumns(mode)
     BrowserSheetHeading(
         stringResource(R.string.browse_sort),
         onDone = {
@@ -225,6 +217,16 @@ private fun BrowserSortChoices(
         }
     }
 }
+
+internal fun CardBrowserViewModel.sortableColumns(mode: CardsOrNotes) =
+    allColumns
+        .filter {
+            val sorting = if (mode == CardsOrNotes.CARDS) it.sortingCards else it.sortingNotes
+            sorting != Sorting.SORTING_NONE
+        }.sortedBy { it.getLabel(mode) }
+        .sortedBy { column ->
+            activeColumns.indexOfFirst { it.ankiColumnKey == column.key }.takeIf { it >= 0 } ?: Int.MAX_VALUE
+        }.map { BrowserColumnKey.from(it) to it.getLabel(mode) }
 
 @Composable
 private fun BrowserSheetHeading(
