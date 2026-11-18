@@ -4,29 +4,31 @@ package com.ichi2.anki.dialogs
 
 import android.os.Bundle
 import android.os.Looper
-import android.view.View
 import android.widget.AdapterView
-import android.widget.ListView
-import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.children
-import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.replaceText
-import androidx.test.espresso.action.ViewActions.scrollTo
-import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
-import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -46,7 +48,6 @@ import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyDefaults.
 import com.ichi2.anki.dialogs.customstudy.CustomStudyViewModel
 import com.ichi2.anki.dialogs.tags.TagsDialogListener.Companion.REQUEST_SELECT_TAGS
 import com.ichi2.anki.dialogs.tags.TagsDialogListener.Companion.RESULT_SELECTED_TAGS
-import com.ichi2.anki.dialogs.utils.performPositiveClick
 import com.ichi2.anki.ioDispatcher
 import com.ichi2.anki.libanki.CardType
 import com.ichi2.anki.libanki.Collection
@@ -63,8 +64,6 @@ import com.ichi2.testutils.ext.snackbarText
 import com.ichi2.testutils.isJsonHolderEqual
 import com.ichi2.testutils.launchFragment
 import com.ichi2.testutils.uninitializeField
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.textAsIntOrNull
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -80,13 +79,13 @@ import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.hamcrest.Matchers.lessThan
 import org.hamcrest.Matchers.nullValue
 import org.intellij.lang.annotations.Language
 import org.junit.Before
 import org.junit.Ignore
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -104,6 +103,9 @@ import com.ichi2.anki.common.android.R as CommonR
 
 @RunWith(AndroidJUnit4::class)
 class CustomStudyDialogTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Before
     override fun setUp() {
         super.setUp()
@@ -144,8 +146,7 @@ class CustomStudyDialogTest : RobolectricTest() {
                     val activity = controller.get()
                     val fragment = CustomStudyDialog.createInstance(Consts.DEFAULT_DECK_ID)
                     activity.showDialogFragment(fragment)
-                    val dialog = fragment.requireDialog()
-                    assertTrue(assertNotNull(dialog.findViewById<View>(R.id.progress_bar)).isVisible)
+                    progress().assertExists()
 
                     runCurrent()
 
@@ -172,11 +173,9 @@ class CustomStudyDialogTest : RobolectricTest() {
                     runCurrent()
 
                     assertEquals(target, col.decks.selected())
-                    scenario.onFragment { fragment ->
-                        assertFalse(assertNotNull(fragment.dialog?.findViewById<View>(R.id.progress_bar)).isVisible)
-                        onView(withText(TR.customStudyStudyByCardStateOrTag()))
-                            .inRoot(isDialog())
-                            .check(matches(isEnabled()))
+                    scenario.onFragment {
+                        progress().assertDoesNotExist()
+                        compose.onNodeWithText(TR.customStudyStudyByCardStateOrTag()).assertIsEnabled()
                     }
                 }
             } finally {
@@ -266,7 +265,7 @@ class CustomStudyDialogTest : RobolectricTest() {
                 val fragmentManager = fragment.parentFragmentManager
                 col.removeNotes(cardIds = listOf(card.id))
 
-                onView(withText(TR.customStudyReviewAhead())).inRoot(isDialog()).perform(click())
+                compose.onNodeWithText(TR.customStudyReviewAhead()).performClick()
                 advanceUntilIdle()
 
                 assertUnavailableMenu(fragment)
@@ -285,16 +284,16 @@ class CustomStudyDialogTest : RobolectricTest() {
             val target = addDeck("Target")
             col.setDeck(listOf(addBasicNote().firstCard().id), target)
             withCustomStudyFragment(argumentsDisplayingMainScreen(target)) { fragment ->
-                val dialog = assertNotNull(fragment.dialog as? AlertDialog)
+                val dialog = fragment.requireDialog()
                 col.decks.remove(listOf(target))
                 val selectedDeck = col.decks.selected()
                 val undoStatus = col.undoStatus()
 
-                onView(withText(TR.customStudyReviewAhead())).inRoot(isDialog()).perform(click())
+                compose.onNodeWithText(TR.customStudyReviewAhead()).performClick()
                 advanceUntilIdle()
 
-                assertFalse(dialog.isShowing)
                 assertUnavailableMenu(fragment)
+                assertFalse(dialog.isShowing)
                 assertEquals(selectedDeck, col.decks.selected())
                 assertEquals(undoStatus, col.undoStatus())
             }
@@ -327,7 +326,7 @@ class CustomStudyDialogTest : RobolectricTest() {
             val activity = controller.get()
             activity.showDialogFragment(CustomStudyDialog.createInstance(Consts.DEFAULT_DECK_ID))
             val fragment = activity.supportFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG) as CustomStudyDialog
-            advanceRobolectricLooperUntil { fragment.dialog?.findViewById<View>(R.id.progress_bar)?.isVisible != true }
+            compose.onNodeWithText(TR.customStudyReviewAhead()).assertExists()
 
             // Exercise the production queue's suspension instead of Robolectric's synchronous lock.
             val previousIoDispatcher = ioDispatcher
@@ -336,7 +335,7 @@ class CustomStudyDialogTest : RobolectricTest() {
             val previousDispatcher =
                 CollectionManager.setTestDispatcher(StandardTestDispatcher(collectionScheduler), useReentrantLock = false)
             try {
-                onView(withText(TR.customStudyReviewAhead())).inRoot(isDialog()).perform(click())
+                compose.onNodeWithText(TR.customStudyReviewAhead()).performClick()
                 runCurrent()
                 assertSame(fragment, activity.supportFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG))
                 controller.pause().saveInstanceState(Bundle()).stop()
@@ -351,7 +350,7 @@ class CustomStudyDialogTest : RobolectricTest() {
                 advanceRobolectricLooper()
                 assertSame(fragment, activity.supportFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG))
 
-                onView(withText(TR.customStudyReviewAhead())).inRoot(isDialog()).perform(click())
+                compose.onNodeWithText(TR.customStudyReviewAhead()).performClick()
                 runCurrent()
                 collectionScheduler.runCurrent()
                 runCurrent()
@@ -359,7 +358,7 @@ class CustomStudyDialogTest : RobolectricTest() {
                 collectionScheduler.runCurrent()
                 runCurrent()
 
-                onSubscreenEditText().check(matches(isDisplayed()))
+                input().assertIsDisplayed()
                 assertEquals(
                     1,
                     activity.supportFragmentManager.fragments
@@ -390,9 +389,7 @@ class CustomStudyDialogTest : RobolectricTest() {
         assertEquals(undoStatus, col.undoStatus())
         col.redo()
         withCustomStudyFragment(argumentsDisplayingMainScreen()) {
-            onView(withText(TR.customStudyStudyByCardStateOrTag()))
-                .inRoot(isDialog())
-                .check(matches(isEnabled()))
+            compose.onNodeWithText(TR.customStudyStudyByCardStateOrTag()).assertIsEnabled()
         }
     }
 
@@ -413,9 +410,7 @@ class CustomStudyDialogTest : RobolectricTest() {
 
         col.sched.emptyFilteredDeck(filtered)
         withCustomStudyFragment(argumentsDisplayingMainScreen()) {
-            onView(withText(TR.customStudyStudyByCardStateOrTag()))
-                .inRoot(isDialog())
-                .check(matches(isEnabled()))
+            compose.onNodeWithText(TR.customStudyStudyByCardStateOrTag()).assertIsEnabled()
         }
     }
 
@@ -430,7 +425,7 @@ class CustomStudyDialogTest : RobolectricTest() {
                 assertEquals(1, col.decks.cardCount(Consts.DEFAULT_DECK_ID, includeSubdecks = true))
                 val undoStatus = col.undoStatus()
 
-                onView(withText(TR.customStudyReviewAhead())).inRoot(isDialog()).perform(click())
+                compose.onNodeWithText(TR.customStudyReviewAhead()).performClick()
                 advanceUntilIdle()
 
                 assertUnavailableMenu(fragment)
@@ -465,9 +460,7 @@ class CustomStudyDialogTest : RobolectricTest() {
         col.setDeck(listOf(addBasicNote().firstCard().id), child)
 
         withCustomStudyFragment(argumentsDisplayingMainScreen()) {
-            onView(withText(TR.customStudyStudyByCardStateOrTag()))
-                .inRoot(isDialog())
-                .check(matches(isEnabled()))
+            compose.onNodeWithText(TR.customStudyStudyByCardStateOrTag()).assertIsEnabled()
         }
     }
 
@@ -574,8 +567,7 @@ class CustomStudyDialogTest : RobolectricTest() {
                 args = argumentsDisplayingSubscreen(ContextMenuOption.EXTEND_NEW),
             ) { dialogFragment: CustomStudyDialog ->
 
-                onSubscreenEditText()
-                    .perform(replaceText(newExtendByValue.toString()))
+                input().performTextReplacement(newExtendByValue.toString())
 
                 dialogFragment.submitSubscreenData()
             }
@@ -591,8 +583,7 @@ class CustomStudyDialogTest : RobolectricTest() {
             withCustomStudyFragment(
                 args = argumentsDisplayingSubscreen(ContextMenuOption.EXTEND_NEW),
             ) {
-                onSubscreenEditText()
-                    .check(matches(withText(newExtendByValue.toString())))
+                input().assertTextContains(newExtendByValue.toString())
             }
         }
 
@@ -610,8 +601,7 @@ class CustomStudyDialogTest : RobolectricTest() {
             withCustomStudyFragment(
                 args = argumentsDisplayingSubscreen(ContextMenuOption.EXTEND_REV),
             ) { dialogFragment: CustomStudyDialog ->
-                onSubscreenEditText()
-                    .perform(replaceText(reviewExtendByValue.toString()))
+                input().performTextReplacement(reviewExtendByValue.toString())
                 dialogFragment.submitSubscreenData()
             }
 
@@ -626,8 +616,7 @@ class CustomStudyDialogTest : RobolectricTest() {
             withCustomStudyFragment(
                 args = argumentsDisplayingSubscreen(ContextMenuOption.EXTEND_REV),
             ) {
-                onSubscreenEditText()
-                    .check(matches(withText(reviewExtendByValue.toString())))
+                input().assertTextContains(reviewExtendByValue.toString())
             }
         }
 
@@ -636,10 +625,8 @@ class CustomStudyDialogTest : RobolectricTest() {
     fun `'extend limits' dialogs are titled 'Extend daily limits' and confirm with 'Increase'`() {
         listOf(ContextMenuOption.EXTEND_NEW, ContextMenuOption.EXTEND_REV).forEach { option ->
             withExtendLimitsDialog(option) { dialog ->
-                onView(withText("Extend daily limits"))
-                    .inRoot(isDialog())
-                    .check(matches(isDisplayed()))
-                assertThat("$option positive button", dialog.positiveButton.text.toString(), equalTo("Increase"))
+                compose.onNodeWithText("Extend daily limits").assertIsDisplayed()
+                dialog.assertTextContains("Increase")
             }
         }
     }
@@ -649,7 +636,11 @@ class CustomStudyDialogTest : RobolectricTest() {
     fun `'extend limits' descriptions do not mention decreasing the limit`() {
         listOf(ContextMenuOption.EXTEND_NEW, ContextMenuOption.EXTEND_REV).forEach { option ->
             withExtendLimitsDialog(option) {
-                assertThat("$option description", binding.detailsText2.text.toString(), not(containsString("decrease")))
+                assertThat(
+                    "$option description",
+                    input().fetchSemanticsNode().config[SemanticsProperties.Text].joinToString(),
+                    not(containsString("decrease")),
+                )
             }
         }
     }
@@ -661,19 +652,10 @@ class CustomStudyDialogTest : RobolectricTest() {
             ContextMenuOption.EXTEND_REV to { defaultsOfDefaultDeck.labelForReviewQueueAvailable() },
         ).forEach { (option, expectedLabel) ->
             withExtendLimitsDialog(option) {
-                val root = binding.root
-                val availableCards =
-                    assertNotNull(
-                        root.children.firstOrNull { it is TextView && it.isVisible && it.text.toString() == expectedLabel() },
-                        "$option available cards label",
-                    )
-                val input =
-                    generateSequence<View>(binding.detailsEditText2Layout) { it.parent as? View }
-                        .first { it.parent == root }
-                assertThat(
+                val label = compose.onNodeWithText(expectedLabel()).fetchSemanticsNode().boundsInRoot
+                assertTrue(
+                    label.top >= input().fetchSemanticsNode().boundsInRoot.bottom,
                     "$option available cards label is below the input",
-                    root.indexOfChild(availableCards),
-                    greaterThan(root.indexOfChild(input)),
                 )
             }
         }
@@ -683,14 +665,14 @@ class CustomStudyDialogTest : RobolectricTest() {
     fun `'extend limits' steppers change the value by 1`() {
         listOf(ContextMenuOption.EXTEND_NEW, ContextMenuOption.EXTEND_REV).forEach { option ->
             withExtendLimitsDialog(option) {
-                val initial = assertNotNull(binding.detailsEditText2.textAsIntOrNull(), "$option initial value")
+                val initial = inputText().toInt()
 
-                onStepper(CommonString.plus_sign).perform(click())
-                assertThat("$option after +", binding.detailsEditText2.text.toString(), equalTo("${initial + 1}"))
+                compose.onNodeWithText("+").performClick()
+                assertThat("$option after +", inputText(), equalTo("${initial + 1}"))
 
-                onStepper(CommonString.minus_sign).perform(click())
-                onStepper(CommonString.minus_sign).perform(click())
-                assertThat("$option after -", binding.detailsEditText2.text.toString(), equalTo("${initial - 1}"))
+                compose.onNodeWithText("−").performClick()
+                compose.onNodeWithText("−").performClick()
+                assertThat("$option after -", inputText(), equalTo("${initial - 1}"))
             }
         }
     }
@@ -698,9 +680,9 @@ class CustomStudyDialogTest : RobolectricTest() {
     @Test
     fun `'extend limits' stepper treats an empty value as 0`() {
         withExtendLimitsDialog(ContextMenuOption.EXTEND_NEW) {
-            onSubscreenEditText().perform(replaceText(""))
-            onStepper(CommonString.plus_sign).perform(click())
-            assertThat(binding.detailsEditText2.text.toString(), equalTo("1"))
+            input().performTextReplacement("")
+            compose.onNodeWithText("+").performClick()
+            assertThat(inputText(), equalTo("1"))
         }
     }
 
@@ -708,64 +690,58 @@ class CustomStudyDialogTest : RobolectricTest() {
     fun `steppers are not shown outside of 'extend limits'`() {
         withCustomStudyFragment(args = argumentsDisplayingSubscreen(ContextMenuOption.STUDY_FORGOT)) {
             shadowOf(Looper.getMainLooper()).idle()
-            onView(allOf(withContentDescription(CommonString.plus_sign), isDisplayed()))
-                .inRoot(isDialog())
-                .check(doesNotExist())
-            onView(allOf(withContentDescription(CommonString.minus_sign), isDisplayed()))
-                .inRoot(isDialog())
-                .check(doesNotExist())
+            compose.onNodeWithText("+").assertDoesNotExist()
+            compose.onNodeWithText("−").assertDoesNotExist()
         }
     }
 
     @Test
     fun `boundary values validate correctly across study modes`() {
         // STUDY_FORGOT boundary values: 0 (invalid), 1 (valid), 30 (valid), 31 (invalid)
-        withCustomStudyFragment(args = argumentsDisplayingSubscreen(ContextMenuOption.STUDY_FORGOT)) { fragment ->
-            val dialog = fragment.dialog as AlertDialog
+        withCustomStudyFragment(args = argumentsDisplayingSubscreen(ContextMenuOption.STUDY_FORGOT)) {
+            val dialog = confirmAction()
 
-            onSubscreenEditText().perform(replaceText("0"))
-            assertThat("0 in STUDY_FORGOT is disabled", dialog.positiveButton.isEnabled, equalTo(false))
+            input().performTextReplacement("0")
+            dialog.assertIsNotEnabled()
             assertThat(
                 "0 error in STUDY_FORGOT",
-                fragment.binding.detailsEditText2Layout.error
-                    ?.toString(),
+                inputError(),
                 containsString("1"),
             )
 
-            onSubscreenEditText().perform(replaceText("1"))
-            assertThat("1 in STUDY_FORGOT is enabled", dialog.positiveButton.isEnabled, equalTo(true))
-            assertThat("1 error in STUDY_FORGOT is null", fragment.binding.detailsEditText2Layout.error, nullValue())
+            input().performTextReplacement("1")
+            dialog.assertIsEnabled()
+            assertThat("1 error in STUDY_FORGOT is null", inputError(), nullValue())
 
-            onSubscreenEditText().perform(replaceText("30"))
-            assertThat("30 in STUDY_FORGOT is enabled", dialog.positiveButton.isEnabled, equalTo(true))
-            assertThat("30 error in STUDY_FORGOT is null", fragment.binding.detailsEditText2Layout.error, nullValue())
+            input().performTextReplacement("30")
+            dialog.assertIsEnabled()
+            assertThat("30 error in STUDY_FORGOT is null", inputError(), nullValue())
 
-            onSubscreenEditText().perform(replaceText("31"))
-            assertThat("31 in STUDY_FORGOT is disabled", dialog.positiveButton.isEnabled, equalTo(false))
+            input().performTextReplacement("31")
+            dialog.assertIsNotEnabled()
             assertThat(
                 "31 error in STUDY_FORGOT",
-                fragment.binding.detailsEditText2Layout.error
-                    ?.toString(),
+                inputError(),
                 containsString("30"),
             )
         }
 
         // EXTEND_NEW boundary values: -99999 (valid), 0 (invalid), 99999 (valid), 100000 (invalid)
         withExtendLimitsDialog(ContextMenuOption.EXTEND_NEW) { dialog ->
-            onSubscreenEditText().perform(replaceText("-99999"))
-            assertThat("-99999 in EXTEND_NEW is enabled", dialog.positiveButton.isEnabled, equalTo(true))
-            assertThat("-99999 error is null", binding.detailsEditText2Layout.error, nullValue())
+            input().performTextReplacement("-99999")
+            dialog.assertIsEnabled()
+            assertThat("-99999 error is null", inputError(), nullValue())
 
-            onSubscreenEditText().perform(replaceText("0"))
-            assertThat("0 in EXTEND_NEW is disabled", dialog.positiveButton.isEnabled, equalTo(false))
+            input().performTextReplacement("0")
+            dialog.assertIsNotEnabled()
 
-            onSubscreenEditText().perform(replaceText("99999"))
-            assertThat("99999 in EXTEND_NEW is enabled", dialog.positiveButton.isEnabled, equalTo(true))
-            assertThat("99999 error is null", binding.detailsEditText2Layout.error, nullValue())
+            input().performTextReplacement("99999")
+            dialog.assertIsEnabled()
+            assertThat("99999 error is null", inputError(), nullValue())
 
-            onSubscreenEditText().perform(replaceText("100000"))
-            assertThat("100000 in EXTEND_NEW is disabled", dialog.positiveButton.isEnabled, equalTo(false))
-            assertThat("100000 error in EXTEND_NEW", binding.detailsEditText2Layout.error?.toString(), containsString("99999"))
+            input().performTextReplacement("100000")
+            dialog.assertIsNotEnabled()
+            assertThat("100000 error in EXTEND_NEW", inputError(), containsString("99999"))
         }
     }
 
@@ -830,9 +806,7 @@ class CustomStudyDialogTest : RobolectricTest() {
         CollectionManager.setColForTests(mockCollectionWithSchedulerReturning(studyDefaults))
 
         withCustomStudyFragment(args = argumentsDisplayingMainScreen()) {
-            onView(withText(TR.customStudyIncreaseTodaysNewCardLimit()))
-                .inRoot(isDialog())
-                .check(matches(isEnabled()))
+            compose.onNodeWithText(TR.customStudyIncreaseTodaysNewCardLimit()).assertIsEnabled()
         }
     }
 
@@ -844,9 +818,7 @@ class CustomStudyDialogTest : RobolectricTest() {
         CollectionManager.setColForTests(mockCollectionWithSchedulerReturning(studyDefaults))
 
         withCustomStudyFragment(args = argumentsDisplayingMainScreen()) {
-            onView(withText(TR.customStudyIncreaseTodaysNewCardLimit()))
-                .inRoot(isDialog())
-                .check(matches(not(isEnabled())))
+            compose.onNodeWithText(TR.customStudyIncreaseTodaysNewCardLimit()).assertIsNotEnabled()
         }
     }
 
@@ -858,9 +830,7 @@ class CustomStudyDialogTest : RobolectricTest() {
         CollectionManager.setColForTests(mockCollectionWithSchedulerReturning(studyDefaults))
 
         withCustomStudyFragment(args = argumentsDisplayingMainScreen()) {
-            onView(withText(TR.customStudyIncreaseTodaysReviewCardLimit()))
-                .inRoot(isDialog())
-                .check(matches(isEnabled()))
+            compose.onNodeWithText(TR.customStudyIncreaseTodaysReviewCardLimit()).assertIsEnabled()
         }
     }
 
@@ -872,9 +842,7 @@ class CustomStudyDialogTest : RobolectricTest() {
         CollectionManager.setColForTests(mockCollectionWithSchedulerReturning(studyDefaults))
 
         withCustomStudyFragment(args = argumentsDisplayingMainScreen()) {
-            onView(withText(TR.customStudyIncreaseTodaysReviewCardLimit()))
-                .inRoot(isDialog())
-                .check(matches(not(isEnabled())))
+            compose.onNodeWithText(TR.customStudyIncreaseTodaysReviewCardLimit()).assertIsNotEnabled()
         }
     }
 
@@ -883,9 +851,7 @@ class CustomStudyDialogTest : RobolectricTest() {
         addBasicNote()
         withCustomStudyFragment(args = argumentsDisplayingSubscreen(ContextMenuOption.EXTEND_REV, restoreFromProcessDeath = true)) {
             // ensure we're on the main screen
-            onView(withText(TR.customStudyIncreaseTodaysReviewCardLimit()))
-                .inRoot(isDialog())
-                .check(matches(isDisplayed()))
+            compose.onNodeWithText(TR.customStudyIncreaseTodaysReviewCardLimit()).assertIsDisplayed()
         }
     }
 
@@ -898,10 +864,9 @@ class CustomStudyDialogTest : RobolectricTest() {
                 scenario.onFragment {
                     it.requireActivity().showDialogFragment(CustomStudyDialog.createInstance(Consts.DEFAULT_DECK_ID))
                 }
-                onView(withText(TR.customStudyStudyByCardStateOrTag()))
-                    .inRoot(isDialog())
-                    .perform(scrollTo(), click())
+                compose.onNodeWithText(TR.customStudyStudyByCardStateOrTag()).performScrollTo().performClick()
 
+                compose.waitForIdle()
                 scenario.recreate()
 
                 scenario.onFragment {
@@ -910,6 +875,7 @@ class CustomStudyDialogTest : RobolectricTest() {
                         Bundle().apply { putStringArrayList(RESULT_SELECTED_TAGS, arrayListOf("testTag")) },
                     )
                 }
+                advanceUntilIdle()
                 assertNotNull(col.decks.customStudySession)
             }
         }
@@ -938,14 +904,13 @@ class CustomStudyDialogTest : RobolectricTest() {
     fun `'review ahead' shows a day or days suffix`() {
         addBasicNote()
         withStudyAheadDialog {
-            val layout = binding.detailsEditText2Layout
-            assertThat("default of 1 day", layout.suffixText.toString(), equalTo("day"))
+            compose.onNodeWithText("day", useUnmergedTree = true).assertIsDisplayed()
 
-            onSubscreenEditText().perform(replaceText("2"))
-            assertThat(layout.suffixText.toString(), equalTo("days"))
+            input().performTextReplacement("2")
+            compose.onNodeWithText("days", useUnmergedTree = true).assertIsDisplayed()
 
-            onSubscreenEditText().perform(replaceText("1"))
-            assertThat(layout.suffixText.toString(), equalTo("day"))
+            input().performTextReplacement("1")
+            compose.onNodeWithText("day", useUnmergedTree = true).assertIsDisplayed()
         }
     }
 
@@ -953,14 +918,12 @@ class CustomStudyDialogTest : RobolectricTest() {
     fun `'review ahead' rejects leading zeros and more than 5 digits`() {
         addBasicNote()
         withStudyAheadDialog {
-            val editText = binding.detailsEditText2
+            input().performTextReplacement("0")
+            input().performTextInput("5")
+            assertThat("a digit typed after '0' is rejected", inputText(), equalTo("0"))
 
-            onSubscreenEditText().perform(replaceText("0"))
-            editText.append("5")
-            assertThat("a digit typed after '0' is rejected", editText.text.toString(), equalTo("0"))
-
-            onSubscreenEditText().perform(replaceText("123456"))
-            assertThat(editText.text.toString(), equalTo("12345"))
+            input().performTextReplacement("123456")
+            assertThat(inputText(), equalTo("12345"))
         }
     }
 
@@ -976,23 +939,22 @@ class CustomStudyDialogTest : RobolectricTest() {
             }
 
             withStudyAheadDialog { dialog ->
-                val layout = binding.detailsEditText2Layout
 
-                onSubscreenEditText().perform(replaceText("1"))
+                input().performTextReplacement("1")
                 shadowOf(Looper.getMainLooper()).idle()
-                assertThat("enabled when a card matches", dialog.positiveButton.isEnabled, equalTo(true))
-                assertNull(layout.error)
+                dialog.assertIsEnabled()
+                assertNull(inputError())
 
-                onSubscreenEditText().perform(replaceText("0"))
+                input().performTextReplacement("0")
                 shadowOf(Looper.getMainLooper()).idle()
-                assertThat("disabled for 0 days", dialog.positiveButton.isEnabled, equalTo(false))
+                dialog.assertIsNotEnabled()
 
                 card.update { due = col.sched.today + 30 }
 
-                onSubscreenEditText().perform(replaceText("1"))
+                input().performTextReplacement("1")
                 shadowOf(Looper.getMainLooper()).idle()
-                assertThat("disabled when nothing matches", dialog.positiveButton.isEnabled, equalTo(false))
-                assertThat(layout.error?.toString(), equalTo(TR.customStudyNoCardsMatchedTheCriteriaYou()))
+                dialog.assertIsNotEnabled()
+                assertThat(inputError(), equalTo(TR.customStudyNoCardsMatchedTheCriteriaYou()))
             }
         }
 
@@ -1010,9 +972,9 @@ class CustomStudyDialogTest : RobolectricTest() {
             addNoteDueTomorrow(deckName = "AXB")
 
             withStudyAheadDialog(deckId = deckId) { dialog ->
-                onSubscreenEditText().perform(replaceText("1"))
+                input().performTextReplacement("1")
                 shadowOf(Looper.getMainLooper()).idle()
-                assertThat("A_B has no cards due tomorrow", dialog.positiveButton.isEnabled, equalTo(false))
+                dialog.assertIsNotEnabled()
             }
         }
 
@@ -1024,9 +986,9 @@ class CustomStudyDialogTest : RobolectricTest() {
             addNoteDueTomorrow(deckName = """A\B""")
 
             withStudyAheadDialog(deckId = deckId) { dialog ->
-                onSubscreenEditText().perform(replaceText("1"))
+                input().performTextReplacement("1")
                 shadowOf(Looper.getMainLooper()).idle()
-                assertThat(dialog.positiveButton.isEnabled, equalTo(true))
+                dialog.assertIsEnabled()
             }
         }
 
@@ -1036,15 +998,13 @@ class CustomStudyDialogTest : RobolectricTest() {
         runTest {
             addBasicNote()
             withStudyAheadDialog {
-                val layout = binding.detailsEditText2Layout
-
-                onSubscreenEditText().perform(replaceText("0"))
+                input().performTextReplacement("0")
                 shadowOf(Looper.getMainLooper()).idle()
-                assertThat(layout.error?.toString(), equalTo("Minimum value is 1"))
+                assertThat(inputError(), equalTo("Minimum value is 1"))
 
-                onSubscreenEditText().perform(replaceText(""))
+                input().performTextReplacement("")
                 shadowOf(Looper.getMainLooper()).idle()
-                assertNull(layout.error, "an empty field is not an error yet")
+                assertNull(inputError(), "an empty field is not an error yet")
             }
         }
 
@@ -1059,15 +1019,15 @@ class CustomStudyDialogTest : RobolectricTest() {
             }
 
             withStudyAheadDialog { dialog ->
-                assertThat("nothing to review ahead", dialog.positiveButton.isEnabled, equalTo(false))
-                assertThat(binding.detailsEditText2Layout.error?.toString(), equalTo(TR.customStudyNoCardsMatchedTheCriteriaYou()))
+                dialog.assertIsNotEnabled()
+                assertThat(inputError(), equalTo(TR.customStudyNoCardsMatchedTheCriteriaYou()))
             }
         }
 
     @Test
     fun `typed value is kept after a dialog on top closes - issue 22731`() =
         withTypedInputCoveredByAnotherDialog(ContextMenuOption.EXTEND_NEW, typed = "7") {
-            onSubscreenEditText().check(matches(withText("7")))
+            input().assertTextContains("7")
         }
 
     @Test
@@ -1079,13 +1039,9 @@ class CustomStudyDialogTest : RobolectricTest() {
             )
 
             withStudyPreviewDialog { dialog ->
+                dialog.assertIsNotEnabled()
                 assertThat(
-                    "disabled on open when nothing matches",
-                    dialog.positiveButton.isEnabled,
-                    equalTo(false),
-                )
-                assertThat(
-                    binding.detailsEditText2Layout.error?.toString(),
+                    inputError(),
                     equalTo(TR.customStudyNoCardsMatchedTheCriteriaYou()),
                 )
             }
@@ -1095,21 +1051,20 @@ class CustomStudyDialogTest : RobolectricTest() {
     @Config(qualifiers = "en")
     fun `'review ahead' suffix matches the typed value after a dialog on top closes`() =
         withTypedInputCoveredByAnotherDialog(ContextMenuOption.STUDY_AHEAD, typed = "2") {
-            assertThat(binding.detailsEditText2Layout.suffixText.toString(), equalTo("days"))
+            compose.onNodeWithText("days", useUnmergedTree = true).assertIsDisplayed()
         }
 
     @Test
     @Config(qualifiers = "en")
     fun `'preview' shows a day or days suffix`() {
         withStudyPreviewDialog {
-            val layout = binding.detailsEditText2Layout
-            assertThat("default of 1 day", layout.suffixText.toString(), equalTo("day"))
+            compose.onNodeWithText("day", useUnmergedTree = true).assertIsDisplayed()
 
-            onSubscreenEditText().perform(replaceText("2"))
-            assertThat(layout.suffixText.toString(), equalTo("days"))
+            input().performTextReplacement("2")
+            compose.onNodeWithText("days", useUnmergedTree = true).assertIsDisplayed()
 
-            onSubscreenEditText().perform(replaceText("1"))
-            assertThat(layout.suffixText.toString(), equalTo("day"))
+            input().performTextReplacement("1")
+            compose.onNodeWithText("day", useUnmergedTree = true).assertIsDisplayed()
         }
     }
 
@@ -1117,17 +1072,31 @@ class CustomStudyDialogTest : RobolectricTest() {
     @Config(qualifiers = "en")
     fun `'preview' positive button text is 'Create'`() {
         withStudyPreviewDialog { dialog ->
-            assertThat(dialog.positiveButton.text.toString(), equalTo("Create"))
+            dialog.assertTextContains("Create")
         }
     }
 
     @Test
     fun `'preview' and 'review ahead' hide the empty first label`() {
         withStudyPreviewDialog {
-            assertThat("preview", binding.detailsText1.isVisible, equalTo(false))
+            assertThat(
+                "preview",
+                compose.onAllNodes(hasText(""), useUnmergedTree = true).fetchSemanticsNodes().any {
+                    SemanticsProperties.EditableText !in
+                        it.config
+                },
+                equalTo(false),
+            )
         }
         withStudyAheadDialog {
-            assertThat("review ahead", binding.detailsText1.isVisible, equalTo(false))
+            assertThat(
+                "review ahead",
+                compose.onAllNodes(hasText(""), useUnmergedTree = true).fetchSemanticsNodes().any {
+                    SemanticsProperties.EditableText !in
+                        it.config
+                },
+                equalTo(false),
+            )
         }
     }
 
@@ -1137,14 +1106,14 @@ class CustomStudyDialogTest : RobolectricTest() {
             addBasicNote()
 
             withStudyPreviewDialog { dialog ->
-                onSubscreenEditText().perform(replaceText("1"))
+                input().performTextReplacement("1")
                 shadowOf(Looper.getMainLooper()).idle()
-                assertThat("enabled for a recently added card", dialog.positiveButton.isEnabled, equalTo(true))
-                assertThat(binding.detailsEditText2Layout.error, nullValue())
+                dialog.assertIsEnabled()
+                assertThat(inputError(), nullValue())
 
-                onSubscreenEditText().perform(replaceText("0"))
+                input().performTextReplacement("0")
                 shadowOf(Looper.getMainLooper()).idle()
-                assertThat("disabled for 0 days", dialog.positiveButton.isEnabled, equalTo(false))
+                dialog.assertIsNotEnabled()
             }
         }
 
@@ -1158,7 +1127,7 @@ class CustomStudyDialogTest : RobolectricTest() {
             }
 
             withStudyAheadDialog { dialog ->
-                assertThat("review-ahead: disabled when nothing matches", dialog.positiveButton.isEnabled, equalTo(false))
+                dialog.assertIsNotEnabled()
             }
         }
 
@@ -1181,8 +1150,15 @@ class CustomStudyDialogTest : RobolectricTest() {
         createHostActivity().use { controller ->
             val fragment = CustomStudyDialog().apply { arguments = args }
             controller.get().showDialogFragment(fragment)
+            compose.waitForIdle()
             val start = System.nanoTime()
-            while (fragment.dialog?.findViewById<View>(R.id.progress_bar)?.isVisible == true) {
+            while (fragment.dialog?.isShowing == true &&
+                compose
+                    .onAllNodes(
+                        SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo),
+                    ).fetchSemanticsNodes()
+                    .isNotEmpty()
+            ) {
                 check(System.nanoTime() - start < TimeUnit.SECONDS.toNanos(10)) { "Custom Study did not finish loading" }
                 Thread.sleep(10)
                 shadowOf(Looper.getMainLooper()).idleFor(16, TimeUnit.MILLISECONDS)
@@ -1195,10 +1171,10 @@ class CustomStudyDialogTest : RobolectricTest() {
     /** Opens the 'review ahead' subscreen for [deckId] and runs [block] once the dialog is shown and its buttons exist */
     private fun withStudyAheadDialog(
         deckId: DeckId = Consts.DEFAULT_DECK_ID,
-        block: CustomStudyDialog.(dialog: AlertDialog) -> Unit,
+        block: CustomStudyDialog.(dialog: androidx.compose.ui.test.SemanticsNodeInteraction) -> Unit,
     ) = withCustomStudyFragment(args = argumentsDisplayingSubscreen(ContextMenuOption.STUDY_AHEAD, deckId = deckId)) { fragment ->
         shadowOf(Looper.getMainLooper()).idle()
-        fragment.block(fragment.dialog as AlertDialog)
+        fragment.block(confirmAction())
     }
 
     private fun withTypedInputCoveredByAnotherDialog(
@@ -1212,7 +1188,8 @@ class CustomStudyDialogTest : RobolectricTest() {
             controller.get().setTheme(CommonR.style.Base_Theme_Light)
             val activity = controller.setup().get()
             activity.showDialogFragment(customStudy)
-            onSubscreenEditText().perform(replaceText(typed))
+            input().performTextReplacement(typed)
+            input().assertTextContains(typed)
 
             val dialogOnTop = DialogFragment()
             activity.showDialogFragment(dialogOnTop)
@@ -1227,22 +1204,22 @@ class CustomStudyDialogTest : RobolectricTest() {
     /** Opens the 'preview' subscreen for [deckId] and runs [block] once the dialog is shown */
     private fun withStudyPreviewDialog(
         deckId: DeckId = Consts.DEFAULT_DECK_ID,
-        block: CustomStudyDialog.(dialog: AlertDialog) -> Unit,
+        block: CustomStudyDialog.(dialog: androidx.compose.ui.test.SemanticsNodeInteraction) -> Unit,
     ) = withCustomStudyFragment(args = argumentsDisplayingSubscreen(ContextMenuOption.STUDY_PREVIEW, deckId = deckId)) { fragment ->
         shadowOf(Looper.getMainLooper()).idle()
-        fragment.block(fragment.dialog as AlertDialog)
+        fragment.block(confirmAction())
     }
 
     private fun withExtendLimitsDialog(
         option: ContextMenuOption,
-        block: CustomStudyDialog.(dialog: AlertDialog) -> Unit,
+        block: CustomStudyDialog.(dialog: androidx.compose.ui.test.SemanticsNodeInteraction) -> Unit,
     ) {
         // Main dismisses custom study when the deck is empty. These dialogs need a card so the
         // subscreen is shown instead of the empty-deck snackbar.
         addBasicNote()
         withCustomStudyFragment(args = argumentsDisplayingSubscreen(option)) { fragment ->
             shadowOf(Looper.getMainLooper()).idle()
-            fragment.block(fragment.dialog as AlertDialog)
+            fragment.block(confirmAction())
         }
     }
 
@@ -1289,9 +1266,20 @@ class CustomStudyDialogTest : RobolectricTest() {
                 ).arguments,
         )
 
-    private fun onSubscreenEditText() =
-        onView(withId(R.id.details_edit_text_2))
-            .inRoot(isDialog())
+    private fun input() = compose.onNode(hasSetTextAction())
+
+    private fun inputText() = input().fetchSemanticsNode().config[SemanticsProperties.EditableText].text
+
+    private fun inputError() = input().fetchSemanticsNode().config.getOrNull(SemanticsProperties.Error)
+
+    private fun confirmAction() =
+        compose.onNode(
+            hasText(targetContext.getString(CommonString.dialog_positive_create)) or
+                hasText(targetContext.getString(CommonString.custom_study_increase)) or
+                hasText(targetContext.getString(CommonString.dialog_ok)),
+        )
+
+    private fun progress() = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
 
     private fun createHostActivity() =
         Robolectric.buildActivity(EmptyAnkiActivity::class.java).setup().apply {
@@ -1300,20 +1288,14 @@ class CustomStudyDialogTest : RobolectricTest() {
         }
 
     private fun assertUnavailableMenu(fragment: CustomStudyDialog) {
+        compose.waitForIdle()
         shadowOf(Looper.getMainLooper()).idleFor(300, TimeUnit.MILLISECONDS)
         assertFalse(fragment.dialog?.isShowing == true)
         onView(withId(com.google.android.material.R.id.snackbar_text))
             .check(matches(allOf(isDisplayed(), withText(CommonString.empty_deck))))
     }
 
-    private fun onStepper(contentDescription: Int) =
-        onView(withContentDescription(contentDescription))
-            .inRoot(isDialog())
-
-    private fun CustomStudyDialog.submitSubscreenData() =
-        assertNotNull(dialog as? AlertDialog?, "dialog").also { dialog ->
-            dialog.performPositiveClick()
-        }
+    private fun CustomStudyDialog.submitSubscreenData() = confirmAction().performClick()
 
     /** Set the card state to [state] and also verify the selection in the fragment's ViewModel */
     private fun CustomStudyDialog.setCardStateSelectionTo(state: CustomStudyDialog.CustomStudyCardState) {
@@ -1324,12 +1306,11 @@ class CustomStudyDialogTest : RobolectricTest() {
                 lessThan(CustomStudyDialog.CustomStudyCardState.entries.size),
             ),
         )
-        // can't use MaterialAutoCompleteTextView.listSelection as the popup is closed and updates
-        // to 'listSelection' are ignored so we trigger the listener directly with dummy data but a
-        // correct position(what we actually use in the listener)
-        val adapterView = ListView(targetContext) // dummy view, fills AdapterView first param requirement
-        binding.cardsStateSelector.onItemClickListener
-            .onItemClick(adapterView, adapterView, state.ordinal, 1)
+        compose
+            .onNodeWithText(
+                CustomStudyDialog.CustomStudyCardState.entries[viewModel.selectedCardStateIndex].labelProducer(),
+            ).performClick()
+        compose.onNodeWithText(state.labelProducer()).performClick()
         assertThat(viewModel.selectedCardStateIndex, equalTo(state.ordinal))
     }
 

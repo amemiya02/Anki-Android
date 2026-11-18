@@ -3,25 +3,14 @@
 
 package com.ichi2.anki.dialogs.customstudy
 
-import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.res.Resources
 import android.os.Bundle
 import android.os.Parcelable
-import android.text.InputFilter
-import android.util.TypedValue
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.WindowManager
-import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.FrameLayout
-import android.widget.TextView
 import androidx.activity.compose.BackHandler
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.Companion.PRIVATE
-import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -29,7 +18,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -42,15 +30,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.content.edit
-import androidx.core.view.isVisible
-import androidx.core.view.updatePadding
-import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withResumed
 import anki.scheduler.CustomStudyDefaultsResponse
@@ -63,15 +52,10 @@ import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonPlurals
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.R
 import com.ichi2.anki.analytics.AnalyticsDialogFragment
 import com.ichi2.anki.asyncIO
 import com.ichi2.anki.browser.search.CardState
-import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.preferences.sharedPrefs
-import com.ichi2.anki.common.utils.dp
-import com.ichi2.anki.databinding.DialogCustomStudyMenuBinding
-import com.ichi2.anki.databinding.FragmentCustomStudyBinding
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.ContextMenuOption.EXTEND_NEW
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.ContextMenuOption.EXTEND_REV
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.ContextMenuOption.STUDY_AHEAD
@@ -101,17 +85,9 @@ import com.ichi2.compose.ui.dialogs.PaperDialog
 import com.ichi2.compose.ui.dialogs.ProgressDialog
 import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
 import com.ichi2.compose.ui.dialogs.createPaperDialog
-import com.ichi2.utils.NonLeadingZeroInputFilter
 import com.ichi2.utils.coMeasureTime
-import com.ichi2.utils.customView
-import com.ichi2.utils.moveCursorToEnd
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.textAsIntOrNull
 import com.ichi2.utils.title
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import net.ankiweb.rsdroid.BackendException
 import timber.log.Timber
@@ -148,9 +124,6 @@ import timber.log.Timber
  */
 class CustomStudyDialog : AnalyticsDialogFragment() {
     @VisibleForTesting(otherwise = PRIVATE)
-    lateinit var binding: FragmentCustomStudyBinding
-
-    @VisibleForTesting(otherwise = PRIVATE)
     val viewModel by viewModels<CustomStudyViewModel>()
 
     /**
@@ -160,13 +133,8 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
     private val selectedSubDialog: ContextMenuOption?
         get() = requireArguments().getIntOrNull(ARG_SUB_DIALOG_ID)?.let { ContextMenuOption.entries[it] }
 
-    private val usePaperDialog get() = requireArguments().getBoolean(ARG_USE_PAPER_DIALOG)
-
     private val userInputValue: Int?
-        get() = if (usePaperDialog) viewModel.userInputText?.toIntOrNull() else binding.detailsEditText2.textAsIntOrNull()
-
-    /** The search for cards to review ahead. Cancelled when the input changes, so only the latest input counts */
-    private var searchJob: Job? = null
+        get() = viewModel.userInputText?.toIntOrNull()
 
     /** Whether a menu availability check or transition is already in progress. */
     private var menuSelectionInProgress = false
@@ -177,6 +145,9 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val option = selectedSubDialog ?: return
+        if (option == STUDY_TAGS && viewModel.selectedCardStateIndex == AdapterView.INVALID_POSITION) {
+            viewModel.selectedCardStateIndex = 0
+        }
         parentFragmentManager.setFragmentResultListener(REQUEST_SELECT_TAGS, this) { _, bundle ->
             val tagsToInclude = bundle.getStringArrayList(RESULT_SELECTED_TAGS) ?: emptyList<String>()
             val selectedCardStateIndex = viewModel.selectedCardStateIndex
@@ -237,13 +208,13 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
             Timber.i("Showing Custom Study main menu")
             val initialization = loadInitialization()
             deferredInitialization = initialization
-            if (usePaperDialog) buildPaperContextMenu(initialization) else buildContextMenu(initialization)
+            buildContextMenu(initialization)
         } else {
             Timber.i("Showing Custom Study dialog: $option")
             if (ready?.deckId == viewModel.deckId) {
                 defaults = ready.defaults
             }
-            if (usePaperDialog) buildPaperInputDialog(option) else buildInputDialog(option)
+            buildInputDialog(option)
         }
     }
 
@@ -281,19 +252,16 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
                 return
             }
 
-            val dialog: CustomStudyDialog = createSubDialog(viewModel.deckId, item, usePaperDialog = usePaperDialog)
+            val dialog: CustomStudyDialog = createSubDialog(viewModel.deckId, item)
             requireActivity().showDialogFragment(dialog)
         } finally {
             menuSelectionInProgress = false
         }
     }
 
-    private fun buildPaperContextMenu(initialization: Deferred<CustomStudyInitialization>): Dialog =
+    private fun buildContextMenu(initialization: Deferred<CustomStudyInitialization>): Dialog =
         createPaperDialog(requireContext()) { dialog ->
             var state by remember { mutableStateOf<CustomStudyInitialization>(CustomStudyInitialization.Loading) }
-            DisposableEffect(initialization) {
-                onDispose { if (!initialization.isCompleted) initialization.cancel() }
-            }
             LaunchedEffect(initialization) { state = initialization.await() }
             when (val current = state) {
                 CustomStudyInitialization.Loading ->
@@ -329,14 +297,23 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
                         onDismissRequest = ::dismiss,
                     )
             }
+        }.also { dialog ->
+            // Native dismissal stops the window before FragmentManager delivers onDismiss.
+            dialog.lifecycle.addObserver(
+                object : DefaultLifecycleObserver {
+                    override fun onStop(owner: LifecycleOwner) {
+                        initialization.cancel()
+                    }
+                },
+            )
         }
 
-    private fun buildPaperInputDialog(option: ContextMenuOption): Dialog = createPaperDialog(requireContext()) { StudyInputContent(option) }
+    private fun buildInputDialog(option: ContextMenuOption): Dialog = createPaperDialog(requireContext()) { StudyInputContent(option) }
 
     @Composable
     private fun StudyInputContent(option: ContextMenuOption) {
         val initial = viewModel.userInputText ?: defaultValue
-        var input by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        var input by remember {
             mutableStateOf(TextFieldValue(initial, selection = TextRange(0, initial.length)))
         }
         var selectedState by rememberSaveable {
@@ -381,9 +358,6 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
             )
             return
         }
-        LaunchedEffect(Unit) {
-            if (option == STUDY_TAGS) viewModel.selectedCardStateIndex = selectedState
-        }
 
         val confirmLabel =
             when {
@@ -413,8 +387,7 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
                     DialogAction(confirmLabel, ::submit, DialogActionStyle.Filled, enabled = canSubmit && !submitted),
                 ),
         ) {
-            if (text1.isNotEmpty()) DialogDetail(text1)
-            val error =
+            val validationError =
                 when {
                     input.text.isEmpty() || input.text == "-" -> null
                     value == null || value > range.last -> getString(CommonString.maximum_value_is, range.last)
@@ -434,13 +407,25 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
                     onValueChange = { edited ->
                         val proposed = edited.text
                         val digits = if (extends) proposed.removePrefix("-") else proposed
-                        val validDayInput = !days || (digits.length <= 5 && !digits.startsWith('0'))
-                        if (digits.all { it in '0'..'9' } && validDayInput) {
+                        if (!digits.all { it in '0'..'9' }) return@OutlinedTextField
+                        if (days && digits.length > 1 && digits.startsWith('0')) return@OutlinedTextField
+                        if (days && digits.length > 5) {
+                            // Keep digits outside the edited range when a paste exceeds the field limit.
+                            val prefix = input.text.commonPrefixWith(proposed)
+                            val suffix =
+                                input.text
+                                    .drop(prefix.length)
+                                    .commonSuffixWith(proposed.drop(prefix.length))
+                                    .takeLast(5)
+                            val end = 5 - suffix.length
+                            val limited = proposed.take(end) + suffix
+                            updateInput(TextFieldValue(limited, selection = TextRange(end)))
+                        } else {
                             updateInput(edited)
                         }
                     },
                     label = { Text(text2) },
-                    supportingText = { if (error != null) Text(error) },
+                    supportingText = { if (validationError != null) Text(validationError) },
                     suffix =
                         if (days) {
                             (
@@ -453,7 +438,7 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
                         } else {
                             null
                         },
-                    isError = error != null,
+                    isError = validationError != null,
                     singleLine = true,
                     keyboardOptions =
                         KeyboardOptions(
@@ -461,7 +446,10 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
                             imeAction = ImeAction.Done,
                         ),
                     keyboardActions = KeyboardActions(onDone = { submit() }),
-                    modifier = Modifier.weight(1f).focusRequester(focus),
+                    modifier =
+                        Modifier.weight(1f).focusRequester(focus).semantics {
+                            if (validationError != null) error(validationError)
+                        },
                 )
                 if (extends) {
                     TextButton(onClick = {
@@ -470,6 +458,7 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
                     }) { Text("+") }
                 }
             }
+            if (text1.isNotEmpty()) DialogDetail(text1)
             if (option == STUDY_TAGS) {
                 DialogChoiceRow(DialogChoice(options[selectedState]), checked = true, onClick = { selectingState = true }, multiple = false)
             }
@@ -478,244 +467,6 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
                 keyboard?.show()
             }
         }
-    }
-
-    private fun buildContextMenu(initialization: Deferred<CustomStudyInitialization>): AlertDialog {
-        val dialog =
-            object : AlertDialog(requireActivity()) {
-                override fun onStop() {
-                    // Native dismissal happens before DialogFragment receives its queued callback.
-                    initialization.cancel()
-                    super.onStop()
-                }
-            }
-        val inflater = LayoutInflater.from(dialog.context)
-        val menuBinding = DialogCustomStudyMenuBinding.inflate(inflater)
-        val container = menuBinding.menuItems
-        dialog.setTitle(TR.sentenceCase.customStudy)
-        dialog.setCancelable(true)
-        dialog.setCanceledOnTouchOutside(true)
-        dialog.setView(
-            FrameLayout(dialog.context).apply {
-                addView(
-                    menuBinding.root,
-                    FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.WRAP_CONTENT,
-                    ),
-                )
-            },
-        )
-
-        val ta = TypedValue()
-        dialog.context.theme.resolveAttribute(android.R.attr.selectableItemBackground, ta, true)
-
-        fun buildMenuItems(
-            defaults: CustomStudyDefaults,
-            onEmptyDeck: () -> Unit,
-        ) {
-            ContextMenuOption.entries
-                .map { option ->
-                    Pair(
-                        option,
-                        option.checkAvailability?.invoke(defaults) != false,
-                    )
-                }.forEach { (menuItem, isItemEnabled) ->
-                    (inflater.inflate(android.R.layout.simple_list_item_1, container, false) as TextView)
-                        .apply {
-                            updatePadding(
-                                top = 12.dp.toPx(requireContext()),
-                                bottom = 12.dp.toPx(requireContext()),
-                            )
-                            text = menuItem.getTitle(requireContext().resources)
-                            isEnabled = isItemEnabled
-                            setBackgroundResource(ta.resourceId)
-                            setTextAppearance(android.R.style.TextAppearance_Material_Body1)
-                            setOnClickListener {
-                                launchCatchingTask {
-                                    onMenuItemSelected(dialog, menuItem, defaults, onEmptyDeck)
-                                }
-                            }
-                        }.also { container.addView(it) }
-                }
-        }
-
-        fun render(state: CustomStudyInitialization) {
-            container.removeAllViews()
-            menuBinding.progressBar.isVisible = state is CustomStudyInitialization.Loading
-            menuBinding.menuItems.isVisible = state is CustomStudyInitialization.Ready
-            when (state) {
-                CustomStudyInitialization.Loading -> Unit
-                CustomStudyInitialization.Empty ->
-                    lifecycleScope.launch {
-                        lifecycle.withResumed {
-                            val host = activity ?: return@withResumed
-                            if (!dialog.isShowing || host.isFinishing || parentFragmentManager.isStateSaved) return@withResumed
-                            dismiss()
-                            host.showSnackbar(CommonString.empty_deck)
-                        }
-                    }
-                is CustomStudyInitialization.Ready -> buildMenuItems(state.defaults) { render(CustomStudyInitialization.Empty) }
-            }
-        }
-
-        render(CustomStudyInitialization.Loading)
-        dialog.setOnShowListener {
-            if (!isAdded) return@setOnShowListener
-            launchCatchingTask {
-                render(initialization.await())
-            }
-        }
-
-        return dialog
-    }
-
-    /**
-     * Build an input dialog that is used to get a parameter related to custom study from the user
-     * @param contextMenuOption the option of the dialog
-     */
-    @NeedsTest("17757: fragment not dismissed before result is output")
-    private fun buildInputDialog(contextMenuOption: ContextMenuOption): AlertDialog {
-        /*
-            TODO: Try to change to a standard input dialog (currently the thing holding us back is having the extra
-            TODO: hint line for the number of cards available, and having the pre-filled text selected by default)
-         */
-        // Input dialogs
-        // Show input dialog for an individual custom study dialog
-        @SuppressLint("InflateParams")
-        binding = FragmentCustomStudyBinding.inflate(requireActivity().layoutInflater)
-
-        val isExtendLimits = contextMenuOption == EXTEND_NEW || contextMenuOption == EXTEND_REV
-        // 'review ahead' has a dialog title, so the empty label would only add a blank line
-        binding.detailsText1.isVisible =
-            contextMenuOption != STUDY_AHEAD &&
-            contextMenuOption != STUDY_PREVIEW &&
-            !isExtendLimits
-        binding.detailsText2.text = text2
-        binding.detailsAvailableCards.text = text1
-        binding.detailsAvailableCards.isVisible = isExtendLimits
-        binding.detailsDecrementButton.isVisible = isExtendLimits
-        binding.detailsIncrementButton.isVisible = isExtendLimits
-        binding.detailsDecrementButton.setOnClickListener { stepUserInputValue(-1) }
-        binding.detailsIncrementButton.setOnClickListener { stepUserInputValue(1) }
-
-        binding.cardsStateSelectorLayout.isVisible = contextMenuOption == STUDY_TAGS
-        binding.cardsStateSelector.apply {
-            fun setAdapterAndSelection(
-                entries: List<String>,
-                selectedIndex: Int,
-            ) {
-                setAdapter(
-                    ArrayAdapter(
-                        requireActivity(),
-                        R.layout.item_multiline_spinner,
-                        entries,
-                    ).apply { setDropDownViewResource(R.layout.item_multiline_spinner) },
-                )
-                setText(entries[selectedIndex], false)
-            }
-            val cardStates = CustomStudyCardState.entries.map { it.labelProducer() }
-            onItemClickListener =
-                AdapterView.OnItemClickListener { _, _, position, _ ->
-                    viewModel.selectedCardStateIndex = position
-                    setAdapterAndSelection(cardStates, viewModel.selectedCardStateIndex)
-                }
-            // set the first item as automatically selected if we don't already have a valid
-            // position stored in the ViewModel
-            if (viewModel.selectedCardStateIndex == AdapterView.INVALID_POSITION) {
-                viewModel.selectedCardStateIndex = 0
-            }
-            setAdapterAndSelection(cardStates, viewModel.selectedCardStateIndex)
-        }
-        binding.detailsEditText2.apply {
-            setText(viewModel.userInputText ?: defaultValue)
-            // Give EditText focus and show keyboard
-            setSelectAllOnFocus(true)
-            requestFocus()
-            // a user may enter a negative value when extending limits
-            if (isExtendLimits) {
-                inputType = EditorInfo.TYPE_CLASS_NUMBER or EditorInfo.TYPE_NUMBER_FLAG_SIGNED
-                gravity = Gravity.CENTER
-            }
-            if (contextMenuOption == STUDY_AHEAD || contextMenuOption == STUDY_PREVIEW) {
-                inputType = EditorInfo.TYPE_CLASS_NUMBER
-                filters += arrayOf(InputFilter.LengthFilter(5), NonLeadingZeroInputFilter)
-                setSuffixText(userInputValue ?: defaultValue.toInt())
-            }
-        }
-        val positiveBtnLabel =
-            if (contextMenuOption == STUDY_TAGS) {
-                TR.sentenceCase.chooseTags
-            } else if (contextMenuOption == STUDY_AHEAD || contextMenuOption == STUDY_PREVIEW) {
-                getString(CommonString.dialog_positive_create)
-            } else if (isExtendLimits) {
-                getString(CommonString.custom_study_increase)
-            } else {
-                getString(CommonString.dialog_ok)
-            }
-
-        // Set material dialog parameters
-        @Suppress("RedundantValueArgument") // click = null
-        val horizontalPadding = 32.dp.toPx(requireContext())
-        val verticalPadding = 16.dp.toPx(requireContext())
-        val dialog =
-            AlertDialog
-                .Builder(requireActivity())
-                .apply {
-                    if (contextMenuOption == STUDY_AHEAD || contextMenuOption == STUDY_PREVIEW) {
-                        title(text = contextMenuOption.getTitle(resources))
-                    } else if (isExtendLimits) {
-                        title(text = getString(CommonString.custom_study_extend_limits_title))
-                    }
-                }.customView(
-                    view = binding.root,
-                    paddingStart = horizontalPadding,
-                    paddingEnd = horizontalPadding,
-                    paddingTop = verticalPadding,
-                    paddingBottom = verticalPadding,
-                ).positiveButton(text = positiveBtnLabel, click = null)
-                .negativeButton(CommonString.dialog_cancel) {
-                    requireActivity().dismissAllDialogFragments()
-                }.create()
-
-        var allowSubmit = true
-        // we set the listener here so 'ok' doesn't immediately close the dialog.
-        // if it did, we would not have had time to execute the method, and would not be
-        // able to output a fragment result
-        dialog.setOnShowListener {
-            dialog.positiveButton.setOnClickListener {
-                // prevent race conditions
-                if (!allowSubmit) return@setOnClickListener
-                allowSubmit = false
-
-                // Get the value selected by user
-                val n =
-                    userInputValue ?: run {
-                        Timber.w("Non-numeric user input was provided")
-                        Timber.d("value: %s", binding.detailsEditText2.text.toString())
-                        allowSubmit = true
-                        return@setOnClickListener
-                    }
-                if (contextMenuOption == STUDY_TAGS) {
-                    // mark allowSubmit as true because, if the user cancels TagsDialog, when
-                    // we come back we wouldn't be able to trigger again TagsDialog
-                    allowSubmit = true
-                    chooseTags(contextMenuOption, n)
-                    return@setOnClickListener
-                }
-                launchCustomStudy(contextMenuOption, n)
-            }
-            validateInput(dialog, contextMenuOption)
-        }
-
-        binding.detailsEditText2.doAfterTextChanged {
-            viewModel.userInputText = it?.toString()
-            validateInput(dialog, contextMenuOption)
-        }
-
-        // Show soft keyboard
-        dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
-        return dialog
     }
 
     private fun chooseTags(
@@ -756,45 +507,6 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
         }
     }
 
-    private fun validateInput(
-        dialog: AlertDialog,
-        contextMenuOption: ContextMenuOption,
-    ) {
-        val rawText = binding.detailsEditText2.text?.toString() ?: ""
-        val value = userInputValue
-        val range = contextMenuOption.validRange
-
-        if (contextMenuOption == STUDY_AHEAD || contextMenuOption == STUDY_PREVIEW) {
-            value?.let { setSuffixText(it) }
-            searchJob?.cancel()
-            searchJob = launchCatchingTask { updateCreateButtonState(dialog, value) }
-            return
-        }
-
-        val isValid = value != null && value != 0 && value in range
-        dialog.positiveButton.isEnabled = isValid
-
-        binding.detailsEditText2Layout.error =
-            when {
-                rawText.isEmpty() || rawText == "-" -> null
-                value == null || value > range.last -> getString(CommonString.maximum_value_is, range.last)
-                value < range.first -> getString(CommonString.minimum_value_is, range.first)
-                else -> null
-            }
-    }
-
-    /** Sets the suffix of the days input: `[1] day`, `[3] days` */
-    private fun setSuffixText(days: Int) {
-        binding.detailsEditText2Layout.suffixText = resources.getQuantityString(CommonPlurals.set_due_date_label_suffix, days)
-    }
-
-    private fun stepUserInputValue(delta: Int) {
-        val range = selectedSubDialog?.validRange ?: return
-        val newValue = ((userInputValue ?: 0) + delta).coerceIn(range)
-        binding.detailsEditText2.setText(newValue.toString())
-        binding.detailsEditText2.moveCursorToEnd()
-    }
-
     /**
      * Whether there are new cards added within [days] days in the deck for previewing.
      *
@@ -811,33 +523,6 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
                 )
             findCards(buildSearchString(search)).isNotEmpty()
         }
-
-    /** Enables 'Create' only if some cards would be reviewed ahead/previewed by [days] */
-    private suspend fun updateCreateButtonState(
-        dialog: AlertDialog,
-        days: Int?,
-    ) {
-        val range = selectedSubDialog?.validRange ?: ContextMenuOption.STUDY_AHEAD.validRange
-        val rawText = binding.detailsEditText2.text?.toString() ?: ""
-        if (days == null || days !in range) {
-            binding.detailsEditText2Layout.error =
-                when {
-                    rawText.isEmpty() -> null
-                    days == null || days > range.last -> getString(CommonString.maximum_value_is, range.last)
-                    days < range.first -> getString(CommonString.minimum_value_is, range.first)
-                    else -> null
-                }
-            dialog.positiveButton.isEnabled = false
-            return
-        }
-        val hasCards =
-            when (selectedSubDialog) {
-                STUDY_PREVIEW -> hasPreviewCards(days)
-                else -> hasCardsDueWithin(days)
-            }
-        binding.detailsEditText2Layout.error = if (hasCards) null else TR.customStudyNoCardsMatchedTheCriteriaYou()
-        dialog.positiveButton.isEnabled = hasCards
-    }
 
     /** Whether the deck has cards due in the next [days] days, as 'review ahead' would select them */
     private suspend fun hasCardsDueWithin(days: Int): Boolean =
@@ -1164,15 +849,11 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
         /**
          * Creates an instance of the Custom Study Dialog: a user can select a custom study type
          */
-        fun createInstance(
-            deckId: DeckId,
-            usePaperDialog: Boolean = false,
-        ): CustomStudyDialog =
+        fun createInstance(deckId: DeckId): CustomStudyDialog =
             CustomStudyDialog().apply {
                 arguments =
                     Bundle().apply {
                         putLong(CustomStudyViewModel.ARG_DECK_ID, deckId)
-                        putBoolean(ARG_USE_PAPER_DIALOG, usePaperDialog)
                     }
             }
 
@@ -1185,13 +866,11 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
         fun createSubDialog(
             deckId: DeckId,
             contextMenuAttribute: ContextMenuOption,
-            usePaperDialog: Boolean = false,
         ): CustomStudyDialog =
             CustomStudyDialog().apply {
                 arguments =
                     Bundle().apply {
                         putLong(CustomStudyViewModel.ARG_DECK_ID, deckId)
-                        putBoolean(ARG_USE_PAPER_DIALOG, usePaperDialog)
                         putInt(ARG_SUB_DIALOG_ID, contextMenuAttribute.ordinal)
                     }
             }
@@ -1203,6 +882,5 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
          * @see CustomStudyDialog.selectedSubDialog
          */
         private const val ARG_SUB_DIALOG_ID = "subDialogId"
-        private const val ARG_USE_PAPER_DIALOG = "usePaperDialog"
     }
 }

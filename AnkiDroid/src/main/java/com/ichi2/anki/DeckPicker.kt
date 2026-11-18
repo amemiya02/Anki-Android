@@ -1078,7 +1078,7 @@ open class DeckPicker :
             }
             DeckPickerContextMenuOption.CUSTOM_STUDY -> {
                 Timber.i("ContextMenu: Custom study option selected")
-                showDialogFragment(CustomStudyDialog.createInstance(deckId, usePaperDialog = true))
+                showDialogFragment(CustomStudyDialog.createInstance(deckId))
             }
             DeckPickerContextMenuOption.CREATE_SHORTCUT -> {
                 Timber.i("ContextMenu: Create icon for a deck")

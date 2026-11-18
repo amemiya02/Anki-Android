@@ -192,7 +192,7 @@ class FinishedFragment :
     @androidx.annotation.VisibleForTesting
     internal fun onCustomStudy() {
         launchCatchingTask {
-            val customStudy = CustomStudyDialog.createInstance(deckId = withCol { decks.selected() }, usePaperDialog = true)
+            val customStudy = CustomStudyDialog.createInstance(deckId = withCol { decks.selected() })
             requireActivity().showDialogFragment(customStudy)
         }
     }

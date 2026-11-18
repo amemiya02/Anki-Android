@@ -3,18 +3,18 @@
 package com.ichi2.anki.dialogs
 
 import android.os.Looper
-import android.view.View
-import androidx.core.view.isVisible
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.TR
-import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog
 import com.ichi2.anki.ioDispatcher
@@ -30,19 +30,22 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.setMain
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class CustomStudyMenuNavigationTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Before
     override fun setUp() {
         super.setUp()
@@ -55,7 +58,7 @@ class CustomStudyMenuNavigationTest : RobolectricTest() {
             val (activity, fragment) = openMenu()
             val originalDialog = fragment.requireDialog()
             withQueuedChecks(this) { collectionScheduler ->
-                onView(withText(TR.customStudyReviewAhead())).inRoot(isDialog()).perform(click())
+                compose.onNodeWithText(TR.customStudyReviewAhead()).performClick()
                 runCurrent()
 
                 activity.showDialogFragment(DialogFragment())
@@ -77,17 +80,18 @@ class CustomStudyMenuNavigationTest : RobolectricTest() {
                 assertSame(fragment, activity.supportFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG))
                 assertEquals(1, activity.supportFragmentManager.backStackEntryCount)
                 assertTrue(recreatedDialog.isShowing)
-                assertFalse(assertNotNull(recreatedDialog.findViewById<View>(R.id.progress_bar)).isVisible)
+                compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo)).assertDoesNotExist()
 
                 // Ignoring the old result must still allow a new selection from the recreated menu.
-                onView(withText(TR.customStudyReviewAhead())).inRoot(isDialog()).perform(click())
+                compose.onNodeWithText(TR.customStudyReviewAhead()).performClick()
                 runCurrent()
                 collectionScheduler.runCurrent()
                 runCurrent()
                 shadowOf(Looper.getMainLooper()).idle()
 
                 val input = activity.supportFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG) as CustomStudyDialog
-                assertNotNull(input.requireDialog().findViewById<View>(R.id.details_edit_text_2))
+                assertTrue(input.requireDialog().isShowing)
+                compose.onNode(hasSetTextAction()).assertIsDisplayed()
                 assertEquals(2, activity.supportFragmentManager.backStackEntryCount)
             }
         }
@@ -98,7 +102,7 @@ class CustomStudyMenuNavigationTest : RobolectricTest() {
             val (activity, fragment) = openMenu()
             val originalDialog = fragment.requireDialog()
             withQueuedChecks(this) { collectionScheduler ->
-                onView(withText(TR.customStudyReviewAhead())).inRoot(isDialog()).perform(click())
+                compose.onNodeWithText(TR.customStudyReviewAhead()).performClick()
                 runCurrent()
                 collectionScheduler.runCurrent()
 
@@ -120,7 +124,7 @@ class CustomStudyMenuNavigationTest : RobolectricTest() {
             val (activity, fragment) = openMenu()
             val originalDialog = fragment.requireDialog()
             withQueuedChecks(this) { collectionScheduler ->
-                onView(withText(TR.customStudyReviewAhead())).inRoot(isDialog()).perform(click())
+                compose.onNodeWithText(TR.customStudyReviewAhead()).performClick()
                 runCurrent()
                 assertSame(fragment, activity.supportFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG))
 
@@ -143,7 +147,7 @@ class CustomStudyMenuNavigationTest : RobolectricTest() {
         runTest {
             val (activity, fragment) = openMenu()
             withQueuedChecks(this) { collectionScheduler ->
-                onView(withText(TR.customStudyReviewAhead())).inRoot(isDialog()).perform(click())
+                compose.onNodeWithText(TR.customStudyReviewAhead()).performClick()
                 runCurrent()
                 collectionScheduler.runCurrent()
 
@@ -173,7 +177,7 @@ class CustomStudyMenuNavigationTest : RobolectricTest() {
             val (activity, fragment) = openMenu(childHosted)
             withQueuedChecks(this) { collectionScheduler ->
                 repeat(2) {
-                    onView(withText(TR.customStudyReviewAhead())).inRoot(isDialog()).perform(click())
+                    compose.onNodeWithText(TR.customStudyReviewAhead()).performClick()
                     runCurrent()
                     assertTrue(fragment.requireDialog().isShowing)
                 }
@@ -186,7 +190,8 @@ class CustomStudyMenuNavigationTest : RobolectricTest() {
                 val dialogs = activity.supportFragmentManager.fragments.filterIsInstance<CustomStudyDialog>()
                 assertEquals(1, dialogs.size)
                 assertEquals(if (childHosted) 1 else 2, activity.supportFragmentManager.backStackEntryCount)
-                assertNotNull(dialogs.single().requireDialog().findViewById<View>(R.id.details_edit_text_2))
+                assertTrue(dialogs.single().requireDialog().isShowing)
+                compose.onNode(hasSetTextAction()).assertIsDisplayed()
             }
         }
 
@@ -209,7 +214,7 @@ class CustomStudyMenuNavigationTest : RobolectricTest() {
         } else {
             activity.showDialogFragment(fragment)
         }
-        advanceRobolectricLooperUntil { fragment.dialog?.findViewById<View>(R.id.progress_bar)?.isVisible != true }
+        compose.onNodeWithText(TR.customStudyReviewAhead()).assertIsDisplayed()
         return activity to fragment
     }
 
