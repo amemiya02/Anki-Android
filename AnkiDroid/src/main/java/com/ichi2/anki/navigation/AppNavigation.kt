@@ -35,7 +35,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.get
+import androidx.navigation.navOptions
 import com.ichi2.anki.BottomNavController.NavigationItem
+import com.ichi2.anki.CardBrowser
 import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.Info
 import com.ichi2.anki.InfoFragment
@@ -47,10 +49,13 @@ import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.account.AccountActivity
 import com.ichi2.anki.account.AccountFlowFragment
 import com.ichi2.anki.browser.CardBrowserFragment
+import com.ichi2.anki.browser.CardBrowserPaneFragment
 import com.ichi2.anki.ensureBrowserViewModel
 import com.ichi2.anki.filtered.FilteredDeckOptionsFragment
 import com.ichi2.anki.introduction.WelcomeFragment
 import com.ichi2.anki.mediacheck.MediaCheckFragment
+import com.ichi2.anki.multimedia.MultimediaActivity
+import com.ichi2.anki.multimedia.MultimediaFlowFragment
 import com.ichi2.anki.pages.AnkiPackageImporterFragment
 import com.ichi2.anki.pages.CardInfoFragment
 import com.ichi2.anki.pages.CsvImporter
@@ -79,6 +84,7 @@ internal class AppNavigation(
     private val pending = ArrayDeque<(NavHostController) -> Unit>()
     private val fragments = mutableMapOf<String, Fragment>()
     private val completedResults = mutableMapOf<String, ActivityResult>()
+    private val forwardedResults = mutableSetOf<String>()
 
     val currentFragment: Fragment?
         get() = controller?.currentBackStackEntry?.id?.let(fragments::get)
@@ -202,7 +208,9 @@ internal class AppNavigation(
         if (fragment != null && fragment.isAdded && !deckPicker.supportFragmentManager.isStateSaved) {
             deckPicker.supportFragmentManager.commit { remove(fragment) }
         }
-        val result = completedResults.remove(entry.id) ?: ActivityResult(Activity.RESULT_CANCELED, null)
+        if (forwardedResults.remove(entry.id)) return
+        val defaultResult = entry.arguments?.getInt(DEFAULT_RESULT, Activity.RESULT_CANCELED) ?: Activity.RESULT_CANCELED
+        val result = completedResults.remove(entry.id) ?: ActivityResult(defaultResult, null)
         val requestCode = entry.arguments?.getInt(RESULT_REQUEST_CODE, NO_RESULT) ?: NO_RESULT
         if (requestCode != NO_RESULT) deckPicker.activityResultRegistry.dispatchResult(requestCode, result.resultCode, result.data)
     }
@@ -238,15 +246,37 @@ internal class AppNavigation(
         val component = intent.component?.className
         val fragment =
             when (component) {
+                CardBrowser::class.java.name -> CardBrowserPaneFragment::class.java
                 Info::class.java.name -> InfoFragment::class.java
+                MultimediaActivity::class.java.name -> MultimediaFlowFragment::class.java
                 NoteEditorActivity::class.java.name -> NoteEditorPaneFragment::class.java
                 else -> fragmentScreens[intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME)] ?: return false
             }
         val screenArguments =
-            if (component == NoteEditorActivity::class.java.name) NoteEditorPaneFragment.arguments(intent)
-            else intent.getBundleExtra(SingleFragmentActivity.EXTRA_FRAGMENT_ARGS)
-        val arguments = bundleOf(SCREEN_ARGUMENTS to screenArguments, RESULT_REQUEST_CODE to requestCode)
-        navigateWhenReady { it.navigate(it.graph[fragment.name].id, arguments) }
+            when (component) {
+                CardBrowser::class.java.name -> CardBrowserPaneFragment.arguments(intent)
+                NoteEditorActivity::class.java.name -> NoteEditorPaneFragment.arguments(intent)
+                MultimediaActivity::class.java.name -> intent.extras
+                else -> intent.getBundleExtra(SingleFragmentActivity.EXTRA_FRAGMENT_ARGS)
+            }
+        val defaultResult = if (component == CardBrowser::class.java.name) Activity.RESULT_OK else Activity.RESULT_CANCELED
+        navigateWhenReady { navigation ->
+            val forward = intent.flags and Intent.FLAG_ACTIVITY_FORWARD_RESULT != 0
+            val caller = navigation.currentBackStackEntry?.takeIf { forward && navigation.previousBackStackEntry != null }
+            val outgoingRequest = caller?.arguments?.getInt(RESULT_REQUEST_CODE, NO_RESULT) ?: requestCode
+            val options =
+                caller?.let {
+                    forwardedResults.add(it.id)
+                    navOptions { popUpTo(it.destination.id) { inclusive = true } }
+                }
+            val arguments =
+                bundleOf(
+                    SCREEN_ARGUMENTS to screenArguments,
+                    RESULT_REQUEST_CODE to outgoingRequest,
+                    DEFAULT_RESULT to defaultResult,
+                )
+            navigation.navigate(navigation.graph[fragment.name].id, arguments, options)
+        }
         return true
     }
 
@@ -281,6 +311,7 @@ internal class AppNavigation(
         const val NO_RESULT = -1
         const val SCREEN_ARGUMENTS = "screenArguments"
         const val RESULT_REQUEST_CODE = "resultRequestCode"
+        const val DEFAULT_RESULT = "defaultResultCode"
 
         val tabFragments =
             mapOf(
@@ -293,7 +324,9 @@ internal class AppNavigation(
         val hostedComponents =
             setOf(
                 AccountActivity::class.java.name,
+                CardBrowser::class.java.name,
                 Info::class.java.name,
+                MultimediaActivity::class.java.name,
                 NoteEditorActivity::class.java.name,
                 SingleFragmentActivity::class.java.name,
                 ConfigAwareSingleFragmentActivity::class.java.name,
@@ -305,6 +338,7 @@ internal class AppNavigation(
             listOf(
                 AccountFlowFragment::class.java,
                 AnkiPackageImporterFragment::class.java,
+                CardBrowserPaneFragment::class.java,
                 CardInfoFragment::class.java,
                 CsvImporter::class.java,
                 DeckOptions::class.java,
@@ -315,6 +349,7 @@ internal class AppNavigation(
                 ImageOcclusion::class.java,
                 InfoFragment::class.java,
                 MediaCheckFragment::class.java,
+                MultimediaFlowFragment::class.java,
                 NoteEditorPaneFragment::class.java,
                 PreferencesFragment::class.java,
                 PreviewerFragment::class.java,

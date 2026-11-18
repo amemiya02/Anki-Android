@@ -22,7 +22,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import anki.collection.OpChanges
 import com.google.android.material.search.SearchView
@@ -120,8 +120,15 @@ class CardBrowserFragment :
     AnkiActivityProvider,
     ChangeManager.Subscriber,
     TagsDialogListener {
-    val activityViewModel: CardBrowserViewModel by activityViewModels()
-    val searchViewModel: CardBrowserSearchViewModel by activityViewModels()
+    private val browserPane: CardBrowserPaneFragment?
+        get() = parentFragment as? CardBrowserPaneFragment
+
+    private val hostBrowserViewModel: CardBrowserViewModel by viewModels(ownerProducer = { requireActivity() })
+
+    val activityViewModel: CardBrowserViewModel
+        get() = browserPane?.browserViewModel ?: hostBrowserViewModel
+
+    val searchViewModel: CardBrowserSearchViewModel by viewModels(ownerProducer = { browserPane ?: requireActivity() })
 
     // TODO: remove AnkiActivityProvider, use context parameters instead
     override val ankiActivity: AnkiActivity
@@ -140,7 +147,7 @@ class CardBrowserFragment :
         }
 
     /** Whether the browser is hosted by the phone's Browse tab. */
-    private fun isHostedInBottomNavigation() = activity !is CardBrowser
+    private fun isHostedInBottomNavigation() = activity !is CardBrowser && browserPane == null
 
     /**
      * Returns the current deck name, "All Decks" if all decks are selected, or "Unknown"
@@ -174,10 +181,14 @@ class CardBrowserFragment :
     }
 
     internal fun browserChromeChanged(takingOver: Boolean) {
-        (activity as? DeckPicker)?.setBrowserFullScreen(takingOver && !isHidden)
+        if (isHostedInBottomNavigation()) {
+            (activity as? DeckPicker)?.setBrowserFullScreen(takingOver && !isHidden)
+        }
     }
 
-    internal fun browserBack() = requireNavigationDrawerActivity().onNavigationPressed()
+    internal fun browserBack() {
+        browserPane?.navigateBack() ?: requireNavigationDrawerActivity().onNavigationPressed()
+    }
 
     private fun saveSubmittedSearch(search: SearchRequest = activityViewModel.searchRequestFlow.value) {
         if (search.isEmpty) return
@@ -402,7 +413,7 @@ class CardBrowserFragment :
                 is ManageSavedSearchAction.Delete -> searchViewModel.deleteSavedSearch(action.search)
             }
         }
-        if (isHostedInBottomNavigation()) {
+        if (activity !is CardBrowser) {
             registerOnForgetHandler { activityViewModel.queryAllSelectedCardIds() }
             registerBrowserFindReplaceHandler { result ->
                 launchCatchingTask {

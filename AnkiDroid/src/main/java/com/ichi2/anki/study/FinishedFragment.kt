@@ -180,14 +180,16 @@ class FinishedFragment :
     /** Unburying returns straight to studying the Deck. */
     private fun openStudyScreenAndFinish() {
         Timber.i("opening the study screen")
-        navigate(ReviewDeckDestination.CurrentDeck)
+        val host = requireActivity()
         finishScreen()
+        with(host) { navigate(ReviewDeckDestination.CurrentDeck) }
     }
 
     private fun openStudyOptionsAndFinish() {
         Timber.i("opening study options")
-        navigate(StudyOptionsDestination)
+        val host = requireActivity()
         finishScreen()
+        with(host) { navigate(StudyOptionsDestination) }
     }
 
     @androidx.annotation.VisibleForTesting
