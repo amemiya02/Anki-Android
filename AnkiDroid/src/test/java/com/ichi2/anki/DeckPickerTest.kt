@@ -17,7 +17,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -85,7 +84,6 @@ import com.ichi2.anki.dialogs.DeckPickerContextMenu.DeckPickerContextMenuOption
 import com.ichi2.anki.dialogs.DeckPickerContextMenuResult
 import com.ichi2.anki.dialogs.SyncErrorDialog
 import com.ichi2.anki.dialogs.setDeckPickerContextMenuResult
-import com.ichi2.anki.dialogs.utils.title
 import com.ichi2.anki.libanki.Consts.DEFAULT_DECK_ID
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.navigation.AnkiDroidNavigator
@@ -2054,9 +2052,8 @@ class DeckPickerTest : RobolectricTest() {
                     .build()
             ViewCompat.performReceiveContent(findViewById(R.id.pull_to_sync_wrapper), payload)
 
-            val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-            assertThat(dialog.isShowing, equalTo(true))
-            assertThat(dialog.title, equalTo(getString(CommonString.import_title_error)))
+            assertThat(ShadowDialog.getLatestDialog().isShowing, equalTo(true))
+            composeRule.onNodeWithText(getString(CommonString.import_title_error)).assertIsDisplayed()
         }
 }
 
