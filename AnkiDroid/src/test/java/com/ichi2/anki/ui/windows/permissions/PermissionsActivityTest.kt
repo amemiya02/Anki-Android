@@ -23,6 +23,7 @@ import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.StoragePermissionSet
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.storage.CollectionHelper
+import com.ichi2.anki.withDeckPicker
 import com.ichi2.testutils.grantPermissions
 import com.ichi2.testutils.publicCollectionPath
 import com.ichi2.testutils.withAllFilesAccess

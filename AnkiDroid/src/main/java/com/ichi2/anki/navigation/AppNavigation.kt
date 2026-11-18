@@ -81,6 +81,10 @@ import com.ichi2.anki.shareddeck.SharedDecksActivity
 import com.ichi2.anki.shareddeck.SharedDecksFragment
 import com.ichi2.anki.study.FinishedFragment
 import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
+import com.ichi2.anki.ui.windows.permissions.AllPermissionsExplanationActivity
+import com.ichi2.anki.ui.windows.permissions.AllPermissionsExplanationFragment
+import com.ichi2.anki.ui.windows.permissions.CollectionPermissionsFragment
+import com.ichi2.anki.ui.windows.permissions.PermissionsActivity
 import com.ichi2.anki.updateTabChrome
 import com.ichi2.anki.utils.ConfigAwareSingleFragmentActivity
 import com.ichi2.imagecropper.ImageCropper
@@ -262,6 +266,8 @@ internal class AppNavigation(
                 CardTemplateBrowserAppearanceEditor::class.java.name -> BrowserAppearanceFragment::class.java
                 CardTemplateEditor::class.java.name -> CardTemplateEditorFragment::class.java
                 ManageNotetypes::class.java.name -> ManageNoteTypesFragment::class.java
+                AllPermissionsExplanationActivity::class.java.name -> AllPermissionsExplanationFragment::class.java
+                PermissionsActivity::class.java.name -> CollectionPermissionsFragment::class.java
                 ManageSpaceActivity::class.java.name -> ManageSpaceFragment::class.java
                 Info::class.java.name -> InfoFragment::class.java
                 SharedDecksActivity::class.java.name -> SharedDecksFragment::class.java
@@ -277,6 +283,7 @@ internal class AppNavigation(
                 CardTemplateBrowserAppearanceEditor::class.java.name,
                 CardTemplateEditor::class.java.name,
                 MultimediaActivity::class.java.name,
+                PermissionsActivity::class.java.name,
                 -> intent.extras
                 else -> intent.getBundleExtra(SingleFragmentActivity.EXTRA_FRAGMENT_ARGS)
             }
@@ -345,6 +352,8 @@ internal class AppNavigation(
         val hostedComponents =
             setOf(
                 AccountActivity::class.java.name,
+                AllPermissionsExplanationActivity::class.java.name,
+                PermissionsActivity::class.java.name,
                 CardBrowser::class.java.name,
                 CardTemplateBrowserAppearanceEditor::class.java.name,
                 CardTemplateEditor::class.java.name,
@@ -364,6 +373,8 @@ internal class AppNavigation(
         val fragmentScreens =
             listOf(
                 AccountFlowFragment::class.java,
+                AllPermissionsExplanationFragment::class.java,
+                CollectionPermissionsFragment::class.java,
                 AnkiPackageImporterFragment::class.java,
                 BrowserAppearanceFragment::class.java,
                 CardBrowserPaneFragment::class.java,

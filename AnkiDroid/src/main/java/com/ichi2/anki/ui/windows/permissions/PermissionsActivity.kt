@@ -7,6 +7,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.activity.addCallback
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.activity.enableEdgeToEdge
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
@@ -17,7 +21,8 @@ import com.ichi2.anki.R
 import com.ichi2.anki.StoragePermissionSet
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.ext.getParcelableExtraCompat
-import com.ichi2.anki.utils.ext.setFragmentResultListener
+import com.ichi2.anki.navigation.finishScreen
+import com.ichi2.anki.utils.ext.getParcelableCompat
 import timber.log.Timber
 
 /**
@@ -51,37 +56,11 @@ class PermissionsActivity : AnkiActivity() {
             finish()
             return
         }
-        setFragmentResultListener(REQUEST_PERMISSIONS_GRANTED) { _, _ -> decideStorageAndFinish() }
-        if (savedInstanceState == null) showPermissionsFragment(permissionSet)
-        // only close the activity by tapping the continue button
-        onBackPressedDispatcher.addCallback {}
-    }
-
-    private fun showPermissionsFragment(permissionSet: StoragePermissionSet) {
-        val permissionsFragmentClass =
-            permissionSet.permissionsFragment ?: run {
-                Timber.w("%s has no permissions to request", permissionSet)
-                decideStorageAndFinish()
-                return
+        if (savedInstanceState == null) {
+            supportFragmentManager.commit {
+                replace(R.id.fragment_container, CollectionPermissionsFragment::class.java, intent.extras)
             }
-        val permissionsFragment = permissionsFragmentClass.getDeclaredConstructor().newInstance()
-        supportFragmentManager.commit {
-            replace(R.id.fragment_container, permissionsFragment)
         }
-    }
-
-    /**
-     * Records the storage decision and closes the screen: the granted permissions
-     * determine the default collection path.
-     *
-     * Called on 'Continue', or when the fragment reports [REQUEST_PERMISSIONS_GRANTED].
-     * Preserves an existing collection path.
-     *
-     * @see InitialActivity.decideStorageIfUndecided
-     */
-    private fun decideStorageAndFinish() {
-        InitialActivity.decideStorageIfUndecided(this)
-        finish()
     }
 
     companion object {
@@ -102,5 +81,41 @@ class PermissionsActivity : AnkiActivity() {
             Intent(context, PermissionsActivity::class.java).apply {
                 putExtra(EXTRA_PERMISSIONS_SET, permissionsSet as Parcelable)
             }
+    }
+}
+
+/** Runs before the collection is open, including during first-run import and after a storage change. */
+class CollectionPermissionsFragment : Fragment() {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View = FragmentContainerView(inflater.context).apply { id = R.id.storage_permissions_container }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val permissionSet = arguments?.getParcelableCompat<StoragePermissionSet>(PermissionsActivity.EXTRA_PERMISSIONS_SET)
+        if (permissionSet == null) {
+            showThemedToast(requireContext(), CommonString.something_wrong, false)
+            finishScreen()
+            return
+        }
+        val screen = permissionSet.permissionsFragment
+        if (screen == null) {
+            decideStorageAndFinish()
+            return
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) { }
+        childFragmentManager.setFragmentResultListener(PermissionsActivity.REQUEST_PERMISSIONS_GRANTED, viewLifecycleOwner) { _, _ ->
+            decideStorageAndFinish()
+        }
+        if (childFragmentManager.findFragmentById(R.id.storage_permissions_container) == null) {
+            childFragmentManager.commit { replace(R.id.storage_permissions_container, screen, null) }
+        }
+    }
+
+    private fun decideStorageAndFinish() {
+        InitialActivity.decideStorageIfUndecided(requireContext())
+        finishScreen()
     }
 }
