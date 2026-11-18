@@ -103,14 +103,16 @@ class MultimediaBottomSheet : BottomSheetDialogFragment() {
         private const val FIELD_INDEX = "fieldIndex"
         private const val FIELD_NAME = "fieldName"
 
-        fun forField(index: Int, name: String) =
-            MultimediaBottomSheet().apply {
-                arguments =
-                    Bundle().apply {
-                        putInt(FIELD_INDEX, index)
-                        putString(FIELD_NAME, name)
-                    }
-            }
+        fun forField(
+            index: Int,
+            name: String,
+        ) = MultimediaBottomSheet().apply {
+            arguments =
+                Bundle().apply {
+                    putInt(FIELD_INDEX, index)
+                    putString(FIELD_NAME, name)
+                }
+        }
     }
 }
 

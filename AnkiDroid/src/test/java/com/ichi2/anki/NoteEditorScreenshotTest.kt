@@ -197,6 +197,7 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
             val cloze = composeRule.onNodeWithContentDescription(TR.editingClozeDeletion())
             val repeat = composeRule.onNodeWithContentDescription(TR.editingClozeDeletionRepeat())
             val bold = composeRule.onNodeWithContentDescription(targetContext.getString(CommonString.format_insert_bold))
+
             fun leadingX(node: SemanticsNodeInteraction): Float {
                 val bounds = node.assertIsDisplayed().getUnclippedBoundsInRoot()
                 return if (language.isRightToLeft) -bounds.right.value else bounds.left.value
@@ -493,8 +494,7 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
     private val clozeNoteType
         get() = noteType(StockNotetype.Kind.KIND_CLOZE)
 
-    private fun noteType(kind: StockNotetype.Kind) =
-        requireNotNull(col.notetypes.byName(col.getStockNotetype(kind).name))
+    private fun noteType(kind: StockNotetype.Kind) = requireNotNull(col.notetypes.byName(col.getStockNotetype(kind).name))
 
     private fun composeWithIme(
         composing: String,

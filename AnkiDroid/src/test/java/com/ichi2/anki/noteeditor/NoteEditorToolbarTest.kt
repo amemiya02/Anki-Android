@@ -103,16 +103,17 @@ class NoteEditorToolbarTest : RobolectricTest() {
         reopened.dismiss()
     }
 
-    private fun openEditor() = run {
-        // Start with both fields populated so saving must clear an existing value.
-        targetContext.sharedPrefs().edit {
-            putStringSet(
-                "note_editor_custom_buttons",
-                CustomToolbarButton.toStringSet(arrayListOf(CustomToolbarButton(0, "BR", "<b>", "</b>"))),
-            )
+    private fun openEditor() =
+        run {
+            // Start with both fields populated so saving must clear an existing value.
+            targetContext.sharedPrefs().edit {
+                putStringSet(
+                    "note_editor_custom_buttons",
+                    CustomToolbarButton.toStringSet(arrayListOf(CustomToolbarButton(0, "BR", "<b>", "</b>"))),
+                )
+            }
+            startRegularActivity<NoteEditorActivity>(NoteEditorDestination.AddNote().toIntent()).getNoteEditorFragment()
         }
-        startRegularActivity<NoteEditorActivity>(NoteEditorDestination.AddNote().toIntent()).getNoteEditorFragment()
-    }
 
     private val AlertDialog.binding: DialogNoteEditorToolbarEditCustomItemBinding
         get() {

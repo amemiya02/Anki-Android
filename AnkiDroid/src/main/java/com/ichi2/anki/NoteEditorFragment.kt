@@ -2110,7 +2110,10 @@ class NoteEditorFragment :
             },
         )
 
-    private fun showMultimediaBottomSheet(fieldIndex: Int, fieldName: String) {
+    private fun showMultimediaBottomSheet(
+        fieldIndex: Int,
+        fieldName: String,
+    ) {
         Timber.d("Showing MultimediaBottomSheet fragment")
         val multimediaBottomSheet = MultimediaBottomSheet.forField(fieldIndex, fieldName)
         multimediaBottomSheet.show(parentFragmentManager, MultimediaBottomSheet.TAG)
@@ -2776,7 +2779,10 @@ class NoteEditorFragment :
     private val isClozeType: Boolean
         get() = currentlySelectedNotetype!!.isCloze
 
-    private class ClozeColorSpan(color: Int) : ForegroundColorSpan(color), NoCopySpan
+    private class ClozeColorSpan(
+        color: Int,
+    ) : ForegroundColorSpan(color),
+        NoCopySpan
 
     private fun highlightClozes(text: Editable) {
         text.getSpans(0, text.length, ClozeColorSpan::class.java).forEach(text::removeSpan)
