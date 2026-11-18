@@ -51,7 +51,7 @@ import java.util.Date
 /** The single page for sync account status, actions and settings. */
 class SyncSettingsFragment : RemainingSettingsFragment(R.id.settings_sync) {
     private val accountViewModel by viewModels<LoggedInViewModel>()
-    private var account by mutableStateOf(readAccount())
+    private var account by mutableStateOf(SyncPageAccount(server = null, signedIn = false, username = ""))
     private var lastSync by mutableStateOf(CollectionSyncStatus())
 
     override val preferenceResource = R.xml.preferences_sync
