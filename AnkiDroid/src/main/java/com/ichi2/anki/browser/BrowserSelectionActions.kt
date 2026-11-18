@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -100,7 +101,7 @@ internal fun BrowserSelectionActionsSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        shape = foundation.shapes.button,
+        shape = foundation.shapes.button.copy(bottomStart = ZeroCornerSize, bottomEnd = ZeroCornerSize),
         containerColor = colors.background,
         contentColor = colors.onBackground,
         tonalElevation = 0.dp,

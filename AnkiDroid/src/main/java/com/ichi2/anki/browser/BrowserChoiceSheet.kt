@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -77,7 +78,7 @@ internal fun BrowserChoiceSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        shape = foundation.shapes.button,
+        shape = foundation.shapes.button.copy(bottomStart = ZeroCornerSize, bottomEnd = ZeroCornerSize),
         containerColor = colors.background,
         contentColor = colors.onBackground,
         tonalElevation = 0.dp,
