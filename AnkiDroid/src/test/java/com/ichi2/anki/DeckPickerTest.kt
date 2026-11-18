@@ -97,6 +97,7 @@ import com.ichi2.anki.utils.Destination
 import com.ichi2.anki.utils.ext.defaultConfig
 import com.ichi2.anki.utils.ext.dismissAllDialogFragments
 import com.ichi2.testutils.BackendEmulatingOpenConflict
+import com.ichi2.testutils.BackupManagerTestUtilities
 import com.ichi2.testutils.common.Flaky
 import com.ichi2.testutils.common.OS
 import com.ichi2.testutils.dispatchTouch
@@ -200,13 +201,18 @@ class DeckPickerTest : RobolectricTest() {
     fun `study shortcut on an empty filtered deck opens the finished screen`() {
         addBasicNote()
         val filtered = col.decks.newFiltered("Filtered")
+        BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
+        getPreferences().edit { putBoolean("backupPromptDisabled", true) }
 
         deckPicker {
             advanceRobolectricLooperUntil { visibleDeckCount == 2 }
             shadowOf(this).clearNextStartedActivities()
 
             assertTrue(onKeyUp(KeyEvent.KEYCODE_S, KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_S)))
-            advanceRobolectricLooperUntil { currentScreenFragment is FinishedFragment }
+            composeRule.waitUntil(10_000) {
+                ShadowLooper.idleMainLooper()
+                currentScreenFragment is FinishedFragment
+            }
             assertThat(shadowOf(this).nextStartedActivity, nullValue())
             assertEquals(filtered, col.decks.selected())
         }
@@ -440,7 +446,7 @@ class DeckPickerTest : RobolectricTest() {
         settingsButton.performClick()
         advanceRobolectricLooper()
 
-        advanceRobolectricLooperUntil {
+        composeRule.waitUntil(10_000) {
             (deckPicker.currentScreenFragment as? PreferencesFragment)
                 ?.childFragmentManager
                 ?.findFragmentById(R.id.settings_container) is AdvancedSettingsFragment
@@ -572,6 +578,7 @@ class DeckPickerTest : RobolectricTest() {
     fun `ContextMenu starts expected dialogs when specific options are selected`() =
         deckPicker {
             val didA = addDeck("Deck 1")
+            addNoteToDeck(didA)
 
             selectContextMenuOption(ContextMenuOption.RENAME_DECK, didA)
             assertDialogTitleEquals("Rename deck")
@@ -607,9 +614,11 @@ class DeckPickerTest : RobolectricTest() {
     private fun withBottomNavigationEnabled(action: () -> Unit) = action()
 
     private fun DeckPicker.openEmbeddedCardBrowser(): CardBrowserFragment {
-        findViewById<BottomNavigationView>(R.id.bottom_navigation).selectedItemId =
+        val bar = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        composeRule.waitUntil(10_000) { bar.isShown && deckPickerBinding.deckList.isShown }
+        bar.selectedItemId =
             BottomNavController.NavigationItem.BROWSER.id
-        advanceRobolectricLooperUntil { currentScreenFragment is CardBrowserFragment }
+        composeRule.waitUntil(10_000) { currentScreenFragment is CardBrowserFragment }
         return currentScreenFragment as CardBrowserFragment
     }
 
@@ -1310,7 +1319,7 @@ class DeckPickerTest : RobolectricTest() {
             assumeTrue("Not running on tablet", !fragmented)
             longPressDeck("Long pressed")
 
-            composeRule.onNodeWithText("Long pressed").assertIsSelected()
+            composeRule.onNode(hasText("Long pressed") and hasAnyAncestor(isDialog()).not()).assertIsSelected()
         }
     }
 
@@ -1740,13 +1749,16 @@ class DeckPickerTest : RobolectricTest() {
         withBottomNavigationEnabled {
             assumeTrue("Not running on tablet", qualifiers != "xlarge")
             addBasicNote("Pine")
+            BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
+            getPreferences().edit { putBoolean("backupPromptDisabled", true) }
             deckPicker {
                 openEmbeddedCardBrowser()
                 advanceRobolectricLooperUntil { composeRule.onAllNodesWithText("Pine").fetchSemanticsNodes().isNotEmpty() }
                 shadowOf(this).clearNextStartedActivities()
 
                 composeRule.onNodeWithText("Pine").performClick()
-                advanceRobolectricLooperUntil(lazyMessage = { "tapping a card opened nothing" }) {
+                composeRule.waitUntil(10_000) {
+                    ShadowLooper.idleMainLooper()
                     currentScreenFragment is NoteEditorPaneFragment
                 }
                 assertThat(shadowOf(this).nextStartedActivity, nullValue())
@@ -1861,12 +1873,13 @@ class DeckPickerTest : RobolectricTest() {
         }
 
     @Test
-    fun `rotating while finishing to show the App Intro does not crash`() {
+    fun `rotating during first run keeps the welcome screen open`() {
         setIntroductionSlidesShown(false)
-        val controller = Robolectric.buildActivity(DeckPicker::class.java, Intent()).create()
+        val controller = Robolectric.buildActivity(DeckPicker::class.java, Intent()).setup()
         saveControllerForCleanup(controller)
         val deckPicker = controller.get()
-        assertTrue(deckPicker.isFinishing, "DeckPicker should finish to show the App Intro")
+        val welcome = deckPicker.getString(CommonString.paper_welcome_start_empty)
+        composeRule.onNodeWithText(welcome).assertIsDisplayed()
 
         val current = deckPicker.resources.configuration
         val rotated =
@@ -1876,6 +1889,7 @@ class DeckPickerTest : RobolectricTest() {
                 screenHeightDp = current.screenWidthDp
             }
         assertDoesNotThrow { controller.configurationChange(rotated, deckPicker.resources.displayMetrics) }
+        composeRule.onNodeWithText(welcome).assertIsDisplayed()
     }
 
     @Test
