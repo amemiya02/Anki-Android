@@ -8,7 +8,9 @@ import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.ui.windows.reviewer.whiteboard.WhiteboardFragment
+import com.ichi2.testutils.dispatchInsets
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.Rule
@@ -52,6 +54,20 @@ class DrawingFragmentTest : RobolectricTest() {
         advanceRobolectricLooper()
         assertThat("activity finishes after discard is confirmed", activity.isFinishing, equalTo(true))
     }
+
+    @Test
+    fun `the hosted drawing controls clear system bars and the display cutout`() =
+        withDeckPicker(deckCount = 1) { deckPicker ->
+            deckPicker.startActivity(DrawingFragment.getIntent(deckPicker))
+            advanceRobolectricLooperUntil { deckPicker.currentScreenFragment is DrawingFragment }
+            val drawing = assertNotNull(deckPicker.currentScreenFragment).requireView()
+
+            deckPicker.dispatchInsets(navBarBottom = 48.dp, cutoutLeft = 32.dp)
+
+            assertThat(drawing.paddingTop, equalTo(24.dp.toPx(deckPicker)))
+            assertThat(drawing.paddingBottom, equalTo(48.dp.toPx(deckPicker)))
+            assertThat(drawing.paddingLeft, equalTo(32.dp.toPx(deckPicker)))
+        }
 
     private fun launchDrawingActivity(): Pair<SingleFragmentActivity, WhiteboardFragment> {
         val activity = startRegularActivity<SingleFragmentActivity>(DrawingFragment.getIntent(targetContext))
