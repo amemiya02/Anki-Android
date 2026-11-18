@@ -445,7 +445,7 @@ class ReviewerFragmentTest : RobolectricTest() {
                 }
 
                 val saved = targetContext.getString(CommonString.white_board_image_saved, "")
-                assertTrue(snackbarText.orEmpty().startsWith(saved), "said: $snackbarText (${whiteboard.binding.whiteboardView.width})")
+                assertTrue(snackbarText.orEmpty().startsWith(saved), "said: $snackbarText (${whiteboard.whiteboardView.width})")
             }
         }
 
@@ -466,7 +466,7 @@ class ReviewerFragmentTest : RobolectricTest() {
                 advanceUntilIdle()
                 advanceRobolectricLooper()
                 val whiteboard = assertIs<WhiteboardFragment>(childFragmentManager.findFragmentByTag(WhiteboardFragment::class.jvmName))
-                assertFalse(whiteboard.binding.whiteboardView.isVisible, "the drawing is still hidden")
+                assertFalse(whiteboard.whiteboardView.isVisible, "the drawing is still hidden")
             }
         }
 

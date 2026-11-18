@@ -118,13 +118,13 @@ class ReviewerShakeTest : RobolectricTest() {
                     val reviewer = activity.fragment as ReviewerFragment
                     val whiteboard =
                         assertIs<WhiteboardFragment>(reviewer.childFragmentManager.findFragmentByTag(WhiteboardFragment::class.jvmName))
-                    whiteboard.binding.whiteboardView.onNewPath!!(Path().apply { lineTo(10f, 10f) })
+                    whiteboard.whiteboardView.onNewPath!!(Path().apply { lineTo(10f, 10f) })
                     assertEquals(1, whiteboard.viewModel.paths.value.size)
 
                     sensors.shake()
 
                     assertEquals(emptyList(), whiteboard.viewModel.paths.value)
-                    assertEquals(stylusOnly, whiteboard.binding.whiteboardView.isStylusOnlyMode)
+                    assertEquals(stylusOnly, whiteboard.whiteboardView.isStylusOnlyMode)
                 }
             }
         }
