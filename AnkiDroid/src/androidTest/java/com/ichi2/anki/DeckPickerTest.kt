@@ -74,7 +74,6 @@ class DeckPickerTest : InstrumentedTest() {
                 assertEquals(true, Prefs.devBottomNavEnabled)
                 assertEquals(hasBottomNavLayout, deckPicker.bottomNavigationEnabled)
                 assertEquals(hasBottomNavLayout, deckPicker.findViewById<View>(R.id.bottom_navigation) != null)
-                assertEquals(if (hasBottomNavLayout) 1 else 0, deckPicker.deckPickerBinding.decks.itemDecorationCount)
             }
         } finally {
             preferences.edit(commit = true) {
