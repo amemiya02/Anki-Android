@@ -16,6 +16,7 @@ import com.ichi2.anki.LanguageConfig.JAPANESE
 import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import org.junit.Test
 
+@CheckAccessibility
 @IncludeLanguages(SIMPLIFIED_CHINESE, JAPANESE, ARABIC)
 @IncludeFontSizes(PERCENT_200)
 class DeckPickerDialogsScreenshotTest : DeckListScreenshotTest() {

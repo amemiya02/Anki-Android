@@ -58,6 +58,7 @@ import androidx.core.content.res.ResourcesCompat
 import com.ichi2.anki.common.android.R
 import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.compose.theme.foundation
+import kotlin.math.roundToInt
 
 enum class DialogActionStyle { Text, Filled, Destructive }
 
@@ -125,7 +126,11 @@ fun createPaperDialog(
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
             ),
         )
-        window?.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT)
+        // A wrapping window and a fillMaxWidth card can repeatedly remeasure each other.
+        // Bound the window to the usable width, including the card's two outer margins.
+        val density = context.resources.displayMetrics.density
+        val windowWidthDp = minOf(context.resources.configuration.screenWidthDp, 608)
+        window?.setLayout((windowWidthDp * density).roundToInt(), WindowManager.LayoutParams.WRAP_CONTENT)
     }
 
 internal fun paperScrimAmount(context: Context): Float {
