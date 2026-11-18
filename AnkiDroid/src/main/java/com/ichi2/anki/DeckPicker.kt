@@ -2681,7 +2681,7 @@ open class DeckPicker :
         /**
          * Builds an intent for [DeckPicker]
          */
-        private const val EXTRA_ENTRY_SCREEN = "appNavigationEntryScreen"
+        internal const val EXTRA_ENTRY_SCREEN = "appNavigationEntryScreen"
         private const val STATE_PENDING_ENTRY = "pendingEntryScreen"
         private const val STATE_WAIT_FOR_WELCOME_ACTION = "waitForWelcomeAction"
 

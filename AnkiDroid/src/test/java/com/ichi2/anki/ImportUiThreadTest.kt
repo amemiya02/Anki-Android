@@ -11,7 +11,6 @@ import com.ichi2.utils.ImportResult
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
-import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.spy
 import org.mockito.kotlin.whenever
@@ -33,7 +32,7 @@ class ImportUiThreadTest : RobolectricTest() {
         doAnswer {
             launchThreads.add(Thread.currentThread())
             null
-        }.whenever(activity).startActivities(any(), anyOrNull())
+        }.whenever(activity).startActivity(any())
         val result =
             ImportResult.Success(
                 ImportResolution.Text(ImportResolution.Source("content://import/notes.csv".toUri(), "notes.csv")),

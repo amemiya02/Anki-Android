@@ -9,6 +9,7 @@ import android.content.Intent
 import android.database.MatrixCursor
 import android.net.Uri
 import android.provider.OpenableColumns
+import androidx.core.content.IntentCompat
 import androidx.core.net.toUri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.common.crashreporting.CrashReportService
@@ -106,10 +107,7 @@ class ImportPreparationTest : RobolectricTest() {
         val cachedFile = File(activity.cacheDir, fileName)
         assertEquals(contents, cachedFile.readText())
         val intent = assertNotNull(shadowOf(activity).nextStartedActivity)
-        assertEquals(SingleFragmentActivity::class.java.name, intent.component?.className)
-        assertEquals(CsvImporter::class.java.name, intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME))
-        assertEquals(cachedFile.absolutePath, intent.getBundleExtra(SingleFragmentActivity.EXTRA_FRAGMENT_ARGS)?.getString("filePath"))
-        assertEquals(DeckPicker::class.java.name, shadowOf(activity).nextStartedActivity?.component?.className)
+        assertEquals(cachedFile.absolutePath, csvImportPath(intent))
         assertNull(shadowOf(activity).nextStartedActivity)
     }
 
@@ -131,7 +129,7 @@ class ImportPreparationTest : RobolectricTest() {
     fun `failure to launch text importer propagates to the caller`() {
         val activity = spy(importActivity())
         val exception = ActivityNotFoundException("Importer could not be opened")
-        doThrow(exception).whenever(activity).startActivities(any(), anyOrNull())
+        doThrow(exception).whenever(activity).startActivity(any())
         val uri = textSource("notes.csv") { "front,back".byteInputStream() }
 
         val result = ImportUtils.prepareImport(activity, Intent(Intent.ACTION_VIEW, uri))
@@ -163,4 +161,11 @@ class ImportPreparationTest : RobolectricTest() {
         shadowOf(targetContext.contentResolver).registerInputStreamSupplier(uri) { open() }
         return uri
     }
+}
+
+internal fun csvImportPath(entry: Intent): String {
+    assertEquals(DeckPicker::class.java.name, entry.component?.className)
+    val screen = assertNotNull(IntentCompat.getParcelableExtra(entry, DeckPicker.EXTRA_ENTRY_SCREEN, Intent::class.java))
+    assertEquals(CsvImporter::class.java.name, screen.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME))
+    return assertNotNull(screen.getBundleExtra(SingleFragmentActivity.EXTRA_FRAGMENT_ARGS)?.getString("filePath"))
 }

@@ -17,6 +17,7 @@ import android.os.ParcelFileDescriptor
 import android.provider.OpenableColumns
 import android.view.ContentInfo
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.core.view.ContentInfoCompat
@@ -40,6 +41,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import net.ankiweb.rsdroid.BackendException
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -59,6 +61,9 @@ import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class ImportRoutingTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     private var filenameQueries = 0
 
     override fun getCollectionStorageMode() = CollectionStorageMode.ON_DISK
@@ -183,8 +188,10 @@ class ImportRoutingTest : RobolectricTest() {
 
             selectTextFile(activity, source)
 
-            val intent = assertNotNull(shadowOf(activity).nextStartedActivity)
-            assertEquals(CsvImporter::class.java.name, intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME))
+            compose.waitUntil(10_000) { activity.currentScreenFragment is CsvImporter }
+            val importer = assertIs<CsvImporter>(activity.currentScreenFragment)
+            assertEquals(File(targetContext.cacheDir, source.name).absolutePath, importer.requireArguments().getString("filePath"))
+            assertNull(shadowOf(activity).nextStartedActivity)
             assertContentEquals(source.readBytes(), File(targetContext.cacheDir, source.name).readBytes())
         }
 
@@ -338,8 +345,10 @@ class ImportRoutingTest : RobolectricTest() {
 
             selectTextFile(activity, source, "application/octet-stream")
 
-            val intent = assertNotNull(shadowOf(activity).nextStartedActivity)
-            assertEquals(CsvImporter::class.java.name, intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME))
+            compose.waitUntil(10_000) { activity.currentScreenFragment is CsvImporter }
+            val importer = assertIs<CsvImporter>(activity.currentScreenFragment)
+            assertEquals(File(targetContext.cacheDir, source.name).absolutePath, importer.requireArguments().getString("filePath"))
+            assertNull(shadowOf(activity).nextStartedActivity)
         }
 
     @Test
@@ -397,7 +406,8 @@ class ImportRoutingTest : RobolectricTest() {
             val activity = launchTextImport(source)
 
             val intent = assertNotNull(shadowOf(activity).nextStartedActivity)
-            assertEquals(CsvImporter::class.java.name, intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME))
+            assertEquals(File(targetContext.cacheDir, source.name).absolutePath, csvImportPath(intent))
+            assertNull(shadowOf(activity).nextStartedActivity)
             assertContentEquals(source.readBytes(), File(targetContext.cacheDir, source.name).readBytes())
         }
 
@@ -410,7 +420,8 @@ class ImportRoutingTest : RobolectricTest() {
             val activity = launchImport(intent)
 
             val launched = assertNotNull(shadowOf(activity).nextStartedActivity)
-            assertEquals(CsvImporter::class.java.name, launched.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME))
+            assertEquals(File(targetContext.cacheDir, source.name).absolutePath, csvImportPath(launched))
+            assertNull(shadowOf(activity).nextStartedActivity)
             assertTrue(activity.isFinishing)
         }
 
