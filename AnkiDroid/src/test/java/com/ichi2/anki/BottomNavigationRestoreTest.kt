@@ -79,6 +79,28 @@ class BottomNavigationRestoreTest : RobolectricTest() {
         }
 
     @Test
+    fun `reloading decks while another tab is open clears the home progress indicator`() =
+        withBottomNavigation {
+            val controller = launchOn(NavigationItem.MORE)
+            controller.recreate()
+            val deckPicker = controller.get()
+            assertShowsTab(deckPicker, NavigationItem.MORE)
+            composeRule.waitForIdle()
+            val progress = deckPicker.deckPickerBinding.root.findViewById<View>(R.id.progress_bar)
+            assertThat(progress.isAttachedToWindow, equalTo(false))
+
+            val reload = deckPicker.viewModel.updateDeckList()
+            advanceRobolectricLooperUntil { reload.isCompleted }
+            val counts = requireNotNull(deckPicker.viewModel.loadDeckCounts)
+            advanceRobolectricLooperUntil { counts.isCompleted }
+            advanceRobolectricLooper()
+            assertThat(progress.isVisible, equalTo(false))
+
+            deckPicker.select(NavigationItem.HOME)
+            assertThat(progress.isVisible, equalTo(false))
+        }
+
+    @Test
     fun `restoring on Home after the browser was opened`() =
         withBottomNavigation {
             val controller = launchOn(NavigationItem.BROWSER)

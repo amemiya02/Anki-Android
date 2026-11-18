@@ -1019,7 +1019,7 @@ open class DeckPicker :
         }
 
         fun onDecksReloaded(param: Unit) {
-            hideProgressBar()
+            deckPickerBinding.progressBar.isVisible = false
             // TODO: Refresh deck metadata in the reminder pane
             fragment?.refreshInterface()
         }

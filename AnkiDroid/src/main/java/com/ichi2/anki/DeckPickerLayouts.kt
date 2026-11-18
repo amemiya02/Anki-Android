@@ -115,6 +115,7 @@ internal class DeckListLayout(
         }
     val pullToSyncWrapper = SwipeRefreshLayout(context).apply { id = R.id.pull_to_sync_wrapper }
     val deckList = ComposeView(context).apply { id = R.id.deck_list }
+    val progressBar = ProgressBar(context).apply { id = R.id.progress_bar }
     val floatingActionButton = AddMenuLayout(context)
     val deckPickerContent =
         FrameLayout(context).apply {
@@ -128,7 +129,7 @@ internal class DeckListLayout(
         root.addView(background, MATCH_PARENT, MATCH_PARENT)
         root.addView(deckpickerView, MATCH_PARENT, MATCH_PARENT)
         root.addView(
-            ProgressBar(context).apply { id = R.id.progress_bar },
+            progressBar,
             CoordinatorLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply { gravity = Gravity.CENTER },
         )
         root.addView(floatingActionButton.root, MATCH_PARENT, MATCH_PARENT)
