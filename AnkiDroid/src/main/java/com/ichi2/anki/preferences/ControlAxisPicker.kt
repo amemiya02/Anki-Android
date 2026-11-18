@@ -68,7 +68,7 @@ internal fun AxisBindingPicker(onSelect: (Binding.AxisButtonBinding) -> Unit) {
         },
     )
     if (axes.isEmpty()) {
-        DialogBody(stringResource(R.string.axis_picker_move_joystick))
+        DialogBody(stringResource(CommonString.axis_picker_move_joystick))
     }
     for (axis in Axis.entries) {
         val reading = axes[axis] ?: continue

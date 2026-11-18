@@ -146,7 +146,7 @@ class ControlsSettingsFragmentTest : RobolectricTest() {
         withUndoBindingEditor {
             val axisLabel = getResourceString(CommonString.binding_add_axis)
             compose.onNodeWithText(axisLabel).performClick()
-            val viewRoot = compose.onNodeWithText(getResourceString(R.string.axis_picker_move_joystick)).fetchSemanticsNode().root
+            val viewRoot = compose.onNodeWithText(getResourceString(CommonString.axis_picker_move_joystick)).fetchSemanticsNode().root
             val window = (viewRoot as ViewRootForTest).view.rootView
             val positive = Binding.AxisButtonBinding(Axis.X, 1f)
             val negative = Binding.AxisButtonBinding(Axis.X, -1f)
