@@ -177,13 +177,9 @@
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">Automātiska vienādošana var tik izsaukta pēc %d sekundēm</item>
     </plurals>
     <string name="metered_sync_data_warning">Interneta pakalpojuma sniedzējs var pieprasīt samaksu par datu izmantošanu</string>
-    <string name="deck_picker_new">Jauno kartīšu skaits, ko šodien rādīt šajā kavā.</string>
-    <string name="deck_picker_rev">Kartīšu, kurām šodien pienācis laiks, skaits šajā kavā.</string>
-    <string name="deck_picker_lrn">Apgūstamo kartīšu skaits šajā kavā.</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
-    <string name="deck_picker_counts">Atvērt kavas pārskata lapu, kas satur šodien apskatāmo kartīšu skaitu.</string>
     <string name="import_deck_package">Kavas pakotne (.apkg)</string>
     <string name="import_collection_package">Krājuma pakotne (.colpkg)</string>
     <string name="import_csv">Teksta datne (.txt, .csv)</string>

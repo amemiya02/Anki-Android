@@ -173,13 +173,9 @@
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">An automatic sync may be triggered in %d seconds</item>
     </plurals>
     <string name="metered_sync_data_warning">Ο πάροχος σας μπορεί να χρεώσει χρήματα για χρήση δεδομένων</string>
-    <string name="deck_picker_new">Αριθμός νέων καρτών για να δείτε σήμερα σε αυτή την τράπουλα.</string>
-    <string name="deck_picker_rev">Αριθμός καρτών που λήγουν σήμερα σε αυτήν την τράπουλα.</string>
-    <string name="deck_picker_lrn">Αριθμός καρτών σε εκμάθηση σε αυτή την τράπουλα.</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
-    <string name="deck_picker_counts">Ανοίξτε τη σελίδα επισκόπησης της τράπουλας που περιέχει τον αριθμό των καρτών που θα δείτε σήμερα.</string>
     <string name="import_deck_package">Πακέτο τράπουλας (.apkg)</string>
     <string name="import_collection_package">Πακέτο συλλογής (.colpkg)</string>
     <string name="import_csv">Αρχείο κειμένου (.txt, .csv)</string>

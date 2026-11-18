@@ -30,9 +30,6 @@
     <!-- Note editor screen -->
     <string name="CardEditorCardDeck">Kartenstapel:</string>
     <string name="CardEditorNoteDeck" comment="Label of the field choosing which deck a note\'s cards go into, in the note editor.">Stapel:</string>
-    <string name="CardEditorModel">Typ:</string>
-    <string name="CardEditorTags">Schlagwörter: %1$s</string>
-    <string name="CardEditorCards">Karten: %1$s</string>
     <string name="edit_occlusions">Okklusionen bearbeiten</string>
     <string name="paste_from_clipboard" maxLength="28">Aus Zwischenablage einfügen</string>
     <string name="add_new_filter_tags">Schlagwörter hinzufügen/filtern</string>
@@ -164,7 +161,6 @@
     <string name="export_choice_share">Teilen</string>
     <string name="export_choice_save_to">Speichern unter</string>
     <string name="export_saving_exported_collection">Exportierte Datei speichern&#8230;</string>
-    <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Einstellungen</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Lerneinstellungen</string>
     <string name="select_tts" maxLength="28">Vorlesesprache festlegen</string>
     <string name="dyn_deck_desc">Dies ist ein besonderer Stapel, um außerhalb des regulären Zeitplans zu lernen. Karten werden nach dem Wiederholen automatisch in ihren ursprünglichen Stapel zurückgelegt. Beim Löschen dieses Stapels aus der Stapelliste werden alle verbleibenden Karten in ihren ursprünglichen Stapel zurückgelegt.</string>
@@ -370,7 +366,6 @@
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">Template als Markdown kopieren</string>
     <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">Browser-Erscheinungsbild bearbeiten</string>
     <string name="missing_user_action_dialog_message" comment="%s is the user action number">Benutzeraktion %s ist in diesem notiztyp nicht festgelegt. Bitte konfigurieren Sie es</string>
-    <string name="feature_not_supported_by_study_screen">Diese Karte hat Funktionen, die vom neuen Lernbildschirm noch nicht unterstützt werden.</string>
     <string name="directory_inaccessible_info">Erfahren Sie hier %s mehr darüber, wie Sie den Zugriff wiederherstellen können, oder gehen Sie zu den Einstellungen, um den Sammlungsordner zu aktualisieren.</string>
     <!-- Scheduler Upgrade Required Dialog title-->
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Zeitplaner-Upgrade erforderlich</string>

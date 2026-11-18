@@ -169,13 +169,9 @@
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">Đồng bộ tự động có thể được kích hoạt sau %d giây</item>
     </plurals>
     <string name="metered_sync_data_warning">Nhà cung cấp dịch vụ internet của bạn có thể tính phí cho việc sử dụng dữ liệu.</string>
-    <string name="deck_picker_new">Số thẻ mới trong bộ thẻ của ngày hôm nay</string>
-    <string name="deck_picker_rev">Số thẻ đến hạn trong bộ thẻ của ngày hôm nay.</string>
-    <string name="deck_picker_lrn">Số thẻ đang học trong bộ thẻ.</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
-    <string name="deck_picker_counts">Open the deck overview page containing the number of cards to see today.</string>
     <string name="import_deck_package">Deck package (.apkg)</string>
     <string name="import_collection_package">Collection package (.colpkg)</string>
     <string name="import_csv">Tệp văn bản (.txt, .csv)</string>

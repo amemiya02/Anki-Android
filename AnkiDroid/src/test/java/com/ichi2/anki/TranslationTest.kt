@@ -280,7 +280,7 @@ class TranslationTest : JvmTest() {
                 // TR.customStudyOk()
                 // TR.helpOk()
                 "Open", // CommonString.open | TR.profilesOpen()
-                "Options", // CommonString.error_handling_options, CommonString.study_options
+                "Options", // CommonString.error_handling_options
                 // TR.actionsOptions()
                 // TR.notetypesOptions()
                 // TR.cardTemplatesPreviewSettings()
@@ -303,7 +303,7 @@ class TranslationTest : JvmTest() {
                 // TR.actionsSave()
                 // TR.deckConfigSaveButton()
                 "Scheduling", // CommonString.pref_cat_scheduling | TR.preferencesScheduling()
-                "Search", // CommonString.card_browser_cram_search, CommonString.card_browser_search_hint
+                "Search", // CommonString.card_browser_cram_search
                 // CommonString.deck_conf_cram_search
                 // TR.actionsSearch()
                 // TR.statisticsRangeSearch()

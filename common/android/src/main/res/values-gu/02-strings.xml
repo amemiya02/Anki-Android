@@ -30,9 +30,6 @@
     <!-- Note editor screen -->
     <string name="CardEditorCardDeck">કાર્ડ ડેક:</string>
     <string name="CardEditorNoteDeck" comment="Label of the field choosing which deck a note\'s cards go into, in the note editor.">તૂતક:</string>
-    <string name="CardEditorModel">પ્રકાર:</string>
-    <string name="CardEditorTags">ટૅગ્સ: %1$s</string>
-    <string name="CardEditorCards">કાર્ડ્સ: %1$s</string>
     <string name="edit_occlusions">Edit occlusions</string>
     <string name="paste_from_clipboard" maxLength="28">Paste from clipboard</string>
     <string name="add_new_filter_tags">ટૅગ્સ ઉમેરો/ફિલ્ટર કરો</string>
@@ -164,7 +161,6 @@
     <string name="export_choice_share">શેર કરો</string>
     <string name="export_choice_save_to">આના પર સાચવો</string>
     <string name="export_saving_exported_collection">નિકાસ કરેલી ફાઇલ સાચવી રહ્યું છે&#8230;</string>
-    <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">વિકલ્પો</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">અભ્યાસ વિકલ્પો</string>
     <string name="select_tts" maxLength="28">TTS ભાષા સેટ કરો</string>
     <string name="dyn_deck_desc">સામાન્ય સમયપત્રકની બહાર અભ્યાસ કરવા માટે આ એક ખાસ ડેક છે. તમે તેમની સમીક્ષા કર્યા પછી કાર્ડ્સ આપમેળે તેમના મૂળ ડેક પર પાછા આવશે. ડેક સૂચિમાંથી આ ડેકને કાઢી નાખવાથી બાકીના તમામ કાર્ડ્સ તેમના મૂળ ડેક પર પાછા આવશે.</string>
@@ -370,7 +366,6 @@
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">Copy template as markdown</string>
     <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">Edit browser appearance</string>
     <string name="missing_user_action_dialog_message" comment="%s is the user action number">User action %s is not set in this notetype. Please configure it</string>
-    <string name="feature_not_supported_by_study_screen">This card has features that are not yet supported by the new study screen.</string>
     <string name="directory_inaccessible_info">Learn more about how to restore access here %s or go to settings to update collection folder.</string>
     <!-- Scheduler Upgrade Required Dialog title-->
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Scheduler upgrade required</string>

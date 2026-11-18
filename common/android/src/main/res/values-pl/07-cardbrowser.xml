@@ -46,7 +46,6 @@
     <string name="card_browser_show_marked" maxLength="28">Filtruj zaznaczone</string>
     <string name="card_browser_show_suspended" maxLength="28">Filtruj zawieszone</string>
     <string name="card_browser_search_by_tag" maxLength="28">Filtruj po tagu</string>
-    <string name="card_browser_search_by_flag" maxLength="28">Filtruj po fladze</string>
     <string name="card_browser_list_my_searches" maxLength="28">Moje wyszukiwania</string>
     <string name="card_browser_list_my_searches_save" maxLength="28">Zapisz wyszukiwanie</string>
     <string name="card_browser_list_my_searches_title">Wybierz zapisane wyszukiwanie</string>
@@ -57,8 +56,6 @@
     <string name="card_browser_list_my_searches_successful_deleted">Usunięto wyszukiwanie</string>
     <string name="no_note_to_edit">Brak notatki do edycji</string>
     <string name="card_browser_list_my_searches_remove_content">Usunąć \"%1$s\"?</string>
-    <string name="card_browser_change_display_order" maxLength="28">Zmień kolejność wyświetlania</string>
-    <string name="card_browser_search_hint" comment="Message displayed in the search text field in the card browser.">Szukaj</string>
     <string name="card_browser_cram_search" maxLength="28" comment="Menu entry to start a search.">Szukaj</string>
     <string name="card_browser_change_display_order_title">Wybierz kolejność wyświetlania</string>
     <string name="card_details_tags">Tagi</string>
@@ -90,7 +87,6 @@
         <item quantity="other">Usunięto %d kart</item>
     </plurals>
     <!--Keyboard shortcuts dialog-->
-    <string name="edit_tags_dialog" comment="Description of the shortcut that opens the edit tags dialog">Okno dialogowe edycji tagów</string>
     <string name="show_order_dialog" comment="Description of the shortcut that shows the order dialog">Pokaż okno dialogowe zamówienia</string>
     <!-- Manage columns dialog -->
     <string name="browse_manage_columns_main_heading">Kolumny</string>
@@ -107,7 +103,6 @@
     <!-- Sort Order -->
     <string name="card_browser_order_no_sorting_title" comment="Title of the \'no sorting\' row in the Choose Display Order bottom sheet">Bez sortowania</string>
     <string name="card_browser_order_no_sorting_subtitle" comment="Subtitle for the \'no sorting\' row noting that no-sort is faster than sorted queries">Szybciej</string>
-    <string name="card_browser_order_snackbar_sort_by" comment="Snackbar shown after sort changes. %1$s is the column name (e.g. \'Card Type\')">Sortuj według %1$s</string>
     <string name="card_browser_order_subtitle_text_ascending" comment="Sort direction subtitle for text columns when ascending (A before Z)">A–Z</string>
     <string name="card_browser_order_subtitle_text_descending" comment="Sort direction subtitle for text columns when descending (Z before A)">Z–A</string>
     <string name="card_browser_order_subtitle_numeric_ascending" comment="Sort direction subtitle for numeric columns when ascending (smallest value first)">Rosnąco</string>

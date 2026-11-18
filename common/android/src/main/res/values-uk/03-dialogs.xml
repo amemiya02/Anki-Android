@@ -181,13 +181,9 @@
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">Автоматична синхронізація може запуститися через %d секунд.</item>
     </plurals>
     <string name="metered_sync_data_warning">Ваш інтернет-провайдер може стягувати гроші за використання даних</string>
-    <string name="deck_picker_new">Кількість нових карт, що будуть бачити сьогодні в цій колоді.</string>
-    <string name="deck_picker_rev">Кількість нових карток на сьогодні в цій колоді</string>
-    <string name="deck_picker_lrn">Кількість карток для повторення на сьогодні в цій колоді</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
-    <string name="deck_picker_counts">Відкрити сторінку огляду колоди, що містить число карт для перегляду на сьогодні.</string>
     <string name="import_deck_package">Пакет колоди (.apkg)</string>
     <string name="import_collection_package">Пакет колекції (.colpkg)</string>
     <string name="import_csv">Текстовий файл (.txt, .csv)</string>

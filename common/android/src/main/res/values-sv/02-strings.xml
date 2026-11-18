@@ -30,9 +30,6 @@
     <!-- Note editor screen -->
     <string name="CardEditorCardDeck">Kortlek:</string>
     <string name="CardEditorNoteDeck" comment="Label of the field choosing which deck a note\'s cards go into, in the note editor.">Kortlek:</string>
-    <string name="CardEditorModel">Typ:</string>
-    <string name="CardEditorTags">Etiketter: %1$s</string>
-    <string name="CardEditorCards">Kort: %1$s</string>
     <string name="edit_occlusions">Redigera ocklusioner</string>
     <string name="paste_from_clipboard" maxLength="28">Klistra in från urklipp</string>
     <string name="add_new_filter_tags">Lägg till/Filtrera etiketter</string>
@@ -164,7 +161,6 @@
     <string name="export_choice_share">Dela</string>
     <string name="export_choice_save_to">Spara till</string>
     <string name="export_saving_exported_collection">Spara exporterad fil&#8230;</string>
-    <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Alternativ</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Studeringsalternativ</string>
     <string name="select_tts" maxLength="28">Ställ in TTS-språk</string>
     <string name="dyn_deck_desc">Det här är en specialkortlek för studier utanför det normala schemat. Korten återförs automatiskt till sina ursprungliga kortlekar efter att du repeterat dem. Om du tar bort denna kortlek återförs alla återstående kort till sina ursprungliga kortlekar.</string>
@@ -371,7 +367,6 @@
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">Kopiera mallen som markdown</string>
     <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">Redigera webbläsarens utseende</string>
     <string name="missing_user_action_dialog_message" comment="%s is the user action number">Användaråtgärd %s är inte inställd i denna anteckningstyp. Vänligen konfigurera den</string>
-    <string name="feature_not_supported_by_study_screen">Det här kortet har funktioner som inte stöds än av den nya studieskärmen.</string>
     <string name="directory_inaccessible_info">Läs mer om hur du återställer åtkomsten här: %s, eller gå till inställningarna för att uppdatera samlingsmappen.</string>
     <!-- Scheduler Upgrade Required Dialog title-->
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Uppgradering av schemaläggare krävs</string>

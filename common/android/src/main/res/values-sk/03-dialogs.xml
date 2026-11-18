@@ -181,13 +181,9 @@
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">An automatic sync may be triggered in %d seconds</item>
     </plurals>
     <string name="metered_sync_data_warning">Používanie dát môže byť spoplatnené u Vášho poskytovateľa internetových služieb</string>
-    <string name="deck_picker_new">Počet nových kariet na dnes v tomto balíčku</string>
-    <string name="deck_picker_rev">Počet kartičiek na preskúšanie na dnes v tomto balíčku</string>
-    <string name="deck_picker_lrn">Počet kartičiek v štádiu učenia v tomto balíčku.</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
-    <string name="deck_picker_counts">Otvoriť stránku prehľadu balíčka obsahujúcu počet kartičiek pre dnes.</string>
     <string name="import_deck_package">Súbor balíčka</string>
     <string name="import_collection_package">Súbor zbierky</string>
     <string name="import_csv">Textový súbor (.txt .csv)</string>

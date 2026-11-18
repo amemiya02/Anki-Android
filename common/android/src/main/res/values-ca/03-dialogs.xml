@@ -173,13 +173,9 @@
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">An automatic sync may be triggered in %d seconds</item>
     </plurals>
     <string name="metered_sync_data_warning">Your internet provider may charge money for data use</string>
-    <string name="deck_picker_new">Nombre de cartes noves que es poden veure avui en aquest paquet.</string>
-    <string name="deck_picker_rev">Nombre de cartes pendents per avui en aquest paquet.</string>
-    <string name="deck_picker_lrn">Número de cartes que s\'estan aprenent en aquest paquet.</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
-    <string name="deck_picker_counts">Obriu la pàgina de descripció general del paquet que conté el nombre de cartes que podeu veure avui.</string>
     <string name="import_deck_package">Paquet (.apkg)</string>
     <string name="import_collection_package">Col·lecció (.colpkg)</string>
     <string name="import_csv">Arxiu de text (.txt, .csv)</string>

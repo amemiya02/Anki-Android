@@ -173,13 +173,9 @@
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">ئۆزلۈكىدىن قەدەمداشلاش %d سېكۇنتتا قوزغىلىشى مۇمكىن</item>
     </plurals>
     <string name="metered_sync_data_warning">ئىنتېرنېت تەمىنلىگۈچىڭىز ئىشلەتكەن سانلىق مەلۇماتقا ھەق ئېلىشى مۇمكىن</string>
-    <string name="deck_picker_new">بۈگۈن بۇ دەستىدە كۆرۈنىدىغان يېڭى كارتا سانى.</string>
-    <string name="deck_picker_rev">بۈگۈن بۇ دەستىدە مۆھلىتى توشىدىغان كارتا سانى.</string>
-    <string name="deck_picker_lrn">بۇ دەستىدە ئۆگىنىدىغان كارتا سانى.</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
-    <string name="deck_picker_counts">بۈگۈن كۆرسىتىدىغان كارتا سانىنىڭ دەستە قىسقىچە مەزمۇن بېتىنى ئاچىدۇ.</string>
     <string name="import_deck_package">دەستە بولىقى (.apkg)</string>
     <string name="import_collection_package">توپلام بولىقى (.colpkg)</string>
     <string name="import_csv">تېكىست ھۆججەت (.txt, .csv)</string>

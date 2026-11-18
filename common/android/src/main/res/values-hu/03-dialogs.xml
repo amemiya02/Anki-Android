@@ -173,13 +173,9 @@
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">An automatic sync may be triggered in %d seconds</item>
     </plurals>
     <string name="metered_sync_data_warning">Your internet provider may charge money for data use</string>
-    <string name="deck_picker_new">A ma megnézendő új kártyák száma ebben a pakliban.</string>
-    <string name="deck_picker_rev">A ma elvégzendő kártyák száma ebben a pakliban.</string>
-    <string name="deck_picker_lrn">A tanulandó kártyák száma ebben a pakliban.</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
-    <string name="deck_picker_counts">Nyisd meg a pakli áttekintő oldalát, az tartalamzza a ma megnézendő kártyák számát.</string>
     <string name="import_deck_package">Pakli telepítőcsomag (.apkg)</string>
     <string name="import_collection_package">Gyűjtemény telepítő csomag (.colpkg)</string>
     <string name="import_csv">Szöveges fájl (.txt, .csv)</string>

@@ -30,9 +30,6 @@
     <!-- Note editor screen -->
     <string name="CardEditorCardDeck">Baralho de fichas:</string>
     <string name="CardEditorNoteDeck" comment="Label of the field choosing which deck a note\'s cards go into, in the note editor.">Baralho:</string>
-    <string name="CardEditorModel">Tipo:</string>
-    <string name="CardEditorTags">Etiquetas: %1$s</string>
-    <string name="CardEditorCards">Fichas: %1$s</string>
     <string name="edit_occlusions">Edit occlusions</string>
     <string name="paste_from_clipboard" maxLength="28">Paste from clipboard</string>
     <string name="add_new_filter_tags">Adicionar/filtrar etiquetas</string>
@@ -164,7 +161,6 @@
     <string name="export_choice_share">Partilhar</string>
     <string name="export_choice_save_to">Guardar em</string>
     <string name="export_saving_exported_collection">A guardar o ficheiro exportado&#8230;</string>
-    <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Opções</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Opções de estudo</string>
     <string name="select_tts" maxLength="28">Definir língua do sistema de Texto para Fala</string>
     <string name="dyn_deck_desc">Este é um baralho especial para estudar fora do horário normal. As fichas serão automaticamente devolvidas aos seus baralhos originais depois das rever. Ao eliminar este baralho da lista de baralhos irá devolver todas as fichas restantes ao seu baralho original.</string>
@@ -370,7 +366,6 @@
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">Copiar modelo no formato markdown</string>
     <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">Editar a aparência do explorador</string>
     <string name="missing_user_action_dialog_message" comment="%s is the user action number">A acção %s não foi definida para este tipo de nota. Por favor configure-o.</string>
-    <string name="feature_not_supported_by_study_screen">This card has features that are not yet supported by the new study screen.</string>
     <string name="directory_inaccessible_info">Descubra mais sobre como restaurar o acesso aqui %s, ou vá às definições para actualizar a pasta das colecções.</string>
     <!-- Scheduler Upgrade Required Dialog title-->
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Atualização do agendador necessária</string>

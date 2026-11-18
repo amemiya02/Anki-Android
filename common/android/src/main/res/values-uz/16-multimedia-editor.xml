@@ -40,7 +40,6 @@
     <!-- not a good message, when an unexpected error happens -->
     <string name="multimedia_editor_something_wrong">Nimadir xato ketdi</string>
     <string name="multimedia_editor_png_paste_error">Bufer rasmni pngʼga ögirişda xatolik yuz berdi: %s</string>
-    <string name="multimedia_editor_attach_tooltip" comment="Appear when holding the finger  on the paperclip icon">Multimedia qistiriş</string>
     <string name="multimedia_editor_attach_mm_content" comment="used for screen readers. Not visible to the user">%1$s maydoniga multimedia qistiriş</string>
     <!-- Audio view -->
     <!-- Message when recording fails -->

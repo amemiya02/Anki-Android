@@ -259,10 +259,6 @@ open class CardBrowser :
                 }
 
                 menu[R.id.action_edit_note]?.isVisible = false
-
-                // TODO: https://github.com/ankidroid/Anki-Android/issues/20206
-                // This blocks a user from previewing all cards
-                menu[R.id.action_preview_many]?.isVisible = false
             }
         }
     }

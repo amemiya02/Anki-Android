@@ -173,13 +173,9 @@
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">Una sincronizzazione automatica può essere eseguita in %d secondi</item>
     </plurals>
     <string name="metered_sync_data_warning">Il proprio provider internet potrebbe addebitare dei costi per l\'utilizzo del traffico dati</string>
-    <string name="deck_picker_new">Numero di nuove carte da vedere oggi in questo mazzo.</string>
-    <string name="deck_picker_rev">Numero di carte in questo mazzo che scadono oggi.</string>
-    <string name="deck_picker_lrn">Numero di carte da imparare in questo mazzo.</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
-    <string name="deck_picker_counts">Aprire la pagina panoramica del mazzo contenente il numero di carte da vedere oggi.</string>
     <string name="import_deck_package">Pacchetto mazzo (.apkg)</string>
     <string name="import_collection_package">Pacchetto di raccolta (.colpkg)</string>
     <string name="import_csv">File di testo (.txt, .csv)</string>

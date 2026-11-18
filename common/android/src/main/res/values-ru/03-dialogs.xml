@@ -182,13 +182,9 @@
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">Автоматическая синхронизация может быть запущена через %d секунд</item>
     </plurals>
     <string name="metered_sync_data_warning">Ваш интернет провайдер может взимать плату за использование данных</string>
-    <string name="deck_picker_new">Количество новых карточек на сегодня в этой колоде.</string>
-    <string name="deck_picker_rev">Количество карточек на сегодня в колоде.</string>
-    <string name="deck_picker_lrn">Количество изучаемых карточек в колоде.</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
-    <string name="deck_picker_counts">Открыть предпросмотр колоды с количеством карточек для просмотра сегодня.</string>
     <string name="import_deck_package">Пакет колоды (.apkg)</string>
     <string name="import_collection_package">Пакет коллекции (.colpkg)</string>
     <string name="import_csv">Текстовый файл (.txt, .csv)</string>

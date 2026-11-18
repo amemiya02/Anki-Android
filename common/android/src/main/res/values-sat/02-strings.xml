@@ -30,9 +30,6 @@
     <!-- Note editor screen -->
     <string name="CardEditorCardDeck">ᱠᱟᱰ ᱰᱮᱠᱺ</string>
     <string name="CardEditorNoteDeck" comment="Label of the field choosing which deck a note\'s cards go into, in the note editor.">ᱰᱮᱠᱺ</string>
-    <string name="CardEditorModel">ᱯᱨᱚᱠᱟᱨᱺ</string>
-    <string name="CardEditorTags">ᱴᱮᱜᱥᱺ%1$s</string>
-    <string name="CardEditorCards">ᱠᱟᱰᱺ%1$s</string>
     <string name="edit_occlusions">Edit occlusions</string>
     <string name="paste_from_clipboard" maxLength="28">Paste from clipboard</string>
     <string name="add_new_filter_tags">ᱥᱮᱞᱮᱫ/ᱴᱮᱜ ᱯᱷᱤᱞᱴᱚᱨ</string>
@@ -164,7 +161,6 @@
     <string name="export_choice_share">ᱦᱟᱹᱴᱤᱧ</string>
     <string name="export_choice_save_to">ᱞᱟᱹᱜᱤᱫ ᱫᱚᱦᱚᱭ ᱢᱮ</string>
     <string name="export_saving_exported_collection">ᱮᱠᱥᱯᱳᱨᱴ ᱟᱠᱟᱱ ᱯᱷᱤᱞᱤ ᱥᱟᱦᱟᱣ ᱠᱟᱱᱟ&#8230;</string>
-    <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">ᱚᱯᱥᱚᱱᱠᱚ</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">ᱯᱟᱲᱦᱟᱣ ᱚᱯᱥᱚᱱ ᱠᱚ</string>
     <string name="select_tts" maxLength="28">TTS ᱯᱟᱹᱨᱥᱤ ᱥᱮᱴ ᱢᱮ</string>
     <string name="dyn_deck_desc">ᱱᱚᱶᱟ ᱫᱚ ᱱᱚᱨᱢᱟᱞ ᱥᱮᱰᱭᱩᱞ ᱠᱷᱣᱱ ᱮᱴᱟᱜ ᱨᱮ ᱯᱟᱲᱦᱟᱣ ᱞᱟᱹᱜᱤᱫ ᱥᱯᱮᱥᱟᱞ ᱰᱮᱠ ᱠᱟᱱᱟ ᱾ ᱠᱟᱰ ᱠᱚ ᱨᱤᱵᱷᱤᱣ ᱯᱚᱨᱮ ᱟᱡ ᱛᱮᱜᱮ ᱢᱩᱞ ᱰᱮᱢᱠ ᱥᱮᱱ ᱥᱮᱱᱚᱜᱼᱟ ᱾ ᱰᱮᱠ ᱞᱤᱥᱴ ᱠᱷᱚᱱ ᱰᱮᱠᱜᱮᱫ ᱜᱤᱰᱤ ᱞᱮᱠᱷᱱᱟ ᱫᱚ ᱡᱷᱚᱛᱚ ᱠᱟᱲ ᱢᱩᱞ ᱰᱮᱠ ᱥᱮᱱ ᱥᱮᱱᱚᱜᱼᱟ</string>
@@ -370,7 +366,6 @@
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">ᱢᱟᱨᱠᱰᱟᱩᱱ ᱞᱮᱠᱟᱛᱮ ᱠᱳᱯᱤ ᱢᱮᱴᱟᱤᱞ</string>
     <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">ᱵᱽᱨᱟᱩᱡᱚᱨ ᱨᱮᱱᱟᱜ ᱧᱮᱞ ᱥᱟᱯᱲᱟᱣ</string>
     <string name="missing_user_action_dialog_message" comment="%s is the user action number">ᱱᱚᱶᱟ ᱱᱳᱴᱤᱯ ᱨᱮ ᱵᱮᱵᱷᱟᱨᱤᱭᱟᱹ ᱠᱟᱹᱢᱤ %s ᱫᱚ ᱵᱟᱝ ᱥᱮᱴᱮᱨ ᱟᱠᱟᱱᱟ. ᱱᱚᱶᱟ ᱞᱤᱱ ᱢᱮ</string>
-    <string name="feature_not_supported_by_study_screen">This card has features that are not yet supported by the new study screen.</string>
     <string name="directory_inaccessible_info">%s ᱨᱮ ᱥᱮᱴᱮᱨᱚᱜ ᱨᱮᱱᱟᱜ ᱵᱟᱹᱲᱛᱤ ᱵᱟᱰᱟᱭ ᱞᱟᱹᱜᱤᱫ ᱥᱮᱴᱮᱨᱚᱜ ᱨᱮ ᱥᱮᱴᱮᱨᱚᱜ ᱢᱮ ᱟᱨ ᱥᱮᱞᱮᱫ ᱯᱟᱹᱴᱷᱩᱣᱟᱹ ᱠᱚᱢᱯᱩᱴᱚᱨ ᱨᱮ ᱵᱚᱫᱚᱞ ᱢᱮ</string>
     <!-- Scheduler Upgrade Required Dialog title-->
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Scheduler upgrade required</string>

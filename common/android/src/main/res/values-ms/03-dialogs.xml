@@ -169,13 +169,9 @@
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">An automatic sync may be triggered in %d seconds</item>
     </plurals>
     <string name="metered_sync_data_warning">Your internet provider may charge money for data use</string>
-    <string name="deck_picker_new">Bilangan kad baru untuk lihat hari ini dalam dek ini.</string>
-    <string name="deck_picker_rev">Bilangan kad tunggakan hari ini dalam dek ini.</string>
-    <string name="deck_picker_lrn">Bilangan kad sedang dipelajari hari ini dalam dek ini.</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
-    <string name="deck_picker_counts">Buka halaman ringkasan dek yang mengandungi bilangan kad untuk lihat hari ini.</string>
     <string name="import_deck_package">Pakej Dek (.apkg)</string>
     <string name="import_collection_package">Pakej koleksi (.colpkg)</string>
     <string name="import_csv">Fail teks (.txt, .csv)</string>

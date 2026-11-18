@@ -181,13 +181,9 @@
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">An automatic sync may be triggered in %d seconds</item>
     </plurals>
     <string name="metered_sync_data_warning">Jūsų interneto paslaugų teikėjas gali imti mokestį už duomenų naudojimą</string>
-    <string name="deck_picker_new">Šiandien šiame kortelių rinkinyje galima pamatyti daug naujų kortelių</string>
-    <string name="deck_picker_rev">Šiandien šiame kortelių rinkinyje esančių kortų skaičius.</string>
-    <string name="deck_picker_lrn">Mokomųjų kortų skaičius šioje kortelių rinkinyje.</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
-    <string name="deck_picker_counts">Atverkite kortelių rinkinio apžvalgos puslapį, kuriame yra šiandien norimas peržiūrėti kortelių skaičius.</string>
     <string name="import_deck_package">Kortelių rinkinio paketas (.apkg)</string>
     <string name="import_collection_package">Kolekcijos paketas (.colpkg)</string>
     <string name="import_csv">Tekstinis failas (.txt, .csv)</string>

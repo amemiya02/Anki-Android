@@ -30,9 +30,6 @@
     <!-- Note editor screen -->
     <string name="CardEditorCardDeck">Bộ thẻ:</string>
     <string name="CardEditorNoteDeck" comment="Label of the field choosing which deck a note\'s cards go into, in the note editor.">Bộ:</string>
-    <string name="CardEditorModel">Loại:</string>
-    <string name="CardEditorTags">Các đuôi: %1$s</string>
-    <string name="CardEditorCards">Các thẻ: %1$s</string>
     <string name="edit_occlusions">Edit occlusions</string>
     <string name="paste_from_clipboard" maxLength="28">Dán từ bộ nhớ tạm</string>
     <string name="add_new_filter_tags">Thêm/lọc các đuôi</string>
@@ -161,7 +158,6 @@
     <string name="export_choice_share">Chia sẻ</string>
     <string name="export_choice_save_to">Lưu tới</string>
     <string name="export_saving_exported_collection">Đang lưu tệp đã xuất&#8230;</string>
-    <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Tuỳ chọn</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Tùy chọn học tập</string>
     <string name="select_tts" maxLength="28">Thiết lập ngôn ngữ TTS</string>
     <string name="dyn_deck_desc">Đây là bộ thẻ đặc biệt phục vụ cho việc học ngoài lịch trình thông thường. Các thẻ sẽ tự động quay lại bộ thẻ ban đầu của chúng sau khi ôn tập. Xoá bộ thẻ này khỏi danh sách sẽ chuyển toàn bộ thẻ còn lại về bộ thẻ ban đầu của chúng.</string>
@@ -364,7 +360,6 @@
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">Sao chép mẫu dưới dạng markdown</string>
     <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">Chỉnh sửa giao diện trình duyệt</string>
     <string name="missing_user_action_dialog_message" comment="%s is the user action number">Hành động người dùng %s chưa được thiết lập trong loại ghi chú này. Vui lòng cấu hình.</string>
-    <string name="feature_not_supported_by_study_screen">This card has features that are not yet supported by the new study screen.</string>
     <string name="directory_inaccessible_info">Tìm hiểu thêm về cách khôi phục quyền truy cập tại %s hoặc vào cài đặt để cập nhật thư mục bộ sưu tập.</string>
     <!-- Scheduler Upgrade Required Dialog title-->
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Yêu cầu nâng cấp bộ lập lịch</string>

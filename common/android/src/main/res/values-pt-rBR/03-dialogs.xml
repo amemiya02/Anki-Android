@@ -173,13 +173,9 @@
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">Uma sincronização automática será ativada em %d segundos</item>
     </plurals>
     <string name="metered_sync_data_warning">Seu provedor de internet pode cobrar pelo uso de dados</string>
-    <string name="deck_picker_new">Número de novos cards para ver hoje neste baralho.</string>
-    <string name="deck_picker_rev">Número de cartões que vencem hoje neste baralho.</string>
-    <string name="deck_picker_lrn">Número de cards em para aprender neste baralho.</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
-    <string name="deck_picker_counts">Abra a página de visão geral do deck contendo o número de cartas a serem vistas hoje.</string>
     <string name="import_deck_package">Baralho (.apkg)</string>
     <string name="import_collection_package">Coleção (.colpkg)</string>
     <string name="import_csv">Arquivo de texto (.txt, .csv)</string>

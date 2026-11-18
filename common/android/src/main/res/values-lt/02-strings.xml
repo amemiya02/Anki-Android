@@ -30,9 +30,6 @@
     <!-- Note editor screen -->
     <string name="CardEditorCardDeck">Kortelių rinkinys:</string>
     <string name="CardEditorNoteDeck" comment="Label of the field choosing which deck a note\'s cards go into, in the note editor.">Rinkinys:</string>
-    <string name="CardEditorModel">Tipas:</string>
-    <string name="CardEditorTags">Žymės: %1$s</string>
-    <string name="CardEditorCards">Kortelės: %1$s</string>
     <string name="edit_occlusions">Edit occlusions</string>
     <string name="paste_from_clipboard" maxLength="28">Paste from clipboard</string>
     <string name="add_new_filter_tags">Pridėti/filtruoti žymes</string>
@@ -170,7 +167,6 @@
     <string name="export_choice_share">Dalintis</string>
     <string name="export_choice_save_to">Išsaugoti į</string>
     <string name="export_saving_exported_collection">Eksportuoto failo išsaugojimas&#8230;</string>
-    <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Parinktys</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Studijų galimybių nustatymai</string>
     <string name="select_tts" maxLength="28">Nustatyti skaitymo balsu kalbą</string>
     <string name="dyn_deck_desc">Tai yra specialus rinkinys, skirtas mokytis papildomai. Peržiūrėjus korteles, jos bus automatiškai grąžintos į savo pagrindinius rinkinius. Ištrynus šį rinkinį iš sąrašo, visos kortelės bus grąžintos į savo pradinį rinkinį.</string>
@@ -382,7 +378,6 @@
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">Kopijuoti šabloną kaip žymėjimą</string>
     <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">Redaguoti naršyklės išvaizdą</string>
     <string name="missing_user_action_dialog_message" comment="%s is the user action number">Vartotojo veiksmas %s nėra nustatytas šiame nototipe. Nustatykite jį</string>
-    <string name="feature_not_supported_by_study_screen">This card has features that are not yet supported by the new study screen.</string>
     <string name="directory_inaccessible_info">Sužinokite daugiau apie tai, kaip atkurti prieigą, čia %s arba eikite į nustatymus ir atnaujinkite kolekcijos aplanką.</string>
     <!-- Scheduler Upgrade Required Dialog title-->
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Scheduler upgrade required</string>

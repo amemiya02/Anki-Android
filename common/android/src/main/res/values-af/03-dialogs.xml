@@ -173,13 +173,9 @@
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">An automatic sync may be triggered in %d seconds</item>
     </plurals>
     <string name="metered_sync_data_warning">Jou internetverskaffer kan dalk geld vra vir datagebruik</string>
-    <string name="deck_picker_new">Aantal nuwe kaarte om vandag in hierdie pak te sien.</string>
-    <string name="deck_picker_rev">Aantal kaarte wat vandag in hierdie pak verskuldig is.</string>
-    <string name="deck_picker_lrn">Aantal kaarte in leer in hierdie pak.</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
-    <string name="deck_picker_counts">Maak die pak-oorsigbladsy oop wat die aantal kaarte bevat om vandag te sien.</string>
     <string name="import_deck_package">Pak-pakket (.apkg)</string>
     <string name="import_collection_package">Versameling-pakket (.colpkg)</string>
     <string name="import_csv">Teks-lêer (.txt, .csv)</string>

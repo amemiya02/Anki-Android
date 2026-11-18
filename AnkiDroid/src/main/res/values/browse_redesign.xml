@@ -20,7 +20,6 @@
     <string name="browse_done">Done</string>
     <string name="browse_history_edit">Edit search</string>
     <string name="browse_sort_direction">Direction</string>
-    <string name="browse_loading_results">Loading results</string>
     <string name="browse_more_actions">More actions</string>
     <string name="browse_hide_keyboard">Submit search</string>
     <string name="browse_action_deck">Deck</string>

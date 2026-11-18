@@ -173,13 +173,9 @@
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">An automatic sync may be triggered in %d seconds</item>
     </plurals>
     <string name="metered_sync_data_warning">ଆପଣଙ୍କ ଇଣ୍ଟରନେଟ୍ ପ୍ରଦାତା ଡାଟା ବ୍ୟବହାର ପାଇଁ ଟଙ୍କା ଆଦାୟ କରିପାରନ୍ତି</string>
-    <string name="deck_picker_new">ଏହି କେରୀରେ ଆଜିର ଅଧ୍ୟୟନ ନିମିତ୍ତ ଥିବା ନୂତନ ପତ୍ରର ସଂଖ୍ୟା।</string>
-    <string name="deck_picker_rev">ଏହି କେରୀରେ ଆଜିର ଧାର୍ଯ୍ୟ ଥିବା ନୂତନ ପତ୍ରର ସଂଖ୍ୟା।</string>
-    <string name="deck_picker_lrn">ଏହି କେରୀରେ ଶିକ୍ଷାଧିନ ପତ୍ରର ସଂଖ୍ୟା।</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
-    <string name="deck_picker_counts">ଆଜି ଅଧ୍ୟୟନ ନିମିତ୍ତ ଥିବା ପତ୍ରର ସଂଖ୍ୟା ଧାରଣ କରିଥିବା କେରୀ ବର୍ଣ୍ଣନା ପୃଷ୍ଠା ଖୋଲନ୍ତୁ।</string>
     <string name="import_deck_package">କେରୀ ପ୍ୟାକେଜ୍ (.apkg)</string>
     <string name="import_collection_package">ସଂଗ୍ରହ ପ୍ୟାକେଜ୍ (.colpkg)</string>
     <string name="import_csv">ପାଠ୍ୟ ଫାଇଲ୍ (.txt, .csv)</string>

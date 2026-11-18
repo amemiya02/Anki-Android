@@ -30,9 +30,6 @@
     <!-- Note editor screen -->
     <string name="CardEditorCardDeck">Kartītes kava:</string>
     <string name="CardEditorNoteDeck" comment="Label of the field choosing which deck a note\'s cards go into, in the note editor.">Kava:</string>
-    <string name="CardEditorModel">Veids:</string>
-    <string name="CardEditorTags">Birkas: %1$s</string>
-    <string name="CardEditorCards">Kartītes: %1$s</string>
     <string name="edit_occlusions">Edit occlusions</string>
     <string name="paste_from_clipboard" maxLength="28">Paste from clipboard</string>
     <string name="add_new_filter_tags">Pievienot/atlasīt birkas</string>
@@ -167,7 +164,6 @@
     <string name="export_choice_share">Kopīgot</string>
     <string name="export_choice_save_to">Saglabāt</string>
     <string name="export_saving_exported_collection">Saglabā izgūto datni&#8230;</string>
-    <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Iespējas</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Mācīšanās iespējas</string>
     <string name="select_tts" maxLength="28">Iestatīt teksta pārveidošanas runā valodu</string>
     <string name="dyn_deck_desc">Šī ir īpaša kava, kas paredzēta papildu mācībām. Kartītes pēc to pārskatīšanas tiks automātiski atgrieztas sākotnējās kavās. Šīs kavas izdzēšana no saraksta atgriezīs atlikušās kartītes to sākotnējā kavā.</string>
@@ -376,7 +372,6 @@
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">Ievietot veidni starpliktuvē kā Markdown</string>
     <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">Mainīt pārlūka izskatu</string>
     <string name="missing_user_action_dialog_message" comment="%s is the user action number">Lietotāja darbība %s nav iestatīta šajā piezīmju veidā. Lūgums konfigurēt to</string>
-    <string name="feature_not_supported_by_study_screen">This card has features that are not yet supported by the new study screen.</string>
     <string name="directory_inaccessible_info">%s var uzzināt vairāk par to, kā atjaunot piekļuvi, vai jādodas uz iestatījumiem, lai atjauninātu krājumu mapi.</string>
     <!-- Scheduler Upgrade Required Dialog title-->
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Scheduler upgrade required</string>

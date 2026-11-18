@@ -173,13 +173,9 @@
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">Avtomatik sinxronizatsiya %d soniyadan söng işga tuşişi mumkin</item>
     </plurals>
     <string name="metered_sync_data_warning">Mobil tarmoqlargaa ulaniş uçun qöşimça tölov olinişi mumkin</string>
-    <string name="deck_picker_new">Uşbu dastadagi bugungi yangi kartalar soni.</string>
-    <string name="deck_picker_rev">Uşbu dastadagi bugun muddati kelgan kartalar soni.</string>
-    <string name="deck_picker_lrn">Uşbu dastadagi örganilayotgan kartalar soni.</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
-    <string name="deck_picker_counts">Bugungi kartalar sonini köriş uçun dasta umumiy maʼlumotlar sahifasini oçing.</string>
     <string name="import_deck_package">Dasta paketi (.apkg)</string>
     <string name="import_collection_package">Kolleksiya paketi (.colpkg)</string>
     <string name="import_csv">Matn fayl (.txt, .csv)</string>

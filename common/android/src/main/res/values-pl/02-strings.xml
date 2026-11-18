@@ -30,9 +30,6 @@
     <!-- Note editor screen -->
     <string name="CardEditorCardDeck">Talia kart:</string>
     <string name="CardEditorNoteDeck" comment="Label of the field choosing which deck a note\'s cards go into, in the note editor.">Talia:</string>
-    <string name="CardEditorModel">Typ:</string>
-    <string name="CardEditorTags">Tagi: %1$s</string>
-    <string name="CardEditorCards">Karty: %1$s</string>
     <string name="edit_occlusions">Edytuj okluzje</string>
     <string name="paste_from_clipboard" maxLength="28">Wklej ze schowka</string>
     <string name="add_new_filter_tags">Dodaj/filtruj tagi</string>
@@ -170,7 +167,6 @@
     <string name="export_choice_share">Udostępnij</string>
     <string name="export_choice_save_to">Zapisz do</string>
     <string name="export_saving_exported_collection">Zapisywanie eksportowanego pliku&#8230;</string>
-    <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Opcje</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Opcje nauki</string>
     <string name="select_tts" maxLength="28">Ustaw język TTS</string>
     <string name="dyn_deck_desc">To jest specjalna talia do nauki poza normalnym trybem. Karty automatycznie powrócą do oryginalnych talii po ich przejrzeniu. Usunięcie tej talii z listy spowoduje przywrócenie pozostałych w niej kart do oryginalnych talii.</string>
@@ -382,7 +378,6 @@
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">Kopiuj szablon jako Markdown</string>
     <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">Edytuj wygląd przeglądarki</string>
     <string name="missing_user_action_dialog_message" comment="%s is the user action number">Akcja użytkownika %s nie jest ustawiona w tej notatce. Skonfiguruj ją</string>
-    <string name="feature_not_supported_by_study_screen">Ta karta posiada funkcje, które nie są jeszcze obsługiwane przez nowy ekran nauki.</string>
     <string name="directory_inaccessible_info">Dowiedz się więcej o tym, jak przywrócić dostęp tutaj %s lub przejdź do ustawień, aby zaktualizować folder kolekcji.</string>
     <!-- Scheduler Upgrade Required Dialog title-->
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Wymagana aktualizacja harmonogramu</string>

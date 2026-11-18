@@ -30,9 +30,6 @@
     <!-- Note editor screen -->
     <string name="CardEditorCardDeck">Korttipakka:</string>
     <string name="CardEditorNoteDeck" comment="Label of the field choosing which deck a note\'s cards go into, in the note editor.">Pakka:</string>
-    <string name="CardEditorModel">Tyyppi:</string>
-    <string name="CardEditorTags">Tunnisteet: %1$s</string>
-    <string name="CardEditorCards">Kortit: %1$s</string>
     <string name="edit_occlusions">Edit occlusions</string>
     <string name="paste_from_clipboard" maxLength="28">Sijoita leikepöydältä</string>
     <string name="add_new_filter_tags">Lisää/suodata tunnisteita</string>
@@ -164,7 +161,6 @@
     <string name="export_choice_share">Jaa</string>
     <string name="export_choice_save_to">Tallenna&#8230;</string>
     <string name="export_saving_exported_collection">Tallennetaan viety tiedosto&#8230;</string>
-    <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Valinnat</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Opiskeluasetukset</string>
     <string name="select_tts" maxLength="28">Määritä teksti puheeksi -kieli</string>
     <string name="dyn_deck_desc">Tämä on erityispakka normaalin aikataulun ulkopuolella tapahtuvaan opiskeluun. Kortit palautetaan automaattisesti alkuperäisiin pakkoihinsa läpikäynnin jälkeen. Tämän pakan poistaminen palauttaa kaikki sen sisältämät kortit alkuperäisiin pakkoihin.</string>
@@ -370,7 +366,6 @@
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">Kopioi mallipohja Markdownina</string>
     <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">Muokkaa selaimen ulkoasua</string>
     <string name="missing_user_action_dialog_message" comment="%s is the user action number">Käyttäjän toimea %s ei ole määritetty tässä muistiinpanotyypissä. Määritä se</string>
-    <string name="feature_not_supported_by_study_screen">Tässä kortissa on ominaisuuksia, joita uusi opiskelunäkymä ei vielä tue.</string>
     <string name="directory_inaccessible_info">Lue lisää siitä, miten palauttaa pääsy tänne (%s) tai siirry asetuksiin vaihtaaksesi kokoelmakansiota</string>
     <!-- Scheduler Upgrade Required Dialog title-->
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Aikataulu vaatii päivitystä</string>

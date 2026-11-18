@@ -30,9 +30,6 @@
     <!-- Note editor screen -->
     <string name="CardEditorCardDeck">Колода:</string>
     <string name="CardEditorNoteDeck" comment="Label of the field choosing which deck a note\'s cards go into, in the note editor.">Колода:</string>
-    <string name="CardEditorModel">Тип:</string>
-    <string name="CardEditorTags">Метки: %1$s</string>
-    <string name="CardEditorCards">Карточки: %1$s</string>
     <string name="edit_occlusions">Править скрытие</string>
     <string name="paste_from_clipboard" maxLength="28">Вставить из буфера обмена</string>
     <string name="add_new_filter_tags">Добавить/отфильтровать метки</string>
@@ -170,7 +167,6 @@
     <string name="export_choice_share">Поделиться</string>
     <string name="export_choice_save_to">Сохранить в</string>
     <string name="export_saving_exported_collection">Экспортированный файл сохраняется&#8230;</string>
-    <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Параметры</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Параметры учёбы</string>
     <string name="select_tts" maxLength="28">Язык синтеза речи</string>
     <string name="dyn_deck_desc">Это специальная колода для зубрёжки не по расписанию. После просмотра карточки вернутся в свою колоду. Удаление этой колоды вернёт все оставшиеся карточки в их колоду.</string>
@@ -382,7 +378,6 @@
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">Копировать шаблон как markdown</string>
     <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">Изменить вид списка</string>
     <string name="missing_user_action_dialog_message" comment="%s is the user action number">В этом блокноте не задано действие пользователя %s. Пожалуйста, настройте его</string>
-    <string name="feature_not_supported_by_study_screen">Эта карта имеет функции, которые еще не поддерживаются новым экраном обучения.</string>
     <string name="directory_inaccessible_info">Узнайте больше о том, как восстановить доступ здесь %s или перейдите к настройкам для обновления папки коллекции.</string>
     <!-- Scheduler Upgrade Required Dialog title-->
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Требуется обновление расписания</string>

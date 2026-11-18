@@ -30,9 +30,6 @@
     <!-- Note editor screen -->
     <string name="CardEditorCardDeck">Špil karata:</string>
     <string name="CardEditorNoteDeck" comment="Label of the field choosing which deck a note\'s cards go into, in the note editor.">Špil:</string>
-    <string name="CardEditorModel">Tip:</string>
-    <string name="CardEditorTags">Oznake: %1$s</string>
-    <string name="CardEditorCards">Karte: %1$s</string>
     <string name="edit_occlusions">Edit occlusions</string>
     <string name="paste_from_clipboard" maxLength="28">Zalijepi iz međuspremnika</string>
     <string name="add_new_filter_tags">Dodaj / filtriraj oznake</string>
@@ -167,7 +164,6 @@
     <string name="export_choice_share">Podijeli</string>
     <string name="export_choice_save_to">Spremi u</string>
     <string name="export_saving_exported_collection">Spremanje izvezene datoteke&#8230;</string>
-    <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Options</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Study options</string>
     <string name="select_tts" maxLength="28">Postavi TTS jezik</string>
     <string name="dyn_deck_desc">Ovo je poseban špil za učenje izvan uobičajenog rasporeda. Kartice će automatski biti vraćene u njihov originalni špil nakon što ih ponovite. Brisanjem ovog špila iz popisa špilova će se sve preostale kartice vratiti u njihov originalni špil.</string>
@@ -376,7 +372,6 @@
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">Kopiraj predložak kao markdown</string>
     <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">Uredi izgled preglednika</string>
     <string name="missing_user_action_dialog_message" comment="%s is the user action number">Korisnička radnja %s nije postavljena u uvom tipu bilješke. Podesite je</string>
-    <string name="feature_not_supported_by_study_screen">Ova kartica ima značajke koje još nisu podržane u novom ekranu za učenje</string>
     <string name="directory_inaccessible_info">Naučite više o tome kako obnoviti pristup ovdje %s ili odite u postavke kako biste ažurirali mapu za kolekcije.</string>
     <!-- Scheduler Upgrade Required Dialog title-->
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Potrebno ažurirati raspoređivač</string>

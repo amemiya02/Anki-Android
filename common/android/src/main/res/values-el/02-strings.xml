@@ -30,9 +30,6 @@
     <!-- Note editor screen -->
     <string name="CardEditorCardDeck">Τράπουλα κάρτας:</string>
     <string name="CardEditorNoteDeck" comment="Label of the field choosing which deck a note\'s cards go into, in the note editor.">Τράπουλα:</string>
-    <string name="CardEditorModel">Τύπος:</string>
-    <string name="CardEditorTags">Ετικέτες:%1$s</string>
-    <string name="CardEditorCards">Κάρτες %1$s</string>
     <string name="edit_occlusions">Edit occlusions</string>
     <string name="paste_from_clipboard" maxLength="28">Paste from clipboard</string>
     <string name="add_new_filter_tags">Προσθήκη/φιλτράρισμα ετικετών</string>
@@ -164,7 +161,6 @@
     <string name="export_choice_share">Κοινοποίηση</string>
     <string name="export_choice_save_to">Αποθήκευση σε</string>
     <string name="export_saving_exported_collection">Το εξαγόμενο αρχείο αποθηκεύεται&#8230;</string>
-    <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Επιλογές</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Επιλογές μελέτης</string>
     <string name="select_tts" maxLength="28">Ορισμός γλώσσας TTS</string>
     <string name="dyn_deck_desc">Αυτή είναι μια ειδική τράπουλα για μάθηση εκτός του κανονικού προγράμματος. Οι κάρτες θα επιστραφούν αυτόματα στην αρχική τους τράπουλα μετά την επανάληψή τους. Η διαγραφή αυτής της τράπουλας από τη λίστα τραπουλών θα επιστρέψει όλες τις κάρτες στην αρχική τους τράπουλα.</string>
@@ -370,7 +366,6 @@
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">Copy template as markdown</string>
     <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">Επεξεργασία εμφάνισης περιηγητή</string>
     <string name="missing_user_action_dialog_message" comment="%s is the user action number">User action %s is not set in this notetype. Please configure it</string>
-    <string name="feature_not_supported_by_study_screen">This card has features that are not yet supported by the new study screen.</string>
     <string name="directory_inaccessible_info">Learn more about how to restore access here %s or go to settings to update collection folder.</string>
     <!-- Scheduler Upgrade Required Dialog title-->
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Scheduler upgrade required</string>

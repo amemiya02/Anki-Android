@@ -20,7 +20,6 @@
     <string name="browse_done">完成</string>
     <string name="browse_history_edit">编辑搜索条件</string>
     <string name="browse_sort_direction">方向</string>
-    <string name="browse_loading_results">正在加载结果</string>
     <string name="browse_more_actions">更多操作</string>
     <string name="browse_hide_keyboard">提交搜索</string>
     <string name="browse_action_deck">牌组</string>

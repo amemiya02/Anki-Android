@@ -11,7 +11,7 @@ class CardStateSerializerTest {
     @Test
     fun `ensure mappings are unchanged`() {
         // CardState is serialized, so codes may not change
-        val allKnownStates =
+        val originalStates =
             listOf(
                 CardState.New,
                 CardState.Learning,
@@ -19,10 +19,10 @@ class CardStateSerializerTest {
                 CardState.Buried,
                 CardState.Suspended,
             )
-        val encoded = Json.encodeToString(allKnownStates)
-        assertEquals("[0,1,2,3,4]", encoded)
+        assertEquals(originalStates, Json.decodeFromString<List<CardState>>("[0,1,2,3,4]"))
 
-        // ensure no additional states were added
+        val allKnownStates = originalStates + listOf(CardState.Due, CardState.Marked)
         assertEquals(allKnownStates, CardState.entries)
+        assertEquals("[0,1,2,3,4,5,6]", Json.encodeToString(allKnownStates))
     }
 }

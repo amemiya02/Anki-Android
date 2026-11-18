@@ -30,9 +30,6 @@
     <!-- Note editor screen -->
     <string name="CardEditorCardDeck">കാർഡ് ഡെക്ക്:</string>
     <string name="CardEditorNoteDeck" comment="Label of the field choosing which deck a note\'s cards go into, in the note editor.">ഡെക്ക്:</string>
-    <string name="CardEditorModel">തരം:</string>
-    <string name="CardEditorTags">ടാഗുകൾ‌:%1$s</string>
-    <string name="CardEditorCards">കാർഡുകൾ:%1$s</string>
     <string name="edit_occlusions">Edit occlusions</string>
     <string name="paste_from_clipboard" maxLength="28">Paste from clipboard</string>
     <string name="add_new_filter_tags">ടാഗുകൾ ചേർക്കുക / ഫിൽട്ടർ ചെയ്യുക</string>
@@ -164,7 +161,6 @@
     <string name="export_choice_share">പങ്കിടുക</string>
     <string name="export_choice_save_to">ഇതിലേക്ക് സംരക്ഷിക്കുക</string>
     <string name="export_saving_exported_collection">കയറ്റുമതി ചെയ്ത ഫയൽ സംരക്ഷിക്കുന്നു&#8230;</string>
-    <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">ഓപ്ഷനുകൾ</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">പഠന ഓപ്ഷനുകൾ</string>
     <string name="select_tts" maxLength="28">TTS ഭാഷ സജ്ജമാക്കുക</string>
     <string name="dyn_deck_desc">സാധാരണ ഷെഡ്യൂളിന് പുറത്ത് പഠിക്കുന്നതിനുള്ള ഒരു പ്രത്യേക ഡെക്കാണിത്. കാർഡുകൾ നിങ്ങൾ അവലോകനം ചെയ്ത ശേഷം അവയുടെ യഥാർത്ഥ ഡെക്കുകളിലേക്ക് സ്വപ്രേരിതമായി മടങ്ങും. ഡെക്ക് ലിസ്റ്റിൽ നിന്ന് ഈ ഡെക്ക് ഇല്ലാതാക്കുന്നത് ശേഷിക്കുന്ന എല്ലാ കാർഡുകളും അവയുടെ യഥാർത്ഥ ഡെക്കിലേക്ക് തിരികെ നൽകും.</string>
@@ -370,7 +366,6 @@
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">Copy template as markdown</string>
     <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">ബ്രൗസർ രൂപം എഡിറ്റ് ചെയ്യുക</string>
     <string name="missing_user_action_dialog_message" comment="%s is the user action number">ഈ കുറിപ്പ് തരത്തിൽ ഉപയോക്തൃ പ്രവർത്തനം %s സജ്ജീകരിച്ചിട്ടില്ല. ദയവായി അത് കോൺഫിഗർ ചെയ്യുക</string>
-    <string name="feature_not_supported_by_study_screen">This card has features that are not yet supported by the new study screen.</string>
     <string name="directory_inaccessible_info">Learn more about how to restore access here %s or go to settings to update collection folder.</string>
     <!-- Scheduler Upgrade Required Dialog title-->
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Scheduler upgrade required</string>

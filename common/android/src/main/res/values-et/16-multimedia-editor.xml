@@ -40,7 +40,6 @@
     <!-- not a good message, when an unexpected error happens -->
     <string name="multimedia_editor_something_wrong">Midagi läks valesti</string>
     <string name="multimedia_editor_png_paste_error">Viga lõikelaual oleva pildi PNG-ks konvertimisel: %s</string>
-    <string name="multimedia_editor_attach_tooltip" comment="Appear when holding the finger  on the paperclip icon">Lisa multimeedia sisu</string>
     <string name="multimedia_editor_attach_mm_content" comment="used for screen readers. Not visible to the user">Lisa multimeedia väljale %1$s</string>
     <!-- Audio view -->
     <!-- Message when recording fails -->

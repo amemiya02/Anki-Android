@@ -30,9 +30,6 @@
     <!-- Note editor screen -->
     <string name="CardEditorCardDeck">كارتا دەستىسى:</string>
     <string name="CardEditorNoteDeck" comment="Label of the field choosing which deck a note\'s cards go into, in the note editor.">دەستە:</string>
-    <string name="CardEditorModel">تۈرى:</string>
-    <string name="CardEditorTags">بەلگە: %1$s</string>
-    <string name="CardEditorCards">كارتا: %1$s</string>
     <string name="edit_occlusions">ئۆتكەل تەھرىر</string>
     <string name="paste_from_clipboard" maxLength="28">چاپلاش تاختىسىدىن كۆچۈر</string>
     <string name="add_new_filter_tags">بەلگە قوش/سۈزگۈچ</string>
@@ -164,7 +161,6 @@
     <string name="export_choice_share">ھەمبەھىر</string>
     <string name="export_choice_save_to">ساقلاش ئورنى</string>
     <string name="export_saving_exported_collection">چىقىرىدىغان ھۆججەتنى ساقلاۋاتىدۇ&#8230;</string>
-    <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">تاللانما</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">ئۆگىنىش تاللانما</string>
     <string name="select_tts" maxLength="28">تېكىستتىن تىلغا تىل تەڭشىكى</string>
     <string name="dyn_deck_desc">بۇ ئادەتتىكى كۈنتەرتىپنىڭ سىرتىدىكى مەزمۇننى ئۆگىنىدىغان ئالاھىدە دەستە. كارتىنى تەكرارلىغاندىن كېيىن ئەسلىدىكى دەستەسىگە قايتۇرۇلىدۇ. ئەگەر دەستە تىزىمىدىن بۇ دەستە ئۆچۈرۈلسە، قېپقالغان كارتا دەسلەپكى دەستە ئورنىغا ئەسلىگە قايتۇرۇلىدۇ.</string>
@@ -370,7 +366,6 @@
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">قېلىپنى Markdown سۈپىتىدە كۆچۈر</string>
     <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">كارتا كۆرگۈچ كۆرۈنۈشىنى تەھرىرلەيدۇ</string>
     <string name="missing_user_action_dialog_message" comment="%s is the user action number">%s  ئىشلەتكۈچى مەشغۇلاتى خاتىرە تۈرىدە تەڭشەلمىگەن. سەپلەڭ</string>
-    <string name="feature_not_supported_by_study_screen">بۇ كارتىنىڭ يېڭى ئۆگىنىش ئېكرانى قوللىمايدىغان ئىقتىدارى بار.</string>
     <string name="directory_inaccessible_info">بۇ جاي %s دىكى زىيارەتنى قانداق ئەسلىگە كەلتۈرۈش ياكى تەڭشەككە يۆتكىلىپ توپلام قىسقۇچىنى يېڭىلاش ھەققىدىكى تەپسىلاتنى كۆرۈڭ.</string>
     <!-- Scheduler Upgrade Required Dialog title-->
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">كۈنتەرتىپلىگۈچنى يېڭىلاش زۆرۈر</string>

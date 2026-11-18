@@ -37,7 +37,6 @@
     <string name="card_browser_show_marked" maxLength="28">표시한 카드</string>
     <string name="card_browser_show_suspended" maxLength="28">비활성화된 카드 필터링</string>
     <string name="card_browser_search_by_tag" maxLength="28">태그별 필터링</string>
-    <string name="card_browser_search_by_flag" maxLength="28">플래그 별로 보기</string>
     <string name="card_browser_list_my_searches" maxLength="28">저장된 검색어</string>
     <string name="card_browser_list_my_searches_save" maxLength="28">검색어 저장하기</string>
     <string name="card_browser_list_my_searches_title">저장된 검색어 선택하기</string>
@@ -48,8 +47,6 @@
     <string name="card_browser_list_my_searches_successful_deleted">검색 삭제됨</string>
     <string name="no_note_to_edit">수정할 노트 없음</string>
     <string name="card_browser_list_my_searches_remove_content">\"%1$s\"을/를 삭제할까요?</string>
-    <string name="card_browser_change_display_order" maxLength="28">표시 순서 변경</string>
-    <string name="card_browser_search_hint" comment="Message displayed in the search text field in the card browser.">검색하기</string>
     <string name="card_browser_cram_search" maxLength="28" comment="Menu entry to start a search.">검색하기</string>
     <string name="card_browser_change_display_order_title">표시 순서를 선택하세요</string>
     <string name="card_details_tags">태그</string>
@@ -72,7 +69,6 @@
         <item quantity="other">%d개 카드 삭제됨</item>
     </plurals>
     <!--Keyboard shortcuts dialog-->
-    <string name="edit_tags_dialog" comment="Description of the shortcut that opens the edit tags dialog">태그 다이얼로그 수정하기</string>
     <string name="show_order_dialog" comment="Description of the shortcut that shows the order dialog">순서 다이얼로그 표시하기</string>
     <!-- Manage columns dialog -->
     <string name="browse_manage_columns_main_heading">열</string>
@@ -89,7 +85,6 @@
     <!-- Sort Order -->
     <string name="card_browser_order_no_sorting_title" comment="Title of the \'no sorting\' row in the Choose Display Order bottom sheet">정렬 없음</string>
     <string name="card_browser_order_no_sorting_subtitle" comment="Subtitle for the \'no sorting\' row noting that no-sort is faster than sorted queries">빠름</string>
-    <string name="card_browser_order_snackbar_sort_by" comment="Snackbar shown after sort changes. %1$s is the column name (e.g. \'Card Type\')">정렬 기준: %1$s</string>
     <string name="card_browser_order_subtitle_text_ascending" comment="Sort direction subtitle for text columns when ascending (A before Z)">오름차순(A-Z)</string>
     <string name="card_browser_order_subtitle_text_descending" comment="Sort direction subtitle for text columns when descending (Z before A)">내림차순(Z-A)</string>
     <string name="card_browser_order_subtitle_numeric_ascending" comment="Sort direction subtitle for numeric columns when ascending (smallest value first)">오름차순</string>

@@ -40,7 +40,6 @@
     <string name="card_browser_show_marked" maxLength="28">Filtrera markerade</string>
     <string name="card_browser_show_suspended" maxLength="28">Filtrera låsta</string>
     <string name="card_browser_search_by_tag" maxLength="28">Filtrera efter etikett</string>
-    <string name="card_browser_search_by_flag" maxLength="28">Filtrera efter flagga</string>
     <string name="card_browser_list_my_searches" maxLength="28">Mina sökningar</string>
     <string name="card_browser_list_my_searches_save" maxLength="28">Spara sökning</string>
     <string name="card_browser_list_my_searches_title">Välj en sparad sökning</string>
@@ -51,8 +50,6 @@
     <string name="card_browser_list_my_searches_successful_deleted">Sökningen har raderats</string>
     <string name="no_note_to_edit">Ingen anteckning att ändra</string>
     <string name="card_browser_list_my_searches_remove_content">Ta bort ”%1$s”?</string>
-    <string name="card_browser_change_display_order" maxLength="28">Ändra visningsordning</string>
-    <string name="card_browser_search_hint" comment="Message displayed in the search text field in the card browser.">Sök</string>
     <string name="card_browser_cram_search" maxLength="28" comment="Menu entry to start a search.">Sök</string>
     <string name="card_browser_change_display_order_title">Välj visningsordning</string>
     <string name="card_details_tags">Etiketter</string>
@@ -78,7 +75,6 @@
         <item quantity="other">%d kort raderade</item>
     </plurals>
     <!--Keyboard shortcuts dialog-->
-    <string name="edit_tags_dialog" comment="Description of the shortcut that opens the edit tags dialog">Ändra tagg dialogruta</string>
     <string name="show_order_dialog" comment="Description of the shortcut that shows the order dialog">Visa ordnings dialogruta</string>
     <!-- Manage columns dialog -->
     <string name="browse_manage_columns_main_heading">Kolumner</string>
@@ -95,7 +91,6 @@
     <!-- Sort Order -->
     <string name="card_browser_order_no_sorting_title" comment="Title of the \'no sorting\' row in the Choose Display Order bottom sheet">Ingen sortering</string>
     <string name="card_browser_order_no_sorting_subtitle" comment="Subtitle for the \'no sorting\' row noting that no-sort is faster than sorted queries">Snabbare</string>
-    <string name="card_browser_order_snackbar_sort_by" comment="Snackbar shown after sort changes. %1$s is the column name (e.g. \'Card Type\')">Sortera efter %1$s</string>
     <string name="card_browser_order_subtitle_text_ascending" comment="Sort direction subtitle for text columns when ascending (A before Z)">A-Ö</string>
     <string name="card_browser_order_subtitle_text_descending" comment="Sort direction subtitle for text columns when descending (Z before A)">Ö-A</string>
     <string name="card_browser_order_subtitle_numeric_ascending" comment="Sort direction subtitle for numeric columns when ascending (smallest value first)">Låg till hög</string>

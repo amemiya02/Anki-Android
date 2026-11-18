@@ -173,13 +173,9 @@
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">An automatic sync may be triggered in %d seconds</item>
     </plurals>
     <string name="metered_sync_data_warning">ಡೇಟಾ ಬಳಕೆಗಾಗಿ ನಿಮ್ಮ ಇಂಟರ್ನೆಟ್ ಪೂರೈಕೆದಾರರು ನಿಮಗೆ ಶುಲ್ಕ ವಿಧಿಸಬಹುದು</string>
-    <string name="deck_picker_new">ಈ ಡೆಕ್‌ನಲ್ಲಿ ಇಂದು ನೋಡಲು ಹೊಸ ಕಾರ್ಡ್‌ಗಳ ಸಂಖ್ಯೆ.</string>
-    <string name="deck_picker_rev">ಇಂದು ಈ ಡೆಕ್‌ನಲ್ಲಿ ಬಾಕಿ ಉಳಿದಿರುವ ಕಾರ್ಡ್‌ಗಳ ಸಂಖ್ಯೆ.</string>
-    <string name="deck_picker_lrn">ಈ ಡೆಕ್‌ನಲ್ಲಿ ಕಲಿಯುತ್ತಿರುವ ಕಾರ್ಡ್‌ಗಳ ಸಂಖ್ಯೆ.</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
-    <string name="deck_picker_counts">ಇಂದು ನೋಡಲು ಕಾರ್ಡ್‌ಗಳ ಸಂಖ್ಯೆಯೊಂದಿಗೆ ಡೆಕ್ ಅವಲೋಕನ ಪುಟವನ್ನು ತೆರೆಯಿರಿ.</string>
     <string name="import_deck_package">ಡೆಕ್ ಪ್ಯಾಕೇಜ್ (.apkg)</string>
     <string name="import_collection_package">ಸಂಗ್ರಹಣೆ ಪ್ಯಾಕೇಜ್ (.colpkg)</string>
     <string name="import_csv">Text file (.txt, .csv)</string>

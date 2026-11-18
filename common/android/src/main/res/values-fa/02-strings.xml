@@ -30,9 +30,6 @@
     <!-- Note editor screen -->
     <string name="CardEditorCardDeck">دسته کارت:</string>
     <string name="CardEditorNoteDeck" comment="Label of the field choosing which deck a note\'s cards go into, in the note editor.">دسته:</string>
-    <string name="CardEditorModel">نوع:</string>
-    <string name="CardEditorTags">برچسب ها: %1$s</string>
-    <string name="CardEditorCards">کارت‌ها: %1$s</string>
     <string name="edit_occlusions">ویرایش بخش‌های مسدود</string>
     <string name="paste_from_clipboard" maxLength="28">جای گذاری از کیبورد</string>
     <string name="add_new_filter_tags">افزودن/فیلترکردن برچسب‌ها</string>
@@ -164,7 +161,6 @@
     <string name="export_choice_share">اشتراک گزاری</string>
     <string name="export_choice_save_to">ذخیره به</string>
     <string name="export_saving_exported_collection">در حال ذخیره فایل صادر شده&#8230;</string>
-    <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">گزینه ها</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">گزینه‌های مطالعه</string>
     <string name="select_tts" maxLength="28">تنظیم زبان تبدیل متن به صدا TTS</string>
     <string name="dyn_deck_desc">این یک دسته ویژه برای مطالعه در خارج از زمان‌بندی عادی می باشد.بعد از مرور کارتها آنها به‌طور خودکار به دسته های اصلی برگردانده خواهد شد.حذف کردن این دسته از لیست دسته ها سبب می شود که همه کارتهای باقیمانده نیز به دسته اصلی برگردانده شود.</string>
@@ -372,7 +368,6 @@
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">ویرایش قالب به عنوان مارک‌داون</string>
     <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">ویرایش ظاهر مرورگر</string>
     <string name="missing_user_action_dialog_message" comment="%s is the user action number">عمل کاربر %s در این نوع کارت تنظیم نشده است. لطفاً آن را پیکربندی کنید.</string>
-    <string name="feature_not_supported_by_study_screen">این کارت ویژگی‌هایی دارد که در حال حاضر در صفحهٔ مطالعهٔ جدید پشتیبانی نمی‌شوند.</string>
     <string name="directory_inaccessible_info">برای کسب اطلاعات بیشتر در مورد نحوه بازیابی دسترسی اینجا %s را ببینید یا به تنظیمات بروید تا پوشه مجموعه را به‌روزرسانی کنید.</string>
     <!-- Scheduler Upgrade Required Dialog title-->
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">ارتقای زمان‌بند لازم است</string>

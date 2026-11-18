@@ -392,7 +392,7 @@ class CardBrowserFragment :
             moveSelectedCardsToDeck(selectedDeck.deckId)
         }
 
-        childFragmentManager.setFragmentResultListener(FlagRenameDialog.RENAMED_FLAGS, viewLifecycleOwner) { _, _ ->
+        childFragmentManager.setFragmentResultListener(FlagRenameDialog.REQUEST_RENAMED_FLAGS, viewLifecycleOwner) { _, _ ->
             invalidateFlagNames()
         }
         registerSaveSearchHandler { searchViewModel.addSavedSearch(it) }
