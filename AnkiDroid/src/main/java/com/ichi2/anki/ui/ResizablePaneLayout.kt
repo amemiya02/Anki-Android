@@ -25,6 +25,11 @@ class ResizablePaneLayout
         private var nearDivider = false
         private var dragging = false
 
+        init {
+            // Weighted panes need their assigned width on the first measure, including scrollable Compose content.
+            isBaselineAligned = false
+        }
+
         private val divider: View?
             get() = children.firstOrNull { it is ResizingDivider && it.isVisible }
 
