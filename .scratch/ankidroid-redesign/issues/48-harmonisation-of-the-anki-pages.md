@@ -4,10 +4,16 @@
 
 **Blocked by:** 40 (Milestone 4 sign-off: settings and dialogs on a device)
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Statistics, Deck options, Card info, the importers, change Note Type and image occlusion each take the Fork's colours in Light, Dark and Black.
-- [ ] Each uses the Fork's typefaces for Latin, Chinese and Japanese text.
-- [ ] No Anki Page's content, arrangement or behaviour changes.
-- [ ] The web styling follows the modern-web-guidance skill.
-- [ ] Each page is captured in all three themes as proof.
+- [x] Statistics, Deck options, Card info, the importers, change Note Type and image occlusion each take the Fork's colours in Light, Dark and Black.
+- [x] Each uses the Fork's typefaces for Latin, Chinese and Japanese text.
+- [x] No Anki Page's content, arrangement or behaviour changes.
+- [x] The web styling follows the modern-web-guidance skill.
+- [x] Each page is captured in all three themes as proof.
+
+## Verification
+
+Android 15 rendered all seven Anki Pages in Light, Dark and Black. All seven also loaded the bundled Newsreader face in English, LXGW WenKai for Simplified Chinese and Klee One for Japanese. The same seeded routes and visible page text matched before and after. [Android capture gallery](../../../docs/redesign/milestone-5/anki-pages/README.md)
+
+The Statistics palette regression failed on the previous APK and passed in all three themes on the updated APK. The full focused runs passed 16 Android tests and 20 JVM tests.
