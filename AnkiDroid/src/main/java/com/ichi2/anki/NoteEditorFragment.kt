@@ -104,7 +104,6 @@ import com.ichi2.anki.common.utils.ext.getParcelableExtraCompat
 import com.ichi2.anki.common.utils.ext.ifZero
 import com.ichi2.anki.common.utils.ext.pasteImagesAsPng
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
-import com.ichi2.anki.databinding.FragmentNoteEditorBinding
 import com.ichi2.anki.dialogs.ChangeNoteTypeDialog
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.dialogs.IntegerDialog
@@ -199,7 +198,6 @@ import com.ichi2.utils.IntentUtil.resolveMimeType
 import com.ichi2.utils.NoteFieldDecorator
 import com.ichi2.utils.TextViewUtil
 import com.ichi2.utils.configureView
-import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.launch
 import net.ankiweb.rsdroid.Backend
 import org.json.JSONArray
@@ -226,14 +224,14 @@ import com.ichi2.anki.common.android.R as CommonR
 @KotlinCleanup("see if we can lateinit")
 @NeedsTest("19733")
 class NoteEditorFragment :
-    Fragment(R.layout.fragment_note_editor),
+    Fragment(),
     TagsDialogListener,
     BaseSnackbarBuilderProvider,
     DispatchKeyEventListener,
     MenuProvider,
     ShortcutGroupProvider {
     @VisibleForTesting
-    internal val binding by viewBinding(FragmentNoteEditorBinding::bind)
+    private lateinit var binding: NoteFieldsLayout
 
     private var bottomInsetPx = 0
 
@@ -584,6 +582,15 @@ class NoteEditorFragment :
                 }
             }
         }
+    }
+
+    override fun onCreateView(
+        inflater: android.view.LayoutInflater,
+        container: android.view.ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        binding = NoteFieldsLayout(inflater.context)
+        return binding.root
     }
 
     override fun onViewCreated(

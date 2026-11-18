@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.core.os.BundleCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -222,6 +221,6 @@ class CardBrowserPaneFragment :
     companion object {
         private const val ARG_LAUNCH = "browserLaunch"
 
-        internal fun arguments(intent: Intent): Bundle = bundleOf(ARG_LAUNCH to intent)
+        internal fun arguments(intent: Intent): Bundle = Bundle().apply { putParcelable(ARG_LAUNCH, intent) }
     }
 }

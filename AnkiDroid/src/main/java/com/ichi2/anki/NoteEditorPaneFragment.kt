@@ -15,7 +15,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.edit
 import androidx.core.os.BundleCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat.Type.displayCutout
 import androidx.core.view.WindowInsetsCompat.Type.ime
@@ -27,7 +26,6 @@ import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
 import com.ichi2.anki.android.input.ShortcutGroup
 import com.ichi2.anki.android.input.ShortcutGroupProvider
-import com.ichi2.anki.databinding.ActivityNoteEditorBinding
 import com.ichi2.anki.libanki.CardOrdinal
 import com.ichi2.anki.noteeditor.NoteEditorFragmentDelegate
 import com.ichi2.anki.previewer.TemplatePreviewerArguments
@@ -91,7 +89,7 @@ class NoteEditorPaneFragment :
         get() = previewerFrame != null
 
     @VisibleForTesting
-    internal lateinit var binding: ActivityNoteEditorBinding
+    internal lateinit var binding: NoteEditorPaneLayout
         private set
 
     private fun setupEdgeToEdge() {
@@ -121,7 +119,7 @@ class NoteEditorPaneFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        binding = ActivityNoteEditorBinding.inflate(inflater, container, false)
+        binding = NoteEditorPaneLayout(inflater.context)
         return binding.root
     }
 
@@ -363,7 +361,7 @@ class NoteEditorPaneFragment :
     companion object {
         private const val ARG_LAUNCH_INTENT = "noteEditorLaunch"
 
-        internal fun arguments(intent: Intent): Bundle = bundleOf(ARG_LAUNCH_INTENT to intent)
+        internal fun arguments(intent: Intent): Bundle = Bundle().apply { putParcelable(ARG_LAUNCH_INTENT, intent) }
 
         const val FRAGMENT_TAG = "NoteEditorFragmentTag"
 

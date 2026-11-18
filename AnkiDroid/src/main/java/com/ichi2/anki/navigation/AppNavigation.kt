@@ -21,7 +21,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
@@ -130,7 +129,7 @@ internal class AppNavigation(
                 composable(tab.tag) { entry ->
                     if (tab == NavigationItem.BROWSER) deckPicker.ensureBrowserViewModel()
                     val bottomClearance = with(LocalDensity.current) { deckPicker.bottomNavContentClearance.intValue.toDp() }
-                    val arguments = if (tab == NavigationItem.STATS) bundleOf(Statistics.ARG_HIDE_BACK_BUTTON to true) else null
+                    val arguments = if (tab == NavigationItem.STATS) Bundle().apply { putBoolean(Statistics.ARG_HIDE_BACK_BUTTON, true) } else null
                     HostedScreen(entry, fragmentClass, Modifier.padding(bottom = bottomClearance), arguments)
                 }
             }
@@ -291,11 +290,11 @@ internal class AppNavigation(
                     navOptions { popUpTo(it.destination.id) { inclusive = true } }
                 }
             val arguments =
-                bundleOf(
-                    SCREEN_ARGUMENTS to screenArguments,
-                    RESULT_REQUEST_CODE to outgoingRequest,
-                    DEFAULT_RESULT to defaultResult,
-                )
+                Bundle().apply {
+                    putBundle(SCREEN_ARGUMENTS, screenArguments)
+                    putInt(RESULT_REQUEST_CODE, outgoingRequest)
+                    putInt(DEFAULT_RESULT, defaultResult)
+                }
             navigation.navigate(navigation.graph[fragment.name].id, arguments, options)
         }
         return true
