@@ -438,6 +438,8 @@ open class PrefsRepository protected constructor(
 
     val answerButtonsSize: Int by intPref(R.string.answer_button_size_preference, 100)
     val cardZoom: Int by intPref(R.string.card_zoom_preference, 100)
+    val imageZoom: Int by intPref(R.string.image_zoom_preference, 100)
+    val centerVertically by booleanPref(R.string.center_vertically_preference, false)
     override val removeAppAnimations by booleanPref(R.string.safe_display_key, defaultValue = false)
 
     // **************************************** Advanced **************************************** //

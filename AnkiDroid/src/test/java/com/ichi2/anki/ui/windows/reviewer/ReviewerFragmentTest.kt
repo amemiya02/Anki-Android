@@ -87,6 +87,18 @@ class ReviewerFragmentTest : RobolectricTest() {
         }
 
     @Test
+    fun `images on the Card follow the image zoom setting`() =
+        runTest {
+            addBasicNote()
+            targetContext.sharedPrefs().edit { putInt("imageZoom", 150) }
+
+            withReviewer {
+                val page = shadowOf(assertIs<WebView>(binding.webViewLayout.getChildAt(0))).lastLoadDataWithBaseURL.data
+                assertContains(page, "img { zoom: 1.5 }")
+            }
+        }
+
+    @Test
     fun `software rendering is applied to the study screen when enabled`() =
         runTest {
             addBasicNote()

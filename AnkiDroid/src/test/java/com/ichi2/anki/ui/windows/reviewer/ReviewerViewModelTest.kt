@@ -11,7 +11,10 @@ import app.cash.turbine.test
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.ext.cardStateCustomizer
+import com.ichi2.anki.settings.enums.DayTheme
+import com.ichi2.anki.settings.enums.NightTheme
 import com.ichi2.anki.utils.CollectionPreferences
+import com.ichi2.themes.Themes
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -22,6 +25,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
@@ -136,6 +140,46 @@ class ReviewerViewModelTest : RobolectricTest() {
 
             assertEquals(0.5f, viewModel.studyBarFlow.value.progress)
         }
+
+    @Test
+    fun `Card Templates can style for the Dark theme with ankidroid_dark_mode`() =
+        runTest {
+            addBasicNote()
+            Themes.currentTheme = NightTheme.DARK
+            try {
+                assertContains(questionBodyClasses(), "ankidroid_dark_mode")
+                Themes.currentTheme = NightTheme.BLACK
+                assertFalse("ankidroid_dark_mode" in questionBodyClasses())
+            } finally {
+                Themes.currentTheme = DayTheme.LIGHT
+            }
+        }
+
+    @Test
+    fun `short Cards are centred vertically when the setting is on`() =
+        runTest {
+            addBasicNote()
+            assertFalse("vertically_centered" in questionBodyClasses())
+
+            targetContext.sharedPrefs().edit { putBoolean("centerVertically", true) }
+
+            assertContains(questionBodyClasses(), "vertically_centered")
+        }
+
+    /** The classes the study screen gives the Card's `<body>` when it shows the question */
+    private suspend fun TestScope.questionBodyClasses(): List<String> {
+        val viewModel = ReviewerViewModel(SavedStateHandle()).also { viewModelStore.put("reviewer${viewModelStore.keys().size}", it) }
+        lateinit var classes: String
+        viewModel.eval
+            .filter { it.startsWith("_showQuestion(") }
+            .test {
+                viewModel.onPageFinished(false)
+                advanceUntilIdle()
+                classes = awaitItem().substringAfterLast(", '").substringBefore("');")
+                cancelAndIgnoreRemainingEvents()
+            }
+        return classes.split(" ")
+    }
 
     private fun TestScope.startStudying(): ReviewerViewModel {
         val viewModel = ReviewerViewModel(SavedStateHandle()).also { viewModelStore.put("reviewer", it) }

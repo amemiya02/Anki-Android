@@ -134,6 +134,12 @@ class ReviewerFragment :
             context = requireContext(),
             extraJsAssets = listOf("scripts/ankidroid-reviewer.js", "scripts/type-answer.js"),
             nightMode = Themes.isNightTheme,
+            // "Image zoom" in settings scales the Card's images apart from its text
+            extraCss =
+                Prefs.imageZoom
+                    .takeIf { it != 100 }
+                    ?.let { "img { zoom: ${it / 100.0} }" }
+                    .orEmpty(),
         )
 
     override fun onStart() {

@@ -41,7 +41,6 @@ class AccessibilitySettingsFragment : SettingsFragment() {
     companion object {
         val legacyStudyScreenSettings =
             listOf(
-                R.string.image_zoom_preference,
                 R.string.show_large_answer_buttons_preference,
                 R.string.pref_card_minimal_click_time,
                 R.string.answer_button_size_preference,

@@ -21,3 +21,13 @@ img {
   width: 100%;
   font-family: "Noto Sans Mono";
 }
+/* "Centre vertically" in settings: short Cards sit in the middle of the study screen */
+.vertically_centered {
+  position: absolute;
+  width: 100%;
+  min-height: 100%;
+  display: -webkit-box;
+  -webkit-box-align: stretch;
+  -webkit-box-pack: center;
+  -webkit-box-orient: vertical;
+}

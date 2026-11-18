@@ -88,7 +88,7 @@ abstract class CardViewerViewModel(
 
     protected abstract suspend fun typeAnsFilter(text: String): String
 
-    private suspend fun bodyClass() = bodyClassForCardOrd(currentCard.await().ord)
+    protected open suspend fun bodyClass() = bodyClassForCardOrd(currentCard.await().ord)
 
     /** From the [desktop code](https://github.com/ankitects/anki/blob/1ff55475b93ac43748d513794bcaabd5d7df6d9d/qt/aqt/reviewer.py#L358) */
     private suspend fun mungeQA(text: String) = typeAnsFilter(prepareCardTextForDisplay(text))

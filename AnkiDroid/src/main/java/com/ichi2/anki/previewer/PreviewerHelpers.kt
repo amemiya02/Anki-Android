@@ -31,6 +31,7 @@ fun stdHtml(
     context: Context = appContext,
     extraJsAssets: List<String> = emptyList(),
     nightMode: Boolean = false,
+    extraCss: String = "",
 ): String {
     val languageDirectionality = if (LanguageUtils.appLanguageIsRTL()) "rtl" else "ltr"
     val baseTheme = if (nightMode) "dark" else "light"
@@ -67,6 +68,7 @@ fun stdHtml(
                 .night-mode button { --canvas: #606060; --fg: #eee; }
                 $colors
                 $fontScaleCss
+                $extraCss
             </style>
         </head>
         <body class="${bodyClass()}">
