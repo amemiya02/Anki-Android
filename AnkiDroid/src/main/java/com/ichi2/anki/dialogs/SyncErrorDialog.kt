@@ -103,13 +103,13 @@ class SyncErrorDialog : AsyncDialogFragment() {
 
             DIALOG_CONNECTION_ERROR ->
                 ErrorDialog(
-                    title,
+                    getString(CommonString.paper_dialog_sync_unreachable),
                     errorBody,
                     details = requireArguments().getString(ARG_DIALOG_MESSAGE),
                     onDismissRequest = { activity?.dismissAllDialogFragments() },
                     primaryAction = DialogAction(getString(CommonString.retry), { syncAndDismissAllDialogFragments() }),
                     dismissText = cancel,
-                    markIcon = icon,
+                    markIcon = R.drawable.symbol_cloud_off,
                 )
 
             DIALOG_SYNC_CONFLICT_RESOLUTION, DIALOG_SYNC_SANITY_ERROR -> {

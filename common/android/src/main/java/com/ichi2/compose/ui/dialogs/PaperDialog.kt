@@ -80,7 +80,6 @@ private val LocalPaperDialogWindow = staticCompositionLocalOf { false }
  * The fragment or caller still owns cancellation, restoration and dismissal.
  */
 @Suppress("DEPRECATION") // Floating dialog windows resize above the IME on Android 8 and 9.
-
 fun createPaperDialog(
     context: Context,
     onOutsideClick: (() -> Unit)? = null,

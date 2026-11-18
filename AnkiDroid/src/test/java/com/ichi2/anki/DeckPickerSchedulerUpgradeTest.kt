@@ -2,19 +2,22 @@
 
 package com.ichi2.anki
 
+import android.app.Dialog
 import android.content.Intent
 import android.view.KeyEvent
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.core.content.edit
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.ext.schedulerVersion
-import com.ichi2.anki.dialogs.utils.message
-import com.ichi2.anki.dialogs.utils.title
 import com.ichi2.testutils.BackupManagerTestUtilities
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
@@ -30,6 +33,9 @@ import kotlin.test.assertTrue
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class DeckPickerSchedulerUpgradeTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @ParameterizedRobolectricTestRunner.Parameter
     @JvmField
     var qualifiers: String = ""
@@ -59,8 +65,7 @@ class DeckPickerSchedulerUpgradeTest : RobolectricTest() {
             refresh(controller.get())
             val restored = upgradeDialog(controller.get())
             assertNotSame(original, restored)
-            assertEquals(original.title, restored.title)
-            assertEquals(original.message, restored.message)
+            compose.onNodeWithText(TR.schedulingUpdateRequired()).assertIsDisplayed()
             assertEquals(1L, col.config.schedulerVersion)
         }
     }
@@ -72,7 +77,7 @@ class DeckPickerSchedulerUpgradeTest : RobolectricTest() {
         val dialog = upgradeDialog(controller.get())
         ShadowToast.reset()
 
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        compose.onNodeWithText(targetContext.getString(CommonString.dialog_ok)).performClick()
         advanceRobolectricLooperUntil { col.config.schedulerVersion == 2L }
         advanceRobolectricLooper()
 
@@ -110,7 +115,7 @@ class DeckPickerSchedulerUpgradeTest : RobolectricTest() {
             dialog.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK))
             dialog.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK))
         } else {
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).performClick()
+            compose.onNodeWithText(targetContext.getString(CommonString.dialog_cancel)).performClick()
         }
         advanceRobolectricLooper()
 
@@ -145,18 +150,18 @@ class DeckPickerSchedulerUpgradeTest : RobolectricTest() {
         assertNotSame(original, controller.get())
     }
 
-    private fun upgradeDialog(activity: DeckPicker): AlertDialog {
-        advanceRobolectricLooperUntil { showingAlertDialogs().isNotEmpty() }
-        val dialogs = showingAlertDialogs()
+    private fun upgradeDialog(activity: DeckPicker): Dialog {
+        advanceRobolectricLooperUntil { showingDialogs().isNotEmpty() }
+        val dialogs = showingDialogs()
         assertEquals(1, dialogs.size)
         return dialogs.single().also {
             assertTrue(it.isShowing)
             assertSame(activity, it.context.findAnkiActivity())
-            assertEquals(activity.getString(CommonString.scheduler_upgrade_required_dialog_title), it.title)
+            compose.onNodeWithText(activity.getString(CommonString.scheduler_upgrade_required_dialog_title)).assertIsDisplayed()
         }
     }
 
-    private fun showingAlertDialogs() = ShadowDialog.getShownDialogs().filterIsInstance<AlertDialog>().filter { it.isShowing }
+    private fun showingDialogs() = ShadowDialog.getShownDialogs().filter { it.isShowing }.distinct()
 
     private fun assertNoUpgradePrompt() {
         assertFalse(ShadowDialog.getShownDialogs().any { it.isShowing })

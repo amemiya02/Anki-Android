@@ -2,9 +2,14 @@
 
 package com.ichi2.anki
 
+import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.core.content.edit
 import anki.sync.SyncAuth
 import anki.sync.SyncStatusResponse
@@ -15,7 +20,6 @@ import com.ichi2.anki.sync.MeteredSyncPermission
 import com.ichi2.testutils.BackupManagerTestUtilities
 import com.ichi2.testutils.signInToSyncServer
 import com.ichi2.utils.NetworkUtils
-import com.ichi2.utils.getCheckBoxPrompt
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
@@ -25,6 +29,7 @@ import io.mockk.verify
 import kotlinx.coroutines.Job
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
@@ -41,6 +46,9 @@ import kotlin.test.assertTrue
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class DeckPickerMeteredConfirmationTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @ParameterizedRobolectricTestRunner.Parameter
     @JvmField
     var qualifiers: String = ""
@@ -87,7 +95,7 @@ class DeckPickerMeteredConfirmationTest : RobolectricTest() {
             assertNotSame(original, warning(controller.get()))
             assertTrue(attempts.isEmpty())
         }
-        warning(controller.get()).getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        acceptWarning()
         advanceRobolectricLooper()
 
         assertEquals(
@@ -113,7 +121,7 @@ class DeckPickerMeteredConfirmationTest : RobolectricTest() {
         recreate(controller)
         val dialog = warning(controller.get())
         if (button) {
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).performClick()
+            compose.onNodeWithText(targetContext.getString(CommonString.dialog_cancel)).performClick()
         } else {
             dialog.cancel()
         }
@@ -128,18 +136,20 @@ class DeckPickerMeteredConfirmationTest : RobolectricTest() {
     fun `checkbox choice survives recreation and still updates the preference`() {
         val controller = launch()
         controller.get().sync()
-        warning(controller.get()).getCheckBoxPrompt().isChecked = true
+        warning(controller.get())
+        checkbox().performClick()
         assertTrue(Prefs.allowSyncOnMeteredConnections)
 
         recreate(controller)
 
-        val restored = warning(controller.get())
-        assertTrue(restored.getCheckBoxPrompt().isChecked)
+        warning(controller.get())
+        checkbox().assertIsOn()
         assertTrue(attempts.isEmpty())
-        restored.getCheckBoxPrompt().isChecked = false
+        checkbox().performClick()
         assertFalse(Prefs.allowSyncOnMeteredConnections)
         recreate(controller)
-        assertFalse(warning(controller.get()).getCheckBoxPrompt().isChecked)
+        warning(controller.get())
+        checkbox().assertIsOff()
         assertTrue(attempts.isEmpty())
     }
 
@@ -210,7 +220,7 @@ class DeckPickerMeteredConfirmationTest : RobolectricTest() {
         activity.sync()
         val dialog = warning(activity)
         if (checkAlwaysAllow) {
-            dialog.getCheckBoxPrompt().isChecked = true
+            checkbox().performClick()
         } else {
             metered = false
         }
@@ -220,7 +230,7 @@ class DeckPickerMeteredConfirmationTest : RobolectricTest() {
 
         assertSame(dialog, warning(activity))
         assertTrue(attempts.isEmpty())
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        acceptWarning()
         advanceRobolectricLooper()
         assertEquals(
             listOf(SyncAttempt(activity, null, true, MeteredSyncPermission.ALLOW_METERED_SYNC_THIS_TIME)),
@@ -251,9 +261,9 @@ class DeckPickerMeteredConfirmationTest : RobolectricTest() {
             val controller = launch()
             advanceRobolectricLooperUntil { activityTasks.all { it.isCompleted } }
             controller.get().sync()
-            val dialog = warning(controller.get())
+            warning(controller.get())
             if (checkAlwaysAllow) {
-                dialog.getCheckBoxPrompt().isChecked = true
+                checkbox().performClick()
             } else {
                 metered = false
             }
@@ -264,7 +274,7 @@ class DeckPickerMeteredConfirmationTest : RobolectricTest() {
 
             assertEquals(0, attempts.size, "Recreation must not sync while the confirmation is pending")
             verify(exactly = 0) { backend.syncStatus(any<SyncAuth>()) }
-            warning(controller.get()).getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+            acceptWarning()
             advanceRobolectricLooper()
             assertEquals(
                 listOf(SyncAttempt(controller.get(), null, true, MeteredSyncPermission.ALLOW_METERED_SYNC_THIS_TIME)),
@@ -351,8 +361,8 @@ class DeckPickerMeteredConfirmationTest : RobolectricTest() {
             advanceRobolectricLooperUntil { activityTasks.all { it.isCompleted } }
             assertTrue(attempts.isEmpty())
             controller.start().resume().visible()
-            val dialog = warning(controller.get())
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+            warning(controller.get())
+            acceptWarning()
             advanceRobolectricLooper()
             assertEquals(1, attempts.size)
         } finally {
@@ -385,9 +395,9 @@ class DeckPickerMeteredConfirmationTest : RobolectricTest() {
 
         recreate(controller)
         controller.start().resume().visible()
-        val dialog = warning(controller.get())
+        warning(controller.get())
         assertTrue(attempts.isEmpty())
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        acceptWarning()
         advanceRobolectricLooper()
         assertEquals(
             listOf(SyncAttempt(controller.get(), null, syncMedia, MeteredSyncPermission.ALLOW_METERED_SYNC_THIS_TIME)),
@@ -414,13 +424,12 @@ class DeckPickerMeteredConfirmationTest : RobolectricTest() {
         assertNotSame(original, controller.get())
     }
 
-    private fun warning(activity: DeckPicker): AlertDialog {
+    private fun warning(activity: DeckPicker): Dialog {
         advanceRobolectricLooper()
         // Resuming a stopped activity can show the same dialog again; the shadow records each show.
         val dialogs =
             ShadowDialog
                 .getShownDialogs()
-                .filterIsInstance<AlertDialog>()
                 .filter { it.isShowing }
                 .distinct()
         assertEquals(1, dialogs.size)
@@ -429,6 +438,12 @@ class DeckPickerMeteredConfirmationTest : RobolectricTest() {
             assertTrue(it.isShowing)
         }
     }
+
+    private fun acceptWarning() {
+        compose.onNodeWithText(targetContext.getString(CommonString.dialog_continue)).performClick()
+    }
+
+    private fun checkbox() = compose.onNodeWithText(targetContext.getString(CommonString.button_do_not_show_again))
 
     private fun assertNoWarning() {
         assertFalse(ShadowDialog.getShownDialogs().any { it.isShowing })

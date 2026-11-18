@@ -3,7 +3,10 @@
 package com.ichi2.anki.dialogs
 
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.core.content.edit
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.FragmentScenario.Companion.launch
@@ -24,6 +27,7 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import timber.log.Timber
@@ -33,6 +37,9 @@ import com.ichi2.anki.common.android.R as CommonR
 
 @RunWith(AndroidJUnit4::class)
 class DeckPickerContextMenuTest {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     private val scenariosForCleanup = ArrayList<FragmentScenario<*>>()
 
     @Before
@@ -127,7 +134,7 @@ class DeckPickerContextMenuTest {
         launch(withArguments()).onFragment { fragment ->
             MatcherAssert.assertThat(
                 "'Delete deck' should be last item in the menu",
-                fragment.foundOptions().last(),
+                foundOptions().last(),
                 equalTo(with(fragment.requireContext()) { TR.sentenceCase.deleteDeck }),
             )
         }
@@ -137,11 +144,11 @@ class DeckPickerContextMenuTest {
     fun `Shows options to empty and rebuild when deck is dynamic`() {
         launch(withArguments(isDynamic = true)).onFragment { fragment ->
             assertTrue(
-                fragment.foundOptions().contains(fragment.getString(CommonString.empty_cram_label)),
+                foundOptions().contains(fragment.getString(CommonString.empty_cram_label)),
                 "'Empty' should be present when deck is dynamic",
             )
             assertTrue(
-                fragment.foundOptions().contains(TR.actionsRebuild()),
+                foundOptions().contains(TR.actionsRebuild()),
                 "'Rebuild' should be present when deck is dynamic",
             )
         }
@@ -151,7 +158,7 @@ class DeckPickerContextMenuTest {
     fun `Shows option to create subdeck when deck is not dynamic`() {
         launch(withArguments()).onFragment { fragment ->
             assertTrue(
-                fragment.foundOptions().contains(fragment.getString(CommonString.create_subdeck)),
+                foundOptions().contains(fragment.getString(CommonString.create_subdeck)),
                 "'Create subdeck' should be present when deck is not dynamic",
             )
         }
@@ -161,7 +168,7 @@ class DeckPickerContextMenuTest {
     fun `Shows option to unbury if deck has buried cards`() {
         launch(withArguments(hasBuriedCards = true)).onFragment { fragment ->
             assertTrue(
-                fragment.foundOptions().contains(TR.studyingUnbury()),
+                foundOptions().contains(TR.studyingUnbury()),
                 "'Unbury' should be present when deck has buried cards",
             )
         }
@@ -172,14 +179,11 @@ class DeckPickerContextMenuTest {
             scenariosForCleanup.add(it)
         }
 
-    private fun DeckPickerContextMenu.foundOptions(): List<String> {
-        val foundOptions = mutableListOf<String>()
-        val menuAdapter = (dialog as AlertDialog).listView.adapter
-        for (index in 0 until menuAdapter.count) {
-            foundOptions.add(menuAdapter.getItem(index).toString())
-        }
-        return foundOptions
-    }
+    private fun foundOptions(): List<String> =
+        compose
+            .onAllNodes(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton))
+            .fetchSemanticsNodes()
+            .flatMap { node -> node.config[SemanticsProperties.Text].map { it.text } }
 
     private fun withArguments(
         deckId: DeckId = 1000L,

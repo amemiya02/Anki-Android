@@ -159,9 +159,10 @@ class DialogPatternsScreenshotTest : ComposeScreenshotTest() {
             beforeCapture = { composeRule.onNodeWithText("Host unreachable").assertDoesNotExist() },
         ) {
             ErrorDialog(
-                title = stringResource(CommonString.sync_error),
+                title = stringResource(CommonString.paper_dialog_sync_unreachable),
                 message = stringResource(CommonString.connection_error_message),
                 details = "Host unreachable",
+                markIcon = R.drawable.symbol_cloud_off,
                 onDismissRequest = {},
                 primaryAction = DialogAction(stringResource(CommonString.retry), {}),
             )

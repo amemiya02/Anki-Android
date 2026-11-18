@@ -57,7 +57,7 @@ Smaller choices drawn without an alternative, which the owner can still change:
 - **Progress** uses the progress bar's colours from the Core Loop and says what it is working on and how far it is. It has no buttons when the work cannot be cancelled; work of unknown length uses the same bar, moving.
 - **Errors** say what failed and what to do in plain words, keep technical text behind "Show details" (which also offers copying it), and offer the obvious next step ("Try again") as the one filled button.
 
-New design values the Mockups use that are not yet in `quiet-paper.values.json`, to be added when the dialog patterns are built (ticket 33): a `dialogTitle` type role (22sp, 500, line height 1.3), a one-line settings row of 56dp, a dialog corner of 6dp, and the scrim (black at 45% in Light, 68% in Dark and Black).
+The Foundation defines the dialog title (22sp, weight 500, line height 1.3), 56dp settings rows, 6dp dialog corners and the black scrim (45% in Light, 68% in Dark and Black).
 
 ## Not drawn
 

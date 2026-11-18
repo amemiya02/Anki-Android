@@ -2,13 +2,19 @@
 
 package com.ichi2.anki
 
+import android.app.Dialog
 import android.content.Intent
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.core.content.edit
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.storage.CollectionHelper
-import com.ichi2.anki.dialogs.utils.message
-import com.ichi2.anki.dialogs.utils.title
 import com.ichi2.anki.mediacheck.MediaCheckFragment
 import com.ichi2.testutils.BackupManagerTestUtilities
 import com.ichi2.testutils.ShadowStatFs
@@ -18,6 +24,7 @@ import net.ankiweb.rsdroid.BackendFactory
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
@@ -36,6 +43,9 @@ import kotlin.test.assertTrue
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class DeckPickerMaintenanceConfirmationTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @ParameterizedRobolectricTestRunner.Parameter(0)
     @JvmField
     var qualifiers: String = ""
@@ -78,7 +88,10 @@ class DeckPickerMaintenanceConfirmationTest : RobolectricTest() {
         val controller = launch()
         val dialog = openAndRecreate(controller)
 
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        compose
+            .onNodeWithText(
+                targetContext.getString(if (mediaCheck) CommonString.dialog_ok else CommonString.integrity_check_continue_anyway),
+            ).performClick()
         advanceRobolectricLooper()
 
         if (mediaCheck) {
@@ -87,7 +100,10 @@ class DeckPickerMaintenanceConfirmationTest : RobolectricTest() {
             assertEquals(expected.component, intent.component)
             assertEquals(MediaCheckFragment::class.java.name, intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME))
         } else {
-            advanceRobolectricLooperUntil { databaseChecks.get() == 1 && latestDialog().message == "Maintenance check finished" }
+            advanceRobolectricLooperUntil {
+                databaseChecks.get() == 1 &&
+                    kotlin.runCatching { compose.onNodeWithText("Maintenance check finished").assertIsDisplayed() }.isSuccess
+            }
             assertSame(controller.get(), latestDialog().context.findAnkiActivity())
             latestDialog().dismiss()
             advanceRobolectricLooper()
@@ -107,7 +123,7 @@ class DeckPickerMaintenanceConfirmationTest : RobolectricTest() {
         val controller = launch()
         val dialog = openAndRecreate(controller)
 
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).performClick()
+        compose.onNodeWithText(targetContext.getString(CommonString.dialog_cancel)).performClick()
         advanceRobolectricLooper()
         assertFalse(dialog.isShowing)
 
@@ -152,13 +168,16 @@ class DeckPickerMaintenanceConfirmationTest : RobolectricTest() {
 
         activity.integrityCheck()
 
-        advanceRobolectricLooperUntil { databaseChecks.get() == 1 && latestDialog().message == "Maintenance check finished" }
+        advanceRobolectricLooperUntil {
+            databaseChecks.get() == 1 &&
+                kotlin.runCatching { compose.onNodeWithText("Maintenance check finished").assertIsDisplayed() }.isSuccess
+        }
     }
 
     private fun launch(): ActivityController<DeckPicker> =
         startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent())
 
-    private fun openAndRecreate(controller: ActivityController<DeckPicker>): AlertDialog {
+    private fun openAndRecreate(controller: ActivityController<DeckPicker>): Dialog {
         val activity = controller.get()
         if (mediaCheck) {
             activity.mediaCheck()
@@ -176,8 +195,8 @@ class DeckPickerMaintenanceConfirmationTest : RobolectricTest() {
         val original = latestDialog()
         assertTrue(original.isShowing)
         assertSame(activity, original.context.findAnkiActivity())
-        val title = original.title
-        val message = original.message
+        val copy = dialogText()
+        assertTrue(copy.isNotEmpty())
         assertNoCheckStarted(activity)
 
         repeat(2) {
@@ -186,8 +205,7 @@ class DeckPickerMaintenanceConfirmationTest : RobolectricTest() {
             assertNotSame(original, restored)
             assertSame(controller.get(), restored.context.findAnkiActivity())
             assertTrue(restored.isShowing)
-            assertEquals(title, restored.title)
-            assertEquals(message, restored.message)
+            assertEquals(copy, dialogText())
             assertEquals(1, ShadowDialog.getShownDialogs().count { it.isShowing })
             assertNoCheckStarted(controller.get())
         }
@@ -207,7 +225,13 @@ class DeckPickerMaintenanceConfirmationTest : RobolectricTest() {
         assertNull(shadowOf(activity).nextStartedActivity)
     }
 
-    private fun latestDialog(): AlertDialog = assertNotNull(ShadowDialog.getLatestDialog() as? AlertDialog)
+    private fun latestDialog(): Dialog = assertNotNull(ShadowDialog.getLatestDialog())
+
+    private fun dialogText(): List<String> =
+        compose
+            .onAllNodes(hasAnyAncestor(isDialog()) and SemanticsMatcher.keyIsDefined(SemanticsProperties.Text))
+            .fetchSemanticsNodes()
+            .flatMap { node -> node.config[SemanticsProperties.Text].map { it.text } }
 
     companion object {
         @ParameterizedRobolectricTestRunner.Parameters(name = "{0}, mediaCheck={1}")

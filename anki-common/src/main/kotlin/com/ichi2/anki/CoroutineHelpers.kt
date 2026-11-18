@@ -370,7 +370,7 @@ private fun Context.showErrorDialog(
                 actions =
                     listOfNotNull(
                         helpAction?.let {
-                            DialogAction(it.buttonText(this@showErrorDialog), {
+                            DialogAction(it.buttonText(this@showErrorDialog).toString(), {
                                 dialog.lifecycle.coroutineScope.launch {
                                     if (it.execute(this@showErrorDialog)) dialog.dismiss()
                                 }
@@ -548,7 +548,7 @@ private suspend fun <T> withProgressDialog(
                 if (mayCancelWithBack) {
                     setOnCancelListener {
                         Timber.i("Progress dialog cancelled via back or outside")
-                        onCancel?.invoke()
+                        onCancel()
                     }
                 }
             }
