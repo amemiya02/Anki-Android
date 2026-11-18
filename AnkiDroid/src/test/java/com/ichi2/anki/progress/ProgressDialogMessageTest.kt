@@ -31,16 +31,18 @@ class ProgressDialogMessageTest : RobolectricTest() {
     fun `the message is resolved into the dialog text`() {
         val controller = Robolectric.buildActivity(EmptyAnkiActivity::class.java).setup()
         saveControllerForCleanup(controller)
-        val source = object : HasProgress<String> {
-            override val progressManager = ProgressManager<String>()
-        }
+        val source =
+            object : HasProgress<String> {
+                override val progressManager = ProgressManager<String>()
+            }
         controller.get().observeProgress(source, delayMillis = 600.milliseconds) { message ->
             getString(CommonString.progress_amount_bytes, message, "2 MB")
         }
         val gate = CompletableDeferred<Unit>()
-        val op = CoroutineScope(Dispatchers.Unconfined).launch {
-            source.progressManager.withProgress(message = "1 MB") { gate.await() }
-        }
+        val op =
+            CoroutineScope(Dispatchers.Unconfined).launch {
+                source.progressManager.withProgress(message = "1 MB") { gate.await() }
+            }
         try {
             shadowOf(Looper.getMainLooper()).idleFor(1200.milliseconds.toJavaDuration())
             compose.onNodeWithText("1 MB/2 MB").assertIsDisplayed()

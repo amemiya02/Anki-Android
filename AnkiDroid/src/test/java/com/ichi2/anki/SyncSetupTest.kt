@@ -31,7 +31,6 @@ import org.robolectric.fakes.RoboMenuItem
 import org.robolectric.shadows.ShadowDialog
 import kotlin.reflect.jvm.jvmName
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 /** The deck list's route into sync setup, which replaces AnkiWeb sign-in (ADR-0001) */
 @RunWith(AndroidJUnit4::class)

@@ -36,17 +36,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
-import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.libanki.CardTemplate
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.compose.theme.foundation
@@ -59,8 +59,7 @@ import com.ichi2.anki.common.android.R as CommonR
 
 /** Edits the template formats used by the Card Browser's question and answer columns. */
 class CardTemplateBrowserAppearanceEditor : SingleFragmentActivity() {
-    override fun createFragment(): BrowserAppearanceFragment =
-        BrowserAppearanceFragment().apply { arguments = intent.extras }
+    override fun createFragment(): BrowserAppearanceFragment = BrowserAppearanceFragment().apply { arguments = intent.extras }
 
     class Result private constructor(
         question: String?,
@@ -141,7 +140,10 @@ class BrowserAppearanceFragment : Fragment() {
             }
         }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         if (arguments == null) {
             showThemedToast(requireContext(), getString(CommonString.something_wrong), true)
@@ -149,7 +151,10 @@ class BrowserAppearanceFragment : Fragment() {
         }
     }
 
-    private fun saveAndExit(question: String, answer: String) {
+    private fun saveAndExit(
+        question: String,
+        answer: String,
+    ) {
         val data =
             Intent().apply {
                 putExtra(CardTemplateBrowserAppearanceEditor.EXTRA_QUESTION_FORMAT, question)

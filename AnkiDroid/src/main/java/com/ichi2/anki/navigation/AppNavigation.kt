@@ -14,10 +14,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.viewinterop.AndroidView
@@ -35,16 +35,16 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.get
 import androidx.navigation.navOptions
 import com.ichi2.anki.BottomNavController.NavigationItem
-import com.ichi2.anki.CardBrowser
 import com.ichi2.anki.BrowserAppearanceFragment
+import com.ichi2.anki.CardBrowser
 import com.ichi2.anki.CardTemplateBrowserAppearanceEditor
 import com.ichi2.anki.CardTemplateEditor
 import com.ichi2.anki.CardTemplateEditorFragment
 import com.ichi2.anki.DeckPicker
+import com.ichi2.anki.DrawingFragment
 import com.ichi2.anki.Info
 import com.ichi2.anki.InfoFragment
 import com.ichi2.anki.MoreFragment
-import com.ichi2.anki.DrawingFragment
 import com.ichi2.anki.NoteEditorActivity
 import com.ichi2.anki.NoteEditorPaneFragment
 import com.ichi2.anki.SingleFragmentActivity
@@ -62,8 +62,6 @@ import com.ichi2.anki.multimedia.MultimediaActivity
 import com.ichi2.anki.multimedia.MultimediaFlowFragment
 import com.ichi2.anki.notetype.ManageNoteTypesFragment
 import com.ichi2.anki.notetype.ManageNotetypes
-import com.ichi2.anki.ui.windows.managespace.ManageSpaceActivity
-import com.ichi2.anki.ui.windows.managespace.ManageSpaceFragment
 import com.ichi2.anki.pages.AnkiPackageImporterFragment
 import com.ichi2.anki.pages.CardInfoFragment
 import com.ichi2.anki.pages.CsvImporter
@@ -79,11 +77,13 @@ import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
 import com.ichi2.anki.shareddeck.SharedDecksActivity
 import com.ichi2.anki.shareddeck.SharedDecksFragment
 import com.ichi2.anki.study.FinishedFragment
-import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
+import com.ichi2.anki.ui.windows.managespace.ManageSpaceActivity
+import com.ichi2.anki.ui.windows.managespace.ManageSpaceFragment
 import com.ichi2.anki.ui.windows.permissions.AllPermissionsExplanationActivity
 import com.ichi2.anki.ui.windows.permissions.AllPermissionsExplanationFragment
 import com.ichi2.anki.ui.windows.permissions.CollectionPermissionsFragment
 import com.ichi2.anki.ui.windows.permissions.PermissionsActivity
+import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
 import com.ichi2.anki.updateTabChrome
 import com.ichi2.anki.utils.ConfigAwareSingleFragmentActivity
 import com.ichi2.imagecropper.ImageCropper
@@ -132,7 +132,14 @@ internal class AppNavigation(
                 composable(tab.tag) { entry ->
                     if (tab == NavigationItem.BROWSER) remember(entry.id) { deckPicker.ensureBrowserViewModel() }
                     val bottomClearance = with(LocalDensity.current) { deckPicker.bottomNavContentClearance.intValue.toDp() }
-                    val arguments = if (tab == NavigationItem.STATS) Bundle().apply { putBoolean(Statistics.ARG_HIDE_BACK_BUTTON, true) } else null
+                    val arguments =
+                        if (tab ==
+                            NavigationItem.STATS
+                        ) {
+                            Bundle().apply { putBoolean(Statistics.ARG_HIDE_BACK_BUTTON, true) }
+                        } else {
+                            null
+                        }
                     HostedScreen(entry, fragmentClass, Modifier.padding(bottom = bottomClearance), arguments)
                 }
             }
@@ -142,7 +149,12 @@ internal class AppNavigation(
                 }
             }
         }
-        val route = navigation.currentBackStackEntryAsState().value?.destination?.route
+        val route =
+            navigation
+                .currentBackStackEntryAsState()
+                .value
+                ?.destination
+                ?.route
         LaunchedEffect(route) {
             if (route in tabRouteNames && !deckPicker.bottomNavigationEnabled && route != HOME) {
                 navigation.popBackStack(HOME, inclusive = false)

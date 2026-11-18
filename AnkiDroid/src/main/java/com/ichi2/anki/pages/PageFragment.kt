@@ -26,8 +26,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.color.MaterialColors
-import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.multimedia.AttachmentAppBar
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.workarounds.NestedScrollingSafeWebViewLayout
 import com.ichi2.anki.workarounds.OnWebViewRecreatedListener
 import com.ichi2.anki.workarounds.SafeWebViewLayout

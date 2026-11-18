@@ -12,10 +12,10 @@ import androidx.annotation.CheckResult
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.FileProvider
 import androidx.work.WorkManager
+import com.ichi2.anki.browser.toIntent
 import com.ichi2.anki.common.analytics.reportPotentiallyDeadCode
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.coroutines.applicationScope
-import com.ichi2.anki.browser.toIntent
 import com.ichi2.anki.common.destinations.BrowserDestination
 import com.ichi2.anki.common.destinations.NoteEditorDestination
 import com.ichi2.anki.common.preferences.sharedPrefs

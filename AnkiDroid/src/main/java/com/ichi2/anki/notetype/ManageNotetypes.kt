@@ -27,18 +27,18 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import anki.notetypes.StockNotetype
-import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
+import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.awaitCatchingTask
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.NoteTypeId
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.progress.ViewModelProgress
 import com.ichi2.anki.progress.observeProgress
-import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.utils.Destination
 import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.compose.ui.dialogs.ConfirmationDialog
@@ -49,6 +49,7 @@ import com.ichi2.compose.ui.dialogs.TextInputDialog
 
 class ManageNotetypes : SingleFragmentActivity() {
     override fun createFragment(): ManageNoteTypesFragment = ManageNoteTypesFragment()
+
     val viewModel: ManageNoteTypesViewModel
         get() = (fragment as ManageNoteTypesFragment).viewModel
 }

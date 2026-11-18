@@ -14,10 +14,10 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.FragmentContainerView
 import com.ichi2.anki.common.utils.android.getColorFromAttr
-import com.ichi2.anki.noteeditor.Toolbar as EditorToolbar
 import com.ichi2.anki.ui.ResizablePaneLayout
 import com.ichi2.anki.ui.ResizingDivider
 import com.ichi2.anki.common.android.R as CommonR
+import com.ichi2.anki.noteeditor.Toolbar as EditorToolbar
 
 /** Keeps the system text editing and IME behavior of the note fields. */
 internal class NoteFieldsLayout(

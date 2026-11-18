@@ -28,8 +28,8 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.ui.ResizablePaneLayout
 import com.ichi2.anki.ui.ResizingDivider
-import com.ichi2.anki.common.android.R as CommonR
 import com.google.android.material.R as MaterialR
+import com.ichi2.anki.common.android.R as CommonR
 
 /** Native containers for the Compose deck list and the adaptive study pane. */
 internal class DeckPickerLayout(
@@ -46,11 +46,12 @@ internal class DeckPickerLayout(
     val studyoptionsFragment: FragmentContainerView?
 
     init {
-        val content = LinearLayout(context).apply {
-            id = R.id.deck_picker_content_wrapper
-            orientation = LinearLayout.VERTICAL
-            addView(toolbarContainer, MATCH_PARENT, WRAP_CONTENT)
-        }
+        val content =
+            LinearLayout(context).apply {
+                id = R.id.deck_picker_content_wrapper
+                orientation = LinearLayout.VERTICAL
+                addView(toolbarContainer, MATCH_PARENT, WRAP_CONTENT)
+            }
         if (context.resources.getBoolean(R.bool.bottom_navigation_available)) {
             deckPickerContentWrapper = content
             content.addView(deckPickerPane.root, MATCH_PARENT, MATCH_PARENT)

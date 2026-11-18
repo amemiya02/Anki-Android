@@ -14,10 +14,10 @@ import androidx.core.os.BundleCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.libanki.CardOrdinal
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.compose.theme.foundation
 import kotlinx.coroutines.launch

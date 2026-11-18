@@ -6,8 +6,8 @@ package com.ichi2.anki
 import android.os.Bundle
 import com.ichi2.anki.NoteEditorFragment.Companion.NoteEditorCaller
 import com.ichi2.anki.common.destinations.NoteEditorDestination
-import com.ichi2.anki.noteeditor.toIntent
 import com.ichi2.anki.common.utils.android.showThemedToast
+import com.ichi2.anki.noteeditor.toIntent
 import timber.log.Timber
 
 /**

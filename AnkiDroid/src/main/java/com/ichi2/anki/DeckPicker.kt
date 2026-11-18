@@ -60,15 +60,15 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.IntentCompat
 import androidx.core.content.edit
-import androidx.core.os.BundleCompat
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
+import androidx.core.os.BundleCompat
 import androidx.core.util.component1
 import androidx.core.util.component2
 import androidx.core.view.MenuItemCompat
@@ -198,8 +198,8 @@ import com.ichi2.anki.introduction.hasCollectionStoragePermissions
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.sched.DeckNode
 import com.ichi2.anki.mediacheck.MediaCheckFragment
-import com.ichi2.anki.navigation.AppNavigation
 import com.ichi2.anki.multiprofile.ProfileManager
+import com.ichi2.anki.navigation.AppNavigation
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.pages.AnkiPackageImporterFragment
 import com.ichi2.anki.progress.observeProgress
@@ -743,11 +743,12 @@ open class DeckPicker :
     private fun installScreenNavigation() {
         val home = drawerLayout.getChildAt(0)
         appNavigation = AppNavigation(this, home, showWelcome = awaitingWelcome)
-        val host = ComposeView(this).apply {
-            id = R.id.app_navigation
-            consumeWindowInsets = false
-            setContent { AnkiDroidTheme { appNavigation.Content() } }
-        }
+        val host =
+            ComposeView(this).apply {
+                id = R.id.app_navigation
+                consumeWindowInsets = false
+                setContent { AnkiDroidTheme { appNavigation.Content() } }
+            }
         val params = home.layoutParams
         drawerLayout.removeViewAt(0)
         val bar = binding.bottomNavigation
@@ -782,7 +783,10 @@ open class DeckPicker :
     internal val currentScreenFragment: Fragment?
         get() = if (::appNavigation.isInitialized) appNavigation.currentFragment else null
 
-    internal fun finishScreen(fragment: Fragment, result: ActivityResult) = appNavigation.finish(fragment, result)
+    internal fun finishScreen(
+        fragment: Fragment,
+        result: ActivityResult,
+    ) = appNavigation.finish(fragment, result)
 
     internal fun hasScreenResultCaller(fragment: Fragment): Boolean = appNavigation.hasResultCaller(fragment)
 
@@ -2673,25 +2677,30 @@ open class DeckPicker :
             screen: Intent,
             source: Intent? = null,
             resetTask: Boolean = false,
-        ): Intent = getIntent(context).apply {
-            val payload =
-                Intent(screen).apply {
-                    if (source != null && data == null && type == null) setDataAndType(source.data, source.type)
+        ): Intent =
+            getIntent(context).apply {
+                val payload =
+                    Intent(screen).apply {
+                        if (source != null && data == null && type == null) setDataAndType(source.data, source.type)
+                    }
+                putExtra(EXTRA_ENTRY_SCREEN, payload)
+                addFlags(
+                    if (resetTask) {
+                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    } else {
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    },
+                )
+                if (source != null) {
+                    val uri = source.data ?: IntentCompat.getParcelableExtra(source, Intent.EXTRA_STREAM, Uri::class.java)
+                    clipData =
+                        source.clipData ?: uri?.takeIf { it.scheme == ContentResolver.SCHEME_CONTENT }?.let { ClipData.newRawUri(null, it) }
+                    val uriFlags =
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                            Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
+                    addFlags(source.flags and uriFlags)
                 }
-            putExtra(EXTRA_ENTRY_SCREEN, payload)
-            addFlags(
-                if (resetTask) Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                else Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP,
-            )
-            if (source != null) {
-                val uri = source.data ?: IntentCompat.getParcelableExtra(source, Intent.EXTRA_STREAM, Uri::class.java)
-                clipData = source.clipData ?: uri?.takeIf { it.scheme == ContentResolver.SCHEME_CONTENT }?.let { ClipData.newRawUri(null, it) }
-                val uriFlags =
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
-                        Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
-                addFlags(source.flags and uriFlags)
             }
-        }
 
         fun getIntent(
             context: Context,

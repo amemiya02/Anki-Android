@@ -15,12 +15,12 @@ import androidx.compose.runtime.getValue
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.R
 import com.ichi2.anki.common.destinations.BrowserDestination
 import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.libanki.DeckId
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.preferences.settingsComposeView
 import com.ichi2.anki.utils.ConfigAwareSingleFragmentActivity
 import com.ichi2.anki.utils.ext.collectInViewLifecycle

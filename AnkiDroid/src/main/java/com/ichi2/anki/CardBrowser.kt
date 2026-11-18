@@ -472,7 +472,9 @@ open class CardBrowser :
     }
 }
 
-private class StandaloneBrowserLayout(context: Context) {
+private class StandaloneBrowserLayout(
+    context: Context,
+) {
     val root = CoordinatorLayout(context).apply { id = R.id.root_layout }
     val cardBrowserFrame = FragmentContainerView(context).apply { id = R.id.card_browser_frame }
     val noteEditorFrame: FragmentContainerView?

@@ -180,7 +180,6 @@ class NoteEditorPaneFragment :
                 }
             }
         }
-
     }
 
     fun setPreviewerVisible(visible: Boolean) {

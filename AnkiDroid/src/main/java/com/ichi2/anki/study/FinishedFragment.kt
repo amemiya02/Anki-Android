@@ -21,7 +21,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import anki.collection.OpChanges
 import anki.scheduler.UnburyDeckRequest
-import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
@@ -34,6 +33,7 @@ import com.ichi2.anki.common.destinations.toIntent
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyAction
 import com.ichi2.anki.launchCatchingTask
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.pages.CongratsRefreshState
 import com.ichi2.anki.pages.CongratsViewModel

@@ -87,9 +87,8 @@ import com.ichi2.anki.libanki.Consts.DEFAULT_DECK_ID
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.navigation.AnkiDroidNavigator
 import com.ichi2.anki.observability.ChangeManager
-import com.ichi2.anki.preferences.PreferencesFragment
 import com.ichi2.anki.preferences.AdvancedSettingsFragment
-import com.ichi2.anki.preferences.PreferencesActivity
+import com.ichi2.anki.preferences.PreferencesFragment
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.study.FinishedFragment

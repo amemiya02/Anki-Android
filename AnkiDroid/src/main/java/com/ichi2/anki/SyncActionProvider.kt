@@ -51,10 +51,16 @@ class SyncActionProvider(
         object : FrameLayout(context) {
             private val target = resources.getDimensionPixelSize(CommonR.dimen.foundation_spacing_touch_target)
 
-            override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+            override fun onMeasure(
+                widthMeasureSpec: Int,
+                heightMeasureSpec: Int,
+            ) {
                 // The toolbar measures candidate actions before attaching them to a window.
-                if (isAttachedToWindow) super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-                else setMeasuredDimension(resolveSize(target, widthMeasureSpec), resolveSize(target, heightMeasureSpec))
+                if (isAttachedToWindow) {
+                    super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+                } else {
+                    setMeasuredDimension(resolveSize(target, widthMeasureSpec), resolveSize(target, heightMeasureSpec))
+                }
             }
         }.apply {
             action = this

@@ -6,12 +6,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
-import androidx.activity.addCallback
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
 import com.ichi2.anki.AnkiActivity
@@ -92,7 +92,10 @@ class CollectionPermissionsFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View = FragmentContainerView(inflater.context).apply { id = R.id.storage_permissions_container }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         val permissionSet = arguments?.getParcelableCompat<StoragePermissionSet>(PermissionsActivity.EXTRA_PERMISSIONS_SET)
         if (permissionSet == null) {

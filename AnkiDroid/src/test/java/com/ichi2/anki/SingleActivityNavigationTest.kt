@@ -10,8 +10,8 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.mediacheck.MediaCheckFragment
 import com.ichi2.anki.CollectionManager.TR
+import com.ichi2.anki.mediacheck.MediaCheckFragment
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -62,7 +62,10 @@ class SingleActivityNavigationTest : RobolectricTest() {
         composeRule.onNodeWithText(host.getString(CommonString.paper_welcome_start_empty)).performClick()
         advanceRobolectricLooperUntil { host.currentScreenFragment is NoteEditorPaneFragment }
 
-        assertEquals("Text from another app", (host.currentScreenFragment as NoteEditorPaneFragment).launchIntent.getStringExtra(Intent.EXTRA_TEXT))
+        assertEquals(
+            "Text from another app",
+            (host.currentScreenFragment as NoteEditorPaneFragment).launchIntent.getStringExtra(Intent.EXTRA_TEXT),
+        )
         assertNull(shadowOf(host).nextStartedActivity)
     }
 

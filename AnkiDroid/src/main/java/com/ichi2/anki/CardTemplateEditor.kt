@@ -114,7 +114,9 @@ open class CardTemplateEditor : SingleFragmentActivity() {
 
     var tempNoteType: CardTemplateNotetype?
         get() = templateScreen?.tempNoteType
-        set(value) { requireNotNull(templateScreen).tempNoteType = value }
+        set(value) {
+            requireNotNull(templateScreen).tempNoteType = value
+        }
 
     val displayDiscardChangesCallback
         get() = requireNotNull(templateScreen).displayDiscardChangesCallback
@@ -123,8 +125,7 @@ open class CardTemplateEditor : SingleFragmentActivity() {
 
     fun onDeckSelected(deck: SelectableDeck?) = requireNotNull(templateScreen).onDeckSelected(deck)
 
-    override fun createFragment(): CardTemplateEditorFragment =
-        CardTemplateEditorFragment().apply { arguments = intent.extras }
+    override fun createFragment(): CardTemplateEditorFragment = CardTemplateEditorFragment().apply { arguments = intent.extras }
 
     data class CardTemplate(
         val front: String,
@@ -230,7 +231,8 @@ class CardTemplateEditorFragment :
             return
         }
         noteId = savedInstanceState?.getLong(STATE_NOTE_ID) ?: arguments?.getLong(CardTemplateEditor.EXTRA_NOTE_ID, -1L) ?: -1L
-        ord = savedInstanceState?.getInt(STATE_STARTING_TEMPLATE_ORDINAL) ?: arguments?.getInt(CardTemplateEditor.EXTRA_START_ORD_ID, 0) ?: 0
+        ord =
+            savedInstanceState?.getInt(STATE_STARTING_TEMPLATE_ORDINAL) ?: arguments?.getInt(CardTemplateEditor.EXTRA_START_ORD_ID, 0) ?: 0
         if (savedInstanceState != null) {
             tempNoteType = CardTemplateNotetype.fromBundle(savedInstanceState)
             sections = savedInstanceState.getSerializableCompat(STATE_TAB_TO_VIEW_ID) ?: hashMapOf()
@@ -244,40 +246,44 @@ class CardTemplateEditorFragment :
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View = ComposeView(inflater.context).apply {
-        id = R.id.card_template_screen
-        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-        setContent {
-            AnkiDroidTheme {
-                if (templateNames.isNotEmpty()) {
-                    CardTemplateEditorScreen(
-                        noteTypeName = noteTypeName,
-                        templateNames = templateNames,
-                        selectedTemplate = ord,
-                        section = section,
-                        availableFields = fieldNames,
-                        deckOverrideEnabled = deckOverrideEnabled,
-                        dynamicTemplates = dynamicTemplates,
-                        saving = saving,
-                        splitPane = LocalConfiguration.current.smallestScreenWidthDp >= 600,
-                        panePreferences = requireContext().uiConfigPrefs(),
-                        snackbar = snackbar,
-                        onBack = { onActionBarBackPressed() },
-                        onSelectTemplate = ::selectTemplate,
-                        onSelectSection = ::selectSection,
-                        onInsertField = { insertField("{{$it}}") },
-                        onAction = ::runAction,
-                        onEditorReady = ::onEditorReady,
-                        onTextChanged = ::onCodeChanged,
-                        onInsertFieldRequest = ::showInsertFieldDialog,
-                        onPreviewReady = ::onPreviewReady,
-                    )
+    ): View =
+        ComposeView(inflater.context).apply {
+            id = R.id.card_template_screen
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                AnkiDroidTheme {
+                    if (templateNames.isNotEmpty()) {
+                        CardTemplateEditorScreen(
+                            noteTypeName = noteTypeName,
+                            templateNames = templateNames,
+                            selectedTemplate = ord,
+                            section = section,
+                            availableFields = fieldNames,
+                            deckOverrideEnabled = deckOverrideEnabled,
+                            dynamicTemplates = dynamicTemplates,
+                            saving = saving,
+                            splitPane = LocalConfiguration.current.smallestScreenWidthDp >= 600,
+                            panePreferences = requireContext().uiConfigPrefs(),
+                            snackbar = snackbar,
+                            onBack = { onActionBarBackPressed() },
+                            onSelectTemplate = ::selectTemplate,
+                            onSelectSection = ::selectSection,
+                            onInsertField = { insertField("{{$it}}") },
+                            onAction = ::runAction,
+                            onEditorReady = ::onEditorReady,
+                            onTextChanged = ::onCodeChanged,
+                            onInsertFieldRequest = ::showInsertFieldDialog,
+                            onPreviewReady = ::onPreviewReady,
+                        )
+                    }
                 }
             }
         }
-    }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, displayDiscardChangesCallback)
         ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
@@ -459,7 +465,11 @@ class CardTemplateEditorFragment :
             launchCatchingTask {
                 delay(wait)
                 val model = tempNoteType ?: return@launchCatchingTask
-                if (!container.isAttachedToWindow || childFragmentManager.isStateSaved || activity?.isFinishing == true) return@launchCatchingTask
+                if (!container.isAttachedToWindow || childFragmentManager.isStateSaved ||
+                    activity?.isFinishing == true
+                ) {
+                    return@launchCatchingTask
+                }
                 val showingAnswer =
                     wait > Duration.ZERO &&
                         (childFragmentManager.findFragmentById(R.id.fragment_container) as? TemplatePreviewerFragment)
@@ -706,7 +716,8 @@ class CardTemplateEditorFragment :
     }
 
     override val shortcuts
-        get() = with(requireAnkiActivity()) {
+        get() =
+            with(requireAnkiActivity()) {
                 ShortcutGroup(
                     listOf(
                         shortcut("Ctrl+P", CommonString.card_editor_preview_card),
@@ -724,7 +735,7 @@ class CardTemplateEditorFragment :
                     ),
                     CommonString.card_template_editor_group,
                 )
-        }
+            }
 
     @NeedsTest("Cancellation")
     @NeedsTest("Prefill is correct")

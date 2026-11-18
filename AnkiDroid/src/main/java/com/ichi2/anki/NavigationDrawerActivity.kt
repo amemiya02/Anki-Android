@@ -5,8 +5,8 @@ package com.ichi2.anki
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.content.SharedPreferences
+import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Canvas
 import android.os.Bundle
@@ -103,7 +103,9 @@ abstract class NavigationDrawerActivity(
 
     override fun setViewBinding(binding: ViewBinding) = setDrawerContent(binding.root)
 
-    override fun setContentView(@LayoutRes layoutResID: Int) = setDrawerContent(layoutInflater.inflate(layoutResID, null))
+    override fun setContentView(
+        @LayoutRes layoutResID: Int,
+    ) = setDrawerContent(layoutInflater.inflate(layoutResID, null))
 
     protected fun setDrawerContent(view: View) {
         val drawer =
@@ -135,8 +137,11 @@ abstract class NavigationDrawerActivity(
             val color = TypedValue()
             if (context.theme.resolveAttribute(CommonR.attr.navDrawerItemColor, color, true)) {
                 val tint =
-                    if (color.resourceId != 0) AppCompatResources.getColorStateList(context, color.resourceId)
-                    else ColorStateList.valueOf(color.data)
+                    if (color.resourceId != 0) {
+                        AppCompatResources.getColorStateList(context, color.resourceId)
+                    } else {
+                        ColorStateList.valueOf(color.data)
+                    }
                 itemIconTintList = tint
                 itemTextColor = tint
             }
@@ -151,10 +156,11 @@ abstract class NavigationDrawerActivity(
                     val top = resources.getDimensionPixelSize(CommonR.dimen.foundation_space_24)
                     val bottom = resources.getDimensionPixelSize(CommonR.dimen.foundation_space_8)
                     setPadding(margin, top, margin, bottom)
-                    val mark = ImageView(context).apply {
-                        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                        setImageResource(R.drawable.hayaki_mark)
-                    }
+                    val mark =
+                        ImageView(context).apply {
+                            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                            setImageResource(R.drawable.hayaki_mark)
+                        }
                     val size = context.layoutDp(72)
                     addView(mark, FrameLayout.LayoutParams(size, size).apply { gravity = Gravity.START })
                 },
