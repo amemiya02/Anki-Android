@@ -4,7 +4,7 @@
 
 **Blocked by:** 20 (Study screen: tools around the Card); 22 (JavaScript API in the study screen: Card actions, speech and the rest)
 
-**Status:** ready-for-agent
+**Status:** implemented, integrated app regression pending
 
 - [x] Every feature only the old study screen had is either working in the study screen or was marked "drop" in the Core Loop Mockup ticket.
 - [x] Nothing in the app can open the old study screen: not a setting, a link, a widget, a notification or another app.
@@ -12,7 +12,7 @@
 - [x] Settings only the old study screen used are removed; settings both used still work.
 - [x] The old study screen's code, layouts and tests are deleted, and tests of behaviour both screens shared now run against the study screen.
 - [ ] The app builds and every remaining test passes.
-- [ ] Screen-logic tests and Engine tests still pass unchanged.
+- [x] Screen-logic tests and Engine tests still pass unchanged.
 
 
 ## Implementation and verification
@@ -25,3 +25,5 @@
 - The 22 focused JVM classes passed all 183 cases. The Engine suite passed 143 cases with seven skipped. The full app suite is tracked separately while shared browser regressions are corrected.
 
 The full app run on the original retirement commit executed 4,332 tests, with 88 skips and nine failures. All nine subsequently passed in focused reruns covering activity startup, icon and layout registration, card-state compatibility, browser text layout and insets, and the saved search shortcut during multiple selection. An integrated full run remains open.
+
+After the navigation migration, all 50 focused routing, reviewer, repository and layout checks passed. The Engine module and backend version match their pre-retirement revisions. The Engine suite passed 143 tests with seven existing skips. The Android launcher verified that Review opens the hosted reviewer and Back returns to Decks.
