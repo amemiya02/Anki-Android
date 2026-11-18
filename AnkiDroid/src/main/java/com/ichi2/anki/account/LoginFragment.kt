@@ -78,7 +78,7 @@ class LoginFragment : Fragment() {
         observeProgress(viewModel) { getString(CommonString.sign_in) }
         observeMessages(viewModel.pendingMessages, viewModel::messageShown) { message ->
             when (message) {
-                LoginMessage.LoggedIn -> (requireActivity() as AccountActivity).completeSignIn()
+                LoginMessage.LoggedIn -> (requireParentFragment() as AccountFlowFragment).completeSignIn()
                 is LoginMessage.Failed -> showLoginError(message.exception)
             }
         }
@@ -86,7 +86,7 @@ class LoginFragment : Fragment() {
 
     @Composable
     private fun SignIn() {
-        val activity = requireActivity() as AccountActivity
+        val flow = requireParentFragment() as AccountFlowFragment
         val server = syncServerAddress()
         var username by rememberSaveable(server) { mutableStateOf("") }
         // Keep credentials out of the activity's saved state.
@@ -113,15 +113,15 @@ class LoginFragment : Fragment() {
             step = 2,
             button = stringResource(CommonString.paper_sync_sign_in),
             canContinue = server != null && canSignIn,
-            bottomCornerClearancePx = activity.bottomCornerClearancePx,
-            onBack = activity.onBackPressedDispatcher::onBackPressed,
+            bottomCornerClearancePx = flow.bottomCornerClearancePx,
+            onBack = requireActivity().onBackPressedDispatcher::onBackPressed,
             onContinue = ::signIn,
         ) {
             SettingsRow(
                 title = stringResource(CommonString.paper_sync_change_server),
                 summary = server?.let(::withUnicodeIsolation),
                 icon = R.drawable.symbol_dns,
-                onClick = activity::changeServer,
+                onClick = flow::changeServer,
                 trailing = { SettingsChevron() },
             )
             OutlinedTextField(

@@ -12,11 +12,10 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.SingleFragmentActivity.Companion.EXTRA_FRAGMENT_NAME
 import com.ichi2.anki.account.AccountActivity
-import com.ichi2.anki.account.LoginFragment
+import com.ichi2.anki.account.AccountFlowFragment
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.dialogs.DialogHandler
 import com.ichi2.anki.dialogs.SyncErrorDialog
-import com.ichi2.anki.preferences.CustomSyncServerSettingsFragment
 import com.ichi2.anki.preferences.PreferencesActivity
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.testutils.BackupManagerTestUtilities
@@ -83,7 +82,7 @@ class SyncSetupTest : RobolectricTest() {
 
             val intent = assertNotNull(shadowOf(this).nextStartedActivity)
             assertEquals(AccountActivity::class.java.name, intent.component?.className)
-            assertEquals(LoginFragment::class.jvmName, intent.getStringExtra(EXTRA_FRAGMENT_NAME))
+            assertAccountEntry(intent, startWithAddress = false)
         }
 
     @Test
@@ -116,6 +115,17 @@ class SyncSetupTest : RobolectricTest() {
 
     private fun assertOpensSyncSetup(intent: Intent) {
         assertEquals(AccountActivity::class.java.name, intent.component?.className)
-        assertEquals(CustomSyncServerSettingsFragment::class.jvmName, intent.getStringExtra(EXTRA_FRAGMENT_NAME))
+        assertAccountEntry(intent, startWithAddress = true)
+    }
+
+    private fun assertAccountEntry(
+        intent: Intent,
+        startWithAddress: Boolean,
+    ) {
+        assertEquals(AccountFlowFragment::class.jvmName, intent.getStringExtra(EXTRA_FRAGMENT_NAME))
+        assertEquals(
+            startWithAddress,
+            intent.getBundleExtra(SingleFragmentActivity.EXTRA_FRAGMENT_ARGS)?.getBoolean(AccountFlowFragment.START_WITH_ADDRESS),
+        )
     }
 }

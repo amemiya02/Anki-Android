@@ -31,11 +31,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.R
-import com.ichi2.anki.account.AccountActivity
+import com.ichi2.anki.account.AccountFlowFragment
 import com.ichi2.anki.account.LoggedInViewModel
 import com.ichi2.anki.account.SyncCertificateEditor
 import com.ichi2.anki.account.SyncStepPage
 import com.ichi2.anki.isSelfHostedSyncAddress
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.openUrl
@@ -58,7 +59,7 @@ class CustomSyncServerSettingsFragment : Fragment() {
 
     @Composable
     private fun Address() {
-        val activity = requireActivity() as AccountActivity
+        val flow = requireParentFragment() as AccountFlowFragment
         val server by account.server.collectAsStateWithLifecycle()
         var address by rememberSaveable { mutableStateOf(Prefs.customSyncUri.orEmpty()) }
         var certificate by rememberSaveable { mutableStateOf(Prefs.customSyncCertificate.orEmpty()) }
@@ -73,7 +74,7 @@ class CustomSyncServerSettingsFragment : Fragment() {
             if (!valid) return
             keyboard?.hide()
             account.setServer(requireContext(), address.trim())
-            activity.showSignIn()
+            flow.showSignIn()
         }
 
         SyncStepPage(
@@ -81,8 +82,8 @@ class CustomSyncServerSettingsFragment : Fragment() {
             step = 1,
             button = stringResource(CommonString.dialog_continue),
             canContinue = valid,
-            bottomCornerClearancePx = activity.bottomCornerClearancePx,
-            onBack = activity.onBackPressedDispatcher::onBackPressed,
+            bottomCornerClearancePx = flow.bottomCornerClearancePx,
+            onBack = requireActivity().onBackPressedDispatcher::onBackPressed,
             onContinue = ::continueToSignIn,
         ) {
             Text(
@@ -191,7 +192,7 @@ class CustomSyncServerSettingsFragment : Fragment() {
                                         .putExtra(DeckPicker.EXTRA_IMPORT, true)
                                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
                                 )
-                                activity.finish()
+                                flow.finishScreen()
                             },
                             DialogActionStyle.Filled,
                         ),
