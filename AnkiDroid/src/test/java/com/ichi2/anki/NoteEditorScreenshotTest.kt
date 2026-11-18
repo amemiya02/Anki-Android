@@ -52,6 +52,7 @@ import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.common.destinations.NoteEditorDestination
 import com.ichi2.anki.common.ui.TransitionDirection
 import com.ichi2.anki.common.utils.dp
+import com.ichi2.anki.libanki.CollectionFiles
 import com.ichi2.anki.libanki.getStockNotetype
 import com.ichi2.anki.multimedia.MultimediaActivity
 import com.ichi2.anki.noteeditor.CustomToolbarButton
@@ -92,8 +93,6 @@ import com.ichi2.testutils.Robolectric as RobolectricActivities
 class NoteEditorScreenshotTest : ScreenshotTest() {
     @get:Rule
     val composeRule = createEmptyComposeRule()
-
-    override fun getCollectionStorageMode() = CollectionStorageMode.IN_MEMORY_WITH_MEDIA
 
     override fun applyDeviceConfig() {
         super.applyDeviceConfig()
@@ -143,6 +142,9 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
     @Test
     @Config(shadows = [RecordingMicrophone::class])
     fun recordedAudioReturnsToTheSelectedField() {
+        // The backend registers recorded files in the on-disk media database.
+        CollectionManager.collectionFilesTestOverride = CollectionFiles.FolderBasedCollection(tempFolder.newFolder())
+        runTest { col.reopenWithLanguage(language.option) }
         grantPermissions(RECORD_AUDIO)
         val basic = basicNoteType
         withNoteEditor(addNoteIntent(basic.id)) { activity ->
