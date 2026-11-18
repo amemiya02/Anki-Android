@@ -18,6 +18,7 @@ import com.ichi2.anki.browser.toIntent
 import com.ichi2.anki.common.destinations.BrowserDestination
 import com.ichi2.anki.mediacheck.MediaCheckFragment
 import com.ichi2.anki.ui.internationalization.sentenceCase
+import com.ichi2.testutils.BackupManagerTestUtilities
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -68,6 +69,8 @@ class SingleActivityNavigationTest : RobolectricTest() {
 
     @Test
     fun `shared text waits for Welcome then opens the Note Editor once`() {
+        ensureCollectionLoadIsSynchronous()
+        BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
         setIntroductionSlidesShown(false)
         val shared = Intent(Intent.ACTION_SEND).putExtra(Intent.EXTRA_TEXT, "Text from another app")
         val editor = Intent(targetContext, NoteEditorActivity::class.java).putExtras(shared).setAction(shared.action)
@@ -94,8 +97,12 @@ class SingleActivityNavigationTest : RobolectricTest() {
 
     @Test
     fun `a second share returns to the existing host and preserves its previous screen`() {
+        ensureCollectionLoadIsSynchronous()
+        BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
+        setIntroductionSlidesShown(true)
         val controller = startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent())
         val deckPicker = controller.get()
+        deckPicker.viewModel.awaitStartup()
         deckPicker.startActivity(MediaCheckFragment.getIntent(deckPicker))
         composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment is MediaCheckFragment }
 
