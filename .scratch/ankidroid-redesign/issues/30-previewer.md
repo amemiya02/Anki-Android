@@ -20,4 +20,4 @@ The Pixel emulator opened the browser preview from a two-Card selection. It rend
 
 Android reported a focus time-out during the first cold WebView startup while several builds were running. Warm browser launches and the phone and tablet editor previews completed successfully.
 
-The browser rendered regression failed on the old screen and then passed with 38 existing preview, renderer and link tests. The note editor rendered regression also failed on the old screen. Its green run, the remaining screen-logic checks and the screenshot matrix are queued.
+The browser rendered regression failed on the old screen and then passed with 38 existing preview, renderer and link tests. The note editor rendered regression also failed on the old screen. The final six-class run passed 35 tests. The screenshot matrix is queued.

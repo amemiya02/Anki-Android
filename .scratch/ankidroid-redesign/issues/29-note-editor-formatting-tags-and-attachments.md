@@ -13,7 +13,7 @@
 - [x] The toolbar layout chosen in settings is respected.
 - [x] The drawing (whiteboard) and the audio recorder opened from Attach are matched to the Foundation.
 - [x] It matches the agreed Mockup.
-- [ ] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
+- [x] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
 - [ ] Screen-logic tests and Engine tests still pass unchanged.
 
 ## Implementation and evidence
@@ -24,3 +24,5 @@
 - The replacement attachment sheet and the Tags add/remove flow produced all eight Light captures. The formatting tests applied Bold and custom HTML, switched between all three layouts, and inserted and repeated a cloze in the same eight combinations. The drawing screen captured all eight with its Foundation app bar and accessibility checks.
 - On the Pixel 9 AVD with the Fork debug APK, Add left a back-only draft open and displayed “The first field is empty.” On the same draft, the physical toolbar applied bold and kept the keyboard available. [Empty-front warning](../../../docs/redesign/finding-and-adding/editor-empty-front-pixel9.png)
 - The Back field received a saved drawing stroke as WebP, a recorded 3GP clip, the selected gallery PNG and a camera JPG. Add saved that rich Note and cleared the fields. [Attachment choices](../../../docs/redesign/finding-and-adding/editor-attach-pixel9.png) · [Drawing](../../../docs/redesign/finding-and-adding/editor-drawing-pixel9.png) · [Recorded clip](../../../docs/redesign/finding-and-adding/editor-recording-pixel9.png) · [Rich draft](../../../docs/redesign/finding-and-adding/editor-rich-note-pixel9.png)
+
+The final 168 rendered cases passed across all three themes, four languages and both font sizes, including 24 drawing cases and 144 editor cases.
