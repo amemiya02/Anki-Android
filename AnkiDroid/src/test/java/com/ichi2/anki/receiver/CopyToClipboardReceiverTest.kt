@@ -39,7 +39,7 @@ class CopyToClipboardReceiverTest {
             NotificationId.SYNC_MEDIA,
             NotificationCompat
                 .Builder(context, "channel")
-                .setSmallIcon(R.drawable.ic_star_notify)
+                .setSmallIcon(R.drawable.ic_hayaki_notification)
                 .build(),
         )
         val intent = CopyToClipboardReceiver.getIntent(context, TruncatedString.from("sync error log"))
@@ -69,7 +69,7 @@ class CopyToClipboardReceiverTest {
             NotificationId.SYNC_MEDIA,
             NotificationCompat
                 .Builder(context, "channel")
-                .setSmallIcon(R.drawable.ic_star_notify)
+                .setSmallIcon(R.drawable.ic_hayaki_notification)
                 .build(),
         )
         val shadowNotificationManager = shadowOf(notificationManager)

@@ -208,28 +208,6 @@
         <item name="iconTint">?attr/foundationOnBackground</item>
     </style>
 
-    <style name="TimePickerStyle" parent="ThemeOverlay.Material3.MaterialTimePicker">
-        <item name="elevationOverlayEnabled">false</item>
-        <item name="chipStyle">@style/TimePickerStyle.Display</item>
-        <item name="materialClockStyle">@style/TimePickerStyle.Clock</item>
-        <item name="materialTimePickerStyle">@style/TimePickerStyle.Picker</item>
-    </style>
-
-    <!-- The picker's switch between the clock face and typed entry, drawn from Material Symbols -->
-    <style name="TimePickerStyle.Picker" parent="Widget.Material3.MaterialTimePicker">
-        <item name="keyboardIcon">@drawable/symbol_keyboard</item>
-        <item name="clockIcon">@drawable/symbol_schedule</item>
-    </style>
-
-    <style name="TimePickerStyle.Display" parent="Widget.Material3.MaterialTimePicker.Display">
-        <item name="chipStrokeWidth">?attr/widgetStrokeWidth</item>
-        <item name="chipStrokeColor">?attr/widgetStrokeColor</item>
-    </style>
-
-    <style name="TimePickerStyle.Clock" parent="Widget.Material3.MaterialTimePicker.Clock">
-        <item name="android:foreground">@drawable/time_picker_clock_outline</item>
-    </style>
-
     <!-- Applied to a TextInputLayout which should show the error outline, but not an error message. -->
     <style name="TextAppearance.AnkiDroid.HiddenError" parent="TextAppearance.Design.Error">
         <item name="android:textSize">0sp</item>

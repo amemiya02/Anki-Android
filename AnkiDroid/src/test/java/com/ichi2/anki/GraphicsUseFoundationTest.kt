@@ -262,7 +262,7 @@ class GraphicsUseFoundationTest {
             mapOf(
                 "circle_background" to "a home-screen widget's count bubble: tinted where it is used",
                 "ic_launcher_monochrome" to "the launcher's themed icon: the launcher tints it",
-                "ic_star_notify" to "the notification's small icon: the system draws only its shape (ticket 47)",
+                "ic_hayaki_notification" to "the notification's small icon: the system draws only its shape (ticket 47)",
             )
 
         /**

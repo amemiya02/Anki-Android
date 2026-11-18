@@ -126,8 +126,9 @@ class ConfirmationDialog : DialogFragment() {
             title: String? = null,
             positiveButtonText: String? = null,
             result: Bundle = Bundle(),
+            destructive: Boolean = false,
         ) = ConfirmationDialog().apply {
-            setArgs(title, message, positiveButtonText)
+            setArgs(title, message, positiveButtonText, destructive)
             requireArguments().putString(ARG_REQUEST_KEY, requestKey)
             requireArguments().putBundle(ARG_RESULT, result)
         }

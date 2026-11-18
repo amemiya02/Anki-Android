@@ -9,12 +9,14 @@ import androidx.preference.SwitchPreferenceCompat
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.R
+import com.ichi2.anki.common.android.withAppLocale
 import com.ichi2.anki.common.utils.ext.AddingDefaultsMode
 import com.ichi2.anki.common.utils.ext.addingDefaultsMode
 import com.ichi2.anki.common.utils.ext.pasteImagesAsPng
 import com.ichi2.anki.contextmenu.AnkiCardContextMenu
 import com.ichi2.anki.contextmenu.CardBrowserContextMenu
 import com.ichi2.anki.launchCatchingTask
+import com.ichi2.anki.setupNotificationChannels
 import com.ichi2.utils.LanguageUtil
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
@@ -71,7 +73,9 @@ class GeneralSettingsFragment : RemainingSettingsFragment(R.id.settings_general)
                         null
                     }
                 val localeList = LocaleListCompat.forLanguageTags(localeCode)
+                val context = requireContext().applicationContext
                 AppCompatDelegate.setApplicationLocales(localeList)
+                setupNotificationChannels(context.withAppLocale())
                 Timber.w("Known bug: some strings may be stale after a language change until the app is restarted")
             }
         }

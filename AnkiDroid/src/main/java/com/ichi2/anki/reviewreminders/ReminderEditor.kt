@@ -48,6 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -77,7 +78,7 @@ internal fun ReminderEditor(
     val threshold = draft.validThreshold
     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.BottomCenter) {
         Surface(
-            modifier = Modifier.widthIn(max = 560.dp).fillMaxWidth(),
+            modifier = Modifier.widthIn(max = 560.dp).fillMaxWidth().semantics { dialog() },
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
             color = paper.colors.background,
             contentColor = paper.colors.onBackground,

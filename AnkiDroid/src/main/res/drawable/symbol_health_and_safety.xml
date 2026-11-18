@@ -1,10 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Material Symbols Outlined: health_and_safety
+  From google/material-design-icons (Apache-2.0), drawn by tools/material-symbols/symbol.py. Do not edit by hand.
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-    <path
-        android:fillColor="#FFFFFFFF"
-        android:fillType="evenOdd"
-        android:pathData="M12,2 L3,5.8 V11 C3,16.4 6.8,20.7 12,22 C17.2,20.7 21,16.4 21,11 V5.8 Z M12,4.2 L19,7.15 V11 C19,15.3 16.1,18.8 12,19.9 C7.9,18.8 5,15.3 5,11 V7.15 Z M11,8 H13 V11 H16 V13 H13 V16 H11 V13 H8 V11 H11 Z" />
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:tint="?attr/colorControlNormal">
+    <group android:translateY="960">
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M430-350h100v-100h100v-100H530v-100H430v100H330v100h100v100Zm50 249.23q-129.77-35.39-214.88-152.77Q180-370.92 180-516v-230.15l300-112.31 300 112.31V-516q0 145.08-85.12 262.46Q609.77-136.16 480-100.77Zm0-63.23q104-33 172-132t68-220v-189l-240-89.62L240-705v189q0 121 68 220t172 132Zm0-315.62Z" />
+    </group>
 </vector>

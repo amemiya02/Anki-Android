@@ -68,6 +68,8 @@ class AddEditReminderDialog : DialogFragment() {
             viewModel.draft.update { it.copy(time = time) }
         }
 
+        childFragmentManager.setFragmentResultListener(REQUEST_DELETE_REMINDER, this) { _, _ -> finish(null) }
+
         return createPaperDialog(requireContext(), onOutsideClick = ::dismiss) {
             val draft by viewModel.draft.collectAsStateWithLifecycle()
             var deckName by remember(draft.deckId) { mutableStateOf<String?>(null) }
@@ -97,7 +99,7 @@ class AddEditReminderDialog : DialogFragment() {
     }
 
     private suspend fun resolveDeck(id: DeckId): Pair<DeckId, String> {
-        if (id == ALL_DECKS_ID) return id to with(requireContext()) { TR.sentenceCase.allDecks }
+        if (id == ALL_DECKS_ID) return id to TR.sentenceCase.allDecks
         val selected =
             if (id == Consts.DEFAULT_DECK_ID && isDefaultDeckEmpty()) {
                 null
@@ -106,7 +108,7 @@ class AddEditReminderDialog : DialogFragment() {
             }
         if (selected != null) return id to selected
         return if (isDefaultDeckEmpty()) {
-            ALL_DECKS_ID to with(requireContext()) { TR.sentenceCase.allDecks }
+            ALL_DECKS_ID to TR.sentenceCase.allDecks
         } else {
             Consts.DEFAULT_DECK_ID to withCol { decks.name(Consts.DEFAULT_DECK_ID) }
         }
@@ -123,16 +125,14 @@ class AddEditReminderDialog : DialogFragment() {
     }
 
     private fun confirmDelete() {
-        ConfirmationDialog()
-            .apply {
-                setArgs(
-                    title = getString(CommonString.add_edit_reminder_delete_confirmation_title),
-                    message = getString(CommonString.add_edit_reminder_delete_confirmation_message),
-                    positiveButtonText = getString(CommonString.dialog_positive_delete),
-                    destructive = true,
-                )
-                setConfirm { finish(null) }
-            }.show(childFragmentManager, "delete_reminder")
+        ConfirmationDialog
+            .newInstance(
+                requestKey = REQUEST_DELETE_REMINDER,
+                title = getString(CommonString.add_edit_reminder_delete_confirmation_title),
+                message = getString(CommonString.add_edit_reminder_delete_confirmation_message),
+                positiveButtonText = getString(CommonString.dialog_positive_delete),
+                destructive = true,
+            ).show(childFragmentManager, "delete_reminder")
     }
 
     private fun finish(reminder: ReviewReminder?) {
@@ -148,6 +148,7 @@ class AddEditReminderDialog : DialogFragment() {
 
     companion object {
         const val ARG_DIALOG_MODE = "arg_dialog_mode"
+        private const val REQUEST_DELETE_REMINDER = "request_delete_reminder"
         private const val REQUEST_ADD_EDIT_REMINDER = "request_add_edit"
         private const val RESULT_MODE = "result_mode"
         private const val RESULT_REMINDER = "result_reminder"

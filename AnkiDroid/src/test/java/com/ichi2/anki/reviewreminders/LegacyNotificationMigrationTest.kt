@@ -15,6 +15,8 @@ import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.scheduleAllNotifications
 import com.ichi2.anki.services.NotificationService
 import kotlinx.coroutines.test.runTest
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.test.assertEquals
@@ -24,72 +26,89 @@ import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class LegacyNotificationMigrationTest : RobolectricTest() {
+    @Before
+    @After
+    fun clearMigrationFixture() {
+        ReviewRemindersDatabase.remindersSharedPrefs.edit { clear() }
+        setThreshold(null)
+    }
+
     @Test
-    fun `startup migrates a due threshold once and cancels the old repeating alarm`() = runTest {
-        val oldAlarm =
-            assertNotNull(
+    fun `startup migrates a due threshold once and cancels the old repeating alarm`() =
+        runTest {
+            val oldAlarm =
+                assertNotNull(
+                    PendingIntentCompat.getBroadcast(
+                        targetContext,
+                        0,
+                        Intent(targetContext, NotificationService::class.java),
+                        0,
+                        false,
+                    ),
+                )
+            targetContext.getSystemService<AlarmManager>()!!.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis() + AlarmManager.INTERVAL_DAY,
+                AlarmManager.INTERVAL_DAY,
+                oldAlarm,
+            )
+            setThreshold("25")
+            val existing = ReviewReminder.createReviewReminder(time = ReviewReminderTime(22, 30))
+            ReviewRemindersDatabase.insertReminder(existing)
+
+            scheduleAllNotifications(targetContext)
+            scheduleAllNotifications(targetContext)
+
+            val reminders = ReviewRemindersDatabase.getRemindersForScope(ReviewReminderScope.Global)
+            val migrated = reminders.getRemindersList().single { it.id != existing.id }
+            assertEquals(ReviewReminderTime(8, 0), migrated.time)
+            assertEquals(ReviewReminderCardTriggerThreshold(25), migrated.cardTriggerThreshold)
+            assertEquals(ReviewReminderThresholdFilter(), migrated.thresholdFilter)
+            assertTrue(migrated.enabled)
+            assertNull(
                 PendingIntentCompat.getBroadcast(
                     targetContext,
                     0,
                     Intent(targetContext, NotificationService::class.java),
-                    0,
+                    PendingIntent.FLAG_NO_CREATE,
                     false,
                 ),
             )
-        targetContext.getSystemService<AlarmManager>()!!.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            System.currentTimeMillis() + AlarmManager.INTERVAL_DAY,
-            AlarmManager.INTERVAL_DAY,
-            oldAlarm,
-        )
-        setThreshold("25")
-        val existing = ReviewReminder.createReviewReminder(time = ReviewReminderTime(22, 30))
-        ReviewRemindersDatabase.insertReminder(existing)
 
-        scheduleAllNotifications(targetContext)
-        scheduleAllNotifications(targetContext)
-
-        val reminders = ReviewRemindersDatabase.getRemindersForScope(ReviewReminderScope.Global)
-        val migrated = reminders.getRemindersList().single { it.id != existing.id }
-        assertEquals(ReviewReminderTime(8, 0), migrated.time)
-        assertEquals(ReviewReminderCardTriggerThreshold(25), migrated.cardTriggerThreshold)
-        assertEquals(ReviewReminderThresholdFilter(), migrated.thresholdFilter)
-        assertTrue(migrated.enabled)
-        assertNull(
-            PendingIntentCompat.getBroadcast(
-                targetContext,
-                0,
-                Intent(targetContext, NotificationService::class.java),
-                PendingIntent.FLAG_NO_CREATE,
-                false,
-            ),
-        )
-
-        ReviewRemindersDatabase.deleteReminder(migrated)
-        scheduleAllNotifications(targetContext)
-        assertEquals(setOf(existing.id), ReviewRemindersDatabase.getAllReminders().getRemindersList().map { it.id }.toSet())
-    }
-
-    @Test
-    fun `zero is an enabled threshold`() = runTest {
-        setThreshold("0")
-
-        scheduleAllNotifications(targetContext)
-
-        val reminder = ReviewRemindersDatabase.getRemindersForScope(ReviewReminderScope.Global).getRemindersList().single()
-        assertEquals(ReviewReminderCardTriggerThreshold(0), reminder.cardTriggerThreshold)
-        assertTrue(reminder.enabled)
-    }
-
-    @Test
-    fun `never and pending messages only do not create a review reminder`() = runTest {
-        for (oldValue in listOf("2000000", "1000000", null)) {
-            ReviewRemindersDatabase.remindersSharedPrefs.edit { clear() }
-            setThreshold(oldValue)
+            ReviewRemindersDatabase.deleteReminder(migrated)
             scheduleAllNotifications(targetContext)
-            assertTrue(ReviewRemindersDatabase.getAllReminders().isEmpty(), "Legacy value: $oldValue")
+            assertEquals(
+                setOf(existing.id),
+                ReviewRemindersDatabase
+                    .getAllReminders()
+                    .getRemindersList()
+                    .map { it.id }
+                    .toSet(),
+            )
         }
-    }
+
+    @Test
+    fun `zero is an enabled threshold`() =
+        runTest {
+            setThreshold("0")
+
+            scheduleAllNotifications(targetContext)
+
+            val reminder = ReviewRemindersDatabase.getRemindersForScope(ReviewReminderScope.Global).getRemindersList().single()
+            assertEquals(ReviewReminderCardTriggerThreshold(0), reminder.cardTriggerThreshold)
+            assertTrue(reminder.enabled)
+        }
+
+    @Test
+    fun `never and pending messages only do not create a review reminder`() =
+        runTest {
+            for (oldValue in listOf("2000000", "1000000", null)) {
+                ReviewRemindersDatabase.remindersSharedPrefs.edit { clear() }
+                setThreshold(oldValue)
+                scheduleAllNotifications(targetContext)
+                assertTrue(ReviewRemindersDatabase.getAllReminders().isEmpty(), "Legacy value: $oldValue")
+            }
+        }
 
     private fun setThreshold(value: String?) {
         targetContext.sharedPrefs().edit {

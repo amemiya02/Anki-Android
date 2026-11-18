@@ -234,7 +234,7 @@ class InterfaceIconsAreMaterialSymbolsTest {
                 "browse_shortcut" to "a launcher shortcut, drawn with the launcher icon's colours",
                 "review_shortcut" to "a launcher shortcut, drawn with the launcher icon's colours",
                 "hayaki_mark" to "Hayaki's mark: the empty deck list, first run, drawer and sync account (GraphicsUseFoundationTest)",
-                "ic_star_notify" to "the notification's small icon (ticket 47)",
+                "ic_hayaki_notification" to "the notification's small icon (ticket 47)",
                 "widget_add_note_mark" to "a home-screen widget's picture (GraphicsUseFoundationTest)",
                 "widget_small_mark" to "a home-screen widget's picture (GraphicsUseFoundationTest)",
                 "widget_small_mark_done" to "a home-screen widget's picture (GraphicsUseFoundationTest)",

@@ -29,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.dialog
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
@@ -53,7 +55,7 @@ internal class ReviewReminderTimeDialog : DialogFragment() {
             var keyboard by rememberSaveable { mutableStateOf(preferInput) }
             val picker = rememberTimePickerState(initialHour = time.hour, initialMinute = time.minute, is24Hour = is24Hour)
             Surface(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 16.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 16.dp).semantics { dialog() },
                 shape = paper.shapes.dialog,
                 color = paper.colors.background,
                 contentColor = paper.colors.onBackground,

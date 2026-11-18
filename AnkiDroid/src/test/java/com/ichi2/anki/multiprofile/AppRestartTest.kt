@@ -286,7 +286,7 @@ class AppRestartTest : RobolectricTest() {
     private fun notification(title: String) =
         NotificationCompat
             .Builder(context, NotificationChannel.GENERAL.id)
-            .setSmallIcon(R.drawable.ic_star_notify)
+            .setSmallIcon(R.drawable.ic_hayaki_notification)
             .setContentTitle(title)
             .build()
 
