@@ -5,6 +5,7 @@ package com.ichi2.anki.dialogs
 import android.os.Bundle
 import android.os.Looper
 import android.widget.AdapterView
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
@@ -1284,7 +1285,14 @@ class CustomStudyDialogTest : RobolectricTest() {
     private fun createHostActivity() =
         Robolectric.buildActivity(EmptyAnkiActivity::class.java).setup().apply {
             val activity = get()
-            activity.setContentView(CoordinatorLayout(activity).apply { id = R.id.root_layout })
+            activity.setContentView(
+                CoordinatorLayout(activity).apply {
+                    id = R.id.root_layout
+                    // The empty-deck dialog dismisses itself. Keep its host attached while
+                    // Compose finishes the last frame and the activity displays its snackbar.
+                    addView(ComposeView(activity).apply { setContent {} }, 1, 1)
+                },
+            )
         }
 
     private fun assertUnavailableMenu(fragment: CustomStudyDialog) {
