@@ -7,17 +7,13 @@ package com.ichi2.anki
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ClipData
-import android.content.ComponentName
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
-import android.provider.MediaStore
 import android.util.SparseArray
 import android.view.View
 import android.widget.EditText
-import androidx.core.view.isVisible
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.config.ConfigKey
@@ -811,19 +807,6 @@ class NoteEditorTest : RobolectricTest() {
     }
 
     @Test
-    fun `image occlusion camera button is hidden without a camera app`() {
-        val editor = getNoteEditorAdding(NoteType.IMAGE_OCCLUSION).build()
-        assertFalse(editor.occlusionCameraButton.isVisible, "camera button visible")
-    }
-
-    @Test
-    fun `image occlusion camera button is shown with a camera app`() {
-        installCameraApp()
-        val editor = getNoteEditorAdding(NoteType.IMAGE_OCCLUSION).build()
-        assertTrue(editor.occlusionCameraButton.isVisible, "camera button visible")
-    }
-
-    @Test
     fun `shows 'Default' as selected when attempting to add to a filtered deck`() {
         val testDeckId = addDeck("TestDeckA")
         val testFilteredDeckId = addDynamicDeck("TestFiltered")
@@ -1245,14 +1228,6 @@ class NoteEditorTest : RobolectricTest() {
         }
     }
 
-    private fun installCameraApp() {
-        val camera = ComponentName("com.android.camera2", "com.android.camera.CaptureActivity")
-        shadowOf(targetContext.packageManager).apply {
-            addActivityIfNotPresent(camera)
-            addIntentFilterForActivity(camera, IntentFilter(MediaStore.ACTION_IMAGE_CAPTURE).apply { addCategory(Intent.CATEGORY_DEFAULT) })
-        }
-    }
-
     private fun getCopyNoteIntent(editor: NoteEditorFragment): Bundle {
         val editorShadow = shadowOf(editor.requireActivity())
         editor.copyNote()
@@ -1415,9 +1390,6 @@ private class NoteEditorFieldAccessor(
 
 private val NoteEditorFragment.fields: NoteEditorFieldAccessor
     get() = NoteEditorFieldAccessor(this)
-
-private val NoteEditorFragment.occlusionCameraButton: View
-    get() = requireView().findViewById(R.id.CameraForOcclusionButton)
 
 private fun NoteEditorFragment.isSticky(index: Int) = this.toggleStickyText.containsKey(index)
 

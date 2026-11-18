@@ -29,6 +29,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -447,5 +448,38 @@ private fun EditorIconButton(
 ) {
     IconButton(onClick = onClick, modifier = Modifier.size(MaterialTheme.foundation.spacing.touchTarget)) {
         Icon(painterResource(icon), contentDescription = label, tint = tint, modifier = Modifier.size(22.dp))
+    }
+}
+
+@Composable
+internal fun ImageOcclusionActions(
+    adding: Boolean,
+    canTakePicture: Boolean,
+    onGallery: () -> Unit,
+    onCamera: () -> Unit,
+    onPaste: () -> Unit,
+    onEdit: () -> Unit,
+) {
+    val paper = MaterialTheme.foundation
+    Column(
+        Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        if (adding) {
+            Text(tr().notetypesImage(), style = paper.type.rowTitle, color = paper.colors.onBackground)
+            OutlinedButton(
+                onGallery,
+                Modifier.fillMaxWidth(),
+            ) { Text(stringResource(CommonString.multimedia_editor_image_field_editing_galery)) }
+            if (canTakePicture) {
+                OutlinedButton(
+                    onCamera,
+                    Modifier.fillMaxWidth(),
+                ) { Text(stringResource(CommonString.multimedia_editor_image_field_editing_photo)) }
+            }
+            OutlinedButton(onPaste, Modifier.fillMaxWidth()) { Text(stringResource(CommonString.paste_from_clipboard)) }
+        } else {
+            OutlinedButton(onEdit, Modifier.fillMaxWidth()) { Text(stringResource(CommonString.edit_occlusions)) }
+        }
     }
 }

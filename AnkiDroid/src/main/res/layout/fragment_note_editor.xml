@@ -33,68 +33,6 @@
                 android:orientation="vertical"
                 android:paddingTop="14dp" />
 
-            <LinearLayout
-                android:id="@+id/ImageOcclusionButtonsLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:paddingBottom="8dp">
-
-                <Button
-                    android:id="@+id/EditOcclusionsButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/edit_occlusions" />
-
-                <LinearLayout
-                    android:id="@+id/ImageSelectionForOcclusionContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingTop="14dp">
-
-                        <com.ichi2.ui.FixedTextView
-                            android:id="@+id/ImageSelectionForOcclusionLabel"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="start"
-                            android:layout_marginLeft="8dip"
-                            android:layout_marginRight="8dip"
-                            android:layout_marginBottom="4dip"
-                            android:clickable="false"
-                            android:gravity="start|center_vertical"
-                            android:textStyle="bold"
-                            tools:text="Image:"/>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/GalleryForOcclusionButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="15dp"
-                        android:text="@string/multimedia_editor_image_field_editing_galery"
-                        app:icon="@drawable/symbol_image"
-                        app:iconGravity="textStart" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/CameraForOcclusionButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="15dp"
-                        app:icon="@drawable/symbol_photo_camera"
-                        app:iconGravity="textStart"
-                        android:text="@string/multimedia_editor_image_field_editing_photo" />
-                    
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/PasteImageForOcclusionButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="15dp"
-                        app:icon="@drawable/symbol_content_paste"
-                        app:iconGravity="textStart"
-                        android:text="@string/paste_from_clipboard" />
-                </LinearLayout>
-            </LinearLayout>
-
             <androidx.compose.ui.platform.ComposeView
                 android:id="@+id/editor_details"
                 android:layout_width="match_parent"

@@ -48,4 +48,5 @@
     <item name="toolbar_scrollview" type="id" />
     <item name="studyoptions_main" type="id" />
     <item name="studyoptions_deck_description" type="id" />
+    <item type="id" name="more_content" />
 </resources>

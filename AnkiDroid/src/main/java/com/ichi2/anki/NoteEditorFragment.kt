@@ -30,16 +30,15 @@ import android.view.View
 import android.view.View.OnFocusChangeListener
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CheckResult
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -142,6 +141,7 @@ import com.ichi2.anki.noteeditor.CustomToolbarButton
 import com.ichi2.anki.noteeditor.FieldState
 import com.ichi2.anki.noteeditor.FieldState.FieldChangeType
 import com.ichi2.anki.noteeditor.FieldState.Type
+import com.ichi2.anki.noteeditor.ImageOcclusionActions
 import com.ichi2.anki.noteeditor.NoteEditorAppBar
 import com.ichi2.anki.noteeditor.NoteEditorDetails
 import com.ichi2.anki.noteeditor.NoteEditorFragmentDelegate
@@ -277,13 +277,7 @@ class NoteEditorFragment :
     private var firstFieldLine: FieldEditLine? = null
     private var cardIdsAfterNoteTypeChange: List<CardId>? = null
 
-    private var imageOcclusionButtonsContainer: LinearLayout? = null
-    private var editOcclusionsButton: Button? = null
-    private var imageSelectionForOcclusionContainer: LinearLayout? = null
-    private var imageSelectionForOcclusionLabel: TextView? = null
-    private var cameraForOcclusionButton: Button? = null
-    private var galleryForOcclusionButton: Button? = null
-    private var pasteOcclusionImageButton: Button? = null
+    private var showImageOcclusionActions by mutableStateOf(false)
 
     // non-null after onCollectionLoaded
     @VisibleForTesting
@@ -635,6 +629,30 @@ class NoteEditorFragment :
         }
     }
 
+    private fun chooseOcclusionImage() {
+        try {
+            ioEditorLauncher.launch("image/*")
+        } catch (_: ActivityNotFoundException) {
+            activity?.showSnackbar(CommonString.activity_start_failed)
+        }
+    }
+
+    private fun pasteOcclusionImage() {
+        if (ClipboardUtil.hasImage(clipboard)) {
+            val uri = ClipboardUtil.getUri(clipboard)
+            val i =
+                Intent().apply {
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    clipData = ClipData.newUri(requireActivity().contentResolver, uri.toString(), uri)
+                }
+            ImportUtils.getFileCachedCopy(requireContext(), i)?.let { path ->
+                setupImageOcclusionEditor(path)
+            }
+        } else {
+            showSnackbar(TR.editingNoImageFoundOnClipboard())
+        }
+    }
+
     private fun setupPresentation() {
         binding.editorSelectors.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
@@ -655,13 +673,25 @@ class NoteEditorFragment :
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 AnkiDroidTheme {
-                    NoteEditorDetails(
-                        tags = displayTags,
-                        templates = templateNames,
-                        activeTemplate = activeTemplateName,
-                        onTagsClick = ::showTagsDialog,
-                        onCardsClick = ::showCardTemplateEditor,
-                    )
+                    Column {
+                        if (showImageOcclusionActions) {
+                            ImageOcclusionActions(
+                                adding = addNote,
+                                canTakePicture = requireContext().canTakePicture(),
+                                onGallery = ::chooseOcclusionImage,
+                                onCamera = ::dispatchCameraEvent,
+                                onPaste = ::pasteOcclusionImage,
+                                onEdit = { setupImageOcclusionEditor() },
+                            )
+                        }
+                        NoteEditorDetails(
+                            tags = displayTags,
+                            templates = templateNames,
+                            activeTemplate = activeTemplateName,
+                            onTagsClick = ::showTagsDialog,
+                            onCardsClick = ::showCardTemplateEditor,
+                        )
+                    }
                 }
             }
         }
@@ -770,14 +800,6 @@ class NoteEditorFragment :
         Timber.d("NoteEditor() onCollectionLoaded: caller: %s", caller)
         requireAnkiActivity().registerReceiver()
         fieldsLayoutContainer = requireView().findViewById(R.id.CardEditorEditFieldsLayout)
-        imageOcclusionButtonsContainer = requireView().findViewById(R.id.ImageOcclusionButtonsLayout)
-        editOcclusionsButton = requireView().findViewById(R.id.EditOcclusionsButton)
-        imageSelectionForOcclusionContainer = requireView().findViewById(R.id.ImageSelectionForOcclusionContainer)
-        imageSelectionForOcclusionLabel = requireView().findViewById(R.id.ImageSelectionForOcclusionLabel)
-        cameraForOcclusionButton = requireView().findViewById(R.id.CameraForOcclusionButton)
-        galleryForOcclusionButton = requireView().findViewById(R.id.GalleryForOcclusionButton)
-        pasteOcclusionImageButton = requireView().findViewById(R.id.PasteImageForOcclusionButton)
-
         try {
             clipboard = requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         } catch (e: Exception) {
@@ -829,52 +851,6 @@ class NoteEditorFragment :
             // we need to have loaded the current note type
             NoteEditorCaller.IMG_OCCLUSION, NoteEditorCaller.ADD_IMAGE -> {
                 addNote = true
-            }
-        }
-
-        if (addNote) {
-            editOcclusionsButton?.visibility = View.GONE
-
-            imageSelectionForOcclusionLabel?.text = TR.notetypesImage() + ":"
-
-            cameraForOcclusionButton?.isVisible = requireContext().canTakePicture()
-            cameraForOcclusionButton?.setOnClickListener {
-                Timber.i("Camera button clicked")
-                dispatchCameraEvent()
-            }
-
-            galleryForOcclusionButton?.setOnClickListener {
-                Timber.i("Gallery button clicked")
-                try {
-                    ioEditorLauncher.launch("image/*")
-                } catch (_: ActivityNotFoundException) {
-                    Timber.w("No app found to handle onGalleryClicked request")
-                    activity?.showSnackbar(CommonString.activity_start_failed)
-                }
-            }
-            pasteOcclusionImageButton?.setOnClickListener {
-                // TODO: Support all extensions
-                //  See https://github.com/ankitects/anki/blob/6f3550464d37aee1b8b784e431cbfce8382d3ce7/rslib/src/image_occlusion/imagedata.rs#L154
-                if (ClipboardUtil.hasImage(clipboard)) {
-                    val uri = ClipboardUtil.getUri(clipboard)
-                    val i =
-                        Intent().apply {
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                            clipData = ClipData.newUri(requireActivity().contentResolver, uri.toString(), uri)
-                        }
-                    ImportUtils.getFileCachedCopy(requireContext(), i)?.let { path ->
-                        setupImageOcclusionEditor(path)
-                    }
-                } else {
-                    showSnackbar(TR.editingNoImageFoundOnClipboard())
-                }
-            }
-        } else {
-            imageSelectionForOcclusionContainer?.visibility = View.GONE
-            editOcclusionsButton?.visibility = View.VISIBLE
-            editOcclusionsButton?.text = resources.getString(CommonString.edit_occlusions)
-            editOcclusionsButton?.setOnClickListener {
-                setupImageOcclusionEditor()
             }
         }
 
@@ -2009,7 +1985,7 @@ class NoteEditorFragment :
         val editLines = fieldState.loadFieldEditLines(type)
         fieldsLayoutContainer!!.removeAllViews()
         customViewIds.clear()
-        imageOcclusionButtonsContainer?.isVisible = currentNotetypeIsImageOcclusion()
+        showImageOcclusionActions = currentNotetypeIsImageOcclusion()
 
         val indicesToHide = mutableListOf<Int>()
         if (currentNotetypeIsImageOcclusion()) {
