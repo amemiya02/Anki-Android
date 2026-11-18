@@ -22,10 +22,15 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
@@ -60,7 +65,6 @@ import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.DeckPickerFloatingActionMenu.CloseAnimation
 import com.ichi2.anki.browser.CardBrowserFragment
-import com.ichi2.anki.browser.CardBrowserViewModel.RowSelection
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.crashreporting.CrashReporter
 import com.ichi2.anki.common.time.TimeManager
@@ -75,7 +79,6 @@ import com.ichi2.anki.dialogs.DatabaseErrorDialog.DatabaseErrorDialogType
 import com.ichi2.anki.dialogs.DeckPickerConfirmDeleteDeckDialog
 import com.ichi2.anki.dialogs.DeckPickerContextMenu.DeckPickerContextMenuOption
 import com.ichi2.anki.dialogs.DeckPickerContextMenuResult
-import com.ichi2.anki.dialogs.DeckSelectionDialog
 import com.ichi2.anki.dialogs.SyncErrorDialog
 import com.ichi2.anki.dialogs.setDeckPickerContextMenuResult
 import com.ichi2.anki.dialogs.utils.input
@@ -84,7 +87,6 @@ import com.ichi2.anki.dialogs.utils.performPositiveClick
 import com.ichi2.anki.dialogs.utils.title
 import com.ichi2.anki.libanki.Consts.DEFAULT_DECK_ID
 import com.ichi2.anki.libanki.DeckId
-import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.navigation.AnkiDroidNavigator
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.preferences.PreferencesActivity
@@ -92,7 +94,6 @@ import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.study.FinishedFragment
-import com.ichi2.anki.ui.RecyclerFastScroller
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.Destination
 import com.ichi2.anki.utils.ext.defaultConfig
@@ -106,7 +107,6 @@ import com.ichi2.testutils.ext.menu
 import com.ichi2.testutils.ext.snackbarText
 import com.ichi2.testutils.ext.text
 import com.ichi2.testutils.revokeWritePermissions
-import com.ichi2.testutils.withPref
 import com.ichi2.testutils.withWritePermissions
 import com.ichi2.ui.AccessibleSearchView
 import com.ichi2.ui.BadgeDrawable
@@ -1751,15 +1751,10 @@ class DeckPickerTest : RobolectricTest() {
     @Test
     fun `bottom navigation supports the public card browser`() =
         withBottomNavigationEnabled {
-            withPref(Prefs::devUsingCardBrowserSearchView, false) {
-                assumeTrue("Not running on tablet", qualifiers != "xlarge")
-                deckPicker {
-                    val browser = openEmbeddedCardBrowser()
-                    val browserView = browser.requireView()
-                    val browserToolbar = browserView.findViewById<Toolbar>(R.id.toolbar)
-                    assertThat(browser.legacySearchView, notNullValue())
-                    assertThat(browserToolbar.menu.findItem(R.id.action_search), notNullValue())
-                }
+            assumeTrue("Not running on tablet", qualifiers != "xlarge")
+            deckPicker {
+                openEmbeddedCardBrowser()
+                composeRule.onNodeWithContentDescription(getString(R.string.browse_search_cards)).assertIsDisplayed()
             }
         }
 
@@ -1767,16 +1762,13 @@ class DeckPickerTest : RobolectricTest() {
     fun `tapping a card in the embedded card browser opens the note editor`() =
         withBottomNavigationEnabled {
             assumeTrue("Not running on tablet", qualifiers != "xlarge")
-            addBasicNote()
+            addBasicNote("Pine")
             deckPicker {
-                val browser = openEmbeddedCardBrowser()
-                advanceRobolectricLooperUntil { browser.cardsListView.findViewHolderForAdapterPosition(0) != null }
+                openEmbeddedCardBrowser()
+                advanceRobolectricLooperUntil { composeRule.onAllNodesWithText("Pine").fetchSemanticsNodes().isNotEmpty() }
                 shadowOf(this).clearNextStartedActivities()
 
-                browser.cardsListView
-                    .findViewHolderForAdapterPosition(0)!!
-                    .itemView
-                    .performClick()
+                composeRule.onNodeWithText("Pine").performClick()
                 advanceRobolectricLooperUntil(lazyMessage = { "tapping a card opened nothing" }) {
                     shadowOf(this).peekNextStartedActivity() != null
                 }
@@ -1789,68 +1781,65 @@ class DeckPickerTest : RobolectricTest() {
     @Test
     fun `embedded card browser accounts for system bar insets`() =
         withBottomNavigationEnabled {
-            withPref(Prefs::devUsingCardBrowserSearchView, false) {
-                assumeTrue("Not running on tablet", qualifiers != "xlarge")
-                deckPicker {
-                    val browserView = openEmbeddedCardBrowser().requireView()
+            assumeTrue("Not running on tablet", qualifiers != "xlarge")
+            deckPicker {
+                val browserView = openEmbeddedCardBrowser().requireView()
+                val search = composeRule.onNodeWithContentDescription(getString(R.string.browse_search_cards))
+                val before = search.getUnclippedBoundsInRoot()
 
-                    val statusBarHeight = 24
-                    val insets =
-                        WindowInsetsCompat
-                            .Builder()
-                            .setInsets(WindowInsetsCompat.Type.statusBars(), Insets.of(0, statusBarHeight, 0, 0))
-                            .setInsets(WindowInsetsCompat.Type.navigationBars(), Insets.of(0, 0, 0, 48))
-                            .build()
-                    ViewCompat.dispatchApplyWindowInsets(browserView, insets)
+                val insets =
+                    WindowInsetsCompat
+                        .Builder()
+                        .setInsets(WindowInsetsCompat.Type.statusBars(), Insets.of(0, 24, 0, 0))
+                        .setInsets(WindowInsetsCompat.Type.navigationBars(), Insets.of(0, 0, 0, 48))
+                        .build()
+                ViewCompat.dispatchApplyWindowInsets(browserView, insets)
+                advanceRobolectricLooper()
 
-                    assertThat(browserView.findViewById<View>(R.id.toolbar_container).paddingTop, equalTo(statusBarHeight))
-                    assertThat(browserView.findViewById<RecyclerFastScroller>(R.id.browser_scroller).handleBottomInset, equalTo(0))
-                }
+                assertTrue(search.getUnclippedBoundsInRoot().top > before.top)
             }
         }
 
     @Test
     fun `embedded card browser updates selected row count after deselection`() =
         withBottomNavigationEnabled {
-            withPref(Prefs::devUsingCardBrowserSearchView, false) {
-                assumeTrue("Not running on tablet", qualifiers != "xlarge")
-                deckPicker {
-                    addBasicNoteWithOp(fields = listOf("first", "one"))
-                    addBasicNoteWithOp(fields = listOf("second", "two"))
-                    val browser = openEmbeddedCardBrowser()
-                    advanceRobolectricLooper()
-                    val viewModel = browser.activityViewModel
-                    val toolbarTitle = browser.requireView().findViewById<TextView>(R.id.toolbar_title)
-                    val firstRow = RowSelection(viewModel.getRowAtPosition(0), topOffset = 0)
-                    val secondRow = RowSelection(viewModel.getRowAtPosition(1), topOffset = 0)
+            assumeTrue("Not running on tablet", qualifiers != "xlarge")
+            deckPicker {
+                addBasicNoteWithOp(fields = listOf("first", "one"))
+                addBasicNoteWithOp(fields = listOf("second", "two"))
+                openEmbeddedCardBrowser()
+                advanceRobolectricLooperUntil { composeRule.onAllNodesWithText("first").fetchSemanticsNodes().isNotEmpty() }
 
-                    viewModel.handleRowLongPress(firstRow).join()
-                    viewModel.onTap(secondRow).join()
-                    advanceRobolectricLooper()
-                    assertThat(toolbarTitle.text.toString(), equalTo("2"))
+                composeRule.onNodeWithText("first").performTouchInput { longClick() }
+                composeRule.onNodeWithText("second").performClick()
+                composeRule.onNodeWithText("2").assertIsDisplayed()
 
-                    viewModel.onTap(firstRow).join()
-                    advanceRobolectricLooper()
-                    assertThat(toolbarTitle.text.toString(), equalTo("1"))
-                }
+                composeRule.onNodeWithText("first").performClick()
+                composeRule.onNodeWithText("1").assertIsDisplayed()
             }
         }
 
     @Test
     fun `embedded card browser can select all decks`() =
         withBottomNavigationEnabled {
-            withPref(Prefs::devUsingCardBrowserSearchView, false) {
-                assumeTrue("Not running on tablet", qualifiers != "xlarge")
-                deckPicker {
-                    val browser = openEmbeddedCardBrowser()
+            assumeTrue("Not running on tablet", qualifiers != "xlarge")
+            val remoteDeck = addDeck("Outside")
+            val outside = addBasicNote("Outside result")
+            col.setDeck(listOf(outside.firstCard().id), remoteDeck)
+            addBasicNote("Inside result")
+            deckPicker {
+                openEmbeddedCardBrowser()
+                advanceRobolectricLooperUntil { composeRule.onAllNodesWithText("Inside result").fetchSemanticsNodes().isNotEmpty() }
+                composeRule.onNodeWithText("Outside result").assertDoesNotExist()
 
-                    browser.childFragmentManager.setFragmentResult(
-                        DeckSelectionDialog.REQUEST_SELECT_DECK,
-                        Bundle().apply {
-                            putParcelable(DeckSelectionDialog.RESULT_SELECTED_DECK, SelectableDeck.AllDecks)
-                        },
-                    )
-                }
+                composeRule.onNodeWithContentDescription("All decks").performClick()
+                val defaultChoice = hasText("Default") and isToggleable()
+                composeRule.waitUntil(10_000) { composeRule.onAllNodes(defaultChoice).fetchSemanticsNodes().isNotEmpty() }
+                composeRule.onNode(defaultChoice).performClick()
+                composeRule.onNodeWithText("Done").performClick()
+
+                advanceRobolectricLooperUntil { composeRule.onAllNodesWithText("Outside result").fetchSemanticsNodes().isNotEmpty() }
+                composeRule.onNodeWithText("Outside result").assertIsDisplayed()
             }
         }
 

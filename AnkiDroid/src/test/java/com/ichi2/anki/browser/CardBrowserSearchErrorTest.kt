@@ -49,29 +49,27 @@ class CardBrowserSearchErrorTest : RobolectricTest() {
         advanceRobolectricLooper()
     }
 
-    private fun withBrowser(
-        useSearchView: Boolean = false,
-        block: suspend CardBrowserFragment.() -> Unit,
-    ) = if (embedded) {
-        run {
-            setIntroductionSlidesShown(true)
-            runTest {
-                val activity = startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent()).get()
-                activity.binding.bottomNavigation!!.selectedItemId = NavigationItem.BROWSER.id
+    private fun withBrowser(block: suspend CardBrowserFragment.() -> Unit) =
+        if (embedded) {
+            run {
+                setIntroductionSlidesShown(true)
+                runTest {
+                    val activity = startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent()).get()
+                    activity.binding.bottomNavigation!!.selectedItemId = NavigationItem.BROWSER.id
+                    advanceRobolectricLooper()
+                    val browser = activity.supportFragmentManager.findFragmentByTag(NavigationItem.BROWSER.tag) as CardBrowserFragment
+                    browser.activityViewModel.searchJob?.join()
+                    advanceRobolectricLooper()
+                    block(browser)
+                }
+            }
+        } else {
+            withCardBrowserFragment {
+                activityViewModel.searchJob?.join()
                 advanceRobolectricLooper()
-                val browser = activity.supportFragmentManager.findFragmentByTag(NavigationItem.BROWSER.tag) as CardBrowserFragment
-                browser.activityViewModel.searchJob?.join()
-                advanceRobolectricLooper()
-                block(browser)
+                block()
             }
         }
-    } else {
-        withCardBrowserFragment(useSearchView = useSearchView) {
-            activityViewModel.searchJob?.join()
-            advanceRobolectricLooper()
-            block()
-        }
-    }
 
     companion object {
         @ParameterizedRobolectricTestRunner.Parameters(name = "embedded={0}")

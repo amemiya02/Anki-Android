@@ -2,23 +2,31 @@
 
 package com.ichi2.anki.browser.search
 
-import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasScrollToIndexAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.browser.SearchHistory
 import com.ichi2.anki.browser.SearchHistory.SearchHistoryEntry
-import com.ichi2.anki.browser.withCardBrowserFragment
+import com.ichi2.anki.getBrowserWithNotes
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
-/** Test of [StandardSearchFragment] */
+@OptIn(ExperimentalTestApi::class)
 @RunWith(AndroidJUnit4::class)
 class StandardSearchFragmentTest : RobolectricTest() {
+    @get:Rule
+    val composeRule = createEmptyComposeRule()
+
     @Before
     override fun setUp() {
         super.setUp()
@@ -26,61 +34,33 @@ class StandardSearchFragmentTest : RobolectricTest() {
     }
 
     @Test
-    fun `history entries are loaded`() {
-        SearchHistory().addRecent(SearchHistoryEntry("aa"))
+    fun `recent searches are shown`() {
+        seedHistory(3)
+        openSearch()
 
-        withFragment {
-            assertEquals(1, binding.searchHistory.count)
-        }
+        composeRule.onNodeWithText("query-2").assertIsDisplayed()
+        composeRule.onNodeWithText("See more").assertDoesNotExist()
     }
 
     @Test
-    fun `history entries are truncated`() {
-        val expectedMaxEntries = 5
-        assertEquals(expectedMaxEntries, CardBrowserSearchViewModel.MAX_SEARCH_HISTORY_ENTRIES)
+    fun `See more reveals searches older than the five most recent`() {
+        seedHistory(6)
+        openSearch()
 
-        val history = SearchHistory()
-        repeat(expectedMaxEntries + 1) {
-            history.addRecent(SearchHistoryEntry(it.toString()))
-        }
-
-        withFragment {
-            assertEquals(expectedMaxEntries, binding.searchHistory.count)
-            assertEquals(expectedMaxEntries + 1, viewModel.searchHistory.size)
-        }
+        composeRule.onNodeWithText("query-0").assertDoesNotExist()
+        composeRule.onNodeWithText("See more").performClick()
+        composeRule.onNode(hasScrollToIndexAction()).performScrollToNode(hasText("query-0"))
+        composeRule.onNodeWithText("query-0").assertIsDisplayed()
     }
 
-    @Test
-    fun `see more button is hidden when entries do not exceed limit`() {
+    private fun seedHistory(count: Int) {
         val history = SearchHistory()
-        repeat(3) { history.addRecent(SearchHistoryEntry(it.toString())) }
-
-        withFragment {
-            assertFalse(binding.toggleSearchHistory.isVisible)
-        }
+        repeat(count) { history.addRecent(SearchHistoryEntry("query-$it")) }
     }
 
-    @Test
-    fun `see more button is visible when entries exceed limit`() {
-        val history = SearchHistory()
-        repeat(CardBrowserSearchViewModel.MAX_SEARCH_HISTORY_ENTRIES + 1) {
-            history.addRecent(SearchHistoryEntry(it.toString()))
-        }
-
-        withFragment {
-            assertTrue(binding.toggleSearchHistory.isVisible)
-        }
+    private fun openSearch() {
+        getBrowserWithNotes(noteCount = 0)
+        composeRule.onNodeWithContentDescription("Search cards").performClick()
+        composeRule.waitUntilAtLeastOneExists(hasText("Recent"), 10_000)
     }
-
-    fun withFragment(block: StandardSearchFragment.() -> Unit) =
-        withCardBrowserFragment(useSearchView = true) {
-            val targetFragment = requireChildFragment<StandardSearchFragment>(StandardSearchFragment.TAG)
-            block(targetFragment)
-        }
-}
-
-fun <T : Fragment> Fragment.requireChildFragment(tag: String): T {
-    @Suppress("UNCHECKED_CAST")
-    return requireNotNull(this.childFragmentManager.findFragmentByTag(tag) as? T?)
-    { "can't find tag $tag" }
 }

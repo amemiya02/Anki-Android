@@ -2,6 +2,7 @@
 
 package com.ichi2.anki.browser
 
+import android.util.LruCache
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -119,6 +120,15 @@ internal fun CardBrowserScreen(
     LaunchedEffect(host) { host.sheetRequests.collect { sheet = it } }
     var menu by remember { mutableStateOf(false) }
     var revision by remember { mutableIntStateOf(0) }
+    val rowCache =
+        remember(results, columns, revision) {
+            object : LruCache<CardOrNoteId, BrowserResultRow>(256 * 1024) {
+                override fun sizeOf(
+                    key: CardOrNoteId,
+                    value: BrowserResultRow,
+                ): Int = (value.title.length + value.details.length) * 2 + 128
+            }
+        }
     val flagNames by produceState<Map<Flag, String>>(emptyMap(), host.flagNameRevision.collectAsState().value) {
         value = Flag.queryDisplayNames(context)
     }
@@ -293,8 +303,10 @@ internal fun CardBrowserScreen(
                     key = { "${results.mode}:${results.ids[it].cardOrNoteId}" },
                 ) { index ->
                     val id = results.ids[index]
-                    val row by produceState<BrowserResultRow?>(null, id, results, columns, revision) {
-                        value = loadBrowserResultRow(id, results.mode, vm.showMediaFilenames)
+                    val row by produceState(rowCache.get(id), id, rowCache) {
+                        value = rowCache.get(id) ?: loadBrowserResultRow(id, results.mode, vm.showMediaFilenames)?.also {
+                            rowCache.put(id, it)
+                        }
                     }
                     BrowserResult(
                         row = row,
@@ -441,8 +453,10 @@ internal fun BrowserChips(
                     .clip(foundation.shapes.button)
                     .background(if (checked) colors.progressTrack else colors.background)
                     .border(1.dp, colors.outline, foundation.shapes.button)
-                    .semantics { selected = checked }
-                    .clickable(role = Role.Button) { onClick(sheet) }
+                    .semantics {
+                        contentDescription = fallback
+                        selected = checked
+                    }.clickable(role = Role.Button) { onClick(sheet) }
                     .padding(horizontal = 11.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(5.dp),

@@ -39,13 +39,14 @@ class CardBrowserScreenScreenshotTest : ScreenshotTest() {
     @Test
     fun `the browser displays results from the collection`() {
         runBlocking { col.reopenWithLanguage(language.option) }
-        val cherry = addBasicNote("桜 · Cherry blossom", "Spring").firstCard()
+        val noteType = col.notetypes.current().name
+        val cherry = addNoteUsingNoteTypeName(noteType, "桜 · Cherry blossom", "Spring").firstCard()
         col.setUserFlagForCards(listOf(cherry.id), Flag.RED.code)
-        val familiarity = addBasicNote("熟悉 · Familiar", "Know well")
+        val familiarity = addNoteUsingNoteTypeName(noteType, "熟悉 · Familiar", "Know well")
         familiarity.addTag("marked")
         col.updateNote(familiarity)
         col.sched.suspendCards(listOf(familiarity.firstCard().id))
-        addBasicNote("諦める · Give up", "Recognition")
+        addNoteUsingNoteTypeName(noteType, "諦める · Give up", "Recognition")
         val browser = getBrowserWithNotes(noteCount = 0)
         waitForText("桜 · Cherry blossom")
         captureScreen("results")

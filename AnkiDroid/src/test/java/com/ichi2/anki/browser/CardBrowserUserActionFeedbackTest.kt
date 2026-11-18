@@ -6,9 +6,13 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Looper
 import android.view.KeyEvent
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CardBrowser
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.Flag
@@ -20,24 +24,22 @@ import com.ichi2.anki.model.CardsOrNotes
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.noteeditor.openNoteEditorWithArgs
 import com.ichi2.anki.observability.undoableOp
-import com.ichi2.anki.settings.Prefs
 import com.ichi2.testutils.ext.snackbarAction
 import com.ichi2.testutils.ext.snackbarText
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/** User actions which refresh the browser count (Issue 22384), in both browser UIs. */
-@RunWith(ParameterizedRobolectricTestRunner::class)
+/** User actions which refresh the browser count (Issue 22384). */
+@RunWith(AndroidJUnit4::class)
 class CardBrowserUserActionFeedbackTest : RobolectricTest() {
-    @ParameterizedRobolectricTestRunner.Parameter
-    @JvmField
-    var useSearchView: Boolean = false
+    @get:Rule
+    val composeRule = createEmptyComposeRule()
 
     @Test
     fun `show marked menu shows the refreshed count`() {
@@ -97,7 +99,7 @@ class CardBrowserUserActionFeedbackTest : RobolectricTest() {
             activityViewModel.setCardsOrNotes(CardsOrNotes.NOTES).join()
             awaitSearch()
             assertEquals(1, activityViewModel.rowCount)
-            assertEquals("1 note shown", snackbarText)
+            composeRule.onNodeWithText("1 note shown").assertIsDisplayed()
             assertEquals(CardsOrNotes.NOTES, activityViewModel.flowOfLastCompletedSearch.value?.cardsOrNotes)
         }
     }
@@ -183,8 +185,7 @@ class CardBrowserUserActionFeedbackTest : RobolectricTest() {
     fun `note editor feedback survives returning to the browser and is shown only once`() =
         runTest {
             val note = addBasicNote("cat", "meows")
-            try {
-                Prefs.devUsingCardBrowserSearchView = useSearchView
+            run {
                 ActivityScenario.launch<CardBrowser>(Intent(targetContext, CardBrowser::class.java)).use { scenario ->
                     lateinit var browser: CardBrowser
                     scenario.onActivity { browser = it }
@@ -205,7 +206,8 @@ class CardBrowserUserActionFeedbackTest : RobolectricTest() {
 
                     scenario.moveToState(Lifecycle.State.RESUMED)
                     shadowOf(Looper.getMainLooper()).idle()
-                    assertEquals(if (useSearchView) "1 card shown" else null, browser.snackbarText)
+                    composeRule.onNodeWithText("dog").assertIsDisplayed()
+                    composeRule.onNodeWithText("1 card shown").assertIsDisplayed()
 
                     // Let the snackbar expire, then return again without another edit.
                     repeat(3) { advanceRobolectricLooper() }
@@ -214,8 +216,6 @@ class CardBrowserUserActionFeedbackTest : RobolectricTest() {
                     shadowOf(Looper.getMainLooper()).idle()
                     assertNull(browser.snackbarText)
                 }
-            } finally {
-                Prefs.devUsingCardBrowserSearchView = false
             }
         }
 
@@ -244,8 +244,7 @@ class CardBrowserUserActionFeedbackTest : RobolectricTest() {
         runTest {
             addBasicNote("cat", "meows")
             addBasicNote("dog", "barks")
-            try {
-                Prefs.devUsingCardBrowserSearchView = useSearchView
+            run {
                 val intent =
                     Intent(targetContext, CardBrowser::class.java).apply {
                         action = Intent.ACTION_VIEW
@@ -258,20 +257,16 @@ class CardBrowserUserActionFeedbackTest : RobolectricTest() {
                     shadowOf(Looper.getMainLooper()).idle()
                     assertEquals("cat", browser.viewModel.searchTerms)
                     assertEquals(1, browser.viewModel.rowCount)
-                    assertTrue(browser.snackbarText?.contains("1 card") == true)
+                    composeRule.onNodeWithText("1 card shown").assertIsDisplayed()
                 }
-            } finally {
-                Prefs.devUsingCardBrowserSearchView = false
             }
         }
 
     private fun withBrowser(block: suspend CardBrowserFragment.() -> Unit) =
-        withCardBrowserFragment(useSearchView = useSearchView) {
+        withCardBrowserFragment {
             awaitSearch()
             activityViewModel.setSelectedDeck(SelectableDeck.AllDecks)
             awaitSearch()
-            searchItem?.expandActionView()
-            advanceRobolectricLooper()
             assertNull(snackbarText)
             block()
         }
@@ -283,12 +278,6 @@ class CardBrowserUserActionFeedbackTest : RobolectricTest() {
 
     private fun CardBrowserFragment.assertCount(count: Int) {
         assertEquals(count, activityViewModel.rowCount)
-        assertEquals("$count ${if (count == 1) "card" else "cards"} shown", snackbarText)
-    }
-
-    companion object {
-        @ParameterizedRobolectricTestRunner.Parameters(name = "useSearchView={0}")
-        @JvmStatic
-        fun parameters() = listOf(arrayOf(false), arrayOf(true))
+        composeRule.onNodeWithText("$count ${if (count == 1) "card" else "cards"} shown").assertIsDisplayed()
     }
 }

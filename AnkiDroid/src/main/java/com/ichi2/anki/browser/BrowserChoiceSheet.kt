@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,6 +65,15 @@ internal fun BrowserChoiceSheet(
 ) {
     val foundation = MaterialTheme.foundation
     val colors = foundation.colors
+    // Resolve dynamic choices before the sheet measures its expanded anchor.
+    val decks by produceState<List<DeckNameId>?>(null, sheet) {
+        if (sheet == BrowserSheet.DECKS) value = withCol { decks.allNamesAndIds() }
+    }
+    val tags by produceState<List<String>?>(null, sheet) {
+        if (sheet == BrowserSheet.TAGS) value = withCol { tags.all() }
+    }
+    if ((sheet == BrowserSheet.DECKS && decks == null) || (sheet == BrowserSheet.TAGS && tags == null)) return
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
@@ -76,10 +86,9 @@ internal fun BrowserChoiceSheet(
         Column(Modifier.fillMaxWidth().padding(horizontal = foundation.spacing.screenMargin, vertical = 10.dp)) {
             when (sheet) {
                 BrowserSheet.DECKS -> {
-                    val decks by produceState(emptyList<DeckNameId>()) { value = withCol { decks.allNamesAndIds() } }
                     BrowserFilterChoices(
                         title = TR.actionsDecks(),
-                        labels = decks.associateWith { it.name.replace("::", " › ") },
+                        labels = decks.orEmpty().associateWith { it.name.replace("::", " › ") },
                         current = filters.decks,
                         onDone = { onApply(filters.copy(decks = it)) },
                     )
@@ -92,10 +101,9 @@ internal fun BrowserChoiceSheet(
                         onDone = { onApply(filters.copy(cardStates = it)) },
                     )
                 BrowserSheet.TAGS -> {
-                    val tags by produceState(emptyList<String>()) { value = withCol { tags.all() } }
                     BrowserFilterChoices(
                         title = stringResource(CommonString.card_details_tags),
-                        labels = (tags + filters.tags).associateWith { it },
+                        labels = (tags.orEmpty() + filters.tags).associateWith { it },
                         current = filters.tags,
                         onDone = { onApply(filters.copy(tags = it)) },
                     )
@@ -151,14 +159,14 @@ private fun <T> BrowserFilterChoices(
     mark: @Composable (T) -> Unit = {},
     footer: @Composable () -> Unit = {},
 ) {
-    var selected by remember(current) { mutableStateOf(current.toSet()) }
-    BrowserSheetHeading(title, onDone = { onDone(labels.keys.filter { it in selected }) })
+    var selected by rememberSaveable(current) { mutableStateOf(current.map { it.toString() }) }
+    BrowserSheetHeading(title, onDone = { onDone(labels.keys.filter { it.toString() in selected }) })
     LazyColumn(Modifier.weightInSheet()) {
         items(labels.entries.toList()) { (item, label) ->
             BrowserCheckChoice(
                 label,
-                item in selected,
-                onToggle = { checked -> selected = if (checked) selected + item else selected - item },
+                item.toString() in selected,
+                onToggle = { checked -> selected = if (checked) selected + item.toString() else selected - item.toString() },
                 mark = { mark(item) },
             )
         }

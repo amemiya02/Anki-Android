@@ -10,16 +10,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.widget.ScrollView
-import android.widget.TextView
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
+import androidx.compose.ui.test.swipeUp
 import androidx.core.view.ViewCompat
-import androidx.recyclerview.widget.RecyclerView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -68,37 +70,23 @@ class BottomNavigationScrollTest : RobolectricTest() {
         }
 
     @Test
-    fun `scrolling up in the browser restores the hidden bar`() =
+    fun `scrolling up in the browser restores the hidden bar`() {
+        repeat(40) { addBasicNote("Browser result ${it.toString().padStart(2, '0')}") }
         withBottomNavigation { deckPicker ->
             val nav = deckPicker.bottomNav
             nav.selectedItemId = NavigationItem.BROWSER.id
             advanceRobolectricLooper()
-            val list = deckPicker.findViewById<RecyclerView>(R.id.card_browser_list)
-            list.adapter =
-                object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-                    override fun getItemCount() = 80
+            val browserRows = hasScrollToIndexAction() and hasAnyDescendant(hasText("Browser result", substring = true))
+            composeRule.waitUntil(10_000) { composeRule.onAllNodes(browserRows).fetchSemanticsNodes().isNotEmpty() }
+            val rows = composeRule.onNode(browserRows)
+            val behavior = HideViewOnScrollBehavior.from(nav)
+            rows.performTouchInput { swipeUp() }
+            assertThat(behavior.isScrolledOut, equalTo(true))
 
-                    override fun onCreateViewHolder(
-                        parent: ViewGroup,
-                        viewType: Int,
-                    ) = object : RecyclerView.ViewHolder(
-                        TextView(parent.context).apply {
-                            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 100)
-                        },
-                    ) {}
-
-                    override fun onBindViewHolder(
-                        holder: RecyclerView.ViewHolder,
-                        position: Int,
-                    ) = Unit
-                }
-            list.scrollToPosition(40)
-            deckPicker.scrollFrom(list, 40)
-            assertThat(HideViewOnScrollBehavior.from(nav).isScrolledOut, equalTo(true))
-
-            list.scrollBy(0, -100)
-            assertThat(HideViewOnScrollBehavior.from(nav).isScrolledIn, equalTo(true))
+            rows.performTouchInput { swipeDown() }
+            assertThat(behavior.isScrolledIn, equalTo(true))
         }
+    }
 
     @Test
     fun `scrolling More content hides the bar and scrolling back restores it`() =

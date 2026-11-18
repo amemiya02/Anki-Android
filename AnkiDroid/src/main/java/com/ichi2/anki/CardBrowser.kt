@@ -97,8 +97,6 @@ open class CardBrowser :
 
     lateinit var cardBrowserFragment: CardBrowserFragment
 
-    val useSearchView: Boolean get() = true
-
     init {
         ChangeManager.subscribe(this)
     }

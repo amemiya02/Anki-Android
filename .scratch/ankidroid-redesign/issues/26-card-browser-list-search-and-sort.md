@@ -4,17 +4,17 @@
 
 **Blocked by:** 25 (Mockups for finding and adding)
 
-**Status:** ready-for-agent
+**Status:** browser implemented, verification in progress
 
-- [ ] Search returns the same Cards and Notes as today for the same query.
+- [x] Search returns the same Cards and Notes as today for the same query.
 - [ ] Results scroll smoothly on a collection of 100,000 Cards; rows are drawn lazily.
-- [ ] Sort order and the Cards-or-Notes mode can be changed.
-- [ ] Tapping a result opens it for editing.
-- [ ] Browse in the bottom bar opens it, and tapping Browse again starts a search.
-- [ ] On a tablet-sized screen the surface still works in its existing layout.
-- [ ] Upstream's search view is the only search, finished: the filter chips (decks, card state, flags, tags) take several choices, are filled in from a typed or saved query, and every label is translated; the toolbar search box and the menu items the chips replace are gone.
-- [ ] Upstream's search tools are dropped or finished, as the owner decides in the Mockup (recommended: dropped, with a link to the manual's search syntax).
-- [ ] Rows show flag, marked, suspended and buried as marks and words, not as a row tint; the flag colours are added to the Foundation (values file and `foundation.xml`).
+- [x] Sort order and the Cards-or-Notes mode can be changed.
+- [x] Tapping a result opens it for editing.
+- [x] Browse in the bottom bar opens it, and tapping Browse again starts a search.
+- [x] On a tablet-sized screen the surface still works in its existing layout.
+- [x] Upstream's search view is the only search, finished: the filter chips (decks, card state, flags, tags) take several choices, are filled in from a typed or saved query, and every label is translated; the toolbar search box and the menu items the chips replace are gone.
+- [x] Upstream's search tools are dropped or finished, as the owner decides in the Mockup (recommended: dropped, with a link to the manual's search syntax).
+- [x] Rows show flag, marked, suspended and buried as marks and words, not as a row tint; the flag colours are added to the Foundation (values file and `foundation.xml`).
 - [ ] It matches the agreed Mockup.
 - [ ] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
 - [ ] Screen-logic tests and Engine tests still pass unchanged.
@@ -23,6 +23,12 @@
 
 The production Browse tab and standalone browser now render the same Compose list and search page. The existing ViewModel supplies result IDs, and the list requests Card or Note content as rows enter the viewport. The tablet host keeps its resizable editor pane. The options dialog retains truncation, accent handling and default search text. Column editing and bulk operations keep their existing callbacks for ticket 27.
 
-The first seeded rendered test failed against the XML browser because its Card could not be found in the Compose accessibility tree. Its first Compose run captured Light results in English, Simplified Chinese, Japanese and Arabic at both font sizes. That run ended with a Gradle report EOF when a second test invocation wrote to the same build directory. The replacement rendered suite covers the results, search and sort surfaces. Full matrix verification and migration of the remaining XML interaction tests are pending.
+The first seeded rendered test failed against the XML browser because its Card could not be found in the Compose accessibility tree. The first focused Compose run passed 190 tests with one skip, including the Browser, its ViewModel, search and sort logic. The Engine suite completed with 143 passed and seven skipped. The Mockup contrast check passed for all seven flag colours in Light, Dark and Black.
 
-The Engine suite completed with 143 passed and seven skipped. The Mockup contrast check passed for all seven flag colours in Light, Dark and Black. The ARM64 APK built with application ID `com.ichi2.anki.redesign.debug`. The 100,000-Card fixture still needs a device scroll and search run.
+### 100,000 Cards on a Pixel 9 emulator
+
+The ARM64 debug APK with SHA-256 `c32f3c2196a574f2863dab923e07a026adfa600e0e321293f0b28f745d6654af` opened a disposable 100,000-Card collection and scrolled to fixture 00149. All nine Deck choices appeared on opening the sheet. Tapping Browse again opened search, and the query `Browser fixture 98765` showed one matching Card.
+
+The hardware-GPU run used the M2 Metal renderer and ART speed compilation. Before the row optimization, ten swipes rendered 359 frames with a 17 ms median, 25 ms p95 and 3.62% jank. With the optimization, the first pass recorded a 200 ms p95. A subsequent pass over new rows rendered 351 frames with a 22 ms median, 38 ms p95 and 24 janky frames (6.84%). Host load varied. The SwiftShader pass measured 25 janky frames out of 26. A controlled idle-host run with a release or profileable build is pending.
+
+The row loader reuses the ordinary Card colour result to avoid extra Card and Note lookups. If a higher-priority mark can mask another, it reads the additional state from the Engine. A bounded cache holds recent visible rows. [Anki 26.09.4 browser row colours](https://github.com/ankitects/anki/blob/26.09.4/rslib/src/browser_table.rs)

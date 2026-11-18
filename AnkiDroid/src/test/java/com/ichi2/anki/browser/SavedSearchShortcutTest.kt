@@ -8,6 +8,7 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.browser.search.SavedSearch
 import com.ichi2.anki.browser.search.SearchRequest
@@ -16,22 +17,17 @@ import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.testutils.pressKey
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.ParameterizedRobolectricTestRunner
 import kotlin.test.assertEquals
 
-@RunWith(ParameterizedRobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class SavedSearchShortcutTest : RobolectricTest() {
-    @ParameterizedRobolectricTestRunner.Parameter
-    @JvmField
-    var useSearchView: Boolean = false
-
     @Test
     fun `selecting a saved search opened by shortcut submits it`() {
         val cat = addBasicNote("cat", "meows").firstCard()
         addBasicNote("dog", "barks")
         col.config.savedFilters = listOf(SavedSearch("Cats", "cat"))
 
-        withCardBrowserFragment(useSearchView = useSearchView) {
+        withCardBrowserFragment {
             activityViewModel.setSelectedDeck(SelectableDeck.AllDecks)
             awaitSearch()
 
@@ -47,11 +43,5 @@ class SavedSearchShortcutTest : RobolectricTest() {
     private suspend fun CardBrowserFragment.awaitSearch() {
         activityViewModel.searchJob?.join()
         advanceRobolectricLooper()
-    }
-
-    companion object {
-        @ParameterizedRobolectricTestRunner.Parameters(name = "useSearchView={0}")
-        @JvmStatic
-        fun parameters() = listOf(arrayOf(false), arrayOf(true))
     }
 }

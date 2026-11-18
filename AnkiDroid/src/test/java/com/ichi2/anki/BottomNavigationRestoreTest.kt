@@ -8,16 +8,17 @@ import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.core.view.isVisible
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ichi2.anki.BottomNavController.NavigationItem
-import com.ichi2.anki.browser.CardBrowserFragment
-import com.ichi2.anki.settings.Prefs
-import com.ichi2.testutils.withPref
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.nullValue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -26,6 +27,9 @@ import org.robolectric.android.controller.ActivityController
 
 @RunWith(AndroidJUnit4::class)
 class BottomNavigationRestoreTest : RobolectricTest() {
+    @get:Rule
+    val composeRule = createEmptyComposeRule()
+
     @Test
     fun `a configuration change keeps the open tab on screen`() =
         forEachTab { tab ->
@@ -39,25 +43,21 @@ class BottomNavigationRestoreTest : RobolectricTest() {
     @Test
     fun `reselecting the restored Browse tab opens search`() =
         withBottomNavigation {
-            withPref(Prefs::devUsingCardBrowserSearchView, false) {
-                val controller = launchOn(NavigationItem.BROWSER)
-                controller.recreate()
-                advanceRobolectricLooper()
+            val controller = launchOn(NavigationItem.BROWSER)
+            controller.recreate()
+            advanceRobolectricLooper()
 
-                val deckPicker = controller.get()
-                assertShowsTab(deckPicker, NavigationItem.BROWSER)
-                val browser =
-                    deckPicker.supportFragmentManager.findFragmentByTag(NavigationItem.BROWSER.tag) as CardBrowserFragment
-                val searchItem = requireNotNull(browser.searchItem)
-                assertThat(searchItem.isActionViewExpanded, equalTo(false))
+            val deckPicker = controller.get()
+            assertShowsTab(deckPicker, NavigationItem.BROWSER)
+            composeRule.onNode(hasSetTextAction()).assertDoesNotExist()
 
-                val shortcut = KeyEvent(0, 0, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_2, 0, KeyEvent.META_ALT_ON)
-                assertThat(deckPicker.dispatchKeyEvent(shortcut), equalTo(true))
-                assertThat(searchItem.isActionViewExpanded, equalTo(false))
+            val shortcut = KeyEvent(0, 0, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_2, 0, KeyEvent.META_ALT_ON)
+            assertThat(deckPicker.dispatchKeyEvent(shortcut), equalTo(true))
+            composeRule.onNode(hasSetTextAction()).assertDoesNotExist()
 
-                deckPicker.bottomNav.findViewById<View>(NavigationItem.BROWSER.id).performClick()
-                assertThat(searchItem.isActionViewExpanded, equalTo(true))
-            }
+            deckPicker.bottomNav.findViewById<View>(NavigationItem.BROWSER.id).performClick()
+            composeRule.waitUntil(10_000) { !deckPicker.bottomNav.isVisible }
+            composeRule.onNode(hasSetTextAction()).assertIsDisplayed()
         }
 
     @Test

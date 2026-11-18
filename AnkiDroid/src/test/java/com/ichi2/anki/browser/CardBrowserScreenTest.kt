@@ -13,6 +13,10 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextReplacement
 import androidx.core.view.isVisible
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.CollectionManager.TR
@@ -24,6 +28,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -96,6 +101,21 @@ class CardBrowserScreenTest : RobolectricTest() {
             waitForText("Ginkgo")
             assertTrue(bar.isVisible)
         }
+    }
+
+    @Test
+    @Config(qualifiers = "w1280dp-h800dp-xlarge-land")
+    fun `the tablet keeps an editor next to the results`() {
+        addBasicNote("Ginkgo", "Tree in the first row")
+        addBasicNote("Lotus", "Flower in the second row")
+        getBrowserWithNotes(noteCount = 0)
+
+        waitForText("Lotus")
+        onView(withText("Tree in the first row")).check(matches(isDisplayed()))
+        composeRule.onNodeWithText("Lotus").performClick()
+        advanceRobolectricLooper()
+        onView(withText("Flower in the second row")).check(matches(isDisplayed()))
+        composeRule.onNodeWithText("Ginkgo").assertIsDisplayed()
     }
 
     private fun flaggedNote(

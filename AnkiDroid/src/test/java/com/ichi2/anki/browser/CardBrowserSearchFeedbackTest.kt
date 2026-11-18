@@ -3,32 +3,31 @@
 package com.ichi2.anki.browser
 
 import android.view.View
-import android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH
-import android.widget.TextView
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager.TR
-import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.model.SelectableDeck
-import com.ichi2.anki.model.SortType
 import com.ichi2.testutils.ext.snackbarAction
 import com.ichi2.testutils.ext.snackbarText
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.nullValue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.ParameterizedRobolectricTestRunner
 import kotlin.test.assertNotNull
 
 /**
- * Integration coverage for search submission, header visibility and snackbar actions in both UIs.
+ * Integration coverage for result counts and operation feedback in Browse.
  */
-@RunWith(ParameterizedRobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class CardBrowserSearchFeedbackTest : RobolectricTest() {
-    @ParameterizedRobolectricTestRunner.Parameter
-    @JvmField
-    var useSearchView: Boolean = false
+    @get:Rule
+    val composeRule = createEmptyComposeRule()
 
     @Test
     fun `opening the browser does not show a snackbar - Issue 21242`() {
@@ -45,13 +44,12 @@ class CardBrowserSearchFeedbackTest : RobolectricTest() {
         withBrowser {
             activityViewModel.setSelectedDeck(SelectableDeck.AllDecks)
             awaitSearch()
-            val header = requireActivity().findViewById<TextView>(R.id.subtitle)
-            assertThat(header?.isShown == true, equalTo(!useSearchView))
+            composeRule.onNodeWithText("1 card shown").assertIsDisplayed()
 
             activityViewModel.setQuery("", feedbackMode = BrowserSearchFeedbackMode.SEARCH_RESULTS).join()
             awaitSearch()
 
-            assertThat(snackbarText, equalTo(if (useSearchView) "1 card shown" else null))
+            assertThat(snackbarText, nullValue())
         }
     }
 
@@ -65,8 +63,8 @@ class CardBrowserSearchFeedbackTest : RobolectricTest() {
             submitSearch("cat")
             assertThat(activityViewModel.rowCount, equalTo(2))
             assertThat(activityViewModel.selectedRowCount(), equalTo(0))
-            assertThat(snackbarText, equalTo("2 cards shown"))
-            assertThat(snackbarAction?.visibility, equalTo(View.GONE))
+            composeRule.onNodeWithText("2 cards shown").assertIsDisplayed()
+            assertThat(snackbarText, nullValue())
         }
     }
 
@@ -107,8 +105,7 @@ class CardBrowserSearchFeedbackTest : RobolectricTest() {
                 awaitSearch()
 
                 assertThat(activityViewModel.rowCount, equalTo(count))
-                assertThat(snackbarText, equalTo(message))
-                assertThat(snackbarAction?.visibility, equalTo(View.GONE))
+                composeRule.onNodeWithText(message).assertIsDisplayed()
             }
         }
     }
@@ -126,8 +123,7 @@ class CardBrowserSearchFeedbackTest : RobolectricTest() {
             awaitSearch()
 
             assertThat(activityViewModel.rowCount, equalTo(1))
-            assertThat(snackbarText, equalTo("1 card shown"))
-            assertThat(snackbarAction?.visibility, equalTo(View.GONE))
+            composeRule.onNodeWithText("1 card shown").assertIsDisplayed()
         }
     }
 
@@ -142,7 +138,8 @@ class CardBrowserSearchFeedbackTest : RobolectricTest() {
             awaitSearch()
 
             assertThat("the count need not change", activityViewModel.rowCount, equalTo(2))
-            assertThat(snackbarText, equalTo(if (useSearchView) "2 cards shown" else null))
+            composeRule.onNodeWithText("2 cards shown").assertIsDisplayed()
+            assertThat(snackbarText, nullValue())
         }
     }
 
@@ -167,7 +164,7 @@ class CardBrowserSearchFeedbackTest : RobolectricTest() {
             activityViewModel.selectRowAtPosition(0)
             activityViewModel.toggleSuspendCards().join()
             awaitSearch()
-            assertThat(snackbarText, equalTo("1 card shown"))
+            composeRule.onNodeWithText("1 card shown").assertIsDisplayed()
         }
     }
 
@@ -185,44 +182,21 @@ class CardBrowserSearchFeedbackTest : RobolectricTest() {
         }
     }
 
-    @Test
-    fun `sorting shows the sort description`() {
-        addBasicNote("cat", "meows")
-        withBrowser {
-            // Exercise sorting while the legacy search box hides the count as well.
-            searchItem?.expandActionView()
-            activityViewModel.setSortType(SortType.CollectionOrdering(BrowserColumnKey("noteCrt"), reverse = true)).join()
-            awaitSearch()
-            assertThat(snackbarText, equalTo("Sort by Created · Newest first"))
-        }
-    }
-
     private fun withBrowser(block: suspend CardBrowserFragment.() -> Unit) =
-        withCardBrowserFragment(useSearchView = useSearchView) {
+        withCardBrowserFragment {
+            awaitSearch()
+            activityViewModel.setSelectedDeck(SelectableDeck.AllDecks)
             awaitSearch()
             block()
         }
 
     private suspend fun CardBrowserFragment.submitSearch(query: String) {
-        if (useSearchView) {
-            searchViewModel.isScreenOpenFlow.value = true
-            searchView!!.editText.setText(query)
-            searchView!!.editText.onEditorAction(IME_ACTION_SEARCH)
-        } else {
-            searchItem!!.expandActionView()
-            legacySearchView!!.setQuery(query, true)
-        }
+        searchViewModel.submitCurrentSearch(activityViewModel.searchRequestFlow.value.copy(query = query)).join()
         awaitSearch()
     }
 
     private suspend fun CardBrowserFragment.awaitSearch() {
         activityViewModel.searchJob?.join()
         advanceRobolectricLooper()
-    }
-
-    companion object {
-        @ParameterizedRobolectricTestRunner.Parameters(name = "useSearchView={0}")
-        @JvmStatic
-        fun parameters() = listOf(arrayOf(false), arrayOf(true))
     }
 }

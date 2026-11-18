@@ -11,10 +11,8 @@ import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.view.KeyEvent
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.annotation.CheckResult
@@ -25,13 +23,8 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.commit
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import anki.collection.OpChanges
-import com.google.android.material.search.SearchBar
 import com.google.android.material.search.SearchView
 import com.google.android.material.snackbar.Snackbar
 import com.ichi2.anki.AnkiActivity
@@ -57,7 +50,6 @@ import com.ichi2.anki.browser.search.CardBrowserSearchViewModel
 import com.ichi2.anki.browser.search.CardBrowserSearchViewModel.UserMessage
 import com.ichi2.anki.browser.search.SearchRequest
 import com.ichi2.anki.browser.search.SearchString
-import com.ichi2.anki.browser.search.SortOrderBottomSheetFragment
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.destinations.NoteEditorDestination
 import com.ichi2.anki.common.destinations.navigate
@@ -77,11 +69,11 @@ import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.dialogs.registerSaveSearchHandler
 import com.ichi2.anki.dialogs.registerSavedSearchActionHandler
 import com.ichi2.anki.dialogs.startDeckSelection
-import com.ichi2.anki.dialogs.tags.TagsDialog
 import com.ichi2.anki.dialogs.tags.TagsDialogFactory
 import com.ichi2.anki.dialogs.tags.TagsDialogListener
 import com.ichi2.anki.export.ExportDialogFragment
 import com.ichi2.anki.filtered.FilteredDeckOptionsFragment
+import com.ichi2.anki.formatCardCount
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.exception.InvalidSearchException
@@ -110,14 +102,12 @@ import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.utils.showSearchError
 import com.ichi2.anki.withProgress
 import com.ichi2.compose.theme.AnkiDroidTheme
-import com.ichi2.ui.CardBrowserSearchView
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import net.ankiweb.rsdroid.RustCleanup
 import net.ankiweb.rsdroid.Translations
 import timber.log.Timber
 import com.ichi2.anki.common.android.R as CommonR
@@ -131,30 +121,12 @@ class CardBrowserFragment :
     ChangeManager.Subscriber,
     TagsDialogListener {
     val activityViewModel: CardBrowserViewModel by activityViewModels()
-    val viewModel: CardBrowserFragmentViewModel by viewModels()
     val searchViewModel: CardBrowserSearchViewModel by activityViewModels()
 
     // TODO: remove AnkiActivityProvider, use context parameters instead
     override val ankiActivity: AnkiActivity
         get() = requireAnkiActivity()
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    lateinit var cardsAdapter: BrowserMultiColumnAdapter
-
-    @VisibleForTesting
-    lateinit var cardsListView: RecyclerView
-
-    /** LayoutManager for [cardsListView] */
-    val layoutManager: LinearLayoutManager
-        get() = cardsListView.layoutManager as LinearLayoutManager
-
-    @VisibleForTesting
-    lateinit var browserColumnHeadings: ViewGroup
-
-    lateinit var toggleRowSelections: ImageButton
-
-    // DEFECT: Doesn't need to be a local
-    private var tagsDialogListenerAction: TagsDialogListenerAction? = null
     private lateinit var tagsDialogFactory: TagsDialogFactory
 
     private var undoSnackbar: Snackbar? = null
@@ -163,8 +135,6 @@ class CardBrowserFragment :
         registerForActivityResult(StartActivityForResult()) { result: ActivityResult ->
             Timber.d("onAddNoteActivityResult: resultCode=%d", result.resultCode)
             if (result.resultCode == Activity.RESULT_OK) {
-                // The old forceRefreshSearch called setQuery(searchView.text) before searching,
-                // but the ViewModel already holds the submitted query, so we just re-run the search directly.
                 activityViewModel.launchSearchForCards(feedbackMode = BrowserSearchFeedbackMode.COUNT_ONLY)
             }
         }
@@ -183,12 +153,6 @@ class CardBrowserFragment :
                 .firstOrNull()
                 ?.name
                 ?: TR.sentenceCase.allDecks
-
-    @VisibleForTesting
-    var searchBar: SearchBar? = null
-
-    @VisibleForTesting
-    internal var searchView: SearchView? = null
 
     internal val flagNameRevision = MutableStateFlow(0)
     internal val sheetRequests = MutableSharedFlow<BrowserSheet>(extraBufferCapacity = 1)
@@ -308,15 +272,6 @@ class CardBrowserFragment :
             addAction(resources.getQuantityString(CommonPlurals.card_browser_delete_notes, count)) { deleteSelectedNotes() }
         }
 
-    @VisibleForTesting
-    var mySearchesItem: MenuItem? = null
-
-    @VisibleForTesting
-    var searchItem: MenuItem? = null
-
-    @VisibleForTesting
-    var legacySearchView: CardBrowserSearchView? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (isHostedInBottomNavigation()) ChangeManager.subscribe(this)
@@ -329,6 +284,7 @@ class CardBrowserFragment :
         savedInstanceState: Bundle?,
     ): View =
         ComposeView(requireContext()).apply {
+            id = R.id.card_browser_compose
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 AnkiDroidTheme {
@@ -391,13 +347,25 @@ class CardBrowserFragment :
         }
         activityViewModel.flowOfSearchFeedback.filterNotNull().collectInLifecycle { state ->
             if (!activityViewModel.consumeSearchFeedback(state)) return@collectInLifecycle
-            if (state.rowCount != 0 || state.allDecksSelected || state.feedbackMode == BrowserSearchFeedbackMode.COUNT_ONLY) {
-                return@collectInLifecycle
-            }
-            showSnackbar(getString(CommonString.card_browser_no_cards_in_deck, selectedDeckNameForUi), Snackbar.LENGTH_SHORT) {
-                setAction(CommonString.card_browser_search_all_decks) {
-                    val request = activityViewModel.searchRequestFlow.value.copyFilters { it.copy(decks = emptyList()) }
-                    activityViewModel.launchSearchForCards(request, forceRefresh = false)
+            val feedback =
+                browserSearchFeedback(
+                    feedbackMode = state.feedbackMode,
+                    rowCount = state.rowCount,
+                    allDecksSelected = state.allDecksSelected,
+                    isHeaderCountVisible = !activityViewModel.isInMultiSelectMode,
+                )
+            val message =
+                when (feedback) {
+                    BrowserSearchFeedback.NONE -> return@collectInLifecycle
+                    BrowserSearchFeedback.COUNT, BrowserSearchFeedback.COUNT_WITH_SEARCH_ALL_DECKS -> state.formatCardCount(resources)
+                    BrowserSearchFeedback.NO_CARDS_IN_SELECTED_DECK ->
+                        getString(CommonString.card_browser_no_cards_in_deck, selectedDeckNameForUi)
+                }
+            showSnackbar(message, Snackbar.LENGTH_SHORT) {
+                if (feedback.offersSearchAllDecks) {
+                    setAction(CommonString.card_browser_search_all_decks) {
+                        activityViewModel.setSelectedDeck(SelectableDeck.AllDecks, feedbackMode = BrowserSearchFeedbackMode.SEARCH_RESULTS)
+                    }
                 }
             }
         }
@@ -856,13 +824,6 @@ class CardBrowserFragment :
         }
     }
 
-    fun changeDisplayOrder() =
-        launchCatchingTask {
-            SortOrderBottomSheetFragment
-                .createInstance(cardsOrNotes = activityViewModel.cardsOrNotes)
-                .show(childFragmentManager)
-        }
-
     private fun updateFlag(keyCode: Int) {
         val flag =
             when (keyCode) {
@@ -885,47 +846,29 @@ class CardBrowserFragment :
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun filterByTag(vararg tags: String) {
-        tagsDialogListenerAction = TagsDialogListenerAction.FILTER
-        onSelectedTags(tags.toList(), emptyList(), CardStateFilter.ALL_CARDS)
-        filterByTags(tags.toList(), CardStateFilter.ALL_CARDS)
+        launchCatchingTask {
+            val request = activityViewModel.searchRequestFlow.value.copyFilters { it.copy(tags = tags.toList()) }
+            activityViewModel.launchSearchForCards(request, forceRefresh = false, feedbackMode = BrowserSearchFeedbackMode.SEARCH_RESULTS)
+        }
     }
 
     fun showEditTagsDialog() {
         if (!activityViewModel.hasSelectedAnyRows()) {
             Timber.d("showEditTagsDialog: called with empty selection")
         }
-        tagsDialogListenerAction = TagsDialogListenerAction.EDIT_TAGS
         lifecycleScope.launch {
             val noteIds = activityViewModel.queryAllSelectedNoteIds()
             tagsDialogFactory.show(requireActivity(), noteIds = noteIds)
         }
     }
 
-    fun showFilterByTagsDialog() {
-        launchCatchingTask {
-            tagsDialogListenerAction = TagsDialogListenerAction.FILTER
-            tagsDialogFactory.show(
-                requireActivity(),
-                type = TagsDialog.DialogType.FILTER_BY_TAG,
-                checkedTags =
-                    ArrayList(activityViewModel.searchRequestFlow.value.filters.tags),
-            )
-        }
-    }
-
-    @RustCleanup("this isn't how Desktop Anki does it")
     override fun onSelectedTags(
         selectedTags: List<String>,
         indeterminateTags: List<String>,
         stateFilter: CardStateFilter,
     ) {
-        when (tagsDialogListenerAction) {
-            TagsDialogListenerAction.FILTER -> filterByTags(selectedTags, stateFilter)
-            TagsDialogListenerAction.EDIT_TAGS ->
-                launchCatchingTask {
-                    activityViewModel.editSelectedCardsTags(selectedTags, indeterminateTags)
-                }
-            else -> {}
+        launchCatchingTask {
+            activityViewModel.editSelectedCardsTags(selectedTags, indeterminateTags)
         }
     }
 
@@ -988,14 +931,6 @@ class CardBrowserFragment :
         onAddNoteActivityResult.navigate(addNoteDestination)
     }
 
-    private fun filterByTags(
-        selectedTags: List<String>,
-        cardState: CardStateFilter,
-    ) = launchCatchingTask {
-        val request = activityViewModel.searchRequestFlow.value.copyFilters { it.copy(tags = selectedTags) }
-        activityViewModel.launchSearchForCards(request, forceRefresh = false, feedbackMode = BrowserSearchFeedbackMode.SEARCH_RESULTS)
-    }
-
     fun prepareForUndoableOperation() {
         // dismiss undo-snackbar if shown to avoid race condition
         // (when another operation will be performed on the model, it will undo the latest operation)
@@ -1043,11 +978,6 @@ class CardBrowserFragment :
             CommonString.card_browser_context_menu,
         )
 
-    private enum class TagsDialogListenerAction {
-        FILTER,
-        EDIT_TAGS,
-    }
-
     companion object {
         private const val FLAG_RENAME_TAG = "browserFlagRename"
 
@@ -1073,21 +1003,6 @@ fun PreviewerDestination.toIntent(context: Context) = PreviewerFragment.getInten
  * This method searches through child fragments by [tag]. [createFragment] is called if the fragment
  * is not found.
  */
-private fun Fragment.getOrCreateSearchFragment(
-    tag: String,
-    createFragment: () -> Fragment,
-): Fragment {
-    val existing = childFragmentManager.findFragmentByTag(tag)
-    if (existing != null) return existing
-
-    val created = createFragment()
-    childFragmentManager.commit {
-        add(R.id.search_view_content_container, created, tag)
-    }
-    return created
-}
-
-@CheckResult
 suspend fun SearchRequest.toUserSpannable(context: Context): Spannable {
     val text = withCol { this@toUserSpannable.toSearchString() }.getOrDefault(SearchString.EMPTY)
     return this.toUserSpannable(context, text)

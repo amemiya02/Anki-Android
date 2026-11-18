@@ -18,6 +18,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,10 +43,12 @@ import com.ichi2.compose.theme.FoundationColors
 import com.ichi2.compose.theme.foundation
 import net.ankiweb.rsdroid.BackendException
 import timber.log.Timber
+import anki.search.BrowserRow.Color as EngineRowColor
 
 /** Loaded only while the corresponding ID is visible in the browser. */
 internal data class BrowserResultRow(
-    val cells: List<String>,
+    val title: String,
+    val details: String,
     val flags: List<Flag>,
     val marked: Boolean,
     val states: List<CardState>,
@@ -56,26 +61,50 @@ internal suspend fun loadBrowserResultRow(
 ): BrowserResultRow? =
     withCol {
         try {
-            val cells =
-                backend.browserRowForId(id.cardOrNoteId).cellsList.map { cell ->
-                    BrowserMultiColumnAdapter.removeSounds(cell.text, showMediaFilenames)
+            val row = backend.browserRowForId(id.cardOrNoteId)
+            val cells = row.cellsList.map { cell -> BrowserMultiColumnAdapter.removeSounds(cell.text, showMediaFilenames) }
+            val base =
+                BrowserResultRow(
+                    title = cells.firstOrNull().orEmpty(),
+                    details = cells.drop(1).filter(String::isNotBlank).joinToString(" · "),
+                    flags = emptyList(),
+                    marked = false,
+                    states = emptyList(),
+                )
+            // The Engine's Card colour already distinguishes ordinary, suspended and buried
+            // Cards with no other marks. Only a higher-priority colour can hide another mark.
+            if (mode == CardsOrNotes.CARDS) {
+                when (row.color) {
+                    EngineRowColor.COLOR_DEFAULT -> return@withCol base
+                    EngineRowColor.COLOR_SUSPENDED -> return@withCol base.copy(states = listOf(CardState.Suspended))
+                    EngineRowColor.COLOR_BURIED -> return@withCol base.copy(states = listOf(CardState.Buried))
+                    else -> {}
                 }
+            }
             val cards =
                 if (mode == CardsOrNotes.CARDS) {
                     listOf(getCard(id.cardOrNoteId))
                 } else {
                     cardIdsOfNote(id.cardOrNoteId).map(::getCard)
                 }
-            val note = if (mode == CardsOrNotes.NOTES) getNote(id.cardOrNoteId) else cards.single().note(this)
-            BrowserResultRow(
-                cells = cells,
+            val marked =
+                if (mode == CardsOrNotes.NOTES || row.color == EngineRowColor.COLOR_MARKED) {
+                    row.color == EngineRowColor.COLOR_MARKED
+                } else {
+                    cards
+                        .single()
+                        .note(this)
+                        .tags
+                        .any { it.equals("marked", ignoreCase = true) }
+                }
+            base.copy(
                 flags =
                     cards
                         .map { Flag.fromCode(it.flags and 7) }
                         .distinct()
                         .filterNot { it == Flag.NONE }
                         .sortedBy(Flag::code),
-                marked = note.tags.any { it.equals("marked", ignoreCase = true) },
+                marked = marked,
                 states =
                     cards
                         .mapNotNull { card ->
@@ -109,6 +138,17 @@ internal fun BrowserResult(
 ) {
     val foundation = MaterialTheme.foundation
     val colors = foundation.colors
+    val rightClick by rememberUpdatedState(onRightClick)
+    val titleStyle =
+        remember(foundation.type.rowTitle, fontScale) {
+            val style = foundation.type.rowTitle
+            style.copy(fontSize = style.fontSize * fontScale, lineHeight = style.lineHeight * fontScale)
+        }
+    val detailStyle =
+        remember(foundation.type.caption, fontScale) {
+            val style = foundation.type.caption
+            style.copy(fontSize = style.fontSize * fontScale, lineHeight = style.lineHeight * fontScale)
+        }
     Column(modifier) {
         Row(
             modifier =
@@ -116,13 +156,13 @@ internal fun BrowserResult(
                     .fillMaxWidth()
                     .heightIn(min = foundation.spacing.listRow)
                     .background(if (isSelected || isInPane) colors.progressTrack else colors.background)
-                    .pointerInput(row, onRightClick) {
+                    .pointerInput(row != null) {
                         awaitPointerEventScope {
                             while (true) {
                                 val event = awaitPointerEvent()
                                 if (row == null || event.type != PointerEventType.Press || !event.buttons.isSecondaryPressed) continue
                                 event.changes.forEach { it.consume() }
-                                onRightClick()
+                                rightClick()
                             }
                         }
                     }.combinedClickable(
@@ -145,35 +185,16 @@ internal fun BrowserResult(
             if (row != null) {
                 Column(Modifier.weight(1f)) {
                     Text(
-                        text = row.cells.firstOrNull().orEmpty(),
-                        style =
-                            foundation.type.rowTitle.let {
-                                it.copy(
-                                    fontSize = it.fontSize * fontScale,
-                                    lineHeight =
-                                        it.lineHeight * fontScale,
-                                )
-                            },
+                        text = row.title,
+                        style = titleStyle,
                         color = if (row.states.isEmpty()) colors.onBackground else colors.onBackgroundMuted,
                         maxLines = if (truncated) 1 else Int.MAX_VALUE,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    val details =
-                        row.cells
-                            .drop(1)
-                            .filter(String::isNotBlank)
-                            .joinToString(" · ")
-                    if (details.isNotEmpty()) {
+                    if (row.details.isNotEmpty()) {
                         Text(
-                            text = details,
-                            style =
-                                foundation.type.caption.let {
-                                    it.copy(
-                                        fontSize = it.fontSize * fontScale,
-                                        lineHeight =
-                                            it.lineHeight * fontScale,
-                                    )
-                                },
+                            text = row.details,
+                            style = detailStyle,
                             color = colors.onBackgroundMuted,
                             maxLines = if (truncated) 1 else Int.MAX_VALUE,
                             overflow = TextOverflow.Ellipsis,
