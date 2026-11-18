@@ -24,7 +24,6 @@ import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.unit.ColorProvider
 import com.ichi2.anki.common.destinations.DeferredNavigation
-import com.ichi2.anki.common.destinations.LauncherDestination
 import com.ichi2.anki.common.destinations.WidgetConfigDestination
 import com.ichi2.anki.common.destinations.toIntent
 import com.ichi2.anki.widgets.R
@@ -105,14 +104,13 @@ private object DeckList : PaperWidget<DeckListDisplay>(DeckPickerWidget::class.j
         val rowHeight = maxOf(appearance.textHeight(name) + 3f, if (compact) 19f else 32f).dp
         val rows = if (compact) 1 else ((size.height - verticalPadding * 2 - headerHeight).value / rowHeight.value).toInt().coerceIn(1, 5)
         val colors = appearance.colors
-        val launch = with(DeferredNavigation) { LauncherDestination.toIntent() }
         WidgetSheet(appearance) {
             Column(
                 GlanceModifier.fillMaxSize().padding(horizontal = horizontalPadding, vertical = verticalPadding),
                 verticalAlignment = if (compact) Alignment.CenterVertically else Alignment.Top,
             ) {
                 Row(
-                    GlanceModifier.fillMaxWidth().height(headerHeight).clickable(actionStartActivity(launch)),
+                    GlanceModifier.fillMaxWidth().height(headerHeight),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     WidgetText(

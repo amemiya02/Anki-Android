@@ -29,7 +29,9 @@ data class DeckWidgetData(
     internal fun studyIntent(): Intent =
         with(DeferredNavigation) {
             if (total > 0) {
-                ReviewDeckDestination.ExternalLaunch(deckId).toIntent()
+                // Glance gives each PendingIntent a URI so that rows remain distinct.
+                // This explicit launch is a review request even with a data URI attached.
+                ReviewDeckDestination.ExternalLaunch(deckId).toIntent().setAction(null)
             } else {
                 DeckOptionsDestination(deckId, isFiltered).toIntent()
             }

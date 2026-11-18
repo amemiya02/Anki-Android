@@ -44,6 +44,7 @@ class DeckWidgetUpdateTest : RobolectricTest() {
             val opened = assertNotNull(shadowOf(targetContext as Application).nextStartedActivity)
             assertEquals(IntentHandler::class.java.name, opened.component?.className)
             assertEquals(second, opened.getLongExtra(IntentHandler.EXTRA_DECK_ID, 0))
+            assertEquals(IntentHandler.LaunchType.REVIEW, IntentHandler.getLaunchType(opened))
         }
 
     @Test
