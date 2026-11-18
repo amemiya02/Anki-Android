@@ -36,6 +36,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -242,7 +243,7 @@ internal fun FieldNameDialog(
     onDismiss: () -> Unit,
     onSave: (String) -> Unit,
 ) {
-    val title = if (field == null) TR.sentenceCase.addField else stringResource(CommonString.model_field_editor_rename)
+    val title = if (field == null) with(LocalContext.current) { TR.sentenceCase.addField } else stringResource(CommonString.model_field_editor_rename)
     val emptyName = stringResource(CommonString.toast_empty_name)
     val duplicate = stringResource(CommonString.toast_duplicate_field)
     TextInputDialog(
@@ -286,7 +287,7 @@ internal fun FieldKeyboardDialog(
     onDismiss: () -> Unit,
     onSelect: (Locale?) -> Unit,
 ) {
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val context = LocalContext.current
     val config = LocalConfiguration.current
     val language =
         androidx.core.os.ConfigurationCompat

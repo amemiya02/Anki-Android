@@ -65,6 +65,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -260,7 +261,7 @@ internal fun NoteTypeDetailPage(
                 SectionHeading(stringResource(R.string.note_type_fields)) {
                     TextButton(onClick = onAddField, contentPadding = PaddingValues(horizontal = 4.dp)) {
                         Icon(painterResource(CommonR.drawable.symbol_add), contentDescription = null, Modifier.size(18.dp))
-                        Text(TR.sentenceCase.addField, Modifier.padding(start = 4.dp), style = paper.type.button)
+                        Text(with(LocalContext.current) { TR.sentenceCase.addField }, Modifier.padding(start = 4.dp), style = paper.type.button)
                     }
                 }
                 NoteTypeDivider()
