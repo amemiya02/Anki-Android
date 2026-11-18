@@ -70,8 +70,8 @@ fun TextInputDialog(
     validateOnInput: Boolean = true,
     enabled: Boolean = true,
     singleLine: Boolean = true,
-    onTextChanged: (String) -> Unit = {},
     keyboardType: KeyboardType = KeyboardType.Text,
+    onTextChanged: (String) -> Unit = {},
 ) {
     var input by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(initialText, selection = initialSelection))

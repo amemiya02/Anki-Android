@@ -2,9 +2,14 @@
 
 package com.ichi2.anki.preferences
 
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.fragment.app.Fragment
 import androidx.test.core.app.ActivityScenario
@@ -19,6 +24,8 @@ import com.ichi2.anki.LanguageConfig.JAPANESE
 import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.R
 import com.ichi2.anki.ScreenshotTest
+import com.ichi2.anki.common.utils.dp
+import com.ichi2.testutils.dispatchInsets
 import com.ichi2.testutils.ext.reopenWithLanguage
 import org.junit.Rule
 import org.junit.Test
@@ -70,6 +77,40 @@ class RemainingSettingsScreenshotTest : ScreenshotTest() {
             captureScreen("${page.name.lowercase()}_start")
             compose.onNodeWithText(targetContext.getString(page.lastSetting)).performScrollTo().assertIsDisplayed()
             captureScreen("${page.name.lowercase()}_end")
+        }
+    }
+
+    @Test
+    fun generalKeepsItsRowsReachableAsSystemBarsChange() {
+        setPhoneQualifiers()
+        val intent = PreferencesActivity.getIntent(targetContext, GeneralSettingsFragment::class)
+        ActivityScenario.launch<PreferencesActivity>(intent).use { scenario ->
+            val languageRow = compose.onNodeWithText(targetContext.getString(CommonString.language))
+            scenario.onActivity { it.dispatchInsets(navBarBottom = 24.dp) }
+            languageRow.assertIsDisplayed()
+            captureScreen("general_system_bars")
+
+            scenario.onActivity { it.dispatchInsets(barsVisible = false, cutoutTop = 48.dp, navBarStableBottom = 24.dp) }
+            languageRow.assertIsDisplayed()
+            val filenames = compose.onNodeWithText(targetContext.getString(CommonString.card_browser_hide_media))
+            filenames.performScrollTo().assertIsDisplayed()
+            captureScreen("general_fullscreen_cutout")
+        }
+    }
+
+    @Test
+    fun syncMediaPickerShowsTheCurrentChoiceAndAppliesTheNextChoice() {
+        setPhoneQualifiers()
+        val labels = targetContext.resources.getStringArray(R.array.sync_media_entries)
+        val intent = PreferencesActivity.getIntent(targetContext, SyncSettingsFragment::class)
+        ActivityScenario.launch<PreferencesActivity>(intent).use {
+            val fetchMedia = compose.onNodeWithText(targetContext.getString(CommonString.sync_fetch_missing_media))
+            fetchMedia.performScrollTo().performClick()
+            val choice = SemanticsMatcher.keyIsDefined(SemanticsProperties.Selected)
+            compose.onNode(hasText(labels[0]) and choice).assertIsDisplayed().assertIsSelected()
+            captureScreen("sync_media_choice")
+            compose.onNode(hasText(labels[1]) and choice).performScrollTo().performClick()
+            compose.onNodeWithText(labels[1]).assertIsDisplayed()
         }
     }
 }

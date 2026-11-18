@@ -3,17 +3,26 @@
 package com.ichi2.anki.preferences
 
 import android.text.InputType
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,12 +31,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -131,6 +142,7 @@ internal fun PreferenceRow(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SliderSetting(
     preference: SliderPreference,
@@ -139,22 +151,48 @@ private fun SliderSetting(
     modifier: Modifier,
     highlighted: Boolean,
 ) {
+    val foundation = MaterialTheme.foundation
+    val colors = foundation.colors
     var value by remember(preference.value) { mutableFloatStateOf(preference.value.toFloat()) }
     val range = preference.valueFrom.toFloat()..preference.valueTo.toFloat()
-    SettingsRow(title, summary = summary, value = preference.valueLabel(value.roundToInt()), modifier = modifier, highlighted = highlighted)
-    Slider(
-        value = value,
-        onValueChange = { value = it },
-        onValueChangeFinished = {
-            val proposed = value.roundToInt()
-            if (proposed != preference.value && preference.callChangeListener(proposed)) preference.value = proposed
-            value = preference.value.toFloat()
-        },
-        modifier = Modifier.padding(bottom = 8.dp).semantics { contentDescription = title },
-        enabled = preference.isEnabled,
-        valueRange = range,
-        steps = if (preference.stepSize == 0f) 0 else ((range.endInclusive - range.start) / preference.stepSize).roundToInt() - 1,
-    )
+    val span = range.endInclusive - range.start
+    val label = preference.valueLabel(value.roundToInt())
+    Column(
+        modifier
+            .fillMaxWidth()
+            .then(
+                if (highlighted) Modifier.border(foundation.shapes.hairline, colors.emphasis, foundation.shapes.button) else Modifier,
+            ).padding(top = 12.dp, bottom = 4.dp),
+    ) {
+        Text(title, style = foundation.type.rowTitle, color = colors.onBackground)
+        if (summary != null) Text(summary, style = foundation.type.caption, color = colors.onBackgroundMuted)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Slider(
+                value = value,
+                onValueChange = { value = it },
+                onValueChangeFinished = {
+                    val proposed = value.roundToInt()
+                    if (proposed != preference.value && preference.callChangeListener(proposed)) preference.value = proposed
+                    value = preference.value.toFloat()
+                },
+                modifier =
+                    Modifier.weight(1f).height(foundation.spacing.touchTarget).semantics {
+                        contentDescription = title
+                        if (label != null) stateDescription = label
+                    },
+                enabled = preference.isEnabled,
+                valueRange = range,
+                steps = if (preference.stepSize == 0f) 0 else (span / preference.stepSize).roundToInt() - 1,
+                thumb = { Box(Modifier.size(18.dp).background(colors.progressFill, CircleShape)) },
+                track = {
+                    Box(Modifier.fillMaxWidth().height(3.dp).background(colors.progressTrack)) {
+                        Box(Modifier.fillMaxWidth((value - range.start) / span).height(3.dp).background(colors.progressFill))
+                    }
+                },
+            )
+            if (label != null) Text(label, style = foundation.type.body, color = colors.onBackground)
+        }
+    }
     SettingsDivider()
 }
 
