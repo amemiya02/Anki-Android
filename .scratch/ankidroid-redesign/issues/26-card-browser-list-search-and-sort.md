@@ -16,7 +16,7 @@
 - [x] Upstream's search tools are dropped or finished, as the owner decides in the Mockup (recommended: dropped, with a link to the manual's search syntax).
 - [x] Rows show flag, marked, suspended and buried as marks and words, not as a row tint; the flag colours are added to the Foundation (values file and `foundation.xml`).
 - [x] It matches the agreed Mockup.
-- [ ] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
+- [x] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
 - [ ] Screen-logic tests and Engine tests still pass unchanged.
 
 ## Implementation evidence
@@ -40,3 +40,5 @@ On an Android 16 emulator at 1280 × 800 dp, standalone Browse opened alongside 
 The ARM64 debug APK had SHA-256 `05b2b5974db53d3ae8bdf4fe3cb0044fc7ee9481c35e12849d00b43b57458770`. The initial launch under host load reported a startup ANR. A force-stop and fresh launch succeeded, and the emulator's original display settings were restored. Captures are in `/tmp/anki-redesign-qa/browser-tablet/`.
 
 The full-window rendered results check first detected a 40 dp overflow target in the tablet toolbar. It passed with the 48 dp target and adjacent editor visible. Robolectric stalls while showing the IME with the tablet editor present. The rendered phone tests cover search, results and sort, and the tablet tests capture results and sort with the editor visible. The Android run above covers the tablet keyboard transition.
+
+The final rendered matrix passed all 48 device, language, theme and font-scale combinations. It produced 120 captures covering phone results, search and sort, and tablet results and sort. The separate last-row and native text-layout regressions passed after waiting for the loaded row to scroll into view and measuring its actual line count.
