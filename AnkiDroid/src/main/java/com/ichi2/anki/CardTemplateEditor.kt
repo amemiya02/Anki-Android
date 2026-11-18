@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CheckResult
@@ -112,11 +113,8 @@ open class CardTemplateEditor : SingleFragmentActivity() {
     internal val templateScreen: CardTemplateEditorFragment?
         get() = fragment as? CardTemplateEditorFragment
 
-    var tempNoteType: CardTemplateNotetype?
+    val tempNoteType: CardTemplateNotetype?
         get() = templateScreen?.tempNoteType
-        set(value) {
-            requireNotNull(templateScreen).tempNoteType = value
-        }
 
     val displayDiscardChangesCallback
         get() = requireNotNull(templateScreen).displayDiscardChangesCallback
@@ -246,8 +244,8 @@ class CardTemplateEditorFragment :
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View =
-        ComposeView(inflater.context).apply {
+    ): View {
+        val content = ComposeView(inflater.context).apply {
             id = R.id.card_template_screen
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
@@ -279,6 +277,9 @@ class CardTemplateEditorFragment :
                 }
             }
         }
+        // Keep keyboard observation independent of the Compose view's own inset listener.
+        return FrameLayout(inflater.context).apply { addView(content) }
+    }
 
     override fun onViewCreated(
         view: View,

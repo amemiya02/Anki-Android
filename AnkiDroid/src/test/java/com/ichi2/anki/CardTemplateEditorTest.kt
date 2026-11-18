@@ -7,6 +7,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
+import androidx.fragment.app.commitNow
 import android.widget.EditText
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -141,9 +142,15 @@ class CardTemplateEditorTest : RobolectricTest() {
         val intent = CardEditor(ntid = original.id).toIntent(targetContext)
         val controller = Robolectric.buildActivity(CardTemplateEditor::class.java, intent)
         saveControllerForCleanup(controller)
-        // Guard the note type before onCreate: the initial Back callback update triggers the crash.
-        controller.get().tempNoteType = CardTemplateNotetype(edited)
         controller.setup()
+        // Install the guarded model before the editor fragment's initial Back callback update.
+        val guardedEditor = CardTemplateEditorFragment().apply {
+            arguments = intent.extras
+            tempNoteType = CardTemplateNotetype(edited)
+        }
+        controller.get().supportFragmentManager.commitNow {
+            replace(R.id.fragment_container, guardedEditor, SingleFragmentActivity.FRAGMENT_TAG)
+        }
 
         with(controller.get()) {
             assertFalse("Opening the editor should not mark the note type as changed", noteTypeHasChanged())
@@ -861,7 +868,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             val template = tempNoteType!!.getTemplate(0)
             assertEquals("The front template should be selected initially", template.qfmt, editText.text.toString())
 
-            onKeyUp(KeyEvent.KEYCODE_2, KeyEvent(0, 0, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_2, 0, KeyEvent.META_CTRL_ON))
+            dispatchKeyEvent(KeyEvent(0, 0, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_2, 0, KeyEvent.META_CTRL_ON))
 
             assertEquals("Ctrl+2 should show the back template", template.afmt, editText.text.toString())
         }
