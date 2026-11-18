@@ -8,6 +8,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import androidx.test.uiautomator.uiAutomator
 import org.junit.Assert.assertTrue
@@ -102,7 +103,9 @@ class BaselineProfileGenerator {
             val deckList = onElement { viewIdResourceName in setOf(id("deck_name"), id("no_decks_placeholder")) }
             if (deckList.resourceName == id("deck_name")) return@uiAutomator
 
-            val app = InstrumentationRegistry.getInstrumentation().context.createPackageContext(targetPackage, 0)
+            val instrumentation = InstrumentationRegistry.getInstrumentation()
+            val device = UiDevice.getInstance(instrumentation)
+            val app = instrumentation.context.createPackageContext(targetPackage, 0)
             val create = app.getString(app.resources.getIdentifier("dialog_positive_create", "string", targetPackage))
             for (name in listOf("Japanese::Vocabulary", "Spanish")) {
                 onElement { viewIdResourceName == id("fab_main") }.click()
