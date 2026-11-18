@@ -2,19 +2,19 @@
 
 package com.ichi2.anki
 
-import android.content.DialogInterface
-import androidx.appcompat.app.AlertDialog
+import android.app.Dialog
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import anki.sync.SyncAuth
 import anki.sync.SyncCollectionResponse
 import anki.sync.syncCollectionResponse
 import app.cash.turbine.test
 import com.ichi2.anki.dialogs.SyncErrorDialog
-import com.ichi2.anki.dialogs.utils.message
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.utils.ext.DIALOG_FRAGMENT_TAG
 import com.ichi2.testutils.signInToSyncServer
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestDispatcher
@@ -23,11 +23,11 @@ import net.ankiweb.rsdroid.Backend
 import net.ankiweb.rsdroid.BackendFactory
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
-import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertSame
@@ -35,6 +35,9 @@ import kotlin.test.assertTrue
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class SyncConflictTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @ParameterizedRobolectricTestRunner.Parameter
     @JvmField
     var qualifiers: String? = null
@@ -80,9 +83,9 @@ class SyncConflictTest : RobolectricTest() {
 
             val dialog = conflictDialog()
             assertTrue(dialog.isShowing)
-            assertEquals(getString(CommonString.sync_conflict_message_new), dialog.message)
-            assertEquals(getString(CommonString.sync_conflict_keep_local_new), dialog.positiveButton.text)
-            assertEquals(getString(CommonString.sync_conflict_keep_remote_new), dialog.negativeButton.text)
+            compose.onNodeWithText(getString(CommonString.sync_conflict_message_new)).assertIsDisplayed()
+            compose.onNodeWithText(getString(CommonString.sync_conflict_keep_local_new)).assertIsDisplayed()
+            compose.onNodeWithText(getString(CommonString.sync_conflict_keep_remote_new)).assertIsDisplayed()
         }
 
     @Test
@@ -92,7 +95,7 @@ class SyncConflictTest : RobolectricTest() {
             val dialog = conflictDialog()
             reloadDecks()
 
-            dialog.clickButton(DialogInterface.BUTTON_NEUTRAL)
+            dialog.clickButton(CommonString.dialog_cancel)
 
             assertFalse(dialog.isShowing)
         }
@@ -106,7 +109,7 @@ class SyncConflictTest : RobolectricTest() {
 
             assertSame(confirmation, conflictDialog())
             assertTrue(confirmation.isShowing)
-            assertEquals(getString(CommonString.sync_conflict_local_confirm_new), confirmation.message)
+            compose.onNodeWithText(getString(CommonString.sync_conflict_local_confirm_new)).assertIsDisplayed()
         }
 
     @Test
@@ -118,7 +121,7 @@ class SyncConflictTest : RobolectricTest() {
 
             assertSame(confirmation, conflictDialog())
             assertTrue(confirmation.isShowing)
-            assertEquals(getString(CommonString.sync_conflict_remote_confirm_new), confirmation.message)
+            compose.onNodeWithText(getString(CommonString.sync_conflict_remote_confirm_new)).assertIsDisplayed()
         }
 
     @Test
@@ -127,7 +130,7 @@ class SyncConflictTest : RobolectricTest() {
             val confirmation = chooseSyncDirection(ConflictResolution.FULL_UPLOAD)
             reloadDecks()
 
-            confirmation.clickButton(DialogInterface.BUTTON_NEGATIVE)
+            confirmation.clickButton(CommonString.dialog_cancel)
 
             assertFalse(confirmation.isShowing)
         }
@@ -138,7 +141,7 @@ class SyncConflictTest : RobolectricTest() {
             val confirmation = chooseSyncDirection(ConflictResolution.FULL_DOWNLOAD)
             reloadDecks()
 
-            confirmation.clickButton(DialogInterface.BUTTON_NEGATIVE)
+            confirmation.clickButton(CommonString.dialog_cancel)
 
             assertFalse(confirmation.isShowing)
         }
@@ -157,12 +160,12 @@ class SyncConflictTest : RobolectricTest() {
         }
     }
 
-    private suspend fun DeckPicker.chooseSyncDirection(direction: ConflictResolution): AlertDialog {
+    private suspend fun DeckPicker.chooseSyncDirection(direction: ConflictResolution): Dialog {
         syncWithConflict()
         val button =
             when (direction) {
-                ConflictResolution.FULL_UPLOAD -> DialogInterface.BUTTON_POSITIVE
-                ConflictResolution.FULL_DOWNLOAD -> DialogInterface.BUTTON_NEGATIVE
+                ConflictResolution.FULL_UPLOAD -> CommonString.sync_conflict_keep_local_new
+                ConflictResolution.FULL_DOWNLOAD -> CommonString.sync_conflict_keep_remote_new
             }
         conflictDialog().clickButton(button)
         return conflictDialog()
@@ -173,14 +176,14 @@ class SyncConflictTest : RobolectricTest() {
         advanceRobolectricLooper()
     }
 
-    private fun AlertDialog.clickButton(button: Int) {
+    private fun Dialog.clickButton(button: Int) {
         check(isShowing) { "The dialog must be visible before clicking a button" }
-        getButton(button).performClick()
+        compose.onNodeWithText(context.getString(button)).performClick()
         advanceRobolectricLooper()
     }
 
-    private fun DeckPicker.conflictDialog(): AlertDialog {
+    private fun DeckPicker.conflictDialog(): Dialog {
         val fragment = assertNotNull(supportFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG) as? SyncErrorDialog)
-        return assertNotNull(fragment.dialog as? AlertDialog)
+        return assertNotNull(fragment.dialog)
     }
 }

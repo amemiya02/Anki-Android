@@ -2,27 +2,19 @@
 
 package com.ichi2.anki
 
-import android.content.DialogInterface
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.test.isDialog
+import com.ichi2.compose.ui.dialogs.ProgressDialog
 import org.junit.Test
-import com.ichi2.anki.common.android.R as CommonR
 
-/**
- * The progress dialog shown by `withProgressDialog`, with a manual cancel button.
- *
- * `./gradlew :AnkiDroid:verifyRoborazziPlayDebug -Pscreenshot -Ptheme=all --tests "com.ichi2.anki.ProgressDialogScreenshotTest"`
- */
-class ProgressDialogScreenshotTest : ScreenshotTest() {
-    @Suppress("Deprecation") // ProgressDialog, as used by withProgressDialog
+@CheckAccessibility
+class ProgressDialogScreenshotTest : ComposeScreenshotTest() {
     @Test
     fun `progress dialog with a cancel button`() =
-        withDeckPicker(deckCount = 0) { deckPicker ->
-            android.app.ProgressDialog(deckPicker, CommonR.style.AppCompatProgressDialogStyle).apply {
-                setMessage(deckPicker.getString(CommonR.string.dialog_processing))
-                setButton(DialogInterface.BUTTON_NEGATIVE, deckPicker.getString(android.R.string.cancel)) { _, _ -> }
-                show()
-            }
-            advanceRobolectricLooper()
-
-            captureScreen("progress_dialog")
+        capture("progress_dialog", node = isDialog()) {
+            ProgressDialog(
+                title = stringResource(CommonString.dialog_processing),
+                onCancel = {},
+            )
         }
 }

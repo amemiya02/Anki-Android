@@ -3,19 +3,23 @@
 
 package com.ichi2.anki
 
+import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.core.content.edit
+import androidx.fragment.app.DialogFragment
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.InitialActivity.StartupFailure
 import com.ichi2.anki.RobolectricTest.Companion.advanceRobolectricLooper
+import com.ichi2.anki.dialogs.DatabaseErrorDialog
+import com.ichi2.anki.dialogs.DeckPickerNoSpaceLeftDialog
 import com.ichi2.anki.dialogs.ProfileLoadFailureDialog
-import com.ichi2.anki.dialogs.utils.message
-import com.ichi2.anki.dialogs.utils.title
 import com.ichi2.anki.multiprofile.ProfileId
 import com.ichi2.anki.multiprofile.ProfileManager
 import com.ichi2.anki.multiprofile.ProfileManager.Companion.PREF_LAST_ACTIVE_PROFILE_ID
@@ -25,6 +29,7 @@ import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import org.junit.After
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -39,14 +44,23 @@ import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class DeckPickerProfileLoadFailureTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     private val registry
         get() = targetContext.getSharedPreferences(PROFILE_REGISTRY_FILENAME, Context.MODE_PRIVATE)
 
-    private val DeckPicker.profileFailureDialogs: List<AlertDialog>
-        get() = dialogsTitled(getString(CommonString.profile_load_failed_title, "Work"))
+    private val DeckPicker.profileFailureDialogs: List<Dialog>
+        get() = supportFragmentManager.fragments.filterIsInstance<ProfileLoadFailureDialog>().showingDialogs()
 
-    private val DeckPicker.storageFullDialogs: List<AlertDialog>
-        get() = dialogsTitled(getString(CommonString.storage_full_title))
+    private val DeckPicker.storageFullDialogs: List<Dialog>
+        get() =
+            supportFragmentManager.fragments
+                .filterIsInstance<DialogFragment>()
+                .filter { it is DeckPickerNoSpaceLeftDialog || it is DatabaseErrorDialog }
+                .showingDialogs()
+
+    private fun List<DialogFragment>.showingDialogs() = mapNotNull { it.dialog?.takeIf { dialog -> dialog.isShowing } }
 
     @After
     fun resetProfileFailure() {
@@ -74,12 +88,8 @@ class DeckPickerProfileLoadFailureTest : RobolectricTest() {
         failToOpenProfile(defaultProfileName = "Home")
 
         deckPicker {
-            val dialog = profileFailureDialogs.single()
-            assertEquals(getString(CommonString.profile_load_failed_message, "Home", "Work"), dialog.message)
-            assertEquals(
-                getString(CommonString.profile_load_failed_use_default, "Home"),
-                dialog.getButton(DialogInterface.BUTTON_NEUTRAL).text.toString(),
-            )
+            compose.onNodeWithText(getString(CommonString.profile_load_failed_message, "Home", "Work")).assertIsDisplayed()
+            compose.onNodeWithText(getString(CommonString.profile_load_failed_use_default, "Home")).assertIsDisplayed()
         }
     }
 
@@ -95,17 +105,17 @@ class DeckPickerProfileLoadFailureTest : RobolectricTest() {
 
     @Test
     fun `a startup error waits until OK is pressed`() {
-        assertStartupErrorFollows { getButton(DialogInterface.BUTTON_POSITIVE).performClick() }
+        assertStartupErrorFollows { clickProfileFailureButton(useDefault = false) }
     }
 
     @Test
     fun `a startup error waits until the explanation is cancelled`() {
-        assertStartupErrorFollows { cancel() }
+        assertStartupErrorFollows { profileFailureDialogs.single().cancel() }
     }
 
     @Test
     fun `a startup error waits until Default is chosen`() {
-        assertStartupErrorFollows { getButton(DialogInterface.BUTTON_NEUTRAL).performClick() }
+        assertStartupErrorFollows { clickProfileFailureButton(useDefault = true) }
     }
 
     @Test
@@ -116,7 +126,7 @@ class DeckPickerProfileLoadFailureTest : RobolectricTest() {
             deckPicker {
                 assertFalse(isFinishing)
 
-                clickProfileFailureButton(DialogInterface.BUTTON_POSITIVE)
+                clickProfileFailureButton(useDefault = false)
 
                 assertTrue(isFinishing)
             }
@@ -128,7 +138,7 @@ class DeckPickerProfileLoadFailureTest : RobolectricTest() {
         failToOpenProfile()
 
         deckPicker {
-            clickProfileFailureButton(DialogInterface.BUTTON_NEUTRAL)
+            clickProfileFailureButton(useDefault = true)
 
             assertEquals(ProfileId.DEFAULT.value, registry.getString(PREF_LAST_ACTIVE_PROFILE_ID, null))
         }
@@ -142,11 +152,11 @@ class DeckPickerProfileLoadFailureTest : RobolectricTest() {
             every { ProfileManager.selectDefaultProfile(any()) } returnsMany listOf(false, true)
 
             deckPicker {
-                clickProfileFailureButton(DialogInterface.BUTTON_NEUTRAL)
+                clickProfileFailureButton(useDefault = true)
                 assertEquals(1, profileFailureDialogs.size)
                 assertEquals(getString(CommonString.something_wrong), ShadowToast.getTextOfLatestToast())
 
-                clickProfileFailureButton(DialogInterface.BUTTON_NEUTRAL)
+                clickProfileFailureButton(useDefault = true)
                 assertEquals(0, profileFailureDialogs.size)
             }
         } finally {
@@ -159,7 +169,7 @@ class DeckPickerProfileLoadFailureTest : RobolectricTest() {
         val work = failToOpenProfile()
 
         deckPicker {
-            clickProfileFailureButton(DialogInterface.BUTTON_POSITIVE)
+            clickProfileFailureButton(useDefault = false)
 
             assertEquals(work.value, registry.getString(PREF_LAST_ACTIVE_PROFILE_ID, null))
         }
@@ -179,7 +189,7 @@ class DeckPickerProfileLoadFailureTest : RobolectricTest() {
     fun `a dismissed explanation does not come back`() {
         failToOpenProfile()
         val controller = startDeckPicker()
-        controller.get().clickProfileFailureButton(DialogInterface.BUTTON_POSITIVE)
+        controller.get().clickProfileFailureButton(useDefault = false)
 
         val recreated = controller.recreateDeckPicker()
 
@@ -192,7 +202,7 @@ class DeckPickerProfileLoadFailureTest : RobolectricTest() {
 
         withStartupFailure(StartupFailure.DiskFull) {
             val controller = startDeckPicker()
-            controller.get().clickProfileFailureButton(DialogInterface.BUTTON_POSITIVE)
+            controller.get().clickProfileFailureButton(useDefault = false)
 
             controller.leaveAndReturn()
 
@@ -228,14 +238,14 @@ class DeckPickerProfileLoadFailureTest : RobolectricTest() {
         assertEquals(1, restored.get().profileFailureDialogs.size)
     }
 
-    private fun assertStartupErrorFollows(close: AlertDialog.() -> Unit) {
+    private fun assertStartupErrorFollows(close: DeckPicker.() -> Unit) {
         failToOpenProfile()
 
         withStartupFailure(StartupFailure.DiskFull) {
             deckPicker {
                 assertEquals(0, storageFullDialogs.size)
 
-                profileFailureDialogs.single().close()
+                close()
                 advanceRobolectricLooper()
 
                 assertEquals(1, storageFullDialogs.size)
@@ -251,15 +261,16 @@ class DeckPickerProfileLoadFailureTest : RobolectricTest() {
         }
     }
 
-    private fun DeckPicker.clickProfileFailureButton(which: Int) {
-        profileFailureDialogs.single().getButton(which).performClick()
+    private fun DeckPicker.clickProfileFailureButton(useDefault: Boolean) {
+        val label =
+            if (useDefault) {
+                getString(CommonString.profile_load_failed_use_default, ProfileManager.DEFAULT_PROFILE_DISPLAY_NAME)
+            } else {
+                getString(CommonString.dialog_ok)
+            }
+        compose.onNodeWithText(label).performClick()
         advanceRobolectricLooper()
     }
-
-    private fun DeckPicker.dialogsTitled(title: String): List<AlertDialog> =
-        ShadowDialog.getShownDialogs().filterIsInstance<AlertDialog>().distinct().filter {
-            it.isShowing && it.title == title && it.context.findAnkiActivity() === this
-        }
 }
 
 fun RobolectricTest.failToOpenProfile(

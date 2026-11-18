@@ -3,27 +3,28 @@
 package com.ichi2.anki
 
 import android.webkit.CookieManager
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.dialogs.utils.message
-import com.ichi2.anki.dialogs.utils.title
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import org.junit.After
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
-import kotlin.test.assertContains
-import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertIs
 
 @RunWith(AndroidJUnit4::class)
 @Config(application = DeckPickerWebViewErrorTest.MissingWebViewApplication::class, qualifiers = "normal")
 class DeckPickerWebViewErrorTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @After
     fun resetWebViewMock() {
         unmockkStatic(CookieManager::class)
@@ -37,10 +38,9 @@ class DeckPickerWebViewErrorTest : RobolectricTest() {
             }
             scenario.onActivity { activity ->
                 assertFalse(activity.isFinishing)
-                val dialog = assertIs<AlertDialog>(ShadowDialog.getLatestDialog())
-                assertEquals(activity.getString(CommonString.ankidroid_init_failed_webview_title), dialog.title)
-                assertContains(dialog.message, "WebView unavailable")
             }
+            compose.onNodeWithText(targetContext.getString(CommonString.ankidroid_init_failed_webview_title)).assertIsDisplayed()
+            compose.onNodeWithText("WebView unavailable", substring = true).assertIsDisplayed()
         }
     }
 

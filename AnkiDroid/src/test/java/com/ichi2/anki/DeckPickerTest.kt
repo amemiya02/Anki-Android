@@ -3,7 +3,7 @@
 package com.ichi2.anki
 
 import android.annotation.SuppressLint
-import android.content.DialogInterface
+import android.app.Dialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -25,9 +25,13 @@ import androidx.appcompat.widget.Toolbar
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.longClick
@@ -35,6 +39,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.core.content.edit
 import androidx.core.content.pm.ShortcutManagerCompat
@@ -83,9 +88,6 @@ import com.ichi2.anki.dialogs.DeckPickerContextMenu.DeckPickerContextMenuOption
 import com.ichi2.anki.dialogs.DeckPickerContextMenuResult
 import com.ichi2.anki.dialogs.SyncErrorDialog
 import com.ichi2.anki.dialogs.setDeckPickerContextMenuResult
-import com.ichi2.anki.dialogs.utils.input
-import com.ichi2.anki.dialogs.utils.message
-import com.ichi2.anki.dialogs.utils.performPositiveClick
 import com.ichi2.anki.dialogs.utils.title
 import com.ichi2.anki.libanki.Consts.DEFAULT_DECK_ID
 import com.ichi2.anki.libanki.DeckId
@@ -149,7 +151,6 @@ import org.robolectric.Shadows
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowDialog
 import org.robolectric.shadows.ShadowLooper
-import timber.log.Timber
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -406,17 +407,12 @@ class DeckPickerTest : RobolectricTest() {
             advanceRobolectricLooperUntil {
                 supportFragmentManager.fragments.any { it is DeckPickerConfirmDeleteDeckDialog && it.dialog?.isShowing == true }
             }
-            val dialog =
-                supportFragmentManager.fragments
-                    .filterIsInstance<DeckPickerConfirmDeleteDeckDialog>()
-                    .single()
-                    .requireDialog() as AlertDialog
-            assertEquals(getString(CommonString.delete_deck_title), dialog.title)
-            assertThat(dialog.message, containsString(deckName))
+            composeRule.onNodeWithText(getString(CommonString.delete_deck_title)).assertIsDisplayed()
+            composeRule.onNode(hasText(deckName, substring = true) and hasAnyAncestor(isDialog())).assertIsDisplayed()
             assertEquals(deckId, col.decks.byName(deckName)?.id)
             assertEquals(1, col.cardCount())
 
-            dialog.performPositiveClick()
+            composeRule.onNodeWithText(TR.sentenceCase.deleteDeck).performClick()
             advanceRobolectricLooperUntil { col.decks.byName(deckName) == null }
             assertEquals(0, col.cardCount())
         }
@@ -447,9 +443,7 @@ class DeckPickerTest : RobolectricTest() {
         deckPicker.supportFragmentManager.executePendingTransactions()
         advanceRobolectricLooper()
 
-        val settingsButton = (ShadowDialog.getLatestDialog() as AlertDialog).getButton(DialogInterface.BUTTON_NEUTRAL)
-        assertEquals("Settings", settingsButton.text.toString())
-
+        val settingsButton = composeRule.onNodeWithText(getResourceString(CommonString.settings)).assertIsDisplayed()
         shadowOf(deckPicker).clearNextStartedActivities()
         settingsButton.performClick()
         advanceRobolectricLooper()
@@ -611,9 +605,7 @@ class DeckPickerTest : RobolectricTest() {
     )
 
     private fun assertDialogTitleEquals(expectedTitle: String) {
-        val actualTitle = (ShadowDialog.getLatestDialog() as AlertDialog).title
-        Timber.d("titles = \"$actualTitle\", \"$expectedTitle\"")
-        assertEquals(expectedTitle, actualTitle)
+        composeRule.onNode(hasText(expectedTitle) and hasAnyAncestor(isDialog())).assertIsDisplayed()
     }
 
     /** Phones always navigate with the bottom bar; large screens keep the side drawer */
@@ -1051,7 +1043,7 @@ class DeckPickerTest : RobolectricTest() {
             val dialog = showSyncConflict()
             reloadDecks()
 
-            dialog.getButton(DialogInterface.BUTTON_NEUTRAL).performClick()
+            composeRule.onNodeWithText(getString(CommonString.dialog_cancel)).performClick()
             advanceRobolectricLooper()
 
             assertFalse(dialog.isShowing)
@@ -1215,10 +1207,10 @@ class DeckPickerTest : RobolectricTest() {
         advanceRobolectricLooper()
     }
 
-    private fun DeckPicker.showSyncConflict(): AlertDialog {
+    private fun DeckPicker.showSyncConflict(): Dialog {
         showSyncErrorDialog(SyncErrorDialog.Type.DIALOG_SYNC_CONFLICT_RESOLUTION)
         advanceRobolectricLooper()
-        return ShadowDialog.getLatestDialog() as AlertDialog
+        return assertNotNull(ShadowDialog.getLatestDialog())
     }
 
     private fun ScheduleRemindersFragment.navigateUp() {
@@ -2006,10 +1998,11 @@ class DeckPickerTest : RobolectricTest() {
     fun `creating a deck selects it`() =
         deckPicker {
             showCreateDeckDialog()
-            val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-            dialog.input = "My Deck"
-            dialog.performPositiveClick()
-            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+            composeRule.onNode(hasSetTextAction() and hasAnyAncestor(isDialog())).performTextReplacement("My Deck")
+            val create = composeRule.onNodeWithText(getString(CommonString.dialog_positive_create))
+            advanceRobolectricLooperUntil { kotlin.runCatching { create.assertIsEnabled() }.isSuccess }
+            create.performClick()
+            advanceRobolectricLooperUntil { col.decks.byName("My Deck")?.id == col.decks.current().id }
 
             val newDeckId = col.decks.byName("My Deck")!!.id
             assertThat(
