@@ -4,6 +4,7 @@
 package com.ichi2.anki.widget.deckpicker
 
 import android.content.Intent
+import android.os.Bundle
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -13,7 +14,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
-import androidx.core.os.bundleOf
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.RobolectricTest
@@ -49,7 +49,7 @@ class DeckPickerWidgetConfigTest : RobolectricTest() {
             for (deck in listOf(SelectableDeck.Deck(first, "Japanese"), SelectableDeck.Deck(second, "Chinese"))) {
                 activity.supportFragmentManager.setFragmentResult(
                     DeckSelectionDialog.REQUEST_SELECT_DECK,
-                    bundleOf(DeckSelectionDialog.RESULT_SELECTED_DECK to deck),
+                    Bundle().apply { putParcelable(DeckSelectionDialog.RESULT_SELECTED_DECK, deck) },
                 )
             }
 
