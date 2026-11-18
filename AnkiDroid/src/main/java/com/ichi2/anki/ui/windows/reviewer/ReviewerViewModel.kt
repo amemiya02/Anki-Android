@@ -110,8 +110,11 @@ class ReviewerViewModel(
     val setDueDateFlow = MutableSharedFlow<CardId>()
     val resetProgressFlow = MutableSharedFlow<Unit>()
     val answerFeedbackFlow = MutableSharedFlow<Rating>()
-    val voiceRecorderEnabledFlow = MutableStateFlow(repository.isRecordVoiceEnabled)
-    val whiteboardEnabledFlow = MutableStateFlow(repository.isWhiteboardEnabled)
+    val voiceRecorderEnabledFlow = MutableStateFlow(false)
+    val whiteboardEnabledFlow = MutableStateFlow(false)
+
+    /** The Deck being studied: the whiteboard and the voice recorder are remembered for it */
+    private val studiedDeckId = asyncIO { withCol { decks.selected() } }
     val replayVoiceFlow = MutableSharedFlow<Unit>()
     val timeBoxReachedFlow = MutableSharedFlow<Collection.TimeboxReached>()
     val pageUpFlow = MutableSharedFlow<Unit>()
@@ -147,6 +150,11 @@ class ReviewerViewModel(
 
     init {
         ChangeManager.subscribe(this)
+        launchCatchingIO {
+            val did = studiedDeckId.await()
+            whiteboardEnabledFlow.value = repository.isWhiteboardEnabled(did)
+            voiceRecorderEnabledFlow.value = repository.isRecordVoiceEnabled(did)
+        }
         launchCatchingIO {
             withCol { startTimebox() }
             updateUndoAndRedoLabels()
@@ -753,16 +761,16 @@ class ReviewerViewModel(
         cardMediaPlayer.replayAll(side)
     }
 
-    private fun toggleWhiteboard() {
+    private suspend fun toggleWhiteboard() {
         val newValue = !whiteboardEnabledFlow.value
         whiteboardEnabledFlow.value = newValue
-        repository.isWhiteboardEnabled = newValue
+        repository.setWhiteboardEnabled(studiedDeckId.await(), newValue)
     }
 
-    private fun toggleRecordVoice() {
+    private suspend fun toggleRecordVoice() {
         val newValue = !voiceRecorderEnabledFlow.value
         voiceRecorderEnabledFlow.value = newValue
-        repository.isRecordVoiceEnabled = newValue
+        repository.setRecordVoiceEnabled(studiedDeckId.await(), newValue)
     }
 
     fun executeAction(action: ViewerAction) {

@@ -313,6 +313,32 @@ object MetaDB {
         return language
     }
 
+    /** Whether the Deck has a whiteboard state of its own */
+    fun hasWhiteboardState(
+        context: Context,
+        did: DeckId,
+    ): Boolean = hasRow(context, "whiteboardState", did)
+
+    /** Whether the Deck has a voice recorder state of its own */
+    fun hasMicToolbarState(
+        context: Context,
+        did: DeckId,
+    ): Boolean = hasRow(context, "micToolbarState", did)
+
+    private fun hasRow(
+        context: Context,
+        table: String,
+        did: DeckId,
+    ): Boolean {
+        openDBIfClosed(context)
+        return try {
+            metaDb!!.rawQuery("SELECT 1 FROM $table WHERE did = ?", arrayOf(did.toString())).use { it.moveToNext() }
+        } catch (e: Exception) {
+            Timber.e(e, "Error reading %s from MetaDB", table)
+            false
+        }
+    }
+
     /**
      * Returns the state of the whiteboard for the given deck.
      *

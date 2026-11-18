@@ -8,9 +8,11 @@ import androidx.lifecycle.ViewModelStore
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.scheduler.CardAnswer.Rating
 import app.cash.turbine.test
+import com.ichi2.anki.MetaDB
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.ext.cardStateCustomizer
+import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.settings.enums.DayTheme
 import com.ichi2.anki.settings.enums.NightTheme
 import com.ichi2.anki.utils.CollectionPreferences
@@ -166,6 +168,49 @@ class ReviewerViewModelTest : RobolectricTest() {
             assertContains(questionBodyClasses(), "vertically_centered")
         }
 
+    @Test
+    fun `the whiteboard and the voice recorder are remembered for each Deck`() =
+        runTest {
+            MetaDB.resetDB(targetContext)
+            val kanji = addDeck("Kanji")
+            val english = addDeck("English")
+            listOf(kanji, english).forEach { did ->
+                val card = addBasicNote("front $did").firstCard()
+                col.setDeck(listOf(card.id), did)
+            }
+
+            col.decks.select(kanji)
+            startStudying().apply {
+                assertFalse(whiteboardEnabledFlow.value)
+                executeAction(ViewerAction.TOGGLE_WHITEBOARD)
+                executeAction(ViewerAction.RECORD_VOICE)
+                advanceUntilIdle()
+            }
+
+            assertTrue(startStudying().whiteboardEnabledFlow.value, "the whiteboard stays on for Kanji")
+            assertTrue(startStudying().voiceRecorderEnabledFlow.value, "the recorder stays on for Kanji")
+
+            col.decks.select(english)
+            assertFalse(startStudying().whiteboardEnabledFlow.value, "English has no whiteboard")
+            assertFalse(startStudying().voiceRecorderEnabledFlow.value, "English has no recorder")
+        }
+
+    @Test
+    fun `a Deck with no whiteboard or recorder of its own follows the earlier setting for every Deck`() =
+        runTest {
+            MetaDB.resetDB(targetContext)
+            addBasicNote()
+            StudyScreenRepository().apply {
+                isWhiteboardEnabled = true
+                isRecordVoiceEnabled = true
+            }
+
+            startStudying().apply {
+                assertTrue(whiteboardEnabledFlow.value)
+                assertTrue(voiceRecorderEnabledFlow.value)
+            }
+        }
+
     /** The classes the study screen gives the Card's `<body>` when it shows the question */
     private suspend fun TestScope.questionBodyClasses(): List<String> {
         val viewModel = ReviewerViewModel(SavedStateHandle()).also { viewModelStore.put("reviewer${viewModelStore.keys().size}", it) }
@@ -182,7 +227,7 @@ class ReviewerViewModelTest : RobolectricTest() {
     }
 
     private fun TestScope.startStudying(): ReviewerViewModel {
-        val viewModel = ReviewerViewModel(SavedStateHandle()).also { viewModelStore.put("reviewer", it) }
+        val viewModel = ReviewerViewModel(SavedStateHandle()).also { viewModelStore.put("reviewer${viewModelStore.keys().size}", it) }
         viewModel.onPageFinished(false)
         advanceUntilIdle()
         viewModel.onStateMutationCallback()
