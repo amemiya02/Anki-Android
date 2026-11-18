@@ -14,11 +14,6 @@ import androidx.compose.ui.test.performClick
 import androidx.core.content.edit
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
@@ -29,8 +24,8 @@ import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.dialogs.DatabaseErrorDialog
 import com.ichi2.anki.dialogs.databaseErrorDialogs
 import com.ichi2.anki.setIntroductionSlidesShown
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.DIALOG_FRAGMENT_TAG
-import com.ichi2.anki.widgets.R
 import com.ichi2.testutils.BackupManagerTestUtilities
 import com.ichi2.widget.AppWidgetId
 import com.ichi2.widget.AppWidgetId.Companion.updateWidget
@@ -97,12 +92,12 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
             val activity = startTestActivity()
             advanceUntilIdle()
             // first setup of the widget, no deck selected so deck name view should be empty
-            onView(withId(R.id.deck_name)).check(matches(withText("")))
+            assertNull(preferences.getSelectedDeckIdFromPreferences(testWidgetId))
             // select dialog already open, select deck 1
             compose.onNodeWithText(getResourceString(CommonString.select_deck_title)).assertIsDisplayed()
             compose.onNodeWithText(TEST_DECK_NAME1).performClick()
             // check if UI shows the selected deck and if it was saved in preferences
-            onView(withId(R.id.deck_name)).check(matches(withText(TEST_DECK_NAME1)))
+            compose.onNodeWithText(TEST_DECK_NAME1).assertIsDisplayed()
             assertEquals(testDeckId, preferences.getSelectedDeckIdFromPreferences(testWidgetId))
             // the activity is closed on first deck selection
             assertTrue(activity.isFinishing)
@@ -117,13 +112,13 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
             startTestActivity()
             advanceUntilIdle()
             // deck 1 is already selected
-            onView(withId(R.id.deck_name)).check(matches(withText(TEST_DECK_NAME1)))
+            compose.onNodeWithText(TEST_DECK_NAME1).assertIsDisplayed()
             // open deck selection, select deck 2 and verify that is displayed and selected in ui
-            onView(withId(R.id.change_btn)).perform(click())
+            compose.onNodeWithText(with(targetContext) { TR.sentenceCase.selectDeck }).performClick()
             compose.onNodeWithText(TEST_DECK_NAME2).performClick()
-            onView(withId(R.id.deck_name)).check(matches(withText(TEST_DECK_NAME2)))
+            compose.onNodeWithText(TEST_DECK_NAME2).assertIsDisplayed()
             // set configuration as done
-            onView(withId(R.id.done_btn)).perform(click())
+            compose.onNodeWithText(getResourceString(CommonString.multimedia_editor_field_editing_done)).performClick()
             // check that the correct deck is saved in preferences
             assertEquals(testDeck2Id, preferences.getSelectedDeckIdFromPreferences(testWidgetId))
         }
@@ -134,13 +129,13 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
             startTestActivity()
             advanceUntilIdle()
             // no selection yet
-            onView(withId(R.id.deck_name)).check(matches(withText("")))
+            assertNull(preferences.getSelectedDeckIdFromPreferences(testWidgetId))
             // cancel deck selection
             compose.onNodeWithText(getResourceString(CommonString.dialog_cancel)).performClick()
             // still no deck selected, so deck name should still be empty
-            onView(withId(R.id.deck_name)).check(matches(withText("")))
+            assertNull(preferences.getSelectedDeckIdFromPreferences(testWidgetId))
             // set configuration as done
-            onView(withId(R.id.done_btn)).perform(click())
+            compose.onNodeWithText(getResourceString(CommonString.multimedia_editor_field_editing_done)).performClick()
             // no deck selected so there shouldn't be any deck saved in preferences
             assertNull(preferences.getSelectedDeckIdFromPreferences(testWidgetId))
         }
@@ -154,7 +149,7 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
             startTestActivity()
             advanceUntilIdle()
             // check that we have a deck previously selected
-            onView(withId(R.id.deck_name)).check(matches(withText(TEST_DECK_NAME1)))
+            compose.onNodeWithText(TEST_DECK_NAME1).assertIsDisplayed()
 
             val deleteWidgetIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_DELETED)
             deleteWidgetIntent.updateWidget(testWidgetId)
@@ -173,17 +168,17 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
             val activity = startTestActivity()
             advanceUntilIdle()
             // verify that deck 1 is selected
-            onView(withId(R.id.deck_name)).check(matches(withText(TEST_DECK_NAME1)))
+            compose.onNodeWithText(TEST_DECK_NAME1).assertIsDisplayed()
             // open deck selection, select deck 2 and verify this new selection
-            onView(withId(R.id.change_btn)).perform(click())
+            compose.onNodeWithText(with(targetContext) { TR.sentenceCase.selectDeck }).performClick()
             compose.onNodeWithText(TEST_DECK_NAME2).performClick()
-            onView(withId(R.id.deck_name)).check(matches(withText(TEST_DECK_NAME2)))
+            compose.onNodeWithText(TEST_DECK_NAME2).assertIsDisplayed()
             // simulate a configuration change by recreating the activity
             activity.recreate()
             // check that the previously deck 2 is still displayed
-            onView(withId(R.id.deck_name)).check(matches(withText(TEST_DECK_NAME2)))
+            compose.onNodeWithText(TEST_DECK_NAME2).assertIsDisplayed()
             // click done
-            onView(withId(R.id.done_btn)).perform(click())
+            compose.onNodeWithText(getResourceString(CommonString.multimedia_editor_field_editing_done)).performClick()
             // check that the last selected deck is saved in preferences
             assertEquals(testDeck2Id, preferences.getSelectedDeckIdFromPreferences(testWidgetId))
         }

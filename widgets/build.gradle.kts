@@ -5,6 +5,7 @@ import com.ichi2.anki.gradle.addAnkiBackendDependencies
 
 plugins {
     id("ankidroid.android.library")
+    id("ankidroid.android.compose")
 }
 
 configure<LibraryExtension> {

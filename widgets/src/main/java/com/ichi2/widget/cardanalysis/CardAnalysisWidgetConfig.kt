@@ -8,16 +8,37 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.view.ViewGroup
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.os.BundleCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsCompat.Type.displayCutout
-import androidx.core.view.WindowInsetsCompat.Type.systemBars
-import androidx.core.view.updateMargins
 import com.ichi2.anki.BaseAnkiActivity
-import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.common.android.AnkiBroadcastReceiver
 import com.ichi2.anki.common.utils.android.showThemedToast
@@ -28,22 +49,22 @@ import com.ichi2.anki.isCollectionEmpty
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.startup.ensureStorageIsReady
-import com.ichi2.anki.ui.internationalization.sentenceCase
-import com.ichi2.anki.widgets.R
-import com.ichi2.anki.widgets.databinding.ActivityCardAnalysisWidgetConfigBinding
+import com.ichi2.anki.ui.internationalization.trCase
 import com.ichi2.anki.withProgress
+import com.ichi2.compose.theme.AnkiDroidTheme
+import com.ichi2.compose.theme.foundation
 import com.ichi2.widget.AppWidgetId.Companion.INVALID_APPWIDGET_ID
 import com.ichi2.widget.AppWidgetId.Companion.getAppWidgetId
 import com.ichi2.widget.cardanalysis.CardAnalysisWidget.Companion.EXTRA_SELECTED_DECK_ID
 import com.ichi2.widget.getAppWidgetManager
-import dev.androidbroadcast.vbpd.viewBinding
 import timber.log.Timber
+import com.ichi2.anki.common.android.R as CommonR
 
 /**
  * Configuration activity for [CardAnalysisWidget]. Only allows selecting a deck.
  *
  * Behavior:
- *  - shows a single centered card with the selected deck name(if any) and a button to trigger the
+ *  - shows the selected deck name (if any) and a button to trigger the
  *    deck selection dialog
  *  - when the user first adds the widget this activity will start with the deck selection dialog
  *    already open, if there is a deck selected then, the activity will start without the selection
@@ -56,11 +77,9 @@ import timber.log.Timber
  * @see CardAnalysisWidget
  * @see CardAnalysisWidgetPreferences
  */
-class CardAnalysisWidgetConfig : BaseAnkiActivity(R.layout.activity_card_analysis_widget_config) {
-    private val binding by viewBinding(ActivityCardAnalysisWidgetConfigBinding::bind)
-
+class CardAnalysisWidgetConfig : BaseAnkiActivity() {
     private var appWidgetId = INVALID_APPWIDGET_ID
-    private var deck: SelectableDeck.Deck? = null
+    private var deck: SelectableDeck.Deck? by mutableStateOf(null)
     private lateinit var preferences: CardAnalysisWidgetPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,12 +92,6 @@ class CardAnalysisWidgetConfig : BaseAnkiActivity(R.layout.activity_card_analysi
             return
         }
         enableEdgeToEdge()
-        ViewCompat.setOnApplyWindowInsetsListener(binding.content) { _, insets ->
-            val constraints = insets.getInsets(systemBars() or displayCutout())
-            val params = binding.content.layoutParams as ViewGroup.MarginLayoutParams
-            params.updateMargins(left = constraints.left, right = constraints.right, bottom = constraints.bottom)
-            WindowInsetsCompat.CONSUMED
-        }
         preferences = CardAnalysisWidgetPreferences(this)
         appWidgetId = intent.getAppWidgetId()
         if (appWidgetId == INVALID_APPWIDGET_ID) {
@@ -86,6 +99,19 @@ class CardAnalysisWidgetConfig : BaseAnkiActivity(R.layout.activity_card_analysi
             finish()
             return
         }
+        setContentView(
+            CoordinatorLayout(this).apply {
+                id = CommonR.id.root_layout
+                addView(
+                    ComposeView(context).apply {
+                        setContent {
+                            AnkiDroidTheme { SingleDeckWidgetSetup(deck?.name, ::showDeckSelectionDialog, ::close) }
+                        }
+                    },
+                    CoordinatorLayout.LayoutParams(-1, -1),
+                )
+            },
+        )
         if (savedInstanceState != null) {
             deck =
                 BundleCompat.getParcelable(
@@ -93,13 +119,9 @@ class CardAnalysisWidgetConfig : BaseAnkiActivity(R.layout.activity_card_analysi
                     STATE_DECK,
                     SelectableDeck.Deck::class.java,
                 )
-            binding.deckName.text = deck?.name
         } else {
             loadContent()
         }
-        binding.changeBtn.text = TR.sentenceCase.selectDeck
-        binding.changeBtn.setOnClickListener { showDeckSelectionDialog() }
-        binding.doneBtn.setOnClickListener { close() }
         registerReceiver(
             widgetRemovedReceiver,
             IntentFilter(AppWidgetManager.ACTION_APPWIDGET_DELETED),
@@ -128,7 +150,6 @@ class CardAnalysisWidgetConfig : BaseAnkiActivity(R.layout.activity_card_analysi
         // widget and finish
         val shouldClose = this.deck == null
         this.deck = deck
-        binding.deckName.text = deck.name
         preferences.saveSelectedDeck(appWidgetId, deck.deckId)
         updateWidget()
         if (shouldClose) {
@@ -154,7 +175,6 @@ class CardAnalysisWidgetConfig : BaseAnkiActivity(R.layout.activity_card_analysi
                     showDeckSelectionDialog()
                 } else {
                     deck = SelectableDeck.Deck.fromId(selectedDeckId)
-                    binding.deckName.text = deck?.name ?: TR.sentenceCase.selectDeck
                 }
             }
         }
@@ -210,5 +230,43 @@ class CardAnalysisWidgetConfig : BaseAnkiActivity(R.layout.activity_card_analysi
 
     companion object {
         private const val STATE_DECK = "key_deck"
+    }
+}
+
+@Composable
+internal fun SingleDeckWidgetSetup(
+    selectedDeck: String?,
+    onSelect: () -> Unit,
+    onDone: () -> Unit,
+) {
+    val paper = MaterialTheme.foundation
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(paper.colors.background)
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+                .padding(horizontal = paper.spacing.screenMargin, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Column(
+            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                stringResource(CommonString.card_analysis_extra_widget_description),
+                Modifier.semantics { heading() },
+                color = paper.colors.onBackground,
+                style = paper.type.screenTitle,
+            )
+            HorizontalDivider(color = paper.colors.outline)
+            selectedDeck?.let { Text(it, color = paper.colors.onBackground, style = paper.type.rowTitle) }
+            TextButton(onClick = onSelect) { Text(trCase().selectDeck()) }
+        }
+        Button(
+            onClick = onDone,
+            modifier = Modifier.fillMaxWidth().heightIn(min = paper.spacing.primaryButton),
+            shape = paper.shapes.button,
+        ) { Text(stringResource(CommonString.multimedia_editor_field_editing_done)) }
     }
 }
