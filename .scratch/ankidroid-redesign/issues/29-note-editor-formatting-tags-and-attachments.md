@@ -11,6 +11,7 @@
 - [ ] An image can be attached from the gallery or camera, an audio clip recorded, and a drawing made.
 - [ ] Cloze deletions can be inserted for a cloze Note Type.
 - [ ] The toolbar layout chosen in settings is respected.
+- [ ] The drawing (whiteboard) and the audio recorder opened from Attach are matched to the Foundation.
 - [ ] It matches the agreed Mockup.
 - [ ] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
 - [ ] Screen-logic tests and Engine tests still pass unchanged.

@@ -9,6 +9,7 @@
 - [ ] A Card can be previewed from the card browser and from the note editor.
 - [ ] The question and the answer side can both be shown, and the owner can step between Cards.
 - [ ] Card Content renders exactly as it does in the study screen.
+- [ ] The note editor's preview (one tab per Card Template or cloze number) is rebuilt in the same Card Frame.
 - [ ] It matches the agreed Mockup.
 - [ ] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
 - [ ] Screen-logic tests and Engine tests still pass unchanged.

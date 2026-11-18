@@ -13,6 +13,7 @@
 - [ ] Duplicate and empty-field warnings appear as they do today.
 - [ ] Chinese and Japanese input works in every field.
 - [ ] On a tablet-sized screen the surface still works in its existing layout.
+- [ ] Add/Save sits where the owner decides in the Mockup (recommended: the top bar); the duplicate warning is written under the first field.
 - [ ] It matches the agreed Mockup.
 - [ ] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
 - [ ] Screen-logic tests and Engine tests still pass unchanged.
