@@ -1,0 +1,1162 @@
+/*
+ * Milestone 3 Mockups (ticket 25): the card browser, the note editor and the
+ * previewer, in Quiet paper only. Shared pieces (the phone, the bottom bar,
+ * the study bar, the card sheet, list rows) come from ../phone.css; this file
+ * adds only what these surfaces need. Classes start with f- so they never
+ * meet the other Mockups' rules.
+ *
+ * Colour pairings beyond the values file are checked by
+ * scripts/check-find-contrast.mjs: ink on the progress-track fill (an active
+ * chip, a selected row), the background on emphasis (a ticked box), and the
+ * flags.
+ */
+
+.f-contents {
+  display: contents;
+}
+
+/* ---------- Shared ---------- */
+
+.f-iconbtn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  color: var(--foreground);
+}
+
+.f-iconbtn.is-muted {
+  color: var(--muted-foreground);
+}
+
+.f-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  padding: 2px 6px 4px;
+}
+
+.f-bar-title {
+  flex: 1;
+  min-width: 0;
+  padding: 0 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.f-bar-titles {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 0 6px;
+}
+
+.f-bar-titles > * {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.f-bar-sub {
+  font-size: 13px;
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.f-save {
+  flex: none;
+  height: 40px;
+  margin: 0 4px;
+  padding: 0 18px;
+  border-radius: 6px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.f-rule {
+  flex: none;
+  height: 1px;
+  margin: 0 20px;
+  background: var(--rule);
+}
+
+.f-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: rgb(0 0 0 / 0.42);
+}
+
+.f-sheet {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100% - 52px);
+  padding: 8px 20px 28px;
+  border-top: 1px solid var(--rule);
+  border-radius: 6px 6px 0 0;
+  background: var(--background);
+}
+
+.f-handle {
+  flex: none;
+  align-self: center;
+  width: 36px;
+  height: 4px;
+  margin-bottom: 10px;
+  border-radius: 2px;
+  background: var(--muted-foreground);
+  opacity: 0.5;
+}
+
+.f-sheet-title {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.f-sheet-sub {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+
+.f-sheet-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+
+.f-sheet-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--rule);
+}
+
+.f-sheet-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 48px;
+  font-size: 17px;
+}
+
+.f-sheet-row .f-grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.f-sheet-row-sub {
+  flex: none;
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+
+.f-sheet-group + .f-sheet-group {
+  border-top: 1px solid var(--rule);
+}
+
+.f-danger {
+  color: var(--v-emphasis);
+}
+
+.f-primary {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 56px;
+  border-radius: 6px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.f-outline-btn {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 56px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--foreground);
+  font-size: 17px;
+  font-weight: 500;
+}
+
+/* A tick box: a muted outline, or emphasis with a tick in the background colour. */
+.f-check {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--muted-foreground);
+  border-radius: 4px;
+}
+
+.f-check.is-on {
+  border-color: var(--v-emphasis);
+  background: var(--v-emphasis);
+  color: var(--background);
+}
+
+.f-check .msym {
+  --icon-size: 18px;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 600,
+    "GRAD" 0,
+    "opsz" 20;
+}
+
+.f-radio {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--muted-foreground);
+  border-radius: 50%;
+}
+
+.f-radio.is-on {
+  border: 6px solid var(--v-emphasis);
+}
+
+/* A segmented choice: hairline box, the current part filled with the track colour. */
+.f-seg {
+  flex: none;
+  display: inline-flex;
+  border: 1px solid var(--muted-foreground);
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 13px;
+}
+
+.f-seg > span {
+  display: grid;
+  place-items: center;
+  min-width: 52px;
+  height: 32px;
+  padding: 0 10px;
+  color: var(--muted-foreground);
+}
+
+.f-seg > span + span {
+  border-left: 1px solid var(--muted-foreground);
+}
+
+.f-seg > .is-on {
+  background: var(--v-progressTrack);
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.f-flag {
+  font-variation-settings:
+    "FILL" 1,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+}
+
+.f-flag-red {
+  color: var(--flag-red);
+}
+.f-flag-orange {
+  color: var(--flag-orange);
+}
+.f-flag-green {
+  color: var(--flag-green);
+}
+.f-flag-blue {
+  color: var(--flag-blue);
+}
+.f-flag-pink {
+  color: var(--flag-pink);
+}
+.f-flag-turquoise {
+  color: var(--flag-turquoise);
+}
+.f-flag-purple {
+  color: var(--flag-purple);
+}
+
+/* ---------- Card browser ---------- */
+
+.f-browse-head {
+  flex: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 6px 12px 8px 20px;
+}
+
+.f-browse-head .appbar-title {
+  font-size: 38px;
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.f-search {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  margin: 0 20px;
+  padding: 0 6px 0 12px;
+  border: 1px solid var(--muted-foreground);
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.f-search .msym {
+  color: var(--muted-foreground);
+}
+
+.f-search-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.f-search-hint {
+  color: var(--muted-foreground);
+}
+
+.f-search.is-focused {
+  border: 2px solid var(--v-emphasis);
+  padding-left: 11px;
+}
+
+.f-caret {
+  display: inline-block;
+  width: 1.5px;
+  height: 1.15em;
+  margin-left: 1px;
+  vertical-align: -0.2em;
+  background: var(--v-emphasis);
+}
+
+.f-chips {
+  flex: none;
+  display: flex;
+  gap: 8px;
+  overflow: hidden;
+  padding: 12px 20px 10px;
+}
+
+.f-chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 34px;
+  padding: 0 8px 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14.5px;
+  white-space: nowrap;
+}
+
+.f-chip .msym {
+  --icon-size: 18px;
+  color: var(--muted-foreground);
+}
+
+.f-chip.is-on {
+  border-color: var(--v-progressTrack);
+  background: var(--v-progressTrack);
+  font-weight: 600;
+}
+
+.f-chip.is-on .msym {
+  color: var(--foreground);
+}
+
+.f-resulthead {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 20px 8px;
+}
+
+.f-resultcount {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.f-sortbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 32px;
+  padding: 0 6px;
+  font-size: 13px;
+}
+
+.f-sortbtn .msym {
+  --icon-size: 18px;
+}
+
+.f-results {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 20px;
+}
+
+.f-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding-block: 9px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.f-row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.f-row-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.f-row-sub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+
+.f-row-sep {
+  padding: 0 0.3em;
+}
+
+.f-row-marks {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.f-row-marks .msym {
+  --icon-size: 19px;
+}
+
+.f-row-mark-muted {
+  color: var(--muted-foreground);
+}
+
+.f-row-status {
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+/* A suspended or buried Card: the title steps back to the muted colour and
+   the state is written out, so it is not told by colour alone. */
+.f-row.is-dim .f-row-title {
+  color: var(--muted-foreground);
+  font-weight: 400;
+}
+
+.f-row.is-selected {
+  margin-inline: -20px;
+  padding-inline: 20px;
+  background: var(--v-progressTrack);
+}
+
+.f-row.is-selected .f-row-sub,
+.f-row.is-selected .f-row-status,
+.f-row.is-selected .f-row-mark-muted {
+  color: var(--foreground);
+}
+
+/* Decision B: today's table of columns, reskinned. */
+.f-table {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding-left: 20px;
+}
+
+.f-table-row {
+  display: grid;
+  grid-template-columns: 4px 112px 76px 70px 140px;
+  align-items: center;
+  column-gap: 10px;
+  min-height: 48px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.f-table-row > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.f-table-head {
+  min-height: 36px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+.f-table-flag {
+  align-self: stretch;
+  margin-block: 8px;
+  border-radius: 2px;
+}
+
+.f-table-flag.f-flag-red {
+  background: var(--flag-red);
+}
+.f-table-flag.f-flag-orange {
+  background: var(--flag-orange);
+}
+.f-table-flag.f-flag-green {
+  background: var(--flag-green);
+}
+.f-table-flag.f-flag-blue {
+  background: var(--flag-blue);
+}
+
+.f-table-row.is-dim {
+  color: var(--muted-foreground);
+}
+
+/* Selection mode */
+.f-selectbar {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  height: 78px;
+  padding-bottom: 16px;
+  border-top: 1px solid var(--rule);
+}
+
+.f-selectbar > span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 12px;
+}
+
+.f-selectbar .msym {
+  display: grid;
+  place-items: center;
+  height: 30px;
+}
+
+/* Menu */
+.f-menu {
+  position: absolute;
+  top: 92px;
+  right: 12px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  min-width: 236px;
+  padding: 6px 0;
+  border: 1px solid var(--muted-foreground);
+  border-radius: 6px;
+  background: var(--background);
+}
+
+.f-menu-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 48px;
+  padding: 0 18px 0 14px;
+  font-size: 16px;
+}
+
+.f-menu-row .msym {
+  color: var(--muted-foreground);
+}
+
+.f-menu-row.is-checked .f-grow {
+  flex: 1;
+}
+
+.f-menu-rule {
+  height: 1px;
+  margin: 6px 0;
+  background: var(--rule);
+}
+
+/* Search page */
+.f-searchpage {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 4px 20px 0;
+}
+
+.f-searchbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 20px 0 6px;
+}
+
+.f-searchbar .f-search {
+  flex: 1;
+  margin: 0;
+}
+
+.f-section {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 16px 0 6px;
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+
+.f-section-action {
+  font-size: 14px;
+  color: var(--v-emphasis);
+}
+
+.f-qrow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 48px;
+  border-top: 1px solid var(--rule);
+}
+
+.f-qrow:last-child {
+  border-bottom: 1px solid var(--rule);
+}
+
+.f-qrow > .msym {
+  color: var(--muted-foreground);
+}
+
+.f-qrow-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding-block: 8px;
+}
+
+.f-qrow-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px;
+}
+
+.f-qrow-sub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+
+.f-qrow-trailing {
+  flex: none;
+  color: var(--muted-foreground);
+}
+
+.f-qrow-trailing.msym {
+  --icon-size: 20px;
+}
+
+.f-query {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Columns page */
+.f-page {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 20px;
+}
+
+.f-lead {
+  padding: 4px 0 14px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+  text-wrap: pretty;
+}
+
+.f-colrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 52px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 16.5px;
+}
+
+.f-colrow .f-grow {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.f-colrow .msym {
+  color: var(--muted-foreground);
+}
+
+.f-colrow .f-colrow-add {
+  color: var(--v-emphasis);
+}
+
+.f-colrow-sub {
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+
+.f-colrow.is-title {
+  font-weight: 500;
+}
+
+.f-tagwrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+/* ---------- Note editor ---------- */
+
+.f-editor {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px;
+}
+
+.f-pickers {
+  flex: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-block: 1px solid var(--rule);
+}
+
+.f-picker {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 60px;
+  padding-block: 8px;
+}
+
+.f-picker + .f-picker {
+  padding-left: 14px;
+  border-left: 1px solid var(--rule);
+}
+
+.f-picker-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.f-picker-label {
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+.f-picker-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.f-picker .msym {
+  --icon-size: 20px;
+  color: var(--muted-foreground);
+}
+
+.f-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-top: 18px;
+}
+
+.f-field-head {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  margin-bottom: -4px;
+}
+
+.f-field-label {
+  flex: 1;
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+
+.f-field-head .f-iconbtn {
+  width: 40px;
+  height: 40px;
+  color: var(--muted-foreground);
+}
+
+.f-field-head .f-iconbtn .msym {
+  --icon-size: 21px;
+}
+
+.f-field-head .f-iconbtn.is-on {
+  color: var(--v-emphasis);
+}
+
+.f-field-head .f-iconbtn.is-on .msym {
+  font-variation-settings:
+    "FILL" 1,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+}
+
+/* A field is text on the page above an underline, like a ruled line; the
+   field with the cursor has a thicker emphasis line. */
+.f-field {
+  min-height: 44px;
+  padding: 6px 0 9px;
+  border-bottom: 1px solid var(--muted-foreground);
+  font-size: 18px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.f-field.is-focused {
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--v-emphasis);
+}
+
+.f-field.is-warning {
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--v-emphasis);
+}
+
+.f-field-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--v-emphasis);
+}
+
+.f-field-note .msym {
+  --icon-size: 17px;
+}
+
+.f-field-note a {
+  margin-left: auto;
+  padding: 4px 0 4px 8px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.f-cloze {
+  color: var(--v-emphasis);
+}
+
+.f-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 56px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.f-meta:first-of-type {
+  margin-top: 22px;
+  border-top: 1px solid var(--rule);
+}
+
+.f-meta > .msym {
+  color: var(--muted-foreground);
+}
+
+.f-meta-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding-block: 8px;
+  font-size: 16px;
+}
+
+.f-meta-label {
+  margin-right: 4px;
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+
+.f-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.f-meta-trailing {
+  flex: none;
+  color: var(--muted-foreground);
+}
+
+.f-meta-trailing.msym {
+  --icon-size: 20px;
+}
+
+/* The formatting toolbar sits on the bottom edge, above the keyboard. */
+.f-toolbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  height: 56px;
+  padding: 0 4px;
+  border-top: 1px solid var(--rule);
+  background: var(--background);
+}
+
+.f-toolbar .f-iconbtn {
+  width: 46px;
+  height: 48px;
+}
+
+.f-toolbar-sep {
+  flex: none;
+  width: 1px;
+  height: 24px;
+  margin: 0 4px;
+  background: var(--rule);
+}
+
+.f-toolbar-custom {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: lining-nums;
+}
+
+.f-toolbar-cloze {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: 46px;
+  height: 48px;
+  padding: 0 6px;
+  color: var(--v-emphasis);
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: lining-nums;
+}
+
+.f-keyboard {
+  flex: none;
+  height: 236px;
+  display: grid;
+  grid-template-rows: repeat(4, 1fr);
+  gap: 8px;
+  padding: 10px 6px 34px;
+  background: color-mix(in srgb, var(--foreground) 7%, var(--background));
+}
+
+.f-keyrow {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.f-keyrow > span {
+  flex: 1;
+  max-width: 32px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--foreground) 13%, var(--background));
+}
+
+.f-keyrow > span.is-wide {
+  max-width: 180px;
+  flex: 5;
+}
+
+.f-bottom-add {
+  flex: none;
+  padding: 10px 20px 12px;
+}
+
+/* ---------- Previewer ---------- */
+
+.f-preview-bar .f-iconbtn {
+  width: 44px;
+}
+
+.f-slider {
+  position: relative;
+  flex: none;
+  height: 20px;
+  margin: 0 16px;
+}
+
+.f-slider-track,
+.f-slider-fill {
+  position: absolute;
+  top: 9px;
+  left: 0;
+  height: 3px;
+  background: var(--v-progressTrack);
+}
+
+.f-slider-track {
+  right: 0;
+}
+
+.f-slider-fill {
+  background: var(--v-progressFill);
+}
+
+.f-slider-thumb {
+  position: absolute;
+  top: 3px;
+  width: 15px;
+  height: 15px;
+  margin-left: -7px;
+  border-radius: 50%;
+  background: var(--v-progressFill);
+}
+
+.f-preview-actions {
+  flex: none;
+  display: flex;
+  gap: 8px;
+  padding: 14px 16px 30px;
+}
+
+.f-preview-actions .f-primary {
+  flex: 1;
+  width: auto;
+}
+
+.f-preview-actions .f-outline-btn {
+  width: 56px;
+  padding: 0;
+}
+
+.f-tabs {
+  flex: none;
+  display: flex;
+  gap: 4px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.f-tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 48px;
+  padding: 0 14px;
+  font-size: 15px;
+  color: var(--muted-foreground);
+}
+
+.f-tab.is-current {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.f-tab.is-current::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -1px;
+  height: 2px;
+  background: var(--v-emphasis);
+}
+
+.f-tab .msym {
+  --icon-size: 17px;
+  color: var(--v-emphasis);
+}
+
+.f-preview-note {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px 0;
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+
+.f-preview-note .msym {
+  --icon-size: 17px;
+  color: var(--v-emphasis);
+}

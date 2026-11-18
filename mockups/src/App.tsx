@@ -10,6 +10,7 @@ import {
   type StudyBarStyle,
   type Theme,
 } from "@/mock/data"
+import { FindBoard } from "@/mock/find/boards"
 import { IdentityBoard } from "@/mock/identity"
 import {
   DeckListScreen,
@@ -416,9 +417,11 @@ export function App() {
   const identity = params.has("identity")
   const core = params.get("core") as CoreKey | "overview" | null
   const decide = params.get("decide") as DecisionKey | null
+  const find = params.get("find")
 
   let board
   if (identity) board = <IdentityBoard />
+  else if (find) board = <FindBoard which={find} lang={lang} />
   else if (core === "overview") board = <CoreOverview lang={lang} />
   else if (core) board = <CoreThemeBoard k={core} lang={lang} />
   else if (decide) board = <DecisionBoard which={decide} />

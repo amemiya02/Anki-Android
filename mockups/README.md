@@ -21,6 +21,11 @@ npm run dev
   shows one in Light, Dark and Black, and `/?decide=counts` (or `studybar`,
   `buttons`) shows a decision the owner makes. The surfaces are listed in
   `docs/redesign/core-loop/README.md`.
+- `/?find=overview&lang=en` shows every finding-and-adding surface (card browser, note
+  editor, previewer); `/?find=<surface>&lang=zh` shows one in Light, Dark and Black, and
+  `/?find=decide-rows` (or `decide-search`, `decide-save`) shows a decision. The surfaces
+  are listed in `docs/redesign/finding-and-adding/README.md`; their extra colour pairings
+  (the proposed flag colours) are checked by `node scripts/check-find-contrast.mjs`.
 
 The chosen Direction, Quiet paper, takes its colours from
 `docs/redesign/quiet-paper.values.json`. Check every colour pairing in that
@@ -31,4 +36,5 @@ node scripts/check-contrast.mjs
 ```
 
 Captured pictures are in `docs/redesign/directions/`,
-`docs/redesign/quiet-paper/` and `docs/redesign/core-loop/`.
+`docs/redesign/quiet-paper/`, `docs/redesign/core-loop/` and
+`docs/redesign/finding-and-adding/`.
