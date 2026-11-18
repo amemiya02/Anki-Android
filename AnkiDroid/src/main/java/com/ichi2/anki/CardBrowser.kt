@@ -5,6 +5,7 @@
 
 package com.ichi2.anki
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.KeyEvent
@@ -12,16 +13,21 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
+import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
+import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import anki.collection.OpChanges
@@ -50,7 +56,6 @@ import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.common.utils.ext.getLongExtra
 import com.ichi2.anki.common.utils.ext.onPermanentDismissal
-import com.ichi2.anki.databinding.ActivityCardBrowserBinding
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.dialogs.SavedBrowserSearchesDialogFragment
 import com.ichi2.anki.dialogs.registerDeckSelectedHandler
@@ -67,7 +72,9 @@ import com.ichi2.anki.scheduling.registerOnForgetHandler
 import com.ichi2.anki.settings.uiConfigPrefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.startup.ensureStorageIsReady
+import com.ichi2.anki.ui.ResizablePaneLayout
 import com.ichi2.anki.ui.ResizablePaneManager
+import com.ichi2.anki.ui.ResizingDivider
 import com.ichi2.anki.utils.ext.addPrepareMenuProvider
 import com.ichi2.anki.utils.ext.collectInLifecycle
 import com.ichi2.anki.utils.ext.onAllFragmentsLoaded
@@ -93,7 +100,7 @@ open class CardBrowser :
 
     lateinit var viewModel: CardBrowserViewModel
 
-    private var binding: ActivityCardBrowserBinding? = null
+    private var binding: StandaloneBrowserLayout? = null
 
     lateinit var cardBrowserFragment: CardBrowserFragment
 
@@ -139,7 +146,7 @@ open class CardBrowser :
             // the status bar sits over the app bar, which is the page colour
             statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme },
         )
-        val contentBinding = ActivityCardBrowserBinding.inflate(layoutInflater).also { binding = it }
+        val contentBinding = StandaloneBrowserLayout(this).also { binding = it }
         if (!ensureStorageIsReady()) {
             return
         }
@@ -150,7 +157,7 @@ open class CardBrowser :
 
         val launchOptions = intent?.toCardBrowserLaunchOptions() // must be called after super.onCreate()
 
-        setViewBinding(contentBinding)
+        setDrawerContent(contentBinding.root)
         initNavigationDrawer(findViewById(android.R.id.content))
         applyToolbarInsets()
 
@@ -462,6 +469,41 @@ open class CardBrowser :
 
         // Values related to persistent state data
         fun clearLastDeckId() = SharedPreferencesLastDeckIdRepository.clearLastDeckId()
+    }
+}
+
+private class StandaloneBrowserLayout(context: Context) {
+    val root = CoordinatorLayout(context).apply { id = R.id.root_layout }
+    val cardBrowserFrame = FragmentContainerView(context).apply { id = R.id.card_browser_frame }
+    val noteEditorFrame: FragmentContainerView?
+    val cardBrowserXlView: ResizablePaneLayout?
+    val cardBrowserResizingDivider: ResizingDivider?
+
+    init {
+        if (context.resources.getBoolean(R.bool.bottom_navigation_available)) {
+            root.addView(cardBrowserFrame, MATCH_PARENT, MATCH_PARENT)
+            noteEditorFrame = null
+            cardBrowserXlView = null
+            cardBrowserResizingDivider = null
+        } else {
+            val column = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
+            column.addView(createAppToolbar(context, R.style.ActionBarStyle_Browser), MATCH_PARENT, WRAP_CONTENT)
+            val panes =
+                ResizablePaneLayout(context).apply {
+                    id = R.id.card_browser_xl_view
+                    orientation = LinearLayout.HORIZONTAL
+                }
+            val divider = ResizingDivider(context).apply { id = R.id.card_browser_resizing_divider }
+            val editor = FragmentContainerView(context).apply { id = R.id.note_editor_frame }
+            panes.addView(cardBrowserFrame, LinearLayout.LayoutParams(0, MATCH_PARENT, 3f))
+            panes.addView(divider, context.layoutDp(8), MATCH_PARENT)
+            panes.addView(editor, LinearLayout.LayoutParams(0, MATCH_PARENT, 2f))
+            column.addView(panes, MATCH_PARENT, MATCH_PARENT)
+            root.addView(column, MATCH_PARENT, MATCH_PARENT)
+            noteEditorFrame = editor
+            cardBrowserXlView = panes
+            cardBrowserResizingDivider = divider
+        }
     }
 }
 

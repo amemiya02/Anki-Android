@@ -5,14 +5,19 @@ package com.ichi2.anki
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.Canvas
 import android.os.Bundle
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.KeyEvent
-import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.FrameLayout
+import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CallSuper
@@ -22,7 +27,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
@@ -97,64 +101,65 @@ abstract class NavigationDrawerActivity(
             }
         }
 
-    override fun setViewBinding(binding: ViewBinding) {
-        val preferences = baseContext.sharedPrefs()
+    override fun setViewBinding(binding: ViewBinding) = setDrawerContent(binding.root)
 
-        // Using ClosableDrawerLayout as a parent view.
-        val closableDrawerLayout =
-            LayoutInflater.from(this).inflate(
-                navigationDrawerLayout,
-                null,
-                false,
-            ) as ClosableDrawerLayout
+    override fun setContentView(@LayoutRes layoutResID: Int) = setDrawerContent(layoutInflater.inflate(layoutResID, null))
 
-        val coordinatorLayout = binding.root
-        if (hasNavigationDrawer && preferences.getBoolean(PREF_FULL_SCREEN_NAVIGATION_DRAWER, false)) {
-            // If full screen navigation drawer is needed, then add FullDraggableContainer as a child view of closableDrawerLayout.
-            // Then add coordinatorLayout as a child view of fullDraggableContainer.
-            val fullDraggableContainer = FullDraggableContainerFix(this)
-            fullDraggableContainer.addView(coordinatorLayout)
-            closableDrawerLayout.addView(fullDraggableContainer, 0)
-        } else {
-            // If full screen navigation drawer is not needed, then directly add coordinatorLayout as the child view.
-            closableDrawerLayout.addView(coordinatorLayout, 0)
+    protected fun setDrawerContent(view: View) {
+        val drawer =
+            ClosableDrawerLayout(this).apply {
+                id = R.id.drawer_layout
+                fitsSystemWindows = this@NavigationDrawerActivity.fitsSystemWindows()
+            }
+
+        val fullScreenDrawer = hasNavigationDrawer && baseContext.sharedPrefs().getBoolean(PREF_FULL_SCREEN_NAVIGATION_DRAWER, false)
+        val content =
+            if (fullScreenDrawer) {
+                FullDraggableContainerFix(this).apply { addView(view, MATCH_PARENT, MATCH_PARENT) }
+            } else {
+                view
+            }
+        drawer.addView(content, DrawerLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+        if (hasNavigationDrawer) {
+            val navigation = createNavigationView()
+            val width = resources.getDimensionPixelSize(R.dimen.nav_drawer_width)
+            drawer.addView(navigation, DrawerLayout.LayoutParams(width, MATCH_PARENT).apply { gravity = GravityCompat.START })
         }
-        setContentView(closableDrawerLayout)
+        setContentView(drawer)
     }
 
-    override fun setContentView(
-        @LayoutRes layoutResID: Int,
-    ) {
-        val preferences = baseContext.sharedPrefs()
-
-        // Using ClosableDrawerLayout as a parent view.
-        val closableDrawerLayout =
-            LayoutInflater.from(this).inflate(
-                navigationDrawerLayout,
-                null,
-                false,
-            ) as ClosableDrawerLayout
-        // Get CoordinatorLayout using resource ID
-        val coordinatorLayout =
-            LayoutInflater
-                .from(this)
-                .inflate(layoutResID, closableDrawerLayout, false) as CoordinatorLayout
-        if (hasNavigationDrawer && preferences.getBoolean(PREF_FULL_SCREEN_NAVIGATION_DRAWER, false)) {
-            // If full screen navigation drawer is needed, then add FullDraggableContainer as a child view of closableDrawerLayout.
-            // Then add coordinatorLayout as a child view of fullDraggableContainer.
-            val fullDraggableContainer = FullDraggableContainerFix(this)
-            fullDraggableContainer.addView(coordinatorLayout)
-            closableDrawerLayout.addView(fullDraggableContainer, 0)
-        } else {
-            // If full screen navigation drawer is not needed, then directly add coordinatorLayout as the child view.
-            closableDrawerLayout.addView(coordinatorLayout, 0)
+    private fun createNavigationView(): NavigationView =
+        NavigationView(this).apply {
+            id = R.id.navdrawer_items_container
+            itemMaxLines = 2
+            val color = TypedValue()
+            if (context.theme.resolveAttribute(CommonR.attr.navDrawerItemColor, color, true)) {
+                val tint =
+                    if (color.resourceId != 0) AppCompatResources.getColorStateList(context, color.resourceId)
+                    else ColorStateList.valueOf(color.data)
+                itemIconTintList = tint
+                itemTextColor = tint
+            }
+            val background = TypedValue()
+            if (context.theme.resolveAttribute(CommonR.attr.navDrawerItemBackground, background, true) && background.resourceId != 0) {
+                itemBackground = AppCompatResources.getDrawable(context, background.resourceId)
+            }
+            inflateMenu(R.menu.navigation_drawer)
+            addHeaderView(
+                FrameLayout(context).apply {
+                    val margin = resources.getDimensionPixelSize(CommonR.dimen.foundation_spacing_screen_margin)
+                    val top = resources.getDimensionPixelSize(CommonR.dimen.foundation_space_24)
+                    val bottom = resources.getDimensionPixelSize(CommonR.dimen.foundation_space_8)
+                    setPadding(margin, top, margin, bottom)
+                    val mark = ImageView(context).apply {
+                        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                        setImageResource(R.drawable.hayaki_mark)
+                    }
+                    val size = context.layoutDp(72)
+                    addView(mark, FrameLayout.LayoutParams(size, size).apply { gravity = Gravity.START })
+                },
+            )
         }
-        setContentView(closableDrawerLayout)
-    }
-
-    @get:LayoutRes
-    private val navigationDrawerLayout: Int
-        get() = if (fitsSystemWindows()) R.layout.activity_navigation_drawer else R.layout.activity_navigation_drawer_fullscreen
 
     /** Whether android:fitsSystemWindows="true" should be applied to the navigation drawer  */
     protected open fun fitsSystemWindows(): Boolean = true

@@ -101,4 +101,32 @@
     <item type="id" name="previewer_frame"/>
     <item type="id" name="previewer_frame_layout"/>
     <item type="id" name="toolbar_layout_dialog"/>
+    <item type="id" name="add_deck_button"/>
+    <item type="id" name="add_filtered_deck_button"/>
+    <item type="id" name="add_shared_button"/>
+    <item type="id" name="background"/>
+    <item type="id" name="bottom_navigation"/>
+    <item type="id" name="card_browser_frame"/>
+    <item type="id" name="card_browser_resizing_divider"/>
+    <item type="id" name="card_browser_xl_view"/>
+    <item type="id" name="deck_list"/>
+    <item type="id" name="deck_picker_content"/>
+    <item type="id" name="deck_picker_content_wrapper"/>
+    <item type="id" name="deck_picker_pane"/>
+    <item type="id" name="deckpicker_view"/>
+    <item type="id" name="deckpicker_xl_view"/>
+    <item type="id" name="drawer_layout"/>
+    <item type="id" name="fabBGLayout"/>
+    <item type="id" name="fabLinearLayout"/>
+    <item type="id" name="fab_main"/>
+    <item type="id" name="floating_action_button"/>
+    <item type="id" name="navdrawer_items_container"/>
+    <item type="id" name="note_editor_frame"/>
+    <item type="id" name="progress_bar"/>
+    <item type="id" name="pull_to_sync_wrapper"/>
+    <item type="id" name="resizing_divider"/>
+    <item type="id" name="root_layout"/>
+    <item type="id" name="studyoptions_fragment"/>
+    <item type="id" name="toolbar"/>
+    <item type="id" name="toolbar_container"/>
 </resources>

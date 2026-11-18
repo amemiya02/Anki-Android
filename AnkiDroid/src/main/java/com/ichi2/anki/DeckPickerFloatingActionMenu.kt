@@ -18,22 +18,20 @@ import com.google.android.material.color.MaterialColors
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.common.android.animationEnabled
-import com.ichi2.anki.databinding.ActivityHomescreenBinding
-import com.ichi2.anki.databinding.IncludeFloatingAddButtonBinding
 import com.ichi2.anki.ui.DoubleTapListener
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import timber.log.Timber
 import com.ichi2.anki.common.android.R as CommonR
 
-class DeckPickerFloatingActionMenu(
+class DeckPickerFloatingActionMenu internal constructor(
     private val context: Context,
-    homescreenBinding: ActivityHomescreenBinding,
+    homescreenBinding: DeckPickerLayout,
     private val deckPicker: DeckPicker,
     private val toggleListener: FloatingActionBarToggleListener,
     initiallyOpen: Boolean,
 ) {
     // TODO: refactor this to decouple with Homescreen & DeckPicker
-    private val binding: IncludeFloatingAddButtonBinding = homescreenBinding.deckPickerPane.floatingActionButton
+    private val binding: AddMenuLayout = homescreenBinding.deckPickerPane.floatingActionButton
     private val extendedFabHorizontalPadding = binding.fabMain.paddingStart + binding.fabMain.paddingEnd
 
     /** Layout deck_picker.xml is attached here */

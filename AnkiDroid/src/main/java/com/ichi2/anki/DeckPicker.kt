@@ -140,9 +140,6 @@ import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.compat.CompatHelper.Companion.compat
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
 import com.ichi2.anki.contextmenu.DeckPickerMenuContentProvider
-import com.ichi2.anki.databinding.ActivityHomescreenBinding
-import com.ichi2.anki.databinding.IncludeDeckPickerBinding
-import com.ichi2.anki.databinding.IncludeFloatingAddButtonBinding
 import com.ichi2.anki.deckpicker.BackgroundImage
 import com.ichi2.anki.deckpicker.DeckDeletionResult
 import com.ichi2.anki.deckpicker.DeckListActions
@@ -316,15 +313,15 @@ open class DeckPicker :
 
     private val importViewModel: ImportViewModel by viewModels()
 
-    internal lateinit var binding: ActivityHomescreenBinding
+    internal lateinit var binding: DeckPickerLayout
         private set
 
     @VisibleForTesting
-    internal val deckPickerBinding: IncludeDeckPickerBinding
+    internal val deckPickerBinding: DeckListLayout
         get() = binding.deckPickerPane
 
     @VisibleForTesting
-    val floatingActionButtonBinding: IncludeFloatingAddButtonBinding
+    val floatingActionButtonBinding: AddMenuLayout
         get() = deckPickerBinding.floatingActionButton
     override var fragmented: Boolean
         get() = binding.studyoptionsFragment != null
@@ -586,7 +583,7 @@ open class DeckPicker :
             navigationBarStyle = BottomFadeFrameLayout.navigationBarStyle(this),
         )
 
-        binding = ActivityHomescreenBinding.inflate(layoutInflater)
+        binding = DeckPickerLayout(this)
 
         awaitingWelcome = !hasShownAppIntro() && AnkiDroidApp.fatalError == null
         pendingEntry = savedInstanceState?.let { BundleCompat.getParcelable(it, STATE_PENDING_ENTRY, Intent::class.java) }
@@ -596,7 +593,7 @@ open class DeckPicker :
             syncOnResume = true
         }
 
-        setViewBinding(binding)
+        setDrawerContent(binding.root)
         if (!fragmented) {
             // On recreation into this single-pane layout (e.g. a foldable changing form
             // factor), saved state can still hold the split-pane's side panel fragment.
@@ -2262,7 +2259,7 @@ open class DeckPicker :
     /**
      * Displays [StudyOptionsFragment] in a side panel on larger devices
      *
-     * @see [ActivityHomescreenBinding.studyoptionsFragment]
+     * @see [DeckPickerLayout.studyoptionsFragment]
      *
      * @return whether the panel was shown
      */
@@ -2775,7 +2772,7 @@ class CollectionLoadingErrorDialog :
     override fun toMessage() = emptyMessage(this.what)
 }
 
-val ActivityHomescreenBinding.studyoptionsFrame: FragmentContainerView?
+internal val DeckPickerLayout.studyoptionsFrame: FragmentContainerView?
     get() = studyoptionsFragment
 
 private fun Context.progressMessage(progress: DeckPickerProgress): String =

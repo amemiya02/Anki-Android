@@ -72,7 +72,6 @@ import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.crashreporting.CrashReporter
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
-import com.ichi2.anki.databinding.ActivityHomescreenBinding
 import com.ichi2.anki.deckpicker.DeckFilters
 import com.ichi2.anki.deckpicker.DeckPickerViewModel
 import com.ichi2.anki.deckpicker.SyncIconState
@@ -1656,7 +1655,7 @@ class DeckPickerTest : RobolectricTest() {
                 assertThat(hasNavigationDrawer, equalTo(true))
                 assertThat(bottomNavigationEnabled, equalTo(false))
                 assertThat(resources.getBoolean(R.bool.bottom_navigation_available), equalTo(false))
-                val bottomNavigation = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation
+                val bottomNavigation = binding.bottomNavigation
                 assertThat(bottomNavigation, nullValue())
             }
         }
@@ -1680,7 +1679,7 @@ class DeckPickerTest : RobolectricTest() {
         withBottomNavigationEnabled {
             assumeTrue("Not running on tablet", qualifiers != "xlarge")
             deckPicker {
-                val menu = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation!!.menu
+                val menu = binding.bottomNavigation!!.menu
                 assertThat(menu.findItem(R.id.nav_home)?.title.toString(), equalTo("Decks"))
                 assertThat(menu.findItem(R.id.nav_browser)?.title.toString(), equalTo("Browse"))
                 assertThat(menu.findItem(R.id.nav_stats)?.title.toString(), equalTo("Stats"))
@@ -1693,7 +1692,7 @@ class DeckPickerTest : RobolectricTest() {
         withBottomNavigationEnabled {
             assumeTrue("Not running on tablet", qualifiers != "xlarge")
             deckPicker {
-                val bottomNav = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation!!
+                val bottomNav = binding.bottomNavigation!!
                 val shortcuts =
                     listOf(
                         KeyEvent.KEYCODE_1 to BottomNavController.NavigationItem.HOME,
@@ -1717,7 +1716,7 @@ class DeckPickerTest : RobolectricTest() {
         withBottomNavigationEnabled {
             assumeTrue("Not running on tablet", qualifiers != "xlarge")
             deckPicker {
-                val bottomNav = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation!!
+                val bottomNav = binding.bottomNavigation!!
                 val longTitle = "Statistikenübersicht"
 
                 bottomNav.menu.findItem(R.id.nav_stats).title = longTitle
