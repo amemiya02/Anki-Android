@@ -863,6 +863,26 @@ class DeckPickerTest : RobolectricTest() {
     }
 
     @Test
+    fun `deck search keeps a visible field when the menu is refreshed`() {
+        addBasicNote()
+        repeat(10) { addDeck("Test Deck $it") }
+
+        deckPicker {
+            assertTrue(menu().findItem(R.id.deck_picker_action_filter).expandActionView())
+            composeRule.waitUntil(10_000) { searchView.isAttachedToWindow }
+            searchView.setQuery("Test Deck 1", false)
+            advanceRobolectricLooperUntil { visibleDeckCount == 1 }
+
+            invalidateOptionsMenu()
+
+            composeRule.waitUntil(10_000) { searchView.isAttachedToWindow }
+            assertEquals("Test Deck 1", searchView.query.toString())
+            searchView.setQuery("", false)
+            advanceRobolectricLooperUntil { visibleDeckCount == 11 }
+        }
+    }
+
+    @Test
     fun `deck search query is restored after recreation`() {
         addBasicNote()
         repeat(10) { addDeck("Test Deck $it") }

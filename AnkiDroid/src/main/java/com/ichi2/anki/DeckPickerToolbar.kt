@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -110,13 +111,15 @@ internal fun DeckPickerToolbar(
             }
         }
         if (search != null) {
-            AndroidView(
-                factory = {
-                    (search.parent as? ViewGroup)?.removeView(search)
-                    search
-                },
-                modifier = Modifier.weight(1f),
-            )
+            key(search) {
+                AndroidView(
+                    factory = {
+                        (search.parent as? ViewGroup)?.removeView(search)
+                        search
+                    },
+                    modifier = Modifier.weight(1f),
+                )
+            }
         } else {
             Box(Modifier.weight(1f).padding(start = if (onNavigate == null) 16.dp else 4.dp)) { title() }
         }
