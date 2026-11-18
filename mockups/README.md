@@ -26,6 +26,11 @@ npm run dev
   `/?find=decide-rows` (or `decide-search`, `decide-save`) shows a decision. The surfaces
   are listed in `docs/redesign/finding-and-adding/README.md`; their extra colour pairings
   (the proposed flag colours) are checked by `node scripts/check-find-contrast.mjs`.
+- `/?rest=overview&lang=en` shows every surface of the rest of the app (Note Types,
+  the Card Template editor, sync, first run, widgets, notifications);
+  `/?rest=<surface>&lang=zh` shows one in Light, Dark and Black, and
+  `/?rest=decide-note-types` (or `decide-sync`, `decide-welcome`) a decision. The
+  surfaces are listed in `docs/redesign/the-rest/README.md`.
 
 The chosen Direction, Quiet paper, takes its colours from
 `docs/redesign/quiet-paper.values.json`. Check every colour pairing in that
@@ -37,4 +42,5 @@ node scripts/check-contrast.mjs
 
 Captured pictures are in `docs/redesign/directions/`,
 `docs/redesign/quiet-paper/`, `docs/redesign/core-loop/` and
-`docs/redesign/finding-and-adding/`.
+`docs/redesign/finding-and-adding/`, `docs/redesign/settings-and-dialogs/` and
+`docs/redesign/the-rest/`.

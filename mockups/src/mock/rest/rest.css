@@ -1,0 +1,1493 @@
+/*
+ * The rest of the app (ticket 41), in Quiet paper.
+ *
+ * Every colour is one of the design values (--v-*, from
+ * docs/redesign/quiet-paper.values.json) except what Android itself draws
+ * around the app: the scrim, the keyboard, the notification shade and the
+ * wallpaper. Those are marked "system" below.
+ *
+ * Sizes are in px, where 1px stands for 1dp, as in ../phone.css.
+ */
+
+.rest {
+  display: contents;
+}
+
+/* ---------- Bars and titles ---------- */
+
+.r-iconbtn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  color: var(--v-onBackground);
+}
+
+.r-pagehead {
+  flex: none;
+  padding: 2px 8px 0;
+}
+
+.r-pagehead-bar {
+  display: flex;
+  align-items: center;
+}
+
+.r-spacer {
+  flex: 1;
+}
+
+.r-pagetitle {
+  margin: 6px 12px 0;
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.r-pagetitle-tight {
+  margin: 0;
+}
+
+.r-lead {
+  margin: 8px 12px 4px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--v-onBackgroundMuted);
+  text-wrap: pretty;
+}
+
+.r-lead-flush {
+  margin: 0;
+}
+
+.r-compact {
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: 2px 4px 4px;
+}
+
+.r-compact-titles {
+  flex: 1;
+  min-width: 0;
+  padding: 0 4px;
+}
+
+.r-compact-title,
+.r-compact-sub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.r-compact-title {
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.r-compact-sub,
+.r-caption {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--v-onBackgroundMuted);
+}
+
+.r-overline {
+  font-size: 12px;
+  color: var(--v-onBackgroundMuted);
+}
+
+.r-nt-head {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 20px 4px;
+}
+
+.r-pad {
+  padding: 0 20px;
+}
+
+.r-foot {
+  margin: 14px 0 4px;
+  text-wrap: pretty;
+}
+
+/* A page that scrolls: its last visible line fades, so it reads as more. */
+.r-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 20px;
+  mask-image: linear-gradient(to bottom, black calc(100% - 48px), transparent);
+}
+
+.r-scroll-pad {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.r-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  margin-top: 14px;
+}
+
+.r-section h2 {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--v-onBackgroundMuted);
+}
+
+/* ---------- Rows ---------- */
+
+.r-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--v-outline);
+}
+
+.r-list-page {
+  margin: 12px 20px 0;
+}
+
+.r-list-sheet {
+  margin-top: 4px;
+}
+
+.r-gap {
+  margin-top: 4px;
+}
+
+.r-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 56px;
+  padding-block: 8px;
+  border-bottom: 1px solid var(--v-outline);
+}
+
+.r-list-dense .r-row {
+  min-height: 48px;
+  padding-block: 4px;
+}
+
+.r-row-icon,
+.r-row-trailing {
+  flex: none;
+  display: grid;
+  place-items: center;
+}
+
+.r-row-trailing {
+  color: var(--v-onBackgroundMuted);
+}
+
+.r-row-trailing > .msym {
+  --icon-size: 20px;
+}
+
+.r-row-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+}
+
+.r-row-title {
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.r-row-sub {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--v-onBackgroundMuted);
+  text-wrap: pretty;
+}
+
+.r-row-value {
+  flex: none;
+  font-size: 15px;
+  color: var(--v-onBackgroundMuted);
+}
+
+.r-row-emphasis .r-row-title,
+.r-row-emphasis .r-row-icon,
+.r-row-emphasis .r-handle {
+  color: var(--v-emphasis);
+}
+
+.r-row-buttons {
+  display: flex;
+  margin-inline-end: -12px;
+  color: var(--v-onBackground);
+}
+
+.r-handle {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  margin-inline-start: -4px;
+  color: var(--v-onBackgroundMuted);
+}
+
+.r-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--v-onBackground);
+}
+
+.r-tag .msym {
+  --icon-size: 15px;
+}
+
+/* A switch: the track carries the state, so it is a mark at 3:1. */
+.r-switch {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 26px;
+  border: 1.5px solid var(--v-onBackgroundMuted);
+  border-radius: 999px;
+}
+
+.r-switch::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--v-onBackgroundMuted);
+}
+
+.r-switch.is-on {
+  border-color: var(--v-primary);
+  background: var(--v-primary);
+}
+
+.r-switch.is-on::after {
+  left: 22px;
+  background: var(--v-onPrimary);
+}
+
+/* ---------- Buttons ---------- */
+
+.r-primary,
+.r-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 56px;
+  padding: 0 16px;
+  border-radius: 6px;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.r-primary {
+  background: var(--v-primary);
+  color: var(--v-onPrimary);
+}
+
+.r-primary-small {
+  width: auto;
+  min-height: 48px;
+  font-size: 16px;
+}
+
+.r-secondary {
+  min-height: 52px;
+  border: 1px solid var(--v-outline);
+  color: var(--v-emphasis);
+}
+
+.r-textbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 48px;
+  padding: 0 4px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--v-emphasis);
+}
+
+.r-textbtn .msym {
+  --icon-size: 20px;
+}
+
+.r-fab {
+  position: absolute;
+  right: 20px;
+  bottom: 36px;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--v-primary);
+  color: var(--v-onPrimary);
+  box-shadow: 0 8px 18px -8px rgb(120 44 26 / 0.55);
+}
+
+.r-bottom {
+  flex: none;
+  margin-top: auto;
+  padding: 12px 20px 30px;
+}
+
+/* ---------- Sheets and dialogs ---------- */
+
+/* system: Android dims what is behind a sheet or dialog */
+.r-scrim {
+  position: absolute;
+  z-index: 10;
+  inset: 0;
+  background: rgb(0 0 0 / 0.38);
+}
+
+[data-theme="dark"] .r-scrim,
+[data-theme="black"] .r-scrim {
+  background: rgb(0 0 0 / 0.62);
+}
+
+.r-sheet {
+  position: absolute;
+  z-index: 11;
+  inset: auto 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 88%;
+  padding: 10px 20px 30px;
+  border-top: 1px solid var(--v-outline);
+  border-radius: 16px 16px 0 0;
+  background: var(--v-background);
+}
+
+.r-sheet-handle {
+  align-self: center;
+  width: 32px;
+  height: 4px;
+  margin-bottom: 4px;
+  border-radius: 2px;
+  background: var(--v-outline);
+}
+
+.r-sheet-title {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.r-sheet-sub {
+  margin-top: -6px;
+  font-size: 15px;
+  color: var(--v-onBackgroundMuted);
+}
+
+.r-sheet-label {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--v-onBackgroundMuted);
+}
+
+.r-sheet-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.r-dialog {
+  position: absolute;
+  z-index: 11;
+  top: 50%;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px 20px 12px;
+  border: 1px solid var(--v-outline);
+  border-radius: 8px;
+  background: var(--v-background);
+  translate: 0 -50%;
+}
+
+.r-dialog-mark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--v-outline);
+  border-radius: 50%;
+  color: var(--v-emphasis);
+}
+
+.r-dialog-title {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.r-dialog-body {
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.r-dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.r-list-dialog .r-row-sub {
+  line-height: 1.5;
+}
+
+/* ---------- Choices and fields ---------- */
+
+.r-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.r-choice {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--v-outline);
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+.r-choice.is-on {
+  border: 1.5px solid var(--v-onBackground);
+  font-weight: 600;
+}
+
+.r-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.r-field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--v-onBackgroundMuted);
+}
+
+.r-field-box {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 1px solid var(--v-onBackgroundMuted);
+  border-radius: 6px;
+  font-size: 17px;
+}
+
+.r-field-box.is-focused {
+  border: 2px solid var(--v-onBackground);
+  padding: 0 13px;
+}
+
+.r-field-end {
+  margin-inline-start: auto;
+  color: var(--v-onBackgroundMuted);
+}
+
+.r-field-help {
+  font-size: 13px;
+  color: var(--v-onBackgroundMuted);
+  text-wrap: pretty;
+}
+
+.r-dots {
+  letter-spacing: 0.08em;
+}
+
+.r-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.2em;
+  margin-inline-start: 1px;
+  background: var(--v-emphasis);
+  vertical-align: middle;
+}
+
+.r-form {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 10px 20px 0;
+}
+
+.r-steps {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--v-onBackgroundMuted);
+}
+
+.r-step {
+  width: 22px;
+  height: 3px;
+  background: var(--v-progressTrack);
+}
+
+.r-step.is-on {
+  background: var(--v-progressFill);
+}
+
+.r-steps span:last-child {
+  margin-inline-start: 6px;
+}
+
+.r-server {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--v-outline);
+  font-size: 15px;
+}
+
+.r-server .r-textbtn {
+  margin-inline-start: auto;
+  font-size: 15px;
+}
+
+/* ---------- Card Template editor ---------- */
+
+.r-tabs {
+  flex: none;
+  display: flex;
+  gap: 22px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--v-outline);
+}
+
+.r-tab {
+  position: relative;
+  padding: 10px 0 11px;
+  font-size: 15px;
+  color: var(--v-onBackgroundMuted);
+}
+
+.r-tab.is-current {
+  font-weight: 600;
+  color: var(--v-onBackground);
+}
+
+.r-tab.is-current::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 2px;
+  background: var(--v-emphasis);
+}
+
+.r-segments {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 12px 16px 8px;
+  border: 1px solid var(--v-outline);
+  border-radius: 6px;
+}
+
+.r-segment {
+  display: grid;
+  place-items: center;
+  min-height: 40px;
+  font-size: 14px;
+  color: var(--v-onBackgroundMuted);
+}
+
+.r-segment + .r-segment {
+  border-inline-start: 1px solid var(--v-outline);
+}
+
+.r-segment.is-current {
+  background: var(--v-onBackground);
+  color: var(--v-background);
+  font-weight: 600;
+}
+
+/* The template code, in the device's monospace face (IBM Plex Mono stands
+   in for it here). */
+.r-code {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 6px 12px 0 4px;
+  font:
+    13px/1.65 "IBM Plex Mono",
+    ui-monospace,
+    monospace;
+}
+
+.r-code-line {
+  display: flex;
+}
+
+.r-code-no {
+  flex: none;
+  width: 30px;
+  padding-inline-end: 10px;
+  text-align: end;
+  color: var(--v-onBackgroundMuted);
+}
+
+.r-code-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.r-code-field {
+  color: var(--v-emphasis);
+  font-weight: 600;
+}
+
+.r-insert {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0 8px 16px;
+  border-top: 1px solid var(--v-outline);
+  overflow: hidden;
+}
+
+.r-insert-label {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--v-onBackgroundMuted);
+}
+
+.r-insert-label .msym {
+  --icon-size: 18px;
+}
+
+.r-chips {
+  display: flex;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.r-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--v-outline);
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* system: Android's keyboard */
+.r-keyboard {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 4px 30px;
+  background: #e4e1dc;
+  font:
+    17px/1 system-ui,
+    sans-serif;
+  color: #1d1b18;
+}
+
+[data-theme="dark"] .r-keyboard,
+[data-theme="black"] .r-keyboard {
+  background: #26241f;
+  color: #ece5d8;
+}
+
+.r-keyrow {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.r-key {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 40px;
+  border-radius: 5px;
+  background: rgb(255 255 255 / 0.75);
+}
+
+[data-theme="dark"] .r-key,
+[data-theme="black"] .r-key {
+  background: rgb(255 255 255 / 0.1);
+}
+
+.r-key-wide {
+  width: 58px;
+  font-size: 14px;
+}
+
+.r-key-space {
+  width: 190px;
+}
+
+/* The previewer: Card Content as its Card Template styles it. */
+.r-sheetcard {
+  flex: 1;
+  min-height: 0;
+  margin: 14px 16px 0;
+  border: 1px solid var(--v-outline);
+  border-radius: 4px;
+  background: var(--v-cardSheet);
+  color: var(--v-onCardSheet);
+}
+
+.r-cardcontent {
+  padding: 40px 20px;
+  font:
+    22px/1.4 "Klee One",
+    serif;
+  text-align: center;
+}
+
+.r-cardcontent hr {
+  margin: 18px 0;
+  border: 0;
+  border-top: 1px solid var(--v-cardSheetRule);
+}
+
+.r-cc-expression {
+  font-size: 44px;
+}
+
+.r-cc-meaning {
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+}
+
+.r-preview-note {
+  padding: 10px 20px 0;
+  font-size: 13px;
+  color: var(--v-onBackgroundMuted);
+}
+
+/* ---------- Sync ---------- */
+
+.r-status {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.r-status-mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--v-outline);
+  border-radius: 50%;
+  color: var(--v-emphasis);
+}
+
+.r-status-mark .msym {
+  --icon-size: 28px;
+}
+
+.r-status-text {
+  min-width: 0;
+}
+
+.r-status-user {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.r-scroll-pad .r-section {
+  margin-top: 4px;
+  min-height: 24px;
+}
+
+.r-scroll-pad .r-section + .r-list {
+  margin-top: -6px;
+}
+
+/* ---------- First run ---------- */
+
+.r-welcome {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 40px 20px 0;
+}
+
+.r-mark {
+  margin-inline-start: -8px;
+}
+
+.r-welcome-title {
+  font-size: 38px;
+  font-weight: 500;
+  line-height: 1.15;
+  white-space: pre-line;
+}
+
+.r-welcome .r-list {
+  margin-top: -4px;
+}
+
+.r-welcome .r-textbtn {
+  align-self: flex-start;
+}
+
+.r-welcome-foot {
+  flex: none;
+  padding: 0 20px 34px;
+  font-size: 13px;
+  color: var(--v-onBackgroundMuted);
+}
+
+.r-howto {
+  display: flex;
+  flex-direction: column;
+  margin: 20px 20px 0;
+  border-top: 1px solid var(--v-outline);
+}
+
+.r-howto li {
+  display: flex;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--v-outline);
+}
+
+.r-howto-n {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--v-emphasis);
+  border-radius: 50%;
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--v-emphasis);
+}
+
+.r-howto-body {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--v-onBackgroundMuted);
+  text-wrap: pretty;
+}
+
+/* ---------- Review reminders ---------- */
+
+.r-time {
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.r-reminder.is-off .r-time {
+  color: var(--v-onBackgroundMuted);
+}
+
+.r-reminder.is-gone .r-time {
+  text-decoration: line-through;
+  color: var(--v-onBackgroundMuted);
+}
+
+.r-reminder.is-gone .r-row-sub {
+  color: var(--v-emphasis);
+}
+
+.r-threshold {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+}
+
+.r-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--v-outline);
+  border-radius: 6px;
+}
+
+.r-stepper .msym {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+}
+
+.r-stepper-n {
+  min-width: 44px;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.r-countthese {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.r-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 34px;
+  padding: 0 10px 0 6px;
+  border: 1.5px solid var(--v-onBackground);
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.r-filter .msym {
+  --icon-size: 18px;
+}
+
+.r-check {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  font-size: 16px;
+}
+
+.r-checkbox {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--v-onBackgroundMuted);
+  border-radius: 3px;
+}
+
+.r-checksummary {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px 0;
+}
+
+.r-summary {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.r-checkrow {
+  align-items: flex-start;
+  padding-block: 14px;
+}
+
+.r-checkrow .r-row-icon {
+  color: var(--v-countDue);
+}
+
+.r-checkrow.is-warn .r-row-icon,
+.r-checkrow.is-warn .r-row-value {
+  color: var(--v-emphasis);
+}
+
+.r-checkrow .r-row-title {
+  font-size: 16px;
+}
+
+.r-checkrow .r-textbtn {
+  min-height: 40px;
+  padding: 0;
+}
+
+/* ======================================================================
+   Home screen and widgets
+   ====================================================================== */
+
+/* system: the wallpaper is the person's own; it runs under the status bar. */
+.screen:has(.home) {
+  --wall: linear-gradient(170deg, #b9c3c9, #8f9ea6 55%, #6f7f86);
+  background: var(--wall);
+  color: #fff;
+}
+
+[data-theme="dark"] .screen:has(.home) {
+  --wall: linear-gradient(170deg, #3a4247, #23292c 60%, #161a1c);
+}
+
+[data-theme="black"] .screen:has(.home) {
+  --wall: linear-gradient(170deg, #1c2124, #0b0d0e 60%, #000);
+}
+
+.home {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 14px 0;
+}
+
+.home-clock {
+  margin: 4px 6px 6px;
+  font:
+    300 64px/1 system-ui,
+    sans-serif;
+  color: #fff;
+}
+
+.home-label {
+  margin: 4px 6px -6px;
+  font:
+    500 13px/1.3 system-ui,
+    sans-serif;
+  color: #fff;
+}
+
+.home-row {
+  display: flex;
+  gap: 14px;
+}
+
+.home-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.home-icons {
+  display: flex;
+  justify-content: space-around;
+}
+
+.home-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.55);
+}
+
+[data-theme="dark"] .home-icon,
+[data-theme="black"] .home-icon {
+  background: rgb(255 255 255 / 0.16);
+}
+
+.home-dock {
+  margin-top: auto;
+  padding: 0 0 34px;
+}
+
+/* A widget: a paper sheet on the wallpaper. Android rounds its corners. */
+.w {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px;
+  border-radius: 22px;
+  background: var(--v-background);
+  color: var(--v-onBackground);
+}
+
+.w > * {
+  flex: none;
+}
+
+[data-theme="black"] .w {
+  border: 1px solid var(--v-outline);
+}
+
+.w-1x1 {
+  width: 76px;
+  height: 76px;
+  padding: 8px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.w-2x2 {
+  flex: none;
+  width: 166px;
+  height: 166px;
+}
+
+.w-2x1 {
+  height: 76px;
+  justify-content: center;
+  gap: 4px;
+}
+
+.w-4x1 {
+  height: 76px;
+  justify-content: center;
+}
+
+.w-small-n {
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--v-countDue);
+}
+
+.w-small-l,
+.w-small-m {
+  font-size: 11.5px;
+  line-height: 1.3;
+  color: var(--v-onBackgroundMuted);
+}
+
+.w-add {
+  gap: 4px;
+}
+
+.w-add-btn {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--v-primary);
+  color: var(--v-onPrimary);
+}
+
+.w-add-l {
+  font-size: 11.5px;
+  line-height: 1.2;
+}
+
+.w-decks-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.w-decks-title {
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.w-decks-sum {
+  font-size: 13px;
+  color: var(--v-onBackgroundMuted);
+}
+
+.w-decks-list {
+  margin-top: 6px;
+  border-top: 1px solid var(--v-outline);
+}
+
+.w-deck {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  border-bottom: 1px solid var(--v-outline);
+}
+
+.w-deck:last-child {
+  border-bottom: 0;
+}
+
+.w-deck-only {
+  min-height: 0;
+  margin-top: 4px;
+  border: 0;
+}
+
+.w-deck-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px;
+}
+
+.w-counts {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(3, 36px);
+  justify-items: center;
+}
+
+.w-count,
+.w-one-n {
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.w-count-new {
+  color: var(--v-countNew);
+}
+
+.w-count-learn {
+  color: var(--v-countLearning);
+}
+
+.w-count-due {
+  color: var(--v-countDue);
+}
+
+.w-count.is-zero {
+  font-weight: 400;
+  color: var(--v-onBackgroundMuted);
+}
+
+.w-one {
+  gap: 6px;
+}
+
+.w-one-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.w-one-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: auto;
+}
+
+.w-one-cell {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.w-one-n {
+  min-width: 26px;
+  font-size: 22px;
+  line-height: 1.15;
+}
+
+.w-one-l {
+  font-size: 13px;
+  color: var(--v-onBackgroundMuted);
+}
+
+.w-2x1 .w-counts {
+  justify-content: start;
+  margin-inline-start: -10px;
+}
+
+.w-missing {
+  gap: 0;
+}
+
+.w-missing .msym {
+  --icon-size: 20px;
+  color: var(--v-emphasis);
+}
+
+.w-missing .w-one-name {
+  font-size: 14px;
+}
+
+.w-one-sub {
+  font-size: 12px;
+  color: var(--v-onBackgroundMuted);
+}
+
+/* ======================================================================
+   Notification shade (system), holding the app's notifications
+   ====================================================================== */
+
+.screen:has(.shade) {
+  --sh-bg: #dcdde3;
+  --sh-card: #f6f6f9;
+  --sh-fg: #1b1b1f;
+  --sh-muted: #55565d;
+  --sh-tile: #c5c7d0;
+  background: var(--sh-bg);
+  color: var(--sh-fg);
+}
+
+[data-theme="dark"] .screen:has(.shade),
+[data-theme="black"] .screen:has(.shade) {
+  --sh-bg: #111214;
+  --sh-card: #232428;
+  --sh-fg: #e6e6ea;
+  --sh-muted: #a5a6ad;
+  --sh-tile: #34363c;
+}
+
+.shade {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 12px 0;
+  font-family: system-ui, sans-serif;
+}
+
+.shade-clock {
+  padding: 0 8px;
+  font-size: 40px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.shade-date {
+  padding: 0 8px;
+  font-size: 14px;
+  color: var(--sh-muted);
+}
+
+.shade-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 8px 0 6px;
+}
+
+.shade-tile {
+  display: grid;
+  place-items: center;
+  height: 52px;
+  border-radius: 18px;
+  background: var(--sh-tile);
+}
+
+.n-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 16px;
+  border-radius: 20px;
+  background: var(--sh-card);
+}
+
+.n-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-size: 12.5px;
+  color: var(--sh-muted);
+}
+
+/* The app's small icon, tinted with its accent colour. */
+.n-icon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--v-primary);
+}
+
+.n-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.n-icon rect {
+  fill: none;
+  stroke: var(--v-onPrimary);
+  stroke-width: 1.8;
+}
+
+.n-icon circle {
+  fill: var(--v-onPrimary);
+}
+
+.n-app {
+  color: var(--sh-fg);
+}
+
+/* Android sets a notification's text in the system face; the app chooses
+   only the words and the accent colour. */
+.n-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.n-body {
+  font-size: 14.5px;
+  line-height: 1.4;
+  color: var(--sh-muted);
+}
+
+.n-progress {
+  height: 4px;
+  margin: 6px 0 2px;
+  border-radius: 2px;
+  background: var(--sh-tile);
+  overflow: hidden;
+}
+
+.n-progress span {
+  display: block;
+  height: 100%;
+  background: var(--v-emphasis);
+}
+
+.n-actions {
+  display: flex;
+  gap: 20px;
+  margin-top: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--v-emphasis);
+}

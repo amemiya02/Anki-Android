@@ -12,6 +12,7 @@ import {
 } from "@/mock/data"
 import { FindBoard } from "@/mock/find/boards"
 import { IdentityBoard } from "@/mock/identity"
+import { RestBoard } from "@/mock/rest/boards"
 import {
   DeckListScreen,
   FinishedScreen,
@@ -420,9 +421,11 @@ export function App() {
   const decide = params.get("decide") as DecisionKey | null
   const find = params.get("find")
   const settings = params.get("settings")
+  const restKey = params.get("rest")
 
   let board
   if (settings) board = <SettingsBoard which={settings} lang={lang} />
+  else if (restKey) board = <RestBoard which={restKey} lang={lang} />
   else if (identity) board = <IdentityBoard />
   else if (find) board = <FindBoard which={find} lang={lang} />
   else if (core === "overview") board = <CoreOverview lang={lang} />
