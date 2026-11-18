@@ -4,7 +4,10 @@ package com.ichi2.anki.ui.windows.reviewer.whiteboard
 
 import android.graphics.Path
 import android.view.InputDevice
+import android.view.Menu
 import android.view.MotionEvent
+import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.fragment.app.commitNow
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
@@ -25,6 +28,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import com.ichi2.anki.common.android.R as CommonR
 
 @RunWith(AndroidJUnit4::class)
 class WhiteboardFragmentTest : RobolectricTest() {
@@ -289,6 +293,29 @@ class WhiteboardFragmentTest : RobolectricTest() {
         assertFalse(toolbarUpdated, "the destroyed toolbar should not be updated")
     }
 
+    @Test
+    fun `hiding the whiteboard shows the Card beneath and keeps the whiteboard on`() {
+        withWhiteboard { fragment ->
+            val shownChanges = mutableListOf<Boolean>()
+            fragment.onDrawingShownChanged = { shownChanges += it }
+            val hide = targetContext.getString(CommonR.string.hide_whiteboard)
+            val show = targetContext.getString(CommonR.string.show_whiteboard)
+
+            assertEquals(hide, fragment.overflowMenu().findItem(R.id.action_toggle_drawing).title)
+            fragment.onMenuItemClick(fragment.overflowMenu().findItem(R.id.action_toggle_drawing))
+            advanceRobolectricLooper()
+
+            assertFalse(fragment.binding.whiteboardView.isVisible, "the drawing is hidden")
+            assertTrue(fragment.binding.whiteboardToolbar.isVisible, "the tools stay, to show it again")
+            assertEquals(show, fragment.overflowMenu().findItem(R.id.action_toggle_drawing).title)
+
+            fragment.onMenuItemClick(fragment.overflowMenu().findItem(R.id.action_toggle_drawing))
+            advanceRobolectricLooper()
+            assertTrue(fragment.binding.whiteboardView.isVisible)
+            assertEquals(listOf(false, true), shownChanges)
+        }
+    }
+
     private fun withWhiteboard(block: (WhiteboardFragment) -> Unit) {
         launchFragmentInContainer<WhiteboardFragment>().use { scenario ->
             scenario.onFragment { fragment -> block(fragment) }
@@ -296,3 +323,9 @@ class WhiteboardFragmentTest : RobolectricTest() {
         }
     }
 }
+
+/** The whiteboard's overflow menu as it would open now */
+internal fun WhiteboardFragment.overflowMenu(): Menu =
+    PopupMenu(requireContext(), binding.whiteboardToolbar).menu.also {
+        prepareOverflowMenu(it)
+    }

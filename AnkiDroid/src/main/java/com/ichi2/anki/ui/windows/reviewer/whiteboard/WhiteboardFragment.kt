@@ -4,6 +4,8 @@ package com.ichi2.anki.ui.windows.reviewer.whiteboard
 
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
@@ -11,6 +13,7 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +24,9 @@ import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
+import androidx.appcompat.widget.ThemeUtils
+import androidx.core.graphics.createBitmap
+import androidx.core.view.isInvisible
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -32,6 +38,8 @@ import com.ichi2.anki.DispatchKeyEventListener
 import com.ichi2.anki.R
 import com.ichi2.anki.android.back.doubleBackPressCallback
 import com.ichi2.anki.cardviewer.Gesture
+import com.ichi2.anki.common.time.TimeManager
+import com.ichi2.anki.common.time.getTimestamp
 import com.ichi2.anki.common.utils.android.systemIsInNightMode
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.compat.CompatHelper.Companion.compat
@@ -46,10 +54,13 @@ import com.ichi2.anki.utils.ext.sharedPrefs
 import com.ichi2.utils.increaseHorizontalPaddingOfMenuIcons
 import com.ichi2.utils.toRGBAHex
 import dev.androidbroadcast.vbpd.viewBinding
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import kotlin.math.roundToInt
 import com.ichi2.anki.common.android.R as CommonR
@@ -75,6 +86,9 @@ class WhiteboardFragment :
 
     /** Called when no bindings used the triggered gestures */
     var gestureFallbackListener: ((Gesture) -> Unit)? = null
+
+    /** Called when the drawing is hidden or shown from the whiteboard's menu */
+    var onDrawingShownChanged: ((Boolean) -> Unit)? = null
 
     override fun onViewCreated(
         view: View,
@@ -140,25 +154,46 @@ class WhiteboardFragment :
         viewModel.isDrawing.value = drawing
     }
 
+    /** Shows or hides the drawing, as the host remembers it, without calling [onDrawingShownChanged] */
+    fun setDrawingShown(isShown: Boolean) {
+        viewModel.isDrawingShown.value = isShown
+    }
+
+    /** Fills [menu] with the whiteboard's overflow actions in their current state */
+    @VisibleForTesting
+    internal fun prepareOverflowMenu(menu: Menu) {
+        requireActivity().menuInflater.inflate(R.menu.whiteboard, menu)
+        with(menu) {
+            findItem(R.id.action_toggle_stylus).isChecked = viewModel.isStylusOnlyMode.value
+            (this as? MenuBuilder)?.setOptionalIconsVisible(true)
+            context?.increaseHorizontalPaddingOfMenuIcons(this)
+
+            val alignmentMenuItemId =
+                when (viewModel.toolbarAlignment.value) {
+                    ToolbarAlignment.LEFT -> R.id.action_align_left
+                    ToolbarAlignment.RIGHT -> R.id.action_align_right
+                    ToolbarAlignment.BOTTOM -> R.id.action_align_bottom
+                }
+            findItem(alignmentMenuItemId).isEnabled = false
+
+            // hiding and saving the drawing belong to the study screen, not to drawing an image
+            val isStudying = !viewModel.isDrawing.value
+            findItem(R.id.action_save_whiteboard).isVisible = isStudying
+            findItem(R.id.action_toggle_drawing).apply {
+                isVisible = isStudying
+                val isShown = viewModel.isDrawingShown.value
+                setTitle(if (isShown) CommonString.hide_whiteboard else CommonString.show_whiteboard)
+                setIcon(if (isShown) R.drawable.symbol_visibility_off else R.drawable.symbol_visibility)
+            }
+        }
+    }
+
     private fun setupUI() {
         val toolbar = binding.whiteboardToolbar
 
         toolbar.overflowButton.setOnClickListener {
             val popupMenu = PopupMenu(requireContext(), toolbar.overflowButton)
-            requireActivity().menuInflater.inflate(R.menu.whiteboard, popupMenu.menu)
-            with(popupMenu.menu) {
-                findItem(R.id.action_toggle_stylus).isChecked = viewModel.isStylusOnlyMode.value
-                (this as? MenuBuilder)?.setOptionalIconsVisible(true)
-                context?.increaseHorizontalPaddingOfMenuIcons(this)
-
-                val alignmentMenuItemId =
-                    when (viewModel.toolbarAlignment.value) {
-                        ToolbarAlignment.LEFT -> R.id.action_align_left
-                        ToolbarAlignment.RIGHT -> R.id.action_align_right
-                        ToolbarAlignment.BOTTOM -> R.id.action_align_bottom
-                    }
-                findItem(alignmentMenuItemId).isEnabled = false
-            }
+            prepareOverflowMenu(popupMenu.menu)
             popupMenu.setOnMenuItemClickListener(this)
             popupMenu.show()
         }
@@ -270,6 +305,10 @@ class WhiteboardFragment :
                 toolbar.setAlignment(alignment)
                 updateToolbarPosition(alignment)
             }.launchIn(viewLifecycleOwner.lifecycleScope)
+
+        viewModel.isDrawingShown
+            .onEach { isShown -> whiteboardView.isInvisible = !isShown }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
 
         viewModel.isToolbarShown
             .onEach { isShown ->
@@ -456,9 +495,43 @@ class WhiteboardFragment :
             R.id.action_align_bottom -> viewModel.setToolbarAlignment(ToolbarAlignment.BOTTOM)
             R.id.action_align_right -> viewModel.setToolbarAlignment(ToolbarAlignment.RIGHT)
             R.id.action_clear -> viewModel.clearCanvas()
+            R.id.action_toggle_drawing -> {
+                val isShown = !viewModel.isDrawingShown.value
+                viewModel.isDrawingShown.value = isShown
+                onDrawingShownChanged?.invoke(isShown)
+            }
+            R.id.action_save_whiteboard -> saveDrawing()
             else -> return false
         }
         return true
+    }
+
+    /** Saves the drawing as an image on the Card's paper, and says where it went */
+    private fun saveDrawing() {
+        val view = binding.whiteboardView
+        if (view.width == 0 || view.height == 0) return
+        val bitmap = createBitmap(view.width, view.height)
+        Canvas(bitmap).apply {
+            drawColor(ThemeUtils.getThemeAttrColor(requireContext(), android.R.attr.colorBackground))
+            view.draw(this)
+        }
+        val context = requireContext().applicationContext
+        val fileName = "Whiteboard" + getTimestamp(TimeManager.time)
+        lifecycleScope.launch {
+            val message =
+                try {
+                    val uri =
+                        withContext(Dispatchers.IO) {
+                            // PNG: a drawing is lines on paper, and image/png is a type every MediaStore accepts
+                            compat.saveImage(context, bitmap, fileName, "png", Bitmap.CompressFormat.PNG, 100)
+                        }
+                    getString(CommonString.white_board_image_saved, uri.path)
+                } catch (e: Exception) {
+                    Timber.w(e, "saving the whiteboard")
+                    getString(CommonString.white_board_image_save_failed, e.localizedMessage)
+                }
+            showSnackbar(message, Snackbar.LENGTH_SHORT)
+        }
     }
 
     /**

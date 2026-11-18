@@ -16,6 +16,18 @@
         app:showAsAction="never"
         />
     <item
+        android:id="@+id/action_toggle_drawing"
+        android:title="@string/hide_whiteboard"
+        android:icon="@drawable/symbol_visibility_off"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/action_save_whiteboard"
+        android:title="@string/save_whiteboard"
+        android:icon="@drawable/symbol_save"
+        app:showAsAction="never"
+        />
+    <item
         android:id="@+id/action_hide_toolbar"
         android:title="@string/hide_toolbar"
         android:icon="@drawable/symbol_visibility_off"

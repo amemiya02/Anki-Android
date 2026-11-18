@@ -2,6 +2,8 @@
 
 package com.ichi2.anki.ui.windows.reviewer
 
+import android.graphics.Path
+import android.os.Looper
 import android.text.InputType
 import android.view.KeyEvent
 import android.view.View
@@ -12,9 +14,12 @@ import android.webkit.WebView
 import androidx.appcompat.widget.ThemeUtils
 import androidx.core.content.edit
 import androidx.core.content.getSystemService
+import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.scheduler.CardAnswer.Rating
+import com.ichi2.anki.CommonString
+import com.ichi2.anki.MetaDB
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.cardviewer.Gesture
@@ -35,10 +40,12 @@ import com.ichi2.anki.settings.PrefsRepository
 import com.ichi2.anki.settings.enums.AppTheme
 import com.ichi2.anki.settings.enums.NightTheme
 import com.ichi2.anki.ui.windows.reviewer.whiteboard.WhiteboardFragment
+import com.ichi2.anki.ui.windows.reviewer.whiteboard.overflowMenu
 import com.ichi2.anki.utils.ext.DIALOG_FRAGMENT_TAG
 import com.ichi2.testutils.RecordingInputMethodManager
 import com.ichi2.testutils.ext.addNoSuggestNote
 import com.ichi2.testutils.ext.createInputConnection
+import com.ichi2.testutils.ext.snackbarText
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.After
@@ -347,6 +354,52 @@ class ReviewerFragmentTest : RobolectricTest() {
                 advanceUntilIdle()
                 advanceRobolectricLooper()
                 assertEquals(listOf(cardId), assertIs<SetDueDateDialog>(currentDialog).cardIds)
+            }
+        }
+
+    @Test
+    fun `the whiteboard's drawing can be saved as an image`() =
+        runTest {
+            addBasicNote()
+            StudyScreenRepository().isWhiteboardEnabled = true
+            withReviewer {
+                advanceRobolectricLooper()
+                val whiteboard = assertIs<WhiteboardFragment>(childFragmentManager.findFragmentByTag(WhiteboardFragment::class.jvmName))
+                whiteboard.viewModel.addPath(Path().apply { lineTo(10f, 10f) })
+
+                whiteboard.onMenuItemClick(whiteboard.overflowMenu().findItem(R.id.action_save_whiteboard))
+                // the image is written away from the main thread
+                // (idle only what is due: running every task would also time the snackbar out)
+                repeat(100) {
+                    advanceUntilIdle()
+                    shadowOf(Looper.getMainLooper()).idle()
+                    if (snackbarText != null) return@repeat
+                    Thread.sleep(20)
+                }
+
+                val saved = targetContext.getString(CommonString.white_board_image_saved, "")
+                assertTrue(snackbarText.orEmpty().startsWith(saved), "said: $snackbarText (${whiteboard.binding.whiteboardView.width})")
+            }
+        }
+
+    @Test
+    fun `a hidden whiteboard drawing stays hidden for the Deck`() =
+        runTest {
+            MetaDB.resetDB(targetContext)
+            addBasicNote()
+            StudyScreenRepository().isWhiteboardEnabled = true
+            withReviewer {
+                advanceRobolectricLooper()
+                val whiteboard = assertIs<WhiteboardFragment>(childFragmentManager.findFragmentByTag(WhiteboardFragment::class.jvmName))
+                whiteboard.onMenuItemClick(whiteboard.overflowMenu().findItem(R.id.action_toggle_drawing))
+                advanceUntilIdle()
+                advanceRobolectricLooper()
+            }
+            withReviewer {
+                advanceUntilIdle()
+                advanceRobolectricLooper()
+                val whiteboard = assertIs<WhiteboardFragment>(childFragmentManager.findFragmentByTag(WhiteboardFragment::class.jvmName))
+                assertFalse(whiteboard.binding.whiteboardView.isVisible, "the drawing is still hidden")
             }
         }
 

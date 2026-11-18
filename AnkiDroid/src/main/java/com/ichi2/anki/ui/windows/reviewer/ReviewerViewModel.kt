@@ -113,6 +113,9 @@ class ReviewerViewModel(
     val voiceRecorderEnabledFlow = MutableStateFlow(false)
     val whiteboardEnabledFlow = MutableStateFlow(false)
 
+    /** Whether the whiteboard's drawing shows, or is hidden to read the Card beneath while it stays on */
+    val whiteboardDrawingShownFlow = MutableStateFlow(true)
+
     /** The Deck being studied: the whiteboard and the voice recorder are remembered for it */
     private val studiedDeckId = asyncIO { withCol { decks.selected() } }
     val replayVoiceFlow = MutableSharedFlow<Unit>()
@@ -153,6 +156,7 @@ class ReviewerViewModel(
         launchCatchingIO {
             val did = studiedDeckId.await()
             whiteboardEnabledFlow.value = repository.isWhiteboardEnabled(did)
+            whiteboardDrawingShownFlow.value = repository.isWhiteboardDrawingShown(did)
             voiceRecorderEnabledFlow.value = repository.isRecordVoiceEnabled(did)
         }
         launchCatchingIO {
@@ -765,6 +769,13 @@ class ReviewerViewModel(
         val newValue = !whiteboardEnabledFlow.value
         whiteboardEnabledFlow.value = newValue
         repository.setWhiteboardEnabled(studiedDeckId.await(), newValue)
+    }
+
+    fun setWhiteboardDrawingShown(isShown: Boolean) {
+        whiteboardDrawingShownFlow.value = isShown
+        launchCatchingIO {
+            repository.setWhiteboardDrawingShown(studiedDeckId.await(), isShown, whiteboardEnabledFlow.value)
+        }
     }
 
     private suspend fun toggleRecordVoice() {

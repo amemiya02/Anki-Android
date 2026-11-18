@@ -319,6 +319,25 @@ object MetaDB {
         did: DeckId,
     ): Boolean = hasRow(context, "whiteboardState", did)
 
+    /**
+     * Whether the whiteboard's drawing was hidden for the Deck. Only a stored 0 counts: rows the
+     * old study screen created without a visibility mean shown.
+     */
+    fun isWhiteboardHidden(
+        context: Context,
+        did: DeckId,
+    ): Boolean {
+        openDBIfClosed(context)
+        return try {
+            metaDb!!
+                .rawQuery("SELECT visible FROM whiteboardState WHERE did = ? AND visible = 0", arrayOf(did.toString()))
+                .use { it.moveToNext() }
+        } catch (e: Exception) {
+            Timber.e(e, "Error retrieving whiteboard visibility from MetaDB")
+            false
+        }
+    }
+
     /** Whether the Deck has a voice recorder state of its own */
     fun hasMicToolbarState(
         context: Context,

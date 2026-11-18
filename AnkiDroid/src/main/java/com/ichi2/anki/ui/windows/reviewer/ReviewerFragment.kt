@@ -604,6 +604,8 @@ class ReviewerFragment :
                     f.setOnScrollByListener { y ->
                         webViewLayout.scrollVerticallyBy(y)
                     }
+                    f.onDrawingShownChanged = { isShown -> viewModel.setWhiteboardDrawingShown(isShown) }
+                    viewModel.whiteboardDrawingShownFlow.collectInViewLifecycle { isShown -> f.setDrawingShown(isShown) }
                 }
             },
             false,

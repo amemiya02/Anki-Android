@@ -52,6 +52,21 @@ class StudyScreenRepository(
         isEnabled: Boolean,
     ) = MetaDB.storeWhiteboardState(appContext, did, isEnabled)
 
+    /** Whether the whiteboard's drawing shows when studying [did], or is hidden to read the Card */
+    @WorkerThread
+    fun isWhiteboardDrawingShown(did: DeckId): Boolean = !MetaDB.isWhiteboardHidden(appContext, did)
+
+    @WorkerThread
+    fun setWhiteboardDrawingShown(
+        did: DeckId,
+        isShown: Boolean,
+        isWhiteboardEnabled: Boolean,
+    ) {
+        // a new row needs the on/off state too, or the Deck would read as "whiteboard off"
+        if (!MetaDB.hasWhiteboardState(appContext, did)) setWhiteboardEnabled(did, isWhiteboardEnabled)
+        MetaDB.storeWhiteboardVisibility(appContext, did, isShown)
+    }
+
     /** Whether the voice recorder shows when studying [did]; a Deck never set follows [isRecordVoiceEnabled] */
     @WorkerThread
     fun isRecordVoiceEnabled(did: DeckId): Boolean =

@@ -127,6 +127,9 @@ class WhiteboardViewModel(
     val toolbarAlignment = MutableStateFlow(ToolbarAlignment.BOTTOM)
     val isToolbarShown = MutableStateFlow(true)
 
+    /** Whether the drawing shows; hidden, the Card beneath can be read while the whiteboard stays on */
+    val isDrawingShown = MutableStateFlow(true)
+
     var isStylusOverriding = false
         internal set
 
