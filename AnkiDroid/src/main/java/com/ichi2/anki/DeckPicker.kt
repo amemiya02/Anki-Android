@@ -406,7 +406,7 @@ open class DeckPicker :
             }
         }
     override val baseSnackbarBuilder: SnackbarBuilder = {
-        anchorView = floatingActionButtonBinding.fabMain.takeIf { it.isVisible }
+        anchorView = floatingActionButtonBinding.fabMain.takeIf { it.isShown }
         // Follow the FAB as it moves when the keyboard opens or closes.
         isAnchorViewLayoutListenerEnabled = true
         addCallback(activeSnackbarCallback)
@@ -499,6 +499,10 @@ open class DeckPicker :
     private val exitAndSyncBackCallback =
         object : OnBackPressedCallback(enabled = true) {
             override fun handleOnBackPressed() {
+                if (awaitingWelcome) {
+                    finish()
+                    return
+                }
                 // TODO: Room for improvement now we use back callbacks
                 // can't use launchCatchingTask because any errors
                 // would need to be shown in the UI
