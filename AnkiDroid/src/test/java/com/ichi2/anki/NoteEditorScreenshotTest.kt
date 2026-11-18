@@ -43,6 +43,7 @@ import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.noteeditor.toIntent
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.testutils.dispatchInsets
+import com.ichi2.testutils.ext.reopenWithLanguage
 import com.ichi2.testutils.insetsOf
 import com.ichi2.testutils.simulateKeyboard
 import org.hamcrest.Matcher
@@ -64,6 +65,11 @@ import org.robolectric.RuntimeEnvironment
 class NoteEditorScreenshotTest : ScreenshotTest() {
     @get:Rule
     val composeRule = createEmptyComposeRule()
+
+    override fun applyDeviceConfig() {
+        super.applyDeviceConfig()
+        runTest { col.reopenWithLanguage(language.option) }
+    }
 
     @Test
     fun duplicateFirstField() {

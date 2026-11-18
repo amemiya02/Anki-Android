@@ -52,9 +52,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
+import com.ichi2.anki.ui.internationalization.tr
 import com.ichi2.compose.theme.foundation
 import androidx.appcompat.R as AppCompatR
 import com.ichi2.anki.common.android.R as CommonR
@@ -198,7 +198,7 @@ internal fun NoteEditorSelectors(
         EditorRule()
         Row(modifier = Modifier.height(IntrinsicSize.Min)) {
             EditorSelector(
-                label = TR.notetypesNotetype(),
+                label = tr().notetypesNotetype(),
                 value = noteType,
                 icon = if (adding) R.drawable.symbol_arrow_drop_down else R.drawable.symbol_swap_horiz,
                 onClick = onNoteTypeClick,
@@ -206,7 +206,7 @@ internal fun NoteEditorSelectors(
             )
             Box(Modifier.fillMaxHeight().width(foundation.shapes.hairline).background(foundation.colors.outline))
             EditorSelector(
-                label = if (isCardDeck) stringResource(CommonString.CardEditorCardDeck).trimEnd(':', '：') else TR.decksDeck(),
+                label = if (isCardDeck) stringResource(CommonString.CardEditorCardDeck).trimEnd(':', '：') else tr().decksDeck(),
                 value = deck.replace("::", " › "),
                 icon = R.drawable.symbol_arrow_drop_down,
                 onClick = onDeckClick,
@@ -262,7 +262,7 @@ internal fun NoteEditorFieldHeader(
                     .weight(1f)
                     .clickable(
                         role = Role.Button,
-                        onClickLabel = if (expanded) TR.editingCollapseField() else TR.editingExpandField(),
+                        onClickLabel = if (expanded) tr().editingCollapseField() else tr().editingExpandField(),
                         onClick = onExpandToggle,
                     ).heightIn(min = foundation.spacing.touchTarget),
             verticalAlignment = Alignment.CenterVertically,
@@ -345,7 +345,7 @@ internal fun NoteEditorFieldFooter(
                 contentAlignment = Alignment.CenterStart,
             ) {
                 Text(
-                    text = TR.editingShowDuplicates(),
+                    text = tr().editingShowDuplicates(),
                     style = foundation.type.caption.copy(textDecoration = TextDecoration.Underline),
                     color = foundation.colors.emphasis,
                 )
@@ -378,7 +378,7 @@ internal fun NoteEditorDetails(
                 verticalArrangement = Arrangement.spacedBy(6.dp),
                 itemVerticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(TR.browsingSidebarTags(), color = foundation.colors.onBackgroundMuted, style = foundation.type.caption)
+                Text(tr().browsingSidebarTags(), color = foundation.colors.onBackgroundMuted, style = foundation.type.caption)
                 tags.forEach { tag ->
                     Text(
                         text = tag,
@@ -405,7 +405,7 @@ internal fun NoteEditorDetails(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 itemVerticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(TR.browsingCards(), color = foundation.colors.onBackgroundMuted, style = foundation.type.caption)
+                Text(tr().browsingCards(), color = foundation.colors.onBackgroundMuted, style = foundation.type.caption)
                 Text(
                     text =
                         buildAnnotatedString {
