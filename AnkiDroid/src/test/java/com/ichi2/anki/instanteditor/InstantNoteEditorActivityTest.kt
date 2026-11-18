@@ -6,20 +6,21 @@ package com.ichi2.anki.instanteditor
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
-import android.widget.EditText
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.doubleClick
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.lifecycle.ViewModelProvider
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager.TR
-import com.ichi2.anki.R
+import com.ichi2.anki.CommonString
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.instantnoteeditor.InstantEditorViewModel
 import com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity
@@ -36,7 +37,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
-import org.robolectric.shadows.ShadowDialog
 import kotlin.coroutines.CoroutineContext
 
 @RunWith(AndroidJUnit4::class)
@@ -49,8 +49,7 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
         runTest {
             val originalText = "{{c1::Hello}} world"
             val activity = startInstantNoteEditor(originalText)
-            onView(withId(R.id.switch_edit_mode_button)).inRoot(isDialog()).perform(click())
-            val editor = requireNotNull(ShadowDialog.getLatestDialog())
+            compose.onNodeWithContentDescription(getResourceString(CommonString.change_editor_mode)).performClick()
             val viewModel = ViewModelProvider(activity)[InstantEditorViewModel::class.java]
             val notesBefore = col.noteCount()
             val pendingOperations = ArrayDeque<Runnable>()
@@ -65,14 +64,14 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
                 }
 
             withCollectionAccessOn(dispatcher) {
-                onView(withId(R.id.action_save_note)).inRoot(isDialog()).perform(click())
+                compose.onNodeWithText(getResourceString(CommonString.menu_add)).performClick()
                 assertTrue(viewModel.progressManager.progress.value is ViewModelProgress.Active)
 
                 // Complete field validation, but leave insertion queued while the dialog is interactive.
                 pendingOperations.removeFirst().run()
                 assertEquals("note insertion is pending", 1, pendingOperations.size)
-                editor.findViewById<EditText>(R.id.edit_field_text)!!.setText("")
-                onView(withId(R.id.action_save_note)).inRoot(isDialog()).perform(click())
+                compose.onNode(hasSetTextAction() and hasText(originalText)).performTextReplacement("")
+                compose.onNodeWithText(getResourceString(CommonString.menu_add)).performClick()
 
                 while (pendingOperations.isNotEmpty()) {
                     pendingOperations.removeFirst().run()
@@ -90,7 +89,7 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
         runTest {
             startInstantNoteEditor("Hello world")
             val notesBefore = col.noteCount()
-            onView(withId(R.id.action_save_note)).inRoot(isDialog()).perform(click())
+            compose.onNodeWithText(getResourceString(CommonString.menu_add)).performClick()
             advanceUntilIdle()
             val save = compose.onNodeWithText(TR.actionsSave()).assertIsDisplayed()
 
@@ -110,7 +109,7 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
 
             withCollectionAccessOn(StandardTestDispatcher(testScheduler)) {
                 repeat(2) {
-                    onView(withId(R.id.action_save_note)).inRoot(isDialog()).perform(click())
+                    compose.onNodeWithText(getResourceString(CommonString.menu_add)).performClick()
                 }
             }
             advanceUntilIdle()
@@ -124,11 +123,13 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
             val activity = startInstantNoteEditor("{{c1::Hello}} world")
             val notesBefore = col.noteCount()
 
-            onView(withId(R.id.action_save_note)).inRoot(isDialog()).perform(click())
+            val save = compose.onNodeWithText(getResourceString(CommonString.menu_add))
+            val submit = checkNotNull(save.fetchSemanticsNode().config[SemanticsActions.OnClick].action)
+            save.performClick()
             advanceUntilIdle()
             assertTrue("editor is closing", activity.isFinishing)
 
-            onView(withId(R.id.action_save_note)).inRoot(isDialog()).perform(click())
+            submit()
             advanceUntilIdle()
 
             assertEquals("notes added", notesBefore + 1, col.noteCount())
@@ -140,7 +141,7 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
             val activity = startInstantNoteEditor("{{c1::Hello}} world")
 
             withCollectionAccessOn(StandardTestDispatcher(testScheduler)) {
-                onView(withId(R.id.action_save_note)).inRoot(isDialog()).perform(click())
+                compose.onNodeWithText(getResourceString(CommonString.menu_add)).performClick()
                 activity.onBackPressedDispatcher.onBackPressed()
 
                 assertFalse("editor closed while saving", activity.isFinishing)

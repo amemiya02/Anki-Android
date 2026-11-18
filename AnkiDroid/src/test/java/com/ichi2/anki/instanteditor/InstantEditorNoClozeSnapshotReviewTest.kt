@@ -5,19 +5,18 @@ package com.ichi2.anki.instanteditor
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
-import android.widget.EditText
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextReplacement
 import androidx.lifecycle.ViewModelProvider
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager
-import com.ichi2.anki.R
+import com.ichi2.anki.CommonString
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.instantnoteeditor.InstantEditorViewModel
 import com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity
@@ -51,15 +50,15 @@ class InstantEditorNoClozeSnapshotReviewTest : RobolectricTest() {
                 withCollectionAccessOn(Handler(Looper.getMainLooper()).asCoroutineDispatcher()) {
                     startRegularActivity<InstantNoteEditorActivity>(intent)
                 }
-            onView(withId(R.id.switch_edit_mode_button)).inRoot(isDialog()).perform(click())
+            compose.onNodeWithContentDescription(getResourceString(CommonString.change_editor_mode)).performClick()
             val editor = requireNotNull(ShadowDialog.getLatestDialog())
             val viewModel = ViewModelProvider(activity)[InstantEditorViewModel::class.java]
             val notesBefore = col.noteCount()
 
             withCollectionAccessOn(StandardTestDispatcher(testScheduler)) {
-                onView(withId(R.id.action_save_note)).inRoot(isDialog()).perform(click())
+                compose.onNodeWithText(getResourceString(CommonString.menu_add)).performClick()
                 // This window remains interactive while validation waits in the collection queue.
-                editor.findViewById<EditText>(R.id.edit_field_text)!!.setText("")
+                compose.onNode(hasSetTextAction() and hasText(originalText)).performTextReplacement("")
             }
             advanceUntilIdle()
             val warning = requireNotNull(ShadowDialog.getLatestDialog())
