@@ -2,6 +2,8 @@
 
 Mockups for ticket 14: the bottom bar and More, the deck list, the study screen and the finished screen, in Quiet paper. Each surface is shown in English and Simplified Chinese, and each picture shows Light, Dark and Black side by side. Colours come from `../quiet-paper.values.json`; `node mockups/scripts/check-contrast.mjs` passes for every pairing in it.
 
+The Light pictures here show the earlier cream Light palette, replaced by 白纸 Plain paper on 2026-11-18 (see `../light-palette/README.md`); the Mockups themselves now draw Plain paper.
+
 Start the Mockups with `npm install && npm run dev` in `mockups/`, then open the URL in the last column. `lang` is `en` or `zh`.
 
 ## Pictures

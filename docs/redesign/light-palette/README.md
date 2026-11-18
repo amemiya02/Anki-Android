@@ -1,5 +1,7 @@
 # Light palette candidates
 
+**Chosen (2026-11-18): 白纸 Plain paper.** The owner picked it, and it is now the `light` block of `../quiet-paper.values.json` and the Foundation's Light theme. In the Mockups it is drawn as the current palette (`/?palette=current`) and is no longer listed as a candidate, so `/?palette=plain` draws nothing. The pictures below were taken before the choice: in them "current" is the earlier cream palette.
+
 The owner accepted every Mockup and asked whether the Light theme's colour scheme can change, without saying what they dislike. These pictures show four candidate Light palettes beside the current one, so one can be picked by eye. Each candidate is a complete Light palette: every role of the `light` block in `../quiet-paper.values.json`, plus the Light flag colours of `mockups/src/mock/find/flags.json`. **Dark and Black do not change.** Type, spacing and shape do not change either.
 
 The candidates live in `mockups/src/mock/palette/palettes.json`. `node mockups/scripts/check-palette-contrast.mjs` checks each candidate and the current palette against the Quality Bar and passes for all of them.

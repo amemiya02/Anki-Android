@@ -2,6 +2,8 @@
 
 Mockups for ticket 32: how settings are grouped and searched, and the seven dialog patterns every dialog is built from, in Quiet paper. Each surface is shown in English and Simplified Chinese, and each picture shows Light, Dark and Black side by side. Colours come from `../quiet-paper.values.json`; no new colour pairing is added, and `node mockups/scripts/check-contrast.mjs` passes.
 
+The Light pictures here show the earlier cream Light palette, replaced by 白纸 Plain paper on 2026-11-18 (see `../light-palette/README.md`); the Mockups themselves now draw Plain paper.
+
 Drawn on 2026-11-18, ahead of Milestone 4, at the owner's request. The settings are drawn as they will be after ticket 23: the old study screen and the settings only it used are gone, as the owner decided on 2026-11-17 in `../core-loop/old-study-screen-features.md`.
 
 Start the Mockups with `npm install && npm run dev` in `mockups/`, then open the URL in the last column. `lang` is `en` or `zh`.

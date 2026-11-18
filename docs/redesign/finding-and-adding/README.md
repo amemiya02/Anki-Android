@@ -2,6 +2,8 @@
 
 These are the Mockups for ticket 25: the card browser, the note editor and the previewer, drawn in Quiet paper. They were drawn on 2026-11-18, ahead of their Milestone, because the owner asked to see every remaining surface at once.
 
+The Light pictures here show the earlier cream Light palette, replaced by 白纸 Plain paper on 2026-11-18 (see `../light-palette/README.md`); the Mockups themselves now draw Plain paper.
+
 Each surface is shown in English and Simplified Chinese. Each picture puts Light, Dark and Black side by side.
 
 Colours come from `../quiet-paper.values.json`, with one exception: the seven flag colours, which the values file does not have yet (Decision 4). The pairings these Mockups add are checked by `node mockups/scripts/check-find-contrast.mjs`, and every one passes. Those pairings are:

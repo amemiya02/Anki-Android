@@ -2,6 +2,8 @@
 
 Mockups for ticket 41, in Quiet paper. They cover Note Type management, the Card Template editor and its previewer, sync setup, the first-run screen, the home-screen widgets and notifications. Each surface is shown in English and Simplified Chinese, and each picture shows Light, Dark and Black side by side. Colours come from `../quiet-paper.values.json`; `node mockups/scripts/check-contrast.mjs` passes, and no new colour pairing was added. The only colours not taken from the values are the ones Android draws around the app: the scrim, the keyboard, the notification shade and the wallpaper.
 
+The Light pictures here show the earlier cream Light palette, replaced by 白纸 Plain paper on 2026-11-18 (see `../light-palette/README.md`); the Mockups themselves now draw Plain paper.
+
 They were drawn on 2026-11-18, ahead of Milestone 5, at the owner's request.
 
 To see them, run `npm install && npm run dev` in `mockups/`, then open the URL in the last column. `lang` is `en` or `zh`.
