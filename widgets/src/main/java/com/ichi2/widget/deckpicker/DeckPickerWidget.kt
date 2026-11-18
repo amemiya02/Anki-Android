@@ -119,6 +119,14 @@ internal fun DeckListContent(
         } else {
             1
         }
+    val due = snapshot.totalDue
+    val strings = appearance.localizedContext.resources
+    val summaryText =
+        if (narrow) {
+            strings.getString(R.string.widget_due_today_compact, due)
+        } else {
+            strings.getQuantityString(R.plurals.widget_due_today, due, due)
+        }
     val colors = appearance.colors
     WidgetSheet(appearance) {
         Column(
@@ -138,14 +146,6 @@ internal fun DeckListContent(
                         weight = FontWeight.Medium,
                     )
                     Spacer(GlanceModifier.width(3.dp))
-                    val due = snapshot.totalDue
-                    val strings = appearance.localizedContext.resources
-                    val summaryText =
-                        if (narrow) {
-                            strings.getString(R.string.widget_due_today_compact, due)
-                        } else {
-                            strings.getQuantityString(R.plurals.widget_due_today, due, due)
-                        }
                     WidgetText(
                         summaryText,
                         colors.onBackgroundMuted,
@@ -159,16 +159,21 @@ internal fun DeckListContent(
                     if (showRules) {
                         Spacer(GlanceModifier.fillMaxWidth().height(dividerHeight).background(ColorProvider(colors.outline)))
                     }
-                    Row(
+                    Column(
                         GlanceModifier
                             .fillMaxWidth()
                             .height(rowHeight)
                             .clickable(actionStartActivity(deck.studyIntent())),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        WidgetText(deck.name, colors.onBackground, name, GlanceModifier.defaultWeight())
-                        Spacer(GlanceModifier.width(3.dp))
-                        CompactDeckCounts(appearance, deck, countColumn, count)
+                        Row(GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            WidgetText(deck.name, colors.onBackground, name, GlanceModifier.defaultWeight())
+                            Spacer(GlanceModifier.width(3.dp))
+                            CompactDeckCounts(appearance, deck, countColumn, count)
+                        }
+                        if (!headerFits) {
+                            WidgetText(summaryText, colors.onBackgroundMuted, summary)
+                        }
                     }
                 }
             }
