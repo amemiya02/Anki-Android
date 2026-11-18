@@ -131,19 +131,20 @@ class ControlsSettingsFragmentTest : RobolectricTest() {
     }
 
     @Test
-    fun aGestureCanBeDemonstratedOnThePad() =
+    fun aGestureCanBeDemonstratedOnThePad() {
+        Prefs.sharedPrefs.edit { putBoolean(getResourceString(R.string.gestures_corner_touch_preference), true) }
         withUndoBindingEditor {
             val gestureLabel = getResourceString(CommonString.binding_add_gesture)
-                compose.onNodeWithText(gestureLabel).performClick()
-                compose.onNodeWithContentDescription(gestureLabel).performTouchInput {
-                    click(Offset(width * 0.12f, height * 0.12f))
-                }
-                advanceRobolectricLooper()
-                compose.onNodeWithText(Gesture.TAP_TOP_LEFT.toDisplayString(targetContext)).assertIsDisplayed()
-                compose.onNodeWithText(getResourceString(CommonString.dialog_ok)).performClick()
-                compose.onNodeWithText(getResourceString(CommonString.card_side_question)).performClick()
-                assertThat(bindings(ViewerAction.UNDO), hasItem(equalTo(Binding.GestureInput(Gesture.TAP_TOP_LEFT) to CardSide.QUESTION)))
+            compose.onNodeWithText(gestureLabel).performClick()
+            compose.onNodeWithContentDescription(gestureLabel).performTouchInput {
+                click(Offset(width * 0.12f, height * 0.12f))
             }
+            shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(ViewConfiguration.getDoubleTapTimeout().toLong()))
+            compose.onNodeWithText(Gesture.TAP_TOP_LEFT.toDisplayString(targetContext)).assertIsDisplayed()
+            compose.onNodeWithText(getResourceString(CommonString.dialog_ok)).performClick()
+            compose.onNodeWithText(getResourceString(CommonString.card_side_question)).performClick()
+            assertThat(bindings(ViewerAction.UNDO), hasItem(equalTo(Binding.GestureInput(Gesture.TAP_TOP_LEFT) to CardSide.QUESTION)))
+        }
     }
 
     @Test
