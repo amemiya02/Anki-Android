@@ -231,7 +231,7 @@ private fun CountHeadings(columnWidth: Dp) {
                     text = heading,
                     style = foundation.type.label.copy(color = foundation.colors.onBackgroundMuted, textAlign = TextAlign.Center),
                     maxLines = 1,
-                    autoSize = TextAutoSize.StepBased(minFontSize = 8.sp, maxFontSize = foundation.type.label.fontSize),
+                    autoSize = TextAutoSize.StepBased(minFontSize = 4.sp, stepSize = 0.25.sp, maxFontSize = foundation.type.label.fontSize),
                     modifier = Modifier.width(columnWidth),
                 )
             }
