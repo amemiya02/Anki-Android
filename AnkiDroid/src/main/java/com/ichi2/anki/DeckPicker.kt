@@ -757,18 +757,17 @@ open class DeckPicker :
             }
         val params = home.layoutParams
         drawerLayout.removeViewAt(0)
-        val bar = binding.bottomNavigation
-        if (bar == null) {
-            drawerLayout.addView(host, 0, params)
-        } else {
-            (bar.parent as ViewGroup).removeView(bar)
-            val layout =
-                CoordinatorLayout(this).apply {
-                    addView(host, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        val layout =
+            CoordinatorLayout(this).apply {
+                // Feedback can arrive while the Decks view is covered by another destination.
+                id = R.id.root_layout
+                addView(host, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                binding.bottomNavigation?.let { bar ->
+                    (bar.parent as ViewGroup).removeView(bar)
                     addView(bar, bar.layoutParams)
                 }
-            drawerLayout.addView(layout, 0, params)
-        }
+            }
+        drawerLayout.addView(layout, 0, params)
     }
 
     internal fun selectNavigationTab(tab: NavigationItem) = appNavigation.selectTab(tab)

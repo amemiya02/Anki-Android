@@ -3,6 +3,7 @@
 package com.ichi2.anki
 
 import android.content.Intent
+import android.view.View
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -11,11 +12,15 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager.TR
+import com.ichi2.anki.browser.CardBrowserPaneFragment
+import com.ichi2.anki.browser.toIntent
+import com.ichi2.anki.common.destinations.BrowserDestination
 import com.ichi2.anki.mediacheck.MediaCheckFragment
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,6 +51,18 @@ class SingleActivityNavigationTest : RobolectricTest() {
             deck.assertIsDisplayed()
             mediaCheck.assertDoesNotExist()
             assertFalse(deckPicker.isFinishing)
+        }
+
+    @Test
+    fun `a hosted browser search retains a visible parent for feedback`() =
+        withDeckPicker(deckCount = 1) { deckPicker ->
+            val search = BrowserDestination.Search(query = "is:new", allDecks = false).toIntent(deckPicker)
+            deckPicker.startActivity(search)
+            advanceRobolectricLooperUntil { deckPicker.currentScreenFragment is CardBrowserPaneFragment }
+
+            composeRule.onNodeWithText("Browse").assertIsDisplayed()
+            assertTrue(deckPicker.findViewById<View>(R.id.root_layout).isShown)
+            assertNull(shadowOf(deckPicker).nextStartedActivity)
         }
 
     @Test
