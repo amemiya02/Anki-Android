@@ -196,10 +196,10 @@ class NoteEditorPaneFragment :
         }
     }
 
-    private fun loadPreviewerVisibilityPreference(): Boolean = uiConfigPrefs().getBoolean(PREF_SHOW_PREVIEWER, true)
+    private fun loadPreviewerVisibilityPreference(): Boolean = requireContext().uiConfigPrefs().getBoolean(PREF_SHOW_PREVIEWER, true)
 
     private fun savePreviewerVisibilityPreference(visible: Boolean) {
-        uiConfigPrefs().edit { putBoolean(PREF_SHOW_PREVIEWER, visible) }
+        requireContext().uiConfigPrefs().edit { putBoolean(PREF_SHOW_PREVIEWER, visible) }
     }
 
     private fun applyPreviewerVisibility() {

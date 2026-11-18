@@ -23,13 +23,6 @@
             android:id="@+id/deck_picker_pane"
             layout="@layout/include_deck_picker" />
     </LinearLayout>
-    <!-- Browse, Stats and More, shown by the bottom bar in place of the deck list -->
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/bottom_nav_fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
-
     <!-- The phone's bottom bar: made visible by setupBottomNavigation() -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"

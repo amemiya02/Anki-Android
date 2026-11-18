@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.webkit.WebView
 import android.widget.ScrollView
 import androidx.compose.ui.semantics.SemanticsActions
@@ -247,11 +246,10 @@ class BottomNavigationScrollTest : RobolectricTest() {
     fun `hidden bar releases space for fragment content`() =
         withBottomNavigation { deckPicker ->
             val nav = deckPicker.bottomNav
-            val container = deckPicker.binding.bottomNavFragmentContainer!!
             deckPicker.scrollFrom(deckPicker.deckPickerBinding.deckList, 40)
 
             assertThat(HideViewOnScrollBehavior.from(nav).isScrolledOut, equalTo(true))
-            assertThat((container.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin < nav.height, equalTo(true))
+            assertThat(deckPicker.bottomNavContentClearance.intValue < nav.height, equalTo(true))
         }
 
     private fun withBottomNavigation(test: (DeckPicker) -> Unit) =

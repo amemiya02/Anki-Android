@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
-import android.view.ViewGroup
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
@@ -148,14 +147,14 @@ class BottomNavigationRestoreTest : RobolectricTest() {
         deckPicker: DeckPicker,
         tab: NavigationItem,
     ) {
-        val container = deckPicker.binding.bottomNavFragmentContainer!!
+        val screen = deckPicker.currentScreenFragment!!
         assertThat("$tab is selected", deckPicker.bottomNav.selectedItemId, equalTo(tab.id))
-        assertThat("$tab content is shown", container.isVisible, equalTo(true))
+        assertThat("$tab content is shown", screen.isVisible, equalTo(true))
         assertThat("$tab hides the deck list", deckPicker.deckList.isVisible, equalTo(false))
-        assertThat("$tab fragment is not hidden", deckPicker.supportFragmentManager.findFragmentByTag(tab.tag)?.isHidden, equalTo(false))
+        assertThat("$tab fragment is not hidden", screen.isHidden, equalTo(false))
         assertThat(
             "$tab content clears the bar",
-            (container.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin,
+            deckPicker.bottomNavContentClearance.intValue,
             equalTo(deckPicker.bottomNav.height),
         )
     }

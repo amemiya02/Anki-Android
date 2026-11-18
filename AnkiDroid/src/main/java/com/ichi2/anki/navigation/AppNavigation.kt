@@ -11,6 +11,7 @@ import androidx.activity.result.ActivityResult
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
@@ -18,6 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -30,15 +32,22 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.get
+import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.DeckPicker
+import com.ichi2.anki.Info
+import com.ichi2.anki.InfoFragment
+import com.ichi2.anki.MoreFragment
 import com.ichi2.anki.DrawingFragment
 import com.ichi2.anki.NoteEditorActivity
 import com.ichi2.anki.NoteEditorPaneFragment
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.account.AccountActivity
 import com.ichi2.anki.account.AccountFlowFragment
+import com.ichi2.anki.browser.CardBrowserFragment
+import com.ichi2.anki.ensureBrowserViewModel
 import com.ichi2.anki.filtered.FilteredDeckOptionsFragment
 import com.ichi2.anki.introduction.WelcomeFragment
 import com.ichi2.anki.mediacheck.MediaCheckFragment
@@ -56,6 +65,7 @@ import com.ichi2.anki.previewer.TemplatePreviewerFragment
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
 import com.ichi2.anki.study.FinishedFragment
 import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
+import com.ichi2.anki.updateTabChrome
 import com.ichi2.anki.utils.ConfigAwareSingleFragmentActivity
 import com.ichi2.imagecropper.ImageCropper
 
@@ -98,10 +108,26 @@ internal class AppNavigation(
             composable(WELCOME) {
                 AndroidFragment<WelcomeFragment>(Modifier.fillMaxSize())
             }
+            tabFragments.forEach { (tab, fragmentClass) ->
+                composable(tab.tag) { entry ->
+                    if (tab == NavigationItem.BROWSER) deckPicker.ensureBrowserViewModel()
+                    val bottomClearance = with(LocalDensity.current) { deckPicker.bottomNavContentClearance.intValue.toDp() }
+                    val arguments = if (tab == NavigationItem.STATS) bundleOf(Statistics.ARG_HIDE_BACK_BUTTON to true) else null
+                    HostedScreen(entry, fragmentClass, Modifier.padding(bottom = bottomClearance), arguments)
+                }
+            }
             fragmentScreens.values.forEach { fragmentClass ->
                 composable(fragmentClass.name) { entry ->
                     HostedScreen(entry, fragmentClass)
                 }
+            }
+        }
+        val route = navigation.currentBackStackEntryAsState().value?.destination?.route
+        LaunchedEffect(route) {
+            if (route in tabRouteNames && !deckPicker.bottomNavigationEnabled && route != HOME) {
+                navigation.popBackStack(HOME, inclusive = false)
+            } else {
+                deckPicker.updateTabChrome(NavigationItem.entries.find { it.tag == route })
             }
         }
         LaunchedEffect(navigation) {
@@ -126,6 +152,8 @@ internal class AppNavigation(
     private fun HostedScreen(
         entry: NavBackStackEntry,
         fragmentClass: Class<out Fragment>,
+        modifier: Modifier = Modifier,
+        screenArguments: Bundle? = entry.arguments?.getBundle(SCREEN_ARGUMENTS),
     ) {
         val manager = deckPicker.supportFragmentManager
         val tag = "navigation:${entry.id}"
@@ -134,13 +162,13 @@ internal class AppNavigation(
             remember(containerId) {
                 FragmentContainerView(deckPicker).apply { id = containerId }
             }
-        AndroidView(factory = { container }, modifier = Modifier.fillMaxSize())
+        AndroidView(factory = { container }, modifier = modifier.fillMaxSize())
 
         DisposableEffect(container) {
             val existing = manager.findFragmentByTag(tag)
             val fragment =
                 existing ?: manager.fragmentFactory.instantiate(deckPicker.classLoader, fragmentClass.name).apply {
-                    arguments = entry.arguments?.getBundle(SCREEN_ARGUMENTS)
+                    arguments = screenArguments
                 }
             fragments[entry.id] = fragment
             if (!manager.isStateSaved) {
@@ -179,6 +207,20 @@ internal class AppNavigation(
         if (requestCode != NO_RESULT) deckPicker.activityResultRegistry.dispatchResult(requestCode, result.resultCode, result.data)
     }
 
+    fun selectTab(tab: NavigationItem) {
+        navigateWhenReady { navigation ->
+            if (navigation.currentDestination?.route == tab.tag) return@navigateWhenReady
+            if (tab == NavigationItem.HOME) {
+                navigation.popBackStack(HOME, inclusive = false)
+            } else {
+                navigation.navigate(tab.tag) {
+                    popUpTo(HOME)
+                    launchSingleTop = true
+                }
+            }
+        }
+    }
+
     fun completeWelcome() {
         navigateWhenReady { navigation ->
             navigation.navigate(HOME) {
@@ -196,6 +238,7 @@ internal class AppNavigation(
         val component = intent.component?.className
         val fragment =
             when (component) {
+                Info::class.java.name -> InfoFragment::class.java
                 NoteEditorActivity::class.java.name -> NoteEditorPaneFragment::class.java
                 else -> fragmentScreens[intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME)] ?: return false
             }
@@ -239,9 +282,18 @@ internal class AppNavigation(
         const val SCREEN_ARGUMENTS = "screenArguments"
         const val RESULT_REQUEST_CODE = "resultRequestCode"
 
+        val tabFragments =
+            mapOf(
+                NavigationItem.BROWSER to CardBrowserFragment::class.java,
+                NavigationItem.STATS to Statistics::class.java,
+                NavigationItem.MORE to MoreFragment::class.java,
+            )
+        val tabRouteNames = NavigationItem.entries.map { it.tag }
+
         val hostedComponents =
             setOf(
                 AccountActivity::class.java.name,
+                Info::class.java.name,
                 NoteEditorActivity::class.java.name,
                 SingleFragmentActivity::class.java.name,
                 ConfigAwareSingleFragmentActivity::class.java.name,
@@ -261,6 +313,7 @@ internal class AppNavigation(
                 FinishedFragment::class.java,
                 ImageCropper::class.java,
                 ImageOcclusion::class.java,
+                InfoFragment::class.java,
                 MediaCheckFragment::class.java,
                 NoteEditorPaneFragment::class.java,
                 PreferencesFragment::class.java,

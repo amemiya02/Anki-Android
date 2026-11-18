@@ -4,20 +4,14 @@ package com.ichi2.anki
 
 import android.graphics.Typeface
 import android.os.Build
-import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat.Type.navigationBars
 import androidx.core.view.children
 import androidx.core.view.isVisible
-import androidx.core.view.marginBottom
-import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
-import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -28,7 +22,6 @@ import com.ichi2.anki.browser.IdsFile
 import com.ichi2.anki.common.analytics.Analytics
 import com.ichi2.anki.common.android.themes.interfaceTypeface
 import com.ichi2.anki.common.annotations.NeedsTest
-import com.ichi2.anki.pages.Statistics
 import com.google.android.material.R as MaterialR
 
 /**
@@ -41,14 +34,10 @@ import com.google.android.material.R as MaterialR
 @NeedsTest("back press returns to Home tab before exiting")
 context(deckPicker: DeckPicker)
 fun setupBottomNavigation() {
-    if (deckPicker.supportFragmentManager.findFragmentByTag(NavigationItem.BROWSER.tag) != null) {
-        ensureBrowserViewModel()
-    }
     if (!deckPicker.bottomNavigationEnabled) return
 
     val binding = deckPicker.binding
     val bottomNav = checkNotNull(binding.bottomNavigation)
-    val fragmentContainer = checkNotNull(binding.bottomNavFragmentContainer)
     bottomNav.isVisible = true
     val scrollBehavior = HideViewOnScrollBehavior.from(bottomNav)
 
@@ -59,9 +48,7 @@ fun setupBottomNavigation() {
             } else {
                 ViewCompat.getRootWindowInsets(bottomNav)?.getInsets(navigationBars())?.bottom ?: 0
             }
-        if (fragmentContainer.marginBottom != margin) {
-            fragmentContainer.updateLayoutParams<ViewGroup.MarginLayoutParams> { bottomMargin = margin }
-        }
+        deckPicker.bottomNavContentClearance.intValue = margin
     }
 
     // Never hide the bar while explore-by-touch (e.g. TalkBack) is on, so it stays reachable.
@@ -74,8 +61,6 @@ fun setupBottomNavigation() {
 
     NavigationItem.populateMenu(bottomNav, deckPicker)
     bottomNav.useInterfaceTypeface()
-
-    deckPicker.onBackPressedDispatcher.addCallback(deckPicker, deckPicker.bottomNavBackCallback)
 
     // Handle system navigation bar insets for the bottom nav
     ViewCompat.setOnApplyWindowInsetsListener(bottomNav) { view, insets ->
@@ -90,14 +75,14 @@ fun setupBottomNavigation() {
             Analytics.sendAnalyticsScreenView(navItem.analyticsScreenName)
             scrollBehavior.slideIn(bottomNav)
         }
-        showTab(navItem)
+        deckPicker.selectNavigationTab(navItem)
         true
     }
 
     // A second tap on Browse opens search in the current browser.
     bottomNav.setOnItemReselectedListener { item ->
         if (item.itemId == NavigationItem.BROWSER.id) {
-            val browser = deckPicker.supportFragmentManager.findFragmentByTag(NavigationItem.BROWSER.tag) as? CardBrowserFragment
+            val browser = deckPicker.currentScreenFragment as? CardBrowserFragment
             browser?.openSearch()
         }
     }
@@ -134,61 +119,33 @@ internal fun BottomNavigationView.selectTab(item: NavigationItem) {
 }
 
 context(deckPicker: DeckPicker)
-fun showRestoredBottomNavTab() {
-    val item = selectedBottomNavItem() ?: return
-    showTab(item)
-}
-
-context(deckPicker: DeckPicker)
 fun selectedBottomNavItem(): NavigationItem? {
     if (!deckPicker.bottomNavigationEnabled) return null
     val bottomNav = deckPicker.binding.bottomNavigation ?: return null
     return NavigationItem.fromId(bottomNav.selectedItemId)
 }
 
-context(deckPicker: DeckPicker)
-private fun showTab(item: NavigationItem) {
-    val binding = deckPicker.binding
-    val contentWrapper = checkNotNull(binding.deckPickerContentWrapper)
-    val fragmentContainer = checkNotNull(binding.bottomNavFragmentContainer)
-    deckPicker.bottomNavBackCallback.isEnabled = item != NavigationItem.HOME
-    if (item != NavigationItem.BROWSER) deckPicker.setBrowserFullScreen(false)
-    when (item) {
-        NavigationItem.HOME -> {
-            fragmentContainer.isVisible = false
-            deckPicker.supportFragmentManager.commit { hideBottomNavFragments() }
-            contentWrapper.isVisible = true
-            deckPicker.floatingActionMenu.showFloatingActionButton()
-            // A hidden Decks pane can miss a bottom bar change when another tab is restored.
-            deckPicker.updateAddButtonInsets()
-        }
-        NavigationItem.BROWSER -> {
-            ensureBrowserViewModel()
-            showBottomNavFragment(::CardBrowserFragment, item.tag, contentWrapper, fragmentContainer)
-        }
-        NavigationItem.STATS -> {
-            showBottomNavFragment(
-                {
-                    Statistics().apply {
-                        arguments = Bundle().apply { putBoolean(Statistics.ARG_HIDE_BACK_BUTTON, true) }
-                    }
-                },
-                item.tag,
-                contentWrapper,
-                fragmentContainer,
-            )
-        }
-        NavigationItem.MORE -> {
-            showBottomNavFragment(::MoreFragment, item.tag, contentWrapper, fragmentContainer)
-        }
+internal fun DeckPicker.updateTabChrome(tab: NavigationItem?) {
+    val bar = binding.bottomNavigation ?: return
+    binding.deckPickerContentWrapper?.isVisible = tab == NavigationItem.HOME
+    if (tab == null) {
+        bar.isVisible = false
+        return
+    }
+
+    bar.menu.findItem(tab.id).isChecked = true
+    setBrowserFullScreen(false)
+    if (tab == NavigationItem.HOME) {
+        floatingActionMenu.showFloatingActionButton()
+        // A hidden Decks pane can miss a bottom bar change when another tab is restored.
+        updateAddButtonInsets()
     }
 }
 
 /** Create CardBrowserViewModel before the fragment accesses it via activityViewModels() */
-context(deckPicker: DeckPicker)
-private fun ensureBrowserViewModel() {
+internal fun DeckPicker.ensureBrowserViewModel() {
     ViewModelProvider(
-        deckPicker.viewModelStore,
+        viewModelStore,
         CardBrowserViewModel.factory(
             lastDeckIdRepository = AnkiDroidApp.instance.sharedPrefsLastDeckIdRepository,
             idsFileDirectory = IdsFile.getDirectory(),
@@ -196,29 +153,8 @@ private fun ensureBrowserViewModel() {
             isFragmented = false,
             initialDeckId = null,
         ),
-        deckPicker.defaultViewModelCreationExtras,
+        defaultViewModelCreationExtras,
     )[CardBrowserViewModel::class.java]
-}
-
-context(deckPicker: DeckPicker)
-private fun showBottomNavFragment(
-    newFragment: () -> Fragment,
-    tag: String,
-    contentWrapper: View,
-    fragmentContainer: View,
-) {
-    contentWrapper.isVisible = false
-    deckPicker.floatingActionMenu.hideFloatingActionButton()
-    deckPicker.supportFragmentManager.commit {
-        hideBottomNavFragments()
-        val existing = deckPicker.supportFragmentManager.findFragmentByTag(tag)
-        if (existing != null) {
-            show(existing)
-        } else {
-            add(R.id.bottom_nav_fragment_container, newFragment(), tag)
-        }
-    }
-    fragmentContainer.isVisible = true
 }
 
 /**
@@ -237,21 +173,8 @@ fun Fragment.updateBottomNavOnScroll(dy: Int) {
 internal fun DeckPicker.setBrowserFullScreen(fullScreen: Boolean) {
     if (!bottomNavigationEnabled) return
     val bar = binding.bottomNavigation ?: return
-    val container = binding.bottomNavFragmentContainer ?: return
     if (bar.isVisible == !fullScreen) return
     bar.isVisible = !fullScreen
-    if (fullScreen) {
-        container.updateLayoutParams<ViewGroup.MarginLayoutParams> { bottomMargin = 0 }
-    } else {
-        HideViewOnScrollBehavior.from(bar).slideIn(bar)
-        container.updateLayoutParams<ViewGroup.MarginLayoutParams> { bottomMargin = bar.height }
-    }
-}
-
-/** Hides any fragments currently hosted in the bottom-nav container. */
-context(deckPicker: DeckPicker)
-private fun FragmentTransaction.hideBottomNavFragments() {
-    deckPicker.supportFragmentManager.fragments.forEach { fragment ->
-        if (fragment.id == R.id.bottom_nav_fragment_container) hide(fragment)
-    }
+    if (!fullScreen) HideViewOnScrollBehavior.from(bar).slideIn(bar)
+    bottomNavContentClearance.intValue = if (fullScreen) 0 else bar.height
 }

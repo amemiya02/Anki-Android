@@ -57,6 +57,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.edit
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
@@ -74,6 +75,7 @@ import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.draganddrop.DropHelper
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
@@ -301,6 +303,7 @@ open class DeckPicker :
     WelcomeFragment.Host {
     private lateinit var appNavigation: AppNavigation
     private var awaitingWelcome = false
+    internal val bottomNavContentClearance = mutableIntStateOf(0)
 
     val viewModel: DeckPickerViewModel by viewModels()
 
@@ -495,13 +498,6 @@ open class DeckPicker :
                     }.invokeOnCompletion {
                         finish()
                     }
-            }
-        }
-
-    internal val bottomNavBackCallback =
-        object : OnBackPressedCallback(enabled = false) {
-            override fun handleOnBackPressed() {
-                binding.bottomNavigation?.selectTab(NavigationItem.HOME)
             }
         }
 
@@ -742,8 +738,21 @@ open class DeckPicker :
         }
         val params = home.layoutParams
         drawerLayout.removeViewAt(0)
-        drawerLayout.addView(host, 0, params)
+        val bar = binding.bottomNavigation
+        if (bar == null) {
+            drawerLayout.addView(host, 0, params)
+        } else {
+            (bar.parent as ViewGroup).removeView(bar)
+            val layout =
+                CoordinatorLayout(this).apply {
+                    addView(host, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                    addView(bar, bar.layoutParams)
+                }
+            drawerLayout.addView(layout, 0, params)
+        }
     }
+
+    internal fun selectNavigationTab(tab: NavigationItem) = appNavigation.selectTab(tab)
 
     override fun launchInApp(intent: Intent): Boolean = ::appNavigation.isInitialized && appNavigation.launch(intent)
 
@@ -1710,7 +1719,6 @@ open class DeckPicker :
         mediaUsnOnConflict = savedInstanceState.getSerializableCompat("mediaUsnOnConflict")
         mediaNetworkTypeOnConflict =
             savedInstanceState.getSerializableCompat<NetworkType>("mediaNetworkTypeOnConflict") ?: NetworkType.UNMETERED
-        showRestoredBottomNavTab()
     }
 
     override fun onPause() {
@@ -1790,7 +1798,6 @@ open class DeckPicker :
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         val current = currentScreenFragment
         if (current is DispatchKeyEventListener && current.dispatchKeyEvent(event)) return true
-        if (current != null) return super.dispatchKeyEvent(event)
         if (!bottomNavigationEnabled || event.action != KeyEvent.ACTION_DOWN || !event.isAltPressed) {
             return super.dispatchKeyEvent(event)
         }
@@ -1813,7 +1820,7 @@ open class DeckPicker :
         event: KeyEvent,
     ): Boolean {
         if (selectedBottomNavItem() == NavigationItem.BROWSER) {
-            val browser = supportFragmentManager.findFragmentByTag(NavigationItem.BROWSER.tag) as? CardBrowserFragment
+            val browser = currentScreenFragment as? CardBrowserFragment
             if (browser?.isVisible == true) {
                 return browser.onKeyUp(keyCode, event) || super.onKeyUp(keyCode, event)
             }

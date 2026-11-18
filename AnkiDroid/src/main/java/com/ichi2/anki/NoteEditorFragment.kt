@@ -1666,7 +1666,7 @@ class NoteEditorFragment :
                     return true
                 }
                 editorActivity.setPreviewerVisible(!editorActivity.isPreviewerVisible)
-                editorActivity.invalidateOptionsMenu()
+                requireActivity().invalidateMenu()
                 return true
             }
             R.id.action_save -> {

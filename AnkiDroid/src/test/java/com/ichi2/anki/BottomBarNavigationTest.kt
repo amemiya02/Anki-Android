@@ -13,7 +13,7 @@ import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.browser.CardBrowserFragment
 import com.ichi2.anki.dialogs.help.HelpDialog
 import com.ichi2.anki.pages.Statistics
-import com.ichi2.anki.preferences.PreferencesActivity
+import com.ichi2.anki.preferences.PreferencesFragment
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.instanceOf
@@ -56,7 +56,7 @@ class BottomBarNavigationTest : RobolectricTest() {
                 NavigationItem.MORE to MoreFragment::class.java,
             ).forEach { (tab, screen) ->
                 deckPicker.select(tab)
-                val shown = deckPicker.supportFragmentManager.findFragmentByTag(tab.tag)
+                val shown = deckPicker.currentScreenFragment
                 assertThat("$tab opens its screen", shown, instanceOf(screen))
                 assertThat("$tab is on screen", shown!!.isVisible, equalTo(true))
                 assertThat("$tab hides Decks", deckPicker.binding.deckPickerContentWrapper!!.isVisible, equalTo(false))
@@ -96,8 +96,11 @@ class BottomBarNavigationTest : RobolectricTest() {
             deckPicker.select(NavigationItem.MORE)
 
             composeRule.onNodeWithText("Settings").performClick()
-            val settings = shadowOf(deckPicker).nextStartedActivity
-            assertThat("Settings opens the settings screen", settings?.component?.className, equalTo(PreferencesActivity::class.java.name))
+            advanceRobolectricLooper()
+            assertThat("Settings opens in the existing activity", shadowOf(deckPicker).nextStartedActivity, nullValue())
+            assertThat(deckPicker.currentScreenFragment, instanceOf(PreferencesFragment::class.java))
+            deckPicker.onBackPressedDispatcher.onBackPressed()
+            advanceRobolectricLooper()
 
             composeRule.onNodeWithText("Help").performClick()
             assertThat("Help opens the help menu", deckPicker.shownHelpMenuTitle(), equalTo(CommonR.string.help))
