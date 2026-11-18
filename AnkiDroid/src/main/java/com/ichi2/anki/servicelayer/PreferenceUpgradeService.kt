@@ -124,6 +124,8 @@ object PreferenceUpgradeService {
                     yield(RemoveDeveloperFindReplace())
                     yield(ResetAnalyticsOptIn2())
                     yield(RemoveFixedReviewerPort())
+                    yield(CopyAnswerButtonSize())
+                    yield(ClearGesturesThatWereOff())
                 }
 
             /** Returns a list of preference upgrade classes which have not been applied */
@@ -913,6 +915,42 @@ object PreferenceUpgradeService {
                 preferences.edit {
                     remove("useFixedPort")
                     remove("reviewerPort")
+                }
+            }
+        }
+
+        /**
+         * The study screen keeps its answer button size under another key than the old study
+         * screen: copy the old value once, within the range the study screen offers.
+         */
+        internal class CopyAnswerButtonSize : PreferenceUpgrade(31) {
+            override fun upgrade(preferences: SharedPreferences) {
+                val oldKey = "answerButtonSize"
+                val newKey = "answerBtnSize"
+                if (!preferences.contains(oldKey) || preferences.contains(newKey)) return
+                val size = preferences.getInt(oldKey, 100).coerceIn(100, 200)
+                preferences.edit { putInt(newKey, size) }
+            }
+        }
+
+        /**
+         * The old study screen ignored gestures unless "gestures" was switched on; the study
+         * screen has no such switch. For someone who studied in the old screen with gestures off,
+         * clear the gesture bindings once, so no swipe or tap starts acting unexpectedly.
+         * Gestures bound while using the newer study screen were chosen there and are kept.
+         */
+        internal class ClearGesturesThatWereOff : PreferenceUpgrade(32) {
+            override fun upgrade(preferences: SharedPreferences) {
+                if (preferences.getBoolean("gestures", false)) return
+                if (preferences.getBoolean("newReviewerOptions", false)) return
+                preferences.edit {
+                    for (action in ViewerAction.entries) {
+                        val stored = preferences.getString(action.preferenceKey, null) ?: continue
+                        val bindings = fromPreferenceString(stored)
+                        val withoutGestures = bindings.filterNot { it.binding is Binding.GestureInput }
+                        if (withoutGestures.size == bindings.size) continue
+                        putString(action.preferenceKey, withoutGestures.toPreferenceString())
+                    }
                 }
             }
         }

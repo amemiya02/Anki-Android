@@ -3,6 +3,7 @@
 package com.ichi2.anki.servicemodel
 
 import android.content.SharedPreferences
+import android.view.KeyEvent
 import androidx.core.content.edit
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.EmptyApplicationCategory
@@ -379,5 +380,75 @@ class PreferenceUpgradeServiceTest : AndroidTest {
         assertThat("Preserves SHOW_ANSWER binding", bindings.contains(existingShowBinding), equalTo(true))
         assertThat("Migrates 'Again' question binding", bindings.contains(questionBinding), equalTo(true))
         assertThat("Splits 'Good' Both binding to Question side", bindings.contains(bothBinding), equalTo(true))
+    }
+
+    @Test
+    fun `the old study screen's answer button size carries over to the study screen`() {
+        prefs.edit { putInt("answerButtonSize", 150) }
+
+        PreferenceUpgrade.CopyAnswerButtonSize().performUpgrade(prefs)
+
+        assertEquals(150, prefs.getInt("answerBtnSize", 100))
+    }
+
+    @Test
+    fun `an answer button size the study screen cannot show is kept within its range`() {
+        prefs.edit { putInt("answerButtonSize", 60) }
+
+        PreferenceUpgrade.CopyAnswerButtonSize().performUpgrade(prefs)
+
+        assertEquals(100, prefs.getInt("answerBtnSize", -1))
+    }
+
+    @Test
+    fun `an answer button size already chosen for the study screen is kept`() {
+        prefs.edit {
+            putInt("answerButtonSize", 150)
+            putInt("answerBtnSize", 180)
+        }
+
+        PreferenceUpgrade.CopyAnswerButtonSize().performUpgrade(prefs)
+
+        assertEquals(180, prefs.getInt("answerBtnSize", 100))
+    }
+
+    @Test
+    fun `gestures switched off in the old study screen stay off`() {
+        val swipe = ReviewerBinding(Binding.gesture(Gesture.SWIPE_UP), CardSide.BOTH)
+        val key = ReviewerBinding(Binding.KeyCode(KeyEvent.KEYCODE_E), CardSide.BOTH)
+        prefs.edit {
+            putBoolean("gestures", false)
+            putString(ViewerAction.EDIT.preferenceKey, listOf(swipe, key).toPreferenceString())
+        }
+
+        PreferenceUpgrade.ClearGesturesThatWereOff().performUpgrade(prefs)
+
+        assertEquals(listOf(key), ViewerAction.EDIT.getBindings(prefs))
+    }
+
+    @Test
+    fun `gestures switched on in the old study screen keep working`() {
+        val swipe = ReviewerBinding(Binding.gesture(Gesture.SWIPE_UP), CardSide.BOTH)
+        prefs.edit {
+            putBoolean("gestures", true)
+            putString(ViewerAction.EDIT.preferenceKey, listOf(swipe).toPreferenceString())
+        }
+
+        PreferenceUpgrade.ClearGesturesThatWereOff().performUpgrade(prefs)
+
+        assertEquals(listOf(swipe), ViewerAction.EDIT.getBindings(prefs))
+    }
+
+    @Test
+    fun `gestures bound while using the newer study screen keep working`() {
+        val swipe = ReviewerBinding(Binding.gesture(Gesture.SWIPE_UP), CardSide.BOTH)
+        prefs.edit {
+            putBoolean("newReviewerOptions", true)
+            putString(ViewerAction.EDIT.preferenceKey, listOf(swipe).toPreferenceString())
+        }
+
+        PreferenceUpgrade.ClearGesturesThatWereOff().performUpgrade(prefs)
+
+        assertEquals(listOf(swipe), ViewerAction.EDIT.getBindings(prefs))
     }
 }
