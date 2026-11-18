@@ -413,8 +413,8 @@ class ReviewRemindersTest : InstrumentedTest() {
         deckName: String,
     ) {
         assertReminderCount(1)
-        compose.onNodeWithText(deckName, substring = true).assertIsDisplayed()
-        compose.onNodeWithText(reminder.time.toFormattedString(testContext)).assertIsDisplayed()
+        val time = reminder.time.toFormattedString(testContext)
+        compose.onNode(hasText(deckName, substring = true) and hasText(time)).assertIsDisplayed()
         if (reminder.enabled) switches()[0].assertIsOn() else switches()[0].assertIsOff()
     }
 }
