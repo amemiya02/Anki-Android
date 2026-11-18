@@ -3,6 +3,7 @@
 package com.ichi2.anki.ui.windows.reviewer
 
 import android.content.Intent
+import androidx.core.content.IntentCompat
 import androidx.core.content.edit
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +20,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
@@ -85,9 +87,12 @@ class StudyScreenDefaultTest : RobolectricTest() {
 
         val shortcut =
             ShortcutManagerCompat.getDynamicShortcuts(targetContext).single { it.id == "reviewCardsShortcutId" }
-        assertEquals(IntentHandler::class.java.name, shortcut.intents[0].component?.className)
-        val study = shortcut.intents[1]
-        assertStudyScreen(study)
+        val intent = shortcut.intents.single()
+        assertEquals(IntentHandler.LaunchType.REVIEW, IntentHandler.getLaunchType(intent))
+
+        val handler = startActivityNormallyOpenCollectionWithIntent(IntentHandler::class.java, intent)
+
+        val study = assertReviewStack(handler)
         assertTrue(study.getBooleanExtra(NavigationDrawerActivity.EXTRA_STARTED_WITH_SHORTCUT, false))
     }
 
@@ -99,9 +104,15 @@ class StudyScreenDefaultTest : RobolectricTest() {
 
     private fun assertReviewStack(handler: IntentHandler): Intent {
         val shadow = shadowOf(handler.application)
-        val study = assertNotNull(shadow.nextStartedActivity)
+        val study = assertHostedStudyScreen(assertNotNull(shadow.nextStartedActivity))
+        assertNull(shadow.nextStartedActivity)
+        return study
+    }
+
+    private fun assertHostedStudyScreen(intent: Intent): Intent {
+        assertEquals(DeckPicker::class.java.name, intent.component?.className)
+        val study = assertNotNull(IntentCompat.getParcelableExtra(intent, DeckPicker.EXTRA_ENTRY_SCREEN, Intent::class.java))
         assertStudyScreen(study)
-        assertEquals(DeckPicker::class.java.name, shadow.nextStartedActivity?.component?.className)
         return study
     }
 
