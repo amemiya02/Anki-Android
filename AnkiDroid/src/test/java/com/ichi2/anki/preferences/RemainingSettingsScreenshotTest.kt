@@ -72,7 +72,8 @@ class RemainingSettingsScreenshotTest : ScreenshotTest() {
         setPhoneQualifiers()
         runTest { col.reopenWithLanguage(language.option) }
         val intent = PreferencesActivity.getIntent(targetContext, page.destination)
-        ActivityScenario.launch<PreferencesActivity>(intent).use {
+        ActivityScenario.launch<PreferencesActivity>(intent).use { scenario ->
+            scenario.onActivity { it.dispatchInsets(navBarBottom = 24.dp) }
             compose.onNodeWithText(targetContext.getString(page.firstSetting)).performScrollTo().assertIsDisplayed()
             captureScreen("${page.name.lowercase()}_start")
             compose.onNodeWithText(targetContext.getString(page.lastSetting)).performScrollTo().assertIsDisplayed()
