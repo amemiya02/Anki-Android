@@ -260,7 +260,9 @@ class GraphicsUseFoundationTest {
         /** Graphics whose colour only says where to paint: the system or the view that shows them tints them */
         private val MASKS =
             mapOf(
-                "circle_background" to "a home-screen widget's count bubble: tinted where it is used",
+                "widget_action" to "a home-screen widget action mask: Glance tints it with the app's primary colour",
+                "widget_sheet" to "a home-screen widget background mask: Glance tints it with the app's theme colours",
+                "widget_sheet_compact" to "a compact home-screen widget background mask: Glance tints it with the app's theme colours",
                 "ic_launcher_monochrome" to "the launcher's themed icon: the launcher tints it",
                 "ic_hayaki_notification" to "the notification's small icon: the system draws only its shape (ticket 47)",
             )

@@ -52,7 +52,13 @@ class DeckWidgetUpdateTest : RobolectricTest() {
     @Config(qualifiers = "ja")
     fun `the narrow home-screen labels fit the Japanese layout`() =
         runTest {
-            val deck = addDeck("日本語").also { addNoteToDeck(it, count = 2) }
+            val deck = addDeck("日本語")
+            val noteType = col.notetypes.current()
+            repeat(2) { index ->
+                val note = col.newNote(noteType)
+                note.setField(0, "Front $index")
+                col.addNote(note, deck)
+            }
             DeckPickerWidgetPreferences(targetContext).saveSelectedDecks(WIDGET_ID, listOf(deck.toString()))
 
             val addNote = targetContext.renderWidget(AddNoteWidget(), width = 40, height = 40)
