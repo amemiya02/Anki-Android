@@ -95,10 +95,8 @@ class DeckPickerMaintenanceConfirmationTest : RobolectricTest() {
         advanceRobolectricLooper()
 
         if (mediaCheck) {
-            val intent = assertNotNull(shadowOf(controller.get()).nextStartedActivity)
-            val expected = MediaCheckFragment.getIntent(controller.get())
-            assertEquals(expected.component, intent.component)
-            assertEquals(MediaCheckFragment::class.java.name, intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME))
+            compose.waitUntil(10_000) { controller.get().currentScreenFragment is MediaCheckFragment }
+            assertEquals(1, controller.get().supportFragmentManager.fragments.count { it is MediaCheckFragment })
         } else {
             advanceRobolectricLooperUntil {
                 databaseChecks.get() == 1 &&

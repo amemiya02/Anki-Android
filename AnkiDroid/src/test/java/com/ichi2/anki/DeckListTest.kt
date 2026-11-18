@@ -9,12 +9,9 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.study.FinishedFragment
-import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowDialog
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -32,11 +29,7 @@ class DeckListTest : RobolectricTest() {
         col.setDeck(listOf(addBasicNote("hola", "hello").firstCard().id), spanish)
 
         deckPicker {
-            shadowOf(this).clearNextStartedActivities()
-            tapDeck("Spanish")
-
-            val started = assertNotNull(shadowOf(this).nextStartedActivity)
-            assertEquals(ReviewerFragment::class.java.name, started.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME))
+            tapDeck("Spanish", getString(CommonString.show_answer))
             assertEquals(spanish, col.decks.selected())
         }
     }
@@ -49,12 +42,8 @@ class DeckListTest : RobolectricTest() {
         col.sched.answerCard(assertNotNull(col.sched.card), anki.scheduler.CardAnswer.Rating.EASY)
 
         deckPicker {
-            shadowOf(this).clearNextStartedActivities()
             composeRule.onNodeWithText("Done for today", useUnmergedTree = true).assertIsDisplayed()
-            tapDeck("Spanish")
-
-            val started = assertNotNull(shadowOf(this).nextStartedActivity)
-            assertEquals(FinishedFragment::class.java.name, started.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME))
+            tapDeck("Spanish", getString(CommonString.finished_back_to_decks))
         }
     }
 
@@ -101,8 +90,9 @@ class DeckListTest : RobolectricTest() {
         }
     }
 
-    private fun DeckPicker.tapDeck(name: String) {
+    private fun tapDeck(name: String, destinationLabel: String) {
         composeRule.onNodeWithText(name).performClick()
-        advanceRobolectricLooperUntil { shadowOf(this).peekNextStartedActivity() != null }
+        composeRule.waitUntil(10_000) { composeRule.onAllNodesWithText(destinationLabel).fetchSemanticsNodes().isNotEmpty() }
+        composeRule.onNodeWithText(destinationLabel).assertIsDisplayed()
     }
 }

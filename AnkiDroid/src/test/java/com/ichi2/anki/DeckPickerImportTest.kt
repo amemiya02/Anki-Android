@@ -20,6 +20,7 @@ import com.ichi2.anki.dialogs.DatabaseErrorDialog
 import com.ichi2.anki.dialogs.DialogHandler
 import com.ichi2.anki.dialogs.ImportDialog
 import com.ichi2.anki.dialogs.ImportViewModel
+import com.ichi2.anki.pages.AnkiPackageImporterFragment
 import com.ichi2.anki.testutils.SingleViewModelFactory
 import com.ichi2.anki.utils.ext.DIALOG_FRAGMENT_TAG
 import com.ichi2.testutils.BackupManagerTestUtilities
@@ -53,6 +54,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
@@ -112,12 +114,12 @@ class DeckPickerImportTest : RobolectricTest() {
             controller.pause().stop()
             ViewModelProvider(activity)[ImportViewModel::class.java].triggerImportAdd("/cache/deck.apkg")
             advanceRobolectricLooper()
-            assertNull(shadowOf(activity).nextStartedActivity)
+            assertFalse(activity.currentScreenFragment is AnkiPackageImporterFragment)
 
             controller.start().resume().visible()
             advanceRobolectricLooper()
-            val intent = assertNotNull(shadowOf(activity).nextStartedActivity)
-            assertEquals(SingleFragmentActivity::class.java.name, intent.component?.className)
+            advanceRobolectricLooperUntil { activity.currentScreenFragment is AnkiPackageImporterFragment }
+            val importer = assertNotNull(activity.currentScreenFragment)
             controller
                 .pause()
                 .stop()
@@ -125,7 +127,8 @@ class DeckPickerImportTest : RobolectricTest() {
                 .resume()
                 .visible()
             advanceRobolectricLooper()
-            assertNull(shadowOf(activity).nextStartedActivity)
+            assertSame(importer, activity.currentScreenFragment)
+            assertEquals(1, activity.supportFragmentManager.fragments.count { it is AnkiPackageImporterFragment })
         }
 
     @Test
