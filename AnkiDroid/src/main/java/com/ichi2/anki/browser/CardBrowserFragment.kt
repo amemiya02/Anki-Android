@@ -57,7 +57,6 @@ import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.ext.ifNotZero
 import com.ichi2.anki.dialogs.BrowserOptionsDialog
-import com.ichi2.anki.dialogs.ChangeNoteTypeDialog
 import com.ichi2.anki.dialogs.DeckSelectionDialog
 import com.ichi2.anki.dialogs.DeckSelectionDialog.Companion.RESULT_SELECTED_DECK
 import com.ichi2.anki.dialogs.FlagRenameDialog
@@ -76,6 +75,7 @@ import com.ichi2.anki.export.ExportDialogFragment
 import com.ichi2.anki.filtered.FilteredDeckOptionsFragment
 import com.ichi2.anki.formatCardCount
 import com.ichi2.anki.launchCatchingTask
+import com.ichi2.anki.pages.ChangeNoteTypePage
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.exception.InvalidSearchException
 import com.ichi2.anki.libanki.undoAvailable
@@ -494,7 +494,10 @@ class CardBrowserFragment :
             when (result) {
                 ChangeNoteTypeResponse.NoSelection -> Timber.w("change note type: no selection")
                 ChangeNoteTypeResponse.MixedSelection -> showSnackbar(CommonString.different_note_types_selected)
-                is ChangeNoteTypeResponse.ChangeNoteType -> showDialogFragment(ChangeNoteTypeDialog.newInstance(result.noteIds))
+                is ChangeNoteTypeResponse.ChangeNoteType -> {
+                    val noteType = withCol { getNote(result.noteIds.first()).noteTypeId }
+                    startActivity(ChangeNoteTypePage.getIntent(requireContext(), result.noteIds, noteType))
+                }
             }
         }
         activityViewModel.flowOfSaveSearchNamePrompt.collectInLifecycle { query ->

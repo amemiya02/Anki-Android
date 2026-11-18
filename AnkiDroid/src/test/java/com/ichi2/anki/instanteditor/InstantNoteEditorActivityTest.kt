@@ -21,9 +21,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.instantnoteeditor.InstantEditorViewModel
-import com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity
+import com.ichi2.anki.instantnoteeditor.InstantNoteEditorFragment
 import com.ichi2.anki.progress.ViewModelProgress
 import com.ichi2.testutils.withCollectionAccessOn
 import kotlinx.coroutines.CoroutineDispatcher
@@ -31,7 +32,6 @@ import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -50,7 +50,7 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
             val originalText = "{{c1::Hello}} world"
             val activity = startInstantNoteEditor(originalText)
             compose.onNodeWithContentDescription(getResourceString(CommonString.change_editor_mode)).performClick()
-            val viewModel = ViewModelProvider(activity)[InstantEditorViewModel::class.java]
+            val viewModel = ViewModelProvider(checkNotNull(activity.currentScreenFragment))[InstantEditorViewModel::class.java]
             val notesBefore = col.noteCount()
             val pendingOperations = ArrayDeque<Runnable>()
             val dispatcher =
@@ -79,7 +79,7 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
             }
             advanceUntilIdle()
 
-            assertTrue("editor closes after saving", activity.isFinishing)
+            assertTrue("editor closes after saving", activity.currentScreenFragment !is InstantNoteEditorFragment)
             assertEquals("notes added", notesBefore + 1, col.noteCount())
             assertEquals("saved fields must match the validated fields", originalText, col.getNote(viewModel.editorNote.id).fields[0])
         }
@@ -127,7 +127,7 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
             val submit = checkNotNull(save.fetchSemanticsNode().config[SemanticsActions.OnClick].action)
             save.performClick()
             advanceUntilIdle()
-            assertTrue("editor is closing", activity.isFinishing)
+            assertTrue("editor is closing", activity.currentScreenFragment !is InstantNoteEditorFragment)
 
             submit()
             advanceUntilIdle()
@@ -144,21 +144,21 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
                 compose.onNodeWithText(getResourceString(CommonString.menu_add)).performClick()
                 activity.onBackPressedDispatcher.onBackPressed()
 
-                assertFalse("editor closed while saving", activity.isFinishing)
+                assertTrue("editor closed while saving", activity.currentScreenFragment is InstantNoteEditorFragment)
             }
             advanceUntilIdle()
 
-            assertTrue("editor closes once the note is saved", activity.isFinishing)
+            assertTrue("editor closes once the note is saved", activity.currentScreenFragment !is InstantNoteEditorFragment)
         }
 
-    private suspend fun startInstantNoteEditor(text: String): InstantNoteEditorActivity {
+    private suspend fun startInstantNoteEditor(text: String): DeckPicker {
         val intent =
             Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, text)
             }
         return withCollectionAccessOn(Handler(Looper.getMainLooper()).asCoroutineDispatcher()) {
-            startRegularActivity<InstantNoteEditorActivity>(intent)
+            openSharedInstantNote(intent)
         }
     }
 }

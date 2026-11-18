@@ -5,7 +5,6 @@ package com.ichi2.anki.worker
 import android.app.Notification
 import android.content.Context
 import android.content.pm.ServiceInfo
-import android.net.Uri
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -29,7 +28,7 @@ import com.ichi2.anki.R
 import com.ichi2.anki.cancelSync
 import com.ichi2.anki.common.android.withAppLocale
 import com.ichi2.anki.common.permissions.canPostNotifications
-import com.ichi2.anki.isSelfHostedSyncAddress
+import com.ichi2.anki.followRedirect
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.notifications.NotificationId
 import com.ichi2.anki.notifications.hayakiNotification
@@ -42,9 +41,8 @@ import com.ichi2.anki.sync.MeteredSyncPolicy
 import com.ichi2.anki.sync.SyncAuth
 import com.ichi2.anki.sync.fullUploadOrDownload
 import com.ichi2.anki.sync.syncCollection
-import com.ichi2.anki.syncServerAddress
+import com.ichi2.anki.syncServerDisplayName
 import com.ichi2.anki.utils.ext.trySetForeground
-import com.ichi2.utils.LanguageUtil.withUnicodeIsolation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -155,13 +153,7 @@ class SyncWorker(
                 try {
                     withCol {
                         val response = syncCollection(auth, syncMedia = false)
-                        val syncAuth =
-                            if (response.hasNewEndpoint() && isSelfHostedSyncAddress(response.newEndpoint)) {
-                                Prefs.currentSyncUri = response.newEndpoint
-                                auth.withEndpoint(response.newEndpoint)
-                            } else {
-                                auth
-                            }
+                        val syncAuth = auth.followRedirect(response)
                         Timber.i("Sync required: %s", response.required)
                         // Keep the direction decision and transfer on the queue so the collection
                         // cannot change between checking whether it is empty and replacing it.
@@ -190,13 +182,11 @@ class SyncWorker(
         if (syncMedia) syncMedia(syncAuth)
     }
 
-    private fun syncServerName(): String? = syncServerAddress()?.let { Uri.parse(it).host }?.let(::withUnicodeIsolation)
-
     private fun failureMessage(error: Throwable): String? =
         when (error) {
             is BackendNetworkException -> {
                 val context = notificationContext
-                val server = syncServerName()
+                val server = syncServerDisplayName()
                 val message =
                     if (server == null) {
                         context.getString(R.string.notification_sync_network_unspecified)
@@ -218,7 +208,7 @@ class SyncWorker(
         upload: Boolean,
     ) {
         val direction = if (upload) R.string.notification_sync_upload else R.string.notification_sync_download
-        val server = syncServerName() ?: notificationContext.getString(R.string.notification_sync_server)
+        val server = syncServerDisplayName() ?: notificationContext.getString(R.string.notification_sync_server)
         notify(getProgressNotification(notificationContext.getString(direction, server)))
         if (!upload) {
             val created =

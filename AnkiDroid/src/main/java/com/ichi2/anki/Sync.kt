@@ -117,6 +117,16 @@ internal fun isSelfHostedSyncAddress(address: String): Boolean {
         url.username.isEmpty() && url.password.isEmpty()
 }
 
+/** Saves an Engine redirect only when it can be used by this Fork. */
+internal fun rememberSyncEndpoint(endpoint: String): String? =
+    endpoint.takeIf(::isSelfHostedSyncAddress)?.also {
+        Timber.i("Sync endpoint updated")
+        Prefs.currentSyncUri = it
+    }
+
+internal fun SyncAuth.followRedirect(response: SyncCollectionResponse): SyncAuth =
+    if (response.hasNewEndpoint()) rememberSyncEndpoint(response.newEndpoint)?.let(::withEndpoint) ?: this else this
+
 internal fun syncServerDisplayName(): String? =
     syncServerAddress()?.toHttpUrlOrNull()?.let { url ->
         withUnicodeIsolation(url.host)
@@ -236,7 +246,6 @@ private suspend fun handleNormalSync(
     mediaNetworkType: NetworkType,
 ) {
     Timber.i("Sync: Normal collection sync")
-    var auth2 = auth
     val output =
         deckPicker.withProgress(
             extractProgress = {
@@ -251,15 +260,11 @@ private suspend fun handleNormalSync(
                 operation = CollectionOperation.SYNC,
                 onCancel = ::cancelSync,
             ) {
-                syncCollection(auth2, syncMedia = false) // media is synced by SyncMediaWorker
+                syncCollection(auth, syncMedia = false) // media is synced by SyncMediaWorker
             }
         }
 
-    if (output.hasNewEndpoint() && isSelfHostedSyncAddress(output.newEndpoint)) {
-        Timber.i("sync endpoint updated")
-        Prefs.currentSyncUri = output.newEndpoint
-        auth2 = auth.withEndpoint(output.newEndpoint)
-    }
+    val auth2 = auth.followRedirect(output)
     val mediaUsn =
         if (syncMedia) {
             output.serverMediaUsn

@@ -115,7 +115,6 @@ val collectionMethods =
         "getSchedulingStatesWithContext" to { bytes -> getSchedulingStatesWithContextRaw(bytes) },
         "setSchedulingStates" to { bytes -> setSchedulingStatesRaw(bytes) },
         "getChangeNotetypeInfo" to { bytes -> getChangeNotetypeInfoRaw(bytes) },
-        "changeNotetype" to { bytes -> changeNotetypeRaw(bytes) },
         "importJsonString" to { bytes -> importJsonStringRaw(bytes) },
         "importJsonFile" to { bytes -> importJsonFileRaw(bytes) },
         "congratsInfo" to { bytes -> congratsInfoRaw(bytes) },

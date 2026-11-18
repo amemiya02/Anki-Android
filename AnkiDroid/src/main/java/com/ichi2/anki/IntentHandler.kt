@@ -95,10 +95,17 @@ class IntentHandler : AbstractIntentHandler() {
             }
         }
         when (launchType) {
-            LaunchType.FILE_IMPORT ->
-                runIfStoragePermissions {
+            LaunchType.FILE_IMPORT -> {
+                if (!hasShownAppIntro() ||
+                    CollectionHelper.storageDecision(sharedPrefs()) != StorageDecision.Decided ||
+                    !grantedStoragePermissions(this)
+                ) {
+                    startActivity(DeckPicker.getDeferredImportIntent(this, intent))
+                    finish()
+                } else {
                     handleFileImport(intent, reloadIntent, action)
                 }
+            }
             LaunchType.IMAGE_IMPORT ->
                 runIfStoragePermissions {
                     handleImageImport(intent)
@@ -242,12 +249,6 @@ class IntentHandler : AbstractIntentHandler() {
         action: String?,
     ) {
         Timber.i("Handling file import")
-        if (!hasShownAppIntro()) {
-            Timber.i("Trying to import a file when the app was not started at all")
-            showThemedToast(this, CommonString.app_not_initialized_new, false)
-            finish()
-            return
-        }
         importScope.launch {
             val importResult = withContext(ioDispatcher) { prepareImport(this@IntentHandler, intent) }
             // finish() may precede onDestroy(), which cancels the import scope.

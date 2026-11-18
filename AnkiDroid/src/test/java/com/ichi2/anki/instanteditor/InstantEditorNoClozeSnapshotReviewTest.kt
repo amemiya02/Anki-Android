@@ -19,7 +19,7 @@ import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.instantnoteeditor.InstantEditorViewModel
-import com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity
+import com.ichi2.anki.instantnoteeditor.InstantNoteEditorFragment
 import com.ichi2.testutils.withCollectionAccessOn
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -48,11 +48,11 @@ class InstantEditorNoClozeSnapshotReviewTest : RobolectricTest() {
                 }
             val activity =
                 withCollectionAccessOn(Handler(Looper.getMainLooper()).asCoroutineDispatcher()) {
-                    startRegularActivity<InstantNoteEditorActivity>(intent)
+                    openSharedInstantNote(intent)
                 }
             compose.onNodeWithContentDescription(getResourceString(CommonString.change_editor_mode)).performClick()
             val editor = requireNotNull(ShadowDialog.getLatestDialog())
-            val viewModel = ViewModelProvider(activity)[InstantEditorViewModel::class.java]
+            val viewModel = ViewModelProvider(checkNotNull(activity.currentScreenFragment))[InstantEditorViewModel::class.java]
             val notesBefore = col.noteCount()
 
             withCollectionAccessOn(StandardTestDispatcher(testScheduler)) {
@@ -68,7 +68,7 @@ class InstantEditorNoClozeSnapshotReviewTest : RobolectricTest() {
             shadowOf(Looper.getMainLooper()).idle()
             advanceUntilIdle()
 
-            assertTrue("confirmed note is saved", activity.isFinishing)
+            assertTrue("confirmed note is saved", activity.currentScreenFragment !is InstantNoteEditorFragment)
             assertEquals("one note added", notesBefore + 1, col.noteCount())
             assertEquals(
                 "confirmation must not insert unvalidated replacement fields",

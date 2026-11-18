@@ -27,7 +27,6 @@ import com.ichi2.anki.common.destinations.NoteEditorDestination
 import com.ichi2.anki.common.utils.ext.schedulerVersion
 import com.ichi2.anki.configureRenderingMode
 import com.ichi2.anki.isLoggedIn
-import com.ichi2.anki.isSelfHostedSyncAddress
 import com.ichi2.anki.launchCatchingIO
 import com.ichi2.anki.libanki.CardId
 import com.ichi2.anki.libanki.Consts.DEFAULT_DECK_ID
@@ -47,6 +46,7 @@ import com.ichi2.anki.reviewreminders.ScheduleRemindersDestination
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.sync.MeteredSyncPolicy
 import com.ichi2.anki.sync.syncStatus
+import com.ichi2.anki.rememberSyncEndpoint
 import com.ichi2.anki.syncAuth
 import com.ichi2.anki.utils.Destination
 import com.ichi2.utils.NetworkUtils
@@ -776,9 +776,7 @@ class DeckPickerViewModel :
             // Use CollectionManager to ensure that this doesn't block 'deck count' tasks
             // throws if a .colpkg import or similar occurs just before this call
             val output = withContext(Dispatchers.IO) { CollectionManager.getBackend().syncStatus(auth) }
-            if (output.hasNewEndpoint() && isSelfHostedSyncAddress(output.newEndpoint)) {
-                Prefs.currentSyncUri = output.newEndpoint
-            }
+            if (output.hasNewEndpoint()) rememberSyncEndpoint(output.newEndpoint)
             when (output.required) {
                 SyncStatusResponse.Required.NO_CHANGES -> SyncIconState.Normal
                 SyncStatusResponse.Required.NORMAL_SYNC -> SyncIconState.PendingChanges

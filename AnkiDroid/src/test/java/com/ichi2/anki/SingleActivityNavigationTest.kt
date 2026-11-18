@@ -9,6 +9,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.content.pm.ShortcutManagerCompat
@@ -17,7 +18,12 @@ import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.browser.CardBrowserPaneFragment
 import com.ichi2.anki.browser.toIntent
 import com.ichi2.anki.common.destinations.BrowserDestination
+import com.ichi2.anki.common.destinations.NoteEditorDestination
+import com.ichi2.anki.common.ui.TransitionDirection
+import com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity
 import com.ichi2.anki.mediacheck.MediaCheckFragment
+import com.ichi2.anki.noteeditor.toIntent
+import com.ichi2.anki.pages.PageFragment
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.testutils.BackupManagerTestUtilities
 import org.junit.Assert.assertEquals
@@ -152,6 +158,47 @@ class SingleActivityNavigationTest : RobolectricTest() {
         composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment is MediaCheckFragment }
         assertNull(shadowOf(deckPicker).nextStartedActivity)
     }
+
+    @Test
+    fun `editing an existing note opens the bundled change note type page`() =
+        withDeckPicker(deckCount = 1) { deckPicker ->
+            val note = addBasicNote("Example prompt", "Example answer")
+            val editor = NoteEditorDestination.EditSelection(note.cardIds(col), TransitionDirection.DEFAULT)
+            deckPicker.startActivity(editor.toIntent(deckPicker))
+            composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment is NoteEditorPaneFragment }
+
+            composeRule.onNodeWithText(note.notetype.name).performClick()
+            advanceRobolectricLooper()
+
+            val page = deckPicker.currentScreenFragment as? PageFragment
+            assertEquals(
+                "https://appassets.androidplatform.net/change-notetype/${note.noteTypeId}",
+                (page?.webViewLayout?.getChildAt(0) as? android.webkit.WebView)?.url?.substringBefore('#'),
+            )
+        }
+
+    @Test
+    fun `instant share dispatches to the existing host and opens the full editor there`() =
+        withDeckPicker(deckCount = 1) {
+            val shared =
+                Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, "Shared instant note")
+                }
+            val entry = Robolectric.buildActivity(InstantNoteEditorActivity::class.java, shared).use { controller ->
+                val handler = controller.create().get()
+                assertTrue(handler.isFinishing)
+                shadowOf(handler).nextStartedActivity
+            }
+            assertEquals(DeckPicker::class.java.name, entry.component?.className)
+            val controller = startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, entry)
+            val host = controller.get()
+            val openEditor = composeRule.onNodeWithContentDescription(getResourceString(CommonString.open_note_editor))
+            openEditor.assertIsDisplayed().performClick()
+            composeRule.waitUntil(10_000) { host.currentScreenFragment is NoteEditorPaneFragment }
+            assertEquals("Shared instant note", (host.currentScreenFragment as NoteEditorPaneFragment).launchIntent.getStringExtra(Intent.EXTRA_TEXT))
+            assertNull(shadowOf(host).nextStartedActivity)
+        }
 
     @Test
     fun `first run opens Welcome and continues to Decks in the same activity`() {

@@ -11,6 +11,7 @@ import androidx.compose.ui.test.performClick
 import androidx.core.net.toUri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.dialogs.DialogHandler
+import com.ichi2.testutils.BackupManagerTestUtilities
 import com.ichi2.utils.ImportResolution
 import com.ichi2.utils.ImportResult
 import com.ichi2.utils.ImportUtils
@@ -29,7 +30,9 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowDialog
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -124,15 +127,36 @@ class IntentHandlerImportTest : RobolectricTest() {
         }
 
     @Test
-    fun `import before introduction finishes the intent handler`() =
-        runTest {
-            setIntroductionSlidesShown(false)
+    fun `an external package survives Welcome and is prepared once after setup`() {
+        setIntroductionSlidesShown(false)
+        ensureCollectionLoadIsSynchronous()
+        BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
+        val failure = ImportResult.Failure("The selected file is no longer available")
+        every { ImportUtils.prepareImport(any(), any()) } returns failure
 
-            assertTrue(launchImport().isFinishing)
-        }
+        val handler = launchImport()
+        assertTrue(handler.isFinishing)
+        val entry = assertNotNull(shadowOf(handler).nextStartedActivity)
+        assertEquals(DeckPicker::class.java.name, entry.component?.className)
+        assertEquals("content://import/deck.apkg".toUri(), entry.clipData?.getItemAt(0)?.uri)
+        assertTrue(entry.flags and Intent.FLAG_GRANT_READ_URI_PERMISSION != 0)
+
+        val controller = startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, entry)
+        val welcome = compose.onNodeWithText(getResourceString(CommonString.paper_welcome_start_empty))
+        welcome.assertIsDisplayed()
+        verify(exactly = 0) { ImportUtils.prepareImport(any(), any()) }
+        controller.recreate()
+        advanceRobolectricLooper()
+        welcome.performClick()
+        compose.onNodeWithText(failure.humanReadableMessage).assertIsDisplayed()
+        verify(exactly = 1) { ImportUtils.prepareImport(any(), any()) }
+    }
 
     private fun launchImport(mimeType: String? = null): IntentHandler {
-        val intent = Intent(Intent.ACTION_VIEW).setDataAndType("content://import/deck.apkg".toUri(), mimeType)
+        val intent =
+            Intent(Intent.ACTION_VIEW)
+                .setDataAndType("content://import/deck.apkg".toUri(), mimeType)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         val controller = Robolectric.buildActivity(IntentHandler::class.java, intent)
         saveControllerForCleanup(controller)
         return controller.create().get()

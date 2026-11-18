@@ -19,7 +19,6 @@ import com.ichi2.anki.LanguageConfig.ARABIC
 import com.ichi2.anki.LanguageConfig.JAPANESE
 import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.ScreenshotTest
-import com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity
 import org.junit.Rule
 import org.junit.Test
 
@@ -38,7 +37,7 @@ class InstantEditorScreenshotTest : ScreenshotTest() {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, "Tokyo 東京")
             }
-        startActivityNormallyOpenCollectionWithIntent(InstantNoteEditorActivity::class.java, intent)
+        openSharedInstantNote(intent)
         val word = compose.onNodeWithText("Tokyo")
         word.performScrollTo().performClick()
         word.assertIsSelected()

@@ -105,7 +105,6 @@ import com.ichi2.anki.common.utils.ext.getParcelableExtraCompat
 import com.ichi2.anki.common.utils.ext.ifZero
 import com.ichi2.anki.common.utils.ext.pasteImagesAsPng
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
-import com.ichi2.anki.dialogs.ChangeNoteTypeDialog
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.dialogs.IntegerDialog
 import com.ichi2.anki.dialogs.registerDeckSelectedHandler
@@ -123,6 +122,7 @@ import com.ichi2.anki.libanki.Field
 import com.ichi2.anki.libanki.Fields
 import com.ichi2.anki.libanki.Note
 import com.ichi2.anki.libanki.Note.ClozeUtils
+import com.ichi2.anki.libanki.NoteId
 import com.ichi2.anki.libanki.NoteTypeId
 import com.ichi2.anki.libanki.NotetypeJson
 import com.ichi2.anki.libanki.Notetypes
@@ -156,6 +156,7 @@ import com.ichi2.anki.noteeditor.ToolbarLayoutDialogHost
 import com.ichi2.anki.noteeditor.data.ToolbarPreferences
 import com.ichi2.anki.noteeditor.presentation.ToolbarLayoutMode
 import com.ichi2.anki.observability.undoableOp
+import com.ichi2.anki.pages.ChangeNoteTypePage
 import com.ichi2.anki.pages.ImageOcclusion
 import com.ichi2.anki.pages.viewmodel.ImageOcclusionArgs
 import com.ichi2.anki.previewer.TemplatePreviewerArguments
@@ -276,6 +277,7 @@ class NoteEditorFragment :
     private var activeTemplateName by mutableStateOf<String?>(null)
     private var firstFieldLine: FieldEditLine? = null
     private var cardIdsAfterNoteTypeChange: List<CardId>? = null
+    private var noteIdChangingType: NoteId? = null
 
     private var showImageOcclusionActions by mutableStateOf(false)
 
@@ -355,6 +357,12 @@ class NoteEditorFragment :
                 }
             },
         )
+
+    private val changeNoteTypeLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            noteIdChangingType = null
+            if (result.resultCode == Activity.RESULT_OK && view != null) reloadAfterNoteTypeChange()
+        }
 
     private val multimediaFragmentLauncher =
         registerForActivityResult(MultimediaResultContract()) { result ->
@@ -565,6 +573,7 @@ class NoteEditorFragment :
             addNote = savedInstanceState.getBoolean("addNote")
             isFieldEdited = savedInstanceState.getBoolean("isFieldEdited")
             cardIdsAfterNoteTypeChange = savedInstanceState.getLongArray("convertedCardIds")?.toList()
+            noteIdChangingType = savedInstanceState.getLongOrNull("noteIdChangingType")
             deckId = savedInstanceState.getLong("did")
             selectedNoteTypeId =
                 if (savedInstanceState.containsKey("noteTypeId")) savedInstanceState.getLong("noteTypeId") else null
@@ -758,7 +767,7 @@ class NoteEditorFragment :
 
     private fun chooseNoteType() {
         if (!addNote) {
-            launchChangeNoteTypeDialog()
+            launchChangeNoteTypePage()
             return
         }
         val noteTypes = getColUnsafe.notetypes.all().sortedWith(NamedJSONComparator.INSTANCE)
@@ -792,6 +801,7 @@ class NoteEditorFragment :
         }
         savedInstanceState.putLong("did", deckId)
         cardIdsAfterNoteTypeChange?.let { savedInstanceState.putLongArray("convertedCardIds", it.toLongArray()) }
+        noteIdChangingType?.let { savedInstanceState.putLong("noteIdChangingType", it) }
         selectedNoteTypeId?.let { savedInstanceState.putLong("noteTypeId", it) }
         savedInstanceState.putBoolean(STATE_NOTE_CHANGED, changed)
         savedInstanceState.putBoolean(STATE_RELOAD_REQUIRED, reloadRequired)
@@ -828,16 +838,25 @@ class NoteEditorFragment :
                 finishScreen()
                 return
             }
-            NoteEditorCaller.EDIT -> {
-                val cardId = cardIdsAfterNoteTypeChange?.firstOrNull() ?: requireArguments().requireLong(EXTRA_CARD_ID)
-                currentEditedCard = col.getCard(cardId)
+            NoteEditorCaller.EDIT, NoteEditorCaller.PREVIEWER_EDIT -> {
+                val key = if (caller == NoteEditorCaller.EDIT) EXTRA_CARD_ID else EXTRA_EDIT_FROM_CARD_ID
+                val previousCard = cardIdsAfterNoteTypeChange?.firstOrNull() ?: requireArguments().requireLong(key)
+                val targetCard =
+                    if (noteIdChangingType != null) {
+                        val cards = col.cardIdsOfNote(requireNotNull(noteIdChangingType))
+                        previousCard.takeIf { it in cards } ?: cards.firstOrNull()
+                    } else {
+                        previousCard
+                    }
+                if (targetCard == null) {
+                    reloadRequired = true
+                    changed = true
+                    closeNoteEditorAfterSave()
+                    return
+                }
+                currentEditedCard = col.getCard(targetCard)
                 editorNote = currentEditedCard!!.note(col)
                 addNote = false
-            }
-            NoteEditorCaller.PREVIEWER_EDIT -> {
-                val id = cardIdsAfterNoteTypeChange?.firstOrNull() ?: requireArguments().getLong(EXTRA_EDIT_FROM_CARD_ID)
-                currentEditedCard = col.getCard(id)
-                editorNote = currentEditedCard!!.note(getColUnsafe)
             }
             NoteEditorCaller.STUDYOPTIONS,
             NoteEditorCaller.DECKPICKER,
@@ -948,12 +967,6 @@ class NoteEditorFragment :
             // If the activity was called to handle an image addition, launch a coroutine to process the image intent.
             if (caller == NoteEditorCaller.ADD_IMAGE) launchCatchingTask { multimediaController.handleImageIntent(intent) }
         } else {
-            parentFragmentManager.setFragmentResultListener(
-                ChangeNoteTypeDialog.REQUEST_KEY_NOTE_TYPE_CHANGED,
-                viewLifecycleOwner,
-            ) { _, _ ->
-                reloadAfterNoteTypeChange()
-            }
             requireActivity().setTitle(CommonString.cardeditor_title_edit_card)
         }
         if (!addNote && currentEditedCard != null) {
@@ -1544,19 +1557,22 @@ class NoteEditorFragment :
     }
 
     /**
-     * Launches the [ChangeNoteTypeDialog] for the current note being edited.
+     * Opens the [ChangeNoteTypePage] for the current note being edited.
      * Used in edit mode when the user taps the note type spinner.
      */
-    private fun launchChangeNoteTypeDialog() {
-        val noteId = editorNote?.id ?: return
-        val openDialog = { showDialogFragment(ChangeNoteTypeDialog.newInstance(listOf(noteId))) }
+    private fun launchChangeNoteTypePage() {
+        val note = editorNote ?: return
+        val openPage = {
+            noteIdChangingType = note.id
+            changeNoteTypeLauncher.launch(ChangeNoteTypePage.getIntent(requireContext(), listOf(note.id), note.noteTypeId))
+        }
         if (hasUnsavedChanges()) {
             showDiscardChangesDialog {
                 reloadNoteFromCollection()
-                openDialog()
+                openPage()
             }
         } else {
-            openDialog()
+            openPage()
         }
     }
 

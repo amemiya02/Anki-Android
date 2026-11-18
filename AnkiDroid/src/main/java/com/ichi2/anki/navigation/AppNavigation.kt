@@ -56,6 +56,7 @@ import com.ichi2.anki.account.AccountFlowFragment
 import com.ichi2.anki.browser.CardBrowserFragment
 import com.ichi2.anki.browser.CardBrowserPaneFragment
 import com.ichi2.anki.filtered.FilteredDeckOptionsFragment
+import com.ichi2.anki.instantnoteeditor.InstantNoteEditorFragment
 import com.ichi2.anki.introduction.WelcomeFragment
 import com.ichi2.anki.mediacheck.MediaCheckFragment
 import com.ichi2.anki.multimedia.MultimediaActivity
@@ -64,6 +65,7 @@ import com.ichi2.anki.notetype.ManageNoteTypesFragment
 import com.ichi2.anki.notetype.ManageNotetypes
 import com.ichi2.anki.pages.AnkiPackageImporterFragment
 import com.ichi2.anki.pages.CardInfoFragment
+import com.ichi2.anki.pages.ChangeNoteTypePage
 import com.ichi2.anki.pages.CsvImporter
 import com.ichi2.anki.pages.DeckOptions
 import com.ichi2.anki.pages.ImageOcclusion
@@ -243,6 +245,9 @@ internal class AppNavigation(
             deckPicker.supportFragmentManager.commit { remove(fragment) }
         }
         if (forwardedResults.remove(entry.id)) return
+        if (entry.arguments?.getBoolean(RETURN_TO_SHARING_APP) == true) {
+            deckPicker.moveTaskToBack(true)
+        }
         val defaultResult = entry.arguments?.getInt(DEFAULT_RESULT, Activity.RESULT_CANCELED) ?: Activity.RESULT_CANCELED
         val result = completedResults.remove(entry.id) ?: ActivityResult(defaultResult, null)
         val requestCode = entry.arguments?.getInt(RESULT_REQUEST_CODE, NO_RESULT) ?: NO_RESULT
@@ -324,6 +329,10 @@ internal class AppNavigation(
                     putBundle(SCREEN_ARGUMENTS, screenArguments)
                     putInt(RESULT_REQUEST_CODE, outgoingRequest)
                     putInt(DEFAULT_RESULT, defaultResult)
+                    putBoolean(
+                        RETURN_TO_SHARING_APP,
+                        fragment == InstantNoteEditorFragment::class.java || caller?.arguments?.getBoolean(RETURN_TO_SHARING_APP) == true,
+                    )
                 }
             navigation.navigate(navigation.graph[fragment.name].id, arguments, options)
         }
@@ -362,6 +371,7 @@ internal class AppNavigation(
         const val SCREEN_ARGUMENTS = "screenArguments"
         const val RESULT_REQUEST_CODE = "resultRequestCode"
         const val DEFAULT_RESULT = "defaultResultCode"
+        const val RETURN_TO_SHARING_APP = "returnToSharingApp"
 
         val tabFragments =
             mapOf(
@@ -401,6 +411,7 @@ internal class AppNavigation(
                 BrowserAppearanceFragment::class.java,
                 CardBrowserPaneFragment::class.java,
                 CardInfoFragment::class.java,
+                ChangeNoteTypePage::class.java,
                 CardTemplateEditorFragment::class.java,
                 CsvImporter::class.java,
                 DeckOptions::class.java,
@@ -410,6 +421,7 @@ internal class AppNavigation(
                 ImageCropper::class.java,
                 ImageOcclusion::class.java,
                 InfoFragment::class.java,
+                InstantNoteEditorFragment::class.java,
                 ManageNoteTypesFragment::class.java,
                 ManageSpaceFragment::class.java,
                 MediaCheckFragment::class.java,

@@ -796,7 +796,9 @@ open class DeckPicker :
     override fun onWelcomeCompleted(nextAction: String?) {
         if (!awaitingWelcome || isFinishing) return
         awaitingWelcome = false
-        if (nextAction != null) intent.putExtra(nextAction, true)
+        if (nextAction != null && (nextAction != EXTRA_IMPORT || pendingEntry?.action != ACTION_DEFERRED_IMPORT)) {
+            intent.putExtra(nextAction, true)
+        }
         appNavigation.completeWelcome()
         handleStartup()
         viewModel.onScreenResumed()
@@ -2683,6 +2685,18 @@ open class DeckPicker :
          */
         internal const val EXTRA_ENTRY_SCREEN = "appNavigationEntryScreen"
         private const val STATE_PENDING_ENTRY = "pendingEntryScreen"
+        private const val ACTION_DEFERRED_IMPORT = "com.ichi2.anki.DEFERRED_IMPORT"
+        private const val EXTRA_IMPORT_SOURCE = "deferredImportSource"
+
+        internal fun getDeferredImportIntent(
+            context: Context,
+            source: Intent,
+        ): Intent =
+            getEntryIntent(
+                context,
+                Intent(ACTION_DEFERRED_IMPORT).putExtra(EXTRA_IMPORT_SOURCE, Intent(source)),
+                source,
+            )
         private const val STATE_WAIT_FOR_WELCOME_ACTION = "waitForWelcomeAction"
 
         internal fun getEntryIntent(
@@ -2752,7 +2766,12 @@ open class DeckPicker :
         if (!collectionReadyForEntry || awaitingWelcome || waitForWelcomeAction) return
         val screen = pendingEntry ?: return
         pendingEntry = null
-        startActivity(screen)
+        if (screen.action == ACTION_DEFERRED_IMPORT) {
+            val source = IntentCompat.getParcelableExtra(screen, EXTRA_IMPORT_SOURCE, Intent::class.java) ?: return
+            onSelectedFileToImport(source)
+        } else {
+            startActivity(screen)
+        }
     }
 
     override fun opExecuted(
