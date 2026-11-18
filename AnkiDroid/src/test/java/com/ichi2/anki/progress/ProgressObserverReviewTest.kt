@@ -3,6 +3,7 @@
 package com.ichi2.anki.progress
 
 import android.os.Looper
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.fragment.app.commitNow
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -10,6 +11,7 @@ import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.dialogs.LoadingDialogFragment
 import com.ichi2.testutils.EmptyAnkiActivity
 import kotlinx.coroutines.CompletableDeferred
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -22,6 +24,9 @@ import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class ProgressObserverReviewTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Test
     fun `completed progress disappears when its owner remains stopped on foreground`() {
         val controller = Robolectric.buildActivity(EmptyAnkiActivity::class.java).setup()

@@ -5,6 +5,7 @@ package com.ichi2.anki.progress
 import android.os.Bundle
 import android.os.Looper
 import android.view.WindowManager
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commitNow
@@ -23,6 +24,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -40,6 +42,9 @@ import kotlin.time.toJavaDuration
 
 @RunWith(AndroidJUnit4::class)
 class ProgressObserverTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     private val progressManager = ProgressManager<String>()
     private val viewModel =
         object : HasProgress<String> {
