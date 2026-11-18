@@ -54,6 +54,7 @@
             android:id="@+id/change_interval"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minHeight="48dp"
             android:layout_marginStart="16dp"
             android:text="@string/set_due_date_match_interval"/>
     </LinearLayout>

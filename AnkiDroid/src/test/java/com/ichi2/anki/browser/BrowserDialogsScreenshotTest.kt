@@ -3,13 +3,14 @@
 package com.ichi2.anki.browser
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.ichi2.anki.CheckAccessibility
-import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.FontSizeConfig.PERCENT_200
 import com.ichi2.anki.IncludeFontSizes
@@ -17,10 +18,8 @@ import com.ichi2.anki.IncludeLanguages
 import com.ichi2.anki.LanguageConfig.ARABIC
 import com.ichi2.anki.LanguageConfig.JAPANESE
 import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
-import com.ichi2.anki.R
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.anki.getBrowserWithNotes
-import com.ichi2.anki.ui.internationalization.toSentenceCase
 import com.ichi2.testutils.ext.reopenWithLanguage
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -44,13 +43,22 @@ class BrowserDialogsScreenshotTest : ScreenshotTest() {
             composeRule.onAllNodesWithText("Ginkgo").fetchSemanticsNodes().isNotEmpty()
         }
 
-        composeRule.onNodeWithContentDescription(browser.getString(R.string.browse_more_actions)).performClick()
-        val options = TR.browsingBrowserOptions().toSentenceCase(browser, com.ichi2.anki.ankicommon.R.string.sentence_browser_options)
-        composeRule.onNodeWithText(options).performClick()
+        browser.cardBrowserFragment.showOptionsDialog()
+        advanceRobolectricLooper()
         val save = browser.getString(CommonString.save)
         composeRule.onNodeWithText(save).assertIsDisplayed()
+        val truncate = composeRule.onNodeWithText(browser.getString(CommonString.card_browser_truncate))
+        truncate
+            .performScrollTo()
+            .assertIsOff()
+            .performClick()
+            .assertIsOn()
         captureScreen("browser_options")
         composeRule.onNodeWithText(save).performClick()
         composeRule.onNodeWithText("Ginkgo").assertIsDisplayed()
+        browser.cardBrowserFragment.showOptionsDialog()
+        advanceRobolectricLooper()
+        truncate.performScrollTo().assertIsOn()
+        composeRule.onNodeWithText(browser.getString(CommonString.dialog_cancel)).performClick()
     }
 }

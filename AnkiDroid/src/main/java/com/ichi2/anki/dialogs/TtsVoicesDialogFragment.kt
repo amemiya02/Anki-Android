@@ -30,6 +30,8 @@ import com.ichi2.anki.libanki.TtsVoice
 import com.ichi2.anki.localizedErrorMessage
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.openUrl
+import com.ichi2.compose.theme.AnkiDroidTheme
+import com.ichi2.compose.ui.dialogs.DialogTitle
 import com.ichi2.compose.ui.dialogs.ErrorDialog
 import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.themes.Themes
@@ -71,6 +73,9 @@ class TtsVoicesDialogFragment : DialogFragment(R.layout.dialog_tts_voices) {
         voicesAdapter = TtsVoiceAdapter()
         Themes.setTheme(requireContext()) // (re)-enable selectableItemBackground on theme change
 
+        binding.dialogTitle.setContent {
+            AnkiDroidTheme { DialogTitle(getString(CommonString.tts_error_dialog_supported_voices_button_text)) }
+        }
         binding.files.adapter = voicesAdapter
         binding.spokenTextEditText.apply {
             // setup the initial value from the UI
@@ -212,9 +217,11 @@ class TtsVoicesDialogFragment : DialogFragment(R.layout.dialog_tts_voices) {
                 if (voice.unavailable()) {
                     binding.actionButton.setOnClickListener { openTtsSettings() }
                     binding.actionButton.setIconResource(R.drawable.symbol_download)
+                    binding.actionButton.contentDescription = getString(CommonString.settings)
                 } else {
                     binding.actionButton.setOnClickListener { viewModel.copyToClipboard(voice) }
                     binding.actionButton.setIconResource(R.drawable.symbol_content_copy)
+                    binding.actionButton.contentDescription = getString(android.R.string.copy)
                 }
 
                 binding.root.setOnClickListener { viewModel.playVoice(voice) }
