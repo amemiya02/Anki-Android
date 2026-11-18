@@ -7,12 +7,14 @@ import android.view.InputDevice
 import android.view.Menu
 import android.view.MotionEvent
 import androidx.appcompat.widget.PopupMenu
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.core.view.isVisible
 import androidx.fragment.app.commitNow
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.RecyclerView
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.android.material.button.MaterialButton
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.cardviewer.Gesture
@@ -20,6 +22,8 @@ import com.ichi2.anki.preferences.reviewer.WhiteboardAction
 import com.ichi2.anki.reviewer.MappableBinding.Companion.toPreferenceString
 import com.ichi2.anki.reviewer.ReviewerBinding
 import com.ichi2.testutils.launchFragmentInContainer
+import com.ichi2.utils.toRGBAHex
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.test.assertEquals
@@ -32,6 +36,9 @@ import com.ichi2.anki.common.android.R as CommonR
 
 @RunWith(AndroidJUnit4::class)
 class WhiteboardFragmentTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Test
     fun `two finger tap clears the whiteboard with finger drawing`() = checkTapClearsWhiteboard(Gesture.TWO_FINGER_TAP, fingerCount = 2)
 
@@ -135,15 +142,13 @@ class WhiteboardFragmentTest : RobolectricTest() {
                 ViewModelProvider(fragment)[WhiteboardViewModel::class.java].setActiveBrush(0)
             }
             advanceRobolectricLooper()
-            scenario.onFragment { fragment ->
-                assertTrue(fragment.isBrushSelected(0), "The first brush should initially be selected")
-                ViewModelProvider(fragment)[WhiteboardViewModel::class.java].setActiveBrush(1)
-            }
-            advanceRobolectricLooper()
-            scenario.onFragment { fragment ->
-                assertTrue(fragment.isBrushSelected(1), "The second brush should now be selected")
-                assertFalse(fragment.isBrushSelected(0), "The first brush should no longer be selected")
-            }
+            lateinit var color: String
+            scenario.onFragment { fragment -> color = fragment.viewModel.currentBrushColor.toRGBAHex() }
+            val tools = compose.onAllNodesWithContentDescription(color)
+            tools[0].assertIsSelected()
+            scenario.onFragment { fragment -> fragment.viewModel.setActiveBrush(1) }
+            tools[1].assertIsSelected()
+            tools[0].assertIsNotSelected()
         }
     }
 
@@ -225,15 +230,6 @@ class WhiteboardFragmentTest : RobolectricTest() {
         } finally {
             event.recycle()
         }
-    }
-
-    private fun WhiteboardFragment.isBrushSelected(index: Int): Boolean {
-        val recycler = binding.whiteboardToolbar.findViewById<RecyclerView>(R.id.brush_recycler_view)
-        val adapter = recycler.adapter as BrushAdapter
-        // Bind a fresh holder so this assertion does not depend on RecyclerView having laid out.
-        val holder = adapter.createViewHolder(recycler, adapter.getItemViewType(index))
-        adapter.bindViewHolder(holder, index)
-        return (holder.itemView as MaterialButton).isChecked
     }
 
     private fun WhiteboardView.dispatchStylusTouch(

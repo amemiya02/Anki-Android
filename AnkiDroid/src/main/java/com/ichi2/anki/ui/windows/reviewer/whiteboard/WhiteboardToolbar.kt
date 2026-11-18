@@ -5,20 +5,18 @@ package com.ichi2.anki.ui.windows.reviewer.whiteboard
 import android.content.Context
 import android.graphics.Rect
 import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.view.MotionEvent
-import android.view.View
 import android.view.ViewConfiguration
 import android.view.animation.DecelerateInterpolator
 import android.widget.LinearLayout
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.ViewCompat
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
-import androidx.core.view.updateLayoutParams
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.ichi2.anki.common.utils.dp
-import com.ichi2.anki.databinding.ViewWhiteboardToolbarBinding
 import com.ichi2.anki.utils.ext.setDuration
+import com.ichi2.compose.theme.AnkiDroidTheme
 import kotlin.math.abs
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -26,35 +24,18 @@ import kotlin.time.Duration.Companion.milliseconds
  * Tools configuration bar to be used along [WhiteboardView]
  */
 class WhiteboardToolbar : LinearLayout {
-    private val binding: ViewWhiteboardToolbarBinding
-    private val brushAdapter: BrushAdapter
     private val dragHandler = DragHandler()
     private var currentAlignment: ToolbarAlignment = ToolbarAlignment.BOTTOM
+    private val controls = ComposeView(context)
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        binding = ViewWhiteboardToolbarBinding.inflate(LayoutInflater.from(context), this)
-
-        brushAdapter =
-            BrushAdapter(
-                onBrushClick = { view, index -> onBrushClick?.invoke(view, index) },
-                onBrushLongClick = { index -> onBrushLongClick?.invoke(index) },
-            )
-
-        binding.brushRecyclerView.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            adapter = brushAdapter
-        }
+        addView(controls, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
     }
 
-    val undoButton get() = binding.undoButton
-    val redoButton get() = binding.redoButton
-    val eraserButton get() = binding.eraserButton
-    val overflowButton get() = binding.overflowMenuButton
+    fun setControls(content: @Composable () -> Unit) = controls.setContent { AnkiDroidTheme { content() } }
 
-    var onBrushClick: ((view: View, index: Int) -> Unit)? = null
-    var onBrushLongClick: ((index: Int) -> Unit)? = null
     var onToolbarVisibilityChanged: ((isShown: Boolean) -> Unit)? = null
 
     /**
@@ -83,80 +64,16 @@ class WhiteboardToolbar : LinearLayout {
         ViewCompat.setSystemGestureExclusionRects(this, exclusions)
     }
 
-    /**
-     * Updates the internal layout based on the toolbar alignment.
-     * Switches the RecyclerView orientation and the main layout orientation.
-     */
     fun setAlignment(alignment: ToolbarAlignment) {
         currentAlignment = alignment
-
-        // Check if the toolbar is docked to a side edge (Left/Right).
-        val isSideDocked = alignment == ToolbarAlignment.LEFT || alignment == ToolbarAlignment.RIGHT
-        binding.innerControlsLayout.orientation = if (isSideDocked) VERTICAL else HORIZONTAL
-
-        val layoutManager = binding.brushRecyclerView.layoutManager as? LinearLayoutManager
-        layoutManager?.orientation = if (isSideDocked) LinearLayoutManager.VERTICAL else LinearLayoutManager.HORIZONTAL
-
-        val dp = 1.dp.toPx(context)
-        val dividerMargin = 4 * dp
-        val dividerParams = binding.controlsDivider.layoutParams as LayoutParams
-        if (isSideDocked) {
-            dividerParams.width = LayoutParams.MATCH_PARENT
-            dividerParams.height = 1 * dp
-            dividerParams.setMargins(0, dividerMargin, 0, dividerMargin)
-            binding.innerControlsLayout.updateLayoutParams<MarginLayoutParams> {
-                marginEnd = 0
-            }
-        } else {
-            dividerParams.width = 1 * dp
-            dividerParams.height = LayoutParams.MATCH_PARENT
-            dividerParams.setMargins(dividerMargin, 0, dividerMargin, 0)
-            binding.innerControlsLayout.updateLayoutParams<MarginLayoutParams> {
-                marginEnd = dividerMargin
-            }
-        }
-
-        // Configure container structure (Handle + Card placement)
-        val handleSize = 32.dp.toPx(context)
-        removeView(binding.touchHandle)
-        removeView(binding.toolbarCard)
-
-        orientation = if (isSideDocked) HORIZONTAL else VERTICAL
-        val handleParams =
-            if (isSideDocked) {
-                LayoutParams(handleSize, LayoutParams.MATCH_PARENT)
-            } else {
-                LayoutParams(LayoutParams.MATCH_PARENT, handleSize)
-            }
-
-        if (alignment == ToolbarAlignment.LEFT) {
-            addView(binding.toolbarCard)
-            addView(binding.touchHandle, handleParams)
-        } else {
-            addView(binding.touchHandle, handleParams)
-            addView(binding.toolbarCard)
-        }
-    }
-
-    /**
-     * Updates the data in the RecyclerView adapter.
-     */
-    fun setBrushes(
-        brushes: List<WhiteboardTool.Brush>,
-        activeIndex: Int,
-        isEraserActive: Boolean,
-    ) {
-        brushAdapter.updateData(brushes, activeIndex, isEraserActive)
-    }
-
-    /**
-     * Updates the checked state of the brush buttons in the adapter.
-     */
-    fun updateSelection(
-        activeIndex: Int,
-        isEraserActive: Boolean,
-    ) {
-        brushAdapter.updateSelection(activeIndex, isEraserActive)
+        // Keep a transparent drag handle toward the canvas even when the controls are hidden.
+        val handle = 32.dp.toPx(context)
+        setPadding(
+            if (alignment == ToolbarAlignment.RIGHT) handle else 0,
+            if (alignment == ToolbarAlignment.BOTTOM) handle else 0,
+            if (alignment == ToolbarAlignment.LEFT) handle else 0,
+            0,
+        )
     }
 
     /**
@@ -204,7 +121,7 @@ class WhiteboardToolbar : LinearLayout {
                     ToolbarAlignment.BOTTOM -> height + (lp?.bottomMargin ?: 0) - (peekSize + handleSize)
                     ToolbarAlignment.LEFT -> width + (lp?.leftMargin ?: 0) - (peekSize + handleSize)
                     ToolbarAlignment.RIGHT -> width + (lp?.rightMargin ?: 0) - (peekSize + handleSize)
-                }.toFloat()
+                }.coerceAtLeast(0).toFloat()
             }
 
         fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
