@@ -4,12 +4,12 @@
 
 **Blocked by:** 16 (Native finished screen); 18 (Deck list: adding, Deck actions and sync); 23 (Remove the old study screen)
 
-**Status:** ready-for-agent
+**Status:** ready-for-human (owner phone sign-off)
 
 - [x] On the emulator, a full session is studied in English and in Simplified Chinese, ending on the finished screen.
 - [x] A shared Deck whose Cards use the AnkiDroid JavaScript API is studied without a warning.
 - [x] The walk is captured in all three themes and set beside the "before" pictures.
-- [ ] Baseline pictures are regenerated under `AnkiDroid/build/` and verified, following the decision in ticket 13.
+- [x] Baseline pictures are regenerated under `AnkiDroid/build/` and verified, following the decision in ticket 13.
 - [ ] The owner has studied a session on their own phone and signed off the Milestone.
 - [x] Round trip with the Official App: a collection and a Deck exported from the Fork import into the current release of the Official App with Cards, scheduling, review history and media intact, and the same works in the other direction.
 
@@ -19,6 +19,6 @@ On 2026-11-18 the owner asked development to continue across milestones while pe
 
 Six emulator sessions finished on the Pixel 9. The current API test studied all three Cards in the published AnkiVoice v38 Deck. The Upstream wiki test Deck displayed the API version-update notice with its 0.0.2 template. [Device evidence](../../../docs/redesign/milestone-2/README.md)
 
-The six Core Loop Roborazzi classes recorded 696 phone captures with no failures across the requested themes, languages and font sizes. Verification matched 691 of 696. Five deck-list captures raced the loading state. The regression now waits for the first deck row, and its record and verification runs are queued.
+The six Core Loop Roborazzi classes recorded 696 phone captures with no failures across the requested themes, languages and font sizes. Verification matched 691 of 696. Five deck-list captures raced the loading state. After waiting for the first deck row, fresh record and verification runs passed all 48 BottomBar cases. Together the verification runs cover all 696 captures.
 
 All four comparisons with AnkiDroid 2.25.3 matched, including scheduling, review history and media digests. The final Official collection was imported through the production importer on an Android 14 AOSP emulator. [Package comparison](../../../docs/redesign/milestone-2/README.md#round-trip-with-the-official-app)

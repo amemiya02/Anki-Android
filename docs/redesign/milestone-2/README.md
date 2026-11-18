@@ -29,7 +29,7 @@ The test Deck linked by Upstream's wiki ships API 0.0.2 (SHA-256 `48b104e97c699e
 
 ## Rendered baselines
 
-`recordRoborazziPlayDebug` passed all 696 captures from `BottomBarScreenshotTest`, `DeckPickerScreenshotTest`, `FinishedScreenScreenshotTest`, `StudyScreenCardFrameScreenshotTest`, `StudyScreenScreenshotTest` and `StudyScreenToolsScreenshotTest`. The phone matrix covers Light, Dark and Black, English, Simplified Chinese, Japanese and Arabic, and normal and 200% font sizes. Accessibility checks ran during capture. The baselines live in `AnkiDroid/build/outputs/roborazzi/`, as agreed for Milestone 1. `verifyRoborazziPlayDebug` is pending on the same matrix. [Milestone 1 decision](../../../.scratch/ankidroid-redesign/issues/13-milestone-1-sign-off-the-foundation-on-a-device.md)
+`recordRoborazziPlayDebug` passed all 696 captures from `BottomBarScreenshotTest`, `DeckPickerScreenshotTest`, `FinishedScreenScreenshotTest`, `StudyScreenCardFrameScreenshotTest`, `StudyScreenScreenshotTest` and `StudyScreenToolsScreenshotTest`. The phone matrix covers Light, Dark and Black, English, Simplified Chinese, Japanese and Arabic, and normal and 200% font sizes. Accessibility checks ran during capture. The baselines live in `AnkiDroid/build/outputs/roborazzi/`, as agreed for Milestone 1. The initial verification matched 691 captures. Five Decks captures included a transient loading state. Waiting for the first deck row before capture made the complete 48-case bottom-bar recording and verification pass, covering the five mismatches. [Milestone 1 decision](../../../.scratch/ankidroid-redesign/issues/13-milestone-1-sign-off-the-foundation-on-a-device.md)
 
 ## Round trip with the Official App
 
