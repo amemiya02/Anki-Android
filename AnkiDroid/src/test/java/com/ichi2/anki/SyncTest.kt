@@ -5,6 +5,10 @@ package com.ichi2.anki
 import android.app.Dialog
 import android.provider.Settings
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasAnyDescendant
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -129,7 +133,10 @@ class SyncTest : RobolectricTest() {
             visible(CommonString.dialog_cancel).assertDoesNotExist()
             assertEquals("test", Prefs.hkey)
 
-            visible(CommonString.dialog_ok).performClick()
+            compose
+                .onNode(
+                    hasText(getString(CommonString.dialog_ok)) and hasClickAction() and hasAnyAncestor(hasAnyDescendant(hasText(message))),
+                ).performClick()
             advanceRobolectricLooper()
 
             assertFalse(dialog.isShowing)

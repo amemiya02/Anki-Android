@@ -56,8 +56,9 @@ class DialogHandler(
         when (WhichDialogHandler.fromInt(message.what)) {
             WhichDialogHandler.MSG_SHOW_COLLECTION_IMPORT_ADD_DIALOG,
             WhichDialogHandler.MSG_SHOW_COLLECTION_IMPORT_REPLACE_DIALOG,
+            WhichDialogHandler.MSG_SHOW_SYNC_ERROR_DIALOG,
             -> {
-                // Only DeckPicker collects the ImportViewModel flows after confirmation.
+                // Decks owns import and sync recovery actions.
                 if (activity.get() !is DeckPicker) return
             }
             else -> Unit

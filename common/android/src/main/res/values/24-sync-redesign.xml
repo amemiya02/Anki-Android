@@ -46,14 +46,14 @@
     <string name="paper_sync_not_now">Not now</string>
     <string name="paper_sync_not_signed_in">You’re not signed in to %1$s. Sign in to sync.</string>
     <string name="paper_sync_conflict_title">Keep which collection?</string>
-    <string name="paper_sync_conflict_body">The collection on this phone and the one on your server have both changed in ways that can’t be combined. Keep one; the other is replaced.</string>
+    <string name="paper_sync_conflict_body">The collection on this phone and the one on your server have both changed in ways that can’t be combined. Keep one. The other is replaced.</string>
     <string name="paper_sync_keep_phone">Keep this phone’s</string>
     <string name="paper_sync_keep_phone_hint">Uploads it and replaces the server’s collection.</string>
     <string name="paper_sync_keep_server">Keep the server’s</string>
     <string name="paper_sync_keep_server_hint">Downloads it and replaces this phone’s collection.</string>
     <string name="paper_sync_sanity">The two collections don’t match, so a normal sync isn’t safe.</string>
     <string name="paper_sync_media_error">Some media files couldn’t be synced. Check media finds and fixes missing or broken files.</string>
-    <string name="paper_sync_db_error">Your collection has a problem the server won’t accept. Check database repairs it; then sync again.</string>
+    <string name="paper_sync_db_error">Your collection has a problem the server won’t accept. Check database repairs it. Then sync again.</string>
     <string name="paper_sync_corrupt_error">Your collection is damaged and can’t be synced until it’s repaired.</string>
     <string name="paper_sync_clock_error">This phone’s clock is wrong by more than the server allows. Turn on automatic date and time, then sync again.</string>
     <string name="paper_sync_too_large">Your collection is larger than the server accepts.</string>

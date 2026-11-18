@@ -8,12 +8,16 @@ import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.content.edit
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.SingleFragmentActivity.Companion.EXTRA_FRAGMENT_NAME
 import com.ichi2.anki.account.AccountActivity
 import com.ichi2.anki.account.LoginFragment
 import com.ichi2.anki.common.preferences.sharedPrefs
+import com.ichi2.anki.dialogs.DialogHandler
+import com.ichi2.anki.dialogs.SyncErrorDialog
 import com.ichi2.anki.preferences.CustomSyncServerSettingsFragment
+import com.ichi2.anki.preferences.PreferencesActivity
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.testutils.BackupManagerTestUtilities
 import com.ichi2.testutils.TEST_SYNC_SERVER
@@ -87,6 +91,27 @@ class SyncSetupTest : RobolectricTest() {
         setSyncServer(null)
 
         assertOpensSyncSetup(AccountActivity.getIntent(targetContext))
+    }
+
+    @Test
+    fun `a queued sync error waits for Decks when Settings opens first`() {
+        setSyncServer(TEST_SYNC_SERVER)
+        throwOnShowError = false
+        DialogHandler.storeMessage(
+            SyncErrorDialog.SyncErrorDialogMessageHandler(SyncErrorDialog.Type.DIALOG_CONNECTION_ERROR, "offline").toMessage(),
+        )
+        try {
+            ActivityScenario.launch<PreferencesActivity>(PreferencesActivity.getIntent(targetContext)).use {
+                advanceRobolectricLooper()
+                compose.onNodeWithText(targetContext.getString(CommonString.something_wrong)).assertDoesNotExist()
+            }
+            deckPicker {
+                advanceRobolectricLooper()
+                compose.onNodeWithText(getString(CommonString.paper_sync_unreachable_title)).assertIsDisplayed()
+            }
+        } finally {
+            DialogHandler.discardMessage()
+        }
     }
 
     private fun assertOpensSyncSetup(intent: Intent) {

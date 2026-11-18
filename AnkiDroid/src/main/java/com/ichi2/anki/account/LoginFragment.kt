@@ -49,6 +49,7 @@ import com.ichi2.anki.R
 import com.ichi2.anki.exception.CollectionLockedException
 import com.ichi2.anki.preferences.SettingsChevron
 import com.ichi2.anki.preferences.SettingsRow
+import com.ichi2.anki.preferences.settingsComposeView
 import com.ichi2.anki.progress.observeProgress
 import com.ichi2.anki.showErrorAndAwaitDismissal
 import com.ichi2.anki.syncServerAddress
@@ -67,7 +68,7 @@ class LoginFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View = syncStepView(R.id.settings_sync_sign_in) { SignIn() }
+    ): View = settingsComposeView(R.id.settings_sync_sign_in) { SignIn() }
 
     override fun onViewCreated(
         view: View,
@@ -112,6 +113,7 @@ class LoginFragment : Fragment() {
             step = 2,
             button = stringResource(CommonString.paper_sync_sign_in),
             canContinue = server != null && canSignIn,
+            bottomCornerClearancePx = activity.bottomCornerClearancePx,
             onBack = activity.onBackPressedDispatcher::onBackPressed,
             onContinue = ::signIn,
         ) {

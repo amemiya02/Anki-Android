@@ -3,18 +3,19 @@
 package com.ichi2.anki.account
 
 import androidx.annotation.DrawableRes
-import androidx.annotation.IdRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -29,31 +30,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
-import androidx.fragment.app.Fragment
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.preferences.SettingsPage
-import com.ichi2.anki.preferences.settingsComposeView
-import com.ichi2.anki.utils.bottomCornerClearance
 import com.ichi2.compose.theme.foundation
-
-/** Compose handles the bars and keyboard. Also clear rounded corners above the navigation inset. */
-internal fun Fragment.syncStepView(
-    @IdRes id: Int,
-    content: @Composable () -> Unit,
-) = settingsComposeView(id, content).apply {
-    ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
-        val bottom =
-            insets
-                .getInsets(
-                    WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout() or WindowInsetsCompat.Type.ime(),
-                ).bottom
-        view.updatePadding(bottom = (insets.bottomCornerClearance(view) - bottom).coerceAtLeast(0))
-        insets
-    }
-}
 
 @Composable
 internal fun SyncStepPage(
@@ -61,11 +40,17 @@ internal fun SyncStepPage(
     step: Int,
     button: String,
     canContinue: Boolean,
+    bottomCornerClearancePx: Int,
     onBack: () -> Unit,
     onContinue: () -> Unit,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    SettingsPage(title, onBack) {
+    SettingsPage(
+        title = title,
+        onBack = onBack,
+        modifier = Modifier.windowInsetsPadding(WindowInsets(bottom = bottomCornerClearancePx)),
+        titleBelowNavigation = true,
+    ) {
         Column(
             Modifier
                 .weight(1f)
@@ -89,7 +74,7 @@ private fun SyncStepIndicator(step: Int) {
                 Modifier
                     .size(width = 18.dp, height = 4.dp)
                     .background(
-                        if (index < step) foundation.colors.emphasis else foundation.colors.outline,
+                        if (index < step) foundation.colors.onBackground else foundation.colors.outline,
                         CircleShape,
                     ),
             )

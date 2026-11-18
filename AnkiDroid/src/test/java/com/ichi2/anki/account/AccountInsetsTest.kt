@@ -42,10 +42,13 @@ class AccountInsetsTest : RobolectricTest() {
     @Test
     fun `sign-in button clears the navigation bar and rounded corners`() =
         withAccount {
+            it.onActivity { activity -> activity.dispatchInsets(navBarBottom = 24.dp) }
+            advanceRobolectricLooper()
             val before = submit.getUnclippedBoundsInRoot()
             it.onActivity { activity -> activity.dispatchInsets(navBarBottom = 24.dp, bottomCornerRadius = 48.dp) }
+            advanceRobolectricLooper()
             val after = submit.assertIsDisplayed().getUnclippedBoundsInRoot()
-            assertTrue(after.bottom.value <= before.bottom.value - 47f)
+            assertTrue(after.bottom.value <= before.bottom.value - 23f, "Before: $before, after: $after")
         }
 
     @Test

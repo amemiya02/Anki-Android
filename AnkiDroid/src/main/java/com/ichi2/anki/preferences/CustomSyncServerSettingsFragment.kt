@@ -35,7 +35,6 @@ import com.ichi2.anki.account.AccountActivity
 import com.ichi2.anki.account.LoggedInViewModel
 import com.ichi2.anki.account.SyncCertificateEditor
 import com.ichi2.anki.account.SyncStepPage
-import com.ichi2.anki.account.syncStepView
 import com.ichi2.anki.isSelfHostedSyncAddress
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
@@ -55,7 +54,7 @@ class CustomSyncServerSettingsFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View = syncStepView(R.id.settings_sync_server) { Address() }
+    ): View = settingsComposeView(R.id.settings_sync_server) { Address() }
 
     @Composable
     private fun Address() {
@@ -82,6 +81,7 @@ class CustomSyncServerSettingsFragment : Fragment() {
             step = 1,
             button = stringResource(CommonString.dialog_continue),
             canContinue = valid,
+            bottomCornerClearancePx = activity.bottomCornerClearancePx,
             onBack = activity.onBackPressedDispatcher::onBackPressed,
             onContinue = ::continueToSignIn,
         ) {

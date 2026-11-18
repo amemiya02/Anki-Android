@@ -58,6 +58,7 @@ internal fun SettingsPage(
     title: String,
     onBack: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    titleBelowNavigation: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val foundation = MaterialTheme.foundation
@@ -70,7 +71,7 @@ internal fun SettingsPage(
         Row(
             Modifier
                 .fillMaxWidth()
-                .heightIn(min = 64.dp)
+                .heightIn(min = if (titleBelowNavigation) 48.dp else 64.dp)
                 .padding(start = if (onBack == null) foundation.spacing.screenMargin else 8.dp, end = foundation.spacing.screenMargin)
                 .padding(vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -84,15 +85,27 @@ internal fun SettingsPage(
                     )
                 }
             }
-            Text(
-                text = title,
-                style = foundation.type.pageTitle,
-                color = foundation.colors.onBackground,
-                modifier = Modifier.semantics { heading() },
-            )
+            if (!titleBelowNavigation) SettingsPageTitle(title)
+        }
+        if (titleBelowNavigation) {
+            SettingsPageTitle(title, Modifier.padding(horizontal = foundation.spacing.screenMargin))
         }
         Column(Modifier.weight(1f).padding(horizontal = foundation.spacing.screenMargin), content = content)
     }
+}
+
+@Composable
+private fun SettingsPageTitle(
+    title: String,
+    modifier: Modifier = Modifier,
+) {
+    val foundation = MaterialTheme.foundation
+    Text(
+        text = title,
+        style = foundation.type.pageTitle,
+        color = foundation.colors.onBackground,
+        modifier = modifier.semantics { heading() },
+    )
 }
 
 @Composable
