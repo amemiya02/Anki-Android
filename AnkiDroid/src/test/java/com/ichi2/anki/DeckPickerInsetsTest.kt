@@ -3,7 +3,6 @@
 package com.ichi2.anki
 
 import android.content.Intent
-import android.view.View
 import android.view.View.MeasureSpec
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.core.content.edit
@@ -97,7 +96,6 @@ class DeckPickerInsetsTest : RobolectricTest() {
     fun `FAB is above the navigation bar`() =
         withDeckPicker(deckCount = 2) { deckPicker ->
             deckPicker.awaitDecks()
-            val navBarBottom = 48.dp.toPx(targetContext)
             deckPicker.dispatchInsets(navBarBottom = 48.dp)
             deckPicker.layoutForTest()
 
@@ -106,13 +104,9 @@ class DeckPickerInsetsTest : RobolectricTest() {
             assertThat(
                 "the FAB clears the navigation bar and the bottom bar above it",
                 deckPicker.fabDistanceToWindowBottom,
-                equalTo(navBarBottom + bottomBarHeight + fabColumnPadding + fabMargin),
+                equalTo(requireNotNull(deckPicker.binding.bottomNavigation).height + fabColumnPadding + fabMargin),
             )
         }
-
-    // The phone's bottom bar above the navigation bar: 62dp, the Mockup's 78dp less its 16dp gesture area
-    private val bottomBarHeight: Int
-        get() = 62.dp.toPx(targetContext)
 
     /** The gap, in pixels, between the bottom of the FAB and the bottom of its container. */
     private val DeckPicker.fabDistanceToWindowBottom: Int
@@ -131,21 +125,18 @@ class DeckPickerInsetsTest : RobolectricTest() {
      */
     private fun DeckPicker.layoutForTest() {
         advanceRobolectricLooper()
-        performLayout()
-    }
-
-    /** [layoutForTest] without processing pending tasks: lays out the current state */
-    private fun DeckPicker.performLayout() {
-        val content = findViewById<View>(android.R.id.content)
-        val width = if (content.width > 0) content.width else 1080
-        val height = if (content.height > 0) content.height else 2400
-        // Two passes: the deck list's bottom padding follows a layout pass
+        compose.waitForIdle()
+        // AndroidView schedules its layout through Compose. Robolectric's manual content
+        // traversal does not remeasure the embedded Decks hierarchy at unchanged constraints.
+        val pane = deckPickerBinding.root
         repeat(2) {
-            content.measure(
-                MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
-                MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY),
+            pane.forceLayout()
+            pane.measure(
+                MeasureSpec.makeMeasureSpec(pane.width, MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(pane.height, MeasureSpec.EXACTLY),
             )
-            content.layout(0, 0, width, height)
+            pane.layout(pane.left, pane.top, pane.right, pane.bottom)
+            pane.viewTreeObserver.dispatchOnGlobalLayout()
         }
     }
 }
