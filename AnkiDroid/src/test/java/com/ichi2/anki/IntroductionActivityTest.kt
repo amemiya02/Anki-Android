@@ -41,7 +41,9 @@ class IntroductionActivityTest : RobolectricTest() {
     fun `raw first launch opens the welcome and a returning owner opens Decks`() {
         getPreferences().edit { remove("lastVersion") }
         val first = startRegularActivity<DeckPicker>()
-        assertEquals(IntroductionActivity::class.java.name, shadowOf(first).nextStartedActivity?.component?.className)
+        assertNull(shadowOf(first).nextStartedActivity)
+        choice(CommonString.paper_welcome_start_empty).assertIsDisplayed()
+        first.finish()
 
         setIntroductionSlidesShown(true)
         val returning = startRegularActivity<DeckPicker>()
