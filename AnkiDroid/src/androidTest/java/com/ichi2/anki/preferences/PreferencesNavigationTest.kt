@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2025 Amit Bisht <iamitsbisht07@gmail.com>
 
 package com.ichi2.anki.preferences
 

@@ -2,14 +2,20 @@
 
 package com.ichi2.anki.preferences
 
+import android.util.TypedValue
+import android.view.KeyEvent
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.core.content.edit
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -19,10 +25,19 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
+import com.ichi2.anki.previewer.PreviewerAction
+import com.ichi2.anki.reviewer.Binding
+import com.ichi2.anki.reviewer.MappableBinding
+import com.ichi2.anki.reviewer.MappableBinding.Companion.toPreferenceString
 import com.ichi2.anki.settings.Prefs
+import com.ichi2.anki.settings.enums.AppTheme
+import com.ichi2.anki.settings.enums.NightTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RuntimeEnvironment
+import kotlin.test.assertEquals
+import com.ichi2.anki.common.android.R as CommonR
 
 @RunWith(AndroidJUnit4::class)
 class SettingsSearchNavigationTest : RobolectricTest() {
@@ -57,6 +72,38 @@ class SettingsSearchNavigationTest : RobolectricTest() {
             result(title).assertIsDisplayed().performClick()
             advanceRobolectricLooper()
             compose.onNode(hasText(title)).assertIsDisplayed()
+        }
+    }
+
+    @Test
+    fun aSearchByBindingFindsTheActionOnThePreviewerTab() {
+        val binding = MappableBinding(Binding.KeyCode(KeyEvent.KEYCODE_F11))
+        Prefs.sharedPrefs.edit { putString(PreviewerAction.NEXT.preferenceKey, listOf(binding).toPreferenceString()) }
+        openSettings().use {
+            search(binding.toDisplayString(targetContext))
+            result(targetContext.getString(CommonString.previewer_next)).assertIsDisplayed().performClick()
+            advanceRobolectricLooper()
+            onView(withText(CommonString.previewer_next)).check(matches(isDisplayed()))
+        }
+    }
+
+    @Test
+    fun followingTheSystemAppliesTheSelectedNightThemeImmediately() {
+        RuntimeEnvironment.setQualifiers("+night")
+        Prefs.appTheme = AppTheme.FOLLOW_SYSTEM
+        Prefs.nightTheme = NightTheme.DARK
+        val intent = PreferencesActivity.getIntent(targetContext, AppearanceSettingsFragment::class)
+        ActivityScenario.launch<PreferencesActivity>(intent).use { scenario ->
+            compose.onNodeWithText(targetContext.getString(R.string.settings_theme_system)).assertIsSelected()
+            val blackChoices = compose.onAllNodes(hasText(targetContext.getString(R.string.settings_theme_black)) and hasClickAction())
+            blackChoices[1].performScrollTo().performClick()
+            advanceRobolectricLooper()
+            blackChoices[1].assertIsSelected()
+            scenario.onActivity { activity ->
+                val background = TypedValue()
+                activity.theme.resolveAttribute(CommonR.attr.foundationBackground, background, true)
+                assertEquals(activity.getColor(CommonR.color.foundation_black_background), background.data)
+            }
         }
     }
 
