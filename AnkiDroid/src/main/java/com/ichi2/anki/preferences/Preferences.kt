@@ -12,7 +12,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
-import androidx.core.os.bundleOf
 import androidx.core.view.ViewGroupCompat
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
@@ -127,7 +126,7 @@ class PreferencesFragment :
 
     internal fun openSearchResult(result: SettingsSearchEntry) {
         val fragment = FragmentFactoryUtils.instantiate<Fragment>(requireActivity(), result.destination.jvmName)
-        fragment.arguments = bundleOf(SETTINGS_SEARCH_TARGET to result.key)
+        fragment.arguments = Bundle().apply { putString(SETTINGS_SEARCH_TARGET, result.key) }
         val group = SettingsGroup.forFragment(fragment)
         if (settingsIsSplit && group != null && group.destination != result.destination) {
             openGroup(group)
@@ -173,7 +172,7 @@ class PreferencesActivity : SingleFragmentActivity() {
         ): Intent =
             Intent(context, PreferencesActivity::class.java).apply {
                 putExtra(EXTRA_FRAGMENT_NAME, PreferencesFragment::class.jvmName)
-                putExtra(EXTRA_FRAGMENT_ARGS, bundleOf(EXTRA_INITIAL_FRAGMENT to initialFragment?.jvmName))
+                putExtra(EXTRA_FRAGMENT_ARGS, Bundle().apply { putString(EXTRA_INITIAL_FRAGMENT, initialFragment?.jvmName) })
             }
     }
 }

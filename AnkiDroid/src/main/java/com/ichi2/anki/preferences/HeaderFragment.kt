@@ -70,12 +70,12 @@ class HeaderFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         groups = SettingsGroup.visibleGroups()
-        searchIndex = buildSettingsSearchIndex(requireContext(), groups)
+        searchIndex = buildSettingsSearchIndex(this, groups)
     }
 
     // Refresh on a tablet when the adjacent settings pane edits a searchable value.
     internal fun refreshSearchIndex() {
-        if (isResumed) searchIndex = buildSettingsSearchIndex(requireContext(), groups)
+        if (isResumed) searchIndex = buildSettingsSearchIndex(this, groups)
     }
 
     internal fun select(group: SettingsGroup?) {

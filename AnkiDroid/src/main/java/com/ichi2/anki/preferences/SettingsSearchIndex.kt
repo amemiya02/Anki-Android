@@ -13,10 +13,10 @@ import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.common.android.AdaptionUtil
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.preferences.reviewer.ReviewerMenuSettingsFragment
 import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.ui.internationalization.sentenceCase
-import com.ichi2.anki.utils.ext.sharedPrefs
 import org.xmlpull.v1.XmlPullParser
 import java.text.Normalizer
 import java.util.Locale
@@ -56,10 +56,10 @@ private fun String.searchable(): String = Normalizer.normalize(lowercase(Locale.
 
 /** Indexes the localized metadata of settings that still use Preference XML, without opening their screens. */
 internal fun buildSettingsSearchIndex(
-    context: Context,
+    fragment: Fragment,
     groups: List<SettingsGroup>,
 ): List<SettingsSearchEntry> =
-    with(context) {
+    with(fragment.requireContext()) {
         val hidden = hiddenSettings()
         groups
             .flatMap { group ->
@@ -70,7 +70,7 @@ internal fun buildSettingsSearchIndex(
                         SettingsGroup.GENERAL -> readSettings(R.xml.preferences_general, title, group.destination)
                         SettingsGroup.APPEARANCE -> appearanceSearchEntries(title)
                         SettingsGroup.STUDYING -> studyingSearchEntries(title)
-                        SettingsGroup.CONTROLS -> controlsSearchEntries(title)
+                        SettingsGroup.CONTROLS -> controlsSearchEntries(title, fragment::controlPreferenceTitle)
                         SettingsGroup.ACCESSIBILITY -> readSettings(R.xml.preferences_accessibility, title, group.destination)
                         SettingsGroup.SYNC -> syncSearchEntries(title)
                         SettingsGroup.NOTIFICATIONS -> readSettings(R.xml.preferences_notifications, title, group.destination)
@@ -141,7 +141,10 @@ private fun Context.studyingSearchEntries(studying: String): List<SettingsSearch
             )
         }
 
-private fun Context.controlsSearchEntries(controls: String): List<SettingsSearchEntry> {
+private fun Context.controlsSearchEntries(
+    controls: String,
+    controlTitle: (String) -> String?,
+): List<SettingsSearchEntry> {
     val prefs = sharedPrefs()
     return readSettings(R.xml.preferences_controls, controls, ControlsSettingsFragment::class) +
         ControlPreferenceScreen.entries.flatMap { screen ->
@@ -153,7 +156,7 @@ private fun Context.controlsSearchEntries(controls: String): List<SettingsSearch
                     },
                 )
             val actions = screen.searchableActions().associateBy { it.preferenceKey }
-            readSettings(screen.xmlRes, breadcrumb(controls, tab), ControlsSettingsFragment::class).map { entry ->
+            readSettings(screen.xmlRes, breadcrumb(controls, tab), ControlsSettingsFragment::class, controlTitle).map { entry ->
                 val bindings = actions[entry.key]?.getBindings(prefs).orEmpty().map { it.toDisplayString(this) }
                 entry.copy(details = entry.details + bindings)
             }
@@ -198,6 +201,7 @@ private fun Context.readSettings(
     @XmlRes xml: Int,
     groupPath: String,
     destination: KClass<out Fragment>,
+    overrideTitle: (String) -> String? = { null },
 ): List<SettingsSearchEntry> =
     buildList {
         resources.getXml(xml).use { parser ->
@@ -207,7 +211,7 @@ private fun Context.readSettings(
                 sections.removeAll { (depth, _) -> depth >= parser.depth }
                 val key = parser.androidText(this@readSettings, "key")
                 val kind = parser.name.substringAfterLast('.')
-                val title = settingTitle(key) ?: parser.androidText(this@readSettings, "title")
+                val title = key?.let(overrideTitle) ?: settingTitle(key) ?: parser.androidText(this@readSettings, "title")
                 if (kind.endsWith("Category")) {
                     title?.let { sections.add(parser.depth to it) }
                     continue
@@ -259,35 +263,6 @@ private fun Context.settingTitle(key: String?): String? =
         getString(R.string.show_audio_play_buttons_key) -> TR.preferencesShowPlayButtonsOnCardsWith()
         getString(R.string.show_estimates_preference) -> TR.preferencesShowNextReviewTimeAboveAnswer()
         getString(R.string.sync_io_timeout_secs_key) -> TR.preferencesNetworkTimeout()
-        getString(R.string.browse_command_key) -> TR.qtMiscBrowse()
-        getString(R.string.statistics_command_key) -> TR.statisticsTitle()
-        getString(R.string.reschedule_command_key) -> TR.sentenceCase.setDueDate
-        getString(R.string.bury_card_command_key) -> TR.sentenceCase.buryCard
-        getString(R.string.suspend_card_command_key) -> TR.sentenceCase.suspendCard
-        getString(R.string.card_info_command_key) -> TR.sentenceCase.cardInfo
-        getString(R.string.bury_note_command_key) -> TR.sentenceCase.buryNote
-        getString(R.string.suspend_note_command_key) -> TR.sentenceCase.suspendNote
-        getString(R.string.mark_command_key), getString(R.string.previewer_mark_key) -> TR.sentenceCase.markNote
-        getString(R.string.previous_card_info_command_key) -> TR.sentenceCase.previousCardInfo
-        getString(R.string.delete_command_key) -> TR.sentenceCase.deleteNote
-        getString(R.string.answer_again_command_key) -> TR.sentenceCase.answerAgain
-        getString(R.string.answer_hard_command_key) -> TR.sentenceCase.answerHard
-        getString(R.string.answer_good_command_key) -> TR.sentenceCase.answerGood
-        getString(
-            R.string.toggle_whiteboard_command_key,
-        ),
-        -> TR.sentenceCase.gestureToggleWhiteboard(getString(CommonString.gesture_toggle_whiteboard))
-        getString(R.string.flag_red_command_key) -> TR.sentenceCase.gestureFlagRed(getString(CommonString.gesture_flag_red))
-        getString(R.string.flag_orange_command_key) -> TR.sentenceCase.gestureFlagOrange(getString(CommonString.gesture_flag_orange))
-        getString(R.string.flag_green_command_key) -> TR.sentenceCase.gestureFlagGreen(getString(CommonString.gesture_flag_green))
-        getString(R.string.flag_blue_command_key) -> TR.sentenceCase.gestureFlagBlue(getString(CommonString.gesture_flag_blue))
-        getString(R.string.flag_pink_command_key) -> TR.sentenceCase.gestureFlagPink(getString(CommonString.gesture_flag_pink))
-        getString(
-            R.string.flag_turquoise_command_key,
-        ),
-        -> TR.sentenceCase.gestureFlagTurquoise(getString(CommonString.gesture_flag_turquoise))
-        getString(R.string.flag_purple_command_key) -> TR.sentenceCase.gestureFlagPurple(getString(CommonString.gesture_flag_purple))
-        getString(R.string.remove_flag_command_key) -> TR.sentenceCase.gestureFlagRemove(getString(CommonString.gesture_flag_remove))
         else -> null
     }
 
