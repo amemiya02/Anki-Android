@@ -76,6 +76,8 @@ import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.anki.previewer.PreviewerFragment
 import com.ichi2.anki.previewer.TemplatePreviewerFragment
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
+import com.ichi2.anki.shareddeck.SharedDecksActivity
+import com.ichi2.anki.shareddeck.SharedDecksFragment
 import com.ichi2.anki.study.FinishedFragment
 import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
 import com.ichi2.anki.updateTabChrome
@@ -259,6 +261,7 @@ internal class AppNavigation(
                 ManageNotetypes::class.java.name -> ManageNoteTypesFragment::class.java
                 ManageSpaceActivity::class.java.name -> ManageSpaceFragment::class.java
                 Info::class.java.name -> InfoFragment::class.java
+                SharedDecksActivity::class.java.name -> SharedDecksFragment::class.java
                 StudyOptionsActivity::class.java.name -> StudyOptionsFlowFragment::class.java
                 MultimediaActivity::class.java.name -> MultimediaFlowFragment::class.java
                 NoteEditorActivity::class.java.name -> NoteEditorPaneFragment::class.java
@@ -344,6 +347,7 @@ internal class AppNavigation(
                 ManageSpaceActivity::class.java.name,
                 Info::class.java.name,
                 StudyOptionsActivity::class.java.name,
+                SharedDecksActivity::class.java.name,
                 MultimediaActivity::class.java.name,
                 NoteEditorActivity::class.java.name,
                 SingleFragmentActivity::class.java.name,
@@ -378,6 +382,7 @@ internal class AppNavigation(
                 ScheduleRemindersFragment::class.java,
                 Statistics::class.java,
                 StudyOptionsFlowFragment::class.java,
+                SharedDecksFragment::class.java,
                 TemplatePreviewerFragment::class.java,
             ).associateBy { it.name }
     }

@@ -49,6 +49,8 @@ import com.ichi2.compose.ui.dialogs.TextInputDialog
 
 class ManageNotetypes : SingleFragmentActivity() {
     override fun createFragment(): ManageNoteTypesFragment = ManageNoteTypesFragment()
+    val viewModel: ManageNoteTypesViewModel
+        get() = (fragment as ManageNoteTypesFragment).viewModel
 }
 
 class ManageNoteTypesFragment : Fragment() {

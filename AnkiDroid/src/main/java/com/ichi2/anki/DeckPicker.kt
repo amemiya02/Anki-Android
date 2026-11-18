@@ -19,6 +19,7 @@ import android.content.SharedPreferences
 import android.database.SQLException
 import android.graphics.Color
 import android.graphics.PixelFormat
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
@@ -60,7 +61,9 @@ import androidx.compose.ui.text.withLink
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.IntentCompat
 import androidx.core.content.edit
+import androidx.core.os.BundleCompat
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
@@ -305,6 +308,9 @@ open class DeckPicker :
     WelcomeFragment.Host {
     private lateinit var appNavigation: AppNavigation
     private var awaitingWelcome = false
+    private var collectionReadyForEntry = false
+    private var pendingEntry: Intent? = null
+    private var waitForWelcomeAction = false
     internal val bottomNavContentClearance = mutableIntStateOf(0)
 
     val viewModel: DeckPickerViewModel by viewModels()
@@ -456,6 +462,7 @@ open class DeckPicker :
                     // A hosted sign-in returns without resuming the activity.
                     if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) refreshState()
                 }
+                afterWelcomeAction()
             },
         )
 
@@ -475,6 +482,7 @@ open class DeckPicker :
                 if (it.resultCode == RESULT_OK) {
                     onSelectedFileToImport(it.data!!)
                 }
+                afterWelcomeAction()
             },
         )
 
@@ -582,6 +590,8 @@ open class DeckPicker :
         binding = ActivityHomescreenBinding.inflate(layoutInflater)
 
         awaitingWelcome = !hasShownAppIntro() && AnkiDroidApp.fatalError == null
+        pendingEntry = savedInstanceState?.let { BundleCompat.getParcelable(it, STATE_PENDING_ENTRY, Intent::class.java) }
+        waitForWelcomeAction = savedInstanceState?.getBoolean(STATE_WAIT_FOR_WELCOME_ACTION) == true
         if (intent.hasExtra(EXTRA_SYNC_FROM_LOGIN)) {
             Timber.d("launched from introduction activity login: syncing")
             syncOnResume = true
@@ -729,7 +739,7 @@ open class DeckPicker :
         observeProgress(viewModel) { progress -> progressMessage(progress) }
         setupFlows()
         installScreenNavigation()
-        if (savedInstanceState == null) consumeEntryIntent(intent)
+        if (savedInstanceState == null) deferEntryIntent(intent)
     }
 
     private fun installScreenNavigation() {
@@ -1019,7 +1029,12 @@ open class DeckPicker :
                     invalidateOptionsMenu()
                     showStartupScreensAndDialogs(sharedPrefs(), 0)
                     showProfileLoadFailureIfAny()
-                    if (intent.hasExtra(EXTRA_IMPORT) || intent.hasExtra(EXTRA_SYNC_SETUP)) refreshState()
+                    collectionReadyForEntry = true
+                    if (intent.hasExtra(EXTRA_IMPORT) || intent.hasExtra(EXTRA_SYNC_SETUP)) {
+                        waitForWelcomeAction = true
+                        refreshState()
+                    }
+                    openPendingEntry()
 
                     if (tryShowStudyOptionsPanel()) {
                         ResizablePaneManager(
@@ -1671,7 +1686,7 @@ open class DeckPicker :
 
     fun refreshState() {
         // Welcome actions can arrive before storage permission is granted or via onNewIntent.
-        if (hasCollectionStoragePermissions()) {
+        if (collectionReadyForEntry && hasCollectionStoragePermissions()) {
             when {
                 intent.getBooleanExtra(EXTRA_IMPORT, false) -> {
                     intent.removeExtra(EXTRA_IMPORT)
@@ -1702,6 +1717,8 @@ open class DeckPicker :
     public override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("mIsFABOpen", floatingActionMenu.isFABOpen)
+        outState.putParcelable(STATE_PENDING_ENTRY, pendingEntry)
+        outState.putBoolean(STATE_WAIT_FOR_WELCOME_ACTION, waitForWelcomeAction)
         importColpkgListener?.let {
             if (it is DatabaseRestorationListener) {
                 outState.putString("dbRestorationPath", it.newAnkiDroidDirectory.absolutePath)
@@ -2659,6 +2676,8 @@ open class DeckPicker :
          * Builds an intent for [DeckPicker]
          */
         private const val EXTRA_ENTRY_SCREEN = "appNavigationEntryScreen"
+        private const val STATE_PENDING_ENTRY = "pendingEntryScreen"
+        private const val STATE_WAIT_FOR_WELCOME_ACTION = "waitForWelcomeAction"
 
         internal fun getEntryIntent(
             context: Context,
@@ -2672,7 +2691,7 @@ open class DeckPicker :
                 else Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP,
             )
             if (source != null) {
-                val uri = source.data ?: source.getParcelableExtraCompat<android.net.Uri>(Intent.EXTRA_STREAM)
+                val uri = source.data ?: IntentCompat.getParcelableExtra(source, Intent.EXTRA_STREAM, Uri::class.java)
                 clipData = source.clipData ?: uri?.let { ClipData.newRawUri(null, it) }
                 addFlags(source.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
             }
@@ -2691,17 +2710,31 @@ open class DeckPicker :
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         this.intent = intent
-        consumeEntryIntent(intent)
+        deferEntryIntent(intent)
         if (intent.hasExtra(EXTRA_SYNC_FROM_LOGIN)) {
             Timber.i("Sync requested from Login")
             this.syncOnResume = true
         }
     }
 
-    private fun consumeEntryIntent(intent: Intent) {
-        val screen = intent.getParcelableExtraCompat<Intent>(EXTRA_ENTRY_SCREEN) ?: return
+    private fun deferEntryIntent(intent: Intent) {
+        val screen = IntentCompat.getParcelableExtra(intent, EXTRA_ENTRY_SCREEN, Intent::class.java) ?: return
         intent.removeExtra(EXTRA_ENTRY_SCREEN)
-        if (!awaitingWelcome) startActivity(screen)
+        pendingEntry = screen
+        openPendingEntry()
+    }
+
+    private fun afterWelcomeAction() {
+        if (!waitForWelcomeAction) return
+        waitForWelcomeAction = false
+        openPendingEntry()
+    }
+
+    private fun openPendingEntry() {
+        if (!collectionReadyForEntry || awaitingWelcome || waitForWelcomeAction) return
+        val screen = pendingEntry ?: return
+        pendingEntry = null
+        startActivity(screen)
     }
 
     override fun opExecuted(

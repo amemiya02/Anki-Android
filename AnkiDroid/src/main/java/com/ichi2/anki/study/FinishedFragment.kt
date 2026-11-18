@@ -26,9 +26,10 @@ import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.SingleFragmentActivity
+import com.ichi2.anki.common.destinations.DeferredNavigation
 import com.ichi2.anki.common.destinations.ReviewDeckDestination
 import com.ichi2.anki.common.destinations.StudyOptionsDestination
-import com.ichi2.anki.common.destinations.navigate
+import com.ichi2.anki.common.destinations.toIntent
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyAction
 import com.ichi2.anki.launchCatchingTask
@@ -182,14 +183,14 @@ class FinishedFragment :
         Timber.i("opening the study screen")
         val host = requireActivity()
         finishScreen()
-        with(host) { navigate(ReviewDeckDestination.CurrentDeck) }
+        host.startActivity(with(DeferredNavigation) { ReviewDeckDestination.CurrentDeck.toIntent() })
     }
 
     private fun openStudyOptionsAndFinish() {
         Timber.i("opening study options")
         val host = requireActivity()
         finishScreen()
-        with(host) { navigate(StudyOptionsDestination) }
+        host.startActivity(with(DeferredNavigation) { StudyOptionsDestination.toIntent() })
     }
 
     @androidx.annotation.VisibleForTesting

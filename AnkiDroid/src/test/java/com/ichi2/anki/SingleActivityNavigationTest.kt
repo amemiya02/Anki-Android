@@ -10,6 +10,7 @@ import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.mediacheck.MediaCheckFragment
 import com.ichi2.anki.ui.internationalization.trCase
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Rule
@@ -43,6 +44,24 @@ class SingleActivityNavigationTest : RobolectricTest() {
             mediaCheck.assertDoesNotExist()
             assertFalse(deckPicker.isFinishing)
         }
+
+    @Test
+    fun `shared text waits for Welcome then opens the Note Editor once`() {
+        setIntroductionSlidesShown(false)
+        val shared = Intent(Intent.ACTION_SEND).putExtra(Intent.EXTRA_TEXT, "Text from another app")
+        val editor = Intent(targetContext, NoteEditorActivity::class.java).putExtras(shared).setAction(shared.action)
+        val incoming = DeckPicker.getEntryIntent(targetContext, editor, shared)
+        val controller = startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, incoming)
+        controller.recreate()
+        advanceRobolectricLooper()
+
+        val host = controller.get()
+        composeRule.onNodeWithText(host.getString(CommonString.paper_welcome_start_empty)).performClick()
+        advanceRobolectricLooperUntil { host.currentScreenFragment is NoteEditorPaneFragment }
+
+        assertEquals("Text from another app", (host.currentScreenFragment as NoteEditorPaneFragment).launchIntent.getStringExtra(Intent.EXTRA_TEXT))
+        assertNull(shadowOf(host).nextStartedActivity)
+    }
 
     @Test
     fun `first run opens Welcome and continues to Decks in the same activity`() {
