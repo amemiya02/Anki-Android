@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.provider.Settings
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
@@ -46,6 +47,22 @@ class PermissionsActivityTest : RobolectricTest() {
 
     private val continueButton
         get() = compose.onNodeWithText(getResourceString(CommonString.dialog_continue))
+
+    @Test
+    fun `collection permission opens inside Decks and returns there after Continue`() =
+        withDeckPicker(deckCount = 1) { host ->
+            grantPermissions(*StoragePermissionSet.LEGACY_ACCESS.permissions.toTypedArray())
+            host.startActivity(PermissionsActivity.getIntent(host, StoragePermissionSet.LEGACY_ACCESS))
+            advanceRobolectricLooper()
+
+            assertNull(shadowOf(host).nextStartedActivity)
+            host.onBackPressedDispatcher.onBackPressed()
+            continueButton.assertIsDisplayed().performClick()
+            advanceRobolectricLooper()
+
+            compose.onNodeWithText("Test Deck 0").assertIsDisplayed()
+            assertFalse(host.isFinishing)
+        }
 
     @Test
     fun testActivityCantBeClosedByBackButton() {
