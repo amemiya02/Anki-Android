@@ -19,11 +19,6 @@ import android.view.View
 import android.widget.EditText
 import androidx.core.view.isVisible
 import androidx.test.core.app.ActivityScenario
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.config.ConfigKey
 import anki.notetypes.StockNotetype
@@ -299,36 +294,6 @@ class NoteEditorTest : RobolectricTest() {
             }
             val result = scenario.result
             assertThat("Activity should be cancelled as no changes were made", result.resultCode, equalTo(Activity.RESULT_CANCELED))
-        }
-    }
-
-    @Test
-    fun testHandleMultimediaActionsDisplaysBottomSheet() {
-        installCameraApp()
-        val intent = NoteEditorDestination.AddNote().toIntent()
-        ActivityScenario.launchActivityForResult<NoteEditorActivity>(intent).use { scenario ->
-            scenario.onNoteEditor { noteEditor ->
-                noteEditor.showMultimediaBottomSheet()
-
-                onView(withId(R.id.multimedia_action_image)).inRoot(isDialog()).check(matches(isDisplayed()))
-                onView(withId(R.id.multimedia_action_audio)).inRoot(isDialog()).check(matches(isDisplayed()))
-                onView(withId(R.id.multimedia_action_drawing)).inRoot(isDialog()).check(matches(isDisplayed()))
-                onView(withId(R.id.multimedia_action_recording)).inRoot(isDialog()).check(matches(isDisplayed()))
-                onView(withId(R.id.multimedia_action_video)).inRoot(isDialog()).check(matches(isDisplayed()))
-                onView(withId(R.id.multimedia_action_camera)).inRoot(isDialog()).check(matches(isDisplayed()))
-            }
-        }
-    }
-
-    @Test
-    fun `multimedia camera option is hidden without a camera app`() {
-        val intent = NoteEditorDestination.AddNote().toIntent()
-        ActivityScenario.launchActivityForResult<NoteEditorActivity>(intent).use { scenario ->
-            scenario.onNoteEditor { noteEditor ->
-                noteEditor.showMultimediaBottomSheet()
-
-                onView(withId(R.id.multimedia_action_camera)).inRoot(isDialog()).check(matches(not(isDisplayed())))
-            }
         }
     }
 

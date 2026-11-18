@@ -5,280 +5,242 @@ package com.ichi2.anki.noteeditor
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Insets
 import android.graphics.Paint
-import android.graphics.drawable.Drawable
-import android.os.Build
 import android.util.AttributeSet
-import android.util.DisplayMetrics
-import android.util.TypedValue
-import android.view.ContextThemeWrapper
-import android.view.Gravity
 import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowInsets
 import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
-import android.widget.LinearLayout
-import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
-import androidx.annotation.IdRes
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.AppCompatImageButton
-import androidx.core.graphics.createBitmap
-import androidx.core.graphics.drawable.toDrawable
-import androidx.core.view.children
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.isSecondaryPressed
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
-import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
-import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.android.getColorFromAttr
-import com.ichi2.anki.common.utils.dp
-import com.ichi2.anki.compat.CompatHelper
-import com.ichi2.anki.noteeditor.data.ToolbarPreferences
+import com.ichi2.anki.noteeditor.presentation.ToolbarLayoutMode
+import com.ichi2.compose.theme.AnkiDroidTheme
+import com.ichi2.compose.theme.foundation
 import com.ichi2.utils.AndroidUiUtils.showSoftInput
-import com.ichi2.utils.ViewGroupUtils
-import com.ichi2.utils.ViewGroupUtils.getAllChildrenRecursive
 import com.ichi2.utils.show
 import com.ichi2.utils.title
 import timber.log.Timber
-import java.util.Objects
-import kotlin.math.ceil
 import com.ichi2.anki.common.android.R as CommonR
+import com.ichi2.anki.noteeditor.R as NoteEditorR
 
-/**
- * Handles the toolbar inside [com.ichi2.anki.NoteEditorFragment]
- *
- * * Handles a number of buttons which arbitrarily format selected text, or insert an item at the cursor
- *    * Text is formatted as HTML
- *    * if a tag with an empty body is inserted, we want the cursor in the middle: `<b>|</b>`
- * * Handles the "default" buttons: [setupDefaultButtons], [displayFontSizeDialog], [displayInsertHeadingDialog]
- * * Handles custom buttons with arbitrary prefixes and suffixes: [customButtons]
- *    * Handles generating the 'icon' for these custom buttons: [createDrawableForString]
- *    * Handles CTRL+ the tag of the button: [onKeyUp]. Allows for Ctrl+1..9 shortcuts
- * * Handles adding a dynamic number of buttons and aligning them into rows: [insertItem]
- *    * And handles whether these should be stacked or scrollable: [ToolbarPreferences.isScrollable]
- */
-class Toolbar : FrameLayout {
+/** Hosts the formatting controls beside the native EditTexts that own selection and IME input. */
+class Toolbar(
+    context: Context,
+    attrs: AttributeSet?,
+) : FrameLayout(context, attrs) {
     var formatListener: TextFormatListener? = null
-    private val toolbar: LinearLayout
-    private val toolbarLayout: LinearLayout
-    private val toolbarPreferences = ToolbarPreferences(context.sharedPrefs())
-    private val buttonSize get() = resources.getDimensionPixelSize(CommonR.dimen.foundation_spacing_touch_target)
 
     @VisibleForTesting
-    internal val scrollView: HorizontalScrollView
+    internal val scrollView =
+        HorizontalScrollView(context).apply {
+            id = R.id.toolbar_scrollview
+            clipToPadding = false
+            isHorizontalScrollBarEnabled = false
+        }
 
-    /** A list of buttons, typically user-defined which modify text + selection */
-    private val customButtons: MutableList<View> = ArrayList()
-    private val rows: MutableList<LinearLayout> = ArrayList()
-
-    private var stringPaint: Paint? = null
-
-    constructor(context: Context) : super(context)
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
-    constructor(
-        context: Context,
-        attrs: AttributeSet?,
-        defStyleAttr: Int,
-        defStyleRes: Int,
-    ) : super(context, attrs, defStyleAttr, defStyleRes)
+    private var actions by mutableStateOf<List<Action>>(emptyList())
+    private var layout by mutableStateOf(ToolbarLayoutMode.HIDDEN)
+    private val stacked = composeToolbar(stacked = true)
+    internal val stackedControlsHeight get() = stacked.height
+    private val rulePaint = Paint().apply { color = getColorFromAttr(context, CommonR.attr.foundationOutline) }
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.view_note_editor_toolbar, this, true)
-        stringPaint =
-            Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                textSize = 24.dp.toPx(context).toFloat()
-                color = getColorFromAttr(context, CommonR.attr.foundationOnBackground)
-                textAlign = Paint.Align.CENTER
+        setBackgroundColor(getColorFromAttr(context, CommonR.attr.foundationBackground))
+        setWillNotDraw(false)
+        scrollView.addView(
+            composeToolbar(stacked = false),
+            LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT),
+        )
+        addView(scrollView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
+        addView(stacked, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
+    }
+
+    private fun composeToolbar(stacked: Boolean) =
+        ComposeView(context).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                val visibleLayout = if (stacked) ToolbarLayoutMode.STACK else ToolbarLayoutMode.SCROLL
+                if (layout == visibleLayout) {
+                    AnkiDroidTheme { FormatActions(actions, stacked) }
+                }
             }
-        toolbar = findViewById(R.id.editor_toolbar_internal)
-        toolbarLayout = findViewById(R.id.toolbar_layout)
-        scrollView = findViewById(R.id.toolbar_scrollview)
-        setupDefaultButtons()
+        }
+
+    override fun onMeasure(
+        widthMeasureSpec: Int,
+        heightMeasureSpec: Int,
+    ) {
+        if (!stacked.isVisible || MeasureSpec.getMode(heightMeasureSpec) != MeasureSpec.AT_MOST) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+            return
+        }
+        // Keep room for typing above the controls when using Stack with the keyboard
+        // or many custom buttons. All rows remain reachable by scrolling vertically.
+        val maximumHeight = MeasureSpec.getSize(heightMeasureSpec)
+        val availableHeight = (maximumHeight - paddingBottom).coerceAtLeast(0)
+        val firstRow = resources.getDimensionPixelSize(R.dimen.note_editor_toolbar_height)
+        val controlsHeight = maxOf(firstRow, availableHeight / 3)
+        super.onMeasure(
+            widthMeasureSpec,
+            MeasureSpec.makeMeasureSpec(minOf(maximumHeight, paddingBottom + controlsHeight), MeasureSpec.AT_MOST),
+        )
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+        val hairline = resources.getDimensionPixelSize(CommonR.dimen.foundation_shape_hairline)
+        canvas.drawRect(0f, 0f, width.toFloat(), hairline.toFloat(), rulePaint)
     }
 
     /**
-     * Insets the ends of the button row, keeping buttons which rest there clear of the bottom
-     *  rounded display corners; buttons scroll beneath the clearance.
+     * The scroll row clips at the pane edge, with space for the display's rounded corners
+     * at the first and last resting positions.
      */
     fun setSideClearance(
         left: Int,
         right: Int,
     ) {
         scrollView.updatePadding(left = left, right = right)
+        stacked.updatePadding(left = left, right = right)
     }
 
-    /** Sets up the "standard" buttons to insert bold, italics etc... */
-    private fun setupDefaultButtons() {
-        // sets up a button click to wrap text with the prefix/suffix. So "aa" becomes "<b>aa</b>"
-        fun setupButtonWrappingText(
-            @IdRes id: Int,
-            prefix: String,
-            suffix: String,
-        ) = findViewById<View>(id).setOnClickListener {
-            // Attempt to open keyboard for the currently focused view in the hosting Activity
-            val activity = context as? Activity
-            activity.showSoftInput()
-
-            onFormat(TextWrapper(prefix, suffix))
-        }
-
-        setupButtonWrappingText(R.id.note_editor_toolbar_button_bold, "<b>", "</b>")
-        setupButtonWrappingText(R.id.note_editor_toolbar_button_italic, "<i>", "</i>")
-        setupButtonWrappingText(R.id.note_editor_toolbar_button_underline, "<u>", "</u>")
-        setupButtonWrappingText(R.id.note_editor_toolbar_button_insert_mathjax, "\\(", "\\)")
-        setupButtonWrappingText(R.id.note_editor_toolbar_button_horizontal_rule, "<hr>", "")
-        findViewById<View>(R.id.note_editor_toolbar_button_font_size).setOnClickListener { displayFontSizeDialog() }
-        findViewById<View>(R.id.note_editor_toolbar_button_title).setOnClickListener { displayInsertHeadingDialog() }
-        findViewById<View>(R.id.note_editor_toolbar_button_insert_mathjax).setOnLongClickListener {
-            displayInsertMathJaxEquationsDialog()
-            true
-        }
-
-        val parentLayout = findViewById<LinearLayout>(R.id.editor_toolbar_internal)
-        parentLayout.children.forEach { child ->
-            CompatHelper.compat.setTooltipTextByContentDescription(child)
-        }
+    internal fun update(
+        layout: ToolbarLayoutMode,
+        cloze: List<Action>,
+        custom: List<Action>,
+    ) {
+        actions = cloze + defaultActions(separated = cloze.isNotEmpty()) + custom
+        this.layout = layout
+        scrollView.isVisible = layout == ToolbarLayoutMode.SCROLL
+        stacked.isVisible = layout == ToolbarLayoutMode.STACK
+        isVisible = layout != ToolbarLayoutMode.HIDDEN
     }
 
-    /**
-     * If a button is assigned a tag, Ctrl+Tag will invoke the button
-     * Typically used for Ctrl + 1..9 with custom buttons
-     */
+    private fun defaultActions(separated: Boolean): List<Action> =
+        listOf(
+            Action(
+                context.getString(CommonString.format_insert_bold),
+                NoteEditorR.drawable.symbol_format_bold,
+                shortcut = 'b',
+                separated = separated,
+                onClick = { format(TextWrapper("<b>", "</b>")) },
+            ),
+            Action(
+                context.getString(CommonString.format_insert_italic),
+                NoteEditorR.drawable.symbol_format_italic,
+                shortcut = 'i',
+                onClick = { format(TextWrapper("<i>", "</i>")) },
+            ),
+            Action(
+                context.getString(CommonString.format_insert_underline),
+                NoteEditorR.drawable.symbol_format_underlined,
+                shortcut = 'u',
+                onClick = { format(TextWrapper("<u>", "</u>")) },
+            ),
+            Action(
+                context.getString(CommonString.insert_mathjax),
+                NoteEditorR.drawable.symbol_functions,
+                shortcut = 'm',
+                onLongClick = ::displayInsertMathJaxEquationsDialog,
+                onClick = { format(TextWrapper("\\(", "\\)")) },
+            ),
+            Action(
+                context.getString(CommonString.insert_heading),
+                NoteEditorR.drawable.symbol_title,
+                shortcut = 'h',
+                onClick = ::displayInsertHeadingDialog,
+            ),
+            Action(
+                context.getString(CommonString.format_font_size),
+                NoteEditorR.drawable.symbol_format_size,
+                shortcut = 'f',
+                onClick = ::displayFontSizeDialog,
+            ),
+            Action(
+                context.getString(CommonString.insert_horizontal_line),
+                NoteEditorR.drawable.symbol_horizontal_rule,
+                shortcut = 'r',
+                onClick = { format(TextWrapper("<hr>", "")) },
+            ),
+        )
+
     override fun onKeyUp(
         keyCode: Int,
         event: KeyEvent,
     ): Boolean {
-        // hack to see if only CTRL is pressed - might not be perfect.
-        // I'll avoid checking "function" here as it may be required to press Ctrl
-        if (!event.isCtrlPressed || event.isAltPressed || event.isShiftPressed || event.isMetaPressed) {
-            return false
-        }
-        val c: Char =
+        if (!event.isCtrlPressed || event.isAltPressed || event.isShiftPressed || event.isMetaPressed) return false
+        val shortcut =
             try {
                 event.getUnicodeChar(0).toChar()
             } catch (e: Exception) {
                 Timber.w(e)
                 return false
             }
-        if (c == '\u0000') {
-            return false
-        }
-        val expected = c.toString()
-        for (v in getAllChildrenRecursive(this)) {
-            if (Objects.equals(expected, v.tag)) {
-                Timber.i("Handling Ctrl + %s", c)
-                v.performClick()
-                return true
-            }
-        }
-        return super.onKeyUp(keyCode, event)
+        val action = actions.firstOrNull { it.shortcut == shortcut } ?: return false
+        action.onClick()
+        return true
     }
 
-    fun insertItem(
-        @IdRes id: Int,
-        @DrawableRes drawable: Int,
-        block: () -> Unit,
-    ): AppCompatImageButton {
-        // we use the light theme here to ensure the tint is black on both
-        // A null theme can be passed after colorControlNormal is defined (API 25)
-        val themeContext: Context = ContextThemeWrapper(context, CommonR.style.Theme_Light)
-        val d = VectorDrawableCompat.create(context.resources, drawable, themeContext.theme)
-        return insertItem(id, d, block)
+    internal fun format(formatter: TextFormatter) {
+        (context as? Activity).showSoftInput()
+        onFormat(formatter)
     }
 
-    fun insertItem(
-        id: Int,
-        drawable: Drawable?,
-        formatter: TextFormatter,
-    ): View = insertItem(id, drawable) { onFormat(formatter) }
-
-    fun insertItem(
-        @IdRes id: Int,
-        drawable: Drawable?,
-        block: () -> Unit,
-    ): AppCompatImageButton {
-        val context = context
-        val button = AppCompatImageButton(context)
-        button.id = id
-        button.setImageDrawable(drawable)
-
-        /*
-            Style didn't work
-            int buttonStyle = R.style.note_editor_toolbar_button;
-            ContextThemeWrapper context = new ContextThemeWrapper(getContext(), buttonStyle);
-            AppCompatImageButton button = new AppCompatImageButton(context, null, buttonStyle);
-         */
-
-        // apply style
-        val background = TypedValue()
-        context.theme.resolveAttribute(android.R.attr.selectableItemBackground, background, true)
-        button.setBackgroundResource(background.resourceId)
-        val params = LinearLayout.LayoutParams(buttonSize, buttonSize)
-        params.gravity = Gravity.CENTER
-        button.layoutParams = params
-        val twoDp = ceil((2 / context.resources.displayMetrics.density).toDouble()).toInt()
-        button.setPaddingRelative(twoDp, twoDp, twoDp, twoDp)
-        // end apply style
-        if (toolbarPreferences.isScrollable) {
-            toolbar.addView(button, toolbar.childCount)
-        } else {
-            addViewToToolbar(button)
-        }
-        customButtons.add(button)
-        button.setOnClickListener { block.invoke() }
-
-        // Hack - items are truncated from the scrollview
-        val v = findViewById<View>(R.id.toolbar_layout)
-        val expectedWidth = getVisibleItemCount(toolbar) * buttonSize
-        val width = screenWidth
-        val p = LayoutParams(v.layoutParams)
-        p.gravity =
-            Gravity.CENTER_VERTICAL or if (expectedWidth > width) Gravity.START else Gravity.CENTER_HORIZONTAL
-        v.layoutParams = p
-        return button
-    }
-
-    @Suppress("DEPRECATION")
-    private val screenWidth: Int
-        get() {
-            val displayMetrics = DisplayMetrics()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                val windowMetrics =
-                    (context as Activity)
-                        .windowManager
-                        .currentWindowMetrics
-                val insets: Insets =
-                    windowMetrics.windowInsets.getInsetsIgnoringVisibility(
-                        WindowInsets.Type.navigationBars()
-                            or WindowInsets.Type.displayCutout(),
-                    )
-                displayMetrics.widthPixels = windowMetrics.bounds.width() - (insets.right + insets.left)
-            } else {
-                (context as Activity)
-                    .windowManager
-                    .defaultDisplay
-                    .getMetrics(displayMetrics)
-            }
-            return displayMetrics.widthPixels
-        }
-
-    /** Clears all items added by [insertItem] */
-    fun clearCustomItems() {
-        for (v in customButtons) {
-            (v.parent as ViewGroup).removeView(v)
-        }
-        customButtons.clear()
-    }
+    internal data class Action(
+        val label: String,
+        @DrawableRes val icon: Int = 0,
+        val text: String? = null,
+        val shortcut: Char? = null,
+        val emphasis: Boolean = false,
+        val separated: Boolean = false,
+        val onLongClick: (() -> Unit)? = null,
+        val onClick: () -> Unit,
+    )
 
     /**
      * Displays a dialog which allows the HTML size codes to be inserted around text (xx-small to xx-large)
@@ -333,64 +295,8 @@ class Toolbar : FrameLayout {
         }
     }
 
-    /** Given a string [text], generates a [Drawable] which can be used as a button icon */
-    fun createDrawableForString(text: String): Drawable {
-        val baseline = -stringPaint!!.ascent()
-        val size = (baseline + stringPaint!!.descent() + 0.5f).toInt()
-        val image = createBitmap(size, size, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(image)
-        canvas.drawText(text, size / 2f, baseline, stringPaint!!)
-        return image.toDrawable(resources)
-    }
-
-    /** Returns the number of top-level children of [layout] that are visible */
-    private fun getVisibleItemCount(layout: LinearLayout): Int = ViewGroupUtils.getAllChildren(layout).count { it.isVisible }
-
-    private fun addViewToToolbar(button: AppCompatImageButton) {
-        val expectedWidth = getVisibleItemCount(toolbar) * buttonSize
-        val width = screenWidth
-        if (expectedWidth <= width) {
-            toolbar.addView(button, toolbar.childCount)
-            return
-        }
-        var spaceLeft = false
-        if (rows.isNotEmpty()) {
-            val row = rows.last()
-            val expectedRowWidth = getVisibleItemCount(row) * buttonSize
-            if (expectedRowWidth <= width) {
-                row.addView(button, row.childCount)
-                spaceLeft = true
-            }
-        }
-        if (!spaceLeft) {
-            val row = LinearLayout(context)
-            val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            row.layoutParams = params
-            row.orientation = LinearLayout.HORIZONTAL
-            row.addView(button)
-            rows.add(row)
-            toolbarLayout.addView(rows.last())
-        }
-    }
-
-    /**
-     * If a [formatListener] is attached, supply it with the provided [TextFormatter] so that
-     * the current selection of text can be formatted, and the selection can be changed.
-     *
-     * The listener determines the appropriate selection of text to be formatted and handles
-     * selection changes
-     */
     fun onFormat(formatter: TextFormatter) {
         formatListener?.performFormat(formatter)
-    }
-
-    fun setIconColor(
-        @ColorInt color: Int,
-    ) {
-        ViewGroupUtils
-            .getAllChildren(toolbar)
-            .forEach { (it as AppCompatImageButton).setColorFilter(color) }
-        stringPaint!!.color = color
     }
 
     /** @see performFormat */
@@ -459,4 +365,105 @@ class Toolbar : FrameLayout {
         var selectionStart: Int = 0,
         var selectionEnd: Int = 0,
     )
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun FormatActions(
+    actions: List<Toolbar.Action>,
+    stacked: Boolean,
+) {
+    if (stacked) {
+        FlowRow(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(vertical = 2.dp)) {
+            actions.forEach { FormatAction(it, showGroupRule = false) }
+        }
+    } else {
+        Row(Modifier.padding(vertical = 2.dp)) {
+            actions.forEach { FormatAction(it, showGroupRule = it.separated) }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun FormatAction(
+    action: Toolbar.Action,
+    showGroupRule: Boolean,
+) {
+    val foundation = MaterialTheme.foundation
+    val sideRule =
+        if (showGroupRule) {
+            Modifier.drawBehind {
+                val x = if (layoutDirection == LayoutDirection.Ltr) 0f else size.width
+                drawLine(
+                    color = foundation.colors.outline,
+                    start = Offset(x, 11.dp.toPx()),
+                    end = Offset(x, size.height - 11.dp.toPx()),
+                    strokeWidth = foundation.shapes.hairline.toPx(),
+                )
+            }
+        } else {
+            Modifier
+        }
+    val contextClick =
+        if (action.onLongClick != null) {
+            Modifier.pointerInput(action.onLongClick) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent()
+                        if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
+                            event.changes.first().consume()
+                            action.onLongClick()
+                        }
+                    }
+                }
+            }
+        } else {
+            Modifier
+        }
+
+    val color = if (action.emphasis) foundation.colors.emphasis else foundation.colors.onBackground
+    Box(
+        modifier =
+            Modifier
+                .then(sideRule)
+                .then(contextClick)
+                .widthIn(min = foundation.spacing.touchTarget, max = 84.dp)
+                .heightIn(min = foundation.spacing.touchTarget)
+                .combinedClickable(role = Role.Button, onClick = action.onClick, onLongClick = action.onLongClick)
+                .semantics { contentDescription = action.label }
+                .padding(horizontal = 6.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (action.text != null) {
+            // Cloze marks are icons. Keep them intact at large font sizes and in RTL.
+            val style =
+                if (action.emphasis) {
+                    with(LocalDensity.current) {
+                        foundation.type.caption.copy(
+                            fontSize = 16.dp.toSp(),
+                            lineHeight = 20.dp.toSp(),
+                            textDirection = TextDirection.Ltr,
+                        )
+                    }
+                } else {
+                    foundation.type.button
+                }
+            Text(
+                action.text,
+                modifier = Modifier.clearAndSetSemantics {},
+                style = style,
+                color = color,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        } else {
+            Icon(
+                painterResource(action.icon),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = color,
+            )
+        }
+    }
 }

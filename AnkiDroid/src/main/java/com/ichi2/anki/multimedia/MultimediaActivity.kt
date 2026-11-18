@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.stringResource
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -21,6 +22,7 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import com.ichi2.anki.AnkiActivity
+import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableExtraCompat
@@ -94,6 +96,7 @@ class MultimediaActivity :
         setupEdgeToEdge()
         setSupportActionBar(binding.toolbar)
         setupToolbarActions()
+        setupRecorderToolbar()
 
         // avoid recreating the fragment on configuration changes
         if (savedInstanceState != null) {
@@ -121,6 +124,23 @@ class MultimediaActivity :
         binding.toolbar.setNavigationOnClickListener {
             Timber.d("MultimediaActivity:: Back pressed")
             onBackPressedDispatcher.onBackPressed()
+        }
+    }
+
+    private fun setupRecorderToolbar() {
+        if (intent.getStringExtra(EXTRA_FRAGMENT_NAME) != AudioRecordingFragment::class.jvmName) return
+        binding.toolbar.isVisible = false
+        binding.recordingToolbar.apply {
+            isVisible = true
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                AnkiDroidTheme {
+                    AttachmentAppBar(
+                        title = stringResource(CommonString.multimedia_editor_field_editing_audio),
+                        onBack = { onBackPressedDispatcher.onBackPressed() },
+                    )
+                }
+            }
         }
     }
 

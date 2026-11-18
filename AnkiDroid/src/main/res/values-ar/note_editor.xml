@@ -1,4 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="note_editor_duplicate_first_field">محتوى الحقل الأول مكرر</string>
+    <string name="note_editor_attach_to_field">إرفاق إلى %1$s</string>
+    <string name="note_editor_attach_image">صورة</string>
+    <string name="note_editor_attach_image_hint">من المعرض أو الملفات</string>
+    <string name="note_editor_attach_camera">الكاميرا</string>
+    <string name="note_editor_attach_camera_hint">التقاط صورة</string>
+    <string name="note_editor_attach_drawing_hint">ارسم بإصبعك أو بقلم رقمي</string>
+    <string name="note_editor_attach_audio_file">ملف صوتي</string>
+    <string name="note_editor_attach_video_file">ملف فيديو</string>
+    <string name="note_editor_audio_back_five_seconds">ارجع خمس ثوانٍ</string>
+    <string name="note_editor_audio_forward_five_seconds">تقدّم خمس ثوانٍ</string>
+    <string name="note_editor_audio_pause_recording">أوقف التسجيل مؤقتًا</string>
+    <string name="note_editor_audio_resume_recording">استأنف التسجيل</string>
+    <string name="note_editor_audio_pause_playback">أوقف التشغيل مؤقتًا</string>
 </resources>

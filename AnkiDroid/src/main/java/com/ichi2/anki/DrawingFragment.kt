@@ -11,6 +11,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.stringResource
 import androidx.core.graphics.createBitmap
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -19,8 +21,10 @@ import com.ichi2.anki.common.time.getTimestamp
 import com.ichi2.anki.compat.CompatHelper
 import com.ichi2.anki.databinding.FragmentDrawingBinding
 import com.ichi2.anki.dialogs.DiscardChangesDialog
+import com.ichi2.anki.multimedia.AttachmentAppBar
 import com.ichi2.anki.ui.windows.reviewer.whiteboard.WhiteboardFragment
 import com.ichi2.anki.ui.windows.reviewer.whiteboard.WhiteboardView
+import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.themes.Themes
 import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.flow.launchIn
@@ -37,15 +41,15 @@ class DrawingFragment : Fragment(R.layout.fragment_drawing) {
     ) {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.apply {
-            setNavigationOnClickListener {
-                requireActivity().onBackPressedDispatcher.onBackPressed()
-            }
-            setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    R.id.action_save -> onSaveDrawing()
-                    else -> {}
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                AnkiDroidTheme {
+                    AttachmentAppBar(
+                        title = stringResource(CommonString.drawing),
+                        onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() },
+                        onSave = ::onSaveDrawing,
+                    )
                 }
-                true
             }
         }
         setupBackPressHandling()

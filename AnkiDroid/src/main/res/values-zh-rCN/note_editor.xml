@@ -1,4 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="note_editor_duplicate_first_field">第一个字段的内容重复</string>
+    <string name="note_editor_attach_to_field">添加到「%1$s」</string>
+    <string name="note_editor_attach_image">图片</string>
+    <string name="note_editor_attach_image_hint">从图库或文件中选择</string>
+    <string name="note_editor_attach_camera">相机</string>
+    <string name="note_editor_attach_camera_hint">拍照</string>
+    <string name="note_editor_attach_drawing_hint">用手指或触控笔绘图</string>
+    <string name="note_editor_attach_audio_file">音频文件</string>
+    <string name="note_editor_attach_video_file">视频文件</string>
+    <string name="note_editor_audio_back_five_seconds">后退五秒</string>
+    <string name="note_editor_audio_forward_five_seconds">前进五秒</string>
+    <string name="note_editor_audio_pause_recording">暂停录音</string>
+    <string name="note_editor_audio_resume_recording">继续录音</string>
+    <string name="note_editor_audio_pause_playback">暂停播放</string>
 </resources>

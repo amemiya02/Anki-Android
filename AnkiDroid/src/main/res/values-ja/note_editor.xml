@@ -1,4 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="note_editor_duplicate_first_field">最初のフィールドの内容が重複しています</string>
+    <string name="note_editor_attach_to_field">%1$sに添付</string>
+    <string name="note_editor_attach_image">画像</string>
+    <string name="note_editor_attach_image_hint">ギャラリーやファイルから選択</string>
+    <string name="note_editor_attach_camera">カメラ</string>
+    <string name="note_editor_attach_camera_hint">写真を撮る</string>
+    <string name="note_editor_attach_drawing_hint">指やスタイラスで描画</string>
+    <string name="note_editor_attach_audio_file">音声ファイル</string>
+    <string name="note_editor_attach_video_file">動画ファイル</string>
+    <string name="note_editor_audio_back_five_seconds">5秒戻る</string>
+    <string name="note_editor_audio_forward_five_seconds">5秒進む</string>
+    <string name="note_editor_audio_pause_recording">録音を一時停止</string>
+    <string name="note_editor_audio_resume_recording">録音を再開</string>
+    <string name="note_editor_audio_pause_playback">再生を一時停止</string>
 </resources>

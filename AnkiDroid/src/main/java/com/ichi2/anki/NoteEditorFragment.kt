@@ -17,7 +17,10 @@ import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
+import android.text.NoCopySpan
+import android.text.Spanned
 import android.text.TextWatcher
+import android.text.style.ForegroundColorSpan
 import android.view.ActionMode
 import android.view.KeyEvent
 import android.view.Menu
@@ -37,7 +40,6 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CheckResult
-import androidx.annotation.DrawableRes
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.runtime.getValue
@@ -46,7 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.content.FileProvider
 import androidx.core.content.edit
-import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.Insets
 import androidx.core.os.BundleCompat
 import androidx.core.util.component1
@@ -70,14 +72,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import anki.notes.NoteFieldsCheckResponse
 import anki.search.SearchNode
-import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.NoteEditorFragment.Companion.NoteEditorCaller.Companion.fromValue
-import com.ichi2.anki.OnContextAndLongClickListener.Companion.setOnContextAndLongClickListener
 import com.ichi2.anki.android.input.ShortcutGroup
 import com.ichi2.anki.android.input.ShortcutGroupProvider
 import com.ichi2.anki.android.input.shortcut
@@ -105,7 +105,6 @@ import com.ichi2.anki.common.utils.ext.getParcelableExtraCompat
 import com.ichi2.anki.common.utils.ext.ifZero
 import com.ichi2.anki.common.utils.ext.pasteImagesAsPng
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
-import com.ichi2.anki.compat.setTooltipTextCompat
 import com.ichi2.anki.databinding.FragmentNoteEditorBinding
 import com.ichi2.anki.dialogs.ChangeNoteTypeDialog
 import com.ichi2.anki.dialogs.DiscardChangesDialog
@@ -154,6 +153,7 @@ import com.ichi2.anki.noteeditor.Toolbar.TextFormatListener
 import com.ichi2.anki.noteeditor.Toolbar.TextWrapper
 import com.ichi2.anki.noteeditor.ToolbarLayoutDialogHost
 import com.ichi2.anki.noteeditor.data.ToolbarPreferences
+import com.ichi2.anki.noteeditor.presentation.ToolbarLayoutMode
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.pages.ImageOcclusion
 import com.ichi2.anki.pages.viewmodel.ImageOcclusionArgs
@@ -181,7 +181,6 @@ import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.imagecropper.ImageCropper
 import com.ichi2.imagecropper.ImageCropper.Companion.EXTRA_CROP_IMAGE_RESULT
 import com.ichi2.imagecropper.ImageCropperLauncher
-import com.ichi2.utils.AndroidUiUtils.showSoftInput
 import com.ichi2.utils.ClipboardUtil
 import com.ichi2.utils.ClipboardUtil.MEDIA_MIME_TYPES
 import com.ichi2.utils.ClipboardUtil.hasMedia
@@ -209,9 +208,7 @@ import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
-import com.google.android.material.R as MaterialR
 import com.ichi2.anki.common.android.R as CommonR
-import com.ichi2.anki.noteeditor.R as NoteEditorR
 
 /**
  * Allows the user to edit a note, for instance if there is a typo. A card is a presentation of a note, and has two
@@ -322,6 +319,7 @@ class NoteEditorFragment :
     private var sourceText: Array<String?>? = null
     private val fieldState = FieldState.fromEditor(this)
     private lateinit var toolbar: Toolbar
+    private var lastFocusedField: FieldEditText? = null
     private val toolbarPreferences by lazy { ToolbarPreferences(sharedPrefs()) }
     private val toolbarLayoutDialog = ToolbarLayoutDialogHost()
 
@@ -596,18 +594,10 @@ class NoteEditorFragment :
         toolbar.apply {
             formatListener =
                 TextFormatListener { formatter: Toolbar.TextFormatter ->
-                    val currentFocus = requireActivity().currentFocus as? FieldEditText ?: return@TextFormatListener
-                    modifyCurrentSelection(formatter, currentFocus)
+                    val field = fieldForFormatting() ?: return@TextFormatListener
+                    modifyCurrentSelection(formatter, field)
                 }
-            // Sets the background and icon color of toolbar respectively.
-            setBackgroundColor(
-                MaterialColors.getColor(
-                    requireContext(),
-                    CommonR.attr.toolbarBackgroundColor,
-                    0,
-                ),
-            )
-            setIconColor(MaterialColors.getColor(requireContext(), MaterialR.attr.colorOnSurface, 0))
+            addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> applyBottomInset() }
         }
         toolbarLayoutDialog.bind(binding.toolbarLayoutDialog, toolbarPreferences, savedInstanceState, ::updateToolbar)
         capitalizeSentences = sharedPrefs().getBoolean(PREF_NOTE_EDITOR_CAPITALIZE, true)
@@ -632,6 +622,9 @@ class NoteEditorFragment :
 
         if (!collectionHasLoaded()) return
         setupPresentation()
+        // The dialog's arguments survive recreation. Reconnect it to the new editor view.
+        (parentFragmentManager.findFragmentByTag(MultimediaBottomSheet.TAG) as? MultimediaBottomSheet)
+            ?.let { multimediaController.handleActions(it.fieldIndex) }
         // The split Browser's controls live in its existing app bar.
         if (!inNoteEditorActivity) {
             (requireActivity() as MenuHost).addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
@@ -1089,8 +1082,8 @@ class NoteEditorFragment :
         textBox: FieldEditText,
     ) {
         // get the current text and selection locations
-        val selectionStart = textBox.selectionStart
-        val selectionEnd = textBox.selectionEnd
+        val selectionStart = textBox.selectionStart.coerceAtLeast(0)
+        val selectionEnd = textBox.selectionEnd.coerceAtLeast(0)
 
         // #6762 values are reversed if using a keyboard and pressing Ctrl+Shift+LeftArrow
         val start = min(selectionStart, selectionEnd)
@@ -1199,8 +1192,14 @@ class NoteEditorFragment :
     }
 
     private fun insertCloze(addClozeType: AddClozeType) {
-        val v = requireActivity().currentFocus as? FieldEditText ?: return
-        convertSelectedTextToCloze(v, addClozeType)
+        val field = fieldForFormatting() ?: return
+        convertSelectedTextToCloze(field, addClozeType)
+    }
+
+    private fun fieldForFormatting(): FieldEditText? {
+        // A toolbar control can take focus as part of a keyboard or accessibility action.
+        val field = editFields.orEmpty().firstOrNull { it.hasFocus() }
+        return field ?: lastFocusedField?.takeIf { it.isShown && it in editFields.orEmpty() }
     }
 
     private fun fetchIntentInformation(intent: Intent) {
@@ -2061,6 +2060,11 @@ class NoteEditorFragment :
                 newEditText.textSize = prefs.getInt(PREF_NOTE_EDITOR_FONT_SIZE, -1).toFloat()
             }
             newEditText.setCapitalize(prefs.getBoolean(PREF_NOTE_EDITOR_CAPITALIZE, true))
+            if (isClozeType) {
+                // Preserve contrast for the cinnabar cloze mark when the text is selected.
+                val background = getColorFromAttr(requireContext(), CommonR.attr.foundationBackground)
+                newEditText.highlightColor = ColorUtils.blendARGB(background, newEditText.highlightColor, 0.6f)
+            }
             if (addNote) {
                 editLineView.sticky = currentFields[i].sticky
                 if (currentFields[i].sticky) {
@@ -2072,8 +2076,8 @@ class NoteEditorFragment :
             editLineView.bindPresentation(
                 onStickyToggle = { onToggleStickyText(editLineView, i) },
                 onAttach = {
-                    showMultimediaBottomSheet()
                     multimediaController.handleActions(i)
+                    showMultimediaBottomSheet(i, editLineView.name.orEmpty())
                 },
                 onShowDuplicates = ::showDuplicates,
             )
@@ -2106,11 +2110,10 @@ class NoteEditorFragment :
             },
         )
 
-    @VisibleForTesting
-    fun showMultimediaBottomSheet() {
+    private fun showMultimediaBottomSheet(fieldIndex: Int, fieldName: String) {
         Timber.d("Showing MultimediaBottomSheet fragment")
-        val multimediaBottomSheet = MultimediaBottomSheet()
-        multimediaBottomSheet.show(parentFragmentManager, "MultimediaBottomSheet")
+        val multimediaBottomSheet = MultimediaBottomSheet.forField(fieldIndex, fieldName)
+        multimediaBottomSheet.show(parentFragmentManager, MultimediaBottomSheet.TAG)
     }
 
     internal fun showLargeMediaFileWarning(
@@ -2183,7 +2186,8 @@ class NoteEditorFragment :
     ) {
         fieldLine.binding.editText.addTextChangedListener(EditFieldTextWatcher(index))
         fieldLine.binding.editText.onFocusChangeListener =
-            OnFocusChangeListener { _, hasFocus ->
+            OnFocusChangeListener { view, hasFocus ->
+                if (hasFocus) lastFocusedField = view as FieldEditText
                 fieldLine.focused = hasFocus
                 if (index != 0 || hasFocus) return@OnFocusChangeListener
                 try {
@@ -2357,22 +2361,6 @@ class NoteEditorFragment :
         }
     }
 
-    private fun addClozeButton(
-        @DrawableRes drawableRes: Int,
-        description: String,
-        type: AddClozeType,
-    ) {
-        val drawable =
-            ResourcesCompat.getDrawable(resources, drawableRes, null)!!.apply {
-                setTint(MaterialColors.getColor(requireContext(), MaterialR.attr.colorOnSurface, 0))
-            }
-        val button =
-            toolbar.insertItem(0, drawable) { insertCloze(type) }.apply {
-                contentDescription = description
-            }
-        button.setTooltipTextCompat(description)
-    }
-
     private fun Insets.forEditorPane(): Insets {
         val isRtl = binding.root.layoutDirection == View.LAYOUT_DIRECTION_RTL
         val start =
@@ -2426,65 +2414,60 @@ class NoteEditorFragment :
 
     private fun applyBottomInset() {
         val toolbarHeight =
-            if (toolbar.isVisible) resources.getDimensionPixelSize(R.dimen.note_editor_toolbar_height) else 0
+            when (toolbarPreferences.layout) {
+                ToolbarLayoutMode.HIDDEN -> 0
+                ToolbarLayoutMode.SCROLL -> resources.getDimensionPixelSize(R.dimen.note_editor_toolbar_height)
+                ToolbarLayoutMode.STACK -> toolbar.stackedControlsHeight
+            }
         toolbar.updatePadding(bottom = bottomInsetPx)
-        binding.noteEditorLayout.updateLayoutParams<MarginLayoutParams> {
-            bottomMargin = toolbarHeight + bottomInsetPx
+        val fields = binding.noteEditorLayout
+        val bottomMargin = toolbarHeight + bottomInsetPx
+        if ((fields.layoutParams as MarginLayoutParams).bottomMargin != bottomMargin) {
+            fields.updateLayoutParams<MarginLayoutParams> { this.bottomMargin = bottomMargin }
         }
     }
 
     private fun updateToolbar() {
-        toolbar.isVisible = toolbarPreferences.isVisible
-        applyBottomInset()
-        if (!toolbar.isVisible) return
-        toolbar.clearCustomItems()
-        if (editorNote!!.notetype.isCloze) {
-            addClozeButton(
-                drawableRes = R.drawable.symbol_post_add,
-                description = TR.editingClozeDeletion(),
-                type = AddClozeType.INCREMENT_NUMBER,
-            )
-            addClozeButton(
-                drawableRes = R.drawable.symbol_data_array,
-                description = TR.editingClozeDeletionRepeat(),
-                type = AddClozeType.SAME_NUMBER,
-            )
-        }
+        val cloze =
+            if (editorNote!!.notetype.isCloze) {
+                listOf(
+                    Toolbar.Action(label = TR.editingClozeDeletion(), text = "[c+]", emphasis = true) {
+                        insertCloze(AddClozeType.INCREMENT_NUMBER)
+                    },
+                    Toolbar.Action(label = TR.editingClozeDeletionRepeat(), text = "[c]", emphasis = true) {
+                        insertCloze(AddClozeType.SAME_NUMBER)
+                    },
+                )
+            } else {
+                emptyList()
+            }
         val buttons = toolbarButtons
-        for (b in buttons) {
-            // 0th button shows as '1' and is Ctrl + 1
-            val visualIndex = b.index + 1
-            var text = visualIndex.toString()
-            if (b.buttonText.isNotEmpty()) {
-                text = b.buttonText
-            }
-            val bmp = toolbar.createDrawableForString(text)
-
-            val v =
-                toolbar.insertItem(0, bmp) {
-                    // Attempt to open keyboard for the currently focused view in the hosting Activity
-                    val activity = context as? Activity
-                    activity.showSoftInput()
-
-                    toolbar.onFormat(b.toFormatter())
+        val custom =
+            buildList {
+                buttons.forEach { button ->
+                    val number = button.index + 1
+                    val label = button.buttonText.ifEmpty { number.toString() }
+                    add(
+                        Toolbar.Action(
+                            label = label,
+                            text = label,
+                            shortcut = (number % 10).digitToChar().takeIf { number <= 10 },
+                            separated = button.index == 0,
+                            onLongClick = { displayEditToolbarDialog(button) },
+                        ) { toolbar.format(button.toFormatter()) },
+                    )
                 }
-            v.contentDescription = text
-
-            // Allow Ctrl + 1...Ctrl + 0 for item 10.
-            v.tag = (visualIndex % 10).toString()
-            v.setOnContextAndLongClickListener {
-                displayEditToolbarDialog(b)
-                true
+                add(
+                    Toolbar.Action(
+                        label = getString(CommonString.add_toolbar_item),
+                        icon = CommonR.drawable.symbol_add,
+                        separated = buttons.isEmpty(),
+                        onClick = ::displayAddToolbarDialog,
+                    ),
+                )
             }
-        }
-
-        // Let the user add more buttons (always at the end).
-        // Sets the add custom tag icon color.
-        val drawable = ResourcesCompat.getDrawable(resources, NoteEditorR.drawable.symbol_add_box, null)
-        drawable!!.setTint(MaterialColors.getColor(requireContext(), MaterialR.attr.colorOnSurface, 0))
-        val addButton = toolbar.insertItem(0, drawable) { displayAddToolbarDialog() }
-        addButton.contentDescription = resources.getString(CommonString.add_toolbar_item)
-        addButton.setTooltipTextCompat(resources.getString(CommonString.add_toolbar_item))
+        toolbar.update(toolbarPreferences.layout, cloze, custom)
+        applyBottomInset()
     }
 
     private val toolbarButtons: ArrayList<CustomToolbarButton>
@@ -2793,6 +2776,25 @@ class NoteEditorFragment :
     private val isClozeType: Boolean
         get() = currentlySelectedNotetype!!.isCloze
 
+    private class ClozeColorSpan(color: Int) : ForegroundColorSpan(color), NoCopySpan
+
+    private fun highlightClozes(text: Editable) {
+        text.getSpans(0, text.length, ClozeColorSpan::class.java).forEach(text::removeSpan)
+        if (editorNote?.notetype?.isCloze != true) return
+
+        val emphasis = getColorFromAttr(requireContext(), CommonR.attr.foundationEmphasis)
+        val openings = ArrayDeque<Int>()
+        for (token in CLOZE_TOKEN.findAll(text)) {
+            if (token.value == "}}") {
+                val start = openings.removeLastOrNull() ?: continue
+                val end = token.range.last + 1
+                text.setSpan(ClozeColorSpan(emphasis), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            } else {
+                openings.addLast(token.range.first)
+            }
+        }
+    }
+
     @VisibleForTesting
     fun setFieldValueFromUi(
         i: Int,
@@ -2820,6 +2822,7 @@ class NoteEditorFragment :
         private val index: Int,
     ) : TextWatcher {
         override fun afterTextChanged(arg0: Editable) {
+            highlightClozes(arg0)
             delegate?.onNoteTextChanged()
 
             if (!loadingStickyFields) {
@@ -2864,6 +2867,8 @@ class NoteEditorFragment :
         const val EXTRA_CALLER = "CALLER"
         const val EXTRA_CARD_ID = "CARD_ID"
         const val EXTRA_CONTENTS = "CONTENTS"
+        private val CLOZE_TOKEN = Regex("""\{\{c\d+::|\}\}""")
+
         const val EXTRA_TAGS = "TAGS"
         const val EXTRA_ID = "ID"
         const val EXTRA_DID = "DECK_ID"

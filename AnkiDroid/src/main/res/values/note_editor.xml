@@ -1,4 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="note_editor_duplicate_first_field">First field is a duplicate</string>
+    <string name="note_editor_attach_to_field">Attach to %1$s</string>
+    <string name="note_editor_attach_image">Image</string>
+    <string name="note_editor_attach_image_hint">From the gallery or files</string>
+    <string name="note_editor_attach_camera">Camera</string>
+    <string name="note_editor_attach_camera_hint">Take a photo</string>
+    <string name="note_editor_attach_drawing_hint">Draw with a finger or stylus</string>
+    <string name="note_editor_attach_audio_file">Audio file</string>
+    <string name="note_editor_attach_video_file">Video file</string>
+    <string name="note_editor_audio_back_five_seconds">Back five seconds</string>
+    <string name="note_editor_audio_forward_five_seconds">Forward five seconds</string>
+    <string name="note_editor_audio_pause_recording">Pause recording</string>
+    <string name="note_editor_audio_resume_recording">Resume recording</string>
+    <string name="note_editor_audio_pause_playback">Pause playback</string>
 </resources>

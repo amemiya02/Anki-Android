@@ -10,7 +10,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:keepScreenOn="true"
+    android:keepScreenOn="false"
     tools:context=".multimedia.audio.AudioRecordingController">
 
     <TextView
@@ -18,6 +18,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:paddingTop="12dp"
+        android:textColor="?attr/foundationOnBackground"
         android:text="00:00.00"
         android:textAppearance="@style/TextAppearance.Foundation.PageTitle"
         tools:ignore="HardcodedText" />
@@ -31,7 +33,7 @@
         <com.ichi2.anki.multimedia.audio.AudioWaveform
             android:id="@+id/audio_waveform_view"
             android:layout_width="match_parent"
-            android:layout_height="300px"
+            android:layout_height="92dp"
             android:layout_marginVertical="6dp"
             android:paddingVertical="6dp" />
 
@@ -44,17 +46,18 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_cancel_recording"
-                style="@style/Widget.Material3.Button.IconButton.Filled"
+                style="@style/Widget.Foundation.AttachmentRecorderButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
+                android:contentDescription="@string/discard"
                 app:icon="@drawable/symbol_delete"
                 app:iconPadding="0dp"
                 app:iconSize="22dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_start_recording"
-                style="@style/Widget.Material3.Button.IconButton.Filled"
+                style="@style/Widget.Foundation.AttachmentRecorderButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="10dp"
@@ -68,17 +71,18 @@
                 app:iconSize="50dp"
                 app:iconTint="?attr/foundationEmphasis"
                 app:strokeColor="?attr/foundationEmphasis"
-                app:strokeWidth="4dp" />
+                app:strokeWidth="@dimen/foundation_shape_hairline" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_save_recording"
-                style="@style/Widget.Material3.Button.IconButton.Filled"
+                style="@style/Widget.Foundation.AttachmentRecorderButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
                 android:clickable="true"
                 android:focusable="true"
                 app:iconPadding="0dp"
+                android:contentDescription="@string/save_voice"
                 app:iconSize="22dp" />
 
         </LinearLayout>
@@ -97,7 +101,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginVertical="2dp"
-            android:minHeight="300px"
+            android:minHeight="92dp"
             android:paddingVertical="6dp"
             android:src="@drawable/symbol_audio_file"
             android:tint="?attr/foundationOnBackgroundMuted" />
@@ -120,13 +124,14 @@
             android:visibility="visible">
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_rewind"
-                style="@style/Widget.Material3.Button.IconButton.Filled"
+                style="@style/Widget.Foundation.AttachmentRecorderButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:enabled="false"
+                android:contentDescription="@string/note_editor_audio_back_five_seconds"
                 app:icon="@drawable/symbol_replay_5"
                 app:iconPadding="0dp"
                 app:iconSize="22dp"
@@ -136,7 +141,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_play_recording"
-                style="@style/Widget.Material3.Button.IconButton.Filled"
+                style="@style/Widget.Foundation.AttachmentRecorderButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="10dp"
@@ -144,6 +149,7 @@
                 android:focusable="true"
                 android:padding="10dp"
                 app:backgroundTint="?attr/foundationBackground"
+                android:contentDescription="@string/play_recording"
                 app:icon="@drawable/symbol_play_arrow"
                 app:iconPadding="0dp"
                 app:iconSize="50dp"
@@ -153,17 +159,18 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:strokeColor="?attr/foundationEmphasis"
-                app:strokeWidth="4dp" />
+                app:strokeWidth="@dimen/foundation_shape_hairline" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_forward"
-                style="@style/Widget.Material3.Button.IconButton.Filled"
+                style="@style/Widget.Foundation.AttachmentRecorderButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:enabled="false"
+                android:contentDescription="@string/note_editor_audio_forward_five_seconds"
                 app:icon="@drawable/symbol_forward_5"
                 app:iconPadding="0dp"
                 app:iconSize="22dp"
@@ -173,10 +180,11 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_discard_recording"
-                style="@style/Widget.Material3.Button.IconButton.Filled"
+                style="@style/Widget.Foundation.AttachmentRecorderButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="6dp"
+                android:contentDescription="@string/discard"
                 app:icon="@drawable/symbol_delete"
                 app:iconPadding="0dp"
                 app:iconSize="22dp"
@@ -190,5 +198,6 @@
     <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:dividerThickness="2dp" />
+        app:dividerColor="?attr/foundationOutline"
+        app:dividerThickness="@dimen/foundation_shape_hairline" />
 </LinearLayout>

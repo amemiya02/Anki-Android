@@ -124,14 +124,6 @@
         <item name="textAppearanceLabelLarge">@style/TextAppearance.Foundation.Button</item>
     </style>
 
-    <style name="note_editor_toolbar_button">
-        <item name="android:layout_width">@dimen/foundation_spacing_touch_target</item>
-        <item name="android:layout_height">@dimen/foundation_spacing_touch_target</item>
-        <item name="android:padding">2dp</item>
-        <item name="android:background">?android:attr/selectableItemBackground</item>
-        <item name="android:tint">?attr/colorOnSurface</item>
-    </style>
-
     <style name="reviewer_whiteboard_editor_button_style">
         <item name="android:layout_height">40dp</item>
         <item name="android:layout_width">40dp</item>
@@ -205,6 +197,15 @@
         <item name="strokeWidth">@dimen/foundation_shape_hairline</item>
         <item name="strokeColor">?attr/foundationOutline</item>
         <item name="checkedIconTint">@null</item>
+    </style>
+
+    <style name="Widget.Foundation.AttachmentRecorderButton" parent="Widget.Material3.Button.IconButton.Outlined">
+        <item name="android:minWidth">@dimen/foundation_spacing_touch_target</item>
+        <item name="android:minHeight">@dimen/foundation_spacing_touch_target</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Foundation.Button</item>
+        <item name="strokeWidth">@dimen/foundation_shape_hairline</item>
+        <item name="strokeColor">?attr/foundationOutline</item>
+        <item name="iconTint">?attr/foundationOnBackground</item>
     </style>
 
     <style name="TimePickerStyle" parent="ThemeOverlay.Material3.MaterialTimePicker">

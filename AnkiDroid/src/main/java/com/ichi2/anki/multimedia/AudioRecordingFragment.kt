@@ -8,13 +8,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -23,7 +24,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.common.time.formatAsString
+import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.android.showThemedToast
+import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.compat.CompatHelper.Companion.compat
 import com.ichi2.anki.compat.USAGE_TOUCH
 import com.ichi2.anki.databinding.ActivityAudioRecordingBinding
@@ -38,13 +41,13 @@ import com.ichi2.anki.ui.setOnHoldListener
 import com.ichi2.ui.FixedTextView
 import com.ichi2.utils.FileUtil
 import com.ichi2.utils.Permissions
-import com.ichi2.utils.UiUtil
 import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.time.Duration.Companion.milliseconds
+import com.ichi2.anki.common.android.R as CommonR
 
 class AudioRecordingFragment : MultimediaFragment(R.layout.fragment_audio_recording) {
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -151,29 +154,36 @@ class AudioRecordingFragment : MultimediaFragment(R.layout.fragment_audio_record
         binding.audioRecorderLayout.addView(scrollView)
         val previewLayout = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
         scrollView.addView(previewLayout)
-        val label =
+        val fields = (0 until note.initialFieldCount).mapNotNull { note.getInitialField(it)?.text }
+        if (fields.none(String::isNotBlank)) return
+        val margin = 12.dp.toPx(context)
+        previewLayout.setPaddingRelative(margin, margin, margin, 0)
+        previewLayout.addView(
             FixedTextView(context).apply {
-                textSize = 20f
-                text = UiUtil.makeBold(getString(CommonString.audio_recording_field_list))
-                gravity = Gravity.CENTER_HORIZONTAL
-            }
-        previewLayout.addView(label)
-        var hasTextContents = false
-        for (i in 0 until note.initialFieldCount) {
-            val field = note.getInitialField(i)
-            FixedTextView(context).apply {
-                text = field?.text
-                textSize = 16f
-                setPaddingRelative(16, 0, 16, 24)
-                previewLayout.addView(this)
-            }
-            hasTextContents = hasTextContents or !field?.text.isNullOrBlank()
+                setTextAppearance(CommonR.style.TextAppearance_Foundation_Label)
+                setTextColor(getColorFromAttr(context, CommonR.attr.foundationOnBackgroundMuted))
+                text = getString(CommonString.audio_recording_field_list)
+                ViewCompat.setAccessibilityHeading(this, true)
+            },
+        )
+        fields.filter(String::isNotBlank).forEach { value ->
+            previewLayout.addView(
+                FixedTextView(context).apply {
+                    setTextAppearance(CommonR.style.TextAppearance_Foundation_Body)
+                    setTextColor(getColorFromAttr(context, CommonR.attr.foundationOnBackground))
+                    setPaddingRelative(0, margin, 0, margin)
+                    text = value
+                },
+            )
         }
-        label.isVisible = hasTextContents
     }
 
     private fun ActivityAudioRecordingBinding.setupListeners() {
         actionStartRecording.isHapticFeedbackEnabled = false
+        ViewCompat.replaceAccessibilityAction(actionStartRecording, AccessibilityActionCompat.ACTION_CLICK, null) { _, _ ->
+            onRecordPressed()
+            true
+        }
         actionStartRecording.setOnHoldListener(
             object : OnHoldListener {
                 override fun onTouchStart() {
@@ -303,11 +313,21 @@ class AudioRecordingFragment : MultimediaFragment(R.layout.fragment_audio_record
         actionStartRecording.setIconResource(
             if (recorderState == RecorderState.Recording) R.drawable.symbol_pause else R.drawable.symbol_radio_button_checked,
         )
+        actionStartRecording.contentDescription =
+            getString(
+                when (recorderState) {
+                    RecorderState.Recording -> R.string.note_editor_audio_pause_recording
+                    RecorderState.Paused -> R.string.note_editor_audio_resume_recording
+                    else -> CommonString.record_voice
+                },
+            )
         if (!isRecordingOrPaused) audioWaveformView.clear()
 
         actionRewind.isEnabled = isPlaying
         actionForward.isEnabled = isPlaying
         actionPlayRecording.setIconResource(if (isPlaying) R.drawable.symbol_pause else R.drawable.symbol_play_arrow)
+        actionPlayRecording.contentDescription =
+            getString(if (isPlaying) R.string.note_editor_audio_pause_playback else CommonString.play_recording)
         val playTint =
             ContextCompat.getColorStateList(
                 requireContext(),
