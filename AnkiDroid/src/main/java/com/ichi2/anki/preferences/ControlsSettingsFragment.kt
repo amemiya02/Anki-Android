@@ -363,7 +363,12 @@ private fun ControlTabs(
         ) {
             for (tab in ControlPreferenceScreen.entries) {
                 val active = tab == selected
-                val width = if (compact) Modifier.weight(1f) else Modifier.width(IntrinsicSize.Max)
+                val width =
+                    if (compact) {
+                        Modifier.weight(1f)
+                    } else {
+                        Modifier.widthIn(min = foundation.spacing.touchTarget).width(IntrinsicSize.Max)
+                    }
                 Column(
                     width.selectable(active, role = Role.Tab, onClick = { onSelect(tab) }),
                     horizontalAlignment = Alignment.CenterHorizontally,
