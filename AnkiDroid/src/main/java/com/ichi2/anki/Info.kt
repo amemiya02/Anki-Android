@@ -33,7 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
@@ -74,7 +74,7 @@ class InfoFragment :
     OnWebViewRecreatedListener {
     private lateinit var page: SafeWebViewLayout
     private lateinit var onBackPressedCallback: OnBackPressedCallback
-    private var loading by mutableStateOf(true)
+    private var pageProgress by mutableIntStateOf(0)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -99,7 +99,7 @@ class InfoFragment :
             FrameLayout(context).apply {
                 addView(page, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
                 addView(
-                    compose { if (loading) CircularProgressIndicator() },
+                    compose { if (pageProgress < 100) CircularProgressIndicator(progress = { pageProgress / 100f }) },
                     FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.CENTER),
                 )
             }
@@ -171,7 +171,7 @@ class InfoFragment :
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
-        loading = true
+        pageProgress = 0
         val context = requireContext()
         val backgroundColor = getColorFromAttr(context, CommonR.attr.foundationBackground)
         val textColor = getColorFromAttr(context, CommonR.attr.foundationOnBackground).toRGBHex()
@@ -189,10 +189,7 @@ class InfoFragment :
                     view: WebView,
                     progress: Int,
                 ) {
-                    // Hide the progress indicator when the page has finished loaded
-                    if (progress == 100) {
-                        loading = false
-                    }
+                    pageProgress = progress
                 }
             },
         )
