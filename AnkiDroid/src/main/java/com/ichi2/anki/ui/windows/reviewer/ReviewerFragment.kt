@@ -254,8 +254,14 @@ class ReviewerFragment :
             }
         }
 
-        if (Prefs.keepScreenOn) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        // an auto-advancing session must not fall asleep in the middle
+        val keepScreenOn = Prefs.keepScreenOn
+        viewModel.isAutoAdvanceEnabledFlow.collectInViewLifecycle { isAutoAdvancing ->
+            if (keepScreenOn || isAutoAdvancing) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            } else {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            }
         }
 
         setRenderWorkaround(requireActivity())

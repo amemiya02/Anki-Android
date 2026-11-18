@@ -5,6 +5,7 @@ package com.ichi2.anki.ui.windows.reviewer
 import android.text.InputType
 import android.view.KeyEvent
 import android.view.View
+import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.webkit.WebView
@@ -95,6 +96,26 @@ class ReviewerFragmentTest : RobolectricTest() {
             withReviewer {
                 val page = shadowOf(assertIs<WebView>(binding.webViewLayout.getChildAt(0))).lastLoadDataWithBaseURL.data
                 assertContains(page, "img { zoom: 1.5 }")
+            }
+        }
+
+    @Test
+    fun `the screen stays on while auto-advance is on`() =
+        runTest {
+            addBasicNote()
+            withReviewer {
+                fun isKeptOn() = requireActivity().window.attributes.flags and WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON != 0
+                assertFalse(isKeptOn())
+
+                viewModel.executeAction(ViewerAction.TOGGLE_AUTO_ADVANCE)
+                advanceUntilIdle()
+                advanceRobolectricLooper()
+                assertTrue(isKeptOn(), "auto-advance on")
+
+                viewModel.executeAction(ViewerAction.TOGGLE_AUTO_ADVANCE)
+                advanceUntilIdle()
+                advanceRobolectricLooper()
+                assertFalse(isKeptOn(), "auto-advance off")
             }
         }
 
