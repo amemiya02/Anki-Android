@@ -3,23 +3,25 @@
 
 package com.ichi2.anki.dialogs
 
+import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.R
 import com.ichi2.anki.analytics.AnalyticsDialogFragment
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.multiprofile.ProfileManager
 import com.ichi2.anki.multiprofile.ProfileName
 import com.ichi2.anki.utils.ext.requireString
 import com.ichi2.anki.utils.ext.setFragmentResultListener
-import com.ichi2.utils.create
-import com.ichi2.utils.message
-import com.ichi2.utils.neutralButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.title
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogBody
+import com.ichi2.compose.ui.dialogs.DialogMark
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import timber.log.Timber
 
 /** Tells the user their profile couldn't be opened, and offers to open Default from the next start. */
@@ -35,21 +37,28 @@ class ProfileLoadFailureDialog : AnalyticsDialogFragment() {
         }
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog =
-        AlertDialog.Builder(requireContext()).create {
-            title(text = getString(CommonString.profile_load_failed_title, profileName.value))
-            message(text = getString(CommonString.profile_load_failed_message, defaultProfileName.value, profileName.value))
-            positiveButton(CommonString.dialog_ok) {
-                Timber.i("Profile load failure: OK pressed")
-                parentFragmentManager.setProfileLoadFailureClosedResult()
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+        createPaperDialog(requireContext()) {
+            PaperDialog(
+                title = getString(CommonString.profile_load_failed_title, profileName.value),
+                onDismissRequest = ::dismiss,
+                mark = DialogMark(R.drawable.symbol_error, warning = true),
+                actions =
+                    listOf(
+                        DialogAction(
+                            getString(CommonString.profile_load_failed_use_default, defaultProfileName.value),
+                            ::useDefaultProfile,
+                        ),
+                        DialogAction(getString(CommonString.dialog_ok), {
+                            Timber.i("Profile load failure: OK pressed")
+                            parentFragmentManager.setProfileLoadFailureClosedResult()
+                            dismiss()
+                        }, DialogActionStyle.Filled),
+                    ),
+            ) {
+                DialogBody(getString(CommonString.profile_load_failed_message, defaultProfileName.value, profileName.value))
             }
-            neutralButton(text = getString(CommonString.profile_load_failed_use_default, defaultProfileName.value))
         }
-
-    override fun onStart() {
-        super.onStart()
-        (requireDialog() as AlertDialog).neutralButton?.setOnClickListener { useDefaultProfile() }
-    }
 
     override fun onCancel(dialog: DialogInterface) {
         super.onCancel(dialog)

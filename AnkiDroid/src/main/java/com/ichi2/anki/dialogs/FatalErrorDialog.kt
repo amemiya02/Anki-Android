@@ -2,38 +2,49 @@
 
 package com.ichi2.anki.dialogs
 
-import android.content.Context
-import androidx.appcompat.app.AlertDialog
+import android.app.Dialog
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.InitialActivity.StartupFailure.InitializationError
-import com.ichi2.utils.cancelable
-import com.ichi2.utils.create
-import com.ichi2.utils.message
-import com.ichi2.utils.neutralButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.title
+import com.ichi2.anki.R
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogBody
+import com.ichi2.compose.ui.dialogs.DialogMark
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import timber.log.Timber
 
 object FatalErrorDialog {
     fun build(
         activity: AnkiActivity,
         failure: InitializationError,
-    ): AlertDialog {
-        val context: Context = activity
+    ): Dialog {
         Timber.i("Displaying 'Fatal error'")
-        return AlertDialog.Builder(context).create {
-            title(CommonString.ankidroid_init_failed_webview_title)
-            message(text = failure.toHumanReadableString(context))
-            positiveButton(CommonString.close) {
-                activity.closeCollectionAndFinish()
+        return createPaperDialog(activity) { dialog ->
+            PaperDialog(
+                title = activity.getString(CommonString.ankidroid_init_failed_webview_title),
+                onDismissRequest = {},
+                mark = DialogMark(R.drawable.symbol_error, warning = true),
+                actions =
+                    listOfNotNull(
+                        failure.infoLink?.let { url ->
+                            DialogAction(activity.getString(CommonString.help), {
+                                activity.openUrl(url)
+                                dialog.dismiss()
+                            })
+                        },
+                        DialogAction(activity.getString(CommonString.close), {
+                            activity.closeCollectionAndFinish()
+                            dialog.dismiss()
+                        }, DialogActionStyle.Filled),
+                    ),
+            ) {
+                DialogBody(failure.toHumanReadableString(activity))
             }
-            failure.infoLink?.let { url ->
-                neutralButton(CommonString.help) {
-                    activity.openUrl(url)
-                }
-            }
-            cancelable(false)
+        }.apply {
+            setCanceledOnTouchOutside(false)
+            setCancelable(false)
         }
     }
 }

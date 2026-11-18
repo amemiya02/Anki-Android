@@ -122,6 +122,9 @@
     <!-- Shape: corner radii and rule widths. The icon button's corner is full (a circle). -->
     <dimen name="foundation_shape_card_sheet">4dp</dimen>
     <dimen name="foundation_shape_button">6dp</dimen>
+    <dimen name="foundation_shape_dialog">6dp</dimen>
+    <item name="foundation_dialog_scrim_light" type="dimen" format="float">0.45</item>
+    <item name="foundation_dialog_scrim_night" type="dimen" format="float">0.68</item>
     <dimen name="foundation_shape_add_button">16dp</dimen>
     <dimen name="foundation_shape_hairline">1dp</dimen>
     <dimen name="foundation_shape_current_tab_rule">2dp</dimen>
@@ -146,6 +149,7 @@
     <dimen name="foundation_spacing_add_button">56dp</dimen>
     <dimen name="foundation_spacing_bottom_bar">78dp</dimen>
     <dimen name="foundation_spacing_list_row">64dp</dimen>
+    <dimen name="foundation_spacing_settings_row">56dp</dimen>
     <dimen name="foundation_spacing_secondary_button">52dp</dimen>
     <dimen name="foundation_spacing_page_mark">56dp</dimen>
     <dimen name="foundation_spacing_empty_mark">96dp</dimen>
@@ -209,6 +213,13 @@
     <style name="TextAppearance.Foundation.PageTitle" parent="Base.TextAppearance.Foundation.PageTitle" />
 
     <!-- A top-level Deck in the deck list -->
+    <style name="Base.TextAppearance.Foundation.DialogTitle" parent="TextAppearance.Foundation">
+        <item name="android:textSize">22sp</item>
+        <item name="lineHeight">28.6sp</item>
+        <item name="foundationTextWeight">500</item>
+    </style>
+    <style name="TextAppearance.Foundation.DialogTitle" parent="Base.TextAppearance.Foundation.DialogTitle" />
+
     <style name="Base.TextAppearance.Foundation.DeckName" parent="TextAppearance.Foundation">
         <item name="android:textSize">20sp</item>
         <item name="foundationTextWeight">500</item>

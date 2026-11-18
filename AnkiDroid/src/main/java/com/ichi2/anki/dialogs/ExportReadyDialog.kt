@@ -3,15 +3,17 @@
 
 package com.ichi2.anki.dialogs
 
+import android.app.Dialog
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.dialogs.viewmodel.ExportReadyViewModel.ExportReadyParams
 import com.ichi2.anki.utils.ext.requireString
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import timber.log.Timber
 
 class ExportReadyDialog : DialogFragment() {
@@ -20,28 +22,33 @@ class ExportReadyDialog : DialogFragment() {
     private val asText: Boolean
         get() = requireArguments().getBoolean(ARG_SHARE_AS_TEXT, false)
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog {
-        val dialog = AlertDialog.Builder(requireActivity())
-
-        dialog
-            .setTitle(getString(CommonString.export_ready_title))
-            .positiveButton(CommonString.export_choice_save_to) {
-                parentFragmentManager.setFragmentResult(
-                    REQUEST_EXPORT_SAVE,
-                    Bundle().apply { putString(RESULT_EXPORT_PATH, exportPath) },
-                )
-            }.negativeButton(CommonString.export_choice_share) {
-                parentFragmentManager.setFragmentResult(
-                    REQUEST_EXPORT_SHARE,
-                    Bundle().apply {
-                        putString(RESULT_EXPORT_PATH, exportPath)
-                        putBoolean(RESULT_SHARE_AS_TEXT, asText)
-                    },
-                )
-            }
-
-        return dialog.create()
-    }
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+        createPaperDialog(requireContext()) {
+            PaperDialog(
+                title = getString(CommonString.export_ready_title),
+                onDismissRequest = ::dismiss,
+                actions =
+                    listOf(
+                        DialogAction(getString(CommonString.export_choice_share), {
+                            parentFragmentManager.setFragmentResult(
+                                REQUEST_EXPORT_SHARE,
+                                Bundle().apply {
+                                    putString(RESULT_EXPORT_PATH, exportPath)
+                                    putBoolean(RESULT_SHARE_AS_TEXT, asText)
+                                },
+                            )
+                            dismiss()
+                        }),
+                        DialogAction(getString(CommonString.export_choice_save_to), {
+                            parentFragmentManager.setFragmentResult(
+                                REQUEST_EXPORT_SAVE,
+                                Bundle().apply { putString(RESULT_EXPORT_PATH, exportPath) },
+                            )
+                            dismiss()
+                        }, DialogActionStyle.Filled),
+                    ),
+            )
+        }
 
     companion object {
         const val REQUEST_EXPORT_SAVE = "request_export_save"

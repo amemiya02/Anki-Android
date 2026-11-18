@@ -4,11 +4,17 @@
 package com.ichi2.anki.dialogs
 
 import android.app.Activity
+import android.app.Dialog
 import android.content.Context
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.snackbar.Snackbar
 import com.ichi2.anki.CollectionManager.TR
@@ -20,6 +26,8 @@ import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.Decks
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.compose.ui.dialogs.TextInputDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.utils.getInputField
 import com.ichi2.utils.getInputTextLayout
 import com.ichi2.utils.input
@@ -49,7 +57,7 @@ class CreateDeckDialog(
 ) {
     lateinit var onNewDeckCreated: ((DeckId) -> Unit)
     private var initialDeckName = ""
-    private var shownDialog: AlertDialog? = null
+    private var shownDialog: Dialog? = null
 
     init {
         require(deckDialogType != DeckDialogType.RENAME_DECK || renamedDeckId != null) {
@@ -71,20 +79,12 @@ class CreateDeckDialog(
 
     /** Used for rename  */
     var deckName: String
-        get() = shownDialog!!.getInputField().text.toString()
+        get() = (shownDialog as AlertDialog).getInputField().text.toString()
         set(deckName) {
             initialDeckName = deckName
         }
 
     fun showDialog(): AlertDialog {
-        val textInputHint =
-            when (deckDialogType) {
-                DeckDialogType.RENAME_DECK -> TR.actionsNewName().dropLastWhile { it == ':' }
-
-                DeckDialogType.DECK,
-                DeckDialogType.SUB_DECK,
-                -> TR.actionsName().dropLastWhile { it == ':' }
-            }
         val dialog =
             AlertDialog
                 .Builder(context)
@@ -92,16 +92,8 @@ class CreateDeckDialog(
                     setTitle(title)
                     // Resource ID for the dialog's positive action button text.
                     // Uses "Rename" for rename deck dialogs and "Create" for all other deck-related dialogs.
-                    val positiveButtonTextRes =
-                        when (deckDialogType) {
-                            DeckDialogType.RENAME_DECK -> CommonString.rename
-
-                            DeckDialogType.DECK,
-                            DeckDialogType.SUB_DECK,
-                            -> CommonString.dialog_positive_create
-                        }
                     positiveButton(positiveButtonTextRes) {
-                        onPositiveButtonClicked()
+                        onPositiveButtonClicked(deckName)
                     }
                     negativeButton(CommonString.dialog_cancel)
                     setView(CommonR.layout.dialog_generic_text_input)
@@ -117,7 +109,7 @@ class CreateDeckDialog(
                     inputField.setOnEditorActionListener { _, actionId, event ->
                         if (actionId == EditorInfo.IME_ACTION_DONE || event?.keyCode == KeyEvent.KEYCODE_ENTER) {
                             if (dialog.positiveButton.isEnabled) {
-                                onPositiveButtonClicked()
+                                onPositiveButtonClicked(deckName)
                             }
                             true
                         } else {
@@ -132,35 +124,90 @@ class CreateDeckDialog(
         return dialog
     }
 
+    private val textInputHint: String
+        get() =
+            when (deckDialogType) {
+                DeckDialogType.RENAME_DECK -> TR.actionsNewName()
+                DeckDialogType.DECK, DeckDialogType.SUB_DECK -> TR.actionsName()
+            }.dropLastWhile { it == ':' }
+
+    private val positiveButtonTextRes: Int
+        get() = if (deckDialogType == DeckDialogType.RENAME_DECK) CommonString.rename else CommonString.dialog_positive_create
+
+    private enum class Validation { Invalid, Duplicate, Valid }
+
+    /** Compose entry point used by the deck list; shares validation and deck operations with the other callers. */
+    fun showComposeDialog() {
+        val dialog =
+            createPaperDialog(context) { window ->
+                var input by remember { mutableStateOf(initialDeckName) }
+                var validatedInput by remember { mutableStateOf<String?>(null) }
+                var result by remember { mutableStateOf<Validation?>(null) }
+                LaunchedEffect(input) {
+                    val requested = input
+                    val validationResult = checkDeckName(requested)
+                    if (input == requested) {
+                        result = validationResult
+                        validatedInput = requested
+                    }
+                }
+                TextInputDialog(
+                    title = title.toString(),
+                    label =
+                        if (deckDialogType ==
+                            DeckDialogType.RENAME_DECK
+                        ) {
+                            textInputHint
+                        } else {
+                            context.getString(CommonString.paper_dialog_deck_name)
+                        },
+                    confirmText = context.getString(positiveButtonTextRes),
+                    initialText = initialDeckName,
+                    onConfirm = { name ->
+                        if (name == validatedInput && result == Validation.Valid) onPositiveButtonClicked(name)
+                    },
+                    onDismissRequest = window::dismiss,
+                    onTextChanged = { input = it },
+                    errorMessageFor = { name ->
+                        context
+                            .getString(
+                                CommonString.error_name_exists,
+                            ).takeIf { name == validatedInput && result == Validation.Duplicate }
+                    },
+                    helperText = context.getString(CommonString.create_deck_numeric_hint).takeIf { input.containsNumberLargerThanNine() },
+                    enabled = input == validatedInput && result == Validation.Valid,
+                )
+            }
+        shownDialog = dialog
+        dialog.setCanceledOnTouchOutside(true)
+        dialog.show()
+    }
+
     private suspend fun validateDeckName(
         dialog: AlertDialog,
         text: CharSequence,
     ) {
-        // we need the fully-qualified name for subdecks
-        val maybeDeckName = fullyQualifyDeckName(dialogText = text)
-        // if the name is empty, it seems distracting to show an error
-        if (maybeDeckName == null || !Decks.isValidDeckName(maybeDeckName)) {
-            dialog.positiveButton.isEnabled = false
-            return
-        }
-        val existingDeckId = withCol { decks.idForName(maybeDeckName) }
+        val result = checkDeckName(text)
         if (!dialog.getInputField().text.contentEquals(text)) return
-        if (existingDeckId != null && existingDeckId != renamedDeckId) {
-            dialog.getInputTextLayout().error = context.getString(CommonString.error_name_exists)
+        if (result == Validation.Invalid) {
             dialog.positiveButton.isEnabled = false
             return
         }
-        dialog.getInputTextLayout().error = null
-        dialog.positiveButton.isEnabled = true
+        dialog.positiveButton.isEnabled = result == Validation.Valid
+        dialog.getInputTextLayout().error =
+            context.getString(CommonString.error_name_exists).takeIf { result == Validation.Duplicate }
+        if (result == Validation.Valid) {
+            // Users expect [1, 2, 10] rather than [1, 10, 2]; the hint explains how zero padding helps.
+            dialog.getInputTextLayout().helperText =
+                context.getString(CommonString.create_deck_numeric_hint).takeIf { text.containsNumberLargerThanNine() }
+        }
+    }
 
-        // Users expect the ordering [1, 2, 10], but get [1, 10, 2]
-        // To fix: they need [01, 02, 10]. Show a hint to help them
-        dialog.getInputTextLayout().helperText =
-            if (text.containsNumberLargerThanNine()) {
-                context.getString(CommonString.create_deck_numeric_hint)
-            } else {
-                null
-            }
+    private suspend fun checkDeckName(text: CharSequence): Validation {
+        val name = fullyQualifyDeckName(text)
+        if (name == null || !Decks.isValidDeckName(name)) return Validation.Invalid
+        val existingDeckId = withCol { decks.idForName(name) }
+        return if (existingDeckId == null || existingDeckId == renamedDeckId) Validation.Valid else Validation.Duplicate
     }
 
     /**
@@ -221,7 +268,7 @@ class CreateDeckDialog(
         return true
     }
 
-    private fun onPositiveButtonClicked() {
+    private fun onPositiveButtonClicked(deckName: String) {
         if (deckName.isNotEmpty()) {
             when (deckDialogType) {
                 DeckDialogType.DECK -> {

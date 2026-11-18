@@ -20,14 +20,12 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.Bundle
-import android.text.util.Linkify
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import android.view.ViewGroup.MarginLayoutParams
-import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
@@ -37,11 +35,12 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.VisibleForTesting
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +49,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.edit
@@ -125,7 +130,6 @@ import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
-import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.compat.CompatHelper.Companion.compat
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
 import com.ichi2.anki.contextmenu.DeckPickerMenuContentProvider
@@ -223,6 +227,13 @@ import com.ichi2.anki.worker.SyncMediaWorker
 import com.ichi2.anki.worker.SyncWorker
 import com.ichi2.anki.worker.UniqueWorkNames
 import com.ichi2.compose.theme.AnkiDroidTheme
+import com.ichi2.compose.theme.foundation
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogMark
+import com.ichi2.compose.ui.dialogs.ErrorDialog
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.themes.Themes
 import com.ichi2.ui.AccessibleSearchView
 import com.ichi2.ui.BadgeDrawableBuilder
@@ -231,12 +242,8 @@ import com.ichi2.utils.NetworkUtils
 import com.ichi2.utils.Permissions
 import com.ichi2.utils.VersionUtils
 import com.ichi2.utils.configureView
-import com.ichi2.utils.customView
 import com.ichi2.utils.isRtl
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
 import com.ichi2.utils.showDialogIfWebViewOutdated
-import com.ichi2.utils.title
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.collectLatest
@@ -897,7 +904,7 @@ open class DeckPicker :
         }
 
         fun onExportDeck(deckId: DeckId) {
-            ExportDialogFragment.newInstance(deckId).show(supportFragmentManager, "exportOptions")
+            ExportDialogFragment.forDeckList(deckId).show(supportFragmentManager, "exportOptions")
         }
 
         fun onPromptUserToUpdateScheduler(op: Unit) {
@@ -992,11 +999,13 @@ open class DeckPicker :
         }
 
         fun onError(errorMessage: String) {
-            AlertDialog
-                .Builder(this)
-                .setTitle(CommonString.vague_error)
-                .setMessage(errorMessage)
-                .show()
+            createPaperDialog(this) { dialog ->
+                ErrorDialog(
+                    title = getString(CommonString.vague_error),
+                    message = errorMessage,
+                    onDismissRequest = dialog::dismiss,
+                )
+            }.show()
         }
 
         viewModel.deckDeletedNotification.collectInLifecycle(::onDeckDeleted)
@@ -1069,7 +1078,7 @@ open class DeckPicker :
             }
             DeckPickerContextMenuOption.CUSTOM_STUDY -> {
                 Timber.i("ContextMenu: Custom study option selected")
-                showDialogFragment(CustomStudyDialog.createInstance(deckId))
+                showDialogFragment(CustomStudyDialog.createInstance(deckId, usePaperDialog = true))
             }
             DeckPickerContextMenuOption.CREATE_SHORTCUT -> {
                 Timber.i("ContextMenu: Create icon for a deck")
@@ -1194,28 +1203,34 @@ open class DeckPicker :
     }
 
     private fun showDirectoryNotAccessibleDialog() {
-        val contentView =
-            TextView(this).apply {
-                autoLinkMask = Linkify.WEB_URLS
-                linksClickable = true
-                text =
-                    getString(
-                        CommonString.directory_inaccessible_info,
-                        getString(R.string.link_full_storage_access),
-                    )
+        val url = getString(R.string.link_full_storage_access)
+        val message = getString(CommonString.directory_inaccessible_info, url)
+        createPaperDialog(this) { dialog ->
+            PaperDialog(
+                title = getString(CommonString.directory_inaccessible),
+                onDismissRequest = dialog::dismiss,
+                mark = DialogMark(R.drawable.symbol_error, warning = true),
+                actions =
+                    listOf(
+                        DialogAction(getString(CommonString.open_settings), {
+                            requestPathUpdateLauncher.navigate(PreferencesDestination.Advanced)
+                            dialog.dismiss()
+                        }, DialogActionStyle.Filled),
+                    ),
+            ) {
+                val colors = MaterialTheme.foundation.colors
+                val linkStyle = TextLinkStyles(style = SpanStyle(color = colors.emphasis, textDecoration = TextDecoration.Underline))
+                Text(
+                    buildAnnotatedString {
+                        append(message.substringBefore(url))
+                        if (url in message) {
+                            withLink(LinkAnnotation.Url(url, styles = linkStyle)) { append(url) }
+                            append(message.substringAfter(url))
+                        }
+                    },
+                )
             }
-        AlertDialog.Builder(this).show {
-            title(CommonString.directory_inaccessible)
-            customView(
-                contentView,
-                paddingTop = 16.dp.toPx(this@DeckPicker),
-                paddingStart = 32.dp.toPx(this@DeckPicker),
-                paddingEnd = 32.dp.toPx(this@DeckPicker),
-            )
-            positiveButton(CommonString.open_settings) {
-                requestPathUpdateLauncher.navigate(PreferencesDestination.Advanced)
-            }
-        }
+        }.show()
     }
 
     private fun displayDatabaseFailure(exceptionData: CustomExceptionData? = null) {
@@ -1536,7 +1551,7 @@ open class DeckPicker :
             }
             R.id.action_export_collection -> {
                 Timber.i("DeckPicker:: Export menu item selected")
-                ExportDialogFragment.newInstance().show(supportFragmentManager, "exportDialog")
+                ExportDialogFragment.forDeckList().show(supportFragmentManager, "exportDialog")
                 return true
             }
             R.id.action_create_backup -> {
@@ -1566,7 +1581,7 @@ open class DeckPicker :
     }
 
     fun exportCollection() {
-        ExportDialogFragment.newInstance().show(supportFragmentManager, "exportDialog")
+        ExportDialogFragment.forDeckList().show(supportFragmentManager, "exportDialog")
     }
 
     private fun processReviewResults(resultCode: Int) {
@@ -2393,7 +2408,7 @@ open class DeckPicker :
                 updateDeckList()
                 tryShowStudyOptionsPanel()
             }
-            createDeckDialog.showDialog()
+            createDeckDialog.showComposeDialog()
         }
     }
 
@@ -2411,7 +2426,7 @@ open class DeckPicker :
                 parentId = null,
             )
         createDeckDialog.onNewDeckCreated = ::onDeckCreated
-        createDeckDialog.showDialog()
+        createDeckDialog.showComposeDialog()
     }
 
     /**
@@ -2472,7 +2487,7 @@ open class DeckPicker :
             dismissAllDialogFragments()
             onDeckCreated(deckId)
         }
-        createDeckDialog.showDialog()
+        createDeckDialog.showComposeDialog()
     }
 
     /**

@@ -7,7 +7,6 @@ import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import androidx.annotation.VisibleForTesting
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.ichi2.anki.CollectionManager.TR
@@ -21,7 +20,9 @@ import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.requireLong
 import com.ichi2.anki.utils.ext.setFragmentResultListener
-import com.ichi2.utils.title
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 
 class DeckPickerContextMenu : AnalyticsDialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -30,19 +31,24 @@ class DeckPickerContextMenu : AnalyticsDialogFragment() {
         require(requireArguments().containsKey(ARG_DECK_IS_DYN)) { "Missing argument deck is dynamic" }
         require(requireArguments().containsKey(ARG_DECK_HAS_BURIED_IN_DECK)) { "Missing argument deck has buried" }
         val options = createOptionsList()
-        return AlertDialog
-            .Builder(requireActivity())
-            .title(text = requireArguments().getString(ARG_DECK_NAME))
-            .setItems(
-                options.map { it.label(requireContext()) }.toTypedArray(),
-            ) { _, index: Int ->
-                parentFragmentManager.setDeckPickerContextMenuResult(
-                    DeckPickerContextMenuResult(
-                        deckId = requireArguments().getLong(ARG_DECK_ID),
-                        option = options[index],
-                    ),
-                )
-            }.create()
+        return createPaperDialog(requireContext()) {
+            SingleChoiceDialog(
+                title = requireArguments().getString(ARG_DECK_NAME).orEmpty(),
+                choices = options.map { DialogChoice(it.label(requireContext())) },
+                selectedIndex = null,
+                onSelect = { index ->
+                    val manager = parentFragmentManager
+                    dismiss()
+                    manager.setDeckPickerContextMenuResult(
+                        DeckPickerContextMenuResult(
+                            deckId = requireArguments().getLong(ARG_DECK_ID),
+                            option = options[index],
+                        ),
+                    )
+                },
+                onDismissRequest = ::dismiss,
+            )
+        }
     }
 
     private fun createOptionsList(): List<DeckPickerContextMenuOption> =

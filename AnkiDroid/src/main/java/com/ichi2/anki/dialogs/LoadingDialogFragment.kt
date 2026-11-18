@@ -4,35 +4,36 @@ package com.ichi2.anki.dialogs
 
 import android.app.Dialog
 import android.os.Bundle
-import android.widget.TextView
 import androidx.annotation.MainThread
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.runtime.mutableStateOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.commitNow
-import com.google.android.material.loadingindicator.LoadingIndicator
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.R
-import com.ichi2.utils.cancelable
-import com.ichi2.utils.create
-import com.ichi2.utils.customView
+import com.ichi2.compose.ui.dialogs.ProgressDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 
 /**
  * Simple [DialogFragment] to be used to show a "loading" ui state.
  */
 class LoadingDialogFragment : DialogFragment() {
+    private val message = mutableStateOf<String?>(null)
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialogView = layoutInflater.inflate(R.layout.fragment_loading, null)
+        message.value = arguments?.getString(ARG_MESSAGE)
         val canBeCancelled = arguments?.getBoolean(ARG_CANCELLABLE) ?: true
         isCancelable = canBeCancelled
-        dialogView.findViewById<TextView>(R.id.text).text =
-            arguments?.getString(ARG_MESSAGE) ?: getString(CommonString.dialog_processing)
-        return AlertDialog
-            .Builder(requireContext())
-            .create {
-                customView(dialogView)
-                cancelable(canBeCancelled)
-            }.apply { setCanceledOnTouchOutside(canBeCancelled) }
+        return createPaperDialog(requireContext()) { dialog ->
+            ProgressDialog(
+                title = message.value ?: getString(CommonString.dialog_processing),
+                onCancel = if (canBeCancelled) dialog::cancel else null,
+            )
+        }.apply { setCanceledOnTouchOutside(canBeCancelled) }
+    }
+
+    fun updateMessage(text: String?) {
+        arguments?.putString(ARG_MESSAGE, text)
+        message.value = text
     }
 
     companion object {
@@ -72,10 +73,10 @@ class LoadingDialogFragment : DialogFragment() {
  * those calls. Callers need to handle this scenario by combining the loading states and manually
  * handling showing/dismissing, or by using different tags.
  *
- * @param message the message to show along with the [LoadingIndicator] or null to default to
+ * @param message the message to show along with the progress bar or null to default to
  * use "Processing..."
  * @param cancellable true if the dialog should be cancellable, false otherwise. This will also
- * apply to the [AlertDialog.setCanceledOnTouchOutside] property
+ * apply to the [Dialog.setCanceledOnTouchOutside] property
  */
 @MainThread
 fun AnkiActivity.showLoadingDialog(
@@ -89,10 +90,8 @@ fun AnkiActivity.showLoadingDialog(
     if (isAlreadyShowing) {
         // if a dialog is already showing and it has the same input params then just update the
         // dialog with the new message, otherwise remove the instance
-        val fragmentView = fragment.view // sanity check
-        if (fragmentView != null && cancellable == fragment.isCancelable) {
-            fragmentView.findViewById<TextView>(R.id.text)?.text =
-                message ?: getString(CommonString.dialog_processing)
+        if (cancellable == fragment.isCancelable) {
+            fragment.updateMessage(message)
             return
         }
     }

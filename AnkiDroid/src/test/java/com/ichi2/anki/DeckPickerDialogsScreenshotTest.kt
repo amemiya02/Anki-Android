@@ -3,7 +3,12 @@
 package com.ichi2.anki
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
 import com.ichi2.anki.FontSizeConfig.PERCENT_200
 import com.ichi2.anki.LanguageConfig.ARABIC
@@ -19,11 +24,17 @@ class DeckPickerDialogsScreenshotTest : DeckListScreenshotTest() {
         showDeckList("create_deck") {
             showCreateDeckDialog()
             val action = getString(CommonString.dialog_positive_create)
-            composeRule.onNodeWithText(action).assertIsDisplayed()
-            val label = CollectionManager.TR.actionsName().dropLastWhile { it == ':' }
-            composeRule.onNodeWithText(label).performTextReplacement("日本語")
-            composeRule.waitUntil {
-                runCatching { composeRule.onNodeWithText(action).assertIsDisplayed() }.isSuccess
+            composeRule.onNodeWithText(action).assertIsDisplayed().assertIsNotEnabled()
+            val label = getString(CommonString.paper_dialog_deck_name)
+            val deckName = "日本語 · N3 語彙"
+            composeRule.onNode(hasSetTextAction() and hasContentDescription(label)).performTextReplacement(deckName)
+            advanceRobolectricLooperUntil {
+                kotlin.runCatching { composeRule.onNodeWithText(action).assertIsEnabled() }.isSuccess
+            }
+            captureScreen("create_deck_dialog")
+            composeRule.onNodeWithText(action).performClick()
+            advanceRobolectricLooperUntil {
+                kotlin.runCatching { composeRule.onNodeWithText(deckName).assertIsDisplayed() }.isSuccess
             }
         }
     }

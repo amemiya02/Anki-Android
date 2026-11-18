@@ -30,6 +30,7 @@ fun AnkiDroidDialog(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     properties: DialogProperties = DialogProperties(),
+    dimAmount: Float? = null,
     content: @Composable () -> Unit,
 ) {
     if (LocalInspectionMode.current) {
@@ -50,6 +51,7 @@ fun AnkiDroidDialog(
             val window = (LocalView.current.parent as DialogWindowProvider).window
             // A slide here competes with initial field focus and keyboard positioning.
             SideEffect {
+                if (dimAmount != null) window.setDimAmount(dimAmount)
                 if (window.attributes.windowAnimations != R.style.Animation_AnkiDroidDialog) {
                     window.setWindowAnimations(R.style.Animation_AnkiDroidDialog)
                 }

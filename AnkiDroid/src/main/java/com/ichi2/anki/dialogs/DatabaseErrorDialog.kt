@@ -3,7 +3,6 @@
 
 package com.ichi2.anki.dialogs
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
@@ -12,7 +11,7 @@ import android.os.Message
 import android.os.Parcelable
 import androidx.annotation.CheckResult
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.runtime.Composable
 import androidx.core.app.ActivityCompat
 import androidx.core.os.BundleCompat
 import androidx.lifecycle.lifecycleScope
@@ -64,19 +63,20 @@ import com.ichi2.anki.startup.getDefaultAnkiDroidDirectory
 import com.ichi2.anki.startup.resetAnkiDroidDirectory
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.dismissAllDialogFragments
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogBody
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.DialogChoiceRow
+import com.ichi2.compose.ui.dialogs.DialogMark
+import com.ichi2.compose.ui.dialogs.ErrorDetails
+import com.ichi2.compose.ui.dialogs.ErrorDialog
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.utils.TruncatedString
-import com.ichi2.utils.UiUtil.makeBold
-import com.ichi2.utils.cancelable
 import com.ichi2.utils.copyToClipboard
-import com.ichi2.utils.create
-import com.ichi2.utils.listItems
-import com.ichi2.utils.listItemsAndMessage
-import com.ichi2.utils.message
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.neutralButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
-import com.ichi2.utils.title
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -86,349 +86,337 @@ import java.io.File
 import java.io.IOException
 
 class DatabaseErrorDialog : AsyncDialogFragment() {
-    private lateinit var backups: Array<File>
-
     private fun requireDeckPicker() = activity as DeckPicker
 
-    @SuppressLint("CheckResult")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        super.onCreateDialog(savedInstanceState)
-        val res = res()
-        val alertDialog = AlertDialog.Builder(requireActivity())
-        val isLoggedIn = isLoggedIn()
-        alertDialog
-            .cancelable(true)
-            .title(text = title)
-        var sqliteInstalled = false
-        try {
-            sqliteInstalled = Runtime.getRuntime().exec("sqlite3 --version").waitFor() == 0
-        } catch (e: IOException) {
-            Timber.i("sqlite3 not installed: ${e.message}")
-        } catch (e: InterruptedException) {
-            Timber.i("test for sqlite3 failed: ${e.message}")
-        }
-        return when (requireDialogType()) {
-            DIALOG_LOAD_FAILED -> {
-                isCancelable = false
-                // Collection failed to load; give user the option of either choosing from repair options, or closing
-                // the activity
-                alertDialog.show {
-                    title(CommonString.open_collection_failed_title)
-                    message(text = message)
-                    setIcon(R.drawable.symbol_warning)
-                    positiveButton(CommonString.error_handling_options) {
-                        showDatabaseErrorDialog(DIALOG_ERROR_HANDLING)
-                    }
-                    negativeButton(CommonString.close) {
-                        closeCollectionAndFinish()
-                    }
+        val type = requireDialogType()
+        isCancelable =
+            type !in
+            setOf(
+                DIALOG_LOAD_FAILED,
+                DIALOG_DB_ERROR,
+                DIALOG_DB_LOCKED,
+                INCOMPATIBLE_DB_VERSION,
+                DIALOG_STORAGE_UNAVAILABLE_AFTER_UNINSTALL,
+            )
+        val canRepair = type == DIALOG_ERROR_HANDLING && isSqliteInstalled()
+        val backupFiles =
+            if (type == DIALOG_RESTORE_BACKUP) {
+                BackupManager.getBackups(CollectionHelper.getCollectionPath(requireContext())).reversed()
+            } else {
+                emptyList()
+            }
+        return createPaperDialog(requireContext()) { DatabaseDialogContent(type, canRepair, backupFiles) }
+            .apply { setCanceledOnTouchOutside(isCancelable) }
+    }
+
+    @Composable
+    private fun DatabaseDialogContent(
+        type: DatabaseErrorDialogType,
+        canRepair: Boolean,
+        backupFiles: List<File>,
+    ) {
+        val cancel = getString(CommonString.dialog_cancel)
+        val close = getString(CommonString.close)
+        val body = message.orEmpty()
+        val errorMark = DialogMark(R.drawable.symbol_warning, warning = true)
+
+        fun textAction(
+            label: Int,
+            run: () -> Unit,
+        ) = DialogAction(getString(label), run)
+
+        fun primary(
+            label: Int,
+            run: () -> Unit,
+        ) = DialogAction(getString(label), run, DialogActionStyle.Filled)
+
+        fun destructive(
+            label: Int,
+            run: () -> Unit,
+        ) = DialogAction(getString(label), run, DialogActionStyle.Destructive)
+        when (type) {
+            DIALOG_LOAD_FAILED, DIALOG_DB_ERROR -> {
+                val report = type == DIALOG_DB_ERROR
+                PaperDialog(
+                    title,
+                    onDismissRequest = {},
+                    mark = errorMark,
+                    actions =
+                        listOfNotNull(
+                            DialogAction(close, ::closeCollectionAndFinish),
+                            if (report) {
+                                DialogAction(
+                                    getString(CommonString.answering_error_report),
+                                    {
+                                        requireDeckPicker().sendErrorReport()
+                                        requireActivity().dismissAllDialogFragments()
+                                    },
+                                    enabled = requireDeckPicker().hasErrorFiles(),
+                                )
+                            } else {
+                                null
+                            },
+                            primary(CommonString.error_handling_options) { showDatabaseErrorDialog(DIALOG_ERROR_HANDLING) },
+                        ),
+                ) {
+                    DialogBody(body)
+                    exceptionData?.let { ErrorDetails(it.toHumanReadableString()) }
                 }
             }
-            DIALOG_DB_ERROR -> {
-                isCancelable = false
-                // Database Check failed to execute successfully; give user the option of either choosing from repair
-                // options, submitting an error report, or closing the activity
-                alertDialog
-                    .create {
-                        title(CommonString.answering_error_title)
-                        message(text = message)
-                        setIcon(R.drawable.symbol_warning)
-                        positiveButton(CommonString.error_handling_options) {
-                            showDatabaseErrorDialog(DIALOG_ERROR_HANDLING)
-                        }
-                        negativeButton(CommonString.answering_error_report) {
-                            requireDeckPicker().sendErrorReport()
-                            requireActivity().dismissAllDialogFragments()
-                        }
-                        neutralButton(CommonString.close) {
-                            closeCollectionAndFinish()
-                        }
-                    }.apply {
-                        show()
-                        getButton(Dialog.BUTTON_NEGATIVE).isEnabled = requireDeckPicker().hasErrorFiles()
-                    }
-            }
+
             DIALOG_ERROR_HANDLING -> {
-                // The user has asked to see repair options; allow them to choose one of the repair options or go back
-                // to the previous dialog
-                val options = ArrayList<String>(8)
-                val values = ArrayList<ErrorHandlingEntries>(8)
-                if (!CollectionManager.isOpenUnsafe()) {
-                    // retry
-                    options.add(res.getString(CommonString.backup_retry_opening))
-                    values.add(ErrorHandlingEntries.RETRY)
-                }
-                // repair db with sqlite
-                if (sqliteInstalled) {
-                    options.add(res.getString(CommonString.backup_error_menu_repair))
-                    values.add(ErrorHandlingEntries.REPAIR)
-                }
-                // // restore from backup
-                options.add(res.getString(CommonString.backup_restore))
-                values.add(ErrorHandlingEntries.RESTORE)
-                // one-way sync from server
-                if (isLoggedIn) {
-                    options.add(res.getString(CommonString.backup_one_way_sync_from_server))
-                    values.add(ErrorHandlingEntries.ONE_WAY)
-                }
+                val options = errorHandlingOptions(canRepair)
+                SingleChoiceDialog(
+                    title = title,
+                    choices = options.map { DialogChoice(it.first) },
+                    selectedIndex = null,
+                    onSelect = { selectErrorHandlingOption(options[it].second) },
+                    onDismissRequest = ::dismiss,
+                )
+            }
 
-                val activity = requireActivity()
-                val shouldOfferResetToDefaultDirectory =
-                    try {
-                        val currentDir = CollectionHelper.getCurrentAnkiDroidDirectory(activity)
-                        val defaultDir = getDefaultAnkiDroidDirectory(activity)
-                        currentDir.absolutePath != defaultDir.absolutePath
-                    } catch (e: Throwable) {
-                        Timber.w(e, "Failed to determine whether to offer reset-to-default directory option")
-                        false
+            DIALOG_REPAIR_COLLECTION, DIALOG_CONFIRM_DATABASE_CHECK ->
+                ConfirmationDialog(
+                    title,
+                    body,
+                    confirm =
+                        if (type == DIALOG_REPAIR_COLLECTION) {
+                            primary(CommonString.dialog_positive_repair) {
+                                requireDeckPicker().repairCollection()
+                                requireActivity().dismissAllDialogFragments()
+                            }
+                        } else {
+                            primary(CommonString.dialog_ok) {
+                                requireDeckPicker().integrityCheck()
+                                requireActivity().dismissAllDialogFragments()
+                            }
+                        },
+                    onDismissRequest = ::dismiss,
+                    markIcon = R.drawable.symbol_settings_backup_restore,
+                )
+
+            DIALOG_RESTORE_BACKUP -> {
+                if (backupFiles.isEmpty()) {
+                    ErrorDialog(
+                        title,
+                        body,
+                        onDismissRequest = ::dismiss,
+                        dismissText = null,
+                        primaryAction = primary(CommonString.dialog_ok) { showDatabaseErrorDialog(DIALOG_ERROR_HANDLING) },
+                    )
+                } else {
+                    val formatter = LocalizedUnambiguousBackupTimeFormatter()
+                    PaperDialog(
+                        getString(CommonString.backup_restore_select_title),
+                        onDismissRequest = ::dismiss,
+                        actions =
+                            listOf(
+                                DialogAction(cancel, ::dismiss),
+                                textAction(CommonString.restore_backup_choose_another) {
+                                    ankiActivity?.let {
+                                        ImportFileSelectionFragment.openImportFilePicker(
+                                            it,
+                                            ImportFileSelectionFragment.ImportFileType.APKG,
+                                        )
+                                    }
+                                    dismiss()
+                                },
+                            ),
+                    ) {
+                        backupFiles.forEach { file ->
+                            DialogChoiceRow(
+                                DialogChoice(formatter.getTimeOfBackupAsText(file)),
+                                checked = false,
+                                onClick = { selectBackup(file) },
+                                multiple = false,
+                            )
+                        }
                     }
-
-                if (shouldOfferResetToDefaultDirectory) {
-                    options.add(res.getString(CommonString.backup_use_default_folder))
-                    values.add(ErrorHandlingEntries.RESET_TO_DEFAULT_DIRECTORY)
                 }
+            }
 
-                // delete old collection and build new one
-                options.add(res.getString(CommonString.backup_del_collection))
-                values.add(ErrorHandlingEntries.NEW)
-                // copy stack trace and debug info
-                options.add(TR.sentenceCase.copyDebugInfo)
-                values.add(ErrorHandlingEntries.DEBUG_INFO)
-
-                alertDialog.show {
-                    title(CommonString.error_handling_title)
-                    setIcon(R.drawable.symbol_warning)
-                    negativeButton(CommonString.dialog_cancel)
-                    listItems(items = options) { _, index ->
-                        when (values[index]) {
-                            ErrorHandlingEntries.RETRY -> {
-                                ActivityCompat.recreate(requireActivity())
-                                return@listItems
-                            }
-                            ErrorHandlingEntries.REPAIR -> {
-                                showDatabaseErrorDialog(DIALOG_REPAIR_COLLECTION)
-                                return@listItems
-                            }
-                            ErrorHandlingEntries.RESTORE -> {
-                                showDatabaseErrorDialog(DIALOG_RESTORE_BACKUP)
-                                return@listItems
-                            }
-                            ErrorHandlingEntries.ONE_WAY -> {
-                                showDatabaseErrorDialog(DIALOG_ONE_WAY_SYNC_FROM_SERVER)
-                                return@listItems
-                            }
-                            ErrorHandlingEntries.RESET_TO_DEFAULT_DIRECTORY -> {
-                                try {
-                                    val defaultDir = getDefaultAnkiDroidDirectory(activity)
+            DIALOG_NEW_COLLECTION, DIALOG_CONFIRM_RESTORE_BACKUP, DIALOG_ONE_WAY_SYNC_FROM_SERVER ->
+                ConfirmationDialog(
+                    title,
+                    body,
+                    confirm =
+                        destructive(
+                            if (type ==
+                                DIALOG_NEW_COLLECTION
+                            ) {
+                                CommonString.create_new_collection
+                            } else {
+                                CommonString.paper_dialog_replace_collection
+                            },
+                        ) {
+                            when (type) {
+                                DIALOG_NEW_COLLECTION -> {
+                                    val time = TimeManager.time
+                                    Timber.i("closeCollection: DatabaseErrorDialog: Before Create New Collection")
                                     CollectionManager.closeCollectionBlocking()
-                                    resetAnkiDroidDirectory(activity, defaultDir)
-                                    closeCollectionAndFinish()
-                                } catch (e: Throwable) {
-                                    Timber.w(e, "Failed to reset AnkiDroid directory to default")
-                                    showDatabaseErrorDialog(DIALOG_LOAD_FAILED)
-                                }
-                                return@listItems
-                            }
-                            ErrorHandlingEntries.NEW -> {
-                                showDatabaseErrorDialog(DIALOG_NEW_COLLECTION)
-                                return@listItems
-                            }
-
-                            ErrorHandlingEntries.DEBUG_INFO -> {
-                                lifecycleScope.launch {
-                                    // Using NonCancellable to ensure that debug information collection completes even if the coroutine is canceled
-                                    withContext(NonCancellable) {
-                                        copyStackTraceAndDebugInfo()
+                                    val path = CollectionHelper.getCollectionPath(requireActivity())
+                                    if (BackupManager.moveDatabaseToBrokenDirectory(path, false, time)) {
+                                        ActivityCompat.recreate(requireDeckPicker())
+                                    } else {
+                                        showDatabaseErrorDialog(DIALOG_LOAD_FAILED)
                                     }
                                 }
-                                return@listItems
-                            }
-                        }
-                    }
-                }
-            }
-            DIALOG_REPAIR_COLLECTION -> {
-                // Allow user to run BackupManager.repairCollection()
-                alertDialog.show {
-                    title(CommonString.dialog_positive_repair)
-                    message(text = message)
-                    setIcon(R.drawable.symbol_warning)
-                    positiveButton(CommonString.dialog_positive_repair) {
-                        requireDeckPicker().repairCollection()
-                        requireActivity().dismissAllDialogFragments()
-                    }
-                    negativeButton(CommonString.dialog_cancel)
-                }
-            }
-            DIALOG_RESTORE_BACKUP -> {
-                // Allow user to restore one of the backups
-                backups = BackupManager.getBackups(CollectionHelper.getCollectionPath(requireContext()))
-                if (backups.isEmpty()) {
-                    alertDialog
-                        .title(CommonString.backup_restore)
-                        .title(text = message)
-                        .positiveButton(CommonString.dialog_ok) {
-                            showDatabaseErrorDialog(DIALOG_ERROR_HANDLING)
-                        }
-                } else {
-                    // Show backups sorted with latest on top
-                    backups.reverse()
-                    val formatter = LocalizedUnambiguousBackupTimeFormatter()
-                    val dates = backups.map { formatter.getTimeOfBackupAsText(it) }
-
-                    alertDialog
-                        .title(CommonString.backup_restore_select_title)
-                        .positiveButton(CommonString.restore_backup_choose_another) {
-                            ankiActivity?.let {
-                                ImportFileSelectionFragment.openImportFilePicker(it, ImportFileSelectionFragment.ImportFileType.APKG)
-                            }
-                        }.negativeButton(CommonString.dialog_cancel)
-                        .setSingleChoiceItems(dates.toTypedArray(), -1) { _, index: Int ->
-                            if (backups[index].length() > 0) {
-                                // restore the backup if it's valid
-                                requireDeckPicker().restoreFromBackup(
-                                    backups[index].path,
-                                )
-                                requireActivity().dismissAllDialogFragments()
-                            } else {
-                                // otherwise show an error dialog
-                                AlertDialog.Builder(requireActivity()).show {
-                                    title(CommonString.vague_error)
-                                    message(CommonString.backup_invalid_file_error)
-                                    positiveButton(CommonString.dialog_ok)
+                                DIALOG_CONFIRM_RESTORE_BACKUP -> {
+                                    dismiss()
+                                    showDatabaseErrorDialog(DIALOG_RESTORE_BACKUP)
+                                }
+                                else -> {
+                                    requireDeckPicker().sync(ConflictResolution.FULL_DOWNLOAD)
+                                    requireActivity().dismissAllDialogFragments()
                                 }
                             }
-                        }
-                }
-                alertDialog.create()
-            }
-            DIALOG_NEW_COLLECTION -> {
-                // Allow user to create a new empty collection
-                alertDialog.show {
-                    title(CommonString.backup_new_collection)
-                    message(text = message)
-                    positiveButton(CommonString.dialog_positive_create) {
-                        val time = TimeManager.time
-                        Timber.i(
-                            "closeCollection: %s",
-                            "DatabaseErrorDialog: Before Create New Collection",
+                        },
+                    onDismissRequest = ::dismiss,
+                )
+
+            DIALOG_DB_LOCKED, DIALOG_DISK_FULL ->
+                PaperDialog(
+                    title,
+                    onDismissRequest = ::dismiss,
+                    mark = errorMark,
+                    actions =
+                        listOfNotNull(
+                            if (type == DIALOG_DB_LOCKED) {
+                                textAction(CommonString.settings) {
+                                    navigate(PreferencesDestination.Advanced)
+                                    dismiss()
+                                }
+                            } else {
+                                null
+                            },
+                            DialogAction(close, ::closeCollectionAndFinish, DialogActionStyle.Filled),
+                        ),
+                ) { DialogBody(body) }
+
+            INCOMPATIBLE_DB_VERSION ->
+                PaperDialog(
+                    title,
+                    onDismissRequest = {},
+                    mark = errorMark,
+                    actions = listOf(DialogAction(close, ::closeCollectionAndFinish, DialogActionStyle.Filled)),
+                ) {
+                    DialogBody(body)
+                    DialogChoiceRow(
+                        DialogChoice(getString(CommonString.backup_restore)),
+                        checked = false,
+                        onClick = { showDatabaseErrorDialog(DIALOG_RESTORE_BACKUP) },
+                        multiple = false,
+                    )
+                    if (isLoggedIn()) {
+                        DialogChoiceRow(
+                            DialogChoice(getString(CommonString.backup_one_way_sync_from_server)),
+                            checked = false,
+                            onClick = { showDatabaseErrorDialog(DIALOG_ONE_WAY_SYNC_FROM_SERVER) },
+                            multiple = false,
                         )
-                        CollectionManager.closeCollectionBlocking()
-                        val path1 = CollectionHelper.getCollectionPath(requireActivity())
-                        if (BackupManager.moveDatabaseToBrokenDirectory(path1, false, time)) {
-                            ActivityCompat.recreate(requireDeckPicker())
-                        } else {
-                            showDatabaseErrorDialog(DIALOG_LOAD_FAILED)
-                        }
-                    }
-                    negativeButton(CommonString.dialog_cancel)
-                }
-            }
-            DIALOG_CONFIRM_DATABASE_CHECK -> {
-                // Confirmation dialog for database check
-                alertDialog.show {
-                    title(text = TR.sentenceCase.checkDatabase)
-                    message(text = message)
-                    positiveButton(CommonString.dialog_ok) {
-                        requireDeckPicker().integrityCheck()
-                        requireActivity().dismissAllDialogFragments()
-                    }
-                    negativeButton(CommonString.dialog_cancel)
-                }
-            }
-            DIALOG_CONFIRM_RESTORE_BACKUP -> {
-                // Confirmation dialog for backup restore
-                alertDialog.show {
-                    title(CommonString.restore_backup_title)
-                    message(text = message)
-                    positiveButton(CommonString.dialog_continue) {
-                        // Cancelling backup selection should return to the deck list, not this warning.
-                        dismiss()
-                        showDatabaseErrorDialog(DIALOG_RESTORE_BACKUP)
-                    }
-                    negativeButton(CommonString.dialog_cancel)
-                }
-            }
-            DIALOG_ONE_WAY_SYNC_FROM_SERVER -> {
-                // Allow user to do a full-sync from the server
-                alertDialog.show {
-                    title(CommonString.backup_one_way_sync_from_server)
-                    message(text = message)
-                    positiveButton(CommonString.dialog_positive_overwrite) {
-                        requireDeckPicker().sync(ConflictResolution.FULL_DOWNLOAD)
-                        requireActivity().dismissAllDialogFragments()
-                    }
-                    negativeButton(CommonString.dialog_cancel)
-                }
-            }
-            DIALOG_DB_LOCKED -> {
-                isCancelable = false
-                alertDialog.show {
-                    title(CommonString.database_locked_title)
-                    message(text = message)
-                    positiveButton(CommonString.close) {
-                        closeCollectionAndFinish()
-                    }
-                    // the user can change the 'AnkiDroid directory' to resolve the conflict
-                    neutralButton(CommonString.settings) {
-                        navigate(PreferencesDestination.Advanced)
                     }
                 }
-            }
-            INCOMPATIBLE_DB_VERSION -> {
-                isCancelable = false
-                val values: MutableList<IncompatibleDbVersionEntries> = ArrayList(2)
-                val options = mutableListOf<CharSequence>()
-                options.add(makeBold(res.getString(CommonString.backup_restore)))
-                values.add(IncompatibleDbVersionEntries.RESTORE)
-                if (isLoggedIn) {
-                    options.add(makeBold(res.getString(CommonString.backup_one_way_sync_from_server)))
-                    values.add(IncompatibleDbVersionEntries.ONE_WAY)
-                }
-                alertDialog.show {
-                    title(CommonString.incompatible_database_version_title)
-                    setIcon(R.drawable.symbol_warning)
-                    positiveButton(CommonString.close) {
-                        closeCollectionAndFinish()
-                    }
-                    listItemsAndMessage(message = message, items = options) { _, index: Int ->
-                        when (values[index]) {
-                            IncompatibleDbVersionEntries.RESTORE ->
-                                showDatabaseErrorDialog(
-                                    DIALOG_RESTORE_BACKUP,
-                                )
-                            IncompatibleDbVersionEntries.ONE_WAY ->
-                                showDatabaseErrorDialog(
-                                    DIALOG_ONE_WAY_SYNC_FROM_SERVER,
-                                )
-                        }
+
+            DIALOG_STORAGE_UNAVAILABLE_AFTER_UNINSTALL ->
+                PaperDialog(title, onDismissRequest = {}, mark = errorMark) {
+                    DialogBody(body)
+                    UninstallListItem.createList().forEach { item ->
+                        DialogChoiceRow(
+                            DialogChoice(getString(item.stringRes)),
+                            checked = false,
+                            onClick = {
+                                item.onClick(requireAnkiActivity())
+                                if (item.dismissesDialog) dismiss()
+                            },
+                            multiple = false,
+                        )
                     }
                 }
-            }
-            DIALOG_DISK_FULL -> {
-                alertDialog.show {
-                    title(CommonString.storage_full_title)
-                    message(text = message)
-                    positiveButton(CommonString.close) {
-                        closeCollectionAndFinish()
-                    }
-                }
-            }
-            DIALOG_STORAGE_UNAVAILABLE_AFTER_UNINSTALL -> {
-                isCancelable = false
-                val listItems = UninstallListItem.createList()
-                alertDialog.show {
-                    title(CommonString.directory_inaccessible_after_uninstall)
-                    listItemsAndMessage(message = message, items = listItems.map { getString(it.stringRes) }) { _, index: Int ->
-                        val listItem = listItems[index]
-                        listItem.onClick(requireAnkiActivity())
-                        if (listItem.dismissesDialog) {
-                            dismiss()
-                        }
-                    }
-                }
-            }
         }
+    }
+
+    private fun isSqliteInstalled(): Boolean =
+        try {
+            Runtime.getRuntime().exec("sqlite3 --version").waitFor() == 0
+        } catch (e: IOException) {
+            Timber.i("sqlite3 not installed: %s", e.message)
+            false
+        } catch (e: InterruptedException) {
+            Timber.i("test for sqlite3 failed: %s", e.message)
+            false
+        }
+
+    private fun errorHandlingOptions(canRepair: Boolean): List<Pair<String, ErrorHandlingEntries>> {
+        val activity = requireActivity()
+        val canResetDirectory =
+            try {
+                CollectionHelper.getCurrentAnkiDroidDirectory(activity).absolutePath != getDefaultAnkiDroidDirectory(activity).absolutePath
+            } catch (e: Throwable) {
+                Timber.w(e, "Failed to determine whether to offer reset-to-default directory option")
+                false
+            }
+        return buildList {
+            if (!CollectionManager.isOpenUnsafe()) add(getString(CommonString.backup_retry_opening) to ErrorHandlingEntries.RETRY)
+            if (canRepair) add(getString(CommonString.backup_error_menu_repair) to ErrorHandlingEntries.REPAIR)
+            add(getString(CommonString.backup_restore) to ErrorHandlingEntries.RESTORE)
+            if (isLoggedIn()) add(getString(CommonString.backup_one_way_sync_from_server) to ErrorHandlingEntries.ONE_WAY)
+            if (canResetDirectory) add(getString(CommonString.backup_use_default_folder) to ErrorHandlingEntries.RESET_TO_DEFAULT_DIRECTORY)
+            add(getString(CommonString.backup_del_collection) to ErrorHandlingEntries.NEW)
+            add(TR.sentenceCase.copyDebugInfo to ErrorHandlingEntries.DEBUG_INFO)
+        }
+    }
+
+    private fun selectErrorHandlingOption(option: ErrorHandlingEntries) {
+        val activity = requireActivity()
+        val next =
+            when (option) {
+                ErrorHandlingEntries.REPAIR -> DIALOG_REPAIR_COLLECTION
+                ErrorHandlingEntries.RESTORE -> DIALOG_RESTORE_BACKUP
+                ErrorHandlingEntries.ONE_WAY -> DIALOG_ONE_WAY_SYNC_FROM_SERVER
+                ErrorHandlingEntries.NEW -> DIALOG_NEW_COLLECTION
+                else -> null
+            }
+        if (next != null) {
+            showDatabaseErrorDialog(next)
+            return
+        }
+        when (option) {
+            ErrorHandlingEntries.RETRY -> ActivityCompat.recreate(activity)
+            ErrorHandlingEntries.RESET_TO_DEFAULT_DIRECTORY -> {
+                try {
+                    val defaultDir = getDefaultAnkiDroidDirectory(activity)
+                    CollectionManager.closeCollectionBlocking()
+                    resetAnkiDroidDirectory(activity, defaultDir)
+                    closeCollectionAndFinish()
+                } catch (e: Throwable) {
+                    Timber.w(e, "Failed to reset AnkiDroid directory to default")
+                    showDatabaseErrorDialog(DIALOG_LOAD_FAILED)
+                }
+            }
+            ErrorHandlingEntries.DEBUG_INFO ->
+                lifecycleScope.launch {
+                    withContext(NonCancellable) { copyStackTraceAndDebugInfo() }
+                }
+            else -> Unit
+        }
+        dismiss()
+    }
+
+    private fun selectBackup(file: File) {
+        if (file.length() > 0) {
+            requireDeckPicker().restoreFromBackup(file.path)
+            requireActivity().dismissAllDialogFragments()
+            return
+        }
+        createPaperDialog(requireContext()) { dialog ->
+            ErrorDialog(
+                getString(CommonString.vague_error),
+                getString(CommonString.backup_invalid_file_error),
+                onDismissRequest = dialog::dismiss,
+                dismissText = getString(CommonString.dialog_ok),
+            )
+        }.show()
     }
 
     /** @see DeckPicker.showDatabaseErrorDialog */
@@ -531,22 +519,25 @@ class DatabaseErrorDialog : AsyncDialogFragment() {
                         FatalErrorDialog.build(context, InitializationError(StorageError(e))).show()
                         return
                     }
-                AlertDialog.Builder(context).show {
-                    title(CommonString.backup_new_collection)
-                    setIcon(R.drawable.symbol_warning)
-                    message(CommonString.new_unsafe_collection)
-                    positiveButton(CommonString.dialog_positive_create) {
-                        Timber.w("Creating new collection")
-                        Timber.i(
-                            "closeCollection: %s",
-                            "DatabaseErrorDialog: Before Create New Collection",
-                        )
-                        CollectionManager.closeCollectionBlocking()
-                        resetAnkiDroidDirectory(context, directory)
-                        context.closeCollectionAndFinish()
-                    }
-                    negativeButton(CommonString.dialog_cancel)
-                    cancelable(false)
+                createPaperDialog(context) { dialog ->
+                    ConfirmationDialog(
+                        title = context.getString(CommonString.backup_new_collection),
+                        message = context.getString(CommonString.new_unsafe_collection),
+                        confirm =
+                            DialogAction(context.getString(CommonString.create_new_collection), {
+                                Timber.w("Creating new collection")
+                                Timber.i("closeCollection: DatabaseErrorDialog: Before Create New Collection")
+                                CollectionManager.closeCollectionBlocking()
+                                resetAnkiDroidDirectory(context, directory)
+                                context.closeCollectionAndFinish()
+                                dialog.dismiss()
+                            }, DialogActionStyle.Destructive),
+                        onDismissRequest = dialog::dismiss,
+                    )
+                }.apply {
+                    setCanceledOnTouchOutside(false)
+                    setCancelable(false)
+                    show()
                 }
             }
 
@@ -781,9 +772,4 @@ private enum class ErrorHandlingEntries {
     RESET_TO_DEFAULT_DIRECTORY,
     NEW,
     DEBUG_INFO,
-}
-
-private enum class IncompatibleDbVersionEntries {
-    RESTORE,
-    ONE_WAY,
 }

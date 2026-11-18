@@ -5,7 +5,10 @@ package com.ichi2.anki.dialogs
 import android.content.Context
 import android.os.Build
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.core.content.edit
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
@@ -20,16 +23,14 @@ import com.ichi2.anki.isLoggedIn
 import com.ichi2.anki.millisecondsSinceLastSyncAttempt
 import com.ichi2.anki.servicelayer.ScopedStorageService.collectionWillBeMadeInaccessibleAfterUninstall
 import com.ichi2.anki.servicelayer.ScopedStorageService.userIsPromptedToDeleteCollectionOnUninstall
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.DialogChoiceRow
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.utils.ImportUtils
 import com.ichi2.utils.Permissions
-import com.ichi2.utils.cancelable
-import com.ichi2.utils.checkBoxPrompt
-import com.ichi2.utils.create
-import com.ichi2.utils.message
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
-import com.ichi2.utils.title
 import timber.log.Timber
 import java.io.File
 
@@ -46,17 +47,12 @@ import java.io.File
 class BackupPromptDialog private constructor(
     private val windowContext: Context,
 ) {
-    private lateinit var alertDialog: AlertDialog
-
     /**
      * After 2 dismissals, allow ignoring
      * Note: this is 0-based - the dialog has not been dismissed on the first viewing
      */
     private val allowUserToPermanentlyDismissDialog: Boolean
         get() = timesDialogDismissed > 1
-
-    /** Whether the user has selected 'don't show again' */
-    private var userCheckedDoNotShowAgain = false
 
     private var timesDialogDismissed: Int
         get() = windowContext.sharedPrefs().getInt("backupPromptDismissedCount", 0)
@@ -85,15 +81,12 @@ class BackupPromptDialog private constructor(
                 .edit { putLong("timeToShowBackupDialog", value) }
         }
 
-    private fun onDismiss() {
+    private fun onDismiss(dontShowAgain: Boolean) {
         Timber.i("BackupPromptDialog dismissed")
-        if (userCheckedDoNotShowAgain) {
+        if (dontShowAgain) {
             showPermanentlyDismissDialog(
                 this.windowContext,
-                onCancel = {
-                    userCheckedDoNotShowAgain = false
-                    onDismiss()
-                },
+                onCancel = { onDismiss(dontShowAgain = false) },
                 onDisableReminder = { dialogPermanentlyDismissed = true },
             )
         } else {
@@ -113,30 +106,47 @@ class BackupPromptDialog private constructor(
         return now + (fixedDayCount + oneToFourDays) * ONE_DAY_IN_MS
     }
 
-    private fun build(
+    private fun show(
         isLoggedIn: Boolean,
         performBackup: () -> Unit,
     ) {
-        this.alertDialog =
-            AlertDialog.Builder(windowContext).create {
-                setIcon(if (isLoggedIn) R.drawable.symbol_backup else R.drawable.symbol_settings_backup_restore)
-                title(CommonString.backup_your_collection)
-                message(CommonString.backup_collection_message)
-                positiveButton(if (isLoggedIn) CommonString.button_sync else CommonString.button_backup) {
-                    Timber.i("User selected 'backup'")
-                    onBackup()
-                    performBackup()
-                }
+        createPaperDialog(windowContext) { dialog ->
+            var dontShowAgain by rememberSaveable { mutableStateOf(false) }
+            ConfirmationDialog(
+                title = windowContext.getString(CommonString.backup_your_collection),
+                message = windowContext.getString(CommonString.backup_collection_message),
+                confirm =
+                    DialogAction(
+                        windowContext.getString(if (isLoggedIn) CommonString.button_sync else CommonString.button_backup),
+                        {
+                            Timber.i("User selected 'backup'")
+                            dialog.dismiss()
+                            onBackup()
+                            performBackup()
+                        },
+                        enabled = !dontShowAgain,
+                    ),
+                onDismissRequest = {
+                    dialog.dismiss()
+                    onDismiss(dontShowAgain)
+                },
+                dismissText = windowContext.getString(CommonString.button_backup_later),
+                markIcon = if (isLoggedIn) R.drawable.symbol_backup else R.drawable.symbol_settings_backup_restore,
+            ) {
                 if (allowUserToPermanentlyDismissDialog) {
-                    checkBoxPrompt(CommonString.button_do_not_show_again, isCheckedDefault = false) { checked ->
-                        Timber.d("Don't show again checked: %b", checked)
-                        userCheckedDoNotShowAgain = checked
-                        alertDialog.positiveButton.isEnabled = !checked
-                    }
+                    DialogChoiceRow(
+                        DialogChoice(windowContext.getString(CommonString.button_do_not_show_again)),
+                        checked = dontShowAgain,
+                        onClick = { dontShowAgain = !dontShowAgain },
+                        multiple = true,
+                    )
                 }
-                negativeButton(CommonString.button_backup_later) { onDismiss() }
-                cancelable(false)
             }
+        }.apply {
+            setCanceledOnTouchOutside(false)
+            setCancelable(false)
+            show()
+        }
     }
 
     companion object {
@@ -150,15 +160,12 @@ class BackupPromptDialog private constructor(
                 return false
             }
             val isLoggedIn = isLoggedIn()
-            backupPrompt.apply {
-                build(isLoggedIn) {
-                    if (isLoggedIn) {
-                        deckPicker.sync(conflict = null)
-                    } else {
-                        deckPicker.exportCollection()
-                    }
+            backupPrompt.show(isLoggedIn) {
+                if (isLoggedIn) {
+                    deckPicker.sync(conflict = null)
+                } else {
+                    deckPicker.exportCollection()
                 }
-                alertDialog.show()
             }
             return true
         }
@@ -229,13 +236,21 @@ class BackupPromptDialog private constructor(
                 return
             }
 
-            AlertDialog.Builder(context).show {
-                title(CommonString.dismiss_backup_warning_title)
-                message(message)
-                setIcon(R.drawable.symbol_warning)
-                positiveButton(CommonString.dialog_cancel) { onCancel() }
-                negativeButton(CommonString.button_disable_reminder) { onDisableReminder() }
-            }
+            createPaperDialog(context) { dialog ->
+                ConfirmationDialog(
+                    title = context.getString(CommonString.dismiss_backup_warning_title),
+                    message = context.getString(message),
+                    confirm =
+                        DialogAction(context.getString(CommonString.button_disable_reminder), {
+                            dialog.dismiss()
+                            onDisableReminder()
+                        }, DialogActionStyle.Destructive),
+                    onDismissRequest = {
+                        dialog.dismiss()
+                        onCancel()
+                    },
+                )
+            }.show()
         }
     }
 

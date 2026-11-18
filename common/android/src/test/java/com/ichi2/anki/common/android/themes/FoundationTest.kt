@@ -117,6 +117,7 @@ class FoundationTest {
         for ((key, actual) in listOf(
             "cardSheet" to foundation.shapes.cardSheet,
             "button" to foundation.shapes.button,
+            "dialog" to foundation.shapes.dialog,
             "addButton" to foundation.shapes.addButton,
         )) {
             assertEquals(shape.getDouble(key).toFloat(), actual.topStart.toPx(size, density), key)
@@ -126,6 +127,7 @@ class FoundationTest {
         assertEquals((0 until scale.length()).map { scale.getInt(it).toFloat() }, foundation.spacing.scale.map { it.value })
         assertEquals(spacing.getDouble("screenMargin").toFloat(), foundation.spacing.screenMargin.value)
         assertEquals(spacing.getDouble("touchTarget").toFloat(), foundation.spacing.touchTarget.value)
+        assertEquals(spacing.getDouble("settingsRow").toFloat(), foundation.spacing.settingsRow.value)
         assertEquals(spacing.getDouble("answerButton").toFloat(), foundation.spacing.answerButton.value)
     }
 
@@ -235,6 +237,7 @@ class FoundationTest {
             mapOf(
                 "screenTitle" to type.screenTitle,
                 "pageTitle" to type.pageTitle,
+                "dialogTitle" to type.dialogTitle,
                 "deckName" to type.deckName,
                 "deckNameNested" to type.deckNameNested,
                 "summary" to type.summary,

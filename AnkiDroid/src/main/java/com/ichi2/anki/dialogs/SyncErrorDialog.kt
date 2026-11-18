@@ -10,7 +10,7 @@ import android.os.Bundle
 import android.os.Message
 import android.provider.Settings
 import androidx.annotation.CheckResult
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.runtime.Composable
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
@@ -33,9 +33,16 @@ import com.ichi2.anki.dialogs.SyncErrorDialog.Type.DIALOG_USER_NOT_LOGGED_IN_SYN
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.dismissAllDialogFragments
 import com.ichi2.anki.utils.openUrl
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.setupEnterKeyHandler
-import com.ichi2.utils.titleWithHelpIcon
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogBody
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.DialogChoiceRow
+import com.ichi2.compose.ui.dialogs.DialogMark
+import com.ichi2.compose.ui.dialogs.ErrorDialog
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import timber.log.Timber
 import java.text.DateFormat
 
@@ -64,143 +71,165 @@ class SyncErrorDialog : AsyncDialogFragment() {
         get() = Type.fromCode(requireArguments().getInt(ARG_DIALOG_TYPE))
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog =
-            AlertDialog
-                .Builder(requireContext())
-                .setTitle(title)
-                .setMessage(message)
-        return when (dialogType) {
-            DIALOG_USER_NOT_LOGGED_IN_SYNC -> {
-                // User not logged in; take them to login screen
-                dialog
-                    .setIcon(R.drawable.symbol_sync_problem)
-                    .setPositiveButton(TR.sentenceCase.logIn) { _, _ ->
-                        requireSyncErrorDialogListener().loginToSyncServer()
-                    }.setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
-                    .create()
+        if (dialogType == DIALOG_SYNC_CORRUPT_COLLECTION) isCancelable = false
+        return createPaperDialog(requireContext()) { SyncDialogContent() }
+    }
+
+    @Composable
+    private fun SyncDialogContent() {
+        val listener = requireSyncErrorDialogListener()
+        val listenerActivity = requireActivity()
+        val cancel = getString(CommonString.dialog_cancel)
+
+        fun action(
+            label: String,
+            run: () -> Unit,
+        ) = DialogAction(label, {
+            dismiss()
+            run()
+        })
+        val errorBody = message.orEmpty()
+        val icon = R.drawable.symbol_sync_problem
+        when (dialogType) {
+            DIALOG_USER_NOT_LOGGED_IN_SYNC ->
+                ErrorDialog(
+                    title,
+                    errorBody,
+                    onDismissRequest = ::dismiss,
+                    primaryAction = action(TR.sentenceCase.logIn, listener::loginToSyncServer),
+                    dismissText = cancel,
+                    markIcon = icon,
+                )
+
+            DIALOG_CONNECTION_ERROR ->
+                ErrorDialog(
+                    title,
+                    errorBody,
+                    details = requireArguments().getString(ARG_DIALOG_MESSAGE),
+                    onDismissRequest = { activity?.dismissAllDialogFragments() },
+                    primaryAction = DialogAction(getString(CommonString.retry), { syncAndDismissAllDialogFragments() }),
+                    dismissText = cancel,
+                    markIcon = icon,
+                )
+
+            DIALOG_SYNC_CONFLICT_RESOLUTION, DIALOG_SYNC_SANITY_ERROR -> {
+                val conflict = dialogType == DIALOG_SYNC_CONFLICT_RESOLUTION
+                PaperDialog(
+                    title,
+                    onDismissRequest = ::dismiss,
+                    mark = DialogMark(icon, warning = true),
+                    actions =
+                        listOfNotNull(
+                            DialogAction(cancel, ::dismiss),
+                            if (conflict) {
+                                DialogAction(
+                                    getString(CommonString.help),
+                                    { requireContext().openUrl(R.string.link_sync_conflict_help) },
+                                )
+                            } else {
+                                null
+                            },
+                        ),
+                ) {
+                    if (errorBody.isNotEmpty()) DialogBody(errorBody)
+                    DialogChoiceRow(
+                        DialogChoice(
+                            getString(if (conflict) CommonString.sync_conflict_keep_local_new else CommonString.sync_sanity_local),
+                        ),
+                        checked = false,
+                        onClick = {
+                            dismiss()
+                            listener.showSyncErrorDialog(
+                                if (conflict) DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_LOCAL else DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_LOCAL,
+                            )
+                        },
+                        multiple = false,
+                    )
+                    DialogChoiceRow(
+                        DialogChoice(
+                            getString(if (conflict) CommonString.sync_conflict_keep_remote_new else CommonString.sync_sanity_remote),
+                        ),
+                        checked = false,
+                        onClick = {
+                            dismiss()
+                            listener.showSyncErrorDialog(
+                                if (conflict) DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_REMOTE else DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_REMOTE,
+                            )
+                        },
+                        multiple = false,
+                    )
+                }
             }
-            DIALOG_CONNECTION_ERROR -> {
-                // Connection error; allow user to retry or cancel
-                dialog
-                    .setIcon(R.drawable.symbol_sync_problem)
-                    .setPositiveButton(CommonString.retry) { _, _ ->
-                        syncAndDismissAllDialogFragments()
-                    }.setNegativeButton(CommonString.dialog_cancel) { _, _ ->
-                        activity?.dismissAllDialogFragments()
-                    }.create()
+
+            DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_LOCAL, DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_LOCAL,
+            DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_REMOTE, DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_REMOTE,
+            -> {
+                val keepsLocal =
+                    dialogType == DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_LOCAL || dialogType == DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_LOCAL
+                ConfirmationDialog(
+                    title,
+                    errorBody,
+                    confirm =
+                        DialogAction(
+                            getString(CommonString.paper_dialog_replace_collection),
+                            {
+                                syncAndDismissAllDialogFragments(
+                                    if (keepsLocal) ConflictResolution.FULL_UPLOAD else ConflictResolution.FULL_DOWNLOAD,
+                                )
+                            },
+                            DialogActionStyle.Destructive,
+                        ),
+                    onDismissRequest = ::dismiss,
+                )
             }
-            DIALOG_SYNC_CONFLICT_RESOLUTION -> {
-                // Sync conflict; allow user to cancel, or choose between local and remote versions
-                dialog
-                    .titleWithHelpIcon(
-                        text = getString(CommonString.sync_conflict_title_new),
-                        startIcon = R.drawable.symbol_sync_problem,
-                    ) {
-                        requireContext().openUrl(getString(R.string.link_sync_conflict_help))
-                    }.setPositiveButton(CommonString.sync_conflict_keep_local_new) { _, _ ->
-                        requireSyncErrorDialogListener().showSyncErrorDialog(DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_LOCAL)
-                    }.setNegativeButton(CommonString.sync_conflict_keep_remote_new) { _, _ ->
-                        requireSyncErrorDialogListener().showSyncErrorDialog(DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_REMOTE)
-                    }.setNeutralButton(CommonString.dialog_cancel) { _, _ ->
-                        activity?.dismissAllDialogFragments()
-                    }.create()
+
+            DIALOG_MEDIA_SYNC_ERROR, DIALOG_SYNC_BASIC_CHECK_ERROR, DIALOG_COLLECTION_TOO_LARGE -> {
+                val media = dialogType == DIALOG_MEDIA_SYNC_ERROR
+                ErrorDialog(
+                    title,
+                    errorBody,
+                    onDismissRequest = ::dismiss,
+                    primaryAction =
+                        DialogAction(if (media) TR.sentenceCase.checkMediaAction else TR.sentenceCase.checkDatabase, {
+                            if (media) listener.mediaCheck() else listener.integrityCheck()
+                            activity?.dismissAllDialogFragments()
+                        }),
+                    dismissText = cancel,
+                    markIcon = icon,
+                )
             }
-            DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_LOCAL -> {
-                // Confirmation before pushing local collection to server after sync conflict
-                dialog
-                    .setIcon(R.drawable.symbol_sync_problem)
-                    .setPositiveButton(CommonString.dialog_positive_replace) { _, _ ->
-                        syncAndDismissAllDialogFragments(ConflictResolution.FULL_UPLOAD)
-                    }.setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
-                    .create()
-            }
-            DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_REMOTE -> {
-                // Confirmation before overwriting local collection with server collection after sync conflict
-                dialog
-                    .setIcon(R.drawable.symbol_sync_problem)
-                    .setPositiveButton(CommonString.dialog_positive_replace) { _, _ ->
-                        syncAndDismissAllDialogFragments(ConflictResolution.FULL_DOWNLOAD)
-                    }.setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
-                    .create()
-            }
-            DIALOG_SYNC_SANITY_ERROR -> {
-                // Sync sanity check error; allow user to cancel, or choose between local and remote versions
-                dialog
-                    .setPositiveButton(CommonString.sync_sanity_local) { _, _ ->
-                        requireSyncErrorDialogListener().showSyncErrorDialog(DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_LOCAL)
-                    }.setNeutralButton(CommonString.sync_sanity_remote) { _, _ ->
-                        requireSyncErrorDialogListener().showSyncErrorDialog(DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_REMOTE)
-                    }.setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
-                    .create()
-            }
-            DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_LOCAL -> {
-                // Confirmation before pushing local collection to server after sanity check error
-                dialog
-                    .setPositiveButton(CommonString.dialog_positive_replace) { _, _ ->
-                        syncAndDismissAllDialogFragments(ConflictResolution.FULL_UPLOAD)
-                    }.setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
-                    .create()
-            }
-            DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_REMOTE -> {
-                // Confirmation before overwriting local collection with server collection after sanity check error
-                dialog
-                    .setPositiveButton(CommonString.dialog_positive_replace) { _, _ ->
-                        syncAndDismissAllDialogFragments(ConflictResolution.FULL_DOWNLOAD)
-                    }.setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
-                    .create()
-            }
-            DIALOG_MEDIA_SYNC_ERROR -> {
-                dialog
-                    .setPositiveButton(TR.sentenceCase.checkMediaAction) { _, _ ->
-                        requireSyncErrorDialogListener().mediaCheck()
-                        activity?.dismissAllDialogFragments()
-                    }.setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
-                    .create()
-            }
-            DIALOG_SYNC_CORRUPT_COLLECTION -> {
-                isCancelable = false
-                dialog
-                    .setPositiveButton(CommonString.dialog_ok) { _, _ -> }
-                    .setNegativeButton(CommonString.help) { _, _ ->
-                        requireContext().openUrl(R.string.repair_deck)
-                    }.create()
-            }
-            DIALOG_SYNC_BASIC_CHECK_ERROR -> {
-                dialog
-                    .setPositiveButton(TR.sentenceCase.checkDatabase) { _, _ ->
-                        requireSyncErrorDialogListener().integrityCheck()
-                        activity?.dismissAllDialogFragments()
-                    }.setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
-                    .create()
-            }
-            DIALOG_SYNC_CLOCK_OFF -> {
-                dialog
-                    .setPositiveButton(CommonString.open_settings, null)
-                    .setNegativeButton(CommonString.dialog_cancel, null)
-                    .create()
-                    .apply {
-                        // Override the default handler so the dialog remains open if no date-settings activity exists.
-                        setOnShowListener {
-                            positiveButton.setOnClickListener {
-                                try {
-                                    startActivity(Intent(Settings.ACTION_DATE_SETTINGS))
-                                    this@SyncErrorDialog.dismiss()
-                                } catch (e: ActivityNotFoundException) {
-                                    Timber.w(e, "No app can show date and time settings")
-                                }
+
+            DIALOG_SYNC_CORRUPT_COLLECTION ->
+                ErrorDialog(
+                    title,
+                    getString(CommonString.sync_corrupt_database, getString(R.string.repair_deck)),
+                    details = requireArguments().getString(ARG_DIALOG_MESSAGE),
+                    onDismissRequest = {
+                        listenerActivity.openUrl(R.string.repair_deck)
+                        dismiss()
+                    },
+                    primaryAction = DialogAction(getString(CommonString.dialog_ok), ::dismiss),
+                    dismissText = getString(CommonString.help),
+                    markIcon = icon,
+                )
+
+            DIALOG_SYNC_CLOCK_OFF ->
+                ErrorDialog(
+                    title,
+                    errorBody,
+                    onDismissRequest = ::dismiss,
+                    primaryAction =
+                        DialogAction(getString(CommonString.open_settings), {
+                            try {
+                                startActivity(Intent(Settings.ACTION_DATE_SETTINGS))
+                                dismiss()
+                            } catch (e: ActivityNotFoundException) {
+                                Timber.w(e, "No app can show date and time settings")
                             }
-                        }
-                        setupEnterKeyHandler()
-                    }
-            }
-            DIALOG_COLLECTION_TOO_LARGE -> {
-                dialog
-                    .setPositiveButton(TR.sentenceCase.checkDatabase) { _, _ ->
-                        requireSyncErrorDialogListener().integrityCheck()
-                        activity?.dismissAllDialogFragments()
-                    }.setNegativeButton(CommonString.dialog_cancel) { _, _ -> }
-                    .create()
-            }
+                        }),
+                    dismissText = cancel,
+                    markIcon = icon,
+                )
         }
     }
 

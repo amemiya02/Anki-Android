@@ -6,13 +6,12 @@ package com.ichi2.anki
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.database.sqlite.SQLiteDatabaseCorruptException
 import android.net.Uri
 import android.text.format.Formatter
 import android.view.WindowManager.BadTokenException
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -46,12 +45,13 @@ import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.startup.redirectToMainEntryPoint
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.openUrl
-import com.ichi2.utils.create
-import com.ichi2.utils.message
-import com.ichi2.utils.neutralButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.setupEnterKeyHandler
-import com.ichi2.utils.title
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogBody
+import com.ichi2.compose.ui.dialogs.DialogMark
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.ProgressDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
@@ -82,7 +82,6 @@ import kotlin.coroutines.resume
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import com.ichi2.anki.common.android.R as CommonR
 
 /** Overridable reference to [Dispatchers.IO]. Useful if tests can't use it */
 // COULD_BE_BETTER: this shouldn't be necessary, but TestClass::runWith needs it
@@ -353,7 +352,7 @@ private fun Context.showErrorDialog(
     message: CharSequence,
     crashReportData: CrashReportData?,
     onDismiss: (() -> Unit)?,
-): AlertDialog? {
+): Dialog? {
     crashReportData.throwIfDialogUnusable(message.toString())
 
     Timber.i("Error dialog displayed")
@@ -361,31 +360,32 @@ private fun Context.showErrorDialog(
     val helpAction = crashReportData?.helpAction?.takeIf { it.canExecute(this) }
 
     try {
-        return AlertDialog
-            .Builder(this)
-            .create {
-                title(CommonString.vague_error)
-                message(text = message)
-                positiveButton(CommonString.dialog_ok)
-                helpAction?.let { neutralButton(text = it.buttonText(this@showErrorDialog)) }
-                val reportOnDismiss = crashReportData?.takeIf { it.reportableException }
-                if (reportOnDismiss != null) Timber.w("sending crash report on close")
-                setOnDismissListener {
-                    reportOnDismiss?.sendCrashReport()
-                    onDismiss?.invoke()
-                }
-            }.apply {
-                // setup the help link. Link is non-null if neutralButton exists.
-                setOnShowListener {
-                    neutralButton?.setOnClickListener {
-                        lifecycle.coroutineScope.launch {
-                            if (helpAction!!.execute(this@showErrorDialog)) dismiss()
-                        }
-                    }
-                }
-                setupEnterKeyHandler()
-                show()
+        val reportOnDismiss = crashReportData?.takeIf { it.reportableException }
+        if (reportOnDismiss != null) Timber.w("sending crash report on close")
+        return createPaperDialog(this) { dialog ->
+            PaperDialog(
+                title = getString(CommonString.vague_error),
+                onDismissRequest = dialog::dismiss,
+                mark = DialogMark(com.ichi2.anki.common.android.R.drawable.symbol_info, warning = true),
+                actions =
+                    listOfNotNull(
+                        helpAction?.let {
+                            DialogAction(it.buttonText(this@showErrorDialog), {
+                                dialog.lifecycle.coroutineScope.launch {
+                                    if (it.execute(this@showErrorDialog)) dialog.dismiss()
+                                }
+                            })
+                        },
+                        DialogAction(getString(CommonString.dialog_ok), dialog::dismiss, DialogActionStyle.Filled),
+                    ),
+            ) { DialogBody(message.toString()) }
+        }.apply {
+            setOnDismissListener {
+                reportOnDismiss?.sendCrashReport()
+                onDismiss?.invoke()
             }
+            show()
+        }
     } catch (ex: BadTokenException) {
         // issue 12718: activity provided by `context` was not running
         Timber.w(ex, "unable to display error dialog")
@@ -443,11 +443,20 @@ suspend fun <T> FragmentActivity.withProgress(
                 null
             },
         manualCancelButton = manualCancelButton,
-    ) { dialog ->
+    ) { publishProgress ->
         backend.withProgress(
             progressContext = progressContext,
             extractProgress = extractProgress,
-            updateUi = { updateDialog(dialog) },
+            updateUi = {
+                val amount = amount
+                publishProgress(
+                    ProgressPresentation(
+                        text,
+                        amount?.takeIf { it.max > 0 }?.let { it.current.toFloat() / it.max },
+                        amount?.let(formatAmount),
+                    ),
+                )
+            },
         ) {
             op()
         }
@@ -468,9 +477,8 @@ suspend fun <T> Activity.withProgress(
     withProgressDialog(
         context = this@withProgress,
         onCancel = null,
-    ) { dialog ->
-        @Suppress("Deprecation") // ProgressDialog deprecation
-        dialog.setMessage(message)
+    ) { publishProgress ->
+        publishProgress(ProgressPresentation(text = message))
         op()
     }
 
@@ -495,33 +503,52 @@ suspend fun <T> Fragment.withProgress(
 /** Used to avoid showing extra progress dialogs when one already shown. */
 private var progressDialogShown = false
 
-// TODO: #17551 add a lease-owned progress UI, with `CollectionLease.cancel` as its Cancel handler.
-//  Rethink `progressDialogShown` and `FLAG_NOT_TOUCHABLE`.
-@Suppress("Deprecation") // ProgressDialog deprecation
-suspend fun <T> withProgressDialog(
+private data class ProgressPresentation(
+    val text: String? = null,
+    val fraction: Float? = null,
+    val status: String? = null,
+)
+
+// TODO: #17551 add a lease-owned progress UI, with CollectionLease.cancel as its Cancel handler.
+private suspend fun <T> withProgressDialog(
     context: Activity,
     onCancel: (() -> Unit)?,
     delayDuration: Duration = 600.milliseconds,
     @StringRes manualCancelButton: Int? = null,
-    op: suspend (android.app.ProgressDialog) -> T,
+    op: suspend ((ProgressPresentation) -> Unit) -> T,
 ): T =
     coroutineScope {
+        val progress = mutableStateOf(ProgressPresentation())
+        val mayCancelWithBack = onCancel != null && manualCancelButton == null
         val dialog =
-            android.app.ProgressDialog(context, CommonR.style.AppCompatProgressDialogStyle).apply {
-                setCancelable(onCancel != null)
-                if (manualCancelButton != null) {
-                    setCancelable(false)
-                    setCanceledOnTouchOutside(false)
-                    setButton(DialogInterface.BUTTON_NEGATIVE, context.getString(manualCancelButton)) { _, _ ->
-                        Timber.i("Progress dialog cancelled via cancel button")
-                        onCancel?.let { it() }
-                    }
-                } else {
+            createPaperDialog(context) { window ->
+                val current = progress.value
+                val cancel =
                     onCancel?.let {
-                        setOnCancelListener {
-                            Timber.i("Progress dialog cancelled via cancel listener")
-                            it()
+                        {
+                            Timber.i("Progress dialog cancelled via button")
+                            if (mayCancelWithBack) {
+                                window.cancel()
+                            } else {
+                                it()
+                                window.dismiss()
+                            }
                         }
+                    }
+                ProgressDialog(
+                    title = current.text ?: context.getString(CommonString.dialog_processing),
+                    progress = current.fraction,
+                    status = current.status,
+                    onCancel = cancel,
+                    cancelText = context.getString(manualCancelButton ?: CommonString.dialog_cancel),
+                )
+            }.apply {
+                setCanceledOnTouchOutside(mayCancelWithBack)
+                setCancelable(mayCancelWithBack)
+                if (mayCancelWithBack) {
+                    setOnCancelListener {
+                        Timber.i("Progress dialog cancelled via back or outside")
+                        onCancel?.invoke()
                     }
                 }
             }
@@ -554,7 +581,7 @@ suspend fun <T> withProgressDialog(
                 }
             }
         try {
-            op(dialog)
+            op { progress.value = it }
         } finally {
             dialogJob.cancel()
             dismissDialogIfShowing(dialog)
@@ -614,16 +641,6 @@ data class ProgressContext(
     /** Separator between [text] and [amount] */
     val separator: String = " ",
 ) {
-    @Suppress("Deprecation") // ProgressDialog deprecation
-    fun updateDialog(dialog: android.app.ProgressDialog) {
-        val message =
-            listOfNotNull(
-                text,
-                amount?.let { formatAmount(it) },
-            ).joinToString(separator)
-        dialog.setMessage(message)
-    }
-
     companion object {
         /**
          * A [com.ichi2.anki.ProgressContext] which formats progress as bytes:

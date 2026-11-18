@@ -11,7 +11,6 @@ import android.webkit.WebView
 import androidx.annotation.MainThread
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.webkit.WebViewCompat
 import com.ichi2.anki.CommonString
@@ -19,6 +18,9 @@ import com.ichi2.anki.R
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.pages.PostRequestBridge
 import com.ichi2.anki.utils.openUrl
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.ErrorDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -190,12 +192,20 @@ private fun showOutdatedWebViewDialog(
     @StringRes learnMoreUrl: Int,
     onDismiss: () -> Unit = {},
 ) {
-    AlertDialog.Builder(context).show {
-        setMessage(message)
-        setPositiveButton(CommonString.scoped_storage_learn_more) { _, _ ->
-            context.openUrl(learnMoreUrl)
-        }
+    createPaperDialog(context) { dialog ->
+        ErrorDialog(
+            title = context.getString(CommonString.ankidroid_init_failed_webview_title),
+            message = message,
+            onDismissRequest = dialog::dismiss,
+            primaryAction =
+                DialogAction(context.getString(CommonString.scoped_storage_learn_more), {
+                    context.openUrl(learnMoreUrl)
+                    dialog.dismiss()
+                }),
+        )
+    }.apply {
         setOnDismissListener { onDismiss() }
+        show()
     }
 }
 

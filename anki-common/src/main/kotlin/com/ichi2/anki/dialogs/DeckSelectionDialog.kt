@@ -15,6 +15,30 @@ import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.dp
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -47,6 +71,9 @@ import com.ichi2.anki.utils.ext.getParcelableCompat
 import com.ichi2.anki.utils.ext.requireLongArray
 import com.ichi2.anki.utils.ext.setFragmentResultListener
 import com.ichi2.anki.withProgress
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.ui.AccessibleSearchView
 import com.ichi2.utils.TypedFilter
 import com.ichi2.utils.create
@@ -82,8 +109,12 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
     private val allowMultipleSelection: Boolean
         get() = requireArguments().getBoolean(ARG_ALLOW_MULTIPLE_SELECTION, false)
 
+    private val usePaperDialog: Boolean
+        get() = requireArguments().getBoolean(ARG_USE_PAPER_DIALOG)
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         isCancelable = true
+        if (usePaperDialog) return createPaperDialog(requireContext()) { DeckSelectionContent() }
         binding = DialogDeckPickerBinding.inflate(LayoutInflater.from(context))
         binding.templateEditorMessage.isVisible = templateEditorMessage != null
         binding.templateEditorMessage.text = templateEditorMessage
@@ -102,6 +133,104 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
                 positiveButton(CommonString.restore_default) {
                     onDeckSelected(null)
                 }
+            }
+        }
+    }
+
+    @Composable
+    private fun DeckSelectionContent() {
+        val root by produceState<DeckNode?>(null) { value = withCol { sched.deckDueTree() } }
+        var query by rememberSaveable { mutableStateOf("") }
+        var toggled by rememberSaveable { mutableStateOf(longArrayOf()) }
+        val filters = DeckFilters.create(query)
+        val allowed = getDeckIds().toSet()
+        PaperDialog(
+            title = title,
+            onDismissRequest = ::dismiss,
+            actions =
+                listOf(
+                    DialogAction(getString(CommonString.dialog_cancel), ::dismiss),
+                    DialogAction(TR.sentenceCase.createDeck, ::showDeckDialog),
+                ),
+        ) {
+            OutlinedTextField(
+                query,
+                { query = it },
+                label = { Text(getString(CommonString.deck_picker_dialog_filter_decks)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            LazyColumn(Modifier.heightIn(max = 380.dp)) {
+                if (ALL_DECKS_ID in allowed && filters.accept(TR.sentenceCase.allDecks)) {
+                    item {
+                        PaperDeckRow(SelectableDeck.AllDecks, name = TR.sentenceCase.allDecks, depth = 0)
+                    }
+                }
+                val visible =
+                    root
+                        ?.let { tree ->
+                            allowed.mapNotNull(tree::find).filter { node ->
+                                filters.accept(node.fullDeckName) &&
+                                    (
+                                        filters.isActive() ||
+                                            generateSequence(node.parent?.get()) { it.parent?.get() }.none { parent ->
+                                                parent.collapsed xor (parent.did in toggled)
+                                            }
+                                    )
+                            }
+                        }.orEmpty()
+                items(visible, key = { it.did }) { node ->
+                    val deck = SelectableDeck.Deck(node.did, node.fullDeckName)
+                    val collapsed = node.collapsed xor (node.did in toggled)
+                    PaperDeckRow(
+                        deck,
+                        name = if (filters.isActive()) node.fullDeckName else deck.getDisplayName(requireContext()),
+                        depth = if (filters.isActive()) 0 else node.depth,
+                        collapsed = collapsed.takeIf { node.children.isNotEmpty() && !filters.isActive() },
+                        onToggle = {
+                            toggled = if (node.did in toggled) toggled.filterNot { it == node.did }.toLongArray() else toggled + node.did
+                        },
+                    )
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun PaperDeckRow(
+        deck: SelectableDeck,
+        name: String,
+        depth: Int,
+        collapsed: Boolean? = null,
+        onToggle: () -> Unit = {},
+    ) {
+        Row(
+            Modifier.fillMaxWidth().padding(start = (depth.coerceIn(0, 4) * 12).dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (collapsed != null) {
+                IconButton(onClick = onToggle) {
+                    Icon(
+                        painterResource(if (collapsed) CommonR.drawable.symbol_chevron_right else CommonR.drawable.symbol_expand_more),
+                        getString(if (collapsed) CommonString.expand else CommonString.collapse),
+                    )
+                }
+            } else {
+                Box(Modifier.width(48.dp))
+            }
+            Box(
+                Modifier
+                    .weight(1f)
+                    .heightIn(min = 52.dp)
+                    .combinedClickable(
+                        role = Role.RadioButton,
+                        onClick = { selectDeckAndClose(deck) },
+                        onLongClick = if (deck is SelectableDeck.Deck) ({ showSubDeckDialog(deck) }) else null,
+                        onLongClickLabel = getString(CommonString.create_subdeck),
+                    ),
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                Text(name)
             }
         }
     }
@@ -158,7 +287,7 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
                 parentId = parentDeck.deckId,
             )
         createDeckDialog.onNewDeckCreated = { did: DeckId -> onNewDeckCreated(did) }
-        createDeckDialog.showDialog()
+        if (usePaperDialog) createDeckDialog.showComposeDialog() else createDeckDialog.showDialog()
     }
 
     private fun showDeckDialog() {
@@ -170,7 +299,7 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
                 parentId = null,
             )
         createDeckDialog.onNewDeckCreated = { did: DeckId -> onNewDeckCreated(did) }
-        createDeckDialog.showDialog()
+        if (usePaperDialog) createDeckDialog.showComposeDialog() else createDeckDialog.showDialog()
     }
 
     /** Updates the list and simulates a click on the newly created deck */
@@ -429,6 +558,7 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
         private const val ARG_TEMPLATE_EDITOR_MESSAGE = "arg_template_editor_message"
         private const val ARG_DECK_IDS = "arg_deck_ids"
         private const val ARG_ALLOW_MULTIPLE_SELECTION = "arg_allow_multiple_selection"
+        private const val ARG_USE_PAPER_DIALOG = "arg_use_paper_dialog"
 
         /** Creates a new instance of [DeckSelectionDialog]. */
         fun newInstance(
@@ -440,6 +570,7 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
             allowAll: Boolean = true,
             allowFiltered: Boolean = true,
             skipEmptyDefault: Boolean = false,
+            usePaperDialog: Boolean = false,
         ): DeckSelectionDialog =
             DeckSelectionDialog().apply {
                 arguments =
@@ -449,6 +580,7 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
                         putLongArray(ARG_DECK_IDS, decks.map { (it as? SelectableDeck.Deck)?.deckId ?: ALL_DECKS_ID }.toLongArray())
                         putString(ARG_REQUEST_KEY, requestKey)
                         putBoolean(ARG_ALLOW_MULTIPLE_SELECTION, allowMultipleSelection)
+                        putBoolean(ARG_USE_PAPER_DIALOG, usePaperDialog)
                         putBoolean(ARG_ALLOW_ALL, allowAll)
                         putBoolean(ARG_ALLOW_FILTERED, allowFiltered)
                         putBoolean(ARG_SKIP_EMPTY_DEFAULT, skipEmptyDefault)
@@ -524,6 +656,7 @@ fun Fragment.startDeckSelection(
     allowAll: Boolean = true,
     allowFiltered: Boolean = true,
     skipEmptyDefault: Boolean = false,
+    usePaperDialog: Boolean = false,
 ): Job =
     launchCatchingTask {
         val decks =
@@ -549,6 +682,7 @@ fun Fragment.startDeckSelection(
                 allowAll = allowAll,
                 allowFiltered = allowFiltered,
                 skipEmptyDefault = skipEmptyDefault,
+                usePaperDialog = usePaperDialog,
             )
         val targetManager = if (asChild) childFragmentManager else parentFragmentManager
         if (!targetManager.isStateSaved) {

@@ -3,16 +3,24 @@
 
 package com.ichi2.anki.dialogs
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.KeyEvent
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.fragment.app.DialogFragment
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.common.android.AdaptionUtil
 import com.ichi2.anki.utils.openUrl
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 
 /**
  * A reusable, non-dismissible dialog that prompts the user to upgrade the scheduler.
@@ -24,44 +32,37 @@ import com.ichi2.anki.utils.openUrl
  */
 
 class SchedulerUpgradeDialog : DialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog {
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         isCancelable = false
-        return MaterialAlertDialogBuilder(requireContext())
-            .setTitle(CommonString.scheduler_upgrade_required_dialog_title)
-            .setMessage(TR.schedulingUpdateRequired())
-            .setPositiveButton(CommonString.dialog_ok, null)
-            .setNegativeButton(CommonString.dialog_cancel, null)
-            .apply {
+        return createPaperDialog(requireContext()) {
+            var submitting by remember { mutableStateOf(false) }
+            ConfirmationDialog(
+                title = getString(CommonString.scheduler_upgrade_required_dialog_title),
+                message = TR.schedulingUpdateRequired(),
+                confirm =
+                    DialogAction(getString(CommonString.dialog_ok), {
+                        if (!submitting) {
+                            submitting = true
+                            reportDecision(upgrade = true)
+                        }
+                    }, enabled = !submitting),
+                onDismissRequest = { reportDecision(upgrade = false) },
+            ) {
                 if (AdaptionUtil.hasWebBrowser(requireActivity())) {
-                    setNeutralButton(TR.schedulingUpdateMoreInfoButton(), null)
+                    TextButton(onClick = { requireActivity().openUrl(R.string.link_scheduler_upgrade_faq) }) {
+                        Text(TR.schedulingUpdateMoreInfoButton())
+                    }
                 }
-            }.create()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        val dialog = requireDialog() as AlertDialog
-        dialog.setCanceledOnTouchOutside(false)
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setOnClickListener {
-            it.isEnabled = false // prevent multiple taps
-            reportDecision(upgrade = true)
-        }
-
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setOnClickListener {
-            reportDecision(upgrade = false)
-        }
-
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL)?.setOnClickListener {
-            requireActivity().openUrl(R.string.link_scheduler_upgrade_faq)
-        }
-
-        dialog.setOnKeyListener { _, keyCode, event ->
-            if (keyCode != KeyEvent.KEYCODE_BACK || event.action != KeyEvent.ACTION_UP) {
-                return@setOnKeyListener false
             }
-
-            reportDecision(upgrade = false)
-            true
+        }.apply {
+            setCanceledOnTouchOutside(false)
+            setOnKeyListener { _, keyCode, event ->
+                if (keyCode != KeyEvent.KEYCODE_BACK || event.action != KeyEvent.ACTION_UP) {
+                    return@setOnKeyListener false
+                }
+                reportDecision(upgrade = false)
+                true
+            }
         }
     }
 

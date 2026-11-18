@@ -3,24 +3,24 @@
 
 package com.ichi2.anki.dialogs
 
+import android.app.Dialog
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.analytics.AnalyticsDialogFragment
-import com.ichi2.utils.cancelable
-import com.ichi2.utils.create
-import com.ichi2.utils.message
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.title
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.ErrorDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 
 class DeckPickerNoSpaceLeftDialog : AnalyticsDialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?) =
-        AlertDialog.Builder(requireActivity()).create {
-            title(CommonString.storage_full_title)
-            message(CommonString.backup_deck_no_storage_left)
-            cancelable(true)
-            positiveButton(CommonString.dialog_ok) {}
-            setOnCancelListener {}
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+        createPaperDialog(requireContext()) {
+            ErrorDialog(
+                title = getString(CommonString.storage_full_title),
+                message = getString(CommonString.backup_deck_no_storage_left),
+                onDismissRequest = ::dismiss,
+                dismissText = null,
+                primaryAction = DialogAction(getString(CommonString.dialog_ok), ::dismiss),
+            )
         }
 
     companion object {

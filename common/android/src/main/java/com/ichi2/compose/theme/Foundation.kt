@@ -63,6 +63,7 @@ data class Foundation(
 data class FoundationType(
     val screenTitle: TextStyle,
     val pageTitle: TextStyle,
+    val dialogTitle: TextStyle,
     val deckName: TextStyle,
     val deckNameNested: TextStyle,
     val summary: TextStyle,
@@ -83,6 +84,7 @@ data class FoundationType(
             listOf(
                 screenTitle,
                 pageTitle,
+                dialogTitle,
                 deckName,
                 deckNameNested,
                 summary,
@@ -136,6 +138,7 @@ data class FoundationColors(
 data class FoundationShapes(
     val cardSheet: CornerBasedShape,
     val button: CornerBasedShape,
+    val dialog: CornerBasedShape,
     val addButton: CornerBasedShape,
     val iconButton: CornerBasedShape,
     val hairline: Dp,
@@ -158,6 +161,7 @@ data class FoundationSpacing(
     val addButton: Dp,
     val bottomBar: Dp,
     val listRow: Dp,
+    val settingsRow: Dp,
     val secondaryButton: Dp,
     val pageMark: Dp,
     val emptyMark: Dp,
@@ -223,6 +227,7 @@ fun Context.toFoundation(): Foundation {
             FoundationShapes(
                 cardSheet = RoundedCornerShape(dp(R.dimen.foundation_shape_card_sheet)),
                 button = RoundedCornerShape(dp(R.dimen.foundation_shape_button)),
+                dialog = RoundedCornerShape(dp(R.dimen.foundation_shape_dialog)),
                 addButton = RoundedCornerShape(dp(R.dimen.foundation_shape_add_button)),
                 iconButton = CircleShape,
                 hairline = dp(R.dimen.foundation_shape_hairline),
@@ -252,6 +257,7 @@ fun Context.toFoundation(): Foundation {
                 addButton = dp(R.dimen.foundation_spacing_add_button),
                 bottomBar = dp(R.dimen.foundation_spacing_bottom_bar),
                 listRow = dp(R.dimen.foundation_spacing_list_row),
+                settingsRow = dp(R.dimen.foundation_spacing_settings_row),
                 secondaryButton = dp(R.dimen.foundation_spacing_secondary_button),
                 pageMark = dp(R.dimen.foundation_spacing_page_mark),
                 emptyMark = dp(R.dimen.foundation_spacing_empty_mark),
@@ -269,6 +275,7 @@ fun Context.toFoundation(): Foundation {
             FoundationType(
                 screenTitle = textStyle(R.style.TextAppearance_Foundation_ScreenTitle),
                 pageTitle = textStyle(R.style.TextAppearance_Foundation_PageTitle),
+                dialogTitle = textStyle(R.style.TextAppearance_Foundation_DialogTitle),
                 deckName = textStyle(R.style.TextAppearance_Foundation_DeckName),
                 deckNameNested = textStyle(R.style.TextAppearance_Foundation_DeckNameNested),
                 summary = textStyle(R.style.TextAppearance_Foundation_Summary),

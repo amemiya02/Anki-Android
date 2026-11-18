@@ -11,7 +11,6 @@ import android.os.Parcelable
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
-import androidx.appcompat.app.AlertDialog
 import androidx.core.os.BundleCompat
 import androidx.fragment.app.DialogFragment
 import com.ichi2.anki.CollectionManager.TR
@@ -21,29 +20,35 @@ import com.ichi2.anki.common.analytics.AnalyticsEvent.LinkClicked
 import com.ichi2.anki.common.analytics.LinkAction
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.MimeTypeUtils
-import com.ichi2.utils.title
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import kotlinx.parcelize.Parcelize
 import timber.log.Timber
 
 class ImportFileSelectionFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val entries = buildImportEntries()
-        return AlertDialog
-            .Builder(requireActivity())
-            .title(text = TR.actionsImport())
-            .setItems(
-                entries.map { requireActivity().getString(it.titleRes) }.toTypedArray(),
-            ) { _, position ->
-                val entry = entries[position]
-                Analytics.send(LinkClicked(entry.analyticsId))
-                openImportFilePicker(
-                    activity = requireActivity(),
-                    fileType = entry.type,
-                    multiple = entry.multiple,
-                    mimeType = entry.mimeType,
-                    extraMimes = entry.extraMimes,
-                )
-            }.create()
+        return createPaperDialog(requireContext()) {
+            SingleChoiceDialog(
+                title = TR.actionsImport(),
+                choices = entries.map { DialogChoice(getString(it.titleRes)) },
+                selectedIndex = null,
+                onSelect = { position ->
+                    val entry = entries[position]
+                    Analytics.send(LinkClicked(entry.analyticsId))
+                    openImportFilePicker(
+                        activity = requireActivity(),
+                        fileType = entry.type,
+                        multiple = entry.multiple,
+                        mimeType = entry.mimeType,
+                        extraMimes = entry.extraMimes,
+                    )
+                    dismiss()
+                },
+                onDismissRequest = ::dismiss,
+            )
+        }
     }
 
     private fun buildImportEntries(): List<ImportEntry> {

@@ -8,9 +8,25 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import androidx.activity.compose.BackHandler
 import androidx.annotation.IdRes
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.core.text.HtmlCompat
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
@@ -50,6 +66,14 @@ import com.ichi2.anki.ui.BasicItemSelectedListener
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.getLongOrNull
 import com.ichi2.anki.utils.ext.requireParcelable
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.DialogChoiceRow
+import com.ichi2.compose.ui.dialogs.DialogDetail
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.utils.negativeButton
 import com.ichi2.utils.positiveButton
 import kotlinx.coroutines.Job
@@ -67,7 +91,7 @@ class ExportDialogFragment : AnalyticsDialogFragment() {
     internal lateinit var binding: DialogExportOptionsBinding
         private set
 
-    private var selectedDeck: SelectableDeck? = null
+    private var selectedDeck by mutableStateOf<SelectableDeck?>(null)
 
     private var deckSelection: Job? = null
 
@@ -82,6 +106,7 @@ class ExportDialogFragment : AnalyticsDialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        if (arguments?.getBoolean(ARG_USE_PAPER) == true) return createDeckListDialog(savedInstanceState)
         binding = DialogExportOptionsBinding.inflate(requireActivity().layoutInflater, null, false)
         binding.apply {
             initializeCommonUi()
@@ -115,11 +140,156 @@ class ExportDialogFragment : AnalyticsDialogFragment() {
                 if (selectedIndex != 0 && !binding.deckSelector.isEnabled) return@positiveButton
                 when (ExportConfiguration.from(selectedIndex)) {
                     ExportConfiguration.Collection -> handleCollectionExport()
-                    ExportConfiguration.Apkg -> withExportLimit(::handleAnkiPackageExport)
-                    ExportConfiguration.Notes -> withExportLimit(::handleNotesInPlainTextExport)
-                    ExportConfiguration.Cards -> withExportLimit(::handleCardsInPlainTextExport)
+                    ExportConfiguration.Apkg -> withExportLimit { handleAnkiPackageExport(it) }
+                    ExportConfiguration.Notes -> withExportLimit { handleNotesInPlainTextExport(it) }
+                    ExportConfiguration.Cards -> withExportLimit { handleCardsInPlainTextExport(it) }
                 }
             }.create()
+    }
+
+    private fun createDeckListDialog(savedInstanceState: Bundle?): Dialog {
+        val requestedDeck = arguments?.getLongOrNull(ARG_DECK_ID)
+        val initialFormat = if (requestedDeck == null) ExportConfiguration.Collection else ExportConfiguration.Apkg
+        registerChildDeckSelectedHandler(REQUEST_EXPORT_DECK) { deck -> if (deck != null) selectedDeck = deck }
+        lifecycleScope.launch {
+            val deckId = savedInstanceState?.getLongOrNull(STATE_SELECTED_DECK_ID) ?: requestedDeck
+            selectedDeck =
+                withCol { decks.get(deckId, default = false) }?.let { SelectableDeck.Deck(it.id, it.name) } ?: SelectableDeck.AllDecks
+        }
+        return createPaperDialog(requireContext()) { DeckListExportContent(initialFormat) }
+    }
+
+    @Composable
+    private fun DeckListExportContent(initialFormat: ExportConfiguration) {
+        var index by rememberSaveable { mutableIntStateOf(initialFormat.index) }
+        var choosingFormat by rememberSaveable { mutableStateOf(false) }
+        BackHandler(choosingFormat) { choosingFormat = false }
+        var selections by rememberSaveable { mutableStateOf(ExportConfiguration.entries.map { it.defaultSelection }.toIntArray()) }
+        val formats =
+            listOf(
+                "${TR.sentenceCase.ankiCollectionPackage} (.colpkg)",
+                "${TR.sentenceCase.ankiDeckPackage} (.apkg)",
+                "${TR.sentenceCase.notesInPlainText} (.txt)",
+                "${TR.sentenceCase.cardsInPlainText} (.txt)",
+            )
+        val format = ExportConfiguration.from(index)
+        val exportType = HtmlCompat.fromHtml(TR.exportingExportFormat(), HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
+        val options = format.options
+        val selection = selections[index]
+        val deck = selectedDeck
+        val heading =
+            if (format == ExportConfiguration.Apkg &&
+                deck is SelectableDeck.Deck
+            ) {
+                getString(CommonString.export_deck)
+            } else {
+                TR.actionsExport()
+            }
+        if (choosingFormat) {
+            SingleChoiceDialog(
+                title = exportType,
+                choices = formats.map { DialogChoice(it) },
+                selectedIndex = index,
+                onSelect = {
+                    index = it
+                    choosingFormat = false
+                },
+                onDismissRequest = { choosingFormat = false },
+            )
+            return
+        }
+        PaperDialog(
+            title = heading,
+            onDismissRequest = ::dismiss,
+            actions =
+                listOf(
+                    DialogAction(getString(CommonString.dialog_cancel), ::dismiss),
+                    DialogAction(TR.actionsExport(), {
+                        when (format) {
+                            ExportConfiguration.Collection ->
+                                handleCollectionExport(
+                                    ExportOption.Media in selection,
+                                    ExportOption.Legacy in selection,
+                                )
+                            ExportConfiguration.Apkg ->
+                                withExportLimit {
+                                    handleAnkiPackageExport(
+                                        it,
+                                        ExportOption.Schedule in selection,
+                                        ExportOption.DeckConfigs in selection,
+                                        ExportOption.Media in selection,
+                                        ExportOption.Legacy in selection,
+                                    )
+                                }
+                            ExportConfiguration.Notes ->
+                                withExportLimit {
+                                    handleNotesInPlainTextExport(
+                                        it,
+                                        ExportOption.Html in selection,
+                                        ExportOption.Tags in selection,
+                                        ExportOption.Deck in selection,
+                                        ExportOption.Notetype in selection,
+                                        ExportOption.Guid in selection,
+                                    )
+                                }
+                            ExportConfiguration.Cards ->
+                                withExportLimit {
+                                    handleCardsInPlainTextExport(
+                                        it,
+                                        ExportOption.Html in selection,
+                                    )
+                                }
+                        }
+                        dismiss()
+                    }, DialogActionStyle.Filled, enabled = format == ExportConfiguration.Collection || deck != null),
+                ),
+        ) {
+            ExportSelector(exportType, formats[index]) { choosingFormat = true }
+            if (format != ExportConfiguration.Collection) {
+                val include = HtmlCompat.fromHtml(TR.exportingInclude(), HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
+                ExportSelector(
+                    include,
+                    deck?.getFullDisplayName(requireContext()).orEmpty(),
+                    enabled = deck != null,
+                    onClick = ::showDeckListSelection,
+                )
+            }
+            options.forEach { option ->
+                DialogChoiceRow(
+                    DialogChoice(option.label()),
+                    checked = option in selection,
+                    onClick = { selections = selections.copyOf().also { it[index] = selection xor option.bit } },
+                    multiple = true,
+                )
+            }
+            when (format) {
+                ExportConfiguration.Collection -> DialogDetail(getString(CommonString.export_collection_replaces))
+                ExportConfiguration.Apkg -> DialogDetail(getString(CommonString.export_deck_merges))
+                else -> Unit
+            }
+        }
+    }
+
+    private fun showDeckListSelection() {
+        childFragmentManager.executePendingTransactions()
+        if (deckSelection?.isActive == true || childFragmentManager.findFragmentByTag(DeckSelectionDialog.TAG) != null) return
+        deckSelection = startDeckSelection(asChild = true, requestKey = REQUEST_EXPORT_DECK, usePaperDialog = true)
+    }
+
+    @Composable
+    private fun ExportSelector(
+        label: String,
+        selection: String,
+        enabled: Boolean = true,
+        onClick: () -> Unit,
+    ) {
+        OutlinedButton(onClick = onClick, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+            Column(Modifier.weight(1f)) {
+                DialogDetail(label)
+                Text(selection)
+            }
+            Icon(painterResource(R.drawable.symbol_arrow_drop_down), null)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -262,9 +432,10 @@ class ExportDialogFragment : AnalyticsDialogFragment() {
         }
     }
 
-    private fun handleCollectionExport() {
-        val includeMedia = binding.collectionIncludeMedia.isChecked
-        val legacy = binding.collectionExportLegacy.isChecked
+    private fun handleCollectionExport(
+        includeMedia: Boolean = binding.collectionIncludeMedia.isChecked,
+        legacy: Boolean = binding.collectionExportLegacy.isChecked,
+    ) {
         val exportPath =
             File(
                 getExportRootFile(),
@@ -288,7 +459,13 @@ class ExportDialogFragment : AnalyticsDialogFragment() {
         export(exportLimit)
     }
 
-    private fun handleAnkiPackageExport(exportLimit: ExportLimit) {
+    private fun handleAnkiPackageExport(
+        exportLimit: ExportLimit,
+        includeSchedule: Boolean = binding.apkgIncludeSchedule.isChecked,
+        includeDeckConfigs: Boolean = binding.apkgIncludeDeckConfigs.isChecked,
+        includeMedia: Boolean = binding.apkgIncludeMedia.isChecked,
+        legacy: Boolean = binding.apkgExportLegacy.isChecked,
+    ) {
         val exportPath =
             File(
                 getExportRootFile(),
@@ -296,11 +473,11 @@ class ExportDialogFragment : AnalyticsDialogFragment() {
             ).path
         requireAnkiActivity().exportApkgPackage(
             exportPath = exportPath,
-            withScheduling = binding.apkgIncludeSchedule.isChecked,
-            withDeckConfigs = binding.apkgIncludeDeckConfigs.isChecked,
-            withMedia = binding.apkgIncludeMedia.isChecked,
+            withScheduling = includeSchedule,
+            withDeckConfigs = includeDeckConfigs,
+            withMedia = includeMedia,
             limit = exportLimit,
-            legacy = binding.apkgExportLegacy.isChecked,
+            legacy = legacy,
         )
     }
 
@@ -321,7 +498,14 @@ class ExportDialogFragment : AnalyticsDialogFragment() {
         return filename.value
     }
 
-    private fun handleNotesInPlainTextExport(exportLimit: ExportLimit) {
+    private fun handleNotesInPlainTextExport(
+        exportLimit: ExportLimit,
+        includeHtml: Boolean = binding.notesIncludeHtml.isChecked,
+        includeTags: Boolean = binding.notesIncludeTags.isChecked,
+        includeDeck: Boolean = binding.notesIncludeDeckName.isChecked,
+        includeNotetype: Boolean = binding.notesIncludeNotetypeName.isChecked,
+        includeGuid: Boolean = binding.notesIncludeUniqueIdentifier.isChecked,
+    ) {
         val exportPath =
             File(
                 getExportRootFile(),
@@ -329,16 +513,19 @@ class ExportDialogFragment : AnalyticsDialogFragment() {
             ).path
         requireAnkiActivity().exportSelectedNotes(
             exportPath = exportPath,
-            withHtml = binding.notesIncludeHtml.isChecked,
-            withTags = binding.notesIncludeTags.isChecked,
-            withDeck = binding.notesIncludeDeckName.isChecked,
-            withNotetype = binding.notesIncludeNotetypeName.isChecked,
-            withGuid = binding.notesIncludeUniqueIdentifier.isChecked,
+            withHtml = includeHtml,
+            withTags = includeTags,
+            withDeck = includeDeck,
+            withNotetype = includeNotetype,
+            withGuid = includeGuid,
             limit = exportLimit,
         )
     }
 
-    private fun handleCardsInPlainTextExport(exportLimit: ExportLimit) {
+    private fun handleCardsInPlainTextExport(
+        exportLimit: ExportLimit,
+        includeHtml: Boolean = binding.cardsIncludeHtml.isChecked,
+    ) {
         val exportPath =
             File(
                 getExportRootFile(),
@@ -346,7 +533,7 @@ class ExportDialogFragment : AnalyticsDialogFragment() {
             ).path
         requireAnkiActivity().exportSelectedCards(
             exportPath = exportPath,
-            withHtml = binding.cardsIncludeHtml.isChecked,
+            withHtml = includeHtml,
             limit = exportLimit,
         )
     }
@@ -401,17 +588,45 @@ class ExportDialogFragment : AnalyticsDialogFragment() {
     private enum class ExportConfiguration(
         val index: Int,
         @IdRes val layoutId: Int,
+        val options: List<ExportOption>,
     ) {
-        Collection(0, R.id.export_extras_collection),
-        Apkg(1, R.id.export_extras_apkg),
-        Notes(2, R.id.export_extras_notes),
-        Cards(3, R.id.export_extras_cards),
+        Collection(0, R.id.export_extras_collection, listOf(ExportOption.Media, ExportOption.Legacy)),
+        Apkg(1, R.id.export_extras_apkg, listOf(ExportOption.Schedule, ExportOption.DeckConfigs, ExportOption.Media, ExportOption.Legacy)),
+        Notes(
+            2,
+            R.id.export_extras_notes,
+            listOf(ExportOption.Html, ExportOption.Tags, ExportOption.Deck, ExportOption.Notetype, ExportOption.Guid),
+        ),
+        Cards(3, R.id.export_extras_cards, listOf(ExportOption.Html)),
         ;
+
+        val defaultSelection: Int
+            get() = options.filter { it.checkedByDefault }.sumOf { it.bit }
 
         companion object {
             fun from(index: Int) = entries.first { it.index == index }
         }
     }
+
+    private enum class ExportOption(
+        val checkedByDefault: Boolean,
+        val label: () -> String,
+    ) {
+        Media(true, { TR.exportingIncludeMedia() }),
+        Legacy(false, { TR.exportingSupportOlderAnkiVersions() }),
+        Schedule(true, { TR.exportingIncludeSchedulingInformation() }),
+        DeckConfigs(false, { TR.exportingIncludeDeckConfigs() }),
+        Html(true, { TR.exportingIncludeHtmlAndMediaReferences() }),
+        Tags(true, { TR.exportingIncludeTags() }),
+        Deck(false, { TR.exportingIncludeDeck() }),
+        Notetype(false, { TR.exportingIncludeNotetype() }),
+        Guid(false, { TR.exportingIncludeGuid() }),
+        ;
+
+        val bit get() = 1 shl ordinal
+    }
+
+    private operator fun Int.contains(option: ExportOption) = this and option.bit != 0
 
     /**
      * Identifier for the list of ids that can be passed to [ExportDialogFragment]. Currently either
@@ -424,10 +639,20 @@ class ExportDialogFragment : AnalyticsDialogFragment() {
 
     companion object {
         private const val ARG_DECK_ID = "arg_deck_id"
+        private const val ARG_USE_PAPER = "arg_use_paper"
         private const val ARG_TYPE = "arg_type"
         private const val ARG_IDS_FILE = "arg_ids_file"
         private const val REQUEST_EXPORT_DECK = "request_export_deck"
         private const val STATE_SELECTED_DECK_ID = "selected_deck_id"
+
+        fun forDeckList(deckId: DeckId? = null): ExportDialogFragment =
+            ExportDialogFragment().apply {
+                arguments =
+                    Bundle().apply {
+                        putBoolean(ARG_USE_PAPER, true)
+                        if (deckId != null) putLong(ARG_DECK_ID, deckId)
+                    }
+            }
 
         /**
          * Create a new instance of this dialog without any initial constraints(for example when

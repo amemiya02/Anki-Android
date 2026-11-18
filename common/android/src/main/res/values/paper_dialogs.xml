@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="paper_dialog_show_details">Show details</string>
+    <string name="paper_dialog_hide_details">Hide details</string>
+    <string name="paper_dialog_copy_details">Copy details</string>
+    <item type="id" name="paper_dialog_content" />
+    <string name="paper_dialog_replace_collection">Replace collection</string>
+    <string name="paper_dialog_create_deck">Create deck</string>
+    <string name="paper_dialog_deck_name">Deck name</string>
+</resources>

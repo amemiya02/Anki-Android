@@ -3,28 +3,34 @@
 
 package com.ichi2.anki.dialogs
 
+import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.R
 import com.ichi2.anki.utils.ext.dismissAllDialogFragments
-import com.ichi2.utils.create
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 
 class SimpleMessageDialog : AsyncDialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog {
-        super.onCreateDialog(savedInstanceState)
-        return AlertDialog.Builder(requireContext()).create {
-            setTitle(notificationTitle)
-            setMessage(notificationMessage)
-            setPositiveButton(CommonString.dialog_ok) { _, _ ->
-                activity?.dismissSimpleMessageDialog(requireArguments().getBoolean(ARG_RELOAD))
-            }
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+        createPaperDialog(requireContext()) {
+            ConfirmationDialog(
+                title = notificationTitle,
+                message = notificationMessage.orEmpty(),
+                confirm =
+                    DialogAction(getString(CommonString.dialog_ok), {
+                        activity?.dismissSimpleMessageDialog(requireArguments().getBoolean(ARG_RELOAD))
+                        dismiss()
+                    }),
+                onDismissRequest = ::dismiss,
+                dismissText = null,
+            )
         }
-    }
 
     /**
      * Handle closing simple message dialog
