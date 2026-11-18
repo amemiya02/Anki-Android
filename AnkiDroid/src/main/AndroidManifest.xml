@@ -119,6 +119,7 @@
         <activity
             android:name="com.ichi2.anki.IntentHandler"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:taskAffinity=""
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:exported="true"
             >
@@ -241,6 +242,7 @@
         <activity
             android:name="com.ichi2.anki.DeckPicker"
             android:theme="@style/Theme_Dark.Launcher"
+            android:launchMode="singleTask"
             android:exported="false"
             android:configChanges="keyboardHidden|orientation|screenSize"
             />
@@ -362,6 +364,7 @@
             android:name="com.ichi2.anki.IntentHandler2"
             android:label="@string/fact_adder_intent_title"
             android:theme="@style/Theme_Dark.Launcher"
+            android:taskAffinity=""
             android:exported="true"
             android:configChanges="keyboardHidden|orientation|screenSize"
             >

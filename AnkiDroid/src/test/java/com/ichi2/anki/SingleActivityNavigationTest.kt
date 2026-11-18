@@ -3,6 +3,7 @@
 package com.ichi2.anki
 
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.view.View
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
@@ -84,6 +85,29 @@ class SingleActivityNavigationTest : RobolectricTest() {
             (host.currentScreenFragment as NoteEditorPaneFragment).launchIntent.getStringExtra(Intent.EXTRA_TEXT),
         )
         assertNull(shadowOf(host).nextStartedActivity)
+    }
+
+    @Test
+    fun `a second share returns to the existing host and preserves its previous screen`() {
+        val controller = startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent())
+        val deckPicker = controller.get()
+        deckPicker.startActivity(MediaCheckFragment.getIntent(deckPicker))
+        advanceRobolectricLooperUntil { deckPicker.currentScreenFragment is MediaCheckFragment }
+
+        val shared = Intent(Intent.ACTION_SEND).putExtra(Intent.EXTRA_TEXT, "A second share")
+        val editor = Intent(targetContext, NoteEditorActivity::class.java).putExtras(shared).setAction(shared.action)
+        val incoming = DeckPicker.getEntryIntent(targetContext, editor, shared)
+        val host = deckPicker.packageManager.getActivityInfo(requireNotNull(incoming.component), 0)
+        // A share starts in the sending app's task. Android must find the same DeckPicker across tasks.
+        assertEquals(ActivityInfo.LAUNCH_SINGLE_TASK, host.launchMode)
+        controller.pause().newIntent(incoming).resume()
+        advanceRobolectricLooperUntil { deckPicker.currentScreenFragment is NoteEditorPaneFragment }
+
+        val noteEditor = deckPicker.currentScreenFragment as NoteEditorPaneFragment
+        assertEquals("A second share", noteEditor.launchIntent.getStringExtra(Intent.EXTRA_TEXT))
+        deckPicker.onBackPressedDispatcher.onBackPressed()
+        advanceRobolectricLooperUntil { deckPicker.currentScreenFragment is MediaCheckFragment }
+        assertNull(shadowOf(deckPicker).nextStartedActivity)
     }
 
     @Test

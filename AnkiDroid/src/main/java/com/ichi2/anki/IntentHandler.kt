@@ -113,7 +113,7 @@ class IntentHandler : AbstractIntentHandler() {
             LaunchType.OPEN_BROWSER -> runIfStoragePermissions { handleBrowserIntent(intent) }
             LaunchType.DEFAULT_START_APP_IF_NEW -> {
                 Timber.d("onCreate() performing default action")
-                launchDeckPickerIfNoOtherTasks(reloadIntent)
+                showDeckPicker(reloadIntent)
             }
             LaunchType.COPY_DEBUG_INFO -> {
                 copyDebugInfoToClipboard(intent)
@@ -160,7 +160,7 @@ class IntentHandler : AbstractIntentHandler() {
         if (CollectionHelper.storageDecision(sharedPrefs()) != StorageDecision.Decided) {
             // checked before permissions: the permissions required depend on the chosen folder
             Timber.i("Storage is not configured, cancelling intent '%s'", action)
-            launchDeckPickerIfNoOtherTasks(reloadIntent)
+            showDeckPicker(reloadIntent)
             return
         }
         if (grantedStoragePermissions(this, showToast = true)) {
@@ -168,7 +168,7 @@ class IntentHandler : AbstractIntentHandler() {
             block()
         } else {
             Timber.i("No Storage Permission, cancelling intent '%s'", action)
-            launchDeckPickerIfNoOtherTasks(reloadIntent)
+            showDeckPicker(reloadIntent)
         }
     }
 
@@ -338,14 +338,12 @@ class IntentHandler : AbstractIntentHandler() {
         }
     }
 
-    private fun launchDeckPickerIfNoOtherTasks(reloadIntent: Intent) {
-        // Launcher intents should start DeckPicker if no other task exists,
-        // otherwise go to previous task
+    private fun showDeckPicker(reloadIntent: Intent) {
         Timber.i("Launching DeckPicker")
         reloadIntent.action = Intent.ACTION_MAIN
         reloadIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-        reloadIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivityIfNeeded(reloadIntent, 0)
+        reloadIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(reloadIntent)
         finish()
     }
 
