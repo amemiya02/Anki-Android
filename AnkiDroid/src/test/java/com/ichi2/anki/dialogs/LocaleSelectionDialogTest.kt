@@ -23,6 +23,6 @@ class LocaleSelectionDialogTest {
     @Test
     fun `locale without display name uses its language tag`() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        assertThat(Locale.ROOT.label(context).toString(), equalTo("Unknown language [und]"))
+        assertThat(Locale.ROOT.label(context), equalTo("Unknown language [und]"))
     }
 }
