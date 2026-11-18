@@ -83,10 +83,14 @@ internal fun PreferenceRow(
     preference: Preference,
     modifier: Modifier,
     highlighted: Boolean,
-    @Suppress("UNUSED_PARAMETER") revision: Int,
+    revision: Int,
 ) {
-    val title = preference.title?.toString() ?: return
-    val summary = preference.summary?.toString()
+    // Preference models mutate in place. Read a new snapshot whenever the model notifies us.
+    val (label, summary, enabled) =
+        remember(preference, revision) {
+            Triple(preference.title?.toString(), preference.summary?.toString(), preference.isEnabled)
+        }
+    val title = label ?: return
     val warningIcon =
         when (preference.key) {
             stringResource(R.string.pref_allow_dangerous_js_api),
@@ -98,10 +102,10 @@ internal fun PreferenceRow(
         is TwoStatePreference ->
             SettingsSwitchRow(
                 title = title,
-                checked = preference.isChecked,
+                checked = remember(preference, revision) { preference.isChecked },
                 onChange = { preference.performClick() },
                 summary = summary,
-                enabled = preference.isEnabled,
+                enabled = enabled,
                 modifier = modifier,
                 highlighted = highlighted,
                 icon = warningIcon,
@@ -111,18 +115,22 @@ internal fun PreferenceRow(
             SettingsRow(
                 title = title,
                 summary = summary,
-                enabled = preference.isEnabled,
+                enabled = enabled,
                 onClick = if (preference.isSelectable) preference::performClick else null,
                 modifier = modifier,
                 highlighted = highlighted,
                 trailing = {
                     if (preference is VersatileTextWithASwitchPreference) {
                         val colors = MaterialTheme.foundation.colors
-                        val canToggle = !preference.text.isNullOrEmpty()
+                        val (canToggle, checked) =
+                            remember(preference, revision) {
+                                val hasAddress = !preference.text.isNullOrEmpty()
+                                hasAddress to (hasAddress && preference.switchChecked)
+                            }
                         Switch(
-                            checked = canToggle && preference.switchChecked,
+                            checked = checked,
                             onCheckedChange = if (canToggle) { checked -> preference.switchChecked = checked } else null,
-                            enabled = preference.isEnabled,
+                            enabled = enabled,
                             modifier =
                                 Modifier.semantics {
                                     contentDescription = preference.title.toString()

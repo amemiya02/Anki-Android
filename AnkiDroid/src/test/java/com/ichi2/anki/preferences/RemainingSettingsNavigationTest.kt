@@ -40,11 +40,9 @@ class RemainingSettingsNavigationTest : RobolectricTest() {
         val intent = PreferencesActivity.getIntent(targetContext, GeneralSettingsFragment::class)
         val title = targetContext.getString(CommonString.card_browser_hide_media)
         ActivityScenario.launch<PreferencesActivity>(intent).use {
-            compose
-                .onNodeWithText(title)
-                .performScrollTo()
-                .assertIsOff()
-                .performClick()
+            val setting = compose.onNodeWithText(title)
+            setting.performScrollTo().assertIsOff().performClick()
+            setting.assertIsOn()
             assertTrue(Prefs.sharedPrefs.getBoolean(targetContext.getString(R.string.pref_display_filenames_in_browser_key), false))
         }
         ActivityScenario.launch<PreferencesActivity>(intent).use {
