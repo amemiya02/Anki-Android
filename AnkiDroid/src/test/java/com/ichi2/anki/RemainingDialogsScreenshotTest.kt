@@ -21,6 +21,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.robolectric.Robolectric
 
+@CheckAccessibility
 @IncludeLanguages(SIMPLIFIED_CHINESE, JAPANESE, ARABIC)
 @IncludeFontSizes(PERCENT_200)
 class RemainingDialogsScreenshotTest : ScreenshotTest() {
