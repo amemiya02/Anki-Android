@@ -165,6 +165,7 @@ class CardAnalysisWidgetConfig : BaseAnkiActivity(R.layout.activity_card_analysi
             title = getString(CommonString.select_deck_title),
             allowAll = false,
             skipEmptyDefault = true,
+            usePaperDialog = true,
         )
     }
 

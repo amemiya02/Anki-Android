@@ -8,14 +8,16 @@ import android.content.ComponentName
 import android.content.Intent
 import android.database.sqlite.SQLiteDatabaseCorruptException
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.core.content.edit
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -41,6 +43,7 @@ import com.ichi2.widget.cardanalysis.CardAnalysisWidgetConfig
 import com.ichi2.widget.cardanalysis.CardAnalysisWidgetPreferences
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.advanceUntilIdle
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
@@ -55,6 +58,9 @@ import kotlin.test.assertTrue
 // TODO CardAnalysisWidgetPreferences should be refactored for injection/easier use in tests
 @RunWith(AndroidJUnit4::class)
 class CardAnalysisWidgetConfigTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     private lateinit var preferences: CardAnalysisWidgetPreferences
 
     override fun setUp() {
@@ -98,10 +104,8 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
             // first setup of the widget, no deck selected so deck name view should be empty
             onView(withId(R.id.deck_name)).check(matches(withText("")))
             // select dialog already open, select deck 1
-            onView(withText(CommonString.select_deck_title))
-                .inRoot(isDialog())
-                .check(matches(isDisplayed()))
-            onView(withText(TEST_DECK_NAME1)).inRoot(isDialog()).perform(click())
+            compose.onNodeWithText(getResourceString(CommonString.select_deck_title)).assertIsDisplayed()
+            compose.onNodeWithText(TEST_DECK_NAME1).performClick()
             // check if UI shows the selected deck and if it was saved in preferences
             onView(withId(R.id.deck_name)).check(matches(withText(TEST_DECK_NAME1)))
             assertEquals(testDeckId, preferences.getSelectedDeckIdFromPreferences(testWidgetId))
@@ -121,7 +125,7 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
             onView(withId(R.id.deck_name)).check(matches(withText(TEST_DECK_NAME1)))
             // open deck selection, select deck 2 and verify that is displayed and selected in ui
             onView(withId(R.id.change_btn)).perform(click())
-            onView(withText(TEST_DECK_NAME2)).inRoot(isDialog()).perform(click())
+            compose.onNodeWithText(TEST_DECK_NAME2).performClick()
             onView(withId(R.id.deck_name)).check(matches(withText(TEST_DECK_NAME2)))
             // set configuration as done
             onView(withId(R.id.done_btn)).perform(click())
@@ -137,7 +141,7 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
             // no selection yet
             onView(withId(R.id.deck_name)).check(matches(withText("")))
             // cancel deck selection
-            onView(withText(CommonString.dialog_cancel)).inRoot(isDialog()).perform(click())
+            compose.onNodeWithText(getResourceString(CommonString.dialog_cancel)).performClick()
             // still no deck selected, so deck name should still be empty
             onView(withId(R.id.deck_name)).check(matches(withText("")))
             // set configuration as done
@@ -177,7 +181,7 @@ class CardAnalysisWidgetConfigTest : RobolectricTest() {
             onView(withId(R.id.deck_name)).check(matches(withText(TEST_DECK_NAME1)))
             // open deck selection, select deck 2 and verify this new selection
             onView(withId(R.id.change_btn)).perform(click())
-            onView(withText(TEST_DECK_NAME2)).inRoot(isDialog()).perform(click())
+            compose.onNodeWithText(TEST_DECK_NAME2).performClick()
             onView(withId(R.id.deck_name)).check(matches(withText(TEST_DECK_NAME2)))
             // simulate a configuration change by recreating the activity
             activity.recreate()
