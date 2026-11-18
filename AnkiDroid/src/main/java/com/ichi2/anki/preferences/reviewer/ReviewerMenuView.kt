@@ -5,7 +5,6 @@ package com.ichi2.anki.preferences.reviewer
 import android.content.Context
 import android.util.AttributeSet
 import android.view.Gravity
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -23,7 +22,6 @@ import androidx.lifecycle.lifecycleScope
 import com.ichi2.anki.Flag
 import com.ichi2.anki.R
 import com.ichi2.anki.common.preferences.sharedPrefs
-import com.ichi2.anki.databinding.ViewReviewerMenuBinding
 import com.ichi2.anki.utils.ext.setIconRes
 import com.ichi2.utils.increaseHorizontalPaddingOfMenuIcons
 import kotlinx.coroutines.launch
@@ -41,10 +39,11 @@ import kotlinx.coroutines.launch
  */
 class ReviewerMenuView : LinearLayout {
     private val repository = ReviewerMenuRepository(context.sharedPrefs())
-    private val binding = ViewReviewerMenuBinding.inflate(LayoutInflater.from(context), this)
-    private val frontMenu: Menu = binding.frontMenuView.menu
+    private val frontMenuView = ActionMenuView(context).apply { id = R.id.front_menu_view }
+    private val overflowMenuView = ActionMenuView(context).apply { id = R.id.overflow_menu_view }
+    private val frontMenu: Menu = frontMenuView.menu
     private val overflowMenu: Menu =
-        binding.overflowMenuView.menu.apply {
+        overflowMenuView.menu.apply {
             (this as? MenuBuilder)?.setOptionalIconsVisible(true)
         }
     private var onMenuItemClickListener: ActionMenuView.OnMenuItemClickListener? = null
@@ -52,6 +51,17 @@ class ReviewerMenuView : LinearLayout {
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+        val scroll =
+            HorizontalScrollView(context).apply {
+                id = R.id.horizontalScrollView
+                isHorizontalScrollBarEnabled = false
+                addView(
+                    frontMenuView,
+                    android.widget.FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.END),
+                )
+            }
+        addView(scroll, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1f))
+        addView(overflowMenuView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
         setupMenus()
     }
 
@@ -66,13 +76,13 @@ class ReviewerMenuView : LinearLayout {
 
     fun setOnMenuItemClickListener(listener: ActionMenuView.OnMenuItemClickListener) {
         onMenuItemClickListener = listener
-        binding.frontMenuView.setOnMenuItemClickListener(listener)
-        binding.overflowMenuView.setOnMenuItemClickListener(listener)
+        frontMenuView.setOnMenuItemClickListener(listener)
+        overflowMenuView.setOnMenuItemClickListener(listener)
     }
 
     /** Opens the configured Card actions even when a template has hidden the toolbar. */
     fun showOptionsMenu(anchor: View): Boolean {
-        if (isShown && binding.overflowMenuView.showOverflowMenu()) return true
+        if (isShown && overflowMenuView.showOverflowMenu()) return true
         val popup = PopupMenu(context, anchor, Gravity.END)
         copyVisibleItems(frontMenu, popup.menu)
         copyVisibleItems(overflowMenu, popup.menu)

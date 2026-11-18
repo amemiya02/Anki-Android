@@ -64,7 +64,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 abstract class CardViewerFragment(
-    @LayoutRes layout: Int,
+    @LayoutRes layout: Int = 0,
 ) : Fragment(layout),
     OnWebViewRecreatedListener {
     abstract val viewModel: CardViewerViewModel

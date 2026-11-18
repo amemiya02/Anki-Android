@@ -81,19 +81,9 @@ class LayoutValidationTest : InstrumentedTest() {
             nonAnkiFieldNames.addAll(getFieldNames(com.google.android.material.R.layout::class.java))
             nonAnkiFieldNames.addAll(getFieldNames(androidx.preference.R.layout::class.java)) // preference_category_material
 
-            // Names of layouts that should be ignored by the layout inflation test.
-            // Currently, ignores layouts that use `FragmentContainerView`
-            // with a specified fragment name, as these would currently fail the test, throwing:
-            //   UnsupportedOperationException: FragmentContainerView must be within
-            //   a FragmentActivity to use android:name="..."
-            val ignoredLayoutIds =
-                listOf(
-                    com.ichi2.anki.R.layout.fragment_reviewer,
-                )
-
             return layout::class.java.fields
                 .map { arrayOf<Any>(it.getInt(layout), it.name) }
-                .filterNot { (id, name) -> name in nonAnkiFieldNames || id in ignoredLayoutIds }
+                .filterNot { (_, name) -> name in nonAnkiFieldNames }
         }
 
         private fun <T> getFieldNames(clazz: Class<T>): HashSet<String> {

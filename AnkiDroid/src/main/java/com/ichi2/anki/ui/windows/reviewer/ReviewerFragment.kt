@@ -8,8 +8,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -38,8 +40,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import anki.scheduler.CardAnswer.Rating
 import com.google.android.material.snackbar.Snackbar
-import com.ichi2.anki.navigation.finishScreen
-import com.ichi2.anki.navigation.hasScreenResultCaller
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.AnkiDroidJsAPI
 import com.ichi2.anki.CollectionManager
@@ -58,7 +58,6 @@ import com.ichi2.anki.common.destinations.StatisticsDestination
 import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.utils.android.isRobolectric
 import com.ichi2.anki.common.utils.dp
-import com.ichi2.anki.databinding.FragmentReviewerBinding
 import com.ichi2.anki.dialogs.help.HelpDialog
 import com.ichi2.anki.dialogs.showDeckOptionsSelectionDialog
 import com.ichi2.anki.dialogs.tags.TagsDialogFactory
@@ -68,6 +67,8 @@ import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.Note
 import com.ichi2.anki.libanki.NoteId
 import com.ichi2.anki.model.CardStateFilter
+import com.ichi2.anki.navigation.finishScreen
+import com.ichi2.anki.navigation.hasScreenResultCaller
 import com.ichi2.anki.pages.PostRequestUri
 import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.preferences.reviewer.WhiteboardAction
@@ -111,7 +112,6 @@ import com.ichi2.ui.TypeAnswerEditText
 import com.ichi2.utils.IntentUtil
 import com.ichi2.utils.ViewGroupUtils.setRenderWorkaround
 import com.squareup.seismic.ShakeDetector
-import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
@@ -125,7 +125,7 @@ import kotlin.reflect.jvm.jvmName
 import kotlin.time.Duration.Companion.milliseconds
 
 class ReviewerFragment :
-    CardViewerFragment(R.layout.fragment_reviewer),
+    CardViewerFragment(),
     BaseSnackbarBuilderProvider,
     ActionMenuView.OnMenuItemClickListener,
     DispatchKeyEventListener,
@@ -134,7 +134,13 @@ class ReviewerFragment :
     override val viewModel: ReviewerViewModel by viewModels()
 
     @VisibleForTesting
-    internal val binding by viewBinding(FragmentReviewerBinding::bind)
+    internal val binding get() = requireView() as ReviewerLayout
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View = ReviewerLayout(inflater.context)
 
     override val webViewLayout: SafeWebViewLayout get() = binding.webViewLayout
     private lateinit var bindingMap: BindingMap<ReviewerBinding, ViewerAction>
@@ -266,7 +272,7 @@ class ReviewerFragment :
                 WindowInsetsControllerCompat(window, this).show(WindowInsetsCompat.Type.ime())
             }
         } else {
-            binding.rootLayout.requestFocus()
+            binding.requestFocus()
         }
     }
 
@@ -353,7 +359,7 @@ class ReviewerFragment :
                 if (jsApiDelegate.isInitialized()) jsApi.cancelSpeechRecognition()
                 // focus on the whole layout so motion controllers can be captured
                 // without navigating the other View elements
-                binding.rootLayout.requestFocus()
+                binding.requestFocus()
             }.launchIn(viewScope)
 
         viewModel.onCardUpdatedFlow
@@ -530,7 +536,7 @@ class ReviewerFragment :
 
     private fun setupBindings() {
         bindingMap = BindingMap(sharedPrefs(), ViewerAction.entries, viewModel)
-        binding.root.setOnGenericMotionListener { _, event ->
+        binding.setOnGenericMotionListener { _, event ->
             bindingMap.onGenericMotionEvent(event)
         }
         if (isBound(Gesture.SHAKE)) {
@@ -542,7 +548,7 @@ class ReviewerFragment :
         bindingMap.isBound(gesture) || BindingMap(sharedPrefs(), WhiteboardAction.entries).isBound(gesture)
 
     private fun setupAnswerButtons() {
-        val insetsController = WindowInsetsControllerCompat(window, binding.rootLayout)
+        val insetsController = WindowInsetsControllerCompat(window, binding)
         viewModel.showingAnswer
             .onEach { isAnswerShown ->
                 if (isAnswerShown && binding.answerArea.isVisible) {
@@ -623,7 +629,7 @@ class ReviewerFragment :
                 0
             }
         val ignoreDisplayCutout = Prefs.ignoreDisplayCutout
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding) { v, insets ->
             val defaultTypes = WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime()
             val typeMask =
                 if (ignoreDisplayCutout) {

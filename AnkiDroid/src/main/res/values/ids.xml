@@ -66,4 +66,26 @@
     <item type="id" name="note_types_screen"/>
     <item type="id" name="browser_appearance_screen"/>
     <item type="id" name="card_template_screen"/>
+    <item type="id" name="answer_area" />
+    <item type="id" name="answer_feedback" />
+    <item type="id" name="back_button" />
+    <item type="id" name="bottom_layout" />
+    <item type="id" name="card_indicators" />
+    <item type="id" name="check_pronunciation_container" />
+    <item type="id" name="flag_icon" />
+    <item type="id" name="front_menu_view" />
+    <item type="id" name="horizontalScrollView" />
+    <item type="id" name="main_layout" />
+    <item type="id" name="mark_icon" />
+    <item type="id" name="overflow_menu_view" />
+    <item type="id" name="reviewer_menu_view" />
+    <item type="id" name="study_bar" />
+    <item type="id" name="study_bar_titles" />
+    <item type="id" name="study_progress" />
+    <item type="id" name="timer" />
+    <item type="id" name="tools_layout" />
+    <item type="id" name="type_answer_container" />
+    <item type="id" name="type_answer_edit_text" />
+    <item type="id" name="web_view_container" />
+    <item type="id" name="web_view_layout" />
 </resources>
