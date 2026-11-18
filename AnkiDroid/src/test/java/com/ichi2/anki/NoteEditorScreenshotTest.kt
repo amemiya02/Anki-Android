@@ -21,6 +21,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type.navigationBars
 import androidx.core.view.WindowInsetsCompat.Type.statusBars
+import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
@@ -95,7 +96,7 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
         val cloze = clozeNoteType
         withNoteEditor(addNoteIntent(basic.id)) {
             composeRule.onNodeWithText(basic.name).performClick()
-            onView(withText(cloze.name)).inRoot(isDialog()).perform(click())
+            onData(equalTo(cloze.name)).inRoot(isDialog()).perform(click())
             val textField = onView(allOf(withContentDescription(cloze.fields.first().name), isDisplayed()))
             val extraField = onView(allOf(withContentDescription(cloze.fields.last().name), isDisplayed()))
             textField.perform(click(), composeWithIme("nihongo", "{{c1::日本語}}"))
