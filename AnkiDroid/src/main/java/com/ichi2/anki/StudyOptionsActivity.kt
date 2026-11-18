@@ -3,201 +3,182 @@
 
 package com.ichi2.anki
 
+import android.app.Activity
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
-import androidx.core.view.MenuItemCompat
-import androidx.core.view.MenuProvider
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat.Type.displayCutout
-import androidx.core.view.WindowInsetsCompat.Type.systemBars
-import androidx.core.view.updatePadding
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.activity.addCallback
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
 import anki.collection.OpChanges
 import com.ichi2.anki.CollectionManager.withCol
-import com.ichi2.anki.StudyOptionsFragment.Companion.registerStudyOptionsAddEditReminderHandler
-import com.ichi2.anki.StudyOptionsFragment.Companion.registerStudyOptionsStudyHandler
 import com.ichi2.anki.common.destinations.DeferredNavigation
 import com.ichi2.anki.common.destinations.ReviewDeckDestination
 import com.ichi2.anki.common.destinations.toIntent
-import com.ichi2.anki.databinding.ActivityStudyOptionsBinding
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyAction
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyAction.Companion.REQUEST_KEY
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.undoAvailable
 import com.ichi2.anki.libanki.undoLabel
+import com.ichi2.anki.multimedia.AttachmentAppBar
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.reviewreminders.ReviewReminderScope
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
-import com.ichi2.anki.startup.ensureStorageIsReady
-import com.ichi2.anki.utils.ext.setFragmentResultListener
-import com.ichi2.themes.Themes
-import com.ichi2.ui.RtlCompliantActionProvider
-import dev.androidbroadcast.vbpd.viewBinding
-import timber.log.Timber
+import androidx.appcompat.R as AppCompatR
+import com.ichi2.anki.common.android.R as CommonR
 
-/**
- * Hosts [StudyOptionsFragment] when non-fragmented
- */
-class StudyOptionsActivity :
-    AnkiActivity(R.layout.activity_study_options),
+class StudyOptionsActivity : SingleFragmentActivity() {
+    override fun createFragment(): Fragment = StudyOptionsFlowFragment()
+}
+
+/** Standalone deck overview, including its menu, study action and deck-specific reminders. */
+class StudyOptionsFlowFragment :
+    Fragment(),
     ChangeManager.Subscriber {
-    private val binding by viewBinding(ActivityStudyOptionsBinding::bind)
+    private var undo by mutableStateOf<String?>(null)
 
-    private var undoState = UndoState()
-
-    init {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         ChangeManager.subscribe(this)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        if (showedActivityFailedScreen(savedInstanceState)) {
-            return
-        }
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme })
-        if (!ensureStorageIsReady()) {
-            return
-        }
-        enableToolbar().apply { title = "" }
-        setupEdgeToEdge()
-        if (savedInstanceState == null) {
-            loadStudyOptionsFragment()
-        }
-        setResult(RESULT_OK)
-        addMenuProvider(menuProvider)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View = FragmentContainerView(inflater.context).apply { id = R.id.studyoptions_frame }
 
-        setFragmentResultListener(REQUEST_KEY) { _, bundle ->
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
+        super.onViewCreated(view, savedInstanceState)
+        if (childFragmentManager.findFragmentById(R.id.studyoptions_frame) == null) {
+            childFragmentManager.commit { replace(R.id.studyoptions_frame, StudyOptionsFragment()) }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            if (childFragmentManager.backStackEntryCount > 0) {
+                childFragmentManager.popBackStack()
+            } else {
+                finishScreen(Activity.RESULT_OK)
+            }
+        }
+        childFragmentManager.setFragmentResultListener(REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
             when (CustomStudyAction.fromBundle(bundle)) {
-                CustomStudyAction.CUSTOM_STUDY_SESSION,
-                CustomStudyAction.EXTEND_STUDY_LIMITS,
-                ->
-                    (currentFragment as? StudyOptionsFragment)?.refreshInterface()
+                CustomStudyAction.CUSTOM_STUDY_SESSION, CustomStudyAction.EXTEND_STUDY_LIMITS ->
+                    (childFragmentManager.findFragmentById(R.id.studyoptions_frame) as? StudyOptionsFragment)?.refreshInterface()
             }
-        }
-        registerStudyOptionsStudyHandler {
-            Timber.i("Opening study screen from study options screen")
-            val reviewer = with(DeferredNavigation) { ReviewDeckDestination.CurrentDeck.toIntent() }
-            // go back to DeckPicker after studying when not in tablet mode
-            reviewer.flags = Intent.FLAG_ACTIVITY_FORWARD_RESULT
-            startActivity(reviewer)
-            finish()
-        }
-        registerStudyOptionsAddEditReminderHandler { did: DeckId ->
-            Timber.i("Opening review reminders screen from study options screen")
-            supportFragmentManager.commit {
-                replace(
-                    R.id.studyoptions_frame,
-                    ScheduleRemindersFragment.newInstance(
-                        scope = ReviewReminderScope.DeckSpecific(did),
-                        host = ScheduleRemindersFragment.FragmentHost.STUDY_OPTIONS_FRAME,
-                    ),
-                )
-                addToBackStack(null)
-            }
-            invalidateMenu()
         }
     }
 
-    private val menuProvider: MenuProvider =
-        object : MenuProvider {
-            override fun onCreateMenu(
-                menu: Menu,
-                menuInflater: MenuInflater,
-            ) {
-                menuInflater.inflate(R.menu.activity_study_options, menu)
-                val undoMenuItem = menu.findItem(R.id.action_undo)
-                val undoActionProvider = MenuItemCompat.getActionProvider(undoMenuItem) as? RtlCompliantActionProvider
-                undoActionProvider?.clickHandler = { _, menuItem -> onMenuItemSelected(menuItem) }
-            }
+    internal fun startStudy() {
+        val activity = requireActivity()
+        val reviewer = with(DeferredNavigation) { ReviewDeckDestination.CurrentDeck.toIntent() }
+        reviewer.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+        startActivity(reviewer)
+        if (activity is StudyOptionsActivity) activity.finish()
+    }
 
-            override fun onPrepareMenu(menu: Menu) {
-                val undoMenuItem = menu.findItem(R.id.action_undo)
-                // TODO: Ideally, the undo button should be owned by StudyOptionsFragment or be provided by a unified UndoMenuProvider
-                // Checking the current fragment from the activity to decide whether the button should be visible is hacky; see #21339
-                undoMenuItem.isVisible = undoState.hasAction && (currentFragment is StudyOptionsFragment)
-                undoMenuItem.title = undoState.label
-            }
+    internal fun showReminders(deck: DeckId) {
+        childFragmentManager.commit {
+            replace(
+                R.id.studyoptions_frame,
+                ScheduleRemindersFragment.newInstance(
+                    ReviewReminderScope.DeckSpecific(deck),
+                    ScheduleRemindersFragment.FragmentHost.STUDY_OPTIONS_FRAME,
+                ),
+            )
+            addToBackStack(null)
+        }
+    }
 
-            override fun onMenuItemSelected(item: MenuItem): Boolean =
-                when (item.itemId) {
-                    R.id.action_undo -> {
-                        Timber.i("Undoing last action from study options screen")
-                        launchCatchingTask {
-                            undoAndShowSnackbar()
-                        }
-                        true
+    @Composable
+    internal fun Toolbar(pane: StudyOptionsFragment) {
+        var expanded by remember { mutableStateOf(false) }
+        val menu = MenuBuilder(requireContext())
+        pane.onCreateMenu(menu, requireActivity().menuInflater)
+        pane.onPrepareMenu(menu)
+        Box(Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))) {
+            AttachmentAppBar("", onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() }) {
+                undo?.let { label ->
+                    IconButton(onClick = { launchCatchingViewTask { undoAndShowSnackbar() } }) {
+                        Icon(painterResource(R.drawable.symbol_undo), label)
                     }
-                    else -> false
                 }
-        }
-
-    /** Applies edge-to-edge insets for the screen */
-    private fun setupEdgeToEdge() {
-        // systemBars (not just statusBars) so a landscape 3-button navigation bar,
-        // which is a side inset, is also cleared
-        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbarContainer) { view, insets ->
-            val bars =
-                insets.getInsets(
-                    systemBars() or displayCutout(),
-                )
-            view.updatePadding(left = bars.left, top = bars.top, right = bars.right)
-            insets
-        }
-        ViewCompat.setOnApplyWindowInsetsListener(binding.studyoptionsFrame) { _, insets ->
-            val bars = insets.getInsets(systemBars() or displayCutout())
-            // the toolbar clears the top: the hosted fragments apply the remaining insets
-            // themselves, so their scrolled content renders underneath the navigation bar
-            insets.inset(0, bars.top, 0, 0)
+                val direct =
+                    mapOf(
+                        R.id.action_schedule_reminders to R.drawable.symbol_notifications,
+                        R.id.action_deck_or_study_options to R.drawable.symbol_tune,
+                    )
+                for ((id, icon) in direct) {
+                    val item = menu.findItem(id)
+                    if (item?.isVisible == true) {
+                        IconButton(onClick = { pane.onMenuItemSelected(item) }) {
+                            Icon(painterResource(icon), item.title.toString())
+                        }
+                    }
+                }
+                val more = menu.children.filter { it.isVisible && it.itemId !in direct }.toList()
+                if (more.isNotEmpty()) {
+                    Box {
+                        IconButton(onClick = { expanded = true }) {
+                            Icon(
+                                painterResource(CommonR.drawable.symbol_more_vert),
+                                stringResource(AppCompatR.string.abc_action_menu_overflow_description),
+                            )
+                        }
+                        DropdownMenu(expanded, onDismissRequest = { expanded = false }) {
+                            for (item in more) {
+                                DropdownMenuItem(text = { Text(item.title.toString()) }, onClick = {
+                                    expanded = false
+                                    pane.onMenuItemSelected(item)
+                                })
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
-
-    private fun loadStudyOptionsFragment() {
-        val currentFragment = StudyOptionsFragment()
-        supportFragmentManager.commit {
-            replace(R.id.studyoptions_frame, currentFragment)
-        }
-    }
-
-    private val currentFragment: Fragment?
-        get() = supportFragmentManager.findFragmentById(R.id.studyoptions_frame)
 
     override fun onResume() {
         super.onResume()
-        refreshUndoState()
+        refreshUndo()
     }
 
     override fun opExecuted(
         changes: OpChanges,
         handler: Any?,
     ) {
-        refreshUndoState()
+        if (view != null) refreshUndo()
     }
 
-    private fun refreshUndoState() {
-        launchCatchingTask {
-            val newUndoState =
-                withCol {
-                    UndoState(
-                        hasAction = undoAvailable(),
-                        label = undoLabel(),
-                    )
-                }
-            if (undoState != newUndoState) {
-                undoState = newUndoState
-                invalidateMenu()
-            }
-        }
+    private fun refreshUndo() {
+        launchCatchingViewTask { undo = withCol { if (undoAvailable()) undoLabel() else null } }
     }
-
-    private data class UndoState(
-        val hasAction: Boolean = false,
-        val label: String? = null,
-    )
 }

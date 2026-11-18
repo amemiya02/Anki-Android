@@ -28,7 +28,8 @@ class StudyOptionsFinishingTest : RobolectricTest() {
             advanceUntilIdle()
             advanceRobolectricLooper()
             val activity = controller.get()
-            val fragment = assertIs<StudyOptionsFragment>(activity.supportFragmentManager.findFragmentById(R.id.studyoptions_frame))
+            val fragment =
+                assertIs<StudyOptionsFragment>(activity.fragment!!.childFragmentManager.findFragmentById(R.id.studyoptions_frame))
             val initialState = assertIs<StudyOptionsState.StudyOptions>(fragment.viewModel.state)
             assertEquals(1, initialState.data.newCardsToday)
             addBasicNote()

@@ -49,7 +49,7 @@ class StudyOptionsUndoRefreshErrorRegressionTest : RobolectricTest() {
         val filtered = addDynamicDeck("Filtered")
         ensureCollectionLoadIsSynchronous()
         val activity = startActivityNormallyOpenCollectionWithIntent(StudyOptionsActivity::class.java, Intent())
-        val pane = assertIs<StudyOptionsFragment>(activity.supportFragmentManager.findFragmentById(R.id.studyoptions_frame))
+        val pane = assertIs<StudyOptionsFragment>(activity.fragment!!.childFragmentManager.findFragmentById(R.id.studyoptions_frame))
         advanceRobolectricLooperUntil { pane.viewModel.selectedDeckId == filtered }
         advanceRobolectricLooper()
         throwOnShowError = false

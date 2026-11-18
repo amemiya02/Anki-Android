@@ -105,7 +105,7 @@ class ReviewRemindersScreenshotTest : ScreenshotTest() {
         insertReminder(ReviewReminderTime(8, 0), scope)
         launchActivity<StudyOptionsActivity>(StudyOptionsDestination).use { scenario ->
             scenario.onActivity { activity ->
-                activity.supportFragmentManager.commit {
+                activity.fragment!!.childFragmentManager.commit {
                     replace(R.id.studyoptions_frame, ScheduleRemindersFragment.newInstance(scope, FragmentHost.STUDY_OPTIONS_FRAME))
                 }
                 advanceRobolectricLooper()

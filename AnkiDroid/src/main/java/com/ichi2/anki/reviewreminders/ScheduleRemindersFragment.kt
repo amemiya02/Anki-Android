@@ -55,7 +55,9 @@ class ScheduleRemindersFragment : Fragment() {
 
     private val scope by lazy { arguments?.getParcelableCompat<ReviewReminderScope>(ARG_SCOPE) ?: ReviewReminderScope.Global }
     private val host by lazy { arguments?.getParcelableCompat<FragmentHost>(ARG_HOST) ?: FragmentHost.SETTINGS }
-    private val hasExternalToolbar get() = host.toolbarType == ToolbarType.EXTERNAL
+    private val hasExternalToolbar get() =
+        host.toolbarType == ToolbarType.EXTERNAL &&
+            parentFragment !is com.ichi2.anki.StudyOptionsFlowFragment
 
     private val troubleshootingViewModel: ReminderTroubleshootingViewModel by activityViewModels {
         reminderTroubleshootingViewModelFactory(requireContext())

@@ -20,6 +20,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -41,13 +42,14 @@ import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog
 import com.ichi2.anki.filtered.FilteredDeckOptionsFragment
 import com.ichi2.anki.libanki.DeckId
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.progress.observeProgress
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.collectInViewLifecycle
 import com.ichi2.anki.utils.ext.setFragmentResultListener
-import com.ichi2.anki.utils.ext.setSupportActionBarText
 import com.ichi2.anki.utils.ext.showDialogFragment
+import com.ichi2.anki.utils.showDialogFragment
 import com.ichi2.compose.theme.AnkiDroidTheme
 import org.intellij.lang.annotations.Language
 import timber.log.Timber
@@ -95,21 +97,25 @@ class StudyOptionsFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        fragmented = requireActivity().javaClass != StudyOptionsActivity::class.java
+        val flow = parentFragment as? StudyOptionsFlowFragment
+        fragmented = flow == null
         descriptionLayoutBeforeResizing = null
         return ComposeView(requireContext()).apply {
             id = R.id.studyoptions_main
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 AnkiDroidTheme {
-                    StudyOptionsScreen(
-                        state = shownState,
-                        scrollState = scrollState,
-                        inPane = fragmented,
-                        mediaDir = viewModel.mediaDir,
-                        onStart = { parentFragmentManager.setStudyOptionsStudyResult() },
-                        onCustomStudy = ::showCustomStudyContextMenu,
-                    )
+                    Column {
+                        flow?.Toolbar(this@StudyOptionsFragment)
+                        StudyOptionsScreen(
+                            state = shownState,
+                            scrollState = scrollState,
+                            inPane = fragmented,
+                            mediaDir = viewModel.mediaDir,
+                            onStart = { if (flow != null) flow.startStudy() else parentFragmentManager.setStudyOptionsStudyResult() },
+                            onCustomStudy = ::showCustomStudyContextMenu,
+                        )
+                    }
                 }
             }
         }
@@ -120,10 +126,7 @@ class StudyOptionsFragment :
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-        requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
-        if (!fragmented) {
-            setSupportActionBarText(title = "")
-        }
+        if (fragmented) requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
         hasResumedView = false
         viewModel.flowOfState.collectInViewLifecycle(Lifecycle.State.STARTED) { state ->
             state.deckIdOrNull()?.let { deckId ->
@@ -190,8 +193,7 @@ class StudyOptionsFragment :
     private fun closeStudyOptions(result: Int) {
         val a: Activity? = activity
         if (!fragmented && a != null) {
-            a.setResult(result)
-            a.finish()
+            finishScreen(result)
         } else if (a == null) {
             // getActivity() can return null if reference to fragment lingers after parent activity has been closed,
             // which is particularly relevant when using AsyncTasks.
@@ -201,7 +203,13 @@ class StudyOptionsFragment :
 
     private fun showCustomStudyContextMenu() {
         val dialog = CustomStudyDialog.createInstance(deckId = viewModel.selectedDeckId)
-        requireActivity().showDialogFragment(dialog)
+        if (parentFragment is StudyOptionsFlowFragment) {
+            parentFragmentManager.showDialogFragment(
+                dialog,
+            )
+        } else {
+            requireActivity().showDialogFragment(dialog)
+        }
     }
 
     override fun onMenuItemSelected(item: MenuItem): Boolean {
@@ -229,7 +237,14 @@ class StudyOptionsFragment :
             }
             R.id.action_schedule_reminders -> {
                 Timber.i("StudyOptionsFragment:: schedule reminders button pressed")
-                parentFragmentManager.setStudyOptionsAddEditReminderResult(viewModel.selectedDeckId)
+                val flow = parentFragment as? StudyOptionsFlowFragment
+                if (flow !=
+                    null
+                ) {
+                    flow.showReminders(viewModel.selectedDeckId)
+                } else {
+                    parentFragmentManager.setStudyOptionsAddEditReminderResult(viewModel.selectedDeckId)
+                }
                 return true
             }
             R.id.action_unbury -> {
