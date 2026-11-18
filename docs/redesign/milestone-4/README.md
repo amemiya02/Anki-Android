@@ -9,6 +9,23 @@ The 2026-11-19 settings walk and package exchange ran on a disposable Pixel 9 em
 
 AnkiDroid 2.25.3 was the current stable release at verification. The installed APK matched the Official App used for Milestone 2. [Official release](https://github.com/ankidroid/Anki-Android/releases/tag/v2.25.3) · [Signing certificate](../milestone-2/README.md)
 
+## Settings and dialogs
+
+| Locale | Settings search | Light dialogs | Dark dialogs | Black dialogs |
+| --- | --- | --- | --- | --- |
+| English (`en-US`) | [Settings](en-settings.png) | [Light](en-light.png) | [Dark](en-dark.png) | [Black](en-black.png) |
+| Simplified Chinese (`zh-CN`) | [Settings](zh-settings.png) | [Light](zh-light.png) | [Dark](zh-dark.png) | [Black](zh-black.png) |
+
+1. Open Settings from More. Search for Theme, choose Dark, Black and Light, and check the selected tile in every palette.
+2. Search for Fetch media on sync and open the result. Open the single-choice dialog, choose Never, check the setting's value and restore the starting value.
+3. Create a temporary Deck with the input dialog and remove it after checking that it appears. Long-press English and open Export deck to see the multiple-choice options.
+4. Open the collection package with the Fork to see the destructive replacement action, then cancel. Open the `.pdf` fixture with the Fork to verify the unsupported-file error and dismiss it.
+5. Open More options, then Check and Check database. Capture the confirmation and accept it. The progress panels are frames from the real database check on a disposable 100,000-Card collection.
+
+## Rendered baselines
+
+The Settings and dialog screenshot matrix generated baselines for 2,136 cases across 21 suites. The first record found 36 selector failures in localized Add profile tests. After the selectors took their labels from the active locale, all 48 cases in that suite passed recording. The full comparison is pending. The Milestone 1 decision keeps Roborazzi baselines under `AnkiDroid/build/outputs/roborazzi/`. [Milestone 1 decision](../../../.scratch/ankidroid-redesign/issues/13-milestone-1-sign-off-the-foundation-on-a-device.md)
+
 ## Round trip with the Official App
 
 Both apps began with the same disposable collection. The Fork graded two English Cards before export. The Official App merged the English Deck and then replaced its collection. After grading two more English Cards in the Official App, the same merge and replacement ran in the Fork. Both Deck exports included scheduling information, Deck presets and media. Both collection exports included media. All four exports used the current package format.
