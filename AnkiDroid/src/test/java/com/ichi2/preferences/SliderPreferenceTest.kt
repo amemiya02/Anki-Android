@@ -32,9 +32,9 @@ class SliderPreferenceTest : RobolectricTest() {
             compose
                 .onNodeWithContentDescription(targetContext.getString(CommonString.card_zoom))
                 .performScrollTo()
-                .performSemanticsAction(SemanticsActions.SetProgress) { setProgress -> setProgress(125f) }
+                .performSemanticsAction(SemanticsActions.SetProgress) { setProgress -> setProgress(130f) }
             compose.waitForIdle()
-            assertEquals(125, Prefs.sharedPrefs.getInt(targetContext.getString(R.string.card_zoom_preference), -1))
+            assertEquals(130, Prefs.sharedPrefs.getInt(targetContext.getString(R.string.card_zoom_preference), -1))
         }
     }
 }

@@ -141,21 +141,24 @@ class SetDueDateDialogTest : RobolectricTest() {
     @Test
     fun `single day input limited to 5 digits`() =
         testDialog {
-            singleDay.performTextReplacement("123456").assertTextContains("12345")
+            singleDay.performTextReplacement("123456")
+            singleDay.assertTextContains("12345")
         }
 
     @Test
     fun `range start input limited to 5 digits`() =
         testDialog {
             select(Tab.DATE_RANGE)
-            rangeStart.performTextReplacement("123456").assertTextContains("12345")
+            rangeStart.performTextReplacement("123456")
+            rangeStart.assertTextContains("12345")
         }
 
     @Test
     fun `range end input limited to 5 digits`() =
         testDialog {
             select(Tab.DATE_RANGE)
-            rangeEnd.performTextReplacement("123456").assertTextContains("12345")
+            rangeEnd.performTextReplacement("123456")
+            rangeEnd.assertTextContains("12345")
         }
 
     @Test
