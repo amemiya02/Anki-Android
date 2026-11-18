@@ -77,7 +77,6 @@
     <attr name="overflowAndPopupMenuIconColor" format="color"/>
 
 
-    <attr name="dialogBackground" format="color"/>
 
     <attr name="clozeColor" format="color" />
 
