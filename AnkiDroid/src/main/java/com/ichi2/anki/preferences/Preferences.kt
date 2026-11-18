@@ -10,13 +10,19 @@ package com.ichi2.anki.preferences
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewGroupCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
+import com.google.android.material.color.MaterialColors
 import com.ichi2.anki.R
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.common.android.Animations
@@ -24,8 +30,9 @@ import com.ichi2.anki.utils.isWindowCompact
 import com.ichi2.utils.FragmentFactoryUtils
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmName
+import com.ichi2.anki.common.android.R as CommonR
 
-class PreferencesFragment : Fragment(R.layout.fragment_preferences) {
+class PreferencesFragment : Fragment() {
     internal val settingsIsSplit get() = !resources.isWindowCompact()
 
     private val childBack =
@@ -49,6 +56,29 @@ class PreferencesFragment : Fragment(R.layout.fragment_preferences) {
             }
         }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        val context = inflater.context
+        val detail = FragmentContainerView(context).apply { id = R.id.settings_container }
+        if (!settingsIsSplit) return detail
+
+        val density = resources.displayMetrics.density
+        val headerWidth = (resources.configuration.screenWidthDp / 3).coerceIn(320, 400)
+        return LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            addView(FragmentContainerView(context).apply { id = R.id.lateral_nav_container }, (headerWidth * density).toInt(), MATCH_PARENT)
+            addView(
+                View(context).apply { setBackgroundColor(MaterialColors.getColor(this, CommonR.attr.foundationOutline)) },
+                density.toInt().coerceAtLeast(1),
+                MATCH_PARENT,
+            )
+            addView(detail, LinearLayout.LayoutParams(0, MATCH_PARENT, 1f))
+        }
+    }
+
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?,
@@ -57,7 +87,10 @@ class PreferencesFragment : Fragment(R.layout.fragment_preferences) {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, childBack)
         childFragmentManager.addOnBackStackChangedListener(childBackStackListener)
         childFragmentManager.registerFragmentLifecycleCallbacks(childLifecycleListener, false)
-        if (savedInstanceState == null) {
+        if (settingsIsSplit && childFragmentManager.findFragmentById(R.id.lateral_nav_container) == null) {
+            childFragmentManager.commit { replace(R.id.lateral_nav_container, HeaderFragment()) }
+        }
+        if (childFragmentManager.findFragmentById(R.id.settings_container) == null) {
             val initialClass = arguments?.getString(EXTRA_INITIAL_FRAGMENT)
             val initial =
                 when {

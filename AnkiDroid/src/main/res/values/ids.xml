@@ -55,4 +55,8 @@
     <item type="id" name="welcome_content"/>
     <item type="id" name="app_navigation"/>
     <item type="id" name="account_flow_step" />
+    <item type="id" name="settings_container" />
+    <item type="id" name="lateral_nav_container" />
+    <item type="id" name="web_view" />
+    <item type="id" name="content" />
 </resources>

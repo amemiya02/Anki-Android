@@ -6,97 +6,162 @@
 package com.ichi2.anki
 
 import android.annotation.SuppressLint
-import android.graphics.Color
+import android.app.Activity
 import android.os.Bundle
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat.Type.displayCutout
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
-import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
-import com.ichi2.anki.common.appName
+import androidx.fragment.app.Fragment
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.android.getColorFromAttr
-import com.ichi2.anki.databinding.ActivityInfoBinding
-import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
-import com.ichi2.anki.snackbar.SnackbarBuilder
+import com.ichi2.anki.multimedia.AttachmentAppBar
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.workarounds.OnWebViewRecreatedListener
 import com.ichi2.anki.workarounds.SafeWebViewClient
-import com.ichi2.themes.Themes
+import com.ichi2.anki.workarounds.SafeWebViewLayout
+import com.ichi2.compose.theme.AnkiDroidTheme
+import com.ichi2.compose.theme.foundation
 import com.ichi2.utils.IntentUtil.canOpenIntent
 import com.ichi2.utils.IntentUtil.tryOpenIntent
 import com.ichi2.utils.VersionUtils.pkgVersionName
 import com.ichi2.utils.ViewGroupUtils.setRenderWorkaround
 import com.ichi2.utils.toRGBHex
-import dev.androidbroadcast.vbpd.viewBinding
 import timber.log.Timber
+import com.ichi2.anki.common.android.R as CommonR
 
 private const val CHANGE_LOG_URL = "https://docs.ankidroid.org/changelog.html"
 
-/**
- * Shows an about box, which is a small HTML page.
- *
- * Typically for the AnkiDroid changelog
- */
-class Info :
-    AnkiActivity(R.layout.activity_info),
-    BaseSnackbarBuilderProvider,
+/** Compatibility entry for existing shortcuts to the changelog. */
+class Info : SingleFragmentActivity() {
+    override fun createFragment(): Fragment = InfoFragment()
+}
+
+class InfoFragment :
+    Fragment(),
     OnWebViewRecreatedListener {
-    private val binding by viewBinding(ActivityInfoBinding::bind)
+    private lateinit var page: SafeWebViewLayout
     private lateinit var onBackPressedCallback: OnBackPressedCallback
+    private var loading by mutableStateOf(true)
 
-    override val baseSnackbarBuilder: SnackbarBuilder = {
-        anchorView = binding.buttons
-    }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        val context = inflater.context
 
-    @SuppressLint("SetJavaScriptEnabled")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        if (showedActivityFailedScreen(savedInstanceState)) {
-            return
-        }
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme })
-        // If the page crashes, we do not want to display it again (#7135 maybe)
-        InitialActivity.setUpgradedToLatestVersion(sharedPrefs())
-        setViewBinding(binding)
-        enableToolbar()
-        applyInsets()
-        if (BuildConfig.SHOW_DONATE_LINKS) {
-            binding.donate.setOnClickListener { openUrl(R.string.link_opencollective_donate) }
-        } else {
-            binding.donate.isVisible = false
-        }
-        title = "$appName v$pkgVersionName"
-        binding.leftButton.run {
-            if (canOpenMarketUri()) {
-                setText(CommonString.info_rate)
-                setOnClickListener {
-                    tryOpenIntent(
-                        this@Info,
-                        AnkiDroidApp.getMarketIntent(this@Info),
-                    )
-                }
-            } else {
-                visibility = View.GONE
+        fun compose(content: @Composable () -> Unit) =
+            ComposeView(context).apply {
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent { AnkiDroidTheme { content() } }
+            }
+        val toolbar =
+            compose {
+                AttachmentAppBar("${stringResource(CommonString.app_name)} v$pkgVersionName", onBack = {
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                })
+            }.apply { id = R.id.toolbar_container }
+        page = SafeWebViewLayout(context).apply { id = R.id.web_view }
+        val webArea =
+            FrameLayout(context).apply {
+                addView(page, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+                addView(
+                    compose { if (loading) CircularProgressIndicator() },
+                    FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.CENTER),
+                )
+            }
+        val canRate = canOpenMarketUri()
+        val body =
+            LinearLayout(context).apply {
+                id = R.id.content
+                orientation = LinearLayout.VERTICAL
+                addView(webArea, LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f))
+                addView(compose { Actions(canRate) }, MATCH_PARENT, WRAP_CONTENT)
+            }
+        return LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(getColorFromAttr(context, CommonR.attr.foundationBackground))
+            addView(toolbar, MATCH_PARENT, WRAP_CONTENT)
+            addView(body, LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f))
+            ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
+                val bars = insets.getInsets(systemBars() or displayCutout())
+                toolbar.updatePadding(left = bars.left, top = bars.top, right = bars.right)
+                body.updatePadding(left = bars.left, right = bars.right, bottom = bars.bottom)
+                insets
             }
         }
+    }
+
+    @Composable
+    private fun Actions(canRate: Boolean) {
+        val foundation = MaterialTheme.foundation
+        Column {
+            HorizontalDivider(thickness = foundation.shapes.hairline, color = foundation.colors.outline)
+            Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), horizontalArrangement = Arrangement.End) {
+                if (canRate) {
+                    TextButton(onClick = { tryOpenIntent(requireActivity(), AnkiDroidApp.getMarketIntent(requireContext())) }) {
+                        Text(stringResource(CommonString.info_rate))
+                    }
+                }
+                Button(onClick = { finishScreen(Activity.RESULT_OK) }, shape = foundation.shapes.button) {
+                    Text(stringResource(CommonString.dialog_continue))
+                }
+            }
+            if (BuildConfig.SHOW_DONATE_LINKS) {
+                TextButton(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                    onClick = { (requireActivity() as AnkiActivity).openUrl(R.string.link_opencollective_donate) },
+                ) { Text(stringResource(CommonString.help_item_support_opencollective_donate)) }
+            }
+        }
+    }
+
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
+        super.onViewCreated(view, savedInstanceState)
+        InitialActivity.setUpgradedToLatestVersion(requireContext().sharedPrefs())
         onBackPressedCallback =
             object : OnBackPressedCallback(false) {
                 override fun handleOnBackPressed() {
-                    if (binding.webView.canGoBack()) binding.webView.goBack()
+                    if (page.canGoBack()) page.goBack()
                 }
             }
-        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
-        binding.rightButton.run {
-            text = getString(CommonString.dialog_continue)
-            setOnClickListener { close() }
-        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
         setupWebView()
     }
 
@@ -106,22 +171,19 @@ class Info :
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
-        // Apply Theme colors
-        val typedArray = theme.obtainStyledAttributes(intArrayOf(android.R.attr.colorBackground, android.R.attr.textColor))
-        val backgroundColor = typedArray.getColor(0, -1)
-        val textColor = typedArray.getColor(1, -1).toRGBHex()
-        typedArray.recycle()
-
-        val anchorTextThemeColor = getColorFromAttr(this, android.R.attr.colorAccent)
-        val anchorTextColor = anchorTextThemeColor.toRGBHex()
+        loading = true
+        val context = requireContext()
+        val backgroundColor = getColorFromAttr(context, CommonR.attr.foundationBackground)
+        val textColor = getColorFromAttr(context, CommonR.attr.foundationOnBackground).toRGBHex()
+        val anchorTextColor = getColorFromAttr(context, CommonR.attr.foundationPrimary).toRGBHex()
         val background = backgroundColor.toRGBHex()
 
-        binding.webView.setBackgroundColor(backgroundColor)
-        binding.webView.settings.allowFileAccess = true
-        binding.webView.settings.allowContentAccess = true
-        setRenderWorkaround(this)
+        page.setBackgroundColor(backgroundColor)
+        page.settings.allowFileAccess = true
+        page.settings.allowContentAccess = true
+        setRenderWorkaround(requireActivity())
 
-        binding.webView.setWebChromeClient(
+        page.setWebChromeClient(
             object : WebChromeClient() {
                 override fun onProgressChanged(
                     view: WebView,
@@ -129,14 +191,14 @@ class Info :
                 ) {
                     // Hide the progress indicator when the page has finished loaded
                     if (progress == 100) {
-                        binding.progressBar.visibility = View.GONE
+                        loading = false
                     }
                 }
             },
         )
 
-        binding.webView.settings.javaScriptEnabled = true
-        binding.webView.setWebViewClient(
+        page.settings.javaScriptEnabled = true
+        page.setWebViewClient(
             object : SafeWebViewClient() {
                 override fun onPageFinished(
                     view: WebView,
@@ -155,7 +217,7 @@ class Info :
                             document.getElementsByTagName("h1")[0].style.color="$textColor";
                             x=document.getElementsByTagName("h2");
                             for(i=0; i<x.length; i++){
-                              x[i].style.color="#E37068";
+                              x[i].style.color="$anchorTextColor";
                             }
                             document.body.style.setProperty("background", "$background");""",
                     )
@@ -179,7 +241,7 @@ class Info :
                     if (url == CHANGE_LOG_URL) {
                         return false
                     }
-                    this@Info.openUrl(url)
+                    (requireActivity() as AnkiActivity).openUrl(url)
                     return true
                 }
 
@@ -189,45 +251,21 @@ class Info :
                     isReload: Boolean,
                 ) {
                     super.doUpdateVisitedHistory(view, url, isReload)
-                    onBackPressedCallback.isEnabled = binding.webView.canGoBack()
+                    onBackPressedCallback.isEnabled = page.canGoBack()
                 }
             },
         )
-        binding.webView.loadUrl("/android_asset/changelog.html")
+        page.loadUrl("/android_asset/changelog.html")
     }
 
-    override fun onDestroy() {
-        binding.webView.destroy()
-        super.onDestroy()
-    }
-
-    /**
-     * Applies edge-to-edge insets.
-     *
-     * The app bar's background spans the full width and draws behind the status bar; only its
-     * content is inset. Everything below it is held inside the safe area.
-     */
-    private fun applyInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
-            val bars = insets.getInsets(systemBars() or displayCutout())
-            // the toolbar's parent: padding on the Toolbar counts towards its minHeight,
-            // which would shrink the app bar's content below actionBarSize
-            binding.toolbarContainer.updatePadding(left = bars.left, top = bars.top, right = bars.right)
-            // no corner clearance: the buttons carry a 12dp horizontal margin, so the arc
-            // intrudes less than the navigation bar already clears
-            binding.content.updatePadding(left = bars.left, right = bars.right, bottom = bars.bottom)
-            insets
-        }
-    }
-
-    private fun close() {
-        setResult(RESULT_OK)
-        finish()
+    override fun onDestroyView() {
+        page.destroy()
+        super.onDestroyView()
     }
 
     private fun canOpenMarketUri(): Boolean =
         try {
-            canOpenIntent(this, AnkiDroidApp.getMarketIntent(this))
+            canOpenIntent(requireContext(), AnkiDroidApp.getMarketIntent(requireContext()))
         } catch (e: Exception) {
             Timber.w(e)
             false

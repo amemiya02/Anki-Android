@@ -89,7 +89,6 @@ class LayoutValidationTest : InstrumentedTest() {
             val ignoredLayoutIds =
                 listOf(
                     com.ichi2.anki.R.layout.fragment_reviewer,
-                    com.ichi2.anki.R.layout.fragment_preferences,
                     com.ichi2.anki.R.layout.fragment_drawing,
                 )
 
