@@ -100,6 +100,7 @@ class StudyOptionsFragment :
     /** Deck whose scroll position is held by the current or saved view. */
     // TODO: Include deckId in StudyOptionsState, and stop resetting scroll based on this
     private var displayedDeckId: DeckId? = null
+    private var hasResumedView = false
 
     private var descriptionLayoutBeforeResizing: DescriptionLayoutSettings? = null
 
@@ -147,6 +148,7 @@ class StudyOptionsFragment :
             setSupportActionBarText(title = "")
         }
         setupContentInsets(view)
+        hasResumedView = false
         viewModel.flowOfState.collectInViewLifecycle(Lifecycle.State.STARTED, ::rebuildUi)
         refreshInterface()
     }
@@ -210,7 +212,9 @@ class StudyOptionsFragment :
 
     override fun onResume() {
         super.onResume()
-        refreshInterface()
+        // onViewCreated has already requested this view's initial data.
+        if (hasResumedView) refreshInterface()
+        hasResumedView = true
     }
 
     private fun closeStudyOptions(result: Int) {

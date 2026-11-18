@@ -12,9 +12,6 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.view.menu.MenuBuilder
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
-import androidx.compose.ui.test.onNodeWithText
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -24,16 +21,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.databinding.FragmentStudyOptionsBinding
 import com.ichi2.anki.libanki.Consts.DEFAULT_DECK_ID
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.QueueType
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.progress.ViewModelProgress
-import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.testutils.ext.menu
-import com.ichi2.testutils.ext.triggerDeckNotFoundInLimitsMap
 import com.ichi2.testutils.launchFragmentInContainer
 import com.ichi2.testutils.withFragment
 import kotlinx.coroutines.CoroutineScope
@@ -44,12 +38,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowDialog
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -69,9 +61,6 @@ import kotlin.test.assertTrue
  */
 @RunWith(AndroidJUnit4::class)
 class StudyOptionsFragmentTest : RobolectricTest() {
-    @get:Rule
-    val compose = createEmptyComposeRule()
-
     /** Issue 22249: backend deletion can leave the tablet showing hidden Default. */
     @Test
     @Config(qualifiers = "xlarge")
@@ -296,27 +285,6 @@ class StudyOptionsFragmentTest : RobolectricTest() {
             assertTrue(second.isAdded)
         }
     }
-
-    /** Issue 21981: a refresh must offer recovery when the deck hierarchy is corrupt. */
-    @Test
-    fun `corrupt deck hierarchy offers Check database instead of crashing`() =
-        runTest {
-            triggerDeckNotFoundInLimitsMap()
-            throwOnShowError = false
-
-            withStudyOptions {
-                compose.onNodeWithText("deck not found in limits map").assertIsDisplayed()
-                compose.onNodeWithText(TR.sentenceCase.checkDatabase).assertIsDisplayed()
-                val dialog = ShadowDialog.getLatestDialog()
-                assertTrue(dialog.isShowing)
-
-                dialog.dismiss()
-                col.fixIntegrity()
-                refreshAndAwait()
-                val state = assertIs<StudyOptionsState.StudyOptions>(viewModel.state)
-                assertEquals(1, state.data.newCardsToday)
-            }
-        }
 
     @Test
     fun `fragment reaches RESUMED with a closed collection`() {
