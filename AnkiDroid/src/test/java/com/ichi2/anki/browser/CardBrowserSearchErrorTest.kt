@@ -9,11 +9,13 @@ import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.core.content.edit
 import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.setIntroductionSlidesShown
 import com.ichi2.anki.throwOnShowError
+import com.ichi2.testutils.BackupManagerTestUtilities
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,11 +60,16 @@ class CardBrowserSearchErrorTest : RobolectricTest() {
     private fun withBrowser(block: suspend CardBrowserFragment.() -> Unit) =
         if (embedded) {
             run {
+                BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
+                getPreferences().edit { putBoolean("backupPromptDisabled", true) }
                 setIntroductionSlidesShown(true)
                 runTest {
                     val activity = startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent()).get()
                     activity.binding.bottomNavigation!!.selectedItemId = NavigationItem.BROWSER.id
-                    advanceRobolectricLooper()
+                    compose.waitUntil(10_000) {
+                        advanceRobolectricLooper()
+                        activity.currentScreenFragment is CardBrowserFragment
+                    }
                     val browser = activity.currentScreenFragment as CardBrowserFragment
                     browser.activityViewModel.searchJob?.join()
                     advanceRobolectricLooper()
