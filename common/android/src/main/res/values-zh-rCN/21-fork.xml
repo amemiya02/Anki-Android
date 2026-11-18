@@ -27,4 +27,18 @@
     <string name="finished_deck_options_summary">每日上限、学习步骤、显示顺序</string>
     <string name="finished_filtered_deck_options_summary">搜索条件、数量上限、顺序和重建</string>
     <string name="finished_back_to_decks">返回牌组</string>
+
+    <plurals name="deck_list_due_today">
+        <item quantity="other">今天要学 %d 张卡片</item>
+    </plurals>
+    <plurals name="deck_list_studied_today">
+        <item quantity="other">已学 %d 张</item>
+    </plurals>
+    <string name="deck_list_count_description">%1$s：%2$d</string>
+    <string name="deck_list_empty_title">还没有牌组</string>
+    <string name="deck_list_empty_body">获取一个共享牌组即可马上开始学习；也可以用自己的：导入牌组文件，或者创建牌组，再用 + 按钮添加笔记。</string>
+    <string name="deck_list_import_file">导入文件</string>
+    <string name="deck_list_import_file_summary">牌组包（.apkg）或集合包（.colpkg）</string>
+    <string name="deck_list_create_deck">创建牌组</string>
+    <string name="deck_list_create_deck_summary">然后用 + 按钮添加笔记</string>
 </resources>

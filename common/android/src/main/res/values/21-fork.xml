@@ -42,4 +42,20 @@
     <string name="finished_deck_options_summary" comment="Under Deck options on the finished screen">Daily limits, learning steps, display order</string>
     <string name="finished_filtered_deck_options_summary" comment="Under Deck options on the finished screen, for a filtered deck">Search, limit, order and rebuilding</string>
     <string name="finished_back_to_decks" comment="Primary button on the finished screen which returns to the deck list">Back to decks</string>
+    <!-- The deck list (ticket 17); its column headings are the Engine's -->
+    <plurals name="deck_list_due_today" comment="The deck list's summary: new, learning and due Cards left today over every Deck">
+        <item quantity="one">%d card to study today</item>
+        <item quantity="other">%d cards to study today</item>
+    </plurals>
+    <plurals name="deck_list_studied_today" comment="Beside the deck list's summary: Cards answered today">
+        <item quantity="one">%d studied so far</item>
+        <item quantity="other">%d studied so far</item>
+    </plurals>
+    <string name="deck_list_count_description" comment="Read aloud for a count on the deck list. %1$s is New, Learning or Due; %2$d the count">%1$s: %2$d</string>
+    <string name="deck_list_empty_title" comment="Heading of the deck list when there are no Decks">No decks yet</string>
+    <string name="deck_list_empty_body">Get a shared deck to start studying straight away, or bring your own: import a deck file, or create a deck and add notes to it with the + button.</string>
+    <string name="deck_list_import_file">Import a file</string>
+    <string name="deck_list_import_file_summary">A deck package (.apkg) or a collection (.colpkg)</string>
+    <string name="deck_list_create_deck">Create a deck</string>
+    <string name="deck_list_create_deck_summary">Then add notes with the + button</string>
 </resources>
