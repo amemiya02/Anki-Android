@@ -61,4 +61,5 @@
     <item type="id" name="content" />
     <item name="multimedia_editor_container" type="id" />
     <item name="app_bar" type="id" />
+    <item name="studyoptions_frame" type="id" />
 </resources>
