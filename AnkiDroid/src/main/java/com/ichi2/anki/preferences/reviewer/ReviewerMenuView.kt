@@ -32,10 +32,6 @@ import kotlinx.coroutines.launch
  * It works like an [ActionMenuView], but the visible action items are horizontally scrollable by
  * using an [ActionMenuView] inside a [HorizontalScrollView], and another one for the overflown
  * actions.
- *
- * It also initializes itself, which makes possible to see it in Android Studio layout previews.
- *
- * @see [R.layout.item_reviewer_menu]
  */
 class ReviewerMenuView : LinearLayout {
     private val repository = ReviewerMenuRepository(context.sharedPrefs())
