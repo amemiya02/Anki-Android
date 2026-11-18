@@ -461,9 +461,21 @@ internal fun BrowserChips(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(5.dp),
         ) {
-            if (checked) Icon(painterResource(R.drawable.symbol_check), contentDescription = null, modifier = Modifier.size(16.dp))
+            if (checked) {
+                Icon(
+                    painterResource(R.drawable.symbol_check),
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = colors.onBackground,
+                )
+            }
             Text(text, style = foundation.type.body, maxLines = 1, overflow = TextOverflow.Ellipsis, color = colors.onBackground)
-            Icon(painterResource(R.drawable.symbol_arrow_drop_down), contentDescription = null, modifier = Modifier.size(16.dp))
+            Icon(
+                painterResource(R.drawable.symbol_arrow_drop_down),
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = colors.onBackgroundMuted,
+            )
         }
     }
 
