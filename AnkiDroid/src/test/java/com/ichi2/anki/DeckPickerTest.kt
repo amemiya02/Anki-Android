@@ -34,6 +34,7 @@ import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.Insets
 import androidx.core.net.toUri
 import androidx.core.view.ContentInfoCompat
+import androidx.core.view.MenuItemCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
@@ -108,6 +109,7 @@ import com.ichi2.testutils.revokeWritePermissions
 import com.ichi2.testutils.withPref
 import com.ichi2.testutils.withWritePermissions
 import com.ichi2.ui.AccessibleSearchView
+import com.ichi2.ui.BadgeDrawable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -119,6 +121,7 @@ import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.greaterThan
+import org.hamcrest.Matchers.instanceOf
 import org.hamcrest.Matchers.not
 import org.hamcrest.Matchers.notNullValue
 import org.hamcrest.Matchers.nullValue
@@ -1392,6 +1395,15 @@ class DeckPickerTest : RobolectricTest() {
             assertThat(getUndoTitle(), containsString("Update Note"))
             undo()
             assertThat(getUndoTitle(), containsString("Add Note"))
+        }
+
+    @Test
+    fun `sync icon is plain while no sync server is set`() =
+        deckPicker {
+            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+            assertThat(viewModel.optionsMenuState?.syncIcon, equalTo(SyncIconState.NotLoggedIn))
+            val sync = MenuItemCompat.getActionProvider(menu().findItem(R.id.action_sync)) as SyncActionProvider
+            assertThat("no warning badge: without a server, no sync is needed", sync.icon, not(instanceOf(BadgeDrawable::class.java)))
         }
 
     @Test

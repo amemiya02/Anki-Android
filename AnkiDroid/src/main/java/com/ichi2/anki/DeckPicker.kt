@@ -46,8 +46,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.edit
@@ -317,6 +319,9 @@ open class DeckPicker :
     /** Space below the last Deck, so it scrolls clear of the add button, the bottom bar and the keyboard */
     @VisibleForTesting
     internal val deckListBottomPadding = mutableIntStateOf(0)
+
+    /** The add button's menu is open: the deck list is dimmed behind it and screen readers skip it */
+    private val isDeckListBehindAddMenu = mutableStateOf(false)
 
     /** Today, as the deck list's title shows it on phones */
     private val deckListDate = mutableStateOf(Date(TimeManager.time.intTimeMS()))
@@ -637,6 +642,7 @@ open class DeckPicker :
                 toggleListener =
                     FloatingActionBarToggleListener { isOpening ->
                         closeFloatingActionBarBackPressCallback.isEnabled = isOpening
+                        isDeckListBehindAddMenu.value = isOpening
                     },
                 initiallyOpen = savedInstanceState?.getBoolean("mIsFABOpen") == true,
             )
@@ -744,6 +750,7 @@ open class DeckPicker :
                         actions = deckListActions,
                         listState = deckListState,
                         contentPadding = PaddingValues(bottom = bottom),
+                        modifier = if (isDeckListBehindAddMenu.value) Modifier.clearAndSetSemantics { } else Modifier,
                     )
                 }
             }
@@ -1438,7 +1445,9 @@ open class DeckPicker :
             }
         provider.setTooltipText(getString(tooltipText))
         when (state.syncIcon) {
-            SyncIconState.Normal -> {
+            // Without a sync server no sync is needed: the icon stays plain, as in the Mockup, and
+            // tapping it opens sync setup
+            SyncIconState.Normal, SyncIconState.NotLoggedIn -> {
                 BadgeDrawableBuilder.removeBadge(provider)
             }
             SyncIconState.PendingChanges -> {
@@ -1446,7 +1455,7 @@ open class DeckPicker :
                     .withColorAttr(CommonR.attr.badgeWarningColor)
                     .replaceBadge(provider)
             }
-            SyncIconState.OneWay, SyncIconState.NotLoggedIn -> {
+            SyncIconState.OneWay -> {
                 BadgeDrawableBuilder(this)
                     .withText('!')
                     .withColorAttr(CommonR.attr.badgeErrorColor)

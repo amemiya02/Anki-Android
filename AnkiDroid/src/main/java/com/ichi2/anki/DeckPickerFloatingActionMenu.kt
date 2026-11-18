@@ -15,6 +15,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.color.MaterialColors
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.common.android.animationEnabled
 import com.ichi2.anki.databinding.ActivityHomescreenBinding
@@ -65,6 +66,7 @@ class DeckPickerFloatingActionMenu(
         deckPicker.activeSnackBar?.dismiss()
         linearLayout.alpha = 0.5f
         studyOptionsFrame?.let { it.alpha = 0.5f }
+        setBehindMenuHiddenFromAccessibility(true)
         isFABOpen = true
 
         setCreateDeckButtonLabel()
@@ -77,6 +79,7 @@ class DeckPickerFloatingActionMenu(
             binding.fabBGLayout.visibility = View.VISIBLE
             binding.fabMain.backgroundTintList = ColorStateList.valueOf(fabPressedColor)
             binding.fabMain.setIconResource(addNoteIcon)
+            showMainButtonLabel()
             extendMainButton()
 
             with(binding) {
@@ -102,6 +105,7 @@ class DeckPickerFloatingActionMenu(
             binding.addSharedButton.translationY = 0f
             binding.addDeckButton.translationY = 0f
             binding.addFilteredDeckButton.translationY = 0f
+            showMainButtonLabel()
             binding.fabMain.isExtended = true
 
             // During without animation maintain the original color of FAB
@@ -144,6 +148,7 @@ class DeckPickerFloatingActionMenu(
         toggleListener.onBeginToggle(isOpening = false)
         linearLayout.alpha = 1f
         studyOptionsFrame?.let { it.alpha = 1f }
+        setBehindMenuHiddenFromAccessibility(false)
         isFABOpen = false
         with(binding) {
             fabBGLayout.visibility = View.GONE
@@ -156,10 +161,17 @@ class DeckPickerFloatingActionMenu(
                 addFilteredDeckButton.animate().cancel()
                 hideMenuButtons()
                 fabMain.isExtended = false
+                hideMainButtonLabel()
                 return
             }
 
-            fabMain.shrink()
+            fabMain.shrink(
+                object : ExtendedFloatingActionButton.OnChangedCallback() {
+                    override fun onShrunken(extendedFab: ExtendedFloatingActionButton) {
+                        if (!isFABOpen) hideMainButtonLabel()
+                    }
+                },
+            )
             val hideButtons =
                 object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator) {
@@ -172,6 +184,27 @@ class DeckPickerFloatingActionMenu(
             addDeckButton.animateClose(style.deckOffset, 50).setListener(hideButtons)
             addFilteredDeckButton.animateClose(style.otherOffset, 100).setListener(hideButtons)
         }
+    }
+
+    /**
+     * The closed add button is the + alone, as in the Mockup. Its label "Add" is text only while the
+     * menu is open: a shrunk button would otherwise still hold the text, unseen, and accessibility
+     * checks would measure the button's corners as the colour of that text.
+     */
+    private fun showMainButtonLabel() {
+        binding.fabMain.text = context.getString(CommonR.string.menu_add)
+    }
+
+    private fun hideMainButtonLabel() {
+        binding.fabMain.text = null
+    }
+
+    /** While the menu is open, the dimmed screen behind it is out of reach: screen readers skip it */
+    private fun setBehindMenuHiddenFromAccessibility(hidden: Boolean) {
+        val importance =
+            if (hidden) View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS else View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
+        linearLayout.importantForAccessibility = importance
+        studyOptionsFrame?.importantForAccessibility = importance
     }
 
     private fun hideMenuButtons() =
@@ -230,6 +263,7 @@ class DeckPickerFloatingActionMenu(
             },
         )
         binding.fabMain.isExtended = false
+        hideMainButtonLabel()
         binding.fabMain.setOnTouchListener(
             object : DoubleTapListener(context) {
                 override fun onDoubleTap(e: MotionEvent?) {

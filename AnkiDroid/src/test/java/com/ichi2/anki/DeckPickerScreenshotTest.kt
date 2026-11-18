@@ -3,9 +3,11 @@
 package com.ichi2.anki
 
 import android.content.Intent
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 import androidx.core.content.edit
-import androidx.core.view.isVisible
 import anki.decks.SetDeckCollapsedRequest
 import com.ichi2.anki.FontSizeConfig.PERCENT_200
 import com.ichi2.anki.LanguageConfig.ARABIC
@@ -35,7 +37,7 @@ class DeckPickerScreenshotTest : DeckListScreenshotTest() {
     @Test
     fun decks() {
         seedMockupDecks()
-        showDeckList("decks", withAddButton = false)
+        showDeckList("decks")
     }
 
     /** Long names wrap once and are then cut; the counts beside them stay in place */
@@ -50,13 +52,24 @@ class DeckPickerScreenshotTest : DeckListScreenshotTest() {
         expand("日本語能力試験 N2 文法・語彙・読解 総合対策")
         col.decks.select(current)
 
-        showDeckList("long_names", withAddButton = false)
+        // At 200% the Decks run under the add button; at the end of the list they clear it
+        showDeckList("long_names") { scrollDeckListToEnd() }
+    }
+
+    /** The add button opened: Add (a Note) with creating a Deck, a filtered Deck and getting shared Decks beside it */
+    @Test
+    fun add_menu() {
+        seedMockupDecks()
+        showDeckList("add_menu") {
+            floatingActionMenu.showFloatingActionMenu()
+            advanceRobolectricLooper()
+        }
     }
 
     /** A Newcomer with no Decks */
     @Test
     fun empty() {
-        showDeckList("empty", withAddButton = false)
+        showDeckList("empty")
     }
 }
 
@@ -93,15 +106,13 @@ abstract class DeckListScreenshotTest : ScreenshotTest() {
 
     protected fun showDeckList(
         name: String,
-        withAddButton: Boolean = true,
+        beforeCapture: DeckPicker.() -> Unit = {},
     ) {
         val deckPicker = startActivityNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent())
         advanceRobolectricLooperUntil(lazyMessage = { "the deck list should be shown" }) {
             deckPicker.viewModel.flowOfDeckListScreen.value != null
         }
-        // The add button is ticket 18's. The accessibility check estimates its label colour from the
-        // picture (the background around its icon), and reports Deck rows lying under it
-        if (!withAddButton) deckPicker.floatingActionButtonBinding.root.isVisible = false
+        deckPicker.beforeCapture()
         composeRule.waitForIdle()
         advanceRobolectricLooper()
         captureScreen(name)
@@ -131,6 +142,11 @@ abstract class DeckListScreenshotTest : ScreenshotTest() {
             col.db.execute("update cards set type = 1, queue = 1, due = ?, left = 1001 where id = ?", TimeManager.time.intTime(), it)
         }
         return deckId
+    }
+
+    protected fun scrollDeckListToEnd() {
+        composeRule.onNode(hasScrollAction()).performTouchInput { repeat(3) { swipeUp() } }
+        composeRule.waitForIdle()
     }
 
     protected fun expand(name: String) =
