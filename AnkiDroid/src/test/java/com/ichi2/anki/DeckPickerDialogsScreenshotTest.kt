@@ -5,8 +5,8 @@ package com.ichi2.anki
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
@@ -28,7 +28,7 @@ class DeckPickerDialogsScreenshotTest : DeckListScreenshotTest() {
             composeRule.onNodeWithText(action).assertIsDisplayed().assertIsNotEnabled()
             val label = getString(CommonString.paper_dialog_deck_name)
             val deckName = "日本語 · N3 語彙"
-            composeRule.onNode(hasSetTextAction() and hasContentDescription(label)).performTextReplacement(deckName)
+            composeRule.onNode(hasSetTextAction() and hasText(label)).performTextReplacement(deckName)
             advanceRobolectricLooperUntil {
                 kotlin.runCatching { composeRule.onNodeWithText(action).assertIsEnabled() }.isSuccess
             }

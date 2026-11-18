@@ -8,10 +8,10 @@ import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
@@ -126,7 +126,7 @@ class ExportDialogFragmentTest : RobolectricTest() {
             openDeckSelection()
             option(with(targetContext) { TR.sentenceCase.createDeck }).performClick()
             val name = "Created from export"
-            compose.onNodeWithContentDescription(str(CommonString.paper_dialog_deck_name)).performTextInput(name)
+            compose.onNode(hasText(str(CommonString.paper_dialog_deck_name)) and hasSetTextAction()).performTextInput(name)
             option(str(CommonString.dialog_positive_create)).performClick()
             advanceRobolectricLooperUntil { col.decks.idForName(name) != null }
             val createdId = assertNotNull(col.decks.idForName(name))
