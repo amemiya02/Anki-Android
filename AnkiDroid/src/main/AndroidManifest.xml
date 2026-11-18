@@ -258,7 +258,7 @@
             android:name="com.ichi2.anki.CardBrowserContextMenuAction"
             android:label="@string/card_browser_context_menu"
             android:enabled="false"
-            android:targetActivity="com.ichi2.anki.CardBrowser"
+            android:targetActivity="com.ichi2.anki.IntentHandler"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.PROCESS_TEXT" />

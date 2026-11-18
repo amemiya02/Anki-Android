@@ -6,12 +6,12 @@ package com.ichi2.anki
 import android.os.Bundle
 import com.ichi2.anki.NoteEditorFragment.Companion.NoteEditorCaller
 import com.ichi2.anki.common.destinations.NoteEditorDestination
-import com.ichi2.anki.common.destinations.navigate
+import com.ichi2.anki.noteeditor.toIntent
 import com.ichi2.anki.common.utils.android.showThemedToast
 import timber.log.Timber
 
 /**
- * This activity serves as an intermediate handler to process various types of intents and forward them to the NoteEditor fragment hosted within the SingleFragmentActivity.
+ * This activity serves as an intermediate handler to process various types of intents and forward them to the Note Editor hosted in the app navigation stack.
  *
  * The main reason for using this IntentHandler2 is to avoid conflicts in the manifest file. We can't have multiple
  * ACTION_SEND intents in same activity (IntentHandler) that only differ by their labels. By using this handler, we can manage these intents
@@ -29,15 +29,16 @@ class IntentHandler2 : AbstractIntentHandler() {
             intent.putExtra(NoteEditorFragment.EXTRA_CALLER, NoteEditorCaller.ADD_IMAGE.value)
         }
         val intentExtras = intent.extras
-        if (intentExtras == null) {
-            Timber.w("Intent unexpectedly has no extras. Notifying user, defaulting to add note.")
-            showThemedToast(this, getString(CommonString.something_wrong), false)
-            navigate(NoteEditorDestination.AddNote())
-            finish()
-        } else {
-            Timber.i("Opening Note Editor from intent")
-            navigate(NoteEditorDestination.PassArguments.from(intent, intentExtras))
-            finish()
-        }
+        val destination =
+            if (intentExtras == null) {
+                Timber.w("Intent unexpectedly has no extras. Notifying user, defaulting to add note.")
+                showThemedToast(this, getString(CommonString.something_wrong), false)
+                NoteEditorDestination.AddNote()
+            } else {
+                Timber.i("Opening Note Editor from intent")
+                NoteEditorDestination.PassArguments.from(intent, intentExtras)
+            }
+        startActivity(DeckPicker.getEntryIntent(this, destination.toIntent(this), source = intent))
+        finish()
     }
 }

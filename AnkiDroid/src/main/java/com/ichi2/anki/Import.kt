@@ -4,12 +4,11 @@ package com.ichi2.anki
 
 import android.app.Activity
 import android.content.Intent
-import androidx.core.app.TaskStackBuilder
 import androidx.core.content.edit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.ichi2.anki.common.destinations.CsvImporterDestination
-import com.ichi2.anki.common.destinations.addNextIntent
+import com.ichi2.anki.pages.toIntent
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.storage.CollectionHelper
 import com.ichi2.anki.dialogs.AsyncDialogFragment
@@ -58,11 +57,8 @@ fun AnkiActivity.onSelectedFileToImport(data: Intent): Job =
     }
 
 fun Activity.openCsvImporter(path: String) {
-    val stackBuilder = TaskStackBuilder.create(this)
-    stackBuilder.addNextIntentWithParentStack(Intent(this, DeckPicker::class.java))
-    stackBuilder.addNextIntent(CsvImporterDestination(path))
-
-    stackBuilder.startActivities()
+    val destination = CsvImporterDestination(path).toIntent(this)
+    if (this is DeckPicker) startActivity(destination) else startActivity(DeckPicker.getEntryIntent(this, destination))
 }
 
 /** Open a prepared import on the UI thread. */

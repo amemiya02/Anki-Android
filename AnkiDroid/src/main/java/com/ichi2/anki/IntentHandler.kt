@@ -10,16 +10,14 @@ import android.os.Bundle
 import android.os.Message
 import androidx.annotation.CheckResult
 import androidx.annotation.VisibleForTesting
-import androidx.core.app.TaskStackBuilder
 import androidx.core.content.FileProvider
 import androidx.work.WorkManager
 import com.ichi2.anki.common.analytics.reportPotentiallyDeadCode
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.coroutines.applicationScope
+import com.ichi2.anki.browser.toIntent
 import com.ichi2.anki.common.destinations.BrowserDestination
 import com.ichi2.anki.common.destinations.NoteEditorDestination
-import com.ichi2.anki.common.destinations.addNextIntent
-import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.storage.CollectionHelper
 import com.ichi2.anki.common.storage.StorageDecision
@@ -30,6 +28,7 @@ import com.ichi2.anki.dialogs.DialogHandler.Companion.storeMessage
 import com.ichi2.anki.dialogs.DialogHandlerMessage
 import com.ichi2.anki.dialogs.requireDeckPickerOrShowError
 import com.ichi2.anki.libanki.DeckId
+import com.ichi2.anki.noteeditor.toIntent
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.shareddeck.SharedDecksDownloadFragment
 import com.ichi2.anki.sync.MeteredSyncPolicy
@@ -110,7 +109,7 @@ class IntentHandler : AbstractIntentHandler() {
                     finish()
                 }
             LaunchType.SYNC -> runIfStoragePermissions { handleSyncIntent(reloadIntent, action) }
-            LaunchType.REVIEW -> runIfStoragePermissions { handleReviewIntent(reloadIntent, intent) }
+            LaunchType.REVIEW -> runIfStoragePermissions { handleReviewIntent(intent) }
             LaunchType.OPEN_BROWSER -> runIfStoragePermissions { handleBrowserIntent(intent) }
             LaunchType.DEFAULT_START_APP_IF_NEW -> {
                 Timber.d("onCreate() performing default action")
@@ -178,22 +177,19 @@ class IntentHandler : AbstractIntentHandler() {
      */
     private fun handleBrowserIntent(intent: Intent) {
         Timber.i("Handling intent to open the Card Browser")
-        val search = intent.data?.getQueryParameter("search")
         val destination =
-            if (search != null) {
-                BrowserDestination.Search(query = search, allDecks = false)
+            if (intent.action == Intent.ACTION_PROCESS_TEXT) {
+                Intent(intent).setClass(this, CardBrowser::class.java)
             } else {
-                BrowserDestination.Open
+                val search = intent.data?.getQueryParameter("search")
+                val browser = if (search == null) BrowserDestination.Open else BrowserDestination.Search(query = search, allDecks = false)
+                browser.toIntent(this)
             }
-        // 'back' should close this activity.
-        navigate(destination)
+        startActivity(DeckPicker.getEntryIntent(this, destination))
         finish()
     }
 
-    private fun handleReviewIntent(
-        reloadIntent: Intent,
-        reviewerIntent: Intent,
-    ) {
+    private fun handleReviewIntent(reviewerIntent: Intent) {
         val fromFormerReviewer = reviewerIntent.component?.className == FORMER_REVIEWER_COMPONENT
         val deckKey =
             if (fromFormerReviewer && !reviewerIntent.hasExtra(EXTRA_DECK_ID)) FORMER_REVIEWER_DECK_ID else EXTRA_DECK_ID
@@ -209,13 +205,8 @@ class IntentHandler : AbstractIntentHandler() {
                     putExtra(NavigationDrawerActivity.EXTRA_STARTED_WITH_SHORTCUT, true)
                 }
             }
-        // Clean the stack out under the reviewer to avoid any incorrect activities / dialogs /
-        // data state from prior app usage showing after reviewer exits if going to reviewer directly
-        TaskStackBuilder
-            .create(applicationContext)
-            .addNextIntent(reloadIntent)
-            .addNextIntent(reviewIntent)
-            .startActivities()
+        // A saved review shortcut opens a fresh Decks → Review stack.
+        startActivity(DeckPicker.getEntryIntent(this, reviewIntent, resetTask = true))
         finish()
     }
 
@@ -315,11 +306,8 @@ class IntentHandler : AbstractIntentHandler() {
                 data.data
             }
 
-        TaskStackBuilder
-            .create(this)
-            .addNextIntentWithParentStack(Intent(this, DeckPicker::class.java))
-            .addNextIntent(NoteEditorDestination.ImageOcclusion(imageUri))
-            .startActivities()
+        val destination = NoteEditorDestination.ImageOcclusion(imageUri).toIntent(this)
+        startActivity(DeckPicker.getEntryIntent(this, destination, source = data, resetTask = true))
     }
 
     private fun handleSharedText(data: Intent) {
@@ -329,7 +317,7 @@ class IntentHandler : AbstractIntentHandler() {
                 ?.let { NoteEditorDestination.PassArguments.from(data, it) }
                 // Fallback if no extras, though this shouldn't happen for ACTION_SEND
                 ?: NoteEditorDestination.AddNote()
-        navigate(destination)
+        startActivity(DeckPicker.getEntryIntent(this, destination.toIntent(this), source = data))
     }
 
     private fun deleteDownloadedDeck(sharedDeckUri: Uri?) {
@@ -386,6 +374,7 @@ class IntentHandler : AbstractIntentHandler() {
     companion object {
         private const val ACTION_DO_SYNC = "com.ichi2.anki.DO_SYNC"
         const val EXTRA_DECK_ID = "EXTRA_DECK_ID"
+        private const val PROCESS_TEXT_BROWSER_COMPONENT = "com.ichi2.anki.CardBrowserContextMenuAction"
         private const val FORMER_REVIEWER_COMPONENT = "com.ichi2.anki.Reviewer"
         private const val FORMER_REVIEWER_DECK_ID = "deckId"
         private const val ACTION_COPY_DEBUG_INFO = "com.ichi2.anki.COPY_DEBUG_INFO"
@@ -412,7 +401,9 @@ class IntentHandler : AbstractIntentHandler() {
             val action = intent.action
             return if (intent.component?.className == FORMER_REVIEWER_COMPONENT) {
                 LaunchType.REVIEW
-            } else if (intent.isBrowserDeepLink()) {
+            } else if (intent.isBrowserDeepLink() ||
+                (intent.component?.className == PROCESS_TEXT_BROWSER_COMPONENT && action == Intent.ACTION_PROCESS_TEXT)
+            ) {
                 LaunchType.OPEN_BROWSER
             } else if (action == Intent.ACTION_SEND || (Intent.ACTION_VIEW == action && isValidViewIntent(intent))) {
                 val mimeType = intent.resolveMimeType()

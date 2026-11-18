@@ -12,6 +12,7 @@
 
 package com.ichi2.anki
 
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -728,6 +729,7 @@ open class DeckPicker :
         observeProgress(viewModel) { progress -> progressMessage(progress) }
         setupFlows()
         installScreenNavigation()
+        if (savedInstanceState == null) consumeEntryIntent(intent)
     }
 
     private fun installScreenNavigation() {
@@ -2656,6 +2658,26 @@ open class DeckPicker :
         /**
          * Builds an intent for [DeckPicker]
          */
+        private const val EXTRA_ENTRY_SCREEN = "appNavigationEntryScreen"
+
+        internal fun getEntryIntent(
+            context: Context,
+            screen: Intent,
+            source: Intent? = null,
+            resetTask: Boolean = false,
+        ): Intent = getIntent(context).apply {
+            putExtra(EXTRA_ENTRY_SCREEN, screen)
+            addFlags(
+                if (resetTask) Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                else Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP,
+            )
+            if (source != null) {
+                val uri = source.data ?: source.getParcelableExtraCompat<android.net.Uri>(Intent.EXTRA_STREAM)
+                clipData = source.clipData ?: uri?.let { ClipData.newRawUri(null, it) }
+                addFlags(source.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
+            }
+        }
+
         fun getIntent(
             context: Context,
             autoSync: Boolean = false,
@@ -2669,10 +2691,17 @@ open class DeckPicker :
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         this.intent = intent
+        consumeEntryIntent(intent)
         if (intent.hasExtra(EXTRA_SYNC_FROM_LOGIN)) {
             Timber.i("Sync requested from Login")
             this.syncOnResume = true
         }
+    }
+
+    private fun consumeEntryIntent(intent: Intent) {
+        val screen = intent.getParcelableExtraCompat<Intent>(EXTRA_ENTRY_SCREEN) ?: return
+        intent.removeExtra(EXTRA_ENTRY_SCREEN)
+        if (!awaitingWelcome) startActivity(screen)
     }
 
     override fun opExecuted(

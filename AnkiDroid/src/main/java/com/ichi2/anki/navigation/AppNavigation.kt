@@ -46,6 +46,8 @@ import com.ichi2.anki.DrawingFragment
 import com.ichi2.anki.NoteEditorActivity
 import com.ichi2.anki.NoteEditorPaneFragment
 import com.ichi2.anki.SingleFragmentActivity
+import com.ichi2.anki.StudyOptionsActivity
+import com.ichi2.anki.StudyOptionsFlowFragment
 import com.ichi2.anki.account.AccountActivity
 import com.ichi2.anki.account.AccountFlowFragment
 import com.ichi2.anki.browser.CardBrowserFragment
@@ -248,6 +250,7 @@ internal class AppNavigation(
             when (component) {
                 CardBrowser::class.java.name -> CardBrowserPaneFragment::class.java
                 Info::class.java.name -> InfoFragment::class.java
+                StudyOptionsActivity::class.java.name -> StudyOptionsFlowFragment::class.java
                 MultimediaActivity::class.java.name -> MultimediaFlowFragment::class.java
                 NoteEditorActivity::class.java.name -> NoteEditorPaneFragment::class.java
                 else -> fragmentScreens[intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME)] ?: return false
@@ -326,6 +329,7 @@ internal class AppNavigation(
                 AccountActivity::class.java.name,
                 CardBrowser::class.java.name,
                 Info::class.java.name,
+                StudyOptionsActivity::class.java.name,
                 MultimediaActivity::class.java.name,
                 NoteEditorActivity::class.java.name,
                 SingleFragmentActivity::class.java.name,
@@ -356,6 +360,7 @@ internal class AppNavigation(
                 ReviewerFragment::class.java,
                 ScheduleRemindersFragment::class.java,
                 Statistics::class.java,
+                StudyOptionsFlowFragment::class.java,
                 TemplatePreviewerFragment::class.java,
             ).associateBy { it.name }
     }
