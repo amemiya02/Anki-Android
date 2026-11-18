@@ -9,18 +9,21 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.InitialActivity.StartupFailure
 import com.ichi2.anki.multiprofile.ProfileId
 import com.ichi2.anki.multiprofile.ProfileManager
 import com.ichi2.anki.multiprofile.ProfileManager.Companion.PREF_LAST_ACTIVE_PROFILE_ID
 import com.ichi2.anki.multiprofile.ProfileManager.Companion.PROFILE_REGISTRY_FILENAME
-import com.ichi2.testutils.neutralButton
 import io.mockk.verify
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -34,6 +37,9 @@ import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class DeckPickerProfileRecoveryTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     private val app: AnkiDroidApp
         get() = targetContext as AnkiDroidApp
 
@@ -61,8 +67,8 @@ class DeckPickerProfileRecoveryTest : RobolectricTest() {
         withStartupFailure(StartupFailure.DiskFull) {
             deckPicker {
                 verify { InitialActivity.getStartupFailureType(any<SharedPreferences>(), any<() -> Boolean>()) }
-                val recovery = assertNotNull(profileLoadFailureDialog, "Failed Default startup must still offer profile recovery")
-                recovery.neutralButton.performClick()
+                assertNotNull(profileLoadFailureDialog, "Failed Default startup must still offer profile recovery")
+                compose.onNodeWithText(targetContext.getString(CommonString.profile_load_failed_use_default, "Default")).performClick()
                 advanceRobolectricLooper()
 
                 assertEquals(
@@ -148,7 +154,7 @@ class DeckPickerProfileRecoveryTest : RobolectricTest() {
             // A privileged test runner may still be able to write despite these permissions.
             assumeFalse("The registry directory must actually be unwritable", prefsDirectory.canWrite())
             val dialog = recovery.requireDialog()
-            recovery.neutralButton.performClick()
+            compose.onNodeWithText(targetContext.getString(CommonString.profile_load_failed_use_default, "Default")).performClick()
             advanceRobolectricLooper()
 
             assertEquals(diskBefore, registryFile.readText(), "The failed commit leaves the old selection on disk")

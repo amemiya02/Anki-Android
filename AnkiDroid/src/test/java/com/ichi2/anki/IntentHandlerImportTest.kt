@@ -4,11 +4,13 @@ package com.ichi2.anki
 
 import android.content.Intent
 import android.os.Looper
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.core.net.toUri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.dialogs.DialogHandler
-import com.ichi2.anki.dialogs.utils.message
 import com.ichi2.utils.ImportResolution
 import com.ichi2.utils.ImportResult
 import com.ichi2.utils.ImportUtils
@@ -21,20 +23,22 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowDialog
-import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /** Import handling tests for [IntentHandler]. */
 @RunWith(AndroidJUnit4::class)
 class IntentHandlerImportTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Before
     fun prepareImport() {
         setIntroductionSlidesShown(true)
@@ -54,12 +58,10 @@ class IntentHandlerImportTest : RobolectricTest() {
 
             val activity = launchImport()
 
-            val dialog = assertIs<AlertDialog>(ShadowDialog.getLatestDialog())
-            assertEquals(failure.humanReadableMessage, dialog.message)
-            assertTrue(dialog.isShowing)
+            compose.onNodeWithText(failure.humanReadableMessage).assertIsDisplayed()
             assertFalse(activity.isFinishing)
 
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+            compose.onNodeWithText(activity.getString(CommonString.dialog_ok)).performClick()
             shadowOf(Looper.getMainLooper()).idle()
             assertTrue(activity.isFinishing)
         }
@@ -113,12 +115,10 @@ class IntentHandlerImportTest : RobolectricTest() {
 
             val activity = launchImport("text/plain")
 
-            val dialog = assertIs<AlertDialog>(ShadowDialog.getLatestDialog())
-            assertEquals(failure.humanReadableMessage, dialog.message)
-            assertTrue(dialog.isShowing)
+            compose.onNodeWithText(failure.humanReadableMessage).assertIsDisplayed()
             assertFalse(activity.isFinishing)
 
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+            compose.onNodeWithText(activity.getString(CommonString.dialog_ok)).performClick()
             shadowOf(Looper.getMainLooper()).idle()
             assertTrue(activity.isFinishing)
         }

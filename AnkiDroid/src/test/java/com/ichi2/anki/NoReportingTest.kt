@@ -3,6 +3,9 @@
 package com.ichi2.anki
 
 import android.content.Intent
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.core.content.edit
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
@@ -10,10 +13,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.preferences.PreferenceTestUtils
 import com.ichi2.testutils.BackupManagerTestUtilities
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.empty
 import org.hamcrest.Matchers.hasItem
 import org.hamcrest.Matchers.not
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -26,6 +29,9 @@ import com.ichi2.anki.common.android.R as CommonR
  */
 @RunWith(AndroidJUnit4::class)
 class NoReportingTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Test
     fun `the app carries no crash report sender`() {
         assertFailsWith<ClassNotFoundException>("ACRA would send crash reports to Upstream's server") {
@@ -79,12 +85,12 @@ class NoReportingTest : RobolectricTest() {
     fun `a failing task still shows the app's own error dialog`() {
         throwOnShowError = false
         val controller = Robolectric.buildActivity(FragmentActivity::class.java).also(::saveControllerForCleanup)
-        val activity = controller.create().get()
-        activity.setTheme(CommonR.style.Theme_Light)
+        controller.get().setTheme(CommonR.style.Theme_Light)
+        val activity = controller.setup().get()
 
         activity.launchCatchingTask { throw IllegalStateException("the task failed") }
         advanceRobolectricLooper()
 
-        assertThat(getAlertDialogText(true), containsString("the task failed"))
+        compose.onNodeWithText("the task failed", substring = true).assertIsDisplayed()
     }
 }

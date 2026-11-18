@@ -4,11 +4,14 @@
 package com.ichi2.anki
 
 import android.graphics.Path
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.ui.windows.reviewer.whiteboard.WhiteboardFragment
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.shadows.ShadowDialog
@@ -18,6 +21,9 @@ import kotlin.test.assertNull
 /** Tests for [DrawingFragment] */
 @RunWith(AndroidJUnit4::class)
 class DrawingFragmentTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Test
     fun `back press finishes the activity when the whiteboard is empty`() {
         val (activity, _) = launchDrawingActivity()
@@ -39,14 +45,10 @@ class DrawingFragmentTest : RobolectricTest() {
         activity.onBackPressedDispatcher.onBackPressed()
         advanceRobolectricLooper()
 
-        val dialog =
-            assertNotNull(
-                ShadowDialog.getLatestDialog() as? AlertDialog,
-                "discard dialog should be shown",
-            )
+        assertNotNull(ShadowDialog.getLatestDialog(), "discard dialog should be shown")
         assertThat("activity is not finishing while dialog is open", activity.isFinishing, equalTo(false))
 
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        compose.onNodeWithText(targetContext.getString(CommonString.discard)).performClick()
         advanceRobolectricLooper()
         assertThat("activity finishes after discard is confirmed", activity.isFinishing, equalTo(true))
     }

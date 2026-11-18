@@ -3,15 +3,15 @@
 package com.ichi2.anki
 
 import android.Manifest
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.core.content.edit
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.storage.CollectionHelper
 import com.ichi2.anki.common.utils.android.SdCard
-import com.ichi2.anki.dialogs.utils.ankiListView
-import com.ichi2.anki.dialogs.utils.message
-import com.ichi2.anki.dialogs.utils.title
 import com.ichi2.anki.exception.StorageAccessException
 import com.ichi2.testutils.TestException
 import com.ichi2.testutils.withNoWritePermission
@@ -19,14 +19,13 @@ import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import io.mockk.unmockkObject
-import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowDialog
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -34,6 +33,9 @@ import kotlin.io.path.absolutePathString
 @RunWith(AndroidJUnit4::class)
 @Config(shadows = [ShadowNullExternalStorage::class])
 class DeckPickerNoExternalFilesDirTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     // TODO: @Config(sdk = [Build.VERSION_CODES.BAKLAVA]) // Bug 460912704 occurs on Android 16
     @Test
     fun `Fatal error is shown on fresh startup getExternalFilesDir is null`() {
@@ -44,8 +46,7 @@ class DeckPickerNoExternalFilesDirTest : RobolectricTest() {
         // IntroductionActivity should be skipped by our code so we can show the error
         // without user interaction
         deckPicker(skipIntroduction = false) {
-            val message = (ShadowDialog.getLatestDialog() as AlertDialog).message
-            assertThat(message, containsString("getExternalFilesDir unexpectedly returned null"))
+            assertStorageError()
         }
     }
 
@@ -56,8 +57,7 @@ class DeckPickerNoExternalFilesDirTest : RobolectricTest() {
         // IntroductionActivity should be skipped by our code so we can show the error
         // without user interaction
         deckPicker(skipIntroduction = false) {
-            val message = (ShadowDialog.getLatestDialog() as AlertDialog).message
-            assertThat(message, containsString("getExternalFilesDir unexpectedly returned null"))
+            assertStorageError()
         }
     }
 
@@ -77,19 +77,18 @@ class DeckPickerNoExternalFilesDirTest : RobolectricTest() {
                 setIntroductionSlidesShown(true)
 
                 deckPicker {
-                    (ShadowDialog.getLatestDialog() as AlertDialog).also { dialog ->
-                        assertThat(dialog.title, equalTo("Inaccessible collection"))
-                        shadowOf(dialog.ankiListView).clickFirstItemContainingText("Create a new collection")
-                    }
-
-                    val dialog = (ShadowDialog.getLatestDialog() as AlertDialog)
-                    assertThat(dialog.message, containsString("getExternalFilesDir unexpectedly returned null"))
+                    compose.onNodeWithText("Inaccessible collection").assertIsDisplayed()
+                    compose.onNodeWithText(getString(CommonString.create_new_collection)).performClick()
+                    assertStorageError()
                 }
             }
         } finally {
             CollectionHelper.ankiDroidDirectoryOverride = null
             unmockkAll()
         }
+
+    private fun assertStorageError() =
+        compose.onNodeWithText("getExternalFilesDir unexpectedly returned null", substring = true).assertIsDisplayed()
 }
 
 class AnkiDroidAppWithCollectionButUnwritableStorage : AnkiDroidApp() {

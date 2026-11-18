@@ -4,6 +4,9 @@ package com.ichi2.anki
 
 import android.content.Intent
 import androidx.appcompat.view.menu.MenuBuilder
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.backend.backendError
 import anki.collection.OpChanges
@@ -13,6 +16,7 @@ import net.ankiweb.rsdroid.Backend
 import net.ankiweb.rsdroid.BackendFactory
 import net.ankiweb.rsdroid.exceptions.BackendIoException
 import org.junit.After
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.atomic.AtomicBoolean
@@ -21,6 +25,9 @@ import kotlin.test.assertIs
 
 @RunWith(AndroidJUnit4::class)
 class StudyOptionsUndoRefreshErrorRegressionTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @After
     fun resetBackend() = BackendFactory.setOverride(null)
 
@@ -50,7 +57,7 @@ class StudyOptionsUndoRefreshErrorRegressionTest : RobolectricTest() {
         pane.onMenuItemSelected(MenuBuilder(activity).add(0, R.id.action_empty, 0, "Empty"))
         advanceRobolectricLooper()
         assertEquals(0, col.decks.cardCount(filtered), "The write succeeds before the menu read fails")
-        assertEquals(failure.localizedMessage, getAlertDialogText(checkDismissed = true))
+        compose.onNodeWithText(requireNotNull(failure.localizedMessage)).assertIsDisplayed()
         // RobolectricTest's exception rule also rejects an uncaught coroutine failure.
     }
 }
