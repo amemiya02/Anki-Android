@@ -3,7 +3,6 @@
 package com.ichi2.anki.noteeditor
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,18 +18,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,12 +47,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.noteeditor.presentation.ToolbarLayoutMode
 import com.ichi2.anki.settings.enums.Theme
-import com.ichi2.compose.theme.widgetBorder
-import com.ichi2.compose.ui.dialogs.AnkiDroidDialog
+import com.ichi2.compose.ui.dialogs.PaperDialog
 import com.ichi2.compose.ui.preview.AnkiDroidPreview
 import com.ichi2.compose.ui.preview.AnkiDroidThemeProvider
 import com.ichi2.anki.common.android.R as CommonR
@@ -70,64 +62,35 @@ fun ToolbarLayoutDialog(
     onSelect: (ToolbarLayoutMode) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    // Read outside the dialog: its window replaces LocalContext, which the border is read from
-    val border = MaterialTheme.widgetBorder
-    AnkiDroidDialog(
+    PaperDialog(
+        title = stringResource(CommonString.note_editor_toolbar_layout),
         onDismissRequest = onDismiss,
-        modifier = Modifier.widthIn(max = 560.dp).fillMaxWidth(),
-        properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
-        ToolbarLayoutDialogCard(selected, onSelect, border)
-    }
-}
-
-/** Displays the dialog title and layout choices, adapting their arrangement to the available space. */
-@Composable
-private fun ToolbarLayoutDialogCard(
-    selected: ToolbarLayoutMode,
-    onSelect: (ToolbarLayoutMode) -> Unit,
-    border: BorderStroke?,
-) {
-    Surface(
-        shape = AlertDialogDefaults.shape,
-        color = AlertDialogDefaults.containerColor,
-        contentColor = AlertDialogDefaults.textContentColor,
-        tonalElevation = AlertDialogDefaults.TonalElevation,
-        border = border,
-    ) {
-        Column(Modifier.verticalScroll(rememberScrollState()).padding(24.dp)) {
-            Text(
-                text = stringResource(CommonString.note_editor_toolbar_layout),
-                modifier = Modifier.padding(bottom = 16.dp),
-                style = MaterialTheme.typography.headlineSmall,
-                color = AlertDialogDefaults.titleContentColor,
-            )
-            BoxWithConstraints(Modifier.padding(bottom = 24.dp).fillMaxWidth()) {
-                // Use full-width rows when large text would push a choice off-screen.
-                val useVerticalList = (maxWidth - 16.dp) / 3 < 72.dp * LocalDensity.current.fontScale
-                if (useVerticalList) {
-                    Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        ToolbarLayoutMode.entries.forEach { layout ->
-                            ToolbarLayoutChoice(
-                                layout,
-                                selected,
-                                onSelect,
-                                horizontal = true,
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                        }
+        BoxWithConstraints(Modifier.padding(bottom = 24.dp).fillMaxWidth()) {
+            // Use full-width rows when large text would push a choice off-screen.
+            val useVerticalList = (maxWidth - 16.dp) / 3 < 72.dp * LocalDensity.current.fontScale
+            if (useVerticalList) {
+                Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ToolbarLayoutMode.entries.forEach { layout ->
+                        ToolbarLayoutChoice(
+                            layout,
+                            selected,
+                            onSelect,
+                            horizontal = true,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
                     }
-                } else {
-                    Row(Modifier.selectableGroup().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        ToolbarLayoutMode.entries.forEach { layout ->
-                            ToolbarLayoutChoice(
-                                layout,
-                                selected,
-                                onSelect,
-                                horizontal = false,
-                                modifier = Modifier.weight(1f).fillMaxHeight(),
-                            )
-                        }
+                }
+            } else {
+                Row(Modifier.selectableGroup().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ToolbarLayoutMode.entries.forEach { layout ->
+                        ToolbarLayoutChoice(
+                            layout,
+                            selected,
+                            onSelect,
+                            horizontal = false,
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                        )
                     }
                 }
             }

@@ -4,7 +4,6 @@ package com.ichi2.anki.noteeditor
 
 import android.content.Context
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -25,6 +24,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ApplicationProvider
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.noteeditor.presentation.ToolbarLayoutMode
+import com.ichi2.compose.theme.AnkiDroidTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -45,7 +45,7 @@ class ToolbarLayoutDialogTest {
     fun `layout choices announce buttons and report the chosen layout`() {
         var chosen: ToolbarLayoutMode? = null
         composeRule.setContent {
-            MaterialTheme {
+            AnkiDroidTheme {
                 ToolbarLayoutDialog(selected = ToolbarLayoutMode.SCROLL, onSelect = { chosen = it }, onDismiss = {})
             }
         }
@@ -64,7 +64,7 @@ class ToolbarLayoutDialogTest {
     fun `preview renders the title and all choices inside its host`() {
         composeRule.setContent {
             CompositionLocalProvider(LocalInspectionMode provides true) {
-                MaterialTheme {
+                AnkiDroidTheme {
                     Box(Modifier.testTag("preview")) {
                         ToolbarLayoutDialog(selected = ToolbarLayoutMode.SCROLL, onSelect = {}, onDismiss = {})
                     }
@@ -74,6 +74,9 @@ class ToolbarLayoutDialogTest {
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         val labels = listOf(CommonString.note_editor_toolbar_layout) + ToolbarLayoutMode.entries.map { it.label() }
+        composeRule
+            .onNodeWithText(context.getString(CommonString.note_editor_toolbar_layout))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
         labels.forEach { label ->
             composeRule
                 .onNodeWithText(context.getString(label))
@@ -112,7 +115,7 @@ class ToolbarLayoutDialogTest {
     private fun showLargeTextDialog(onSelect: (ToolbarLayoutMode) -> Unit = {}) {
         RuntimeEnvironment.setFontScale(2f)
         composeRule.setContent {
-            MaterialTheme {
+            AnkiDroidTheme {
                 ToolbarLayoutDialog(selected = ToolbarLayoutMode.HIDDEN, onSelect = onSelect, onDismiss = {})
             }
         }
