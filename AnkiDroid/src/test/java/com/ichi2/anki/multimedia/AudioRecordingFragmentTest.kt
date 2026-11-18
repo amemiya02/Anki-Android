@@ -20,11 +20,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
-import com.ichi2.anki.multimedia.audio.AudioRecordingController
 import com.ichi2.anki.multimediacard.fields.AudioRecordingField
 import com.ichi2.anki.multimediacard.fields.TextField
 import com.ichi2.anki.multimediacard.impl.MultimediaEditableNote
 import com.ichi2.anki.recorder.MediaRecorderStub
+import com.ichi2.anki.recorder.RecorderState
+import com.ichi2.anki.ui.windows.reviewer.audiorecord.CheckPronunciationViewModel
 import com.ichi2.testutils.grantPermissions
 import io.mockk.verify
 import org.hamcrest.MatcherAssert.assertThat
@@ -56,8 +57,6 @@ class AudioRecordingFragmentTest : RobolectricTest() {
     @After
     fun resetRecorder() {
         mediaRecorderStub.uninstall()
-        AudioRecordingController.setEditorStatus(true)
-        AudioRecordingController.tempAudioPath = null
     }
 
     @Test
@@ -93,14 +92,18 @@ class AudioRecordingFragmentTest : RobolectricTest() {
 
     @Test
     fun `a recording can be added after the reviewer's recorder was used`() {
-        AudioRecordingController.tempAudioPath = AudioRecordingController.generateTempAudioFile(targetContext)
-        AudioRecordingController.setEditorStatus(false)
+        val reviewer = CheckPronunciationViewModel()
+        reviewer.onRecordingStarted()
+        reviewer.onRecordingCompleted()
+        val reviewRecording = assertIs<RecorderState.Recorded>(reviewer.recordingState.value).file
         val controller = startRecorder()
         record()
 
         done.assertIsEnabled()
         val result = controller.finishWithDone()
         val recording = result.field.mediaFile!!
+        reviewer.resetAll()
+        assertThat("the review recording was discarded", reviewRecording.exists(), equalTo(false))
         assertThat("the recording exists", recording.exists(), equalTo(true))
         assertThat("the recording is not empty", recording.length(), greaterThan(0L))
     }

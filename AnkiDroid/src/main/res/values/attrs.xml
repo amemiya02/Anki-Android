@@ -77,9 +77,4 @@
         <attr name="cycle_checked_to_indeterminate" format="boolean" />
         <attr name="cycle_indeterminate_to_checked" format="boolean" />
     </declare-styleable>
-
-    <declare-styleable name="AudioWaveform">
-        <attr name="display_vertical_line" format="boolean" />
-        <attr name="android:background" />
-    </declare-styleable>
 </resources>
