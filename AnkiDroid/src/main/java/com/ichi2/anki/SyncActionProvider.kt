@@ -6,6 +6,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.view.MenuItem
 import android.view.View
+import android.widget.FrameLayout
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -22,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
@@ -45,13 +45,25 @@ class SyncActionProvider(
         },
     )
     private var tooltip: CharSequence = context.getString(CommonString.button_sync)
-    private var action: ComposeView? = null
+    private var action: View? = null
 
     override fun onCreateActionView(forItem: MenuItem): View =
-        ComposeView(context).apply {
+        object : FrameLayout(context) {
+            private val target = resources.getDimensionPixelSize(CommonR.dimen.foundation_spacing_touch_target)
+
+            override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+                // The toolbar measures candidate actions before attaching them to a window.
+                if (isAttachedToWindow) super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+                else setMeasuredDimension(resolveSize(target, widthMeasureSpec), resolveSize(target, heightMeasureSpec))
+            }
+        }.apply {
             action = this
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setTooltipTextCompat(tooltip)
+            addView(createContent(forItem))
+        }
+
+    private fun createContent(forItem: MenuItem): ComposeView =
+        ComposeView(context).apply {
             setContent {
                 AnkiDroidTheme {
                     val paper = MaterialTheme.foundation
