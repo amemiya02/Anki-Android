@@ -31,6 +31,7 @@ import com.ichi2.anki.testutil.GrantStoragePermission
 import com.ichi2.anki.testutil.awaitResumedActivity
 import com.ichi2.anki.testutil.closeGetStartedScreenIfExists
 import com.ichi2.anki.testutil.grantPermissions
+import com.ichi2.anki.testutil.waitUntil
 import com.ichi2.anki.utils.isWindowCompact
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -99,14 +100,22 @@ class PreferencesNavigationTest {
     }
 
     private fun addButtonClearance(): Int {
-        var clearance = 0
-        onView(withId(R.id.fab_main)).check { fab, noView ->
-            if (noView != null) throw noView
-            checkNotNull(fab)
-            val bottomBar = checkNotNull(fab.rootView.findViewById<View>(R.id.bottom_navigation))
-            clearance = bottomBar.locationInWindow().y - (fab.locationInWindow().y + fab.height)
+        var clearance: Int? = null
+        // The Decks pane is revealed before it can finish its first layout after a theme change.
+        waitUntil(message = { "Add and the bottom bar must be visible and laid out" }) {
+            onView(withId(R.id.fab_main)).check { fab, noView ->
+                if (noView != null || fab == null || !fab.isShown || !fab.isLaidOut || fab.isLayoutRequested ||
+                    fab.height == 0
+                ) {
+                    return@check
+                }
+                val bottomBar = fab.rootView.findViewById<View>(R.id.bottom_navigation) ?: return@check
+                if (!bottomBar.isShown || !bottomBar.isLaidOut || bottomBar.height == 0) return@check
+                clearance = bottomBar.locationInWindow().y - (fab.locationInWindow().y + fab.height)
+            }
+            clearance != null
         }
-        return clearance
+        return checkNotNull(clearance)
     }
 
     @Test
