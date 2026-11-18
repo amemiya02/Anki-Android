@@ -62,4 +62,5 @@
     <item name="multimedia_editor_container" type="id" />
     <item name="app_bar" type="id" />
     <item name="studyoptions_frame" type="id" />
+    <item name="fragment_container" type="id" />
 </resources>
