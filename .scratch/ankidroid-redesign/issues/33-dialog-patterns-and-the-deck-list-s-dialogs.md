@@ -4,15 +4,15 @@
 
 **Blocked by:** 32 (Mockups for settings and dialogs)
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [x] The seven dialog patterns exist as reusable pieces.
-- [ ] Every dialog reachable from the deck list uses them: create, rename and delete Deck, the backup prompt, sync prompts and errors, export, and the rest.
-- [ ] A destructive choice is always recognisable in the same way.
-- [ ] Each dialog does what it did before.
-- [ ] It matches the agreed Mockup.
-- [ ] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
-- [ ] Screen-logic tests and Engine tests still pass unchanged.
+- [x] Every dialog reachable from the deck list uses them: create, rename and delete Deck, the backup prompt, sync prompts and errors, export, and the rest.
+- [x] A destructive choice is always recognisable in the same way.
+- [x] Each dialog does what it did before.
+- [x] It matches the agreed Mockup.
+- [x] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
+- [x] Screen-logic tests and Engine tests still pass unchanged.
 
 
 ## Implementation
@@ -26,3 +26,4 @@
 - The pre-change rendered test failed in all eight Light cases across English, Simplified Chinese, Japanese, Arabic and both font sizes. The Create action was missing from the Compose accessibility tree.
 - The Engine suite completed with 143 passes and 7 skips.
 - The Mockup contrast check passed every Foundation pairing in Light, Dark and Black.
+- The rendered matrix passed all 192 pattern/progress cases across three themes, four locales and two font scales, including all 24 destructive-choice cases after correcting safe-action focus. Deck creation also passed all 24 configurations. All 67 common action tests passed.
