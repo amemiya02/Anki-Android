@@ -41,12 +41,23 @@ fun View.onGlobalLayout(
 ) {
     if (lifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) return
     val listener = OnGlobalLayoutListener(action)
-    viewTreeObserver.addOnGlobalLayoutListener(listener)
+    val attachment =
+        object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(view: View) {
+                view.viewTreeObserver.addOnGlobalLayoutListener(listener)
+            }
+
+            override fun onViewDetachedFromWindow(view: View) {
+                view.viewTreeObserver.removeOnGlobalLayoutListener(listener)
+            }
+        }
+    addOnAttachStateChangeListener(attachment)
+    if (isAttachedToWindow) attachment.onViewAttachedToWindow(this)
     lifecycleOwner.lifecycle.addObserver(
         object : DefaultLifecycleObserver {
             override fun onDestroy(owner: LifecycleOwner) {
-                // The observer is shared with the window and can outlive the lifecycle owner.
-                viewTreeObserver.takeIf { it.isAlive }?.removeOnGlobalLayoutListener(listener)
+                removeOnAttachStateChangeListener(attachment)
+                if (isAttachedToWindow) attachment.onViewDetachedFromWindow(this@onGlobalLayout)
             }
         },
     )

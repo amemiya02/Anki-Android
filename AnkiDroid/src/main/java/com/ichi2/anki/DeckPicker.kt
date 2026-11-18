@@ -761,6 +761,11 @@ open class DeckPicker :
             CoordinatorLayout(this).apply {
                 // Feedback can arrive while the Decks view is covered by another destination.
                 id = R.id.root_layout
+                // Decks owns native inset listeners inside its Compose AndroidView.
+                ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
+                    if (home.isAttachedToWindow) ViewCompat.dispatchApplyWindowInsets(home, insets)
+                    insets
+                }
                 addView(host, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
                 binding.bottomNavigation?.let { bar ->
                     (bar.parent as ViewGroup).removeView(bar)
