@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <resources>
     <string name="note_editor_duplicate_first_field">最初のフィールドの内容が重複しています</string>
     <string name="note_editor_attach_to_field">%1$sに添付</string>
