@@ -10,31 +10,7 @@
         NOT edit them, unless you change their corresponding values
     -->
     <!-- Used in deck preferences -->
-    <string-array name="notification_minimum_cards_due_labels">
-        <item>@string/never_notify</item>
-        <item>@string/notify_when_pending</item>
-        <item>@string/notification_minimum_cards_due</item>
-        <item>@string/notification_minimum_cards_due</item>
-        <item>@string/notification_minimum_cards_due</item>
-        <item>@string/notification_minimum_cards_due</item>
-        <item>@string/notification_minimum_cards_due</item>
-        <item>@string/notification_minimum_cards_due</item>
-        <item>@string/notification_minimum_cards_due</item>
-        <item>@string/notification_minimum_cards_due</item>
-    </string-array>
 
-    <string-array name="notification_minimum_cards_due_values">
-        <item>2000000</item>
-        <item>1000000</item>
-        <item>10</item>
-        <item>25</item>
-        <item>50</item>
-        <item>75</item>
-        <item>100</item>
-        <item>150</item>
-        <item>200</item>
-        <item>500</item>
-    </string-array>
     <string-array name="add_to_cur_labels">
         <item>@string/add_to_deck_use_current_deck</item>
         <item>@string/add_to_deck_decide_by_note_type</item>

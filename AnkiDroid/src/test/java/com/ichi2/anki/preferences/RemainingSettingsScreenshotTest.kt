@@ -51,11 +51,6 @@ class RemainingSettingsScreenshotTest : ScreenshotTest() {
             CommonString.custom_sync_server_base_url_title,
             CommonString.menu_my_account,
         ),
-        NOTIFICATIONS(
-            NotificationsSettingsFragment::class,
-            CommonString.notification_pref_title,
-            CommonString.notification_minimum_cards_due_blink,
-        ),
         BACKUPS(
             BackupLimitsSettingsFragment::class,
             CommonString.pref__minutes_between_automatic_backups__title,

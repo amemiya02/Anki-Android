@@ -30,7 +30,6 @@ import com.ichi2.anki.reviewreminders.ReviewReminderScope.Global
 import com.ichi2.anki.reviewreminders.ReviewReminderThresholdFilter
 import com.ichi2.anki.reviewreminders.ReviewReminderTime
 import com.ichi2.anki.reviewreminders.ReviewRemindersDatabase
-import com.ichi2.anki.settings.Prefs
 import io.mockk.CapturingSlot
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -80,7 +79,6 @@ class NotificationServiceTest : RobolectricTest() {
         every { context.getSystemService(Context.NOTIFICATION_SERVICE) } returns notificationManager
         mockkObject(ReviewReminderAlarmManager)
         every { ReviewReminderAlarmManager.scheduleReviewReminderNotification(any(), any(), any()) } returns Unit
-        Prefs.newReviewRemindersEnabled = true
         ReviewRemindersDatabase.remindersSharedPrefs.edit { clear() }
 
         // Keep the native scheduler aligned with the mock review timestamps
@@ -166,7 +164,7 @@ class NotificationServiceTest : RobolectricTest() {
             attemptNotif(reviewReminder)
 
             verifyNotifSent(reviewReminder, slot = notif)
-            assertThat(notif.captured.extras.getString(Notification.EXTRA_TEXT), equalTo("1 card due"))
+            assertThat(notif.captured.extras.getString(Notification.EXTRA_TEXT), equalTo("1 Card is due."))
         }
 
     @Test
@@ -182,7 +180,7 @@ class NotificationServiceTest : RobolectricTest() {
             attemptNotif(reviewReminder)
 
             verifyNotifSent(reviewReminder, slot = notif)
-            assertThat(notif.captured.extras.getString(Notification.EXTRA_TEXT), equalTo("2 cards due"))
+            assertThat(notif.captured.extras.getString(Notification.EXTRA_TEXT), equalTo("2 Cards are due."))
         }
 
     @Test
@@ -202,7 +200,7 @@ class NotificationServiceTest : RobolectricTest() {
             verifyNotifSent(reviewReminder, slot = notif)
             assertThat(
                 notif.captured.extras.getString(Notification.EXTRA_TITLE),
-                equalTo("It's time to study \"⁨French‫‎, you silly person⁩\""),
+                equalTo("Time to study ⁨French‫‎, you silly person⁩"),
             )
         }
 

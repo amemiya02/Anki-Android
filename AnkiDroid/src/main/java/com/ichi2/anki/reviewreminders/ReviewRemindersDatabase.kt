@@ -73,6 +73,31 @@ object ReviewRemindersDatabase {
     @VisibleForTesting
     const val PREF_APP_WIDE_REMINDERS = "app_wide"
 
+    private const val PREF_LEGACY_THRESHOLD_MIGRATED = "legacy_threshold_migrated"
+
+    /**
+     * Preserve the old due-card threshold as an 08:00 all-Decks reminder. Save the marker and the
+     * reminder together so a retry cannot add another reminder, even after the user deletes it.
+     */
+    suspend fun migrateLegacyThreshold(threshold: Int?) {
+        mutex.withLock {
+            if (threshold == null || remindersSharedPrefs.getBoolean(PREF_LEGACY_THRESHOLD_MIGRATED, false)) return
+            val reminders =
+                getRemindersForKey(PREF_APP_WIDE_REMINDERS).apply {
+                    val reminder =
+                        ReviewReminder.createReviewReminder(
+                            time = ReviewReminderTime(8, 0),
+                            cardTriggerThreshold = ReviewReminderCardTriggerThreshold(threshold),
+                        )
+                    this[reminder.id] = reminder
+                }
+            remindersSharedPrefs.edit {
+                putString(PREF_APP_WIDE_REMINDERS, encodeJson(reminders))
+                putBoolean(PREF_LEGACY_THRESHOLD_MIGRATED, true)
+            }
+        }
+    }
+
     /**
      * The form in which [ReviewReminderGroup] are actually written to SharedPreferences.
      * This allows us to check the version of [ReviewReminder] stored before trying to deserialize the JSON string,
@@ -297,6 +322,7 @@ object ReviewRemindersDatabase {
         mutex.withLock {
             remindersSharedPrefs
                 .all
+                .filterKeys { it == PREF_APP_WIDE_REMINDERS || it.startsWith(PREF_DECK_SPECIFIC_REMINDERS) }
                 .map { (key, value) -> decodeJson(value.toString(), jsonStringKey = key) }
                 .mergeAll()
         }
@@ -348,6 +374,49 @@ object ReviewRemindersDatabase {
             is ReviewReminderScope.Global -> editRemindersForKey(PREF_APP_WIDE_REMINDERS, editor)
         }
     }
+
+    /** Save an edit or deletion in one write, including a move between Decks. */
+    suspend fun replaceReminder(
+        original: ReviewReminder?,
+        updated: ReviewReminder?,
+    ) {
+        mutex.withLock {
+            val changes = mutableMapOf<String, ReviewReminderGroup>()
+            original?.let {
+                val key = keyForScope(it.scope)
+                changes.getOrPut(key) { getRemindersForKey(key) }.remove(it.id)
+            }
+            updated?.let {
+                val key = keyForScope(it.scope)
+                changes.getOrPut(key) { getRemindersForKey(key) }[it.id] = it
+            }
+            remindersSharedPrefs.edit {
+                changes.forEach { (key, reminders) ->
+                    if (reminders.isEmpty()) remove(key) else putString(key, encodeJson(reminders))
+                }
+            }
+        }
+    }
+
+    /** Returns the stored reminder after changing whether its notifications are enabled. */
+    suspend fun setReminderEnabled(
+        reminder: ReviewReminder,
+        enabled: Boolean,
+    ): ReviewReminder? =
+        mutex.withLock {
+            var updated: ReviewReminder? = null
+            editRemindersForScope(reminder.scope) { reminders ->
+                updated = reminders[reminder.id]?.apply { this.enabled = enabled }
+                reminders
+            }
+            updated
+        }
+
+    private fun keyForScope(scope: ReviewReminderScope): String =
+        when (scope) {
+            is ReviewReminderScope.DeckSpecific -> PREF_DECK_SPECIFIC_REMINDERS + scope.did
+            ReviewReminderScope.Global -> PREF_APP_WIDE_REMINDERS
+        }
 
     /**
      * Toggles whether a [ReviewReminder] is enabled.

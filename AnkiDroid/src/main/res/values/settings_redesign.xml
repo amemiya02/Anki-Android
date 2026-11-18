@@ -13,7 +13,6 @@
     <string name="settings_controls_summary">Gestures, keys and game controllers</string>
     <string name="settings_accessibility_summary">Card zoom, button size, press timing</string>
     <string name="settings_sync_summary">Sync server, automatic sync, media</string>
-    <string name="settings_notifications_summary">When to notify, vibrate, light</string>
     <string name="settings_backups_summary">How often, how many to keep</string>
     <string name="settings_advanced_summary">Storage folder, workarounds, plugins, security</string>
     <string name="settings_about_summary">Version, licence, source code</string>

@@ -26,7 +26,6 @@
     <string name="settings_dev_create_files_warning">This adds %1$d test files and may overwrite existing files. Use a test collection.</string>
     <string name="settings_dev_in_progress">Work in progress</string>
     <string name="settings_dev_in_progress_summary">For testing only. Please keep reports about these features within the fork.</string>
-    <string name="settings_dev_reminders">Enable new notifications</string>
     <string name="settings_dev_profiles">Show Switch Profile</string>
     <string name="settings_dev_notes_progress">Generating %1$d test notes</string>
     <string name="settings_dev_notes_progress_count">Notes added: %1$d</string>

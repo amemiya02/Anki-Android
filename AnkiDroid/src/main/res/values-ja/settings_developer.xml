@@ -26,7 +26,6 @@
     <string name="settings_dev_create_files_warning">テスト用ファイルを %1$d 件追加します。既存のファイルを上書きする可能性があります。テスト用のコレクションで実行してください。</string>
     <string name="settings_dev_in_progress">開発中</string>
     <string name="settings_dev_in_progress_summary">テスト専用です。これらの機能の報告先はこのフォークです。</string>
-    <string name="settings_dev_reminders">新しい通知を有効にする</string>
     <string name="settings_dev_profiles">プロファイルの切り替えを表示</string>
     <string name="settings_dev_notes_progress">テスト用ノートを %1$d 件生成中</string>
     <string name="settings_dev_notes_progress_count">追加したノート数 %1$d</string>

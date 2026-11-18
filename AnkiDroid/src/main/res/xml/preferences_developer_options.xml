@@ -81,10 +81,6 @@
         android:summary="@string/settings_dev_in_progress_summary">
 
         <SwitchPreferenceCompat
-            android:title="@string/settings_dev_reminders"
-            android:key="@string/pref_new_review_reminders"
-            android:defaultValue="false"/>
-        <SwitchPreferenceCompat
             android:title="@string/settings_dev_profiles"
             android:key="@string/pref_enable_switch_profile_key"
             android:defaultValue="false"/>

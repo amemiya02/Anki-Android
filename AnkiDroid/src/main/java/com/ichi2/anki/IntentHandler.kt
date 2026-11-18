@@ -470,7 +470,7 @@ class IntentHandler : AbstractIntentHandler() {
                 if (!limited && !hkey.isNullOrEmpty() && NetworkUtils.isOnline) {
                     startBackgroundSync(deckPicker)
                 } else {
-                    val err = res.getString(CommonString.sync_error)
+                    val err = res.getString(R.string.notification_sync_failed)
                     if (limited) {
                         val remainingTimeInSeconds =
                             max((INTENT_SYNC_MIN_INTERVAL - millisecondsSinceLastSyncAttempt) / 1000, 1)
@@ -488,7 +488,7 @@ class IntentHandler : AbstractIntentHandler() {
                         Timber.i("Ignoring sync intent: %s", if (hkey.isNullOrEmpty()) "not logged in" else "offline")
                         deckPicker.showSimpleNotification(
                             err,
-                            res.getString(CommonString.youre_offline),
+                            res.getString(if (hkey.isNullOrEmpty()) R.string.notification_sync_sign_in else CommonString.youre_offline),
                             NotificationChannel.SYNC,
                         )
                     }

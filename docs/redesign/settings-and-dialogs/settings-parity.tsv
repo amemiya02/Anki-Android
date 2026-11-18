@@ -5,7 +5,7 @@ preference_headers	HeaderPreference	@string/pref_general_screen_key	@string/pref
 preference_headers	HeaderPreference	@string/pref_study_screen_key	@string/pref_cat_reviewer				Studying	Retained
 preference_headers	HeaderPreference	@string/pref_reviewing_screen_key	@string/pref_cat_reviewing				Studying	Retained
 preference_headers	HeaderPreference	@string/pref_sync_screen_key	@string/pref_cat_sync				Sync	Retained
-preference_headers	HeaderPreference	@string/pref_notifications_screen_key	@string/notification_pref				Notifications	Default unless the new review reminders developer option is enabled
+preference_headers	HeaderPreference	@string/pref_notifications_screen_key	@string/notification_pref				Review reminders	Ticket 47 replaced this destination with Review reminders.
 preference_headers	HeaderPreference	@string/pref_review_reminders_screen_key	@string/review_reminders_title				Review reminders	New review reminders developer option
 preference_headers	HeaderPreference	@string/pref_appearance_screen_key					Appearance	Retained
 preference_headers	HeaderPreference	@string/pref_switch_profile_screen_key	@string/switch_profile				Switch profile	Switch profile developer option
@@ -80,7 +80,7 @@ preferences_developer_options	IncrementerNumberRangePreferenceCompat	@string/pre
 preferences_developer_options	IncrementerNumberRangePreferenceCompat	@string/pref_fill_collection_size_file_key	Size of the files to generate (in byte)			1000000	Developer options	Retained
 preferences_developer_options	Preference	@string/pref_fill_collection_key	Create files				Developer options	Retained
 preferences_developer_options	ExtendedPreferenceCategory	@string/pref_cat_wip_key	Work in progress	Only for testing. Not suited for use. Don't create reports about them			Developer options	Grouping heading in the baseline, with its leaf settings listed individually
-preferences_developer_options	SwitchPreferenceCompat	@string/pref_new_review_reminders	Enable new notifications			false	Developer options	Retained
+preferences_developer_options	SwitchPreferenceCompat	@string/pref_new_review_reminders	Enable new notifications			false	Developer options	Ticket 47 removed the toggle. Review reminders are always available.
 preferences_developer_options	SwitchPreferenceCompat	@string/pref_enable_switch_profile_key	Switch Profile option			false	Developer options	Retained
 preferences_general	PreferenceScreen	@string/pref_general_screen_key	@string/pref_cat_general				General	Retained
 preferences_general	ListPreference	@string/pref_language_key	@string/language			@string/empty_string	General	Retained
@@ -93,10 +93,10 @@ preferences_general	SwitchPreferenceCompat	@string/exit_via_double_tap_back_key	
 preferences_general	PreferenceCategory		@string/pref_cat_system_wide				General	Grouping heading in the baseline, with its leaf settings listed individually
 preferences_general	SwitchPreferenceCompat	@string/anki_card_external_context_menu_key				true	General	Retained
 preferences_general	SwitchPreferenceCompat	@string/card_browser_external_context_menu_key				false	General	Retained
-preferences_notifications	PreferenceScreen	@string/pref_notifications_screen_key	@string/notification_pref				Notifications	Default unless the new review reminders developer option is enabled
-preferences_notifications	ListPreference	@string/pref_notifications_minimum_cards_due_key	@string/notification_pref_title			1000000	Notifications	Default notification system
-preferences_notifications	SwitchPreferenceCompat	@string/pref_notifications_vibrate_key	@string/notification_minimum_cards_due_vibrate			false	Notifications	Default notification system on unrestricted devices
-preferences_notifications	SwitchPreferenceCompat	@string/pref_notifications_blink_key	@string/notification_minimum_cards_due_blink			false	Notifications	Default notification system on unrestricted devices
+preferences_notifications	PreferenceScreen	@string/pref_notifications_screen_key	@string/notification_pref				Review reminders	Ticket 47 replaced this destination with Review reminders.
+preferences_notifications	ListPreference	@string/pref_notifications_minimum_cards_due_key	@string/notification_pref_title			1000000	Review reminders	Ticket 47 migrates enabled thresholds to an all-Decks reminder at 08:00.
+preferences_notifications	SwitchPreferenceCompat	@string/pref_notifications_vibrate_key	@string/notification_minimum_cards_due_vibrate			false	Review reminders › Notification settings	Ticket 47 moved notification behavior to the Android channel settings.
+preferences_notifications	SwitchPreferenceCompat	@string/pref_notifications_blink_key	@string/notification_minimum_cards_due_blink			false	Review reminders › Notification settings	Ticket 47 moved notification behavior to the Android channel settings.
 preferences_previewer_controls	ControlPreference	@string/previewer_back_key	@string/previewer_back				Controls › Previewer	Retained
 preferences_previewer_controls	ControlPreference	@string/previewer_next_key	@string/previewer_next				Controls › Previewer	Retained
 preferences_previewer_controls	ControlPreference	@string/previewer_mark_key					Controls › Previewer	Retained

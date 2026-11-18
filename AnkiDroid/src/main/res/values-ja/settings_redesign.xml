@@ -13,7 +13,6 @@
     <string name="settings_controls_summary">ジェスチャー、キー、ゲームコントローラー</string>
     <string name="settings_accessibility_summary">カードの拡大、ボタンの大きさ、押す時間</string>
     <string name="settings_sync_summary">同期サーバー、自動同期、メディア</string>
-    <string name="settings_notifications_summary">通知のタイミング、振動、ライト</string>
     <string name="settings_backups_summary">バックアップの間隔と保存数</string>
     <string name="settings_advanced_summary">保存フォルダー、互換性、プラグイン、セキュリティ</string>
     <string name="settings_about_summary">バージョン、ライセンス、ソースコード</string>

@@ -4,7 +4,6 @@ package com.ichi2.anki.preferences
 
 import android.content.Context
 import androidx.annotation.XmlRes
-import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.ListPreference
 import androidx.preference.Preference
@@ -15,10 +14,8 @@ import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceScreen
 import com.ichi2.anki.BuildConfig
 import com.ichi2.anki.CollectionManager.TR
-import com.ichi2.anki.CommonPreferenceKey
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
-import com.ichi2.anki.common.android.AdaptionUtil
 import com.ichi2.utils.LanguageUtil
 import com.ichi2.utils.LanguageUtil.getStringByLocale
 import kotlin.reflect.KClass
@@ -55,17 +52,6 @@ internal fun PreferenceScreen.applySettingsMetadata(
         R.xml.preferences_sync -> {
             preference(R.string.sync_io_timeout_secs_key).title = TR.preferencesNetworkTimeout()
             preference(R.string.one_way_sync_key).summary = TR.preferencesOnNextSyncForceChangesIn()
-        }
-        R.xml.preferences_notifications -> {
-            val minimum = preference(CommonPreferenceKey.pref_notifications_minimum_cards_due_key) as ListPreference
-            val locale = ConfigurationCompat.getLocales(context.resources.configuration)[0]
-            minimum.entries =
-                minimum.entries
-                    .mapIndexed { index, entry ->
-                        String.format(locale, entry.toString(), minimum.entryValues[index].toString().toInt())
-                    }.toTypedArray()
-            preference(R.string.pref_notifications_vibrate_key).isVisible = !AdaptionUtil.isXiaomiRestrictedLearningDevice
-            preference(R.string.pref_notifications_blink_key).isVisible = !AdaptionUtil.isXiaomiRestrictedLearningDevice
         }
         R.xml.preferences_developer_options -> {
             preference(R.string.developer_options_enabled_by_user_key).isVisible = !BuildConfig.DEBUG

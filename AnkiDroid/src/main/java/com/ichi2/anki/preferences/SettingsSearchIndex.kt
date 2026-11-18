@@ -70,13 +70,14 @@ internal fun buildSettingsSearchIndex(
                                 group.destination,
                             )
                         SettingsGroup.SYNC -> syncSearchEntries(title)
-                        SettingsGroup.NOTIFICATIONS ->
-                            remainingSettingsSearchEntries(
-                                R.xml.preferences_notifications,
-                                title,
-                                group.destination,
+                        SettingsGroup.REVIEW_REMINDERS ->
+                            listOf(
+                                SettingsSearchEntry(
+                                    getString(CommonString.schedule_reminders_notification_settings_menu),
+                                    title,
+                                    group.destination,
+                                ),
                             )
-                        SettingsGroup.REVIEW_REMINDERS -> emptyList()
                         SettingsGroup.BACKUPS -> remainingSettingsSearchEntries(R.xml.preferences_backup_limits, title, group.destination)
                         SettingsGroup.ADVANCED -> remainingSettingsSearchEntries(R.xml.preferences_advanced, title, group.destination)
                         SettingsGroup.ABOUT -> aboutSearchEntries(title)

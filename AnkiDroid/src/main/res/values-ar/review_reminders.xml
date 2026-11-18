@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="review_reminders_intro">يذكّرك %1$s في هذه الأوقات عند وجود بطاقات مستحقة.</string>
+    <string name="review_reminders_settings_summary">مواعيد التذكير بالدراسة</string>
+    <string name="review_reminders_check_action">تحقّق من إمكانية وصول التذكيرات</string>
+    <string name="review_reminders_check_summary">الأذونات والبطارية ووضع عدم الإزعاج</string>
+    <string name="review_reminders_system_settings_summary">يحدّد Android الصوت والاهتزاز</string>
+    <string name="review_reminders_deleted_deck">حُذفت هذه المجموعة</string>
+    <string name="review_reminders_condition_unstudied">فقط إذا لم تدرس اليوم</string>
+    <string name="review_reminder_switch">تذكير الساعة %1$s</string>
+    <string name="review_reminder_time">الوقت</string>
+    <string name="review_reminder_deck">المجموعة</string>
+    <string name="review_reminder_threshold">فقط عند توفر عدد كافٍ من البطاقات المستحقة</string>
+    <string name="review_reminder_at_least">على الأقل</string>
+    <string name="review_reminder_cards">بطاقات</string>
+    <string name="review_reminder_card_count">الحد الأدنى لعدد البطاقات</string>
+    <string name="review_reminder_increase">زيادة الحد الأدنى</string>
+    <string name="review_reminder_decrease">تقليل الحد الأدنى</string>
+    <string name="review_reminder_count_these">احتسب هذه البطاقات</string>
+    <string name="review_reminder_new">جديدة</string>
+    <string name="review_reminder_learning">قيد التعلّم</string>
+    <string name="review_reminder_due">مستحقة</string>
+    <string name="review_reminder_only_if_unstudied">ذكّرني فقط إذا لم أدرس اليوم</string>
+    <string name="review_reminder_select_time">اختر الوقت</string>
+    <string name="review_reminder_clock_input">استخدم واجهة الساعة</string>
+    <string name="review_reminder_keyboard_input">استخدم لوحة المفاتيح</string>
+    <string name="review_reminder_added">أُضيف التذكير</string>
+    <string name="review_reminder_deleted">حُذف التذكير</string>
+    <string name="review_reminder_saved">حُفظ التذكير</string>
+    <string name="review_reminder_check_title">التحقّق من التذكيرات</string>
+    <string name="review_reminder_check_warning">قد تؤخّر بعض الإعدادات التذكيرات</string>
+    <string name="review_reminder_check_notifications">الإشعارات</string>
+    <string name="review_reminder_check_channel">قناة تذكيرات المراجعة</string>
+    <string name="review_reminder_check_alarms">المنبّهات والتذكيرات</string>
+    <string name="review_reminder_check_battery">البطارية</string>
+    <string name="review_reminder_check_dnd">عدم الإزعاج</string>
+    <string name="review_reminder_check_battery_saver">توفير البطارية</string>
+    <string name="review_reminder_checking">جارٍ التحقّق</string>
+    <string name="review_reminder_check_failed">تعذّر التحقّق</string>
+    <string name="review_reminder_check_allowed">مسموح</string>
+    <string name="review_reminder_check_denied">غير مسموح</string>
+    <string name="review_reminder_check_allow_background">السماح بالعمل في الخلفية</string>
+    <string name="review_reminder_check_battery_explanation">قد يؤخّر Android التذكيرات لتوفير طاقة البطارية.</string>
+    <string name="review_reminder_check_footer">تفرض بعض الهواتف قيودًا إضافية. إذا استمر عدم وصول التذكيرات، فراجِع إعدادات البطارية والتطبيقات في هاتفك.</string>
+    <string name="review_reminder_check_copy">نسخ التفاصيل</string>
+    <string name="review_reminder_notification_title">حان وقت الدراسة</string>
+    <string name="review_reminder_notification_deck">حان وقت دراسة %1$s</string>
+    <string name="review_reminder_snooze_five">أجّل 5 دقائق</string>
+    <string name="review_reminder_snooze_hour">أجّل ساعة واحدة</string>
+    <string name="review_reminder_due_with_time">%1$s، نحو %2$s.</string>
+    <string name="notification_sync_title">جارٍ المزامنة</string>
+    <string name="notification_sync_media_title">جارٍ مزامنة الوسائط</string>
+    <string name="notification_sync_failed">لم تكتمل المزامنة</string>
+    <string name="notification_sync_media_failed">لم تكتمل مزامنة الوسائط</string>
+    <string name="notification_sync_network">تعذّر الاتصال بـ %1$s.</string>
+    <string name="notification_sync_network_unspecified">تعذّر الاتصال بخادم المزامنة.</string>
+    <string name="notification_sync_retry">%1$s سيحاول %2$s مجددًا عند إعادة فتح التطبيق.</string>
+    <string name="notification_sync_sign_in">سجّل الدخول إلى خادم المزامنة لإجراء المزامنة.</string>
+    <string name="notification_sync_upload">جارٍ الرفع إلى %1$s</string>
+    <string name="notification_sync_download">جارٍ التنزيل من %1$s</string>
+    <string name="notification_sync_server">خادم المزامنة</string>
+    <plurals name="review_reminders_condition_due">
+        <item quantity="one">عند استحقاق بطاقة واحدة على الأقل</item>
+        <item quantity="two">عند استحقاق بطاقتين على الأقل</item>
+        <item quantity="few">عند استحقاق %1$d بطاقات على الأقل</item>
+        <item quantity="other">عند استحقاق %1$d بطاقة على الأقل</item>
+    </plurals>
+    <plurals name="review_reminder_ready_cards">
+        <item quantity="zero">لا توجد بطاقات مستحقة</item>
+        <item quantity="one">توجد بطاقة واحدة مستحقة</item>
+        <item quantity="two">توجد بطاقتان مستحقتان</item>
+        <item quantity="few">توجد %1$d بطاقات مستحقة</item>
+        <item quantity="other">توجد %1$d بطاقة مستحقة</item>
+    </plurals>
+    <plurals name="review_reminder_ready_cards_today">
+        <item quantity="zero">لا توجد بطاقات مستحقة اليوم</item>
+        <item quantity="one">توجد بطاقة واحدة مستحقة اليوم</item>
+        <item quantity="two">توجد بطاقتان مستحقتان اليوم</item>
+        <item quantity="few">توجد %1$d بطاقات مستحقة اليوم</item>
+        <item quantity="other">توجد %1$d بطاقة مستحقة اليوم</item>
+    </plurals>
+    <plurals name="review_reminder_minutes">
+        <item quantity="one">دقيقة واحدة</item>
+        <item quantity="two">دقيقتان</item>
+        <item quantity="few">%1$d دقائق</item>
+        <item quantity="other">%1$d دقيقة</item>
+    </plurals>
+    <string name="review_reminder_due_sentence">%1$s.</string>
+</resources>

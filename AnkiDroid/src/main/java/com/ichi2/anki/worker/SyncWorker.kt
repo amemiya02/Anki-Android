@@ -5,6 +5,7 @@ package com.ichi2.anki.worker
 import android.app.Notification
 import android.content.Context
 import android.content.pm.ServiceInfo
+import android.net.Uri
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -21,15 +22,16 @@ import anki.collection.Progress
 import anki.sync.SyncCollectionResponse
 import com.ichi2.anki.BackupManager
 import com.ichi2.anki.CollectionManager
-import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.NotificationChannel
 import com.ichi2.anki.R
 import com.ichi2.anki.cancelSync
+import com.ichi2.anki.common.android.withAppLocale
 import com.ichi2.anki.common.permissions.canPostNotifications
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.notifications.NotificationId
+import com.ichi2.anki.notifications.hayakiNotification
 import com.ichi2.anki.reopen
 import com.ichi2.anki.setLastSyncTimeToNow
 import com.ichi2.anki.settings.Prefs
@@ -38,12 +40,16 @@ import com.ichi2.anki.sync.MeteredSyncPolicy
 import com.ichi2.anki.sync.SyncAuth
 import com.ichi2.anki.sync.fullUploadOrDownload
 import com.ichi2.anki.sync.syncCollection
+import com.ichi2.anki.syncServerAddress
 import com.ichi2.anki.utils.ext.trySetForeground
+import com.ichi2.utils.LanguageUtil.withUnicodeIsolation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
+import net.ankiweb.rsdroid.exceptions.BackendNetworkException
+import net.ankiweb.rsdroid.exceptions.BackendSyncException.BackendSyncAuthFailedException
 import timber.log.Timber
 import kotlin.coroutines.cancellation.CancellationException
 import com.ichi2.anki.common.android.R as CommonR
@@ -80,6 +86,8 @@ class SyncWorker(
             null
         }
 
+    private val notificationContext get() = applicationContext.withAppLocale()
+
     override suspend fun doWork(): Result {
         Timber.v("SyncWorker::doWork")
         return syncLock.withLockUnlessSwitching { doWorkHoldingLock() }
@@ -102,9 +110,10 @@ class SyncWorker(
         } catch (throwable: Throwable) {
             Timber.w(throwable, "SyncWorker failed")
             notify {
-                setContentTitle(applicationContext.getString(CommonString.sync_error))
-                throwable.localizedMessage?.let { message ->
-                    setContentText(message)
+                setContentTitle(notificationContext.getString(R.string.notification_sync_failed))
+                failureMessage(throwable)?.let {
+                    setContentText(it)
+                    setStyle(NotificationCompat.BigTextStyle().bigText(it))
                 }
             }
             Timber.d("SyncWorker: showing failure notification")
@@ -177,12 +186,36 @@ class SyncWorker(
         if (syncMedia) syncMedia(syncAuth)
     }
 
+    private fun syncServerName(): String? = syncServerAddress()?.let { Uri.parse(it).host }?.let(::withUnicodeIsolation)
+
+    private fun failureMessage(error: Throwable): String? =
+        when (error) {
+            is BackendNetworkException -> {
+                val context = notificationContext
+                val server = syncServerName()
+                val message =
+                    if (server == null) {
+                        context.getString(R.string.notification_sync_network_unspecified)
+                    } else {
+                        context.getString(R.string.notification_sync_network, server)
+                    }
+                if (Prefs.isAutoSyncEnabled) {
+                    context.getString(R.string.notification_sync_retry, message, context.getString(R.string.app_name))
+                } else {
+                    message
+                }
+            }
+            is BackendSyncAuthFailedException -> notificationContext.getString(R.string.notification_sync_sign_in)
+            else -> error.localizedMessage
+        }
+
     private fun Collection.fullSync(
         auth: SyncAuth,
         upload: Boolean,
     ) {
-        val title = if (upload) TR.syncUploadingToAnkiweb() else TR.syncDownloadingFromAnkiweb()
-        notify(getProgressNotification(title))
+        val direction = if (upload) R.string.notification_sync_upload else R.string.notification_sync_download
+        val server = syncServerName() ?: notificationContext.getString(R.string.notification_sync_server)
+        notify(getProgressNotification(notificationContext.getString(direction, server)))
         if (!upload) {
             val created =
                 createBackup(
@@ -209,10 +242,10 @@ class SyncWorker(
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
-        val cancelTitle = applicationContext.getString(CommonString.dialog_cancel)
+        val cancelTitle = notificationContext.getString(CommonString.dialog_cancel)
         val notification =
             buildNotification {
-                setContentTitle(TR.syncSyncing())
+                setContentTitle(notificationContext.getString(R.string.notification_sync_title))
                 setOngoing(true)
                 setProgress(0, 0, true)
                 addAction(CommonR.drawable.symbol_close, cancelTitle, cancelIntent)
@@ -234,22 +267,22 @@ class SyncWorker(
     }
 
     private fun buildNotification(block: NotificationCompat.Builder.() -> Unit): Notification =
-        NotificationCompat
-            .Builder(applicationContext, NotificationChannel.SYNC.id)
+        notificationContext
+            .hayakiNotification(NotificationChannel.SYNC)
             .apply {
                 priority = NotificationCompat.PRIORITY_LOW
-                setSmallIcon(R.drawable.ic_star_notify)
                 setCategory(NotificationCompat.CATEGORY_PROGRESS)
                 setSilent(true)
                 block()
             }.build()
 
     private fun getProgressNotification(progress: CharSequence): Notification {
-        val cancelTitle = applicationContext.getString(CommonString.dialog_cancel)
+        val cancelTitle = notificationContext.getString(CommonString.dialog_cancel)
 
         return buildNotification {
-            setContentTitle(TR.syncSyncing())
+            setContentTitle(notificationContext.getString(R.string.notification_sync_title))
             setContentText(progress)
+            setProgress(0, 0, true)
             setOngoing(true)
             addAction(CommonR.drawable.symbol_close, cancelTitle, cancelIntent)
         }

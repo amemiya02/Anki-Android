@@ -1,0 +1,31 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="66"
+    android:viewportHeight="66">
+    <group android:translateX="-21" android:translateY="-21">
+    <group>
+        <!-- everything except the front card (its outline runs the other way, leaving a hole) -->
+        <clip-path android:pathData="M0,0H108V108H0Z M31.7,36.34L36.57,76.04A4,4 0,0 0,41.03,79.53L68.82,76.11A4,4 0,0 0,72.3,71.66L67.43,31.96A4,4 0,0 0,62.97,28.47L35.18,31.89A4,4 0,0 0,31.7,36.34Z" />
+        <group
+            android:pivotX="56"
+            android:pivotY="54"
+            android:rotation="9">
+            <path
+                android:pathData="M42,30H70A4,4 0,0 1,74,34V74A4,4 0,0 1,70,78H42A4,4 0,0 1,38,74V34A4,4 0,0 1,42,30Z"
+                android:strokeWidth="2.5"
+                android:strokeColor="#FF000000" />
+        </group>
+    </group>
+    <group
+        android:pivotX="52"
+        android:pivotY="54"
+        android:rotation="-7">
+        <path
+            android:fillColor="#FF000000"
+            android:fillType="evenOdd"
+            android:pathData="M38,30H66A4,4 0,0 1,70,34V74A4,4 0,0 1,66,78H38A4,4 0,0 1,34,74V34A4,4 0,0 1,38,30Z M42.25,40H61.75A1.25,1.25 0,0 1,61.75,42.5H42.25A1.25,1.25 0,0 1,42.25,40Z M42.25,47H53.75A1.25,1.25 0,0 1,53.75,49.5H42.25A1.25,1.25 0,0 1,42.25,47Z M56.8,68A3.2,3.2 0,1 1,63.2,68A3.2,3.2 0,1 1,56.8,68Z" />
+    </group>
+    </group>
+</vector>

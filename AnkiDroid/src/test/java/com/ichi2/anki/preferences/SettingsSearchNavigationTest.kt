@@ -54,7 +54,6 @@ class SettingsSearchNavigationTest : RobolectricTest() {
 
     @Test
     fun searchingForReviewRemindersOpensTheEnabledScreen() {
-        Prefs.newReviewRemindersEnabled = true
         openSettings().use {
             val title = targetContext.getString(CommonString.review_reminders_title)
             search(title)

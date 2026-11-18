@@ -3,8 +3,8 @@
 package com.ichi2.anki.reviewreminders
 
 import android.app.NotificationManager
-import android.view.View
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.content.edit
@@ -14,7 +14,6 @@ import com.ichi2.anki.CommonString
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.windows.permissions.PermissionsBottomSheet
-import com.ichi2.testutils.positiveButton
 import com.ichi2.testutils.rules.OverridePropertyRule
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert.assertThat
@@ -56,19 +55,18 @@ class ReviewReminderNotificationPermissionTest : RobolectricTest() {
     @Test
     fun notificationPermissionPromptIsOnlyShownOnce() {
         withScheduleRemindersFragment { fragment ->
-            fragment.createReminder(expectedCount = 1)
+            createReminder(expectedCount = 1)
 
             advanceRobolectricLooperUntil { fragment.permissionsBottomSheet?.dialog?.isShowing == true }
             assertThat(Prefs.reminderNotifsRequestShown, equalTo(true))
             compose.onNodeWithText(getResourceString(CommonString.dialog_cancel)).performClick()
             advanceRobolectricLooperUntil { fragment.permissionsBottomSheet == null }
-            assertThat(fragment.reminderCount, equalTo(1))
             assertThat(storedReminders().size, equalTo(1))
         }
         // Only the reminder-specific flag should prevent the second prompt, including below API 33.
         Prefs.notificationsBottomSheetShownBelowAPI33 = false
         withScheduleRemindersFragment { fragment ->
-            fragment.createReminder(expectedCount = 2)
+            createReminder(expectedCount = 2)
 
             assertThat(fragment.permissionsBottomSheet, nullValue())
         }
@@ -78,7 +76,7 @@ class ReviewReminderNotificationPermissionTest : RobolectricTest() {
     fun notificationPermissionPromptIsSkippedWhenGranted() {
         shadowOf(targetContext.getSystemService<NotificationManager>()!!).setNotificationsEnabled(true)
         withScheduleRemindersFragment { fragment ->
-            fragment.createReminder(expectedCount = 1)
+            createReminder(expectedCount = 1)
 
             assertThat(fragment.permissionsBottomSheet, nullValue())
             assertThat(
@@ -92,36 +90,29 @@ class ReviewReminderNotificationPermissionTest : RobolectricTest() {
     @Test
     fun cancelCreatingReminderDoesNotRequestNotificationPermission() {
         withScheduleRemindersFragment { fragment ->
-            fragment
-                .openAddDialog()
-                .requireDialog()
-                .findViewById<View>(android.R.id.button3)
-                .performClick()
+            openAddDialog()
+            compose.onNodeWithText(getResourceString(CommonString.dialog_cancel)).performClick()
             advanceRobolectricLooper()
 
             assertThat(fragment.permissionsBottomSheet, nullValue())
             assertThat(Prefs.reminderNotifsRequestShown, equalTo(false))
             assertThat(storedReminders(), empty())
-            assertThat(fragment.reminderCount, equalTo(0))
         }
     }
 
-    private fun ScheduleRemindersFragment.openAddDialog(): AddEditReminderDialog {
-        binding.floatingActionButtonAdd.performClick()
+    private fun openAddDialog() {
+        compose.onNodeWithContentDescription(getResourceString(CommonString.add_reminder)).performClick()
         advanceRobolectricLooper()
-        return childFragmentManager.fragments.filterIsInstance<AddEditReminderDialog>().single()
     }
 
-    private fun ScheduleRemindersFragment.createReminder(expectedCount: Int) {
-        openAddDialog().positiveButton.performClick()
-        advanceRobolectricLooperUntil { storedReminders().size == expectedCount && reminderCount == expectedCount }
+    private fun createReminder(expectedCount: Int) {
+        openAddDialog()
+        compose.onNodeWithText(getResourceString(CommonString.save)).performClick()
+        advanceRobolectricLooperUntil { storedReminders().size == expectedCount }
     }
 
     private fun storedReminders(): List<ReviewReminder> = runBlocking { ReviewRemindersDatabase.getAllReminders().getRemindersList() }
 
     private val ScheduleRemindersFragment.permissionsBottomSheet: PermissionsBottomSheet?
         get() = childFragmentManager.fragments.filterIsInstance<PermissionsBottomSheet>().singleOrNull()
-
-    private val ScheduleRemindersFragment.reminderCount: Int
-        get() = binding.recyclerView.adapter!!.itemCount
 }

@@ -67,10 +67,8 @@ import com.ichi2.anki.common.android.AdaptionUtil
 import com.ichi2.anki.common.android.AnkiBroadcastReceiver
 import com.ichi2.anki.common.android.animationDisabled
 import com.ichi2.anki.common.android.themes.disableXiaomiForceDarkMode
-import com.ichi2.anki.common.annotations.LegacyNotifications
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
-import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.ui.TransitionDirection
 import com.ichi2.anki.common.ui.TransitionDirection.DEFAULT
 import com.ichi2.anki.common.utils.android.getColorFromAttr
@@ -91,9 +89,9 @@ import com.ichi2.anki.dialogs.SimpleMessageDialog
 import com.ichi2.anki.dialogs.handleExportReadyRequest
 import com.ichi2.anki.dialogs.viewmodel.ExportReadyViewModel
 import com.ichi2.anki.libanki.Collection
+import com.ichi2.anki.notifications.hayakiNotification
 import com.ichi2.anki.receiver.ExportSharedReceiver
 import com.ichi2.anki.receiver.SdCardReceiver
-import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.ViewModelSavedStateHandle
 import com.ichi2.anki.utils.ext.requireString
@@ -534,7 +532,7 @@ open class AnkiActivity(
         message: String?,
         channel: NotificationChannel,
     ) {
-        // Use the title as the ticker unless the title is simply "AnkiDroid"
+        // Use the message for announcements whose title is the app name.
         val ticker: String? =
             if (title == resources.getString(R.string.app_name)) {
                 message
@@ -543,18 +541,12 @@ open class AnkiActivity(
             }
         // Build basic notification
         val builder =
-            NotificationCompat
-                .Builder(
-                    this,
-                    channel.id,
-                ).setSmallIcon(R.drawable.ic_star_notify)
+            hayakiNotification(channel)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setColor(getColor(CommonR.color.foundation_light_primary))
                 .setStyle(NotificationCompat.BigTextStyle().bigText(message))
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setTicker(ticker)
-        configureLegacyNotificationSettings(builder)
         // Creates an explicit intent for an Activity in your app
         val resultIntent = Intent(this, DeckPicker::class.java)
         resultIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -570,21 +562,6 @@ open class AnkiActivity(
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         // mId allows you to update the notification later on.
         notificationManager.notify(SIMPLE_NOTIFICATION_ID, builder.build())
-    }
-
-    @LegacyNotifications("Delete once review reminders are stable, these are configurable from OS settings")
-    private fun configureLegacyNotificationSettings(builder: NotificationCompat.Builder) {
-        if (!Prefs.newReviewRemindersEnabled) {
-            // Enable vibrate and blink if set in preferences
-            // In the new review reminders system, the user sets these by going to the OS settings themselves
-            val prefs = this.sharedPrefs()
-            if (prefs.getBoolean("widgetVibrate", false)) {
-                builder.setVibrate(longArrayOf(1000, 1000, 1000))
-            }
-            if (prefs.getBoolean("widgetBlink", false)) {
-                builder.setLights(getColor(CommonR.color.foundation_light_primary), 1000, 1000)
-            }
-        }
     }
 
     // Show dialogs to deal with database loading issues etc

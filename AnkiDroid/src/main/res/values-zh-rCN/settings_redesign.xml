@@ -13,7 +13,6 @@
     <string name="settings_controls_summary">手势、按键和游戏手柄</string>
     <string name="settings_accessibility_summary">卡片缩放、按钮大小、按键时长</string>
     <string name="settings_sync_summary">同步服务器、自动同步、媒体</string>
-    <string name="settings_notifications_summary">通知时机、振动、指示灯</string>
     <string name="settings_backups_summary">备份频率、保留数量</string>
     <string name="settings_advanced_summary">存储文件夹、兼容选项、插件、安全</string>
     <string name="settings_about_summary">版本、许可证、源代码</string>

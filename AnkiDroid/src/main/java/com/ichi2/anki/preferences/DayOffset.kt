@@ -7,10 +7,7 @@ import androidx.annotation.VisibleForTesting
 import anki.config.copy
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.common.annotations.NeedsTest
-import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.observability.undoableOp
-import com.ichi2.anki.services.BootService.Companion.scheduleNotification
-import com.ichi2.anki.settings.Prefs
 import com.ichi2.widget.DayRolloverAlarm
 import timber.log.Timber
 
@@ -27,7 +24,6 @@ suspend fun setDayOffset(
     undoableOp {
         setPreferences(newPrefs)
     }
-    if (!Prefs.newReviewRemindersEnabled) scheduleNotification(TimeManager.time, context)
     DayRolloverAlarm.scheduleNext(context)
     Timber.i("set day offset: '%d'", hours)
 }

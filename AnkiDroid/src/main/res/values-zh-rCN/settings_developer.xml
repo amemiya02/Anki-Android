@@ -26,7 +26,6 @@
     <string name="settings_dev_create_files_warning">此操作将创建 %1$d 个测试文件，可能覆盖现有文件。请使用测试集合。</string>
     <string name="settings_dev_in_progress">开发中</string>
     <string name="settings_dev_in_progress_summary">仅供测试。请仅在此分支中反馈这些功能的问题。</string>
-    <string name="settings_dev_reminders">启用新版通知</string>
     <string name="settings_dev_profiles">显示「切换配置」</string>
     <string name="settings_dev_notes_progress">正在生成 %1$d 条测试笔记</string>
     <string name="settings_dev_notes_progress_count">已添加 %1$d 条笔记</string>

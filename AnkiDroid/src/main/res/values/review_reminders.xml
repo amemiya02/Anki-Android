@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="review_reminders_intro">%1$s reminds you at these times when Cards are due.</string>
+    <string name="review_reminders_settings_summary">When to remind you to study</string>
+    <string name="review_reminders_check_action">Check that reminders can arrive</string>
+    <string name="review_reminders_check_summary">Permissions, battery and Do Not Disturb</string>
+    <string name="review_reminders_system_settings_summary">Sound and vibration are set by Android</string>
+    <string name="review_reminders_deleted_deck">This Deck was deleted</string>
+    <string name="review_reminders_condition_unstudied">Only if not studied today</string>
+    <string name="review_reminder_switch">Reminder at %1$s</string>
+    <string name="review_reminder_time">Time</string>
+    <string name="review_reminder_deck">Deck</string>
+    <string name="review_reminder_threshold">Only when enough Cards are due</string>
+    <string name="review_reminder_at_least">At least</string>
+    <string name="review_reminder_cards">Cards</string>
+    <string name="review_reminder_card_count">Minimum number of Cards</string>
+    <string name="review_reminder_increase">Increase minimum</string>
+    <string name="review_reminder_decrease">Decrease minimum</string>
+    <string name="review_reminder_count_these">Count these</string>
+    <string name="review_reminder_new">New</string>
+    <string name="review_reminder_learning">Learning</string>
+    <string name="review_reminder_due">Due</string>
+    <string name="review_reminder_only_if_unstudied">Only if I haven’t studied today</string>
+    <string name="review_reminder_select_time">Select time</string>
+    <string name="review_reminder_clock_input">Use clock dial</string>
+    <string name="review_reminder_keyboard_input">Use keyboard</string>
+    <string name="review_reminder_added">Reminder added</string>
+    <string name="review_reminder_deleted">Reminder deleted</string>
+    <string name="review_reminder_saved">Reminder saved</string>
+    <string name="review_reminder_check_title">Check reminders</string>
+    <string name="review_reminder_check_warning">Something may delay reminders</string>
+    <string name="review_reminder_check_notifications">Notifications</string>
+    <string name="review_reminder_check_channel">Review reminders channel</string>
+    <string name="review_reminder_check_alarms">Alarms and reminders</string>
+    <string name="review_reminder_check_battery">Battery</string>
+    <string name="review_reminder_check_dnd">Do Not Disturb</string>
+    <string name="review_reminder_check_battery_saver">Battery saver</string>
+    <string name="review_reminder_checking">Checking</string>
+    <string name="review_reminder_check_failed">Couldn’t check</string>
+    <string name="review_reminder_check_allowed">Allowed</string>
+    <string name="review_reminder_check_denied">Not allowed</string>
+    <string name="review_reminder_check_allow_background">Allow in the background</string>
+    <string name="review_reminder_check_battery_explanation">Android may hold reminders back to save battery.</string>
+    <string name="review_reminder_check_footer">Some phones add their own limits. If reminders still don’t arrive, look in the phone’s battery and app settings.</string>
+    <string name="review_reminder_check_copy">Copy details</string>
+    <string name="review_reminder_notification_title">Time to study</string>
+    <string name="review_reminder_notification_deck">Time to study %1$s</string>
+    <string name="review_reminder_snooze_five">Snooze 5 min</string>
+    <string name="review_reminder_snooze_hour">Snooze 1 hour</string>
+    <string name="review_reminder_due_with_time">%1$s, about %2$s.</string>
+    <string name="notification_sync_title">Syncing</string>
+    <string name="notification_sync_media_title">Syncing media</string>
+    <string name="notification_sync_failed">Sync didn’t finish</string>
+    <string name="notification_sync_media_failed">Media sync didn’t finish</string>
+    <string name="notification_sync_network">Couldn’t reach %1$s.</string>
+    <string name="notification_sync_network_unspecified">Couldn’t reach your sync server.</string>
+    <string name="notification_sync_retry">%1$s %2$s will try again when you reopen the app.</string>
+    <string name="notification_sync_sign_in">Sign in to your sync server to sync.</string>
+    <string name="notification_sync_upload">Uploading to %1$s</string>
+    <string name="notification_sync_download">Downloading from %1$s</string>
+    <string name="notification_sync_server">your sync server</string>
+    <plurals name="review_reminders_condition_due">
+        <item quantity="one">When at least %1$d Card is due</item>
+        <item quantity="other">When at least %1$d Cards are due</item>
+    </plurals>
+    <plurals name="review_reminder_ready_cards">
+        <item quantity="one">%1$d Card is due</item>
+        <item quantity="other">%1$d Cards are due</item>
+    </plurals>
+    <plurals name="review_reminder_ready_cards_today">
+        <item quantity="one">%1$d Card is due today</item>
+        <item quantity="other">%1$d Cards are due today</item>
+    </plurals>
+    <plurals name="review_reminder_minutes">
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
+    <string name="review_reminder_due_sentence">%1$s.</string>
+</resources>

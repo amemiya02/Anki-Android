@@ -33,6 +33,7 @@ value class ReviewReminderId(
          * Also increment the next free reminder ID stored in SharedPreferences.
          * @return The next free reminder ID.
          */
+        @Synchronized
         fun getAndIncrementNextFreeReminderId(): ReviewReminderId {
             val nextFreeId = Prefs.reviewReminderNextFreeId
             Prefs.reviewReminderNextFreeId = nextFreeId + 1

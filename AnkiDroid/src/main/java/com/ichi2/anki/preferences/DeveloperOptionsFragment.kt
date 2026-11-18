@@ -9,7 +9,6 @@ import androidx.preference.SwitchPreferenceCompat
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.BuildConfig
 import com.ichi2.anki.CollectionManager.withCol
-import com.ichi2.anki.CommonPreferenceKey
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.common.preferences.sharedPrefs
@@ -127,16 +126,6 @@ class DeveloperOptionsFragment : RemainingSettingsFragment(R.id.settings_develop
                 confirmText = getString(R.string.settings_dev_create_files),
                 destructive = true,
             ) { generateFiles(sizeOfFiles, numberOfFiles) }
-            true
-        }
-
-        /*
-         * The new review reminders system replaces the "Notifications" button in the main settings screen
-         * with a "Review reminders" button, so we need to immediately reload the settings activity
-         * to make this change show up.
-         */
-        requirePreference<Preference>(CommonPreferenceKey.pref_new_review_reminders).setOnPreferenceChangeListener { _, _ ->
-            ActivityCompat.recreate(requireActivity())
             true
         }
 

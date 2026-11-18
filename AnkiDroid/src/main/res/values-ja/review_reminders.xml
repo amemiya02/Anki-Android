@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="review_reminders_intro">学習するカードがあるとき、%1$s がこれらの時刻にお知らせします。</string>
+    <string name="review_reminders_settings_summary">学習のリマインダーを設定</string>
+    <string name="review_reminders_check_action">リマインダーが届くか確認</string>
+    <string name="review_reminders_check_summary">権限、バッテリー、通知の制限</string>
+    <string name="review_reminders_system_settings_summary">音とバイブレーションは Android の設定で変更</string>
+    <string name="review_reminders_deleted_deck">このデッキは削除されました</string>
+    <string name="review_reminders_condition_unstudied">今日まだ学習していない場合のみ</string>
+    <string name="review_reminder_switch">%1$s のリマインダー</string>
+    <string name="review_reminder_time">時刻</string>
+    <string name="review_reminder_deck">デッキ</string>
+    <string name="review_reminder_threshold">学習するカードが指定枚数以上ある場合のみ</string>
+    <string name="review_reminder_at_least">最低</string>
+    <string name="review_reminder_cards">枚</string>
+    <string name="review_reminder_card_count">カードの最小枚数</string>
+    <string name="review_reminder_increase">最小枚数を増やす</string>
+    <string name="review_reminder_decrease">最小枚数を減らす</string>
+    <string name="review_reminder_count_these">対象</string>
+    <string name="review_reminder_new">新規</string>
+    <string name="review_reminder_learning">学習中</string>
+    <string name="review_reminder_due">復習</string>
+    <string name="review_reminder_only_if_unstudied">今日まだ学習していない場合のみ通知する</string>
+    <string name="review_reminder_select_time">時刻を選択</string>
+    <string name="review_reminder_clock_input">時計盤を使う</string>
+    <string name="review_reminder_keyboard_input">キーボードで入力</string>
+    <string name="review_reminder_added">リマインダーを追加しました</string>
+    <string name="review_reminder_deleted">リマインダーを削除しました</string>
+    <string name="review_reminder_saved">リマインダーを保存しました</string>
+    <string name="review_reminder_check_title">リマインダーを確認</string>
+    <string name="review_reminder_check_warning">設定によってはリマインダーが遅れることがあります</string>
+    <string name="review_reminder_check_notifications">通知</string>
+    <string name="review_reminder_check_channel">学習リマインダーの通知カテゴリ</string>
+    <string name="review_reminder_check_alarms">アラームとリマインダー</string>
+    <string name="review_reminder_check_battery">バッテリー</string>
+    <string name="review_reminder_check_dnd">サイレント モード</string>
+    <string name="review_reminder_check_battery_saver">バッテリー セーバー</string>
+    <string name="review_reminder_checking">確認中</string>
+    <string name="review_reminder_check_failed">確認できませんでした</string>
+    <string name="review_reminder_check_allowed">許可済み</string>
+    <string name="review_reminder_check_denied">許可されていません</string>
+    <string name="review_reminder_check_allow_background">バックグラウンドでの実行を許可</string>
+    <string name="review_reminder_check_battery_explanation">電池を節約するため、Android がリマインダーを遅らせることがあります。</string>
+    <string name="review_reminder_check_footer">端末によっては独自の制限があります。リマインダーが届かない場合は、端末のバッテリーとアプリの設定を確認してください。</string>
+    <string name="review_reminder_check_copy">詳細をコピー</string>
+    <string name="review_reminder_notification_title">学習の時間です</string>
+    <string name="review_reminder_notification_deck">%1$s を学習する時間です</string>
+    <string name="review_reminder_snooze_five">5 分後に通知</string>
+    <string name="review_reminder_snooze_hour">1 時間後に通知</string>
+    <string name="review_reminder_due_with_time">%1$s。目安は %2$s です。</string>
+    <string name="notification_sync_title">同期中</string>
+    <string name="notification_sync_media_title">メディアを同期中</string>
+    <string name="notification_sync_failed">同期できませんでした</string>
+    <string name="notification_sync_media_failed">メディアを同期できませんでした</string>
+    <string name="notification_sync_network">%1$s に接続できませんでした。</string>
+    <string name="notification_sync_network_unspecified">同期サーバーに接続できませんでした。</string>
+    <string name="notification_sync_retry">%1$s アプリを開き直すと、%2$s が再試行します。</string>
+    <string name="notification_sync_sign_in">同期するには同期サーバーにログインしてください。</string>
+    <string name="notification_sync_upload">%1$s にアップロード中</string>
+    <string name="notification_sync_download">%1$s からダウンロード中</string>
+    <string name="notification_sync_server">同期サーバー</string>
+    <plurals name="review_reminders_condition_due">
+        <item quantity="other">学習するカードが %1$d 枚以上のとき</item>
+    </plurals>
+    <plurals name="review_reminder_ready_cards">
+        <item quantity="other">学習するカードが %1$d 枚あります</item>
+    </plurals>
+    <plurals name="review_reminder_ready_cards_today">
+        <item quantity="other">今日学習するカードが %1$d 枚あります</item>
+    </plurals>
+    <plurals name="review_reminder_minutes">
+        <item quantity="other">%1$d 分</item>
+    </plurals>
+    <string name="review_reminder_due_sentence">%1$s。</string>
+</resources>

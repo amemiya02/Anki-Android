@@ -9,11 +9,9 @@ import kotlin.test.assertEquals
 
 class NotificationPreferenceKeysTest {
     @Test
-    fun `notification preference keys are unchanged`() {
-        // NONE OF THESE SHOULD BE CHANGED OR A USER WILL LOSE THE ASSOCIATED PREFERENCES
+    fun `the legacy notification migration key is unchanged`() {
         // test working directory is the module directory: `AnkiDroid/`
         val keys = stringResources(File("../common/android/src/main/res/values/preferences_notifications.xml"))
-        assertEquals("newReviewReminders", keys["pref_new_review_reminders"])
         assertEquals("minimumCardsDueForNotification", keys["pref_notifications_minimum_cards_due_key"])
     }
 

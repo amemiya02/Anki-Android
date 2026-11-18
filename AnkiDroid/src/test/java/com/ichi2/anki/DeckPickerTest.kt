@@ -21,7 +21,6 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.Toolbar
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
@@ -49,7 +48,6 @@ import androidx.core.view.ContentInfoCompat
 import androidx.core.view.MenuItemCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.children
 import androidx.core.view.size
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -95,7 +93,6 @@ import com.ichi2.anki.navigation.AnkiDroidNavigator
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.preferences.PreferencesActivity
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
-import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.study.FinishedFragment
 import com.ichi2.anki.ui.internationalization.sentenceCase
@@ -672,7 +669,6 @@ class DeckPickerTest : RobolectricTest() {
             assertEquals("com.ichi2.anki.utils.ConfigAwareSingleFragmentActivity", deckOptionsDynamic.component!!.className)
             onBackPressedDispatcher.onBackPressed()
 
-            Prefs.newReviewRemindersEnabled = true
             val scheduleReminders = selectContextMenuOptionForActivity(DeckPickerContextMenuOption.SCHEDULE_REMINDERS, didA)
             assertEquals("com.ichi2.anki.utils.ConfigAwareSingleFragmentActivity", scheduleReminders.component!!.className)
             onBackPressedDispatcher.onBackPressed()
@@ -1056,6 +1052,7 @@ class DeckPickerTest : RobolectricTest() {
             reloadDecks()
 
             reminders.navigateUp()
+            advanceRobolectricLooper()
 
             assertNotNull(fragment)
             assertEquals(0, supportFragmentManager.backStackEntryCount)
@@ -1077,7 +1074,6 @@ class DeckPickerTest : RobolectricTest() {
     fun `returning from reminders does not accumulate study options subscriptions`() {
         assumeTrue("We are running on a tablet", qualifiers!!.contains("xlarge"))
         addBasicNote()
-        Prefs.newReviewRemindersEnabled = true
 
         deckPicker {
             val studyOptions = assertNotNull(fragment)
@@ -1090,6 +1086,7 @@ class DeckPickerTest : RobolectricTest() {
                 advanceRobolectricLooper()
                 val reminders = requireNotNull(sidePanel as? ScheduleRemindersFragment)
                 reminders.navigateUp()
+                advanceRobolectricLooper()
 
                 assertSame(studyOptions, fragment)
                 assertAll(
@@ -1106,7 +1103,6 @@ class DeckPickerTest : RobolectricTest() {
         addBasicNote()
         val anotherDeck = addDeck("Another deck")
         addNoteToDeck(anotherDeck, count = 2)
-        Prefs.newReviewRemindersEnabled = true
 
         deckPicker {
             makeStudyOptionsScrollable()
@@ -1124,6 +1120,7 @@ class DeckPickerTest : RobolectricTest() {
                     advanceRobolectricLooper()
                 } else {
                     reminders.navigateUp()
+                    advanceRobolectricLooper()
                 }
 
                 assertSame(studyOptions, fragment)
@@ -1191,7 +1188,6 @@ class DeckPickerTest : RobolectricTest() {
     private fun withReminderPanel(test: suspend DeckPicker.(ScheduleRemindersFragment) -> Unit) {
         assumeTrue("We are running on a tablet", qualifiers!!.contains("xlarge"))
         addBasicNote()
-        Prefs.newReviewRemindersEnabled = true
         deckPicker {
             selectContextMenuOption(ContextMenuOption.SCHEDULE_REMINDERS, getColUnsafe.decks.selected())
             advanceRobolectricLooper()
@@ -1211,12 +1207,6 @@ class DeckPickerTest : RobolectricTest() {
         showSyncErrorDialog(SyncErrorDialog.Type.DIALOG_SYNC_CONFLICT_RESOLUTION)
         advanceRobolectricLooper()
         return assertNotNull(ShadowDialog.getLatestDialog())
-    }
-
-    private fun ScheduleRemindersFragment.navigateUp() {
-        val toolbar = requireView().findViewById<Toolbar>(R.id.non_collapsible_toolbar)
-        toolbar.children.first { it.contentDescription == toolbar.navigationContentDescription }.performClick()
-        advanceRobolectricLooper()
     }
 
     @Test

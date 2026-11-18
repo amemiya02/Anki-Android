@@ -24,12 +24,13 @@ import androidx.work.WorkerParameters
 import anki.sync.MediaSyncProgress
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.TR
-import com.ichi2.anki.CommonString
 import com.ichi2.anki.NotificationChannel
 import com.ichi2.anki.R
 import com.ichi2.anki.cancelMediaSync
+import com.ichi2.anki.common.android.withAppLocale
 import com.ichi2.anki.common.permissions.canPostNotifications
 import com.ichi2.anki.notifications.NotificationId
+import com.ichi2.anki.notifications.hayakiNotification
 import com.ichi2.anki.receiver.CopyToClipboardReceiver
 import com.ichi2.anki.sync.MeteredSyncPolicy
 import com.ichi2.anki.sync.SyncAuth
@@ -66,6 +67,8 @@ class SyncMediaWorker(
             null
         }
 
+    private val notificationContext get() = applicationContext.withAppLocale()
+
     override suspend fun doWork(): Result {
         Timber.v("SyncMediaWorker::doWork")
         return mediaSyncLock.withLockUnlessSwitching { doWorkHoldingLock() }
@@ -97,7 +100,7 @@ class SyncMediaWorker(
             notify {
                 // TODO: add a contentIntent, so tapping the notification opens the app
                 //  (ideally showing the media sync log: an AlertDialog in DeckPicker)
-                setContentTitle(TR.syncMediaFailed())
+                setContentTitle(notificationContext.getString(R.string.notification_sync_media_failed))
                 throwable.localizedMessage?.let { message ->
                     setContentText(message)
                     setStyle(
@@ -107,7 +110,7 @@ class SyncMediaWorker(
                     )
                     addAction(
                         R.drawable.symbol_content_copy,
-                        with(applicationContext) { TR.sentenceCase.copyToClipboard },
+                        with(notificationContext) { TR.sentenceCase.copyToClipboard },
                         getCopyToClipboardIntent(TruncatedString.from(message)),
                     )
                 }
@@ -144,7 +147,7 @@ class SyncMediaWorker(
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
-        val title = applicationContext.getString(CommonString.syncing_media)
+        val title = notificationContext.getString(R.string.notification_sync_media_title)
         val cancelTitle = TR.syncAbortButton()
         val notification =
             buildNotification {
@@ -179,23 +182,23 @@ class SyncMediaWorker(
     }
 
     private fun buildNotification(block: NotificationCompat.Builder.() -> Unit): Notification =
-        NotificationCompat
-            .Builder(applicationContext, NotificationChannel.SYNC.id)
+        notificationContext
+            .hayakiNotification(NotificationChannel.SYNC)
             .apply {
                 priority = NotificationCompat.PRIORITY_LOW
-                setSmallIcon(R.drawable.ic_star_notify)
                 setCategory(NotificationCompat.CATEGORY_PROGRESS)
                 setSilent(true)
                 block()
             }.build()
 
     private fun getProgressNotification(progress: CharSequence): Notification {
-        val title = applicationContext.getString(CommonString.syncing_media)
+        val title = notificationContext.getString(R.string.notification_sync_media_title)
         val cancelTitle = TR.syncAbortButton()
 
         return buildNotification {
             setContentTitle(title)
             setContentText(progress)
+            setProgress(0, 0, true)
             setOngoing(true)
             addAction(CommonR.drawable.symbol_close, cancelTitle, cancelIntent)
         }

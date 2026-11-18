@@ -46,15 +46,9 @@ internal enum class SettingsGroup(
         AccessibilitySettingsFragment::class,
     ),
     SYNC(CommonString.pref_cat_sync, R.string.settings_sync_summary, R.drawable.symbol_sync, SyncSettingsFragment::class),
-    NOTIFICATIONS(
-        CommonString.notification_pref,
-        R.string.settings_notifications_summary,
-        R.drawable.symbol_notifications,
-        NotificationsSettingsFragment::class,
-    ),
     REVIEW_REMINDERS(
         CommonString.review_reminders_title,
-        R.string.settings_notifications_summary,
+        R.string.review_reminders_settings_summary,
         R.drawable.symbol_notifications,
         ScheduleRemindersFragment::class,
     ),
@@ -89,8 +83,6 @@ internal enum class SettingsGroup(
         fun visibleGroups(): List<SettingsGroup> =
             entries.filter {
                 when (it) {
-                    NOTIFICATIONS -> !Prefs.newReviewRemindersEnabled
-                    REVIEW_REMINDERS -> Prefs.newReviewRemindersEnabled
                     ADVANCED -> !AdaptionUtil.isXiaomiRestrictedLearningDevice
                     DEVELOPER -> Prefs.isDeveloperOptionsEnabled
                     SWITCH_PROFILE -> Prefs.switchProfileEnabled
