@@ -43,7 +43,7 @@ class BrowserHeaderVisibilityRegressionTest : RobolectricTest() {
             assertEquals("cat", activityViewModel.searchTerms)
             assertEquals(1, activityViewModel.rowCount)
             assertTrue(activityViewModel.isInMultiSelectMode)
-            assertEquals("1 card shown", snackbarText)
+            advanceRobolectricLooperUntil { snackbarText == "1 card shown" }
             assertEquals(View.GONE, snackbarAction?.visibility)
         }
     }

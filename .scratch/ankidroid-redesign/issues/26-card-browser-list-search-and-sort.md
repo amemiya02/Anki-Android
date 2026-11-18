@@ -15,7 +15,7 @@
 - [x] Upstream's search view is the only search, finished: the filter chips (decks, card state, flags, tags) take several choices, are filled in from a typed or saved query, and every label is translated; the toolbar search box and the menu items the chips replace are gone.
 - [x] Upstream's search tools are dropped or finished, as the owner decides in the Mockup (recommended: dropped, with a link to the manual's search syntax).
 - [x] Rows show flag, marked, suspended and buried as marks and words, not as a row tint; the flag colours are added to the Foundation (values file and `foundation.xml`).
-- [ ] It matches the agreed Mockup.
+- [x] It matches the agreed Mockup.
 - [ ] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
 - [ ] Screen-logic tests and Engine tests still pass unchanged.
 
@@ -32,3 +32,11 @@ The ARM64 debug APK with SHA-256 `c32f3c2196a574f2863dab923e07a026adfa600e0e3212
 The hardware-GPU run used the M2 Metal renderer and ART speed compilation. Before the row optimization, ten swipes rendered 359 frames with a 17 ms median, 25 ms p95 and 3.62% jank. With the optimization, the first pass recorded a 200 ms p95. A subsequent pass over new rows rendered 351 frames with a 22 ms median, 38 ms p95 and 24 janky frames (6.84%). Host load varied. The SwiftShader pass measured 25 janky frames out of 26. A controlled idle-host run with a release or profileable build is pending.
 
 The row loader reuses the ordinary Card colour result to avoid extra Card and Note lookups. If a higher-priority mark can mask another, it reads the additional state from the Engine. A bounded cache holds recent visible rows. [Anki 26.09.4 browser row colours](https://github.com/ankitects/anki/blob/26.09.4/rslib/src/browser_table.rs)
+
+### Tablet verification
+
+On an Android 16 emulator at 1280 × 800 dp, standalone Browse opened alongside the Note Editor. Tapping Search opened Gboard with the editor still visible. Submitting `is:new` showed 99,992 Cards and the New chip in the disposable fixture. Tapping fixture 00001 changed the editor to that Card, and Sort opened in a centered sheet.
+
+The ARM64 debug APK had SHA-256 `05b2b5974db53d3ae8bdf4fe3cb0044fc7ee9481c35e12849d00b43b57458770`. The initial launch under host load reported a startup ANR. A force-stop and fresh launch succeeded, and the emulator's original display settings were restored. Captures are in `/tmp/anki-redesign-qa/browser-tablet/`.
+
+The full-window rendered results check first detected a 40 dp overflow target in the tablet toolbar. It passed with the 48 dp target and adjacent editor visible. Robolectric stalls while showing the IME with the tablet editor present. The rendered phone tests cover search, results and sort, and the tablet tests capture results and sort with the editor visible. The Android run above covers the tablet keyboard transition.

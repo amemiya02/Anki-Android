@@ -1047,10 +1047,11 @@ class CardBrowserTest : RobolectricTest() {
     @Test
     fun truncateAndExpand() =
         runTest {
-            val title = "A long result whose text wraps on narrow screens. ".repeat(8)
+            val title = "A long result whose text wraps on narrow screens. ".repeat(8).trimEnd()
             addBasicNote(title)
             val browser = getBrowserWithNotes(noteCount = 0)
             browser.viewModel.setTruncated(true).join()
+            composeRule.waitUntilAtLeastOneExists(hasText(title), 10_000)
             val row = composeRule.onNodeWithText(title)
             val collapsed = row.getUnclippedBoundsInRoot()
 

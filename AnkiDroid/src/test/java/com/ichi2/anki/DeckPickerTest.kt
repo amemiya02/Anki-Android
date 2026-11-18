@@ -22,6 +22,8 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
@@ -1809,13 +1811,14 @@ class DeckPickerTest : RobolectricTest() {
                 addBasicNoteWithOp(fields = listOf("second", "two"))
                 openEmbeddedCardBrowser()
                 advanceRobolectricLooperUntil { composeRule.onAllNodesWithText("first").fetchSemanticsNodes().isNotEmpty() }
+                val heading = SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading)
 
                 composeRule.onNodeWithText("first").performTouchInput { longClick() }
                 composeRule.onNodeWithText("second").performClick()
-                composeRule.onNodeWithText("2").assertIsDisplayed()
+                composeRule.onNode(heading and hasText("2")).assertIsDisplayed()
 
                 composeRule.onNodeWithText("first").performClick()
-                composeRule.onNodeWithText("1").assertIsDisplayed()
+                composeRule.onNode(heading and hasText("1")).assertIsDisplayed()
             }
         }
 

@@ -396,6 +396,8 @@ class CardBrowserViewModel(
 
     /** Builds a destination to edit [row], or `null` if there's nothing to edit. */
     suspend fun editNoteDestination(row: CardOrNoteId): NoteEditorDestination? {
+        // A rendered result may still be visible while a deletion or sync refreshes the search.
+        if (cardsOrNotes == CARDS && withCol { getCardOrNull(row.cardOrNoteId) } == null) return null
         val cardIds = getCardIdsForNoteEditor(row)
         if (cardIds.isEmpty()) {
             Timber.w("EditSelection skipped: card list is empty")
@@ -807,12 +809,11 @@ class CardBrowserViewModel(
      */
     private fun setNoteEditorRow(row: CardOrNoteId) =
         viewModelScope.launch {
-            if (isFragmented) {
-                paneRow = row
-            } else {
+            if (!isFragmented) {
                 endMultiSelectMode(SingleSelectCause.OpenNoteEditorActivity)
             }
             val destination = editNoteDestination(row) ?: return@launch
+            if (isFragmented) paneRow = row
             flowOfNoteEditorCommand.emit(
                 if (isFragmented) NoteEditorCommand.LoadInPane(destination) else NoteEditorCommand.LaunchActivity(destination),
             )
@@ -1288,14 +1289,12 @@ class CardBrowserViewModel(
         return if (searchAdded) SaveSearchResult.SUCCESS else SaveSearchResult.ALREADY_EXISTS
     }
 
-    /**
-     * Sets the filter query (legacy): 'is:suspended'
-     */
     private fun replaceSearchRequest(request: SearchRequest) {
         searchRequestFlow.value = request
         savedStateHandle[STATE_SUBMITTED_SEARCH] = Json.encodeToString(request.toHistoryEntry())
     }
 
+    /** Sets the legacy filter query, such as `is:suspended`. */
     private suspend fun setFilterQuery(filterQuery: String) {
         this.flowOfFilterQuery.emit(filterQuery)
         replaceSearchRequest(searchRequestFlow.value.copy(query = filterQuery))
@@ -1691,8 +1690,9 @@ class CardBrowserViewModel(
         /** Intent extra (`Boolean`) for whether [EXTRA_SEARCH_QUERY] should search all decks. */
         const val EXTRA_ALL_DECKS = "all_decks"
 
-        /** Prevents one-shot extras from being re-applied after process death. */
         private const val STATE_SUBMITTED_SEARCH = "submittedBrowserSearch"
+
+        /** Prevents one-shot extras from being re-applied after process death. */
         private const val STATE_LAUNCH_INTENT_CONSUMED = "launchIntentConsumed"
 
         const val STATE_MULTISELECT = "multiselect"

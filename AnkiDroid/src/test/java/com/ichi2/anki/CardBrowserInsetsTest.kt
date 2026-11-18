@@ -51,7 +51,7 @@ class CardBrowserInsetsTest : RobolectricTest() {
             composeRule.onNode(hasScrollToIndexAction()).performScrollToIndex(30)
 
             val last = composeRule.onNodeWithText("Card 29").assertIsDisplayed().getUnclippedBoundsInRoot()
-            assertTrue(last.bottom <= window.bottom - 48.composeDp)
+            assertTrue(last.bottom <= window.bottom - 48.composeDp, "Last result bounds are $last. Window bounds are $window.")
         }
     }
 }
