@@ -29,19 +29,20 @@ class TemplatePreviewerSidebarTest : RobolectricTest() {
                 startRegularActivity<NoteEditorActivity>(
                     NoteEditorDestination.EditNoteFromPreviewer(note.cards(col).single { it.ord == 2 }.id).toIntent(),
                 )
+            val panes = activity.noteEditorFragment.parentFragmentManager
             assertTrue(activity.isPreviewerVisible)
             activity.loadNoteEditorPreviewer(forceReplace = true)
-            activity.supportFragmentManager.executePendingTransactions()
+            panes.executePendingTransactions()
             advanceRobolectricLooper()
             advanceUntilIdle()
 
-            fun preview() = activity.supportFragmentManager.findFragmentById(R.id.previewer_frame) as TemplatePreviewerFragment
+            fun preview() = panes.findFragmentById(R.id.previewer_frame) as TemplatePreviewerFragment
             val initial = preview()
             assertEquals(2, initial.viewModel.ordFlow.value, "initial live card")
 
             activity.noteEditorFragment.setFieldValueFromUi(0, "first {{c3::third edited}}")
             advanceUntilIdle()
-            activity.supportFragmentManager.executePendingTransactions()
+            panes.executePendingTransactions()
             advanceRobolectricLooper()
             advanceUntilIdle()
             val refreshed = preview()
