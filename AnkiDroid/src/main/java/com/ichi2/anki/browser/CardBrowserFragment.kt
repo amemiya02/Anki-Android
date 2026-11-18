@@ -29,6 +29,7 @@ import com.google.android.material.search.SearchView
 import com.google.android.material.snackbar.Snackbar
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.AnkiActivityProvider
+import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.CardBrowser
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.getColUnsafe
@@ -123,7 +124,20 @@ class CardBrowserFragment :
     private val browserPane: CardBrowserPaneFragment?
         get() = parentFragment as? CardBrowserPaneFragment
 
-    private val hostBrowserViewModel: CardBrowserViewModel by viewModels(ownerProducer = { requireActivity() })
+    private val hostBrowserViewModel: CardBrowserViewModel by viewModels(ownerProducer = { requireActivity() }) {
+        val host = requireActivity()
+        if (host is DeckPicker) {
+            CardBrowserViewModel.factory(
+                lastDeckIdRepository = AnkiDroidApp.instance.sharedPrefsLastDeckIdRepository,
+                idsFileDirectory = IdsFile.getDirectory(),
+                options = null,
+                isFragmented = false,
+                initialDeckId = null,
+            )
+        } else {
+            host.defaultViewModelProviderFactory
+        }
+    }
 
     val activityViewModel: CardBrowserViewModel
         get() = browserPane?.browserViewModel ?: hostBrowserViewModel
@@ -189,6 +203,8 @@ class CardBrowserFragment :
     internal fun browserBack() {
         browserPane?.navigateBack() ?: requireNavigationDrawerActivity().onNavigationPressed()
     }
+
+    internal fun showsStandaloneBack() = browserPane != null || !activityViewModel.isFragmented
 
     private fun saveSubmittedSearch(search: SearchRequest = activityViewModel.searchRequestFlow.value) {
         if (search.isEmpty) return

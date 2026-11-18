@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.activity.addCallback
 import androidx.core.os.BundleCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -21,6 +22,7 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import anki.collection.OpChanges
 import com.ichi2.anki.AnkiDroidApp
+import com.ichi2.anki.CardTemplateNotetype
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.DispatchKeyEventListener
 import com.ichi2.anki.NoteEditorFragment
@@ -116,6 +118,7 @@ class CardBrowserPaneFragment :
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) { navigateBack() }
         // Instantiate the launch-specific model before the child resolves its ViewModel store.
         browserViewModel
         if (browser == null) {
@@ -148,10 +151,17 @@ class CardBrowserPaneFragment :
     }
 
     internal fun navigateBack() {
-        if (browserViewModel.isInMultiSelectMode) {
-            browserViewModel.endMultiSelectMode(SingleSelectCause.NavigateBack)
-        } else {
+        fun close() {
+            CardTemplateNotetype.clearTempNoteTypeFiles()
             finishScreen(Activity.RESULT_OK)
+        }
+
+        when {
+            browserViewModel.isInMultiSelectMode -> browserViewModel.endMultiSelectMode(SingleSelectCause.NavigateBack)
+            editor?.hasUnsavedChanges() == true -> {
+                DiscardChangesDialog.showDialog(requireContext(), positiveMethod = ::close)
+            }
+            else -> close()
         }
     }
 

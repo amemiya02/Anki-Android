@@ -12,13 +12,10 @@ import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.browser.CardBrowserFragment
-import com.ichi2.anki.browser.CardBrowserViewModel
-import com.ichi2.anki.browser.IdsFile
 import com.ichi2.anki.common.analytics.Analytics
 import com.ichi2.anki.common.android.themes.interfaceTypeface
 import com.ichi2.anki.common.annotations.NeedsTest
@@ -140,21 +137,6 @@ internal fun DeckPicker.updateTabChrome(tab: NavigationItem?) {
         // A hidden Decks pane can miss a bottom bar change when another tab is restored.
         updateAddButtonInsets()
     }
-}
-
-/** Create CardBrowserViewModel before the fragment accesses it via activityViewModels() */
-internal fun DeckPicker.ensureBrowserViewModel() {
-    ViewModelProvider(
-        viewModelStore,
-        CardBrowserViewModel.factory(
-            lastDeckIdRepository = AnkiDroidApp.instance.sharedPrefsLastDeckIdRepository,
-            idsFileDirectory = IdsFile.getDirectory(),
-            options = null,
-            isFragmented = false,
-            initialDeckId = null,
-        ),
-        defaultViewModelCreationExtras,
-    )[CardBrowserViewModel::class.java]
 }
 
 /**

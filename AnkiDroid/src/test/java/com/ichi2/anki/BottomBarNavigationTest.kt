@@ -126,7 +126,7 @@ class BottomBarNavigationTest : RobolectricTest() {
         }
 
     private fun DeckPicker.shownHelpMenuTitle(): Int? {
-        advanceRobolectricLooper()
+        composeRule.waitUntil(10_000) { supportFragmentManager.fragments.any { it is HelpDialog } }
         val dialog = supportFragmentManager.fragments.filterIsInstance<HelpDialog>().singleOrNull()
         return dialog?.requireArguments()?.getInt(HelpDialog.ARG_MENU_TITLE)
     }

@@ -56,7 +56,6 @@ import com.ichi2.anki.account.AccountActivity
 import com.ichi2.anki.account.AccountFlowFragment
 import com.ichi2.anki.browser.CardBrowserFragment
 import com.ichi2.anki.browser.CardBrowserPaneFragment
-import com.ichi2.anki.ensureBrowserViewModel
 import com.ichi2.anki.filtered.FilteredDeckOptionsFragment
 import com.ichi2.anki.introduction.WelcomeFragment
 import com.ichi2.anki.mediacheck.MediaCheckFragment
@@ -135,7 +134,6 @@ internal class AppNavigation(
             }
             tabFragments.forEach { (tab, fragmentClass) ->
                 composable(tab.tag) { entry ->
-                    if (tab == NavigationItem.BROWSER) remember(entry.id) { deckPicker.ensureBrowserViewModel() }
                     val bottomClearance = with(LocalDensity.current) { deckPicker.bottomNavContentClearance.intValue.toDp() }
                     val arguments =
                         if (tab ==

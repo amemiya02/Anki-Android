@@ -80,6 +80,7 @@ import com.ichi2.anki.NoteEditorFragment.Companion.NoteEditorCaller.Companion.fr
 import com.ichi2.anki.android.input.ShortcutGroup
 import com.ichi2.anki.android.input.ShortcutGroupProvider
 import com.ichi2.anki.android.input.shortcut
+import com.ichi2.anki.browser.CardBrowserPaneFragment
 import com.ichi2.anki.browser.CardBrowserViewModel
 import com.ichi2.anki.common.android.animationEnabled
 import com.ichi2.anki.common.android.appContext
@@ -624,9 +625,11 @@ class NoteEditorFragment :
         }
         // TODO this callback doesn't handle predictive back navigation!
         // see #14678, added to temporarily fix for a bug
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            Timber.i("NoteEditor:: onBackPressed()")
-            closeCardEditorWithCheck()
+        if (parentFragment !is CardBrowserPaneFragment) {
+            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+                Timber.i("NoteEditor:: onBackPressed()")
+                closeCardEditorWithCheck()
+            }
         }
 
         if (!collectionHasLoaded()) return

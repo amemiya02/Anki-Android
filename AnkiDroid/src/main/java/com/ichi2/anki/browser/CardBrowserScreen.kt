@@ -245,7 +245,7 @@ internal fun CardBrowserScreen(
                 ) {
                     if (selectionMode) {
                         BrowserIcon(CommonR.drawable.symbol_close, stringResource(CommonString.dialog_cancel), ::endSelection)
-                    } else if (!embedded && !vm.isFragmented) {
+                    } else if (!embedded && host.showsStandaloneBack()) {
                         BrowserIcon(
                             CommonR.drawable.symbol_arrow_back,
                             stringResource(CommonString.dialog_cancel),
