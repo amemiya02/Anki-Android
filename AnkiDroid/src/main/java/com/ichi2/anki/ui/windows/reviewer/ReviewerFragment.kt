@@ -44,6 +44,7 @@ import com.ichi2.anki.android.AnkiShakeDetector
 import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.destinations.DeckOptionsDestination
+import com.ichi2.anki.common.destinations.PreferencesDestination
 import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.utils.android.isRobolectric
 import com.ichi2.anki.common.utils.dp
@@ -408,6 +409,9 @@ class ReviewerFragment :
 
         val showHardAndEasyButtons = !Prefs.hideHardAndEasyButtons
         val buttonsHeightPercentage = Prefs.newStudyScreenAnswerButtonSize
+        val showAnswerMinimumPressMs = Prefs.showAnswerMinimumPressMs
+        val doubleTapIntervalMs = Prefs.doubleTapInterval
+        var hasShownPressHint = false
         binding.answerArea.setContent {
             AnkiDroidTheme {
                 val isAnswerShown by viewModel.showingAnswer.collectAsStateWithLifecycle()
@@ -419,8 +423,28 @@ class ReviewerFragment :
                     onShowAnswerClicked = { viewModel.onShowAnswer() },
                     showHardAndEasyButtons = showHardAndEasyButtons,
                     buttonsHeightPercentage = buttonsHeightPercentage,
+                    onShowAnswerPressTooShort = {
+                        if (!hasShownPressHint) {
+                            hasShownPressHint = true
+                            showMinimumPressHint()
+                        }
+                    },
+                    showAnswerMinimumPressMs = showAnswerMinimumPressMs,
+                    doubleTapIntervalMs = doubleTapIntervalMs,
                 )
             }
+        }
+    }
+
+    /** Says once that Show answer needs a longer press, and where that is set */
+    private fun showMinimumPressHint() {
+        val message =
+            getString(
+                CommonString.show_answer_hint_long_press,
+                getString(CommonString.pref_show_answer_long_press_time),
+            )
+        showSnackbar(message) {
+            setAction(CommonString.settings) { navigate(PreferencesDestination.Accessibility) }
         }
     }
 

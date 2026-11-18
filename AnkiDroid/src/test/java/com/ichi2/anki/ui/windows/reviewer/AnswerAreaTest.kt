@@ -12,6 +12,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.scheduler.CardAnswer.Rating
 import com.ichi2.anki.RobolectricTest
@@ -153,5 +154,68 @@ class AnswerAreaTest : RobolectricTest() {
         percentage = 200
 
         assertEquals(defaultHeight * 2, node.fetchSemanticsNode().size.height)
+    }
+
+    @Test
+    fun `with a minimum press time, Show answer needs a press that long`() {
+        var shown = 0
+        var hints = 0
+        composeRule.setContent {
+            AnkiDroidTheme {
+                AnswerArea(
+                    isAnswerShown = false,
+                    nextTimes = null,
+                    onRatingClicked = {},
+                    onShowAnswerClicked = { shown++ },
+                    onShowAnswerPressTooShort = { hints++ },
+                    showAnswerMinimumPressMs = 500,
+                )
+            }
+        }
+        val button = composeRule.onNodeWithText(showAnswer)
+
+        button.performClick()
+        composeRule.mainClock.advanceTimeBy(1_000)
+        assertEquals(0, shown, "a tap does not show the answer")
+        assertEquals(1, hints, "a tap says why nothing happened")
+
+        button.performTouchInput { down(center) }
+        composeRule.mainClock.advanceTimeBy(600)
+        assertEquals(1, shown, "a press held for the minimum time shows the answer")
+        button.performTouchInput { up() }
+        composeRule.mainClock.advanceTimeBy(100)
+        assertEquals(1, shown)
+        assertEquals(1, hints, "releasing after the answer showed is not a tap")
+    }
+
+    @Test
+    fun `a second press within the double tap interval is ignored`() {
+        var isAnswerShown by mutableStateOf(false)
+        val presses = mutableListOf<String>()
+        composeRule.mainClock.autoAdvance = false
+        composeRule.setContent {
+            AnkiDroidTheme {
+                AnswerArea(
+                    isAnswerShown = isAnswerShown,
+                    nextTimes = null,
+                    onRatingClicked = { presses += it.name },
+                    onShowAnswerClicked = {
+                        presses += "show"
+                        isAnswerShown = true
+                    },
+                    doubleTapIntervalMs = 200,
+                )
+            }
+        }
+        composeRule.mainClock.advanceTimeByFrame()
+
+        composeRule.onNodeWithText(showAnswer).performClick()
+        composeRule.mainClock.advanceTimeBy(50)
+        composeRule.onNodeWithText(again).performClick()
+        assertEquals(listOf("show"), presses, "Again pressed right after Show answer is a double tap")
+
+        composeRule.mainClock.advanceTimeBy(300)
+        composeRule.onNodeWithText(good).performClick()
+        assertEquals(listOf("show", "GOOD"), presses)
     }
 }

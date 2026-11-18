@@ -439,6 +439,9 @@ open class PrefsRepository protected constructor(
     val answerButtonsSize: Int by intPref(R.string.answer_button_size_preference, 100)
     val cardZoom: Int by intPref(R.string.card_zoom_preference, 100)
     val imageZoom: Int by intPref(R.string.image_zoom_preference, 100)
+
+    /** How long Show answer must be held before it shows the answer; 0 for an ordinary tap */
+    val showAnswerMinimumPressMs: Int by intPref(R.string.pref_card_minimal_click_time, 0)
     val centerVertically by booleanPref(R.string.center_vertically_preference, false)
     override val removeAppAnimations by booleanPref(R.string.safe_display_key, defaultValue = false)
 

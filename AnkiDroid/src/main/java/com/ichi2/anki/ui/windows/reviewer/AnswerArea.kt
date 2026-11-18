@@ -5,6 +5,9 @@ package com.ichi2.anki.ui.windows.reviewer
 import androidx.annotation.StringRes
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -23,12 +26,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -41,6 +50,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import anki.scheduler.CardAnswer.Rating
 import com.ichi2.compose.theme.foundation
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 import com.ichi2.anki.common.android.R as CommonR
 
 /**
@@ -58,9 +70,29 @@ fun AnswerArea(
     modifier: Modifier = Modifier,
     showHardAndEasyButtons: Boolean = true,
     buttonsHeightPercentage: Int = 100,
+    onShowAnswerPressTooShort: () -> Unit = {},
+    showAnswerMinimumPressMs: Int = 0,
+    doubleTapIntervalMs: Int = 0,
 ) {
     val foundation = MaterialTheme.foundation
     val spacing = foundation.spacing
+    // "Double tap time interval": a press that follows the last one too soon is a slip, not an answer
+    val scope = rememberCoroutineScope()
+    var isCoolingDown by remember { mutableStateOf(false) }
+    val guarded: (() -> Unit) -> Unit = { action ->
+        if (!isCoolingDown) {
+            action()
+            if (doubleTapIntervalMs > 0) {
+                isCoolingDown = true
+                scope.launch {
+                    delay(doubleTapIntervalMs.milliseconds)
+                    isCoolingDown = false
+                }
+            }
+        }
+    }
+    // "Show answer long-press time": Show answer acts once held that long; a tap only says why
+    var wasShownByHolding by remember { mutableStateOf(false) }
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
         Box(
             modifier =
@@ -79,22 +111,45 @@ fun AnswerArea(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 val colors = foundation.colors
-                RatingButton(CommonR.string.ease_button_again, nextTimes?.again, colors.answerAgain) { onRatingClicked(Rating.AGAIN) }
+
+                fun rate(rating: Rating) = guarded { onRatingClicked(rating) }
+                RatingButton(CommonR.string.ease_button_again, nextTimes?.again, colors.answerAgain) { rate(Rating.AGAIN) }
                 if (showHardAndEasyButtons) {
-                    RatingButton(CommonR.string.ease_button_hard, nextTimes?.hard, colors.answerHard) { onRatingClicked(Rating.HARD) }
+                    RatingButton(CommonR.string.ease_button_hard, nextTimes?.hard, colors.answerHard) { rate(Rating.HARD) }
                 }
-                RatingButton(CommonR.string.ease_button_good, nextTimes?.good, colors.answerGood) { onRatingClicked(Rating.GOOD) }
+                RatingButton(CommonR.string.ease_button_good, nextTimes?.good, colors.answerGood) { rate(Rating.GOOD) }
                 if (showHardAndEasyButtons) {
-                    RatingButton(CommonR.string.ease_button_easy, nextTimes?.easy, colors.answerEasy) { onRatingClicked(Rating.EASY) }
+                    RatingButton(CommonR.string.ease_button_easy, nextTimes?.easy, colors.answerEasy) { rate(Rating.EASY) }
                 }
             }
             Button(
-                onClick = onShowAnswerClicked,
+                onClick = {
+                    when {
+                        showAnswerMinimumPressMs <= 0 -> guarded(onShowAnswerClicked)
+                        wasShownByHolding -> wasShownByHolding = false
+                        else -> onShowAnswerPressTooShort()
+                    }
+                },
                 modifier =
                     Modifier
                         .matchParentSize()
                         .padding(top = spacing.answerButton - spacing.primaryButton)
-                        .invisibleIf(isAnswerShown),
+                        .invisibleIf(isAnswerShown)
+                        .pointerInput(showAnswerMinimumPressMs) {
+                            if (showAnswerMinimumPressMs <= 0) return@pointerInput
+                            awaitEachGesture {
+                                awaitFirstDown(requireUnconsumed = false)
+                                val released =
+                                    withTimeoutOrNull(showAnswerMinimumPressMs.toLong()) {
+                                        waitForUpOrCancellation()
+                                        true
+                                    }
+                                if (released == null) {
+                                    wasShownByHolding = true
+                                    guarded(onShowAnswerClicked)
+                                }
+                            }
+                        },
                 shape = foundation.shapes.button,
                 colors =
                     ButtonDefaults.buttonColors(
