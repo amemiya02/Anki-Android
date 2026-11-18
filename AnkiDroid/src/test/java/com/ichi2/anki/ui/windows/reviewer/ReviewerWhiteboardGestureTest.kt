@@ -75,7 +75,7 @@ class ReviewerWhiteboardGestureTest : RobolectricTest() {
                 advanceUntilIdle()
 
                 assertEquals(emptyList(), whiteboard.viewModel.paths.value)
-                assertTrue(whiteboard.binding.whiteboardView.isStylusOnlyMode)
+                assertTrue(whiteboard.whiteboardView.isStylusOnlyMode)
                 assertFalse(viewModel.showingAnswer.value, "Whiteboard bindings must take priority over reviewer bindings")
             }
         }
@@ -116,7 +116,7 @@ class ReviewerWhiteboardGestureTest : RobolectricTest() {
             advanceUntilIdle()
             val whiteboard =
                 assertIs<WhiteboardFragment>(reviewer.childFragmentManager.findFragmentByTag(WhiteboardFragment::class.jvmName))
-            assertTrue(whiteboard.binding.whiteboardView.isStylusOnlyMode)
+            assertTrue(whiteboard.whiteboardView.isStylusOnlyMode)
             assertFalse(reviewer.viewModel.showingAnswer.value)
             reviewer.block(whiteboard)
         }

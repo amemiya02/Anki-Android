@@ -8,9 +8,11 @@ import android.graphics.Canvas
 import android.os.Bundle
 import android.view.Gravity
 import android.view.KeyEvent
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.ComponentDialog
 import androidx.activity.OnBackPressedCallback
@@ -48,7 +50,6 @@ import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.time.getTimestamp
 import com.ichi2.anki.common.utils.android.systemIsInNightMode
 import com.ichi2.anki.compat.CompatHelper.Companion.compat
-import com.ichi2.anki.databinding.FragmentWhiteboardBinding
 import com.ichi2.anki.preferences.reviewer.WhiteboardAction
 import com.ichi2.anki.reviewer.BindingMap
 import com.ichi2.anki.reviewer.ReviewerBinding
@@ -63,7 +64,6 @@ import com.ichi2.compose.ui.dialogs.PaperDialog
 import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.utils.increaseHorizontalPaddingOfMenuIcons
 import com.ichi2.utils.toRGBAHex
-import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -73,12 +73,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import kotlin.math.roundToInt
+import com.ichi2.anki.common.utils.dp as nativeDp
 
 /**
  * Fragment that displays a whiteboard and its controls.
  */
 class WhiteboardFragment :
-    Fragment(R.layout.fragment_whiteboard),
+    Fragment(),
     PopupMenu.OnMenuItemClickListener,
     DispatchKeyEventListener {
     @VisibleForTesting
@@ -86,7 +87,35 @@ class WhiteboardFragment :
         WhiteboardViewModel.factory(AnkiDroidApp.sharedPrefs())
     }
 
-    val binding by viewBinding(FragmentWhiteboardBinding::bind)
+    internal val whiteboardView get() = requireView().findViewById<WhiteboardView>(R.id.whiteboard_view)
+    internal val whiteboardToolbar get() = requireView().findViewById<WhiteboardToolbar>(R.id.whiteboard_toolbar)
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View =
+        FrameLayout(inflater.context).apply {
+            addView(
+                WhiteboardView(context).apply {
+                    id = R.id.whiteboard_view
+                },
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT,
+            )
+            val margin = 8.nativeDp.toPx(context)
+            val toolbarLayout =
+                FrameLayout
+                    .LayoutParams(
+                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                        Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL,
+                    ).apply {
+                        setMargins(margin, margin, margin, margin)
+                    }
+            addView(WhiteboardToolbar(context).apply { id = R.id.whiteboard_toolbar }, toolbarLayout)
+        }
+
     private lateinit var bindingMap: BindingMap<ReviewerBinding, WhiteboardAction>
     private var doubleBackCallback: OnBackPressedCallback? = null
 
@@ -109,18 +138,18 @@ class WhiteboardFragment :
         viewModel.loadState(isNightMode)
 
         setupUI()
-        observeViewModel(binding.whiteboardView)
+        observeViewModel(whiteboardView)
         setupDoubleBackPress()
 
-        binding.whiteboardView.isStylusButtonOverriding = viewModel.isStylusOverriding
-        binding.whiteboardView.onNewPath = viewModel::addPath
-        binding.whiteboardView.onEraseGestureStart = viewModel::startPathEraseGesture
-        binding.whiteboardView.onEraseGestureMove = viewModel::erasePathsToPoint
-        binding.whiteboardView.onEraseGestureCancel = viewModel::cancelPathEraseGesture
-        binding.whiteboardView.onEraseGestureEnd = viewModel::endPathEraseGesture
-        binding.whiteboardView.onStylusButtonStateChanged = { isPressed ->
+        whiteboardView.isStylusButtonOverriding = viewModel.isStylusOverriding
+        whiteboardView.onNewPath = viewModel::addPath
+        whiteboardView.onEraseGestureStart = viewModel::startPathEraseGesture
+        whiteboardView.onEraseGestureMove = viewModel::erasePathsToPoint
+        whiteboardView.onEraseGestureCancel = viewModel::cancelPathEraseGesture
+        whiteboardView.onEraseGestureEnd = viewModel::endPathEraseGesture
+        whiteboardView.onStylusButtonStateChanged = { isPressed ->
             viewModel.setStylusButtonPressed(isPressed)
-            binding.whiteboardView.activeTool = viewModel.activeTool.value
+            whiteboardView.activeTool = viewModel.activeTool.value
         }
     }
 
@@ -194,7 +223,7 @@ class WhiteboardFragment :
     }
 
     private fun setupUI() {
-        val toolbar = binding.whiteboardToolbar
+        val toolbar = whiteboardToolbar
 
         toolbar.setControls {
             WhiteboardControls(
@@ -223,15 +252,15 @@ class WhiteboardFragment :
             )
         }
 
-        binding.whiteboardToolbar.onToolbarVisibilityChanged = { isShown ->
+        whiteboardToolbar.onToolbarVisibilityChanged = { isShown ->
             viewModel.setIsToolbarShown(isShown)
         }
 
         bindingMap = BindingMap(sharedPrefs(), WhiteboardAction.entries, viewModel)
-        binding.root.setOnGenericMotionListener { _, event ->
+        requireView().setOnGenericMotionListener { _, event ->
             bindingMap.onGenericMotionEvent(event)
         }
-        binding.whiteboardView.setOnMultiTouchListener { touchNumber ->
+        whiteboardView.setOnMultiTouchListener { touchNumber ->
             val gesture =
                 when (touchNumber) {
                     2 -> Gesture.TWO_FINGER_TAP
@@ -260,7 +289,7 @@ class WhiteboardFragment :
      * Sets up observers for the ViewModel's flows.
      */
     private fun observeViewModel(whiteboardView: WhiteboardView) {
-        val toolbar = binding.whiteboardToolbar
+        val toolbar = whiteboardToolbar
 
         viewModel.paths.onEach(whiteboardView::setHistory).launchIn(viewLifecycleOwner.lifecycleScope)
 
@@ -407,7 +436,7 @@ class WhiteboardFragment :
 
     @SuppressLint("RtlHardcoded")
     private fun updateToolbarPosition(alignment: ToolbarAlignment) {
-        binding.whiteboardToolbar.updateLayoutParams<FrameLayout.LayoutParams> {
+        whiteboardToolbar.updateLayoutParams<FrameLayout.LayoutParams> {
             gravity =
                 when (alignment) {
                     ToolbarAlignment.BOTTOM -> Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
@@ -443,7 +472,7 @@ class WhiteboardFragment :
 
     /** Saves the drawing as an image on the Card's paper, and says where it went */
     private fun saveDrawing() {
-        val view = binding.whiteboardView
+        val view = whiteboardView
         if (view.width == 0 || view.height == 0) return
         val bitmap = createBitmap(view.width, view.height)
         Canvas(bitmap).apply {
@@ -475,7 +504,7 @@ class WhiteboardFragment :
      * if the `Stylus mode` is enabled.
      */
     fun setOnScrollByListener(listener: OnScrollByListener) {
-        binding.whiteboardView.setOnScrollByListener(listener)
+        whiteboardView.setOnScrollByListener(listener)
     }
 
     fun resetCanvas() = viewModel.reset()

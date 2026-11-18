@@ -38,7 +38,7 @@ class DrawingFragmentTest : RobolectricTest() {
     @Test
     fun `back press shows the discard dialog when the whiteboard has content`() {
         val (activity, whiteboard) = launchDrawingActivity()
-        whiteboard.binding.whiteboardView.onNewPath
+        whiteboard.whiteboardView.onNewPath
             ?.invoke(samplePath())
         advanceRobolectricLooper()
 

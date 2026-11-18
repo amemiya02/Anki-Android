@@ -86,7 +86,7 @@ class WhiteboardFragmentTest : RobolectricTest() {
             lateinit var retainedViewModel: WhiteboardViewModel
             scenario.onFragment { fragment ->
                 retainedViewModel = ViewModelProvider(fragment)[WhiteboardViewModel::class.java]
-                val view = fragment.binding.whiteboardView
+                val view = fragment.whiteboardView
                 view.dispatchStylusTouch(MotionEvent.ACTION_DOWN, MotionEvent.BUTTON_STYLUS_PRIMARY)
                 view.dispatchStylusTouch(MotionEvent.ACTION_UP, MotionEvent.BUTTON_STYLUS_PRIMARY)
                 assertIs<WhiteboardTool.Eraser>(retainedViewModel.activeTool.value)
@@ -96,7 +96,7 @@ class WhiteboardFragmentTest : RobolectricTest() {
             scenario.recreate()
             scenario.onFragment { fragment ->
                 assertSame(retainedViewModel, ViewModelProvider(fragment)[WhiteboardViewModel::class.java])
-                val view = fragment.binding.whiteboardView
+                val view = fragment.whiteboardView
                 view.dispatchStylusTouch(MotionEvent.ACTION_DOWN)
                 assertIs<WhiteboardTool.Brush>(view.activeTool)
             }
@@ -109,7 +109,7 @@ class WhiteboardFragmentTest : RobolectricTest() {
             lateinit var retainedViewModel: WhiteboardViewModel
             scenario.onFragment { fragment ->
                 retainedViewModel = ViewModelProvider(fragment)[WhiteboardViewModel::class.java]
-                val view = fragment.binding.whiteboardView
+                val view = fragment.whiteboardView
                 view.dispatchStylusTouch(MotionEvent.ACTION_DOWN, MotionEvent.BUTTON_STYLUS_PRIMARY)
                 view.dispatchStylusTouch(MotionEvent.ACTION_UP, MotionEvent.BUTTON_STYLUS_PRIMARY)
                 assertIs<WhiteboardTool.Eraser>(retainedViewModel.activeTool.value)
@@ -119,7 +119,7 @@ class WhiteboardFragmentTest : RobolectricTest() {
             scenario.recreate()
             scenario.onFragment { fragment ->
                 assertSame(retainedViewModel, ViewModelProvider(fragment)[WhiteboardViewModel::class.java])
-                val view = fragment.binding.whiteboardView
+                val view = fragment.whiteboardView
                 view.dispatchStylusTouch(MotionEvent.ACTION_DOWN, MotionEvent.BUTTON_STYLUS_PRIMARY)
                 assertIs<WhiteboardTool.Eraser>(view.activeTool)
 
@@ -161,7 +161,7 @@ class WhiteboardFragmentTest : RobolectricTest() {
         }
         WhiteboardRepository(getPreferences()).stylusOnlyMode = false
         withWhiteboard { fragment ->
-            val view = fragment.binding.whiteboardView
+            val view = fragment.whiteboardView
             assertFalse(view.isStylusOnlyMode)
             fragment.viewModel.addPath(Path().apply { lineTo(10f, 10f) })
             assertEquals(1, fragment.viewModel.paths.value.size)
@@ -226,7 +226,7 @@ class WhiteboardFragmentTest : RobolectricTest() {
             )
         try {
             // Use the parent: rejecting ACTION_DOWN prevents later pointer events reaching the whiteboard.
-            binding.root.dispatchTouchEvent(event)
+            requireView().dispatchTouchEvent(event)
         } finally {
             event.recycle()
         }
@@ -278,7 +278,7 @@ class WhiteboardFragmentTest : RobolectricTest() {
         WhiteboardRepository(getPreferences()).isToolbarShown = !isShown
         var toolbarUpdated = false
         withWhiteboard { fragment ->
-            fragment.binding.whiteboardToolbar.onToolbarVisibilityChanged = { toolbarUpdated = true }
+            fragment.whiteboardToolbar.onToolbarVisibilityChanged = { toolbarUpdated = true }
             val viewModel = ViewModelProvider(fragment)[WhiteboardViewModel::class.java]
             viewModel.setIsToolbarShown(isShown)
 
@@ -301,13 +301,13 @@ class WhiteboardFragmentTest : RobolectricTest() {
             fragment.onMenuItemClick(fragment.overflowMenu().findItem(R.id.action_toggle_drawing))
             advanceRobolectricLooper()
 
-            assertFalse(fragment.binding.whiteboardView.isVisible, "the drawing is hidden")
-            assertTrue(fragment.binding.whiteboardToolbar.isVisible, "the tools stay, to show it again")
+            assertFalse(fragment.whiteboardView.isVisible, "the drawing is hidden")
+            assertTrue(fragment.whiteboardToolbar.isVisible, "the tools stay, to show it again")
             assertEquals(show, fragment.overflowMenu().findItem(R.id.action_toggle_drawing).title)
 
             fragment.onMenuItemClick(fragment.overflowMenu().findItem(R.id.action_toggle_drawing))
             advanceRobolectricLooper()
-            assertTrue(fragment.binding.whiteboardView.isVisible)
+            assertTrue(fragment.whiteboardView.isVisible)
             assertEquals(listOf(false, true), shownChanges)
         }
     }
@@ -322,6 +322,6 @@ class WhiteboardFragmentTest : RobolectricTest() {
 
 /** The whiteboard's overflow menu as it would open now */
 internal fun WhiteboardFragment.overflowMenu(): Menu =
-    PopupMenu(requireContext(), binding.whiteboardToolbar).menu.also {
+    PopupMenu(requireContext(), whiteboardToolbar).menu.also {
         prepareOverflowMenu(it)
     }

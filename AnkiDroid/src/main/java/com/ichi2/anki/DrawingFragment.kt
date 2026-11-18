@@ -94,7 +94,7 @@ class DrawingFragment : Fragment(R.layout.fragment_drawing) {
     }
 
     private fun onSaveDrawing() {
-        val whiteboardView = whiteboardFragment?.binding?.whiteboardView ?: return
+        val whiteboardView = whiteboardFragment?.whiteboardView ?: return
         val imagePath = saveWhiteboard(whiteboardView)
         val result =
             Intent().apply {
