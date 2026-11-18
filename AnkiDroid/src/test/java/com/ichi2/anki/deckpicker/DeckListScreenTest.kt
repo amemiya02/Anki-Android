@@ -2,6 +2,7 @@
 
 package com.ichi2.anki.deckpicker
 
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
@@ -126,6 +127,18 @@ class DeckListScreenTest : RobolectricTest() {
         composeRule.onNodeWithText("Spanish").performTouchInput { longClick() }
 
         assertEquals(listOf("study Spanish", "options Spanish", "menu Spanish"), events)
+    }
+
+    @Test
+    fun `a screen reader offers a Deck's actions by name`() {
+        addDeck("Spanish")
+        show(stateWithDecks())
+
+        val longClick = composeRule.onNodeWithText("Spanish").fetchSemanticsNode().config[SemanticsActions.OnLongClick]
+        assertEquals("Deck actions", longClick.label)
+        longClick.action?.invoke()
+
+        assertEquals(listOf("menu Spanish"), events)
     }
 
     @Test

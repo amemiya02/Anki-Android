@@ -270,6 +270,7 @@ private fun DeckRow(
                     }
                 }.combinedClickable(
                     role = Role.Button,
+                    onLongClickLabel = stringResource(CommonR.string.deck_list_deck_actions),
                     onLongClick = { actions.onDeckLongClick(deck.did) },
                     onClick = { actions.onDeckClick(deck.did) },
                 ).semantics { if (deck.isSelected) selected = true }
