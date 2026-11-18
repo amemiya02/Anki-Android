@@ -801,7 +801,6 @@ dependencies {
     implementation(libs.jsoup)
     implementation(libs.java.semver) // For AnkiDroid JS API Versioning
     implementation(libs.drakeet.drawer)
-    implementation(libs.skydoves.colorpickerview)
     implementation(libs.kotlin.reflect)
     implementation(libs.kotlin.test)
 

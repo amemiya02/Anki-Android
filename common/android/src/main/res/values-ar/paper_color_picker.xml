@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="paper_picker_wheel">تدرّج اللون والتشبع</string>
+    <string name="paper_picker_brightness">السطوع</string>
+    <string name="paper_picker_opacity">التعتيم</string>
+    <string name="paper_picker_next_hue">تدرّج اللون التالي</string>
+    <string name="paper_picker_previous_hue">تدرّج اللون السابق</string>
+    <string name="paper_picker_more_saturation">زيادة التشبع</string>
+    <string name="paper_picker_less_saturation">تقليل التشبع</string>
+</resources>

@@ -238,7 +238,6 @@ class InterfaceIconsAreMaterialSymbolsTest {
                 "widget_add_note_mark" to "a home-screen widget's picture (GraphicsUseFoundationTest)",
                 "widget_small_mark" to "a home-screen widget's picture (GraphicsUseFoundationTest)",
                 "widget_small_mark_done" to "a home-screen widget's picture (GraphicsUseFoundationTest)",
-                "pin_shape" to "the shape behind the colour picker's swatch, not an icon",
                 "ic_gesture_tap_regular" to "a tap zone drawn in the gesture picker, not an icon",
                 "ic_gesture_tap_selected" to "a tap zone drawn in the gesture picker, not an icon",
             )

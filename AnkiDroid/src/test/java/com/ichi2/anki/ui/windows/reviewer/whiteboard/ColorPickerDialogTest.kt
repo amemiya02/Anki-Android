@@ -7,19 +7,20 @@ import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.os.Looper
-import android.view.MotionEvent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CommonString
 import com.ichi2.themes.Themes
-import com.skydoves.colorpickerview.ColorPickerView
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.closeTo
 import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.Matchers.not
 import org.junit.Before
 import org.junit.Rule
@@ -67,9 +68,9 @@ class ColorPickerDialogTest {
     @Test
     fun `picking a hue on a bright seed keeps its brightness`() {
         val seed = Color.rgb(128, 0, 0)
-        val dialog = showPicker(initialColor = seed)
+        showPicker(initialColor = seed)
 
-        dialog.wheel().tapRightEdge()
+        tapWheelRightEdge()
         idleMainLooper()
         confirm()
 
@@ -85,9 +86,9 @@ class ColorPickerDialogTest {
 
     /** Seeds the picker with [seed], taps a bright hue, and asserts the result is not swallowed to black. */
     private fun assertPickedHueIsVisible(seed: Int) {
-        val dialog = showPicker(initialColor = seed)
+        showPicker(initialColor = seed)
 
-        dialog.wheel().tapRightEdge() // pure red at full saturation
+        tapWheelRightEdge() // pure red at full saturation
         idleMainLooper()
         confirm()
 
@@ -109,23 +110,15 @@ class ColorPickerDialogTest {
         return dialog
     }
 
-    private fun Dialog.wheel(): ColorPickerView = assertNotNull(findViewById(com.skydoves.colorpickerview.R.id.colorPickerView))
-
     private fun confirm() {
         composeRule.onNodeWithText(context.getString(CommonString.dialog_ok)).performClick()
         idleMainLooper()
     }
 
-    private fun ColorPickerView.tapRightEdge() {
-        assertThat("the wheel should be laid out", width, greaterThan(0))
-        val x = width - 5f
-        val y = height / 2f
-        val down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, x, y, 0)
-        val up = MotionEvent.obtain(0, 10, MotionEvent.ACTION_UP, x, y, 0)
-        dispatchTouchEvent(down)
-        dispatchTouchEvent(up)
-        down.recycle()
-        up.recycle()
+    private fun tapWheelRightEdge() {
+        composeRule.onNodeWithContentDescription(context.getString(CommonString.paper_picker_wheel)).performTouchInput {
+            click(Offset(width - 5f, height / 2f))
+        }
     }
 
     /** Let the wheel and its sliders finish layout and apply the seed before a touch. */

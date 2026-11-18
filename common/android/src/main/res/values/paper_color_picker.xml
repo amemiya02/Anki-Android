@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="paper_picker_wheel">Hue and saturation</string>
+    <string name="paper_picker_brightness">Brightness</string>
+    <string name="paper_picker_opacity">Opacity</string>
+    <string name="paper_picker_next_hue">Next hue</string>
+    <string name="paper_picker_previous_hue">Previous hue</string>
+    <string name="paper_picker_more_saturation">Increase saturation</string>
+    <string name="paper_picker_less_saturation">Decrease saturation</string>
+</resources>

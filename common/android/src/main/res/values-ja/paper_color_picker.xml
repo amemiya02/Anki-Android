@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="paper_picker_wheel">色相と彩度</string>
+    <string name="paper_picker_brightness">明るさ</string>
+    <string name="paper_picker_opacity">不透明度</string>
+    <string name="paper_picker_next_hue">次の色相</string>
+    <string name="paper_picker_previous_hue">前の色相</string>
+    <string name="paper_picker_more_saturation">彩度を上げる</string>
+    <string name="paper_picker_less_saturation">彩度を下げる</string>
+</resources>

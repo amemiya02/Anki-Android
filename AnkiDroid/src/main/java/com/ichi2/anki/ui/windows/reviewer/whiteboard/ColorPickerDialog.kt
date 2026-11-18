@@ -4,155 +4,166 @@
 package com.ichi2.anki.ui.windows.reviewer.whiteboard
 
 import android.content.Context
-import android.graphics.Color
-import android.os.Build
-import android.view.LayoutInflater
-import android.view.ViewTreeObserver
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.widget.FrameLayout
 import androidx.annotation.ColorInt
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.width
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.view.doOnAttach
-import androidx.core.view.doOnDetach
-import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.R
 import com.ichi2.compose.ui.dialogs.DialogAction
 import com.ichi2.compose.ui.dialogs.DialogActionStyle
 import com.ichi2.compose.ui.dialogs.PaperDialog
 import com.ichi2.compose.ui.dialogs.createPaperDialog
-import com.skydoves.colorpickerview.AlphaTileView
-import com.skydoves.colorpickerview.ColorEnvelope
-import com.skydoves.colorpickerview.databinding.ColorpickerviewDialogColorpickerBinding
-import com.skydoves.colorpickerview.flag.FlagView
-import com.ichi2.anki.common.utils.dp as nativeDp
+import kotlin.math.PI
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.roundToInt
+import kotlin.math.sin
+import android.graphics.Color as AndroidColor
 
-/**
- * Shows a customizable color picker dialog with alpha and brightness controls.
- *
- * @receiver The Android context used to create the dialog.
- * @param initialColor The initial color to display in the picker as an `AARRGGBB` integer.
- * @param onColorSelected Callback invoked when the user confirms their color selection.
- *                        Receives the selected color as an `AARRGGBB` integer.
- */
 fun Context.showColorPickerDialog(
     @ColorInt initialColor: Int,
     onColorSelected: (Int) -> Unit,
 ) {
-    val binding = ColorpickerviewDialogColorpickerBinding.inflate(LayoutInflater.from(this))
-    val picker = binding.colorPickerView
-    picker.attachAlphaSlider(binding.alphaSlideBar)
-    picker.attachBrightnessSlider(binding.brightnessSlideBar)
-
-    val bubbleFlag = BubbleFlag(this)
-    picker.flagView = bubbleFlag
-    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
-        bubbleFlag.findViewById<FrameLayout>(R.id.flag_color_layout_wrapper).updatePadding(
-            10.nativeDp.toPx(this),
-            7.nativeDp.toPx(this),
-            10.nativeDp.toPx(this),
-        )
-        bubbleFlag.alphaTileView.updateLayoutParams {
-            width = 12.nativeDp.toPx(this@showColorPickerDialog)
-            height = 12.nativeDp.toPx(this@showColorPickerDialog)
-        }
-    }
-    // Supply the starting colour after the wheel and its brightness slider have been laid out.
-    picker.post {
-        picker.setInitialColor(initialColor)
-        if (initialColor.isNearBlack()) {
-            // Make the first hue pick visible. The colour remains the seed until the user edits it.
-            picker.post { picker.brightnessSlider?.setSelectorByHalfSelectorPosition(1f) }
-        }
-    }
-
-    picker.doOnAttach {
-        val observer = picker.viewTreeObserver
-        val listener = ViewTreeObserver.OnPreDrawListener {
-            bubbleFlag.x = picker.selector.x + (picker.selector.width - bubbleFlag.width) / 2
-            val y = picker.selector.y - bubbleFlag.height
-            if (y > 0f) {
-                bubbleFlag.y = y
-                bubbleFlag.rotation = 0f
-            } else {
-                bubbleFlag.y = picker.selector.y + bubbleFlag.height
-                bubbleFlag.rotation = 180f
-            }
-            true
-        }
-        observer.addOnPreDrawListener(listener)
-        picker.doOnDetach {
-            if (observer.isAlive) observer.removeOnPreDrawListener(listener)
-        }
-    }
     createPaperDialog(this) { dialog ->
+        val start = remember(initialColor) { FloatArray(3).also { AndroidColor.colorToHSV(initialColor, it) } }
+        var hue by remember { mutableFloatStateOf(start[0]) }
+        var saturation by remember { mutableFloatStateOf(start[1]) }
+        var brightness by remember { mutableFloatStateOf(start[2]) }
+        var alpha by remember { mutableFloatStateOf(AndroidColor.alpha(initialColor) / 255f) }
+        var brightenFirstPick by remember { androidx.compose.runtime.mutableStateOf(brightness <= 0.05f) }
         PaperDialog(
-            title = getString(CommonString.choose_color),
+            title = stringResource(CommonString.choose_color),
             onDismissRequest = dialog::dismiss,
-            scrollContent = false,
             actions =
                 listOf(
-                    DialogAction(getString(CommonString.dialog_cancel), dialog::dismiss),
-                    DialogAction(getString(CommonString.dialog_ok), {
-                        onColorSelected(picker.color)
+                    DialogAction(stringResource(CommonString.dialog_cancel), dialog::dismiss),
+                    DialogAction(stringResource(CommonString.dialog_ok), {
+                        onColorSelected(AndroidColor.HSVToColor((alpha * 255).roundToInt(), floatArrayOf(hue, saturation, brightness)))
                         dialog.dismiss()
                     }, DialogActionStyle.Filled),
                 ),
         ) {
-            BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
-                val diameter = minOf(maxWidth, 300.dp)
-                val diameterPx = with(LocalDensity.current) { diameter.roundToPx() }
-                AndroidView(
-                    factory = {
-                        picker.layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, diameterPx)
-                        binding.root
-                    },
-                    modifier = Modifier.width(diameter).heightIn(max = 420.dp),
-                    update = {
-                        if (picker.layoutParams.height != diameterPx) {
-                            picker.updateLayoutParams { height = diameterPx }
-                        }
-                    },
-                )
+            ColorWheel(hue, saturation, brightness, alpha) { h, s ->
+                hue = h
+                saturation = s
+                if (brightenFirstPick) brightness = 1f
+                brightenFirstPick = false
             }
+            val brightnessLabel = stringResource(CommonString.paper_picker_brightness)
+            Text(brightnessLabel)
+            Slider(
+                brightness,
+                onValueChange = {
+                    brightness = it
+                    brightenFirstPick = false
+                },
+                modifier = Modifier.semantics { contentDescription = brightnessLabel },
+            )
+            val alphaLabel = stringResource(CommonString.paper_picker_opacity)
+            Text(alphaLabel)
+            Slider(alpha, onValueChange = { alpha = it }, modifier = Modifier.semantics { contentDescription = alphaLabel })
         }
     }.show()
 }
 
-/**
- * Whether the color's brightness is low enough to read as black. The brightness slider stores
- * exactly this value, so a near-black color means the slider would be parked near zero.
- */
-private fun Int.isNearBlack(): Boolean {
-    val hsv = FloatArray(3)
-    Color.colorToHSV(this, hsv)
-    return hsv[2] <= NEAR_BLACK_BRIGHTNESS
-}
-
-/** Brightness (HSV value) at or below which a color is treated as black. */
-private const val NEAR_BLACK_BRIGHTNESS = 0.05f
-
-/**
- * Custom flag view that displays the selected color in a bubble above the color picker selector.
- */
-private class BubbleFlag(
-    context: Context?,
-) : FlagView(context, R.layout.view_colorpicker_flag_bubble) {
-    val alphaTileView: AlphaTileView = findViewById(R.id.flag_color_layout)
-
-    override fun onRefresh(colorEnvelope: ColorEnvelope) {
-        alphaTileView.setPaintColor(colorEnvelope.color)
-    }
-
-    override fun onFlipped(isFlipped: Boolean?) {
+@Composable
+private fun ColorWheel(
+    hue: Float,
+    saturation: Float,
+    brightness: Float,
+    alpha: Float,
+    onPick: (Float, Float) -> Unit,
+) {
+    val pick by rememberUpdatedState(onPick)
+    val wheelLabel = stringResource(CommonString.paper_picker_wheel)
+    val increaseHue = stringResource(CommonString.paper_picker_next_hue)
+    val decreaseHue = stringResource(CommonString.paper_picker_previous_hue)
+    val moreSaturation = stringResource(CommonString.paper_picker_more_saturation)
+    val lessSaturation = stringResource(CommonString.paper_picker_less_saturation)
+    val colors = remember { (0..6).map { Color.hsv((it % 6) * 60f, 1f, 1f) } }
+    Canvas(
+        Modifier
+            .sizeIn(maxWidth = 300.dp, maxHeight = 300.dp)
+            .fillMaxWidth()
+            .aspectRatio(1f)
+            .semantics {
+                contentDescription = wheelLabel
+                stateDescription =
+                    String.format(
+                        java.util.Locale.ROOT,
+                        "#%08X",
+                        AndroidColor.HSVToColor((alpha * 255).roundToInt(), floatArrayOf(hue, saturation, brightness)),
+                    )
+                customActions =
+                    listOf(
+                        CustomAccessibilityAction(increaseHue) {
+                            pick((hue + 15f) % 360f, saturation)
+                            true
+                        },
+                        CustomAccessibilityAction(decreaseHue) {
+                            pick((hue + 345f) % 360f, saturation)
+                            true
+                        },
+                        CustomAccessibilityAction(moreSaturation) {
+                            pick(hue, (saturation + 0.1f).coerceAtMost(1f))
+                            true
+                        },
+                        CustomAccessibilityAction(lessSaturation) {
+                            pick(hue, (saturation - 0.1f).coerceAtLeast(0f))
+                            true
+                        },
+                    )
+            }.pointerInput(Unit) {
+                fun select(point: Offset) {
+                    val radius = minOf(size.width, size.height) / 2f
+                    if (radius <= 0f) return
+                    val delta = point - Offset(size.width / 2f, size.height / 2f)
+                    val angle = ((atan2(delta.y, delta.x) * 180f / PI).toFloat() + 360f) % 360f
+                    pick(angle, (delta.getDistance() / radius).coerceIn(0f, 1f))
+                }
+                awaitEachGesture {
+                    val down = awaitFirstDown()
+                    down.consume()
+                    select(down.position)
+                    do {
+                        val finger = awaitPointerEvent().changes.firstOrNull { it.id == down.id } ?: break
+                        finger.consume()
+                        select(finger.position)
+                    } while (finger.pressed)
+                }
+            },
+    ) {
+        val radius = size.minDimension / 2f
+        drawCircle(Brush.sweepGradient(colors, center), radius)
+        drawCircle(Brush.radialGradient(listOf(Color.White, Color.Transparent), center, radius), radius)
+        val angle = hue * PI / 180
+        val marker = center + Offset(cos(angle).toFloat(), sin(angle).toFloat()) * saturation * (radius - 8.dp.toPx()).coerceAtLeast(0f)
+        drawCircle(Color.hsv(hue, saturation, brightness, alpha), 7.dp.toPx(), marker)
+        drawCircle(Color.White, 7.dp.toPx(), marker, style = Stroke(3.dp.toPx()))
+        drawCircle(Color.Black, 8.5.dp.toPx(), marker, style = Stroke(1.dp.toPx()))
     }
 }
