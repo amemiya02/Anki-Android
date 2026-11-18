@@ -15,7 +15,6 @@
     <string name="paper_sync_import_steps">زامن مجموعتك في AnkiDroid أو Anki على الكمبيوتر. صدّر حزمة مجموعة Anki ‏(.colpkg) مع ملفات الوسائط، ثم اختر ذلك الملف في Hayaki.</string>
     <string name="paper_sync_choose_file">اختر الملف</string>
     <string name="paper_sync_sign_in_title">سجّل الدخول إلى خادمك</string>
-    <string name="paper_sync_sign_in">تسجيل الدخول</string>
     <string name="paper_sync_username">اسم المستخدم</string>
     <string name="paper_sync_username_required">أدخل اسم المستخدم.</string>
     <string name="paper_sync_password_note">تُرسل كلمة مرورك إلى هذا الخادم وحده لإبقائك مسجّل الدخول.</string>

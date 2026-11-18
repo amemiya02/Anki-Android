@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.common.utils.dp
@@ -69,7 +70,7 @@ class AccountInsetsTest : RobolectricTest() {
             compose.onNodeWithText(targetContext.getString(CommonString.one_way_sync_title)).performScrollTo().assertIsDisplayed()
         }
 
-    private val submit get() = compose.onNodeWithText(targetContext.getString(CommonString.paper_sync_sign_in))
+    private val submit get() = compose.onNodeWithText(TR.syncSignIn())
     private val title get() = compose.onNodeWithText(targetContext.getString(CommonString.paper_sync_sign_in_title))
 
     private fun withAccount(

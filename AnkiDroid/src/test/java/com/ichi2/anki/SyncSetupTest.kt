@@ -10,6 +10,7 @@ import androidx.compose.ui.test.performClick
 import androidx.core.content.edit
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.SingleFragmentActivity.Companion.EXTRA_FRAGMENT_NAME
 import com.ichi2.anki.account.AccountActivity
 import com.ichi2.anki.account.AccountFlowFragment
@@ -76,7 +77,7 @@ class SyncSetupTest : RobolectricTest() {
             advanceRobolectricLooper()
 
             compose.onNodeWithText(getString(CommonString.sync_server_not_logged_in_title)).assertIsDisplayed()
-            compose.onNodeWithText(getString(CommonString.paper_sync_sign_in)).performClick()
+            compose.onNodeWithText(TR.syncSignIn()).performClick()
             advanceRobolectricLooper()
 
             compose.onNodeWithText(getString(CommonString.paper_sync_sign_in_title)).assertIsDisplayed()

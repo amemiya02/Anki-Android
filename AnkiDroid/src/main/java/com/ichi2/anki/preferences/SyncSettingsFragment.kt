@@ -186,7 +186,7 @@ class SyncSettingsFragment : RemainingSettingsFragment(R.id.settings_sync) {
                 )
             } else if (server != null) {
                 SyncPrimaryButton(
-                    stringResource(CommonString.paper_sync_sign_in),
+                    TR.syncSignIn(),
                     { startActivity(AccountActivity.getIntent(requireContext())) },
                 )
             }

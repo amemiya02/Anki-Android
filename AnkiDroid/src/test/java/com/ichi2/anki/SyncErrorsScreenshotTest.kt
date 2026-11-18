@@ -35,7 +35,7 @@ class SyncErrorsScreenshotTest : ScreenshotTest() {
         val cases =
             listOf(
                 Triple(Type.DIALOG_CONNECTION_ERROR, CommonString.paper_sync_unreachable_title, "unreachable"),
-                Triple(Type.DIALOG_USER_NOT_LOGGED_IN_SYNC, CommonString.paper_sync_sign_in, "sign_in_required"),
+                Triple(Type.DIALOG_USER_NOT_LOGGED_IN_SYNC, CommonString.sync_server_not_logged_in_title, "sign_in_required"),
                 Triple(Type.DIALOG_SYNC_CONFLICT_RESOLUTION, CommonString.paper_sync_conflict_title, "conflict"),
                 Triple(Type.DIALOG_SYNC_SANITY_ERROR, CommonString.paper_sync_sanity, "sanity"),
                 Triple(Type.DIALOG_SYNC_BASIC_CHECK_ERROR, CommonString.paper_sync_db_error, "check_database"),

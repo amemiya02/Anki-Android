@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <resources>
-    <string name="settings_dev_web_debug">HTML / JavaScript debugging</string>
+    <string name="settings_dev_web_debug" maxLength="41">HTML / JavaScript debugging</string>
     <string name="settings_dev_web_debug_summary">Enable remote WebView connections and save card HTML to the Hayaki directory</string>
-    <string name="settings_dev_test_crash">Trigger test crash</string>
+    <string name="settings_dev_test_crash" maxLength="41">Trigger test crash</string>
     <string name="settings_dev_test_crash_summary">Immediately crash the app for testing</string>
-    <string name="settings_dev_lock_database">Lock database</string>
+    <string name="settings_dev_lock_database" maxLength="41">Lock database</string>
     <string name="settings_dev_lock_database_summary">Block in-process threads. A second process receives an exception.</string>
-    <string name="settings_dev_corrupt_fsrs">Corrupt FSRS parameters</string>
+    <string name="settings_dev_corrupt_fsrs" maxLength="41">Corrupt FSRS parameters</string>
     <string name="settings_dev_corrupt_fsrs_summary">Corrupt the default deck’s FSRS parameters. Reset or optimize the parameters to repair them.</string>
-    <string name="settings_dev_set_database_path">Use the old database path</string>
+    <string name="settings_dev_set_database_path" maxLength="41">Use the old database path</string>
     <string name="settings_dev_set_database_path_summary">Set the collection directory to /storage/emulated/0/AnkiDroid</string>
     <string name="settings_dev_set_database_path_warning">Changing the path can make your collection inaccessible and difficult to recover.</string>
     <string name="settings_dev_set_database_path_action">Change path</string>
-    <string name="settings_dev_tts_voices">Open text-to-speech voices</string>
+    <string name="settings_dev_tts_voices" maxLength="41">Open text-to-speech voices</string>
     <string name="settings_dev_tts_voices_summary">Shortcut for {{tts-voices:}}</string>
-    <string name="settings_dev_test_notes">Test notes</string>
-    <string name="settings_dev_note_count">Number of notes to generate</string>
-    <string name="settings_dev_create_notes">Create notes</string>
+    <string name="settings_dev_test_notes" maxLength="41">Test notes</string>
+    <string name="settings_dev_note_count" maxLength="41">Number of notes to generate</string>
+    <string name="settings_dev_create_notes" maxLength="41">Create notes</string>
     <string name="settings_dev_create_notes_warning">This adds %1$d test notes, each in a new deck. Use a test collection.</string>
-    <string name="settings_dev_test_media">Test media</string>
-    <string name="settings_dev_file_count">Number of files to generate</string>
-    <string name="settings_dev_file_size">File size in bytes</string>
-    <string name="settings_dev_create_files">Create files</string>
+    <string name="settings_dev_test_media" maxLength="41">Test media</string>
+    <string name="settings_dev_file_count" maxLength="41">Number of files to generate</string>
+    <string name="settings_dev_file_size" maxLength="41">File size in bytes</string>
+    <string name="settings_dev_create_files" maxLength="41">Create files</string>
     <string name="settings_dev_create_files_warning">This adds %1$d test files and may overwrite existing files. Use a test collection.</string>
-    <string name="settings_dev_in_progress">Work in progress</string>
+    <string name="settings_dev_in_progress" maxLength="41">Work in progress</string>
     <string name="settings_dev_in_progress_summary">For testing only. Please keep reports about these features within the fork.</string>
-    <string name="settings_dev_profiles">Show Switch Profile</string>
+    <string name="settings_dev_profiles" maxLength="41">Show Switch Profile</string>
     <string name="settings_dev_notes_progress">Generating %1$d test notes</string>
     <string name="settings_dev_notes_progress_count">Notes added: %1$d</string>
     <string name="settings_dev_files_progress">Generating %1$d test files of %2$d bytes each</string>

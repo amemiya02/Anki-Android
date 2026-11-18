@@ -21,6 +21,7 @@ import anki.sync.SyncAuth
 import anki.sync.SyncLoginRequest
 import anki.sync.syncAuth
 import com.ichi2.anki.CollectionManager
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.findAnkiActivity
@@ -399,7 +400,7 @@ class LoginFragmentTest : RobolectricTest() {
     private val passwordField get() =
         compose.onNode(hasSetTextAction() and hasText(targetContext.getString(CommonString.password)))
 
-    private val signIn get() = compose.onNodeWithText(targetContext.getString(CommonString.paper_sync_sign_in))
+    private val signIn get() = compose.onNodeWithText(TR.syncSignIn())
 
     private fun enterCredentials() {
         compose

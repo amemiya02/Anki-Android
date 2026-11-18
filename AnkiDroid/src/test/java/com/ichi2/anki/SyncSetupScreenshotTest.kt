@@ -17,6 +17,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.core.app.ActivityScenario
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.FontSizeConfig.PERCENT_200
 import com.ichi2.anki.LanguageConfig.ARABIC
 import com.ichi2.anki.LanguageConfig.JAPANESE
@@ -68,10 +69,10 @@ class SyncSetupScreenshotTest : ScreenshotTest() {
 
             compose.onNodeWithText(targetContext.getString(CommonString.paper_sync_step, 2)).assertIsDisplayed()
             compose.onNodeWithText(TEST_SYNC_SERVER, substring = true).assertIsDisplayed()
-            button(CommonString.paper_sync_sign_in).assertIsNotEnabled()
+            compose.onNode(hasText(TR.syncSignIn()) and hasClickAction()).assertIsNotEnabled()
             field(CommonString.paper_sync_username).performTextReplacement("paper")
             field(CommonString.password).performTextReplacement("sample-password")
-            button(CommonString.paper_sync_sign_in).assertIsEnabled()
+            compose.onNode(hasText(TR.syncSignIn()) and hasClickAction()).assertIsEnabled()
             captureScreen("sign_in")
 
             button(CommonString.paper_sync_change_server).performClick()
@@ -108,7 +109,7 @@ class SyncSetupScreenshotTest : ScreenshotTest() {
                 .performClick()
             compose.onNodeWithText(label(CommonString.sync_account_summ_logged_out)).performScrollTo().assertIsDisplayed()
             compose.onNodeWithText(TEST_SYNC_SERVER, substring = true).assertIsDisplayed()
-            button(CommonString.paper_sync_sign_in).assertIsEnabled()
+            compose.onNode(hasText(TR.syncSignIn()) and hasClickAction()).assertIsEnabled()
             captureScreen("signed_out")
         }
     }

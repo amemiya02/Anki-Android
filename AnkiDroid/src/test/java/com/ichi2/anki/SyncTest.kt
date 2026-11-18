@@ -198,7 +198,7 @@ class SyncTest : RobolectricTest() {
 
             assertEquals("", Prefs.hkey)
             assertEquals("", Prefs.username)
-            visible(CommonString.paper_sync_sign_in).assertIsDisplayed()
+            compose.onNodeWithText(TR.syncSignIn()).assertIsDisplayed()
         }
 
     private fun visible(resource: Int) = compose.onNodeWithText(targetContext.getString(resource))

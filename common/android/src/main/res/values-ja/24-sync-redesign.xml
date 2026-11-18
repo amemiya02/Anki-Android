@@ -15,7 +15,6 @@
     <string name="paper_sync_import_steps">AnkiDroid またはデスクトップ版 Anki でコレクションを同期します。メディアを含めた Anki コレクションパッケージ（.colpkg）を書き出し、Hayaki でそのファイルを選択してください。</string>
     <string name="paper_sync_choose_file">ファイルを選択</string>
     <string name="paper_sync_sign_in_title">同期サーバーにログイン</string>
-    <string name="paper_sync_sign_in">ログイン</string>
     <string name="paper_sync_username">ユーザー名</string>
     <string name="paper_sync_username_required">ユーザー名を入力してください。</string>
     <string name="paper_sync_password_note">パスワードはログイン状態を維持するため、このサーバーだけに送信されます。</string>

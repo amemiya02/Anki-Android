@@ -42,6 +42,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.CrashReportData.Companion.toCrashReportData
 import com.ichi2.anki.NoSyncServerException
@@ -111,7 +112,7 @@ class LoginFragment : Fragment() {
         SyncStepPage(
             title = stringResource(CommonString.paper_sync_sign_in_title),
             step = 2,
-            button = stringResource(CommonString.paper_sync_sign_in),
+            button = TR.syncSignIn(),
             canContinue = server != null && canSignIn,
             bottomCornerClearancePx = flow.bottomCornerClearancePx,
             onBack = requireActivity().onBackPressedDispatcher::onBackPressed,

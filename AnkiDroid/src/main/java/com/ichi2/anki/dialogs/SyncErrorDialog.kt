@@ -97,7 +97,7 @@ class SyncErrorDialog : AsyncDialogFragment() {
                     title,
                     errorBody,
                     onDismissRequest = ::dismiss,
-                    primaryAction = action(getString(CommonString.paper_sync_sign_in), listener::loginToSyncServer),
+                    primaryAction = action(TR.syncSignIn(), listener::loginToSyncServer),
                     dismissText = cancel,
                     markIcon = icon,
                 )

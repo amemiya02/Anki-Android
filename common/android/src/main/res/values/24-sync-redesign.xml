@@ -15,7 +15,6 @@
     <string name="paper_sync_import_steps">Sync your collection in AnkiDroid or desktop Anki. Export it as an Anki collection package (.colpkg) with media included. Then choose that file in Hayaki.</string>
     <string name="paper_sync_choose_file">Choose the file</string>
     <string name="paper_sync_sign_in_title">Sign in to your server</string>
-    <string name="paper_sync_sign_in">Sign in</string>
     <string name="paper_sync_username">Username</string>
     <string name="paper_sync_username_required">Enter your username.</string>
     <string name="paper_sync_password_note">Your password is sent only to this server, which keeps you signed in.</string>
@@ -32,13 +31,13 @@
     <string name="paper_sync_now">Sync now</string>
     <string name="paper_sync_sign_out">Sign out</string>
     <string name="paper_sync_sign_out_hint">This phone keeps its collection.</string>
-    <string name="paper_sync_when">When to sync</string>
-    <string name="paper_sync_auto">Sync automatically</string>
+    <string name="paper_sync_when" maxLength="41">When to sync</string>
+    <string name="paper_sync_auto" maxLength="41">Sync automatically</string>
     <string name="paper_sync_auto_hint">When the app opens or closes, if the last sync was over 10 minutes ago</string>
-    <string name="paper_sync_badge">Show waiting changes on the sync button</string>
-    <string name="paper_sync_metered">Sync on mobile data</string>
+    <string name="paper_sync_badge" maxLength="41">Show waiting changes on the sync button</string>
+    <string name="paper_sync_metered" maxLength="41">Sync on mobile data</string>
     <string name="paper_sync_metered_hint">Off: you are asked first</string>
-    <string name="paper_sync_media">Fetch media</string>
+    <string name="paper_sync_media" maxLength="41">Fetch media</string>
     <string name="paper_sync_one_way_hint">On the next sync, choose which collection to keep.</string>
     <string name="paper_sync_unreachable_title">Couldn’t reach your sync server</string>
     <string name="paper_sync_unreachable_body">%1$s did not answer. Check that the server is running and that this phone can reach it, then try again.</string>
