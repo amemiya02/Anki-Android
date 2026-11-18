@@ -44,6 +44,8 @@ class CheckPronunciationViewModel(
         player.state
             .map { state -> state is PlayerState.Ready && state.isPlaying }
             .distinctUntilChanged()
+    val recordingState get() = recorder.state
+    val elapsed get() = recorder.elapsed
     val replayFlow = MutableSharedFlow<Unit>()
     val isPlaybackVisibleFlow = MutableStateFlow(false)
 

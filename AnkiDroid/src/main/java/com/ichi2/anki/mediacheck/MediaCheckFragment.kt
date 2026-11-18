@@ -6,174 +6,88 @@ package com.ichi2.anki.mediacheck
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
+import android.view.LayoutInflater
 import android.view.View
-import androidx.annotation.CallSuper
+import android.view.ViewGroup
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.MenuHost
-import androidx.core.view.MenuProvider
-import androidx.core.view.isVisible
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import anki.media.CheckMediaResponse
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonPlurals
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.CrashReportData.Companion.toCrashReportData
-import com.ichi2.anki.R
 import com.ichi2.anki.SingleFragmentActivity
-import com.ichi2.anki.common.utils.android.getColorFromAttr
-import com.ichi2.anki.databinding.FragmentMediaCheckBinding
+import com.ichi2.anki.preferences.SettingsPage
 import com.ichi2.anki.progress.observeProgress
 import com.ichi2.anki.ui.internationalization.sentenceCase
-import com.ichi2.anki.utils.ext.collectInViewLifecycle
+import com.ichi2.anki.ui.internationalization.trCase
 import com.ichi2.anki.utils.observeMessages
 import com.ichi2.anki.utils.showAndAwaitDismissal
-import com.ichi2.anki.workarounds.OnWebViewRecreatedListener
-import com.ichi2.anki.workarounds.SafeWebViewClient
+import com.ichi2.compose.theme.AnkiDroidTheme
+import com.ichi2.compose.theme.foundation
 import com.ichi2.compose.ui.dialogs.ConfirmationDialog
 import com.ichi2.compose.ui.dialogs.DialogAction
 import com.ichi2.compose.ui.dialogs.DialogActionStyle
 import com.ichi2.compose.ui.dialogs.ErrorDialog
 import com.ichi2.compose.ui.dialogs.createPaperDialog
-import com.ichi2.utils.toRGBHex
-import dev.androidbroadcast.vbpd.viewBinding
 
 /**
  * MediaCheckFragment for displaying a list of media files that are either unused or missing.
  * It allows users to tag missing media files or delete unused ones.
  **/
-class MediaCheckFragment :
-    Fragment(R.layout.fragment_media_check),
-    OnWebViewRecreatedListener {
+class MediaCheckFragment : Fragment() {
     private val viewModel: MediaCheckViewModel by viewModels()
 
-    private val binding by viewBinding(FragmentMediaCheckBinding::bind)
-
-    private var lastReport: String? = null
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ) = ComposeView(requireContext()).apply {
+        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        setContent {
+            AnkiDroidTheme {
+                val result by viewModel.mediaCheckResult.collectAsState()
+                MediaCheckScreen(
+                    result = result,
+                    onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() },
+                    onRestore = viewModel::restoreTrash,
+                    onEmptyTrash = viewModel::deleteTrash,
+                    onTagMissing = { viewModel.tagMissing(TR.mediaCheckMissingMediaTag()) },
+                    onDeleteUnused = ::deleteConfirmationDialog,
+                    // SingleFragmentActivity pads its fragment container for both.
+                    modifier = Modifier.consumeWindowInsets(WindowInsets.systemBars.union(WindowInsets.displayCutout)),
+                )
+            }
+        }
+    }
 
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.toolbar.apply {
-            setTitle(TR.sentenceCase.checkMediaTitle)
-            setNavigationOnClickListener {
-                requireActivity().onBackPressedDispatcher.onBackPressed()
-            }
-        }
-
-        (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbar)
-
         observeProgress(viewModel) { progress -> getString(progress.messageRes) }
         viewModel.checkMedia()
-
-        viewModel.mediaCheckResult.collectInViewLifecycle { result ->
-            updateWebView(result?.report.orEmpty())
-            if (result != null) {
-                binding.tagMissingMediaButton.isVisible = result.missingCount != 0
-                binding.deleteUsedMediaButton.isVisible = result.unusedCount != 0
-                if (result.haveTrash) setupMenu()
-            }
-        }
-
         observeMessages(viewModel.pendingMessages, viewModel::messageShown, ::showMessage)
-
-        setupButtonListeners()
-    }
-
-    private fun setupMenu() {
-        val menuHost: MenuHost = requireActivity()
-        menuHost.addMenuProvider(
-            object : MenuProvider {
-                override fun onCreateMenu(
-                    menu: Menu,
-                    menuInflater: MenuInflater,
-                ) {
-                    menuInflater.inflate(R.menu.media_check_menu, menu)
-                    menu.findItem(R.id.action_restore_trash).apply {
-                        isVisible = true
-                        title = TR.sentenceCase.restoreDeleted
-                    }
-                    menu.findItem(R.id.action_empty_trash).apply {
-                        isVisible = true
-                        title = TR.sentenceCase.emptyTrash
-                    }
-                }
-
-                override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
-                    when (menuItem.itemId) {
-                        R.id.action_restore_trash -> {
-                            viewModel.restoreTrash()
-                            true
-                        }
-                        R.id.action_empty_trash -> {
-                            viewModel.deleteTrash()
-                            true
-                        }
-                        else -> false
-                    }
-            },
-            viewLifecycleOwner,
-        )
-    }
-
-    private fun updateWebView(report: String) {
-        lastReport = report
-        val backgroundColor = getColorFromAttr(requireContext(), android.R.attr.colorBackground)
-        val textColor = getColorFromAttr(requireContext(), android.R.attr.textColorPrimary)
-
-        val backgroundColorHex = backgroundColor.toRGBHex()
-        val textColorHex = textColor.toRGBHex()
-
-        val html =
-            """
-            <html>
-                <body style="
-                    background-color: $backgroundColorHex;
-                    color: $textColorHex;
-                    padding: 0px 8px;
-                    font-size:14px;
-                    white-space: pre-wrap;">$report
-                </body>
-            </html>
-            """.trimIndent()
-
-        binding.webView.setWebViewClient(object : SafeWebViewClient() {})
-        binding.webView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
-    }
-
-    override fun onWebViewRecreated() {
-        lastReport?.let { updateWebView(it) }
-    }
-
-    @CallSuper
-    override fun onDestroyView() {
-        binding.webView.destroy()
-        super.onDestroyView()
-    }
-
-    private fun setupButtonListeners() {
-        binding.tagMissingMediaButton.apply {
-            // mediaCheckAddTag => "Tag Missing"
-            text = TR.sentenceCase.tagMissing
-
-            setOnClickListener {
-                viewModel.tagMissing(tag = TR.mediaCheckMissingMediaTag())
-            }
-        }
-
-        binding.deleteUsedMediaButton.apply {
-            text = TR.sentenceCase.checkMediaDeleteUnused
-
-            setOnClickListener {
-                deleteConfirmationDialog()
-            }
-        }
     }
 
     private fun deleteConfirmationDialog() {
@@ -254,3 +168,37 @@ private val MediaCheckProgress.messageRes: Int
             MediaCheckProgress.ADDING_TAGS -> CommonString.check_media_adding_missing_tag
             MediaCheckProgress.DELETING_MEDIA -> CommonString.delete_media_message
         }
+
+@Composable
+private fun MediaCheckScreen(
+    result: CheckMediaResponse?,
+    onBack: () -> Unit,
+    onRestore: () -> Unit,
+    onEmptyTrash: () -> Unit,
+    onTagMissing: () -> Unit,
+    onDeleteUnused: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val report = result?.report.orEmpty()
+    val lines = remember(report) { report.lines() }
+    val paper = MaterialTheme.foundation
+    SettingsPage(trCase().checkMediaTitle(), onBack, modifier) {
+        LazyColumn(Modifier.fillMaxSize()) {
+            if (result?.haveTrash == true) {
+                item { TextButton(onClick = onRestore) { Text(trCase().restoreDeleted()) } }
+                item { TextButton(onClick = onEmptyTrash) { Text(trCase().emptyTrash()) } }
+            }
+            if ((result?.missingCount ?: 0) > 0) {
+                item { TextButton(onClick = onTagMissing) { Text(trCase().tagMissing()) } }
+            }
+            if ((result?.unusedCount ?: 0) > 0) {
+                item { TextButton(onClick = onDeleteUnused) { Text(trCase().checkMediaDeleteUnused()) } }
+            }
+            items(lines.size) { index ->
+                SelectionContainer {
+                    Text(lines[index], color = paper.colors.onBackground, style = paper.type.rowTitle)
+                }
+            }
+        }
+    }
+}
