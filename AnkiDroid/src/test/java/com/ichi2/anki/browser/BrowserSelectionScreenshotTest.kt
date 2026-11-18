@@ -18,6 +18,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.espresso.Espresso.pressBack
+import anki.notetypes.StockNotetype
 import com.ichi2.anki.CheckAccessibility
 import com.ichi2.anki.CommonPlurals
 import com.ichi2.anki.CommonString
@@ -30,6 +31,7 @@ import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.R
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.anki.getBrowserWithNotes
+import com.ichi2.anki.libanki.getStockNotetype
 import com.ichi2.testutils.ext.reopenWithLanguage
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -46,7 +48,7 @@ class BrowserSelectionScreenshotTest : ScreenshotTest() {
     @Test
     fun `selection actions and columns adapt to theme language and font size`() {
         runBlocking { col.reopenWithLanguage(language.option) }
-        addBasicNote("Ginkgo", "Fan-shaped leaf")
+        addNoteUsingNoteTypeName(col.getStockNotetype(StockNotetype.Kind.KIND_BASIC).name, "Ginkgo", "Fan-shaped leaf")
         val browser = getBrowserWithNotes(noteCount = 0)
         waitForText("Ginkgo")
 

@@ -179,7 +179,7 @@ private fun ThemeTile(
                 Text(
                     stringResource(theme.label),
                     color = foundation.colors.onBackground,
-                    style = foundation.type.caption,
+                    style = foundation.type.body,
                     fontWeight = if (selected) FontWeight.SemiBold else null,
                     textAlign = TextAlign.Center,
                 )
@@ -310,7 +310,8 @@ private fun NightThemeOptions(
             .border(foundation.shapes.hairline, foundation.colors.outline, foundation.shapes.button)
             .clip(foundation.shapes.button),
     ) {
-        listOf(NightTheme.DARK to R.string.settings_theme_dark, NightTheme.BLACK to R.string.settings_theme_black).forEach { (theme, label) ->
+        val options = listOf(NightTheme.DARK to R.string.settings_theme_dark, NightTheme.BLACK to R.string.settings_theme_black)
+        options.forEach { (theme, label) ->
             val current = theme == selected
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Row(

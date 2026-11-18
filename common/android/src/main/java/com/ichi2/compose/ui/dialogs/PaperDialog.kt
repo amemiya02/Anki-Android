@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -45,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -238,13 +238,36 @@ private fun DialogActions(actions: List<DialogAction>) {
         } else {
             -1
         }
-    FlowRow(
+    Layout(
         modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        actions.forEachIndexed { index, action ->
-            DialogActionButton(action, if (index == safeAction) Modifier.focusRequester(focus) else Modifier)
+        content = {
+            actions.forEachIndexed { index, action ->
+                DialogActionButton(action, if (index == safeAction) Modifier.focusRequester(focus) else Modifier)
+            }
+        },
+    ) { measurables, constraints ->
+        val children = measurables.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
+        val horizontalGap = 8.dp.roundToPx()
+        val rowWidth = children.sumOf { it.width } + horizontalGap * (children.size - 1)
+        if (rowWidth <= constraints.maxWidth) {
+            val height = children.maxOf { it.height }
+            layout(constraints.maxWidth, height) {
+                var x = constraints.maxWidth - rowWidth
+                children.forEach { child ->
+                    child.placeRelative(x, (height - child.height) / 2)
+                    x += child.width + horizontalGap
+                }
+            }
+        } else {
+            val verticalGap = 4.dp.roundToPx()
+            val height = children.sumOf { it.height } + verticalGap * (children.size - 1)
+            layout(constraints.maxWidth, height) {
+                var y = 0
+                children.asReversed().forEach { child ->
+                    child.placeRelative(constraints.maxWidth - child.width, y)
+                    y += child.height + verticalGap
+                }
+            }
         }
     }
     if (safeAction >= 0) LaunchedEffect(focus) { focus.requestFocus() }

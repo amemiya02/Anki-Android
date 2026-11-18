@@ -9,6 +9,9 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasAnyDescendant
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -268,7 +271,8 @@ class DeckPickerProfileLoadFailureTest : RobolectricTest() {
             } else {
                 getString(CommonString.dialog_ok)
             }
-        compose.onNodeWithText(label).performClick()
+        val dialogTitle = getString(CommonString.profile_load_failed_title, "Work")
+        compose.onNode(hasText(label) and hasAnyAncestor(hasAnyDescendant(hasText(dialogTitle)))).performClick()
         advanceRobolectricLooper()
     }
 }

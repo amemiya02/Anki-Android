@@ -141,6 +141,8 @@ internal fun BrowserResult(
     val foundation = MaterialTheme.foundation
     val colors = foundation.colors
     val rightClick by rememberUpdatedState(onRightClick)
+    val highlighted = isSelected || isInPane
+    val secondaryInk = if (highlighted) colors.onBackground else colors.onBackgroundMuted
     val titleStyle =
         remember(foundation.type.rowTitle, fontScale) {
             val style = foundation.type.rowTitle
@@ -157,7 +159,7 @@ internal fun BrowserResult(
                 Modifier
                     .fillMaxWidth()
                     .heightIn(min = foundation.spacing.listRow)
-                    .background(if (isSelected || isInPane) colors.progressTrack else colors.background)
+                    .background(if (highlighted) colors.progressTrack else colors.background)
                     .pointerInput(row != null) {
                         awaitPointerEventScope {
                             while (true) {
@@ -190,7 +192,7 @@ internal fun BrowserResult(
                         CheckboxDefaults.colors(
                             checkedColor = colors.emphasis,
                             checkmarkColor = colors.background,
-                            uncheckedColor = colors.onBackgroundMuted,
+                            uncheckedColor = secondaryInk,
                         ),
                 )
             }
@@ -199,7 +201,7 @@ internal fun BrowserResult(
                     Text(
                         text = row.title,
                         style = titleStyle,
-                        color = if (row.states.isEmpty()) colors.onBackground else colors.onBackgroundMuted,
+                        color = if (row.states.isEmpty()) colors.onBackground else secondaryInk,
                         maxLines = if (truncated) 1 else Int.MAX_VALUE,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -207,7 +209,7 @@ internal fun BrowserResult(
                         Text(
                             text = row.details,
                             style = detailStyle,
-                            color = colors.onBackgroundMuted,
+                            color = secondaryInk,
                             maxLines = if (truncated) 1 else Int.MAX_VALUE,
                             overflow = TextOverflow.Ellipsis,
                         )
@@ -227,11 +229,11 @@ internal fun BrowserResult(
                             painterResource(R.drawable.symbol_star),
                             contentDescription = stringResource(R.string.browse_state_marked),
                             modifier = Modifier.size(18.dp),
-                            tint = colors.onBackgroundMuted,
+                            tint = secondaryInk,
                         )
                     }
                     row.states.forEach { state ->
-                        Text(text = state.label, style = foundation.type.label, color = colors.onBackgroundMuted)
+                        Text(text = state.label, style = foundation.type.label, color = secondaryInk)
                     }
                 }
             }

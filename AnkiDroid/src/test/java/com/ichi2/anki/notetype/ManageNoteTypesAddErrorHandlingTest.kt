@@ -5,7 +5,6 @@ package com.ichi2.anki.notetype
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.backend.backendError
 import com.ichi2.anki.CollectionManager
@@ -111,7 +110,6 @@ class ManageNoteTypesAddErrorHandlingTest : RobolectricTest() {
             compose.confirmAdd()
             compose.onNodeWithText("problem", substring = true).assertIsDisplayed()
             assertNull(col.notetypes.byName(cloneName), "The invalid clone must not be created")
-            compose.onNodeWithText("Close", ignoreCase = true).performClick()
             verify(crashReporter, never()).sendExceptionReport(any<Throwable>(), anyOrNull(), anyOrNull(), any())
         }
 

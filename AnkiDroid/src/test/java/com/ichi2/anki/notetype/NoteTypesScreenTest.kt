@@ -3,13 +3,13 @@
 package com.ichi2.anki.notetype
 
 import android.content.Intent
-import android.content.res.Configuration
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
@@ -18,12 +18,14 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CardTemplateEditor
 import com.ichi2.anki.RobolectricTest
+import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.servicelayer.LanguageHintService.languageHint
 import org.junit.Rule
 import org.junit.Test
@@ -45,9 +47,10 @@ class NoteTypesScreenTest : RobolectricTest() {
 
         compose.onNodeWithText("Fields").assertIsDisplayed()
         compose.onNodeWithText("Card Templates").assertIsDisplayed()
-        compose.onNodeWithText("Card 2").performClick()
+        compose.onNodeWithText("Card 2").performScrollTo().performClick()
+        advanceRobolectricLooper()
 
-        val intent = shadowOf(activity).nextStartedActivity
+        val intent = shadowOf(activity).nextStartedActivityForResult.intent
         assertEquals(CardTemplateEditor::class.java.name, intent.component?.className)
         assertEquals(1, intent.getIntExtra("ordId", -1))
     }
@@ -58,6 +61,7 @@ class NoteTypesScreenTest : RobolectricTest() {
         compose.openAddType()
         compose.fillName("Study prompts")
         compose.confirmAdd()
+        compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasText("Study prompts"))
         compose.onNodeWithText("Study prompts").assertIsDisplayed()
 
         compose.openAddType()
@@ -95,7 +99,9 @@ class NoteTypesScreenTest : RobolectricTest() {
     fun `bulk deletion uses the same full sync gate as one type`() {
         startTypes()
         markSynced()
+        compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasText("Cloze"))
         compose.onNodeWithText("Cloze").performTouchInput { longClick() }
+        compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasText("Basic (type in the answer)"))
         compose.onNodeWithText("Basic (type in the answer)").performClick()
         compose.onNodeWithContentDescription("Delete").performClick()
         compose.onNodeWithText("Delete").performClick()
@@ -114,7 +120,7 @@ class NoteTypesScreenTest : RobolectricTest() {
         markSynced()
         compose.onNodeWithText("Add field").performClick()
         compose.fillName("# {Usage}")
-        compose.confirmAdd()
+        compose.onNodeWithText("Add").performClick()
         compose.onNodeWithText("This change needs a one-way sync").assertIsDisplayed()
         compose.onNodeWithText("Cancel").performClick()
 
@@ -123,8 +129,12 @@ class NoteTypesScreenTest : RobolectricTest() {
 
         compose.onNodeWithText("Add field").performClick()
         compose.fillName("# {Usage}")
-        compose.confirmAdd()
+        compose.onNodeWithText("Add").performClick()
         compose.onNodeWithText("Continue").performClick()
+        compose.waitUntil(10_000) {
+            advanceRobolectricLooper()
+            "Usage" in type().fieldsNames
+        }
         assertEquals(listOf("Front", "Back", "Usage"), type().fieldsNames)
     }
 
@@ -141,11 +151,8 @@ class NoteTypesScreenTest : RobolectricTest() {
         val original = type().deepClone()
         col.notetypes.moveFieldLegacy(original, original.getField(1), 0)
         markSynced()
-        val night =
-            Configuration(controller.get().resources.configuration).apply {
-                uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or Configuration.UI_MODE_NIGHT_YES
-            }
-        controller.configurationChange(night)
+        controller.recreate().visible()
+        advanceRobolectricLooper()
 
         compose.onNodeWithText("This change needs a one-way sync").assertIsDisplayed()
         compose.onNodeWithText("Delete field").performClick()
@@ -199,7 +206,8 @@ class NoteTypesScreenTest : RobolectricTest() {
     }
 
     private fun markSynced() {
-        col.db.execute("update col set ls = scm")
+        val lastSync = TimeManager.time.intTimeMS() - 1000
+        col.db.execute("update col set ls = ?, scm = ?", lastSync, lastSync)
     }
 
     private fun type() = col.notetypes.byName("Basic")!!
