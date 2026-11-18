@@ -38,4 +38,7 @@
     <plurals name="settings_search_results">
         <item quantity="other">%d 项设置</item>
     </plurals>
+    <string name="settings_toolbar_drag_hint">按住操作旁的把手拖动，决定它显示在哪里。</string>
+    <string name="settings_toolbar_move_action">移动%1$s</string>
+    <string name="settings_previewer">预览器</string>
 </resources>

@@ -6,7 +6,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.test.platform.app.InstrumentationRegistry
-import com.ichi2.anki.R
 import com.ichi2.anki.common.utils.android.HandlerUtils.executeFunctionUsingHandler
 import com.ichi2.utils.getInputField
 import com.ichi2.utils.positiveButton
@@ -32,7 +31,7 @@ val AlertDialog.message
 
 val AlertDialog.ankiListView
     get() =
-        requireNotNull(this.listView ?: findViewById(R.id.list_view)) { "ankiListView not found" }
+        requireNotNull(this.listView) { "ankiListView not found" }
 
 fun AlertDialog.performPositiveClick() {
     // This exists as callOnClick did not call the listener

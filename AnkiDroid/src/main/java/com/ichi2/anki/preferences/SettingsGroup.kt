@@ -31,7 +31,7 @@ internal enum class SettingsGroup(
         R.string.settings_studying,
         R.string.settings_studying_summary,
         R.drawable.symbol_school,
-        StudyingSettingsIndexFragment::class,
+        StudyingSettingsFragment::class,
     ),
     CONTROLS(
         CommonString.pref_cat_controls,
@@ -100,7 +100,7 @@ internal enum class SettingsGroup(
 
         fun forFragment(fragment: Fragment): SettingsGroup? =
             when (fragment) {
-                is ReviewingSettingsFragment, is ReviewerOptionsFragment, is TimeboxSettingsFragment, is ReviewerMenuSettingsFragment -> STUDYING
+                is TimeboxSettingsFragment, is ReviewerMenuSettingsFragment -> STUDYING
                 is CustomSyncServerSettingsFragment -> SYNC
                 else -> entries.firstOrNull { it.destination.isInstance(fragment) }
             }

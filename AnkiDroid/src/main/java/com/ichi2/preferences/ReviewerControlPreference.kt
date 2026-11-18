@@ -4,10 +4,8 @@ package com.ichi2.preferences
 
 import android.content.Context
 import android.util.AttributeSet
-import androidx.fragment.app.DialogFragment
 import com.ichi2.anki.R
 import com.ichi2.anki.common.annotations.NeedsTest
-import com.ichi2.anki.dialogs.CardSideSelectionDialog
 import com.ichi2.anki.preferences.allPreferences
 import com.ichi2.anki.reviewer.Binding
 import com.ichi2.anki.reviewer.CardSide
@@ -46,18 +44,11 @@ open class ReviewerControlPreference : ControlPreference {
             }
     }
 
-    override fun getSummary(): CharSequence =
-        // Don't show the `Q:` and `A:` prefixes if the side is set
-        if (side != null) {
-            getMappableBindings().joinToString(", ") { it.binding.toDisplayString(context) }
-        } else {
-            super.getSummary()
-        }
+    override fun displayBinding(binding: MappableBinding): String =
+        if (side != null) binding.binding.toDisplayString(context) else super.displayBinding(binding)
 
     override val areGesturesEnabled: Boolean
         get() = true
-
-    override fun makeDialogFragment(): DialogFragment = ReviewerControlPreferenceDialogFragment()
 
     override fun getMappableBindings(): List<ReviewerBinding> = ReviewerBinding.fromPreferenceString(value).toList()
 
@@ -80,37 +71,6 @@ open class ReviewerControlPreference : ControlPreference {
     private fun getPreferencesAssignedTo(binding: ReviewerBinding): List<ReviewerControlPreference> =
         getRelatedPreferences().filter { preference -> binding in preference.getMappableBindings() }
 
-    fun interface OnBindingSelectedListener {
-        /**
-         * Called when a binding is selected, before the side is set. This allows listeners
-         * to respond before the value is set, and potentially override it.
-         *
-         * @param binding The selected binding.
-         *
-         * @return True if the listener has consumed the event, false otherwise.
-         */
-        fun onBindingSelected(binding: Binding): Boolean
-    }
-
-    private var onBindingSelectedListener: OnBindingSelectedListener? = null
-
-    fun setOnBindingSelectedListener(listener: OnBindingSelectedListener) {
-        onBindingSelectedListener = listener
-    }
-
-    override fun onKeySelected(binding: Binding) = setBinding(binding)
-
-    override fun onGestureSelected(binding: Binding) = setBinding(binding)
-
-    override fun onAxisSelected(binding: Binding) = setBinding(binding)
-
-    fun setBinding(binding: Binding) {
-        if (onBindingSelectedListener?.onBindingSelected(binding) == true) return
-        selectSide { side ->
-            addBinding(binding, side)
-        }
-    }
-
     fun addBinding(
         binding: Binding,
         side: CardSide,
@@ -130,29 +90,5 @@ open class ReviewerControlPreference : ControlPreference {
         val bindings = ReviewerBinding.fromPreferenceString(value).toMutableList()
         bindings.removeAll { it == binding } // Uses overridden .equals() to detect overlaps
         value = bindings.toPreferenceString()
-    }
-
-    /**
-     * If this command can be executed on a single side, execute the callback on this side.
-     * Otherwise, ask the user to select one or two side(s) and execute the callback on them.
-     */
-    private fun selectSide(callback: (c: CardSide) -> Unit) {
-        val cardSide = side
-        if (cardSide != null) {
-            callback(cardSide)
-        } else {
-            CardSideSelectionDialog.displayInstance(context, callback)
-        }
-    }
-}
-
-class ReviewerControlPreferenceDialogFragment : ControlPreferenceDialogFragment() {
-    override fun getDisplayString(mappableBinding: MappableBinding): String {
-        val side = (preference as? ReviewerControlPreference)?.side
-        return if (side != null) {
-            mappableBinding.binding.toDisplayString(requireContext())
-        } else {
-            super.getDisplayString(mappableBinding)
-        }
     }
 }

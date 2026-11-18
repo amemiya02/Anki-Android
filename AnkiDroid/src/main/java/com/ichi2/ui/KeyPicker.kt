@@ -6,6 +6,7 @@ import android.content.Context
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import com.ichi2.anki.databinding.DialogKeyPickerBinding
+import com.ichi2.anki.dialogs.KeySelectionDialogUtils
 import com.ichi2.anki.dialogs.WarningDisplay
 import com.ichi2.anki.reviewer.Binding
 import timber.log.Timber
@@ -40,14 +41,8 @@ class KeyPicker(
     fun getBinding(): Binding? = binding
 
     fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (event.action != KeyEvent.ACTION_DOWN) return true
-
-        // When accepting a keypress, we only want to find the keycode, not the unicode character.
         val newBinding =
-            Binding
-                .possibleKeyBindings(event)
-                .filterIsInstance<Binding.KeyCode>()
-                .firstOrNull { binding -> isValidKeyCode?.invoke(binding.keycode) != false } ?: return true
+            KeySelectionDialogUtils.keyBinding(event) { isValidKeyCode?.invoke(it) != false } ?: return true
         Timber.d("Changed key to '%s'", newBinding)
         binding = newBinding
         text = newBinding.toDisplayString(context)

@@ -24,8 +24,7 @@ class PreferenceFragmentsProvider : TestParameterValuesProvider() {
             listOf(
                 HeaderFragment::class,
                 GeneralSettingsFragment::class,
-                StudyingSettingsIndexFragment::class,
-                ReviewingSettingsFragment::class,
+                StudyingSettingsFragment::class,
                 TimeboxSettingsFragment::class,
                 SyncSettingsFragment::class,
                 CustomSyncServerSettingsFragment::class,
@@ -34,7 +33,6 @@ class PreferenceFragmentsProvider : TestParameterValuesProvider() {
                 AppearanceSettingsFragment::class,
                 ControlsSettingsFragment::class,
                 AccessibilitySettingsFragment::class,
-                ReviewerOptionsFragment::class,
                 ReviewerMenuSettingsFragment::class,
                 BackupLimitsSettingsFragment::class,
                 AdvancedSettingsFragment::class,

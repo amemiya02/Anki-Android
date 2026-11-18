@@ -17,8 +17,7 @@ import com.ichi2.anki.preferences.AdvancedSettingsFragment
 import com.ichi2.anki.preferences.AppearanceSettingsFragment
 import com.ichi2.anki.preferences.DeveloperOptionsFragment
 import com.ichi2.anki.preferences.GeneralSettingsFragment
-import com.ichi2.anki.preferences.ReviewerOptionsFragment
-import com.ichi2.anki.preferences.ReviewingSettingsFragment
+import com.ichi2.anki.preferences.StudyingSettingsFragment
 import com.ichi2.anki.preferences.SyncSettingsFragment
 import com.ichi2.anki.reviewreminders.AddEditReminderDialog
 import com.ichi2.anki.reviewreminders.ReviewReminderScope
@@ -42,8 +41,7 @@ fun fragmentLifecycleFixtures(): List<FragmentLifecycleFixture> =
         FragmentLifecycleFixture("StudyOptions") { StudyOptionsFragment() },
         FragmentLifecycleFixture("AppearanceSettings") { AppearanceSettingsFragment() },
         FragmentLifecycleFixture("GeneralSettings") { GeneralSettingsFragment() },
-        FragmentLifecycleFixture("ReviewerOptions") { ReviewerOptionsFragment() },
-        FragmentLifecycleFixture("ReviewingSettings") { ReviewingSettingsFragment() },
+        FragmentLifecycleFixture("StudyingSettings") { StudyingSettingsFragment() },
         FragmentLifecycleFixture("AdvancedSettings") { AdvancedSettingsFragment() },
         FragmentLifecycleFixture("DeveloperOptions") { DeveloperOptionsFragment() },
         FragmentLifecycleFixture("SyncSettings") { SyncSettingsFragment() },

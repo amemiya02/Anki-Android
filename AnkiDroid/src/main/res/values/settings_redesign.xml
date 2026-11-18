@@ -39,4 +39,7 @@
         <item quantity="one">%d setting</item>
         <item quantity="other">%d settings</item>
     </plurals>
+    <string name="settings_toolbar_drag_hint">Drag an action by its handle to choose where it appears.</string>
+    <string name="settings_toolbar_move_action">Move %1$s</string>
+    <string name="settings_previewer">Previewer</string>
 </resources>

@@ -71,7 +71,7 @@ class SettingsSearchNavigationTest : RobolectricTest() {
             search(title)
             result(title).assertIsDisplayed().performClick()
             advanceRobolectricLooper()
-            compose.onNode(hasText(title)).assertIsDisplayed()
+            compose.onNodeWithText(targetContext.getString(CommonString.use_timebox)).assertIsDisplayed()
         }
     }
 
@@ -83,7 +83,7 @@ class SettingsSearchNavigationTest : RobolectricTest() {
             search(binding.toDisplayString(targetContext))
             result(targetContext.getString(CommonString.previewer_next)).assertIsDisplayed().performClick()
             advanceRobolectricLooper()
-            onView(withText(CommonString.previewer_next)).check(matches(isDisplayed()))
+            compose.onNodeWithText(targetContext.getString(CommonString.previewer_next)).assertIsDisplayed()
         }
     }
 

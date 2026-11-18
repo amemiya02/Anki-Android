@@ -3,7 +3,6 @@
 package com.ichi2.anki.preferences
 
 import android.content.Context
-import android.content.res.Configuration
 import android.content.res.XmlResourceParser
 import androidx.annotation.StringRes
 import androidx.annotation.XmlRes
@@ -13,7 +12,6 @@ import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.common.android.AdaptionUtil
-import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.preferences.reviewer.ReviewerMenuSettingsFragment
 import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.ui.internationalization.sentenceCase
@@ -69,7 +67,7 @@ internal fun buildSettingsSearchIndex(
                     when (group) {
                         SettingsGroup.GENERAL -> readSettings(R.xml.preferences_general, title, group.destination)
                         SettingsGroup.APPEARANCE -> appearanceSearchEntries(title)
-                        SettingsGroup.STUDYING -> studyingSearchEntries(title)
+                        SettingsGroup.STUDYING -> studyingSearchEntries(title) + toolbarSearchEntries(title)
                         SettingsGroup.CONTROLS -> controlsSearchEntries(title, fragment::controlPreferenceTitle)
                         SettingsGroup.ACCESSIBILITY -> readSettings(R.xml.preferences_accessibility, title, group.destination)
                         SettingsGroup.SYNC -> syncSearchEntries(title)
@@ -129,39 +127,15 @@ private fun Context.appearanceSearchEntries(path: String): List<SettingsSearchEn
     }
 }
 
-private fun Context.studyingSearchEntries(studying: String): List<SettingsSearchEntry> =
-    readSettings(R.xml.preferences_reviewing, studying, ReviewingSettingsFragment::class) +
-        readSettings(R.xml.preferences_reviewer, studying, ReviewerOptionsFragment::class) +
-        ViewerAction.entries.filter { it.defaultDisplayType != null }.map {
-            SettingsSearchEntry(
-                it.title(this),
-                breadcrumb(studying, getString(CommonString.toolbar_actions)),
-                ReviewerMenuSettingsFragment::class,
-                it.name,
-            )
-        }
-
-private fun Context.controlsSearchEntries(
-    controls: String,
-    controlTitle: (String) -> String?,
-): List<SettingsSearchEntry> {
-    val prefs = sharedPrefs()
-    return readSettings(R.xml.preferences_controls, controls, ControlsSettingsFragment::class) +
-        ControlPreferenceScreen.entries.flatMap { screen ->
-            val tab =
-                getString(
-                    when (screen) {
-                        ControlPreferenceScreen.REVIEWER -> CommonString.pref_controls_reviews_tab
-                        ControlPreferenceScreen.PREVIEWER -> CommonString.pref_controls_previews_tab
-                    },
-                )
-            val actions = screen.searchableActions().associateBy { it.preferenceKey }
-            readSettings(screen.xmlRes, breadcrumb(controls, tab), ControlsSettingsFragment::class, controlTitle).map { entry ->
-                val bindings = actions[entry.key]?.getBindings(prefs).orEmpty().map { it.toDisplayString(this) }
-                entry.copy(details = entry.details + bindings)
-            }
-        }
-}
+private fun Context.toolbarSearchEntries(studying: String): List<SettingsSearchEntry> =
+    ViewerAction.entries.filter { it.defaultDisplayType != null }.map {
+        SettingsSearchEntry(
+            it.title(this),
+            breadcrumb(studying, getString(CommonString.toolbar_actions)),
+            ReviewerMenuSettingsFragment::class,
+            it.name,
+        )
+    }
 
 private fun Context.syncSearchEntries(sync: String): List<SettingsSearchEntry> =
     readSettings(R.xml.preferences_sync, sync, SyncSettingsFragment::class) +
@@ -187,7 +161,6 @@ private fun Context.aboutSearchEntries(path: String): List<SettingsSearchEntry> 
 private fun Context.hiddenSettings(): Set<String> =
     buildSet {
         if (resources.getBoolean(R.bool.bottom_navigation_available)) add(getString(R.string.nav_drawer_gesture_key))
-        if (resources.configuration.keyboard != Configuration.KEYBOARD_QWERTY) add(getString(R.string.pref_keyboard_shortcuts_key))
         if (BuildConfig.DEBUG) add(getString(R.string.developer_options_enabled_by_user_key))
         if (AdaptionUtil.isXiaomiRestrictedLearningDevice) {
             add(getString(R.string.pref_notifications_vibrate_key))
@@ -201,7 +174,6 @@ private fun Context.readSettings(
     @XmlRes xml: Int,
     groupPath: String,
     destination: KClass<out Fragment>,
-    overrideTitle: (String) -> String? = { null },
 ): List<SettingsSearchEntry> =
     buildList {
         resources.getXml(xml).use { parser ->
@@ -211,36 +183,19 @@ private fun Context.readSettings(
                 sections.removeAll { (depth, _) -> depth >= parser.depth }
                 val key = parser.androidText(this@readSettings, "key")
                 val kind = parser.name.substringAfterLast('.')
-                val title = key?.let(overrideTitle) ?: settingTitle(key) ?: parser.androidText(this@readSettings, "title")
+                val title = settingTitle(key) ?: parser.androidText(this@readSettings, "title")
                 if (kind.endsWith("Category")) {
                     title?.let { sections.add(parser.depth to it) }
                     continue
                 }
                 val submenu =
                     when (key) {
-                        getString(R.string.time_limit_preference) -> TimeboxSettingsFragment::class
                         getString(R.string.custom_sync_server_key) -> CustomSyncServerSettingsFragment::class
-                        getString(R.string.reviewer_menu_settings_key) -> ReviewerMenuSettingsFragment::class
                         else -> null
                     }
                 if (key == null || title == null || key == getString(R.string.pref_backups_help_key)) continue
 
-                val sectionPath =
-                    when {
-                        key == getString(R.string.keep_screen_on_preference) -> listOf(getString(R.string.settings_study_screen))
-                        destination == ReviewerOptionsFragment::class ->
-                            sections.map {
-                                if (it.second ==
-                                    getString(CommonString.screen)
-                                ) {
-                                    getString(R.string.settings_study_screen)
-                                } else {
-                                    it.second
-                                }
-                            }
-                        else -> sections.map { it.second }
-                    }
-                val path = breadcrumb(groupPath, *sectionPath.toTypedArray())
+                val path = breadcrumb(groupPath, *sections.map { it.second }.toTypedArray())
                 val summary = settingSummary(key) ?: parser.androidText(this@readSettings, "summary")
                 val choices = parser.getAttributeResourceValue(ANDROID_NS, "entries", 0)
                 val details =
@@ -258,10 +213,6 @@ private fun Context.settingTitle(key: String?): String? =
             getString(CommonString.card_browser_enable_external_context_menu, getString(CommonString.context_menu_anki_card_label))
         getString(R.string.card_browser_external_context_menu_key) ->
             getString(CommonString.card_browser_enable_external_context_menu, getString(CommonString.card_browser_context_menu))
-        getString(R.string.pref_review_category_key) -> getString(R.string.settings_study_screen)
-        getString(R.string.show_progress_preference) -> TR.preferencesShowRemainingCardCount()
-        getString(R.string.show_audio_play_buttons_key) -> TR.preferencesShowPlayButtonsOnCardsWith()
-        getString(R.string.show_estimates_preference) -> TR.preferencesShowNextReviewTimeAboveAnswer()
         getString(R.string.sync_io_timeout_secs_key) -> TR.preferencesNetworkTimeout()
         else -> null
     }

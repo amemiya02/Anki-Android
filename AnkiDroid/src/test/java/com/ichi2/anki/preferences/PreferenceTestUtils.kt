@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
+import com.ichi2.anki.preferences.reviewer.ReviewerMenuSettingsFragment
 import com.ichi2.testutils.getInstanceFromClassName
 import org.xmlpull.v1.XmlPullParser
 
@@ -91,7 +92,7 @@ object PreferenceTestUtils {
     fun getAllPreferencesFragments(context: Context): List<Fragment> {
         val roots =
             SettingsGroup.entries.map { getInstanceFromClassName<Fragment>(it.destination.java.name) } +
-                listOf(HeaderFragment(), ReviewingSettingsFragment(), ReviewerOptionsFragment())
+                listOf(HeaderFragment(), TimeboxSettingsFragment(), ReviewerMenuSettingsFragment())
         val fragments =
             roots +
                 roots
@@ -148,6 +149,9 @@ object PreferenceTestUtils {
                 getKeysFromXml(context, it, excludeCategories = false)
             } + ControlPreferenceScreen.entries.flatMap { getKeysFromXml(context, it.xmlRes) } +
             listOf(R.string.app_theme_key, R.string.night_theme_key, R.string.pref_deck_picker_background_key)
+                .map(context::getString) +
+            StudySetting.entries.map { context.getString(it.key) } +
+            listOf(R.string.gestures_corner_touch_preference, R.string.pref_swipe_sensitivity_key, R.string.pref_keyboard_shortcuts_key)
                 .map(context::getString)
 
     fun getDeveloperOptionsKeys(context: Context): Set<String> = getKeysFromXml(context, R.xml.preferences_developer_options).toSet()

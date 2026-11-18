@@ -97,7 +97,17 @@ class PreferencesScreenshotTest : ScreenshotTest() {
     fun capturePreferenceFragment(
         @TestParameter(valuesProvider = PreferenceFragmentsProvider::class) fragmentClass: KClass<out Fragment>,
     ) {
-        if (fragmentClass in setOf(HeaderFragment::class, AppearanceSettingsFragment::class, StudyingSettingsIndexFragment::class)) return
+        if (fragmentClass in
+            setOf(
+                HeaderFragment::class,
+                AppearanceSettingsFragment::class,
+                StudyingSettingsFragment::class,
+                ControlsSettingsFragment::class,
+                ReviewerMenuSettingsFragment::class,
+            )
+        ) {
+            return
+        }
         withPreferencesActivity(
             fragmentClass,
             fullHeightList = fragmentClass.fullHeightList(),
@@ -154,9 +164,6 @@ class PreferencesScreenshotTest : ScreenshotTest() {
         when {
             isSubclassOf(PreferenceFragmentCompat::class) -> { activity ->
                 (activity.settingsFragment as PreferenceFragmentCompat).listView
-            }
-            isSubclassOf(ReviewerMenuSettingsFragment::class) -> { activity ->
-                activity.settingsFragment!!.requireView().findViewById(R.id.recycler_view)
             }
             else -> null
         }

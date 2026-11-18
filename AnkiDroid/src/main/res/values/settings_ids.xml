@@ -4,4 +4,6 @@
     <item type="id" name="settings_home" />
     <item type="id" name="settings_appearance" />
     <item type="id" name="settings_studying" />
+    <item type="id" name="settings_controls" />
+    <item type="id" name="settings_toolbar_actions" />
 </resources>
