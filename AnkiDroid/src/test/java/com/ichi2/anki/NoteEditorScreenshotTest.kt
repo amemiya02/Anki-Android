@@ -22,12 +22,15 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextReplacement
 import androidx.core.content.edit
 import androidx.core.view.RoundedCornerCompat
 import androidx.core.view.ViewCompat
@@ -84,6 +87,7 @@ import org.robolectric.annotation.Implements
 import org.robolectric.shadows.ShadowMediaRecorder
 import java.io.File
 import androidx.appcompat.R as AppCompatR
+import androidx.compose.ui.test.isDialog as isComposeDialog
 import com.ichi2.testutils.Robolectric as RobolectricActivities
 
 /**
@@ -260,22 +264,23 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
         val tag = "vocab"
         withNoteEditor(addNoteIntent(basicNoteType.id)) {
             val tags = composeRule.onNodeWithText(TR.browsingSidebarTags())
-            val confirm = onView(withText(targetContext.getString(CommonString.dialog_confirm))).inRoot(isDialog())
+            val inDialog = hasAnyAncestor(isComposeDialog())
+            val confirm = composeRule.onNode(hasText(targetContext.getString(CommonString.dialog_confirm)) and inDialog)
             tags.performClick()
             advanceRobolectricLooper()
             onView(withContentDescription(targetContext.getString(CommonString.add_tag))).inRoot(isDialog()).perform(click())
-            onView(isAssignableFrom(EditText::class.java)).inRoot(isDialog()).perform(replaceText(tag))
+            composeRule.onNode(hasSetTextAction() and inDialog).performTextReplacement(tag)
             advanceRobolectricLooper()
-            onView(withText(targetContext.getString(CommonString.menu_add))).inRoot(isDialog()).perform(click())
+            composeRule.onNode(hasText(targetContext.getString(CommonString.menu_add)) and inDialog).performClick()
             advanceRobolectricLooper()
-            confirm.perform(click())
+            confirm.performClick()
             composeRule.onNodeWithText(tag).assertIsDisplayed()
             captureScreen("note_with_tag")
 
             tags.performClick()
             advanceRobolectricLooper()
             onView(withText(tag)).inRoot(isDialog()).perform(click())
-            confirm.perform(click())
+            confirm.performClick()
             composeRule.onNodeWithText(tag).assertDoesNotExist()
         }
     }
