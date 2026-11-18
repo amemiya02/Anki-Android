@@ -51,6 +51,7 @@ androidxExifinterface = "1.4.2"
 # https://developer.android.com/jetpack/androidx/releases/fragment
 androidxFragmentKtx = "1.9.1"
 androidxNavigation = "2.10.2"
+androidxNavigationEvent = "1.1.2"
 # https://developer.android.com/jetpack/androidx/releases/lifecycle
 androidxLifecycleProcess = "2.11.0"
 # https://developer.android.com/jetpack/androidx/releases/media3
@@ -151,6 +152,8 @@ androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "a
 androidx-benchmark-macro-junit4 = { module = "androidx.benchmark:benchmark-macro-junit4", version.ref = "androidxBenchmark" }
 androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidxAnnotation" }
 androidx-activity = { module = "androidx.activity:activity", version.ref = "androidxActivity" }
+androidx-navigation-event = { module = "androidx.navigationevent:navigationevent", version.ref = "androidxNavigationEvent" }
+androidx-navigation-event-compose = { module = "androidx.navigationevent:navigationevent-compose", version.ref = "androidxNavigationEvent" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "androidxNavigation" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivity" }
 # The Compose libraries below intentionally omit `version.ref`: their versions are

@@ -13,6 +13,7 @@ import androidx.activity.addCallback
 import androidx.core.os.BundleCompat
 import androidx.fragment.app.viewModels
 import com.ichi2.anki.SingleFragmentActivity
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.dialogs.startDeckSelection
@@ -65,7 +66,7 @@ class ImageOcclusion : PageFragment() {
         with(requireActivity()) {
             onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
                 DiscardChangesDialog.showDialog(this@with) {
-                    finish()
+                    finishScreen()
                 }
             }
         }

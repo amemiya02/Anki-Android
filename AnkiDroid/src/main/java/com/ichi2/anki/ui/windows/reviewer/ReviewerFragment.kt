@@ -38,6 +38,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import anki.scheduler.CardAnswer.Rating
 import com.google.android.material.snackbar.Snackbar
+import com.ichi2.anki.navigation.finishScreen
+import com.ichi2.anki.navigation.hasScreenResultCaller
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.AnkiDroidJsAPI
 import com.ichi2.anki.CollectionManager
@@ -302,7 +304,7 @@ class ReviewerFragment :
         super.onViewCreated(view, savedInstanceState)
 
         binding.backButton.setOnClickListener {
-            requireActivity().finish()
+            finishScreen()
         }
 
         setupBindings()
@@ -325,15 +327,11 @@ class ReviewerFragment :
 
         viewModel.finishResultFlow
             .onEach { result ->
-                requireActivity().run {
-                    setResult(result)
-                    // the deck list opens the finished screen from the result; nobody awaits
-                    // one when studying was opened from a shortcut or the finished screen
-                    if (result == RESULT_NO_MORE_CARDS && callingActivity == null) {
-                        StudyCompletionUi.openFinishedScreen(this)
-                    }
-                    finish()
-                }
+                val host = requireActivity()
+                // The Deck Picker handles completion when it launched this screen for a result.
+                val openFinishedScreen = result == RESULT_NO_MORE_CARDS && !hasScreenResultCaller()
+                finishScreen(result)
+                if (openFinishedScreen) StudyCompletionUi.openFinishedScreen(host)
             }.launchIn(viewScope)
 
         viewModel.statesMutationEvalFlow
@@ -865,7 +863,7 @@ class ReviewerFragment :
                     onDismissRequest = {
                         Timber.i("ReviewerFragment: Timebox 'Finish'")
                         dialog.dismiss()
-                        requireActivity().finish()
+                        finishScreen()
                     },
                 )
             }.apply {

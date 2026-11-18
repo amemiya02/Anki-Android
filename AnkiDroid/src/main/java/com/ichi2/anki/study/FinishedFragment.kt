@@ -21,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import anki.collection.OpChanges
 import anki.scheduler.UnburyDeckRequest
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
@@ -84,11 +85,11 @@ class FinishedFragment :
                     state?.let {
                         FinishedScreen(
                             state = it,
-                            onBack = { requireActivity().finish() },
+                            onBack = { finishScreen() },
                             onUnbury = { viewModel.onUnbury() },
                             onCustomStudy = { onCustomStudy() },
                             onDeckOptions = { viewModel.onDeckOptions() },
-                            onBackToDecks = { requireActivity().finish() },
+                            onBackToDecks = { finishScreen() },
                         )
                     }
                 }
@@ -180,13 +181,13 @@ class FinishedFragment :
     private fun openStudyScreenAndFinish() {
         Timber.i("opening the study screen")
         navigate(ReviewDeckDestination.CurrentDeck)
-        requireActivity().finish()
+        finishScreen()
     }
 
     private fun openStudyOptionsAndFinish() {
         Timber.i("opening study options")
         navigate(StudyOptionsDestination)
-        requireActivity().finish()
+        finishScreen()
     }
 
     @androidx.annotation.VisibleForTesting

@@ -738,6 +738,11 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.fragment.compose)
     implementation(libs.androidx.navigation.compose)
+    // Match Navigation Compose's navigation event runtime on the compile classpath as well.
+    constraints {
+        implementation(libs.androidx.navigation.event)
+        implementation(libs.androidx.navigation.event.compose)
+    }
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.annotation)

@@ -20,7 +20,9 @@ import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.ProgressContext
+import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.SingleFragmentActivity
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.launchCatchingTask
@@ -94,14 +96,10 @@ class DeckOptions : PageFragment() {
      * Close the view, discarding change if needed.
      */
     fun actuallyClose() {
-        // A preceding normal save may already have closed the activity.
-        if (activity?.isFinishing == true) return
+        if (!isAdded || activity?.isFinishing == true) return
         onBackFromDeckOptions.isEnabled = false
         Timber.v("webView: navigating back")
-        launchCatchingTask {
-            // Required to be in a task to ensure the callback is disabled.
-            requireActivity().onBackPressedDispatcher.onBackPressed()
-        }
+        finishScreen()
     }
 
     /**
@@ -185,10 +183,10 @@ class DeckOptions : PageFragment() {
 
     @NeedsTest("going back on a manual page takes priority over closing a modal")
     override fun onCreateWebViewClient(savedInstanceState: Bundle?): PageWebViewClient {
-        activity?.onBackPressedDispatcher?.addCallback(this, onBackFromDeckOptions)
-        activity?.onBackPressedDispatcher?.addCallback(this, onBackFromModal)
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackFromDeckOptions)
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackFromModal)
         // going back on a manual page takes priority over closing a modal
-        activity?.onBackPressedDispatcher?.addCallback(this, onBackFromManual)
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner, onBackFromManual)
 
         return object : PageWebViewClient() {
             /** @see onWebViewReady */
@@ -483,7 +481,7 @@ suspend fun FragmentActivity.updateDeckConfigsRaw(input: ByteArray): ByteArray {
             // Both requests share a flag, so the page reloads once, after reading this response.
             requireDeckOptionsFragment().reloadAfterSave()
         } else {
-            finish()
+            requireDeckOptionsFragment().finishScreen()
         }
     }
     return output
@@ -528,8 +526,13 @@ private fun ComputeParamsProgress.toProgressText(): String {
 }
 
 private fun FragmentActivity.requireDeckOptionsFragment(): DeckOptions {
-    require(this is SingleFragmentActivity) { "activity must be SingleFragmentActivity" }
-    return requireNotNull(this.fragment as? DeckOptions?) { "fragment must be DeckOptions" }
+    val fragment =
+        when (this) {
+            is DeckPicker -> currentScreenFragment
+            is SingleFragmentActivity -> fragment
+            else -> null
+        }
+    return requireNotNull(fragment as? DeckOptions) { "fragment must be DeckOptions" }
 }
 
 /**

@@ -13,6 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.DispatchKeyEventListener
 import com.ichi2.anki.Flag
@@ -64,7 +65,7 @@ class PreviewerFragment :
         } catch (e: UnavailableSelectionException) {
             Timber.w(e, "Failed to read previewer IDs")
             showThemedToast(requireContext(), CommonString.something_wrong, false)
-            requireActivity().finish()
+            finishScreen()
             return
         }
         super.onViewCreated(view, savedInstanceState)

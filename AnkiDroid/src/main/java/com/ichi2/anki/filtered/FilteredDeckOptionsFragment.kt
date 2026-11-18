@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.R
 import com.ichi2.anki.common.destinations.BrowserDestination
 import com.ichi2.anki.common.destinations.navigate
@@ -33,7 +34,7 @@ class FilteredDeckOptionsFragment : Fragment() {
         object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
                 DiscardChangesDialog.showDialog(context = requireActivity()) {
-                    requireActivity().finish()
+                    finishScreen()
                 }
             }
         }
@@ -63,7 +64,7 @@ class FilteredDeckOptionsFragment : Fragment() {
                     if ((viewModel.state.value as? FilteredDeckOptions)?.isBuildingAllowed == true) viewModel.build()
                 },
                 onErrorClosed = viewModel::clearError,
-                onExit = { requireActivity().finish() },
+                onExit = { finishScreen() },
             )
         }
 
@@ -84,7 +85,7 @@ class FilteredDeckOptionsFragment : Fragment() {
         viewModel.hasUnsavedChanges.collectInViewLifecycle { discardBackHandler.isEnabled = it }
         viewModel.state.collectInViewLifecycle { state ->
             when (state) {
-                DeckBuilt -> requireActivity().finish()
+                DeckBuilt -> finishScreen()
                 is FilteredDeckOptions -> {
                     if (state.throwable == null && state.browserQuery != null) {
                         navigate(BrowserDestination.Search(query = state.browserQuery, allDecks = false))

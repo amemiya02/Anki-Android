@@ -14,6 +14,7 @@ import androidx.core.os.BundleCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.libanki.CardOrdinal
@@ -32,7 +33,7 @@ class TemplatePreviewerFragment : ComposeCardViewerFragment() {
         // The OS can clear the temporary Note Type file while the process is gone.
         if (!TemplatePreviewerArguments.isUsable(requireArguments())) {
             Timber.w("Notetype file missing on previewer open; finishing")
-            requireActivity().finish()
+            finishScreen()
             return
         }
 

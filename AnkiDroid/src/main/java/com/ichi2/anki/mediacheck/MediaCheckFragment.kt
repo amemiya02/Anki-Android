@@ -26,12 +26,12 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import anki.media.CheckMediaResponse
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonPlurals
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.CrashReportData.Companion.toCrashReportData
 import com.ichi2.anki.SingleFragmentActivity
-import com.ichi2.anki.navigation.closeScreen
 import com.ichi2.anki.preferences.SettingsPage
 import com.ichi2.anki.progress.observeProgress
 import com.ichi2.anki.ui.internationalization.sentenceCase
@@ -127,7 +127,7 @@ class MediaCheckFragment : Fragment() {
                 message = message,
                 confirm =
                     DialogAction(getString(CommonString.dialog_ok), {
-                        closeScreen()
+                        finishScreen()
                         dialog.dismiss()
                     }),
                 onDismissRequest = dialog::dismiss,

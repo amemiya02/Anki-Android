@@ -22,6 +22,7 @@ import androidx.core.os.BundleCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.canhub.cropper.CropImageView
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.preferences.settingsComposeView
@@ -172,8 +173,7 @@ class ImageCropper : Fragment() {
                     uriPath = context?.let { result.getUriFilePath(it) },
                 ),
             )
-            activity?.setResult(Activity.RESULT_OK, resultIntent)
-            activity?.finish()
+            if (isAdded) finishScreen(Activity.RESULT_OK, resultIntent)
         } else {
             Timber.e(result.error, "Failed to crop image")
             showSnackbar(CommonString.something_wrong)

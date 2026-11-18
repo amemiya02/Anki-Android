@@ -11,6 +11,7 @@ import anki.collection.OpChanges
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.NoteEditorFragment
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.importAnkiPackageUndoable
 import com.ichi2.anki.importCsvRaw
 import com.ichi2.anki.launchCatchingTask
@@ -208,6 +209,7 @@ sealed class UiPostRequestResponse {
 suspend fun FragmentActivity?.handleUiPostRequest(
     methodName: String,
     bytes: ByteArray,
+    page: PageFragment? = null,
 ): UiPostRequestResponse {
     // an unknown method may be valid for another request handler
     val uiMethod = uiMethods[methodName] ?: return UiPostRequestResponse.UnknownMethod
@@ -225,8 +227,12 @@ suspend fun FragmentActivity?.handleUiPostRequest(
             launchCatchingTask {
                 // Allow time for toast message to appear before closing editor
                 delay(1.seconds)
-                setResult(Activity.RESULT_OK)
-                finish()
+                if (page != null) {
+                    if (page.isAdded) page.finishScreen(Activity.RESULT_OK)
+                } else {
+                    setResult(Activity.RESULT_OK)
+                    finish()
+                }
             }
         }
 
@@ -235,8 +241,12 @@ suspend fun FragmentActivity?.handleUiPostRequest(
             launchCatchingTask {
                 // Allow time for toast message to appear before closing editor
                 delay(1.seconds)
-                setResult(NoteEditorFragment.RESULT_UPDATED_IO_NOTE)
-                finish()
+                if (page != null) {
+                    if (page.isAdded) page.finishScreen(NoteEditorFragment.RESULT_UPDATED_IO_NOTE)
+                } else {
+                    setResult(NoteEditorFragment.RESULT_UPDATED_IO_NOTE)
+                    finish()
+                }
             }
         }
     }

@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.graphics.createBitmap
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.time.getTimestamp
 import com.ichi2.anki.compat.CompatHelper
@@ -101,8 +102,7 @@ class DrawingFragment : Fragment(R.layout.fragment_drawing) {
                 putExtra(EXTRA_IMAGE_PATH, imagePath)
             }
         // TODO don't depend on an Activity
-        requireActivity().setResult(Activity.RESULT_OK, result)
-        requireActivity().finish()
+        finishScreen(Activity.RESULT_OK, result)
     }
 
     private fun saveWhiteboard(view: WhiteboardView): Uri {

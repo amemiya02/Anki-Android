@@ -745,7 +745,23 @@ open class DeckPicker :
 
     override fun launchInApp(intent: Intent): Boolean = ::appNavigation.isInitialized && appNavigation.launch(intent)
 
-    internal fun popScreen(): Boolean = ::appNavigation.isInitialized && appNavigation.pop()
+    @Suppress("DEPRECATION")
+    override fun startActivityForResult(
+        intent: Intent,
+        requestCode: Int,
+        options: Bundle?,
+    ) {
+        if (!::appNavigation.isInitialized || !appNavigation.launch(intent, requestCode)) {
+            super.startActivityForResult(intent, requestCode, options)
+        }
+    }
+
+    internal val currentScreenFragment: Fragment?
+        get() = if (::appNavigation.isInitialized) appNavigation.currentFragment else null
+
+    internal fun finishScreen(fragment: Fragment, result: ActivityResult) = appNavigation.finish(fragment, result)
+
+    internal fun hasScreenResultCaller(fragment: Fragment): Boolean = appNavigation.hasResultCaller(fragment)
 
     override fun onWelcomeCompleted(nextAction: String?) {
         if (!awaitingWelcome || isFinishing) return
