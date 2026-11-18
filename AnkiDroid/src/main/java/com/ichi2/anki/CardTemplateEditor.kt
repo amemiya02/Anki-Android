@@ -245,38 +245,39 @@ class CardTemplateEditorFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        val content = ComposeView(inflater.context).apply {
-            id = R.id.card_template_screen
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                AnkiDroidTheme {
-                    if (templateNames.isNotEmpty()) {
-                        CardTemplateEditorScreen(
-                            noteTypeName = noteTypeName,
-                            templateNames = templateNames,
-                            selectedTemplate = ord,
-                            section = section,
-                            availableFields = fieldNames,
-                            deckOverrideEnabled = deckOverrideEnabled,
-                            dynamicTemplates = dynamicTemplates,
-                            saving = saving,
-                            splitPane = LocalConfiguration.current.smallestScreenWidthDp >= 600,
-                            panePreferences = requireContext().uiConfigPrefs(),
-                            snackbar = snackbar,
-                            onBack = { onActionBarBackPressed() },
-                            onSelectTemplate = ::selectTemplate,
-                            onSelectSection = ::selectSection,
-                            onInsertField = { insertField("{{$it}}") },
-                            onAction = ::runAction,
-                            onEditorReady = ::onEditorReady,
-                            onTextChanged = ::onCodeChanged,
-                            onInsertFieldRequest = ::showInsertFieldDialog,
-                            onPreviewReady = ::onPreviewReady,
-                        )
+        val content =
+            ComposeView(inflater.context).apply {
+                id = R.id.card_template_screen
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    AnkiDroidTheme {
+                        if (templateNames.isNotEmpty()) {
+                            CardTemplateEditorScreen(
+                                noteTypeName = noteTypeName,
+                                templateNames = templateNames,
+                                selectedTemplate = ord,
+                                section = section,
+                                availableFields = fieldNames,
+                                deckOverrideEnabled = deckOverrideEnabled,
+                                dynamicTemplates = dynamicTemplates,
+                                saving = saving,
+                                splitPane = LocalConfiguration.current.smallestScreenWidthDp >= 600,
+                                panePreferences = requireContext().uiConfigPrefs(),
+                                snackbar = snackbar,
+                                onBack = { onActionBarBackPressed() },
+                                onSelectTemplate = ::selectTemplate,
+                                onSelectSection = ::selectSection,
+                                onInsertField = { insertField("{{$it}}") },
+                                onAction = ::runAction,
+                                onEditorReady = ::onEditorReady,
+                                onTextChanged = ::onCodeChanged,
+                                onInsertFieldRequest = ::showInsertFieldDialog,
+                                onPreviewReady = ::onPreviewReady,
+                            )
+                        }
                     }
                 }
             }
-        }
         // Keep keyboard observation independent of the Compose view's own inset listener.
         return FrameLayout(inflater.context).apply { addView(content) }
     }
