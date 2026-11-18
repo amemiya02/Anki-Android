@@ -28,13 +28,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.R
 import com.ichi2.anki.reviewer.Axis
 import com.ichi2.anki.reviewer.Binding
 import com.ichi2.compose.theme.foundation
 import com.ichi2.compose.ui.dialogs.DialogBody
 import java.util.Locale
 import kotlin.math.abs
+import com.ichi2.anki.common.android.R as CommonR
 
 private data class AxisReading(
     val value: Float = 0f,
@@ -117,6 +117,6 @@ private fun AxisButton(
 ) {
     val label = binding.toDisplayString(LocalContext.current)
     IconButton(onClick = { onSelect(binding) }, enabled = enabled) {
-        Icon(painterResource(R.drawable.symbol_add), "${stringResource(CommonString.binding_add_axis)}: $label")
+        Icon(painterResource(CommonR.drawable.symbol_add), "${stringResource(CommonString.binding_add_axis)}: $label")
     }
 }

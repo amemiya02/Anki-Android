@@ -10,7 +10,7 @@ import com.ichi2.anki.libanki.utils.append
 import com.ichi2.anki.preferences.PreferenceTestUtils
 import com.ichi2.anki.preferences.PreferenceTestUtils.getAttrsFromXml
 import com.ichi2.anki.preferences.PreferenceTestUtils.resValue
-import com.ichi2.anki.preferences.SettingsFragment
+import com.ichi2.anki.preferences.PreferenceXmlSource
 import com.ichi2.anki.settings.enums.AppTheme
 import com.ichi2.anki.settings.enums.NightTheme
 import com.ichi2.anki.settings.enums.PrefEnum
@@ -76,7 +76,7 @@ class PrefsRobolectricTest : RobolectricTest() {
             PreferenceTestUtils
                 .getAllPreferencesFragments(targetContext)
                 .asSequence()
-                .filterIsInstance<SettingsFragment>()
+                .filterIsInstance<PreferenceXmlSource>()
                 .map { it.preferenceResource }
                 .flatMap { getAttrsFromXml(targetContext, it, listOf("defaultValue", "key")) }
                 .filter { it["key"] != null }
@@ -134,7 +134,7 @@ class PrefsRobolectricTest : RobolectricTest() {
         val listPreferences =
             PreferenceTestUtils
                 .getAllPreferencesFragments(targetContext)
-                .filterIsInstance<SettingsFragment>()
+                .filterIsInstance<PreferenceXmlSource>()
                 .map { it.preferenceResource }
                 .flatMap { getAttrsFromXml(targetContext, it, listOf("key", "entryValues")) }
                 .filter { it["entryValues"] != null }

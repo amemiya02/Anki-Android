@@ -3,6 +3,7 @@
 package com.ichi2.compose.ui.dialogs
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -21,6 +22,9 @@ fun DialogField(
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    suffix: String? = null,
+    supportingText: String? = null,
 ) {
     val foundation = MaterialTheme.foundation
     OutlinedTextField(
@@ -36,6 +40,9 @@ fun DialogField(
                 unfocusedBorderColor = foundation.colors.onBackgroundMuted,
             ),
         keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        suffix = suffix?.let { { Text(it) } },
+        supportingText = supportingText?.let { { Text(it) } },
         singleLine = true,
     )
 }

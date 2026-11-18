@@ -8,12 +8,13 @@ import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.Spinner
-import android.widget.SpinnerAdapter
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.longClick
@@ -21,6 +22,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.core.app.ActivityCompat
@@ -32,20 +34,10 @@ import androidx.core.view.size
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.test.core.app.ActivityScenario
-import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.scrollCompletelyTo
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.matcher.ViewMatchers.isChecked
-import androidx.test.espresso.matcher.ViewMatchers.isNotChecked
-import androidx.test.espresso.matcher.ViewMatchers.isNotEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withSpinnerText
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.search.BrowserRow
@@ -74,6 +66,7 @@ import com.ichi2.anki.browser.FindAndReplaceDialogFragment.Companion.RESULT_REGE
 import com.ichi2.anki.browser.FindAndReplaceDialogFragment.Companion.RESULT_REPLACEMENT
 import com.ichi2.anki.browser.FindAndReplaceDialogFragment.Companion.RESULT_SEARCH
 import com.ichi2.anki.browser.FindAndReplaceDialogFragment.Companion.TAGS_AS_FIELD
+import com.ichi2.anki.browser.FindReplaceTestUi
 import com.ichi2.anki.browser.IdsFile
 import com.ichi2.anki.browser.column1
 import com.ichi2.anki.browser.selectRowAtPosition
@@ -119,13 +112,10 @@ import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.containsString
-import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.sameInstance
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.not
 import org.hamcrest.Matchers.nullValue
 import org.hamcrest.Matchers.startsWith
@@ -1317,133 +1307,94 @@ class CardBrowserTest : RobolectricTest() {
     @Test
     fun `FindReplace - dialog has expected ui at start`() {
         withBrowser {
-            showFindAndReplaceDialog()
-            // nothing selected so checkbox 'Only selected notes' is not available
-            onView(withId(R.id.only_selected_notes_check_box)).inRoot(isDialog()).check(matches(isNotEnabled()))
-            onView(withId(R.id.only_selected_notes_check_box)).inRoot(isDialog()).check(matches(isNotChecked()))
-            val fieldSelectorAdapter = getFindReplaceFieldsAdapter()
-            onView(withId(R.id.ignore_case_check_box)).inRoot(isDialog()).check(matches(isChecked()))
-            onView(withId(R.id.input_as_regex_check_box)).inRoot(isDialog()).check(matches(isNotChecked()))
-            // as nothing is selected the fields selector has only the two default options
-            assertNotNull(fieldSelectorAdapter, "Fields adapter was not set")
-            assertEquals(2, fieldSelectorAdapter.count)
-            assertEquals(
-                with(targetContext) { TR.sentenceCase.allFields },
-                fieldSelectorAdapter.getItem(0),
-            )
-            assertEquals(TR.editingTags(), fieldSelectorAdapter.getItem(1))
+            openFindAndReplace()
+            val dialog = FindReplaceTestUi(composeRule)
+            dialog.selectedNotes.assertIsOff().assertIsNotEnabled()
+            dialog.ignoreCase.assertIsOn()
+            dialog.regex.assertIsOff()
+            dialog.openFields()
+            assertEquals(listOf(TR.sentenceCase.allFields, TR.editingTags()), dialog.fieldNames())
         }
     }
 
     @Test
     fun `FindReplace - shows expected fields target based on browser selection`() {
-        fun SpinnerAdapter.getAdapterData(): List<String> =
-            mutableListOf<String>().apply {
-                for (position in 0 until count) {
-                    add(getItem(position) as String)
-                }
-            }
-
         createFindReplaceTestNote("A", "Car", "Lion")
         createFindReplaceTestNote("B", "Train", "Chicken")
         withBrowser {
             assertEquals(2, viewModel.rowCount)
             viewModel.selectRowAtPosition(1)
             openFindAndReplace()
-            var fieldSelectorAdapter = getFindReplaceFieldsAdapter()
-            // 2 default field options + 2 fields from the one note selected
-            assertEquals(4, fieldSelectorAdapter.count)
-            val defaultFields =
-                listOf(
-                    with(targetContext) { TR.sentenceCase.allFields },
-                    TR.editingTags(),
-                )
-            assertEquals(defaultFields + listOf("Bfield0", "Bfield1"), fieldSelectorAdapter.getAdapterData())
+            val dialog = FindReplaceTestUi(composeRule)
+            val defaultFields = listOf(TR.sentenceCase.allFields, TR.editingTags())
+            dialog.openFields()
+            assertEquals(defaultFields + listOf("Bfield0", "Bfield1"), dialog.fieldNames())
             closeFindAndReplace()
-            viewModel.selectAll() // 2 notes above
+
+            viewModel.selectAll()
             openFindAndReplace()
-            fieldSelectorAdapter = getFindReplaceFieldsAdapter()
-            // 2 default field options + 4 from the two notes
-            assertEquals(6, fieldSelectorAdapter.count)
-            assertEquals(defaultFields + listOf("Afield0", "Afield1", "Bfield0", "Bfield1"), fieldSelectorAdapter.getAdapterData())
+            dialog.openFields()
+            assertEquals(defaultFields + listOf("Afield0", "Afield1", "Bfield0", "Bfield1"), dialog.fieldNames())
             closeFindAndReplace()
-            viewModel.selectNone() // 2 notes above
+
+            viewModel.selectNone()
             openFindAndReplace()
-            fieldSelectorAdapter = getFindReplaceFieldsAdapter()
-            // selection is reset just 2 default field options
-            assertEquals(2, fieldSelectorAdapter.count)
-            assertEquals(defaultFields, fieldSelectorAdapter.getAdapterData())
+            dialog.openFields()
+            assertEquals(defaultFields, dialog.fieldNames())
             closeFindAndReplace()
         }
     }
 
     @Test
-    fun `FindReplace - dialog handles correctly match case checkbox set to true`() {
+    fun `FindReplace - dialog replaces both cases when Ignore case is checked`() {
         val note0 = createFindReplaceTestNote("A", "kchicKen", "kilogram")
         val note1 = createFindReplaceTestNote("A", "keK", "kontra")
         withBrowser {
             assertEquals(2, viewModel.rowCount)
             viewModel.selectRowAtPosition(0)
-            // by default 'match case' is set to false
             openFindAndReplace()
-            onView(withId(R.id.input_search)).inRoot(isDialog()).perform(ViewActions.typeText("k"))
-            onView(withId(R.id.input_replace)).inRoot(isDialog()).perform(ViewActions.typeText("X"))
-            onView(withId(R.id.input_as_regex_check_box)).inRoot(isDialog()).perform(scrollCompletelyTo())
-            onData(allOf(`is`(instanceOf(String::class.java)), `is`("Afield0")))
-                .inAdapterView(withId(R.id.fields_selector))
-                .perform(click())
-            onView(withId(R.id.fields_selector)).check(matches(withSpinnerText(containsString("Afield0"))))
-            onView(withId(R.id.ignore_case_check_box)).inRoot(isDialog()).check(matches(isChecked()))
-            // although the positive button exists, clicking it with Espresso doesn't work
-            //     onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(click())
-            // so simulate clicking the positive button by running the associated method directly
-            (supportFragmentManager.findFragmentByTag(FindAndReplaceDialogFragment.TAG) as FindAndReplaceDialogFragment)
-                .startFindReplace()
-            // clicking the positive button would have also closed the dialog
-            closeFindAndReplace()
+            val dialog = FindReplaceTestUi(composeRule)
+            dialog.enterText("k", "X")
+            dialog.openFields()
+            dialog.field("Afield0").performClick()
+            dialog.ignoreCase.assertIsOn()
+            dialog.confirm(getString(CommonString.dialog_positive_replace))
+            advanceRobolectricLooper()
+
             val colNote0 = withCol { getNote(note0.id) }
             val colNote1 = withCol { getNote(note1.id) }
             assertEquals("keK", colNote1.fields[0])
             assertEquals("kontra", colNote1.fields[1])
-            // didn't modify field 1
             assertEquals("kilogram", colNote0.fields[1])
-            // replaces both occurrences ignoring case
             assertEquals("XchicXen", colNote0.fields[0])
         }
     }
 
     @Test
-    fun `FindReplace - dialog handles correctly match case checkbox set to false`() {
+    fun `FindReplace - dialog replaces matching case only when Ignore case is unchecked`() {
         val note0 = createFindReplaceTestNote("A", "kchicKen", "kilogram")
         val note1 = createFindReplaceTestNote("A", "keK", "kontra")
         withBrowser {
             assertEquals(2, viewModel.rowCount)
             viewModel.selectRowAtPosition(1)
             openFindAndReplace()
-            onView(withId(R.id.input_search)).inRoot(isDialog()).perform(ViewActions.typeText("k"))
-            onView(withId(R.id.input_replace)).inRoot(isDialog()).perform(ViewActions.typeText("X"))
-            onView(withId(R.id.input_as_regex_check_box)).inRoot(isDialog()).perform(scrollCompletelyTo())
-            onData(allOf(`is`(instanceOf(String::class.java)), `is`("Afield0")))
-                .inAdapterView(withId(R.id.fields_selector))
-                .perform(click())
-            onView(withId(R.id.ignore_case_check_box)).inRoot(isDialog()).perform(scrollCompletelyTo())
-            onView(withId(R.id.ignore_case_check_box)).inRoot(isDialog()).check(matches(isChecked()))
-            onView(withId(R.id.ignore_case_check_box)).inRoot(isDialog()).perform(click())
-            onView(withId(R.id.ignore_case_check_box)).inRoot(isDialog()).check(matches(isNotChecked()))
-            // although the positive button exists, clicking it with Espresso doesn't work
-            //     onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(click())
-            // so simulate clicking the positive button by running the associated method directly
-            (supportFragmentManager.findFragmentByTag(FindAndReplaceDialogFragment.TAG) as FindAndReplaceDialogFragment)
-                .startFindReplace()
-            // clicking the positive button would have also closed the dialog
-            closeFindAndReplace()
+            val dialog = FindReplaceTestUi(composeRule)
+            dialog.enterText("k", "X")
+            dialog.openFields()
+            dialog.field("Afield0").performClick()
+            dialog.ignoreCase
+                .assertIsOn()
+                .performScrollTo()
+                .performClick()
+                .assertIsOff()
+            dialog.confirm(getString(CommonString.dialog_positive_replace))
+            advanceRobolectricLooper()
+
             val colNote0 = withCol { getNote(note0.id) }
             val colNote1 = withCol { getNote(note1.id) }
             assertEquals("kchicKen", colNote0.fields[0])
             assertEquals("kilogram", colNote0.fields[1])
-            // didn't modify field 1
             assertEquals("kontra", colNote1.fields[1])
-            // replaced only the proper case
             assertEquals("XeK", colNote1.fields[0])
         }
     }
@@ -1792,14 +1743,6 @@ class CardBrowserTest : RobolectricTest() {
         assertNotNull(findReplaceDialog, "Find and replace dialog is not available")
         findReplaceDialog.dismissNow()
         advanceRobolectricLooper()
-    }
-
-    private fun CardBrowser.getFindReplaceFieldsAdapter(): SpinnerAdapter {
-        val findReplaceDialog = supportFragmentManager.findFragmentByTag(FindAndReplaceDialogFragment.TAG) as? DialogFragment
-        assertNotNull(findReplaceDialog, "Find and replace dialog is not available")
-        val adapter = findReplaceDialog.dialog?.findViewById<Spinner>(R.id.fields_selector)?.adapter
-        assertNotNull(adapter, "Find and replace fields adapter is not available")
-        return adapter
     }
 
     fun NotetypeJson.addNote(

@@ -3,24 +3,27 @@
 package com.ichi2.anki.scheduling
 
 import android.os.Bundle
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.TextView
-import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
-import androidx.core.view.isVisible
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextReplacement
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.testing.launchFragment
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.textfield.TextInputLayout
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
-import com.ichi2.anki.RobolectricTest.Companion.advanceRobolectricLooper
 import com.ichi2.anki.browser.IdsFile
 import com.ichi2.anki.libanki.CardId
 import com.ichi2.anki.libanki.sched.SetDueDateDays
@@ -55,111 +58,104 @@ class SetDueDateDialogTest : RobolectricTest() {
     @get:Rule
     val composeRule = createEmptyComposeRule()
 
-    private val SetDueDateDialog.positiveButtonIsEnabled: Boolean
-        get() {
-            advanceRobolectricLooper()
-            return SemanticsProperties.Disabled !in
-                composeRule.onNodeWithText(getString(CommonString.dialog_ok)).fetchSemanticsNode().config
-        }
+    private val confirm get() = composeRule.onNodeWithText(getResourceString(CommonString.dialog_ok))
+    private val changeInterval get() = composeRule.onNodeWithText(getResourceString(CommonString.set_due_date_match_interval))
+    private val singleDay get() = composeRule.onNode(hasSetTextAction())
+    private val rangeStart get() =
+        composeRule.onNode(hasText(getResourceString(CommonString.set_due_date_range_start)) and hasSetTextAction())
+    private val rangeEnd get() = composeRule.onNode(hasText(getResourceString(CommonString.set_due_date_range_end)) and hasSetTextAction())
+
+    private fun select(tab: Tab) = composeRule.onNodeWithText(getResourceString(tab.text)).performClick().assertIsSelected()
 
     @Test
     fun `switch tabs`() =
         testDialog {
-            selectTab(0)
+            select(Tab.SINGLE_DAY)
             assertThat(viewModel.currentTab, equalTo(Tab.SINGLE_DAY))
-            selectTab(1)
+            select(Tab.DATE_RANGE)
             assertThat(viewModel.currentTab, equalTo(Tab.DATE_RANGE))
         }
 
     @Test
     fun `initial suffix is set`() =
         testDialog {
-            selectTab(0)
-            assertThat(singleDayTextLayout.suffixText, equalTo("days"))
-            selectTab(1)
-            assertThat(dateRangeStartLayout.suffixText, equalTo("days"))
-            assertThat(dateRangeEndLayout.suffixText, equalTo("days"))
+            select(Tab.SINGLE_DAY)
+            composeRule.onAllNodesWithText("days", useUnmergedTree = true).assertCountEquals(1)
+            select(Tab.DATE_RANGE)
+            composeRule.onAllNodesWithText("days", useUnmergedTree = true).assertCountEquals(2)
         }
 
     @Test
     fun `set single day`() =
         testDialog {
-            selectTab(0)
-            assertThat(positiveButtonIsEnabled, equalTo(false))
-            singleDayText.setText("1")
-            assertThat(positiveButtonIsEnabled, equalTo(true))
+            confirm.assertIsNotEnabled()
+            singleDay.performTextReplacement("1")
+            confirm.assertIsEnabled()
         }
 
     @Test
     fun `set date range`() =
         testDialog {
-            selectTab(1)
-            assertThat(positiveButtonIsEnabled, equalTo(false))
-            dateRangeStart.setText("1")
-            dateRangeEnd.setText("5")
-            assertThat(positiveButtonIsEnabled, equalTo(true))
+            select(Tab.DATE_RANGE)
+            confirm.assertIsNotEnabled()
+            rangeStart.performTextReplacement("1")
+            rangeEnd.performTextReplacement("5")
+            confirm.assertIsEnabled()
         }
 
     @Test
     fun `set update interval`() =
         testDialog {
             assertThat(viewModel.updateIntervalToMatchDueDate, equalTo(false))
-            changeInterval.isChecked = true
+            changeInterval.performScrollTo().performClick()
             assertThat(viewModel.updateIntervalToMatchDueDate, equalTo(true))
         }
 
     @Test
     fun `singular text`() =
         testDialog(cardCount = 1) {
-            selectTab(0)
-            assertThat(dateSingleLabel.text, equalTo("Show card in"))
-            selectTab(1)
-            assertThat(dateRangeLabel.text, equalTo("Show card in range"))
+            singleDay.assertTextContains("Show card in")
+            select(Tab.DATE_RANGE)
+            composeRule.onNodeWithText("Show card in range").assertIsDisplayed()
         }
 
     @Test
     fun `plural text`() =
         testDialog(cardCount = 2) {
-            selectTab(0)
-            assertThat(dateSingleLabel.text, equalTo("Show cards in"))
-            selectTab(1)
-            assertThat(dateRangeLabel.text, equalTo("Show cards in range"))
+            singleDay.assertTextContains("Show cards in")
+            select(Tab.DATE_RANGE)
+            composeRule.onNodeWithText("Show cards in range").assertIsDisplayed()
         }
 
     @Test
     fun `integration test`() =
         testDialog {
             assertThat(viewModel.updateIntervalToMatchDueDate, equalTo(false))
-            selectTab(1)
-            dateRangeStart.setText("1")
-            dateRangeEnd.setText("2")
-            changeInterval.isChecked = true
-
+            select(Tab.DATE_RANGE)
+            rangeStart.performTextReplacement("1")
+            rangeEnd.performTextReplacement("2")
+            changeInterval.performScrollTo().performClick()
             assertThat(viewModel.calculateDaysParameter(), equalTo(SetDueDateDays("1-2!")))
         }
 
     @Test
     fun `single day input limited to 5 digits`() =
         testDialog {
-            selectTab(0)
-            singleDayText.setText("123456")
-            assertThat(singleDayText.text.toString(), equalTo("12345"))
+            singleDay.performTextReplacement("123456").assertTextContains("12345")
         }
 
     @Test
     fun `range start input limited to 5 digits`() =
         testDialog {
-            selectTab(1)
-            dateRangeStart.setText("123456")
-            assertThat(dateRangeStart.text.toString(), equalTo("12345"))
+            select(Tab.DATE_RANGE)
+            rangeStart.performTextReplacement("123456").assertTextContains("12345")
         }
 
     @Test
     fun `range end input limited to 5 digits`() =
         testDialog {
-            selectTab(1)
-            dateRangeEnd.setText("123456")
-            assertThat(dateRangeEnd.text.toString(), equalTo("12345"))
+            select(Tab.DATE_RANGE)
+            rangeEnd.performTextReplacement("123456").assertTextContains("12345")
         }
 
     @Test
@@ -301,7 +297,7 @@ class SetDueDateDialogTest : RobolectricTest() {
                 val dialog = assertNotNull(activity.currentDialog)
                 assertEquals(secondCardIds, dialog.cardIds)
                 assertTrue(dialog.requireDialog().isShowing)
-                assertTrue(dialog.changeInterval.isVisible)
+                changeInterval.performScrollTo().assertIsDisplayed()
                 assertFalse(dialog.viewModel.fsrsEnabled.value!!)
             }
         }
@@ -313,18 +309,19 @@ class SetDueDateDialogTest : RobolectricTest() {
                 SetDueDateDialog.show(activity, cardIds)
                 advanceRobolectricLooper()
                 val dialog = assertNotNull(activity.currentDialog)
-                dialog.singleDayText.setText("3")
-                assertFalse(dialog.positiveButtonIsEnabled, "cannot save before the scheduler setting is loaded")
-                assertFalse(dialog.changeInterval.isVisible)
-                assertNull(dialog.viewModel.updateDueDateAsync().await(), "keyboard submission cannot save while loading")
+                singleDay.performTextReplacement("3")
+                confirm.assertIsNotEnabled()
+                changeInterval.assertDoesNotExist()
+                singleDay.performImeAction()
+                assertEquals(dialog, activity.currentDialog, "keyboard submission cannot save while loading")
 
                 finishLoading.complete(Unit)
                 advanceUntilIdle()
                 advanceRobolectricLooper()
 
-                assertTrue(dialog.positiveButtonIsEnabled)
-                assertEquals(fsrsEnabled != true, dialog.changeInterval.isVisible)
-                assertEquals(fsrsEnabled == true, dialog.changeInterval.isChecked)
+                confirm.assertIsEnabled()
+                if (fsrsEnabled == true) changeInterval.assertDoesNotExist() else changeInterval.performScrollTo().assertIsDisplayed()
+                assertEquals(fsrsEnabled == true, dialog.viewModel.updateIntervalToMatchDueDate)
                 assertEquals(SetDueDateDays(if (fsrsEnabled == true) "3!" else "3"), dialog.viewModel.calculateDaysParameter())
             }
         }
@@ -384,56 +381,7 @@ class SetDueDateDialogTest : RobolectricTest() {
         }.use { scenario ->
             scenario.moveToState(Lifecycle.State.RESUMED)
             advanceRobolectricLooper()
-            scenario.onFragment {
-                action(it)
-            }
+            action(dialog)
         }
     }
 }
-
-/**
- * Selects a tab by index
- *
- * @throws IllegalArgumentException if index is invalid
- */
-fun TabLayout.selectTab(index: Int) =
-    requireNotNull(getTabAt(index))
-        { "Tab $index not found" }
-        .also { tab -> selectTab(tab) }
-
-/**
- * Selects a tab by index, and waits for the [androidx.viewpager2.adapter.FragmentStateAdapter]
- * to attach the page's fragment view to the dialog's view hierarchy.
- */
-fun SetDueDateDialog.selectTab(index: Int) {
-    val viewPager = dialog!!.findViewById<ViewPager2>(R.id.set_due_date_pager)
-    viewPager.setCurrentItem(index, false)
-    // FragmentStateAdapter attaches fragments asynchronously via the main looper
-    advanceRobolectricLooper()
-}
-
-val SetDueDateDialog.singleDayTextLayout: TextInputLayout get() =
-    dialog!!.findViewById(R.id.set_due_date_single_day_input_layout)
-
-val SetDueDateDialog.singleDayText: EditText get() = singleDayTextLayout.editText!!
-
-val SetDueDateDialog.dateRangeStartLayout: TextInputLayout get() =
-    dialog!!.findViewById(R.id.date_range_start_layout)
-
-val SetDueDateDialog.dateRangeStart: EditText get() =
-    dateRangeStartLayout.editText!!
-
-val SetDueDateDialog.dateRangeEndLayout: TextInputLayout get() =
-    dialog!!.findViewById(R.id.date_range_end_layout)
-
-val SetDueDateDialog.dateRangeEnd: EditText get() =
-    dateRangeEndLayout.editText!!
-
-val SetDueDateDialog.changeInterval: CheckBox get() =
-    dialog!!.findViewById(R.id.change_interval)!!
-
-val SetDueDateDialog.dateRangeLabel: TextView get() =
-    dialog!!.findViewById(R.id.date_range_label)
-
-val SetDueDateDialog.dateSingleLabel: TextView get() =
-    dialog!!.findViewById(R.id.date_single_label)

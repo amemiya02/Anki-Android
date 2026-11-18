@@ -2,21 +2,26 @@
 
 package com.ichi2.anki.browser
 
-import android.content.Context
 import android.os.Bundle
-import android.widget.Spinner
-import android.widget.SpinnerAdapter
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextReplacement
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.text.HtmlCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.testing.FragmentScenario
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.isChecked
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
-import androidx.test.espresso.matcher.ViewMatchers.isNotChecked
-import androidx.test.espresso.matcher.ViewMatchers.isNotEnabled
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
@@ -27,6 +32,7 @@ import com.ichi2.anki.ui.internationalization.sentenceCase
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -36,6 +42,10 @@ import com.ichi2.anki.common.android.R as CommonR
 
 @RunWith(AndroidJUnit4::class)
 class FindAndReplaceDialogFragmentTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+    private val dialog get() = FindReplaceTestUi(compose)
+
     @Test
     fun `missing selection dismisses find and replace`() = assertUnavailableSelection { assertTrue(delete()) }
 
@@ -63,87 +73,48 @@ class FindAndReplaceDialogFragmentTest : RobolectricTest() {
 
     @Test
     fun `with no selected notes 'only selected notes' check box is not actionable`() =
-        runTest {
-            onFindReplaceFragment(emptyList()) {
-                // nothing selected so checkbox 'Only selected notes' should be unchecked and not enabled
-                onView(withId(R.id.only_selected_notes_check_box))
-                    .inRoot(isDialog())
-                    .check(matches(isNotEnabled()))
-                onView(withId(R.id.only_selected_notes_check_box))
-                    .inRoot(isDialog())
-                    .check(matches(isNotChecked()))
-                onView(withId(R.id.ignore_case_check_box))
-                    .inRoot(isDialog())
-                    .check(matches(isChecked()))
-                // using input as regex is not checked at start
-                onView(withId(R.id.input_as_regex_check_box))
-                    .inRoot(isDialog())
-                    .check(matches(isNotChecked()))
-                // as nothing is selected the target selector has only the two default options
-                assertThat(adapter.items, equalTo(targetContext.getDefaultTargets()))
-            }
+        withFindReplace(emptyList()) {
+            dialog.selectedNotes.assertIsOff().assertIsNotEnabled()
+            dialog.ignoreCase.assertIsOn()
+            dialog.regex.assertIsOff()
+            dialog.openFields()
+            assertThat(dialog.fieldNames(), equalTo(defaultTargets))
         }
 
     @Test
-    fun `shows expected find-replace targets for selected notes`() =
-        runTest {
-            val n1 = createFindReplaceTestNote("A", "Car", "Lion")
-            val n2 = createFindReplaceTestNote("B", "Train", "Chicken")
-            createFindReplaceTestNote("C", "Plane", "Vulture")
-            onFindReplaceFragment(listOf(n1.id, n2.id)) {
-                // 2 default field options + 4 fields(2 from each of the two notes selected above)
-                // see createFindReplaceTestNote for test field names
-                val allTargets =
-                    targetContext.getDefaultTargets() +
-                        listOf("Afield0", "Afield1", "Bfield0", "Bfield1")
-                assertThat(adapter.items, equalTo(allTargets))
-            }
+    fun `shows expected find-replace targets for selected notes`() {
+        val n1 = createFindReplaceTestNote("A", "Car", "Lion")
+        val n2 = createFindReplaceTestNote("B", "Train", "Chicken")
+        createFindReplaceTestNote("C", "Plane", "Vulture")
+        withFindReplace(listOf(n1.id, n2.id)) {
+            dialog.openFields()
+            val allTargets = defaultTargets + listOf("Afield0", "Afield1", "Bfield0", "Bfield1")
+            assertThat(dialog.fieldNames(), equalTo(allTargets))
         }
+    }
 
     // see #19929
     @Test
-    fun `'selected notes only' status is correct after fragment restore`() =
-        runTest {
-            val note = createFindReplaceTestNote("A", "kart", "kilogram")
-            val file = IdsFile(targetContext.cacheDir, listOf(note.id), IdsFile.Purpose.PREVIEW)
-            FragmentScenario
-                .launch(
-                    fragmentClass = FindAndReplaceDialogFragment::class.java,
-                    fragmentArgs = Bundle().apply { putParcelable(FindAndReplaceDialogFragment.ARG_IDS, file) },
-                    themeResId = CommonR.style.Theme_Light,
-                ).use { scenario ->
-                    scenario.onFragment { fragment ->
-                        advanceUntilIdle()
-                        onView(withId(R.id.only_selected_notes_check_box))
-                            .inRoot(isDialog())
-                            .check(matches(isEnabled()))
-                        onView(withId(R.id.only_selected_notes_check_box))
-                            .inRoot(isDialog())
-                            .check(matches(isChecked()))
-                        // 2 default field options + 2 fields from the only note selected
-                        val allTargets =
-                            targetContext.getDefaultTargets() + listOf("Afield0", "Afield1")
-                        assertThat(fragment.adapter.items, equalTo(allTargets))
-                    }
-                    scenario.recreate()
-                    scenario.onFragment { fragment ->
-                        advanceUntilIdle()
-                        onView(withId(R.id.only_selected_notes_check_box))
-                            .inRoot(isDialog())
-                            .check(matches(isEnabled()))
-                        onView(withId(R.id.only_selected_notes_check_box))
-                            .inRoot(isDialog())
-                            .check(matches(isChecked()))
-                        // check that the target list from before the recreate call wasn't reset
-                        val allTargets = targetContext.getDefaultTargets() + listOf("Afield0", "Afield1")
-                        assertThat(fragment.adapter.items, equalTo(allTargets))
-                    }
-                }
-        }
+    fun `'selected notes only' status is correct after fragment restore`() {
+        val note = createFindReplaceTestNote("A", "kart", "kilogram")
+        withFindReplace(listOf(note.id)) { scenario ->
+            val allTargets = defaultTargets + listOf("Afield0", "Afield1")
+            dialog.selectedNotes.assertIsOn().assertIsEnabled()
+            dialog.openFields()
+            assertThat(dialog.fieldNames(), equalTo(allTargets))
+            dialog.field("Afield0").performClick()
 
-    private fun onFindReplaceFragment(
+            scenario.recreate()
+
+            dialog.selectedNotes.assertIsOn().assertIsEnabled()
+            dialog.openFields()
+            assertThat(dialog.fieldNames(), equalTo(allTargets))
+        }
+    }
+
+    private fun withFindReplace(
         noteIds: List<NoteId>,
-        action: FindAndReplaceDialogFragment.() -> Unit,
+        action: (FragmentScenario<FindAndReplaceDialogFragment>) -> Unit,
     ) {
         val file = IdsFile(targetContext.cacheDir, noteIds, IdsFile.Purpose.PREVIEW)
         FragmentScenario
@@ -151,7 +122,10 @@ class FindAndReplaceDialogFragmentTest : RobolectricTest() {
                 fragmentClass = FindAndReplaceDialogFragment::class.java,
                 fragmentArgs = Bundle().apply { putParcelable(FindAndReplaceDialogFragment.ARG_IDS, file) },
                 themeResId = CommonR.style.Theme_Light,
-            ).use { scenario -> scenario.onFragment { fragment -> fragment.action() } }
+            ).use { scenario ->
+                advanceRobolectricLooper()
+                action(scenario)
+            }
     }
 
     /**
@@ -171,20 +145,34 @@ class FindAndReplaceDialogFragmentTest : RobolectricTest() {
         return addNoteUsingNoteTypeName(notetypeName, field0, field1)
     }
 
-    val FindAndReplaceDialogFragment.adapter: SpinnerAdapter
-        get() = dialog!!.findViewById<Spinner>(R.id.fields_selector).adapter as SpinnerAdapter
+    private val defaultTargets get() = listOf(with(targetContext) { TR.sentenceCase.allFields }, TR.editingTags())
+}
 
-    private val SpinnerAdapter.items: List<String>
-        get() =
-            mutableListOf<String>().apply {
-                for (position in 0 until count) {
-                    add(getItem(position) as String)
-                }
-            }
+internal class FindReplaceTestUi(
+    private val compose: SemanticsNodeInteractionsProvider,
+) {
+    private val fieldRole = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton)
 
-    private fun Context.getDefaultTargets() =
-        listOf(
-            with(this) { TR.sentenceCase.allFields },
-            TR.editingTags(),
-        )
+    val ignoreCase get() = compose.onNodeWithText(TR.browsingIgnoreCase())
+    val selectedNotes get() = compose.onNodeWithText(TR.browsingSelectedNotesOnly())
+    val regex get() = compose.onNodeWithText(TR.browsingTreatInputAsRegularExpression())
+
+    fun openFields() = compose.onNodeWithText(label(TR.browsingIn())).performScrollTo().performClick()
+
+    fun fieldNames(): List<String> =
+        compose.onAllNodes(fieldRole).fetchSemanticsNodes().map { node -> node.config[SemanticsProperties.Text].single().text }
+
+    fun field(name: String) = compose.onNode(hasText(name) and fieldRole)
+
+    fun enterText(
+        search: String,
+        replacement: String,
+    ) {
+        compose.onNode(hasText(label(TR.browsingFind())) and hasSetTextAction()).performTextReplacement(search)
+        compose.onNode(hasText(label(TR.browsingReplaceWith())) and hasSetTextAction()).performTextReplacement(replacement)
+    }
+
+    fun confirm(text: String) = compose.onNodeWithText(text).performClick()
+
+    private fun label(html: String) = HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
 }

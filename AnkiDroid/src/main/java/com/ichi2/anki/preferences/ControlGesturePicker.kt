@@ -99,7 +99,7 @@ internal fun GesturePad(
             .aspectRatio(1f)
             .semantics { contentDescription = description }
             .onSizeChanged { size = it }
-            .pointerInteropFilter(detector::onTouchEvent),
+            .pointerInteropFilter(onTouchEvent = detector::onTouchEvent),
     ) {
         drawRect(
             colors.outline,

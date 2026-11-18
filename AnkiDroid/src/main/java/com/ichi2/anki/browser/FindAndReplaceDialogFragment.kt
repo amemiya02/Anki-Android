@@ -4,24 +4,22 @@ package com.ichi2.anki.browser
 
 import android.app.Dialog
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import androidx.annotation.VisibleForTesting
-import androidx.annotation.VisibleForTesting.Companion.PRIVATE
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.text.HtmlCompat
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
-import androidx.lifecycle.lifecycleScope
 import com.ichi2.anki.CardBrowser
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
@@ -35,9 +33,10 @@ import com.ichi2.anki.browser.FindAndReplaceDialogFragment.Companion.RESULT_ONLY
 import com.ichi2.anki.browser.FindAndReplaceDialogFragment.Companion.RESULT_REGEX
 import com.ichi2.anki.browser.FindAndReplaceDialogFragment.Companion.RESULT_REPLACEMENT
 import com.ichi2.anki.browser.FindAndReplaceDialogFragment.Companion.RESULT_SEARCH
-import com.ichi2.anki.databinding.FragmentFindReplaceBinding
 import com.ichi2.anki.libanki.NoteId
 import com.ichi2.anki.notetype.ManageNotetypes
+import com.ichi2.anki.preferences.SettingsChevron
+import com.ichi2.anki.preferences.SettingsRow
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.requireParcelable
@@ -45,9 +44,12 @@ import com.ichi2.anki.utils.ext.setFragmentResultListener
 import com.ichi2.anki.utils.openUrl
 import com.ichi2.compose.ui.dialogs.DialogAction
 import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.DialogChoiceRow
+import com.ichi2.compose.ui.dialogs.DialogField
 import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
 import com.ichi2.compose.ui.dialogs.createPaperDialog
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
@@ -62,124 +64,144 @@ import timber.log.Timber
  */
 // TODO desktop offers history for inputs
 class FindAndReplaceDialogFragment : AnalyticsDialogFragment() {
-    private lateinit var binding: FragmentFindReplaceBinding
-    private var ready by mutableStateOf(false)
-
     private val idsFile: IdsFile by lazy {
         requireArguments().requireParcelable(ARG_IDS)
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        binding = FragmentFindReplaceBinding.inflate(layoutInflater)
-        setupLabels()
-        val title = TR.sentenceCase.findAndReplace
-        return createPaperDialog(requireContext()) {
-            PaperDialog(
-                title = title,
-                onDismissRequest = ::dismiss,
-                scrollContent = false,
-                actions =
-                    listOf(
-                        DialogAction(getString(CommonString.help), {
-                            dismiss()
-                            openUrl(R.string.link_manual_browser_find_replace)
-                        }),
-                        DialogAction(getString(CommonString.dialog_cancel), {
-                            removeIdsFile()
-                            dismiss()
-                        }),
-                        DialogAction(getString(CommonString.dialog_positive_replace), {
-                            startFindReplace()
-                            dismiss()
-                        }, DialogActionStyle.Filled, enabled = ready),
-                    ),
-            ) {
-                AndroidView(factory = { binding.root }, modifier = Modifier.fillMaxWidth().heightIn(max = 480.dp))
-            }
-        }
-    }
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog = createPaperDialog(requireContext()) { FindAndReplaceContent() }
 
-    // TODO maybe get rid of the html tags that come with the backend strings and handle the
-    //  sentence case for TR.browsingReplaceWith()
-    private fun setupLabels() {
-        binding.labelFind.text =
-            HtmlCompat.fromHtml(TR.browsingFind(), HtmlCompat.FROM_HTML_MODE_LEGACY)
-        binding.labelReplace.text =
-            HtmlCompat.fromHtml(TR.browsingReplaceWith(), HtmlCompat.FROM_HTML_MODE_LEGACY)
-        binding.labelIn.text =
-            HtmlCompat.fromHtml(TR.browsingIn(), HtmlCompat.FROM_HTML_MODE_LEGACY)
-        binding.onlySelectedNotesCheckBox.text = TR.browsingSelectedNotesOnly()
-        binding.ignoreCaseCheckBox.text = TR.browsingIgnoreCase()
-        binding.inputAsRegexCheckBox.text = TR.browsingTreatInputAsRegularExpression()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        lifecycleScope.launch {
-            ready = false
-            binding.contentViewsGroup.isVisible = false
-            binding.loadingViewsGroup.isVisible = true
+    @Composable
+    private fun FindAndReplaceContent() {
+        val selection by produceState<Selection?>(null) {
             val noteIds = runCatching { idsFile.getIdsOrNull() }.getOrNull()
             if (noteIds == null) {
                 requireActivity().showSnackbar(CommonString.something_wrong)
                 dismiss()
-                return@launch
+            } else {
+                val choices =
+                    buildList {
+                        add(FieldChoice(ALL_FIELDS_AS_FIELD, TR.sentenceCase.allFields))
+                        add(FieldChoice(TAGS_AS_FIELD, TR.editingTags()))
+                        addAll(withCol { fieldNamesForNoteIds(noteIds) }.map { FieldChoice(it, it) })
+                    }
+                value = Selection(noteIds.isNotEmpty(), choices)
             }
-            binding.onlySelectedNotesCheckBox.isChecked = noteIds.isNotEmpty()
-            binding.onlySelectedNotesCheckBox.isEnabled = noteIds.isNotEmpty()
-            val fieldsNames =
-                buildList {
-                    add(TR.sentenceCase.allFields)
-                    add(TR.editingTags())
-                    addAll(withCol { fieldNamesForNoteIds(noteIds) })
-                }
-            binding.fieldsSelector.adapter =
-                ArrayAdapter(
-                    requireActivity(),
-                    android.R.layout.simple_spinner_item,
-                    fieldsNames,
-                ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
-            binding.loadingViewsGroup.isVisible = false
-            binding.contentViewsGroup.isVisible = true
-            ready = true
+        }
+        val loaded = selection
+        var search by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
+        var replacement by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
+        var selectedField by rememberSaveable { mutableStateOf(ALL_FIELDS_AS_FIELD) }
+        var selectedOnlyOverride by rememberSaveable { mutableStateOf<Boolean?>(null) }
+        var ignoreCase by rememberSaveable { mutableStateOf(true) }
+        var regex by rememberSaveable { mutableStateOf(false) }
+        var choosingField by rememberSaveable { mutableStateOf(false) }
+        val selectedOnly = loaded?.hasSelectedNotes == true && selectedOnlyOverride != false
+        val field = loaded?.fields?.firstOrNull { it.key == selectedField }
+        val fieldLabel = HtmlCompat.fromHtml(TR.browsingIn(), HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
+        BackHandler(choosingField) { choosingField = false }
+
+        if (choosingField && loaded != null) {
+            SingleChoiceDialog(
+                title = fieldLabel,
+                choices = loaded.fields.map { DialogChoice(it.label) },
+                selectedIndex = loaded.fields.indexOfFirst { it.key == selectedField }.takeIf { it >= 0 },
+                onSelect = {
+                    selectedField = loaded.fields[it].key
+                    choosingField = false
+                },
+                onDismissRequest = { choosingField = false },
+            )
+            return
+        }
+
+        PaperDialog(
+            title = TR.sentenceCase.findAndReplace,
+            onDismissRequest = ::dismiss,
+            actions =
+                listOf(
+                    DialogAction(getString(CommonString.help), {
+                        dismiss()
+                        openUrl(R.string.link_manual_browser_find_replace)
+                    }),
+                    DialogAction(getString(CommonString.dialog_cancel), ::dismiss),
+                    DialogAction(
+                        getString(CommonString.dialog_positive_replace),
+                        {
+                            if (field != null && search.text.isNotEmpty()) {
+                                submit(FindReplaceResult(search.text, replacement.text, field.key, selectedOnly, !ignoreCase, regex))
+                                dismiss()
+                            }
+                        },
+                        DialogActionStyle.Filled,
+                        enabled = field != null && search.text.isNotEmpty(),
+                    ),
+                ),
+        ) {
+            if (loaded == null || field == null) {
+                CircularProgressIndicator()
+            } else {
+                DialogField(
+                    label = HtmlCompat.fromHtml(TR.browsingFind(), HtmlCompat.FROM_HTML_MODE_LEGACY).toString(),
+                    value = search,
+                    onValueChange = { search = it },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                )
+                DialogField(
+                    label = HtmlCompat.fromHtml(TR.browsingReplaceWith(), HtmlCompat.FROM_HTML_MODE_LEGACY).toString(),
+                    value = replacement,
+                    onValueChange = { replacement = it },
+                )
+                SettingsRow(
+                    title = fieldLabel,
+                    value = field.label,
+                    onClick = { choosingField = true },
+                    trailing = { SettingsChevron() },
+                )
+                DialogChoiceRow(
+                    DialogChoice(TR.browsingSelectedNotesOnly(), enabled = loaded.hasSelectedNotes),
+                    selectedOnly,
+                    { selectedOnlyOverride = !selectedOnly },
+                    multiple = true,
+                )
+                DialogChoiceRow(DialogChoice(TR.browsingIgnoreCase()), ignoreCase, { ignoreCase = !ignoreCase }, multiple = true)
+                DialogChoiceRow(
+                    DialogChoice(TR.browsingTreatInputAsRegularExpression()),
+                    regex,
+                    { regex = !regex },
+                    multiple = true,
+                )
+            }
         }
     }
 
-    // https://github.com/ankitects/anki/blob/64ca90934bc26ddf7125913abc9dd9de8cb30c2b/qt/aqt/browser/find_and_replace.py#L118
-    @VisibleForTesting(otherwise = PRIVATE)
-    fun startFindReplace() {
-        val search = binding.inputSearch.text
-        val replacement = binding.inputReplace.text
-        if (search.isNullOrEmpty() || replacement == null) return
-        val onlyInSelectedNotes = binding.onlySelectedNotesCheckBox.isChecked
-        val ignoreCase = binding.ignoreCaseCheckBox.isChecked
-        val inputAsRegex = binding.inputAsRegexCheckBox.isChecked
-        val selectedField =
-            when (binding.fieldsSelector.selectedItemPosition) {
-                AdapterView.INVALID_POSITION -> return
-                0 -> ALL_FIELDS_AS_FIELD
-                1 -> TAGS_AS_FIELD
-                else -> binding.fieldsSelector.selectedItem as? String ?: return
-            }
-        removeIdsFile()
+    private data class FieldChoice(
+        val key: String,
+        val label: String,
+    )
+
+    private data class Selection(
+        val hasSelectedNotes: Boolean,
+        val fields: List<FieldChoice>,
+    )
+
+    private fun submit(result: FindReplaceResult) {
         Timber.i("Sending request to find and replace...")
         setFragmentResult(
             REQUEST_FIND_AND_REPLACE,
             Bundle().apply {
-                putString(RESULT_SEARCH, search.toString())
-                putString(RESULT_REPLACEMENT, replacement.toString())
-                putString(RESULT_FIELD, selectedField)
-                putBoolean(RESULT_ONLY_SELECTED_NOTES, onlyInSelectedNotes)
-                // "Ignore case" checkbox text => when it's checked we pass false to the backend
-                putBoolean(RESULT_MATCH_CASE, !ignoreCase)
-                putBoolean(RESULT_REGEX, inputAsRegex)
+                putString(RESULT_SEARCH, result.search)
+                putString(RESULT_REPLACEMENT, result.replacement)
+                putString(RESULT_FIELD, result.field)
+                putBoolean(RESULT_ONLY_SELECTED_NOTES, result.onlyOnSelectedNotes)
+                putBoolean(RESULT_MATCH_CASE, result.matchCase)
+                putBoolean(RESULT_REGEX, result.regex)
             },
         )
     }
 
-    /** Attempt to delete the associated [IdsFile] and logs the result */
-    private fun removeIdsFile() {
-        idsFile.removeSafely(TAG)
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        if (activity?.isChangingConfigurations != true) idsFile.removeSafely(TAG)
     }
 
     companion object {

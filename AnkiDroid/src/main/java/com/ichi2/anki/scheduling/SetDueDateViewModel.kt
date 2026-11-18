@@ -45,6 +45,7 @@ class SetDueDateViewModel : ViewModel() {
 
     /** The cards to change the due date of */
     lateinit var cardIds: List<CardId>
+    internal val hasCards get() = ::cardIds.isInitialized
 
     /** Whether FSRS is enabled, or `null` while the scheduler setting is loading. */
     val fsrsEnabled: StateFlow<Boolean?>

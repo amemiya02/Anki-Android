@@ -4,37 +4,56 @@ package com.ichi2.anki.scheduling
 
 import android.app.Dialog
 import android.content.DialogInterface
-import android.content.res.Configuration
 import android.os.Bundle
-import android.text.InputFilter
-import android.view.KeyEvent
-import android.view.View
 import android.view.WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
 import android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-import android.view.inputmethod.EditorInfo
-import android.widget.EditText
 import androidx.annotation.CheckResult
 import androidx.annotation.MainThread
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
-import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonPlurals
 import com.ichi2.anki.CommonString
@@ -44,9 +63,6 @@ import com.ichi2.anki.asyncCatching
 import com.ichi2.anki.browser.IdsFile
 import com.ichi2.anki.browser.removeSafely
 import com.ichi2.anki.common.utils.android.showThemedToast
-import com.ichi2.anki.databinding.DialogSetDueDateBinding
-import com.ichi2.anki.databinding.FragmentSetDueDateRangeBinding
-import com.ichi2.anki.databinding.FragmentSetDueDateSingleBinding
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.CardId
 import com.ichi2.anki.libanki.sched.Scheduler
@@ -54,19 +70,21 @@ import com.ichi2.anki.scheduling.SetDueDateViewModel.Tab
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.doOnImeHidden
-import com.ichi2.anki.utils.ext.collectInLifecycle
 import com.ichi2.anki.utils.ext.requireParcelable
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.utils.openUrl
 import com.ichi2.anki.withProgress
+import com.ichi2.compose.theme.foundation
 import com.ichi2.compose.ui.dialogs.DialogAction
 import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogBody
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.DialogChoiceRow
+import com.ichi2.compose.ui.dialogs.DialogDetail
+import com.ichi2.compose.ui.dialogs.DialogField
 import com.ichi2.compose.ui.dialogs.PaperDialog
 import com.ichi2.compose.ui.dialogs.createPaperDialog
-import com.ichi2.utils.AndroidUiUtils
-import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
@@ -84,14 +102,8 @@ class SetDueDateDialog : AnalyticsDialogFragment() {
     //  (... easier to consider as a nebulous range than a deadline)
     // (3) If the interval is changed, it will be set to a number of days, not a date.
     // (4) Inconsistent with Anki Desktop
-    // TODO: This does not handle configuration changes on some EditTexts [screen rotate/night mode]
 
     val viewModel: SetDueDateViewModel by activityViewModels<SetDueDateViewModel>()
-
-    private lateinit var binding: DialogSetDueDateBinding
-
-    // used to determine if a rotation has taken place
-    private var initialRotation: Int = 0
 
     val cardIds: List<Long>?
         get() = requireArguments().requireParcelable<IdsFile>(ARG_IDS_FILE).getIdsOrNull()
@@ -113,18 +125,6 @@ class SetDueDateDialog : AnalyticsDialogFragment() {
 
         viewModel.init(cardIds)
         Timber.d("Set due date dialog: %d card(s)", cardIds.size)
-        this.initialRotation = getScreenRotation()
-
-        childFragmentManager.setFragmentResultListener(REQUEST_SUBMIT_DUE_DATE, this) { _, _ ->
-            Timber.i(REQUEST_SUBMIT_DUE_DATE)
-            requireActivity().launchCatchingTask {
-                if (launchUpdateDueDate(showError = false).await() == null) {
-                    Timber.w("unsuccessful updating dates; not dismissing dialog")
-                    return@launchCatchingTask
-                }
-                dismiss()
-            }
-        }
     }
 
     override fun onDismiss(dialog: DialogInterface) {
@@ -144,122 +144,128 @@ class SetDueDateDialog : AnalyticsDialogFragment() {
         }
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        // HACK: After significant effort, I was unable to properly handle the interaction
-        // between the ViewPager and `android:configChanges="orientation"`
-        // (the window size & position was incorrectly calculated)
-
-        // There was a minor bug in Reviewer (timer is reset), which meant that
-        // generally we could not remove the configChanges
-        // For now, only recreate the activity if this dialog is open
-        if (getScreenRotation() != initialRotation) {
-            Timber.d("recreating activity: orientation changed with 'Set due date' open")
-            requireActivity().recreate()
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+        createPaperDialog(requireContext()) { DueDateContent() }.apply {
+            window?.clearFlags(FLAG_NOT_FOCUSABLE or FLAG_ALT_FOCUSABLE_IM)
         }
-    }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        binding = DialogSetDueDateBinding.inflate(layoutInflater)
-        val title = TR.sentenceCase.setDueDate
-        return createPaperDialog(requireContext()) {
-            val valid by viewModel.isValidFlow.collectAsState()
-            PaperDialog(
-                title = title,
-                onDismissRequest = ::dismiss,
-                scrollContent = false,
-                actions =
-                    listOf(
-                        DialogAction(getString(CommonString.help), { openUrl(R.string.link_set_due_date_help) }),
-                        DialogAction(getString(CommonString.dialog_cancel), ::dismiss),
-                        DialogAction(getString(CommonString.dialog_ok), {
-                            // The update outlives the dialog, matching button submission before the redraw.
-                            launchUpdateDueDate()
-                            dismiss()
-                        }, DialogActionStyle.Filled, enabled = valid),
-                    ),
-            ) {
-                AndroidView(
-                    factory = { binding.root },
-                    modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp),
+    @Composable
+    private fun DueDateContent() {
+        if (!viewModel.hasCards) return
+        val valid by viewModel.isValidFlow.collectAsState()
+        val fsrsEnabled by viewModel.fsrsEnabled.collectAsState()
+        val interval by viewModel.currentInterval.collectAsState()
+        var tab by rememberSaveable { mutableStateOf(Tab.SINGLE_DAY) }
+        var single by rememberDays(viewModel.nextSingleDayDueDate)
+        var start by rememberDays(viewModel.dateRange.start)
+        var end by rememberDays(viewModel.dateRange.end)
+        var matchInterval by rememberSaveable { mutableStateOf(viewModel.updateIntervalToMatchDueDate) }
+        val firstInput = remember(tab) { FocusRequester() }
+        val lastInput = remember { FocusRequester() }
+        val keyboard = LocalSoftwareKeyboardController.current
+
+        LaunchedEffect(Unit) {
+            viewModel.currentTab = tab
+            viewModel.nextSingleDayDueDate = single.text.toIntOrNull()
+            viewModel.setNextDateRangeStart(start.text.toIntOrNull())
+            viewModel.setNextDateRangeEnd(end.text.toIntOrNull())
+        }
+        LaunchedEffect(fsrsEnabled) {
+            if (fsrsEnabled == false) viewModel.updateIntervalToMatchDueDate = matchInterval
+        }
+        LaunchedEffect(tab) {
+            withFrameNanos { }
+            firstInput.requestFocus()
+            keyboard?.show()
+        }
+
+        fun submitFromKeyboard() {
+            if (!viewModel.isValidFlow.value) return
+            requireActivity().launchCatchingTask {
+                if (requireActivity().updateDueDate(viewModel, showError = false).await() != null) dismiss()
+            }
+        }
+
+        PaperDialog(
+            title = TR.sentenceCase.setDueDate,
+            onDismissRequest = ::dismiss,
+            actions =
+                listOf(
+                    DialogAction(getString(CommonString.help), { openUrl(R.string.link_set_due_date_help) }),
+                    DialogAction(getString(CommonString.dialog_cancel), ::dismiss),
+                    DialogAction(getString(CommonString.dialog_ok), {
+                        requireActivity().updateDueDate(viewModel, showError = true)
+                        dismiss()
+                    }, DialogActionStyle.Filled, enabled = valid),
+                ),
+        ) {
+            DueDateTabRow(tab) { selected ->
+                viewModel.currentTab = selected
+                tab = selected
+            }
+            when (tab) {
+                Tab.SINGLE_DAY -> {
+                    DueDateField(
+                        label = pluralStringResource(CommonPlurals.set_due_date_single_day_label, viewModel.cardCount),
+                        value = single,
+                        onValueChange = {
+                            single = it
+                            viewModel.nextSingleDayDueDate = it.text.toIntOrNull()
+                        },
+                        focus = firstInput,
+                        onEnter = ::submitFromKeyboard,
+                        supportingText =
+                            stringResource(
+                                CommonString.set_due_date_hintText,
+                                pluralStringResource(CommonPlurals.set_due_date_label_suffix, 0),
+                                pluralStringResource(CommonPlurals.set_due_date_label_suffix, 1),
+                            ),
+                    )
+                }
+                Tab.DATE_RANGE -> {
+                    DialogBody(pluralStringResource(CommonPlurals.set_due_date_range_label, viewModel.cardCount))
+                    DueDateField(
+                        label = stringResource(CommonString.set_due_date_range_start),
+                        value = start,
+                        onValueChange = {
+                            start = it
+                            viewModel.setNextDateRangeStart(it.text.toIntOrNull())
+                        },
+                        focus = firstInput,
+                        onEnter = { lastInput.requestFocus() },
+                        imeAction = ImeAction.Next,
+                    )
+                    DueDateField(
+                        label = stringResource(CommonString.set_due_date_range_end),
+                        value = end,
+                        onValueChange = {
+                            end = it
+                            viewModel.setNextDateRangeEnd(it.text.toIntOrNull())
+                        },
+                        focus = lastInput,
+                        onEnter = ::submitFromKeyboard,
+                    )
+                }
+            }
+            interval?.takeIf { viewModel.cardCount == 1 }?.let {
+                DialogDetail(pluralStringResource(CommonPlurals.set_due_date_current_interval, it, it))
+            }
+            if (fsrsEnabled == false) {
+                DialogChoiceRow(
+                    choice = DialogChoice(stringResource(CommonString.set_due_date_match_interval)),
+                    checked = matchInterval,
+                    onClick = {
+                        matchInterval = !matchInterval
+                        viewModel.updateIntervalToMatchDueDate = matchInterval
+                    },
+                    multiple = true,
                 )
             }
-        }.apply {
-            window?.clearFlags(FLAG_NOT_FOCUSABLE or FLAG_ALT_FOCUSABLE_IM)
-            configureControls()
         }
     }
-
-    private fun configureControls() {
-        // setup viewpager + tabs
-        binding.setDueDatePager.adapter = DueDateStateAdapter(this@SetDueDateDialog)
-        TabLayoutMediator(
-            binding.tabLayout,
-            binding.setDueDatePager,
-        ) { tab: TabLayout.Tab, position: Int ->
-            SetDueDateViewModel.Tab.entries
-                .first { it.position == position }
-                .let { selectedTab ->
-                    tab.setIcon(selectedTab.icon)
-                    tab.setText(selectedTab.text)
-                }
-        }.attach()
-        binding.tabLayout.selectTab(binding.tabLayout.getTabAt(0))
-
-        binding.setDueDatePager.registerOnPageChangeCallback(
-            object : ViewPager2.OnPageChangeCallback() {
-                override fun onPageSelected(position: Int) {
-                    SetDueDateViewModel.Tab.entries
-                        .first { it.position == position }
-                        .let { selectedTab ->
-                            viewModel.currentTab = selectedTab
-                        }
-                    super.onPageSelected(position)
-                }
-            },
-        )
-
-        // setup 'set interval to same value' checkbox
-        binding.changeInterval.also { cb ->
-            // `.also` is used as .isVisible is an extension, so Kotlin prefers
-            // incorrectly setting Fragment.isVisible
-            viewModel.fsrsEnabled.collectInLifecycle {
-                cb.isVisible = viewModel.canSetUpdateIntervalToMatchDueDate
-                cb.isChecked = viewModel.updateIntervalToMatchDueDate
-            }
-            cb.setOnCheckedChangeListener { _, isChecked ->
-                viewModel.updateIntervalToMatchDueDate = isChecked
-            }
-        }
-
-        lifecycleScope.launch {
-            viewModel.currentInterval.collect { currentInterval ->
-                binding.currentIntervalText.also { tv ->
-                    // Current interval is set to null when multiple cards are selected
-                    if (currentInterval != null) {
-                        tv.isVisible = true
-                        tv.text =
-                            resources.getQuantityString(
-                                CommonPlurals.set_due_date_current_interval,
-                                currentInterval,
-                                currentInterval,
-                            )
-                    } else {
-                        tv.isVisible = false
-                    }
-                }
-            }
-        }
-    }
-
-    private fun getScreenRotation() = ContextCompat.getDisplayOrDefault(requireContext()).rotation
-
-    private fun launchUpdateDueDate(showError: Boolean = true) = requireActivity().updateDueDate(viewModel, showError)
 
     companion object {
         const val ARG_IDS_FILE = "ARGS_IDS_FILE"
-
-        private const val REQUEST_SUBMIT_DUE_DATE = "SubmitDueDate"
 
         /** Keeps the existing dialog and its input when another request arrives. */
         @MainThread
@@ -289,155 +295,76 @@ class SetDueDateDialog : AnalyticsDialogFragment() {
                 Timber.i("Showing 'set due date' dialog for %d cards", cardIds.size)
             }
     }
+}
 
-    class DueDateStateAdapter(
-        fragment: Fragment,
-    ) : FragmentStateAdapter(fragment) {
-        override fun createFragment(position: Int): Fragment =
-            when (position) {
-                0 -> SelectSingleDateFragment()
-                1 -> SelectDateRangeFragment()
-                else -> throw IllegalStateException("invalid position: $position")
-            }
-
-        override fun getItemCount() = 2
+@Composable
+private fun rememberDays(days: Int?) =
+    rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        val text = days?.toString().orEmpty()
+        mutableStateOf(TextFieldValue(text, TextRange(0, text.length)))
     }
 
-    class SelectSingleDateFragment : Fragment(R.layout.fragment_set_due_date_single) {
-        private val viewModel: SetDueDateViewModel by activityViewModels<SetDueDateViewModel>()
-
-        private val binding by viewBinding(FragmentSetDueDateSingleBinding::bind)
-
-        override fun onViewCreated(
-            view: View,
-            savedInstanceState: Bundle?,
-        ) {
-            super.onViewCreated(view, savedInstanceState)
-            binding.setDueDateSingleDayInputLayout.apply {
-                editText!!.apply {
-                    filters = arrayOf(InputFilter.LengthFilter(5))
-
-                    viewModel.nextSingleDayDueDate?.let { value -> setText(value.toString()) }
-                    doOnTextChanged { text, _, _, _ ->
-                        val currentValue = text?.toString()?.toIntOrNull()
-                        viewModel.nextSingleDayDueDate = currentValue
-                        suffixText =
-                            resources.getQuantityString(
-                                CommonPlurals.set_due_date_label_suffix,
-                                currentValue ?: 0,
-                            )
-                    }
-                    suffixText = resources.getQuantityString(CommonPlurals.set_due_date_label_suffix, 0)
-                    helperText =
-                        getString(
-                            CommonString.set_due_date_hintText,
-                            // 0 days
-                            resources.getQuantityString(CommonPlurals.set_due_date_label_suffix, 0),
-                            // 1 day
-                            resources.getQuantityString(CommonPlurals.set_due_date_label_suffix, 1),
-                        )
-                    setOnEditorActionListener { _, actionId, event ->
-                        return@setOnEditorActionListener if (actionId == EditorInfo.IME_ACTION_DONE ||
-                            event?.keyCode == KeyEvent.KEYCODE_ENTER
-                        ) {
-                            parentFragmentManager.setFragmentResult(
-                                REQUEST_SUBMIT_DUE_DATE,
-                                Bundle(),
-                            )
-                            true
-                        } else {
-                            false
-                        }
-                    }
-                    selectAllWhenFocused()
-                }
+@Composable
+private fun DueDateTabRow(
+    selected: Tab,
+    onSelect: (Tab) -> Unit,
+) {
+    val foundation = MaterialTheme.foundation
+    Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        for (tab in Tab.entries) {
+            val active = tab == selected
+            val color = if (active) foundation.colors.emphasis else foundation.colors.onBackgroundMuted
+            Row(
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .heightIn(min = foundation.spacing.touchTarget)
+                        .selectable(selected = active, role = Role.Tab, onClick = { onSelect(tab) })
+                        .padding(vertical = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(painterResource(tab.icon), contentDescription = null, tint = color)
+                Text(stringResource(tab.text), style = foundation.type.button, color = color)
             }
-            binding.dateSingleLabel.text =
-                resources.getQuantityString(
-                    CommonPlurals.set_due_date_single_day_label,
-                    viewModel.cardCount,
-                )
-        }
-
-        override fun onResume() {
-            super.onResume()
-            this.requireView().requestLayout() // update the height of the ViewPager
-            AndroidUiUtils.setFocusAndOpenKeyboard(binding.setDueDateSingleDayEditText)
         }
     }
+}
 
-    /**
-     * Allows a user to select a start and end date
-     */
-    class SelectDateRangeFragment : Fragment(R.layout.fragment_set_due_date_range) {
-        private val viewModel: SetDueDateViewModel by activityViewModels<SetDueDateViewModel>()
-
-        private val binding by viewBinding(FragmentSetDueDateRangeBinding::bind)
-
-        override fun onViewCreated(
-            view: View,
-            savedInstanceState: Bundle?,
-        ) {
-            super.onViewCreated(view, savedInstanceState)
-            binding.dateRangeStartLayout.apply {
-                editText!!.apply {
-                    filters = arrayOf(InputFilter.LengthFilter(5))
-
-                    viewModel.dateRange.start?.let { start -> setText(start.toString()) }
-                    doOnTextChanged { text, _, _, _ ->
-                        val value = text.toString().toIntOrNull()
-                        viewModel.setNextDateRangeStart(value)
-                        suffixText =
-                            resources.getQuantityString(
-                                CommonPlurals.set_due_date_label_suffix,
-                                value ?: 0,
-                            )
-                    }
-                    suffixText = resources.getQuantityString(CommonPlurals.set_due_date_label_suffix, 0)
-                    selectAllWhenFocused()
-                }
-            }
-            binding.dateRangeEndLayout.apply {
-                editText!!.apply {
-                    filters = arrayOf(InputFilter.LengthFilter(5))
-                    doOnTextChanged { text, _, _, _ ->
-                        val value = text.toString().toIntOrNull()
-                        viewModel.setNextDateRangeEnd(value)
-                        suffixText =
-                            resources.getQuantityString(
-                                CommonPlurals.set_due_date_label_suffix,
-                                value ?: 0,
-                            )
-                    }
-                    suffixText = resources.getQuantityString(CommonPlurals.set_due_date_label_suffix, 0)
-                    viewModel.dateRange.end?.let { end -> setText(end.toString()) }
-                    setOnEditorActionListener { _, actionId, event ->
-                        return@setOnEditorActionListener if (actionId == EditorInfo.IME_ACTION_DONE ||
-                            event?.keyCode == KeyEvent.KEYCODE_ENTER
-                        ) {
-                            parentFragmentManager.setFragmentResult(
-                                REQUEST_SUBMIT_DUE_DATE,
-                                Bundle(),
-                            )
-                            true
-                        } else {
-                            false
-                        }
-                    }
-                    selectAllWhenFocused()
-                }
-            }
-            binding.dateRangeLabel.text =
-                resources.getQuantityString(CommonPlurals.set_due_date_range_label, viewModel.cardCount)
-        }
-
-        override fun onResume() {
-            super.onResume()
-            this.requireView().requestLayout() // update the height of the ViewPager
-
-            AndroidUiUtils.setFocusAndOpenKeyboard(binding.dateRangeStartEditText)
-        }
-    }
+@Composable
+private fun DueDateField(
+    label: String,
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    focus: FocusRequester,
+    onEnter: () -> Unit,
+    imeAction: ImeAction = ImeAction.Done,
+    supportingText: String? = null,
+) {
+    var focused by remember { mutableStateOf(false) }
+    DialogField(
+        label = label,
+        value = value,
+        onValueChange = { proposed ->
+            val text = proposed.text.filter(Char::isDigit).take(5)
+            onValueChange(if (text == proposed.text) proposed else TextFieldValue(text, TextRange(text.length)))
+        },
+        modifier =
+            Modifier
+                .focusRequester(focus)
+                .onFocusChanged {
+                    if (it.isFocused && !focused) onValueChange(value.copy(selection = TextRange(0, value.text.length)))
+                    focused = it.isFocused
+                }.onPreviewKeyEvent {
+                    if (it.key != Key.Enter && it.key != Key.NumPadEnter) return@onPreviewKeyEvent false
+                    if (it.type == KeyEventType.KeyUp) onEnter()
+                    true
+                },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = imeAction),
+        keyboardActions = KeyboardActions(onDone = { onEnter() }, onNext = { onEnter() }),
+        suffix = pluralStringResource(CommonPlurals.set_due_date_label_suffix, value.text.toIntOrNull() ?: 0),
+        supportingText = supportingText,
+    )
 }
 
 // this can outlive the lifetime of the fragment
@@ -467,11 +394,3 @@ private fun FragmentActivity.updateDueDate(
         }
         return@asyncCatching cardsUpdated
     }
-
-private fun EditText.selectAllWhenFocused() {
-    setOnFocusChangeListener { _, hasFocus ->
-        if (hasFocus) {
-            selectAll()
-        }
-    }
-}

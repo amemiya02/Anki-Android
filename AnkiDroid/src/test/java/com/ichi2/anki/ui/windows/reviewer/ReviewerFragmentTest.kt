@@ -12,6 +12,10 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.webkit.WebView
 import androidx.appcompat.widget.ThemeUtils
+import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.performTextReplacement
 import androidx.core.content.edit
 import androidx.core.content.getSystemService
 import androidx.core.view.isVisible
@@ -36,7 +40,6 @@ import com.ichi2.anki.reviewer.CardSide
 import com.ichi2.anki.reviewer.MappableBinding.Companion.toPreferenceString
 import com.ichi2.anki.reviewer.ReviewerBinding
 import com.ichi2.anki.scheduling.SetDueDateDialog
-import com.ichi2.anki.scheduling.singleDayText
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.PrefsRepository
 import com.ichi2.anki.settings.enums.AppTheme
@@ -54,6 +57,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.json.JSONTokener
 import org.jsoup.Jsoup
 import org.junit.After
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -76,6 +80,9 @@ import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class ReviewerFragmentTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     override fun getCollectionStorageMode() = CollectionStorageMode.IN_MEMORY_WITH_MEDIA
 
     @After
@@ -325,7 +332,8 @@ class ReviewerFragmentTest : RobolectricTest() {
                 advanceUntilIdle()
                 advanceRobolectricLooper()
                 val dialog = assertIs<SetDueDateDialog>(currentDialog)
-                dialog.singleDayText.setText("12")
+                val input = compose.onNode(hasSetTextAction())
+                input.performTextReplacement("12")
                 val backStackCount = parentFragmentManager.backStackEntryCount
 
                 repeat(3) {
@@ -336,7 +344,7 @@ class ReviewerFragmentTest : RobolectricTest() {
 
                 assertSame(dialog, currentDialog)
                 assertEquals(backStackCount, parentFragmentManager.backStackEntryCount)
-                assertEquals("12", dialog.singleDayText.text.toString())
+                input.assertTextContains("12")
                 assertEquals(listOf(cardId), dialog.cardIds)
             }
         }
