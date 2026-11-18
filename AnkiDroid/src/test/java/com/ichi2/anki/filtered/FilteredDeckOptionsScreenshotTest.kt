@@ -21,7 +21,6 @@ import com.ichi2.anki.LanguageConfig.JAPANESE
 import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.anki.common.utils.dp
-import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.utils.ConfigAwareSingleFragmentActivity
 import com.ichi2.testutils.dispatchInsets
 import com.ichi2.testutils.ext.reopenWithLanguage
@@ -52,7 +51,7 @@ class FilteredDeckOptionsScreenshotTest : ScreenshotTest() {
     fun existingFilteredDeckWithLandscapeCutout() {
         setPhoneQualifiers()
         RuntimeEnvironment.setQualifiers("+land")
-        withOptions(deckId = col.decks.newFiltered("Filtered deck"), usePhoneQualifiers = false) { activity ->
+        withOptions(existingDeck = true, usePhoneQualifiers = false) { activity ->
             activity.dispatchInsets(cutoutTop = 32.dp, navBarBottom = 24.dp)
             compose.onNodeWithText(TR.actionsRebuild()).assertIsDisplayed()
             compose.onNodeWithText(TR.decksUnmovableCards()).performScrollTo().assertIsDisplayed()
@@ -74,14 +73,16 @@ class FilteredDeckOptionsScreenshotTest : ScreenshotTest() {
         }
 
     private fun withOptions(
-        deckId: DeckId = 0,
+        existingDeck: Boolean = false,
         usePhoneQualifiers: Boolean = true,
         block: (ConfigAwareSingleFragmentActivity) -> Unit,
     ) {
         if (usePhoneQualifiers) setPhoneQualifiers()
         runTest { col.reopenWithLanguage(language.option) }
+        val deckName = "Filtered deck"
+        val deckId = if (existingDeck) col.decks.newFiltered(deckName) else 0L
         val scheduler = col.sched
-        val options = scheduler.getOrCreateFilteredDeck(deckId).copy { name = "Filtered deck" }
+        val options = scheduler.getOrCreateFilteredDeck(deckId).copy { name = deckName }
         mockkObject(scheduler)
         try {
             every { scheduler.getOrCreateFilteredDeck(deckId) } returns options
