@@ -19,6 +19,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -72,6 +73,9 @@ class StudyOptionsFragment :
     @VisibleForTesting
     val shownDeckId: DeckId? get() = shownState.deckIdOrNull()
 
+    private var scrollDeckId: DeckId? = null
+    private var scrollState by mutableStateOf(ScrollState(0))
+
     private var fragmented = false
     private var hasResumedView = false
 
@@ -79,6 +83,8 @@ class StudyOptionsFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        scrollDeckId = savedInstanceState?.getLong(STATE_DISPLAYED_DECK_ID)?.takeIf { it != 0L }
+        scrollState = ScrollState(savedInstanceState?.getInt(STATE_SCROLL_OFFSET) ?: 0)
         // Subscribe once per fragment: returning from another panel can recreate its view.
         ChangeManager.subscribe(this)
         observeProgress(viewModel) { progress -> getString(progress.messageRes) }
@@ -98,6 +104,7 @@ class StudyOptionsFragment :
                 AnkiDroidTheme {
                     StudyOptionsScreen(
                         state = shownState,
+                        scrollState = scrollState,
                         inPane = fragmented,
                         mediaDir = viewModel.mediaDir,
                         onStart = { parentFragmentManager.setStudyOptionsStudyResult() },
@@ -119,10 +126,20 @@ class StudyOptionsFragment :
         }
         hasResumedView = false
         viewModel.flowOfState.collectInViewLifecycle(Lifecycle.State.STARTED) { state ->
+            state.deckIdOrNull()?.let { deckId ->
+                if (scrollDeckId != deckId) scrollState = ScrollState(0)
+                scrollDeckId = deckId
+            }
             shownState = state
             activity?.invalidateMenu()
         }
         refreshInterface()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        scrollDeckId?.let { outState.putLong(STATE_DISPLAYED_DECK_ID, it) }
+        outState.putInt(STATE_SCROLL_OFFSET, scrollState.value)
     }
 
     /** Uses cheaper wrapping during a divider drag, then restores the view's original settings. */
@@ -292,6 +309,9 @@ class StudyOptionsFragment :
     )
 
     companion object {
+        private const val STATE_DISPLAYED_DECK_ID = "studyOptionsDisplayedDeckId"
+        private const val STATE_SCROLL_OFFSET = "studyOptionsScrollOffset"
+
         /**
          * Identifier for a fragment result request to study(open the reviewer). Activities using
          * this fragment need to handle this request and initialize the study screen as they see fit.

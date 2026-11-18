@@ -4,6 +4,7 @@ package com.ichi2.anki
 
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -54,6 +54,7 @@ import java.io.File
 @Composable
 internal fun StudyOptionsScreen(
     state: StudyOptionsState,
+    scrollState: ScrollState,
     inPane: Boolean,
     mediaDir: File?,
     onStart: () -> Unit,
@@ -87,7 +88,7 @@ internal fun StudyOptionsScreen(
                         .weight(1f)
                         .fillMaxWidth()
                         .testTag("study_options_scroll")
-                        .verticalScroll(rememberScrollState()),
+                        .verticalScroll(scrollState),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     val name = Decks.path(state.deckNameOrNull().orEmpty())
