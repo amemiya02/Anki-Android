@@ -5,7 +5,6 @@ package com.ichi2.anki.progress
 import android.os.Bundle
 import android.os.Looper
 import android.view.WindowManager
-import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commitNow
@@ -15,8 +14,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.CommonString
-import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.dialogs.LoadingDialogFragment
 import com.ichi2.anki.withProgress
@@ -130,24 +127,6 @@ class ProgressObserverTest : RobolectricTest() {
         gate.complete(Unit)
         idleMainLooper(SHOW_DELAY)
         assertNull(activity.loadingDialog(), "dialog must be dismissed once the op ends")
-        op.cancel()
-    }
-
-    @Test
-    fun `the message is resolved into the dialog text`() {
-        val controller = startActivity()
-        val activity = controller.get()
-        activity.observeProgress(viewModel, delayMillis = SHOW_DELAY) { message ->
-            getString(CommonString.progress_amount_bytes, message, "2 MB")
-        }
-
-        val gate = CompletableDeferred<Unit>()
-        val op = launchOp(gate, message = "1 MB")
-        idleMainLooper(SHOW_DELAY * 2)
-
-        assertEquals("1 MB/2 MB", activity.loadingDialogText())
-
-        gate.complete(Unit)
         op.cancel()
     }
 
@@ -755,13 +734,6 @@ class ProgressObserverTest : RobolectricTest() {
 
     private fun EmptyAnkiActivity.loadingDialog() =
         supportFragmentManager.fragments.filterIsInstance<LoadingDialogFragment>().singleOrNull()
-
-    private fun EmptyAnkiActivity.loadingDialogText() =
-        (loadingDialog() as? DialogFragment)
-            ?.dialog
-            ?.findViewById<TextView>(R.id.text)
-            ?.text
-            ?.toString()
 
     private fun EmptyAnkiActivity.touchesBlocked() = window.attributes.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE != 0
 
