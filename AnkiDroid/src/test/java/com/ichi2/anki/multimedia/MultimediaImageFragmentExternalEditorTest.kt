@@ -221,7 +221,10 @@ class MultimediaImageFragmentExternalEditorTest : RobolectricTest(loadBackend = 
     fun `external editing survives destruction of a stopped activity`() {
         val controller = startImageActivity()
         val activity = controller.get()
-        val fragment = activity.supportFragmentManager.findFragmentById(R.id.fragment_container) as MultimediaImageFragment
+        val fragment =
+            activity.fragment!!.childFragmentManager.findFragmentById(
+                R.id.multimedia_editor_container,
+            ) as MultimediaImageFragment
         val original = fragment.selectImage()
         val edit = fragment.launchExternalEditor()
         val model = ViewModelProvider(fragment)[ExternalImageEditorViewModel::class.java]
@@ -245,7 +248,10 @@ class MultimediaImageFragmentExternalEditorTest : RobolectricTest(loadBackend = 
                 .resume()
                 .visible()
         saveControllerForCleanup(restored)
-        val restoredFragment = restored.get().supportFragmentManager.findFragmentById(R.id.fragment_container) as MultimediaImageFragment
+        val restoredFragment =
+            restored.get().fragment!!.childFragmentManager.findFragmentById(
+                R.id.multimedia_editor_container,
+            ) as MultimediaImageFragment
         with(restoredFragment) {
             deliverEditorResult(edit)
             advanceRobolectricLooperUntil { !isExternalEditPending }
@@ -259,7 +265,10 @@ class MultimediaImageFragmentExternalEditorTest : RobolectricTest(loadBackend = 
     @Test
     fun `finishing the activity releases the external editor working copy`() {
         val controller = startImageActivity()
-        val fragment = controller.get().supportFragmentManager.findFragmentById(R.id.fragment_container) as MultimediaImageFragment
+        val fragment =
+            controller.get().fragment!!.childFragmentManager.findFragmentById(
+                R.id.multimedia_editor_container,
+            ) as MultimediaImageFragment
         val original = fragment.selectImage()
         fragment.launchExternalEditor()
         controller.get().finish()
@@ -318,7 +327,10 @@ class MultimediaImageFragmentExternalEditorTest : RobolectricTest(loadBackend = 
     fun `done is disabled during external editing and import across recreation`() =
         withBlockedImport { awaitImport, finishImport ->
             val controller = startImageActivity()
-            val fragment = controller.get().supportFragmentManager.findFragmentById(R.id.fragment_container) as MultimediaImageFragment
+            val fragment =
+                controller.get().fragment!!.childFragmentManager.findFragmentById(
+                    R.id.multimedia_editor_container,
+                ) as MultimediaImageFragment
             val done = composeRule.onNodeWithText(targetContext.getString(CommonString.multimedia_editor_field_editing_done))
             done.assertIsEnabled()
             with(fragment) {
@@ -332,7 +344,10 @@ class MultimediaImageFragmentExternalEditorTest : RobolectricTest(loadBackend = 
             controller.recreate()
             done.assertIsNotEnabled()
             finishImport()
-            val restored = controller.get().supportFragmentManager.findFragmentById(R.id.fragment_container) as MultimediaImageFragment
+            val restored =
+                controller.get().fragment!!.childFragmentManager.findFragmentById(
+                    R.id.multimedia_editor_container,
+                ) as MultimediaImageFragment
             advanceRobolectricLooperUntil { !restored.isExternalEditPending }
             done.assertIsEnabled()
             with(restored) {

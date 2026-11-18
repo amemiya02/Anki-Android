@@ -85,7 +85,7 @@ class MultimediaInsetsTest : RobolectricTest() {
 
     /** The hosted fragment's own root, which [MultimediaFragment] insets */
     private val MultimediaActivity.fragmentRoot: View
-        get() = findViewById(R.id.fragment_container)
+        get() = findViewById(R.id.multimedia_editor_container)
 
     private fun withMultimedia(block: (MultimediaActivity) -> Unit) {
         grantPermissions(RECORD_AUDIO)

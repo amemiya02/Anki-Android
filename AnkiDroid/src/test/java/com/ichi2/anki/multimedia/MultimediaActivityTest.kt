@@ -139,7 +139,13 @@ class MultimediaActivityTest : RobolectricTest() {
 
         val activity = restoreActivity(intent, savedState).get()
 
-        assertThat(activity.supportFragmentManager.findFragmentById(R.id.fragment_container)!!.view, nullValue())
+        assertThat(
+            activity.fragment!!
+                .childFragmentManager
+                .findFragmentById(R.id.multimedia_editor_container)!!
+                .view,
+            nullValue(),
+        )
         activity.onRequestPermissionsResult(permissionRequest.requestCode, arrayOf(RECORD_AUDIO), intArrayOf(PERMISSION_GRANTED))
         compose.onNodeWithText(getResourceString(CommonString.something_wrong)).assertExists()
         compose.onNodeWithText(getResourceString(CommonString.dialog_ok)).performClick()
@@ -152,7 +158,13 @@ class MultimediaActivityTest : RobolectricTest() {
         val intent = largeNoteIntent()
         intent.extras!!.getSerializableCompat<File>(MultimediaActivity.EXTRA_FRAGMENT_ARGS)!!.delete()
         val activity = startActivityControllerNormallyOpenCollectionWithIntent(MultimediaActivity::class.java, intent).get()
-        assertThat(activity.supportFragmentManager.findFragmentById(R.id.fragment_container)!!.view, nullValue())
+        assertThat(
+            activity.fragment!!
+                .childFragmentManager
+                .findFragmentById(R.id.multimedia_editor_container)!!
+                .view,
+            nullValue(),
+        )
 
         ShadowDialog.getLatestDialog().cancel()
         advanceRobolectricLooper()

@@ -23,6 +23,7 @@ import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.multimediacard.IMultimediaEditableNote
 import com.ichi2.anki.multimediacard.fields.IField
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.compose.ui.dialogs.DialogAction
 import com.ichi2.compose.ui.dialogs.ErrorDialog
@@ -87,7 +88,7 @@ abstract class MultimediaFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         // Keep the input while the fragment can be restored after recreation or process death.
-        if (isRemoving || activity?.isFinishing == true) {
+        if (isRemoving || parentFragment?.isRemoving == true || activity?.isFinishing == true) {
             arguments?.getSerializableCompat<File>(MultimediaActivity.EXTRA_FRAGMENT_ARGS)?.delete()
         }
     }
@@ -98,7 +99,7 @@ abstract class MultimediaFragment : Fragment() {
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as? MultimediaActivity)?.setMediaToolbar(title, replaceAction)
+        (parentFragment as? MultimediaFlowFragment)?.setMediaToolbar(title, replaceAction)
 
         val backCallback =
             object : OnBackPressedCallback(
@@ -160,7 +161,7 @@ abstract class MultimediaFragment : Fragment() {
      * the current activity.
      */
     fun showErrorDialog(errorMessage: String? = null) {
-        val activity = requireActivity()
+        val screen = parentFragment as? MultimediaFlowFragment ?: this
         createPaperDialog(requireContext()) { dialog ->
             ErrorDialog(
                 title = getString(CommonString.vague_error),
@@ -170,10 +171,10 @@ abstract class MultimediaFragment : Fragment() {
                 primaryAction =
                     DialogAction(getString(CommonString.dialog_ok), {
                         dialog.dismiss()
-                        activity.finish()
+                        screen.finishScreen()
                     }),
             )
-        }.apply { setOnCancelListener { activity.finish() } }.show()
+        }.apply { setOnCancelListener { screen.finishScreen() } }.show()
     }
 
     /**

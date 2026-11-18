@@ -5,12 +5,11 @@ package com.ichi2.anki.multimedia
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.getValue
@@ -27,23 +26,17 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
-import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
-import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
-import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableExtraCompat
+import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.multimediacard.IMultimediaEditableNote
 import com.ichi2.anki.multimediacard.fields.IField
-import com.ichi2.anki.settings.enums.NightTheme
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
 import com.ichi2.anki.snackbar.SnackbarBuilder
-import com.ichi2.anki.startup.ensureStorageIsReady
 import com.ichi2.anki.utils.bottomCornerClearance
 import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.compose.ui.components.HeroToolbarActionButton
-import com.ichi2.themes.Themes
 import com.ichi2.utils.FragmentFactoryUtils
-import java.io.File
 import java.io.Serializable
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmName
@@ -67,137 +60,8 @@ data class MultimediaActivityExtra(
 /**
  * Multimedia activity that allows users to attach media files to an input field in NoteEditor.
  */
-class MultimediaActivity :
-    AnkiActivity(),
-    BaseSnackbarBuilderProvider {
-    private var toolbarTitle by mutableStateOf("")
-    private var replaceMedia by mutableStateOf<MediaReplaceAction?>(null)
-
-    internal fun setMediaToolbar(
-        title: String,
-        action: MediaReplaceAction? = null,
-    ) {
-        toolbarTitle = title
-        replaceMedia = action
-    }
-
-    internal var isImageEditorBusy by mutableStateOf(false)
-
-    override val analyticsScreenName: String
-        get() = intent.getStringExtra(EXTRA_FRAGMENT_NAME)?.substringAfterLast('.') ?: super.analyticsScreenName
-
-    private val Intent.multimediaArgsFile: File?
-        get() = extras?.getSerializableCompat(EXTRA_FRAGMENT_ARGS)
-
-    private val Intent.mediaOptionsExtra: Serializable?
-        get() = getSerializableExtraCompat(EXTRA_MEDIA_OPTIONS)
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        if (showedActivityFailedScreen(savedInstanceState)) {
-            return
-        }
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge(
-            statusBarStyle =
-                SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) {
-                    Themes.currentTheme is NightTheme
-                },
-        )
-        if (!ensureStorageIsReady()) {
-            return
-        }
-        setupMediaContent()
-
-        // avoid recreating the fragment on configuration changes
-        if (savedInstanceState != null) {
-            return
-        }
-
-        val fragmentClassName =
-            requireNotNull(intent.getStringExtra(EXTRA_FRAGMENT_NAME)) {
-                "'$EXTRA_FRAGMENT_NAME' extra should be provided"
-            }
-
-        val fragment =
-            FragmentFactoryUtils.instantiate<Fragment>(this, fragmentClassName).apply {
-                arguments =
-                    Bundle().apply {
-                        putSerializable(EXTRA_FRAGMENT_ARGS, intent.multimediaArgsFile)
-                        putSerializable(EXTRA_MEDIA_OPTIONS, intent.mediaOptionsExtra)
-                    }
-            }
-
-        supportFragmentManager.commit {
-            replace(R.id.fragment_container, fragment)
-        }
-    }
-
-    private fun setupMediaContent() {
-        val imageEditor = intent.getStringExtra(EXTRA_FRAGMENT_NAME) == MultimediaImageFragment::class.jvmName
-        val appBar =
-            ComposeView(this).apply {
-                id = R.id.app_bar
-                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-                setContent {
-                    AnkiDroidTheme {
-                        AttachmentAppBar(
-                            title = toolbarTitle,
-                            onBack = { onBackPressedDispatcher.onBackPressed() },
-                            actions = {
-                                if (imageEditor) {
-                                    HeroToolbarActionButton(enabled = !isImageEditorBusy, onClick = {
-                                        val image =
-                                            supportFragmentManager.findFragmentById(
-                                                R.id.fragment_container,
-                                            ) as? MultimediaImageFragment
-                                        image?.onDone()
-                                    })
-                                }
-                                replaceMedia?.let { replace ->
-                                    IconButton(onClick = replace.onClick) {
-                                        Icon(painterResource(replace.icon), stringResource(CommonString.reselect))
-                                    }
-                                }
-                            },
-                        )
-                    }
-                }
-            }
-        val content = FragmentContainerView(this).apply { id = R.id.fragment_container }
-        val layout =
-            LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
-                addView(appBar, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-                addView(content, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
-            }
-        val root =
-            CoordinatorLayout(this).apply {
-                id = R.id.root_layout
-                addView(
-                    layout,
-                    CoordinatorLayout.LayoutParams(
-                        CoordinatorLayout.LayoutParams.MATCH_PARENT,
-                        CoordinatorLayout.LayoutParams.MATCH_PARENT,
-                    ),
-                )
-            }
-        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
-            appBar.updatePadding(left = bars.left, top = bars.top, right = bars.right)
-            content.updatePadding(
-                left = bars.left,
-                right = bars.right,
-                bottom = maxOf(bars.bottom, insets.bottomCornerClearance(view)),
-            )
-            insets
-        }
-        setContentView(root)
-    }
-
-    override val baseSnackbarBuilder: SnackbarBuilder = {
-        // Keep error messages above the editor's bottom controls.
-        anchorView = findViewById<View>(R.id.multimedia_controls_anchor)
-    }
+class MultimediaActivity : SingleFragmentActivity() {
+    override fun createFragment(): Fragment = MultimediaFlowFragment().apply { arguments = Bundle(intent.extras ?: Bundle.EMPTY) }
 
     companion object {
         const val EXTRA_FRAGMENT_ARGS = "extra_fragment_args"
@@ -217,6 +81,108 @@ class MultimediaActivity :
                 putExtra(EXTRA_FRAGMENT_NAME, fragmentClass.jvmName)
                 putExtra(EXTRA_MEDIA_OPTIONS, mediaOptions)
             }
+    }
+}
+
+/** Hosts the existing recording, playback or image editor and returns its typed field result. */
+class MultimediaFlowFragment :
+    Fragment(),
+    BaseSnackbarBuilderProvider {
+    private var toolbarTitle by mutableStateOf("")
+    private var replaceMedia by mutableStateOf<MediaReplaceAction?>(null)
+
+    internal fun setMediaToolbar(
+        title: String,
+        action: MediaReplaceAction? = null,
+    ) {
+        toolbarTitle = title
+        replaceMedia = action
+    }
+
+    internal var isImageEditorBusy by mutableStateOf(false)
+
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
+        super.onViewCreated(view, savedInstanceState)
+        if (childFragmentManager.findFragmentById(R.id.multimedia_editor_container) != null) return
+        val args = requireArguments()
+        val name = requireNotNull(args.getString(MultimediaActivity.EXTRA_FRAGMENT_NAME))
+        val editor = FragmentFactoryUtils.instantiate<Fragment>(requireActivity(), name).apply { arguments = Bundle(args) }
+        childFragmentManager.commit { replace(R.id.multimedia_editor_container, editor) }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        val context = inflater.context
+        val imageEditor = arguments?.getString(MultimediaActivity.EXTRA_FRAGMENT_NAME) == MultimediaImageFragment::class.jvmName
+        val appBar =
+            ComposeView(context).apply {
+                id = R.id.app_bar
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    AnkiDroidTheme {
+                        AttachmentAppBar(
+                            title = toolbarTitle,
+                            onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() },
+                            actions = {
+                                if (imageEditor) {
+                                    HeroToolbarActionButton(enabled = !isImageEditorBusy, onClick = {
+                                        val image =
+                                            childFragmentManager.findFragmentById(
+                                                R.id.multimedia_editor_container,
+                                            ) as? MultimediaImageFragment
+                                        image?.onDone()
+                                    })
+                                }
+                                replaceMedia?.let { replace ->
+                                    IconButton(onClick = replace.onClick) {
+                                        Icon(painterResource(replace.icon), stringResource(CommonString.reselect))
+                                    }
+                                }
+                            },
+                        )
+                    }
+                }
+            }
+        val content = FragmentContainerView(context).apply { id = R.id.multimedia_editor_container }
+        val layout =
+            LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                addView(appBar, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+                addView(content, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
+            }
+        val root =
+            CoordinatorLayout(context).apply {
+                id = R.id.root_layout
+                addView(
+                    layout,
+                    CoordinatorLayout.LayoutParams(
+                        CoordinatorLayout.LayoutParams.MATCH_PARENT,
+                        CoordinatorLayout.LayoutParams.MATCH_PARENT,
+                    ),
+                )
+            }
+        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            appBar.updatePadding(left = bars.left, top = bars.top, right = bars.right)
+            content.updatePadding(
+                left = bars.left,
+                right = bars.right,
+                bottom = maxOf(bars.bottom, insets.bottomCornerClearance(view)),
+            )
+            insets
+        }
+        return root
+    }
+
+    override val baseSnackbarBuilder: SnackbarBuilder = {
+        // Keep error messages above the editor's bottom controls.
+        anchorView = view?.findViewById<View>(R.id.multimedia_controls_anchor)
     }
 }
 

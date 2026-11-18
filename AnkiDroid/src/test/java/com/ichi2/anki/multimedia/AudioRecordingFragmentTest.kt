@@ -217,7 +217,7 @@ class AudioRecordingFragmentTest : RobolectricTest() {
     }
 
     private val ActivityController<MultimediaActivity>.fragment: AudioRecordingFragment
-        get() = get().supportFragmentManager.findFragmentById(R.id.fragment_container) as AudioRecordingFragment
+        get() = get().fragment!!.childFragmentManager.findFragmentById(R.id.multimedia_editor_container) as AudioRecordingFragment
 
     private fun ActivityController<MultimediaActivity>.finishWithDone(): MultimediaResult.Success {
         done.performClick()

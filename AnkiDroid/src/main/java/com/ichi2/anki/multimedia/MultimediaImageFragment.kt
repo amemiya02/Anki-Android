@@ -350,7 +350,7 @@ class MultimediaImageFragment :
     }
 
     override fun onDestroy() {
-        if (isRemoving || activity?.isFinishing == true) {
+        if (isRemoving || parentFragment?.isRemoving == true || activity?.isFinishing == true) {
             externalEditorViewModel.discard()
         }
         super.onDestroy()
@@ -757,7 +757,7 @@ class MultimediaImageFragment :
 
     private fun observeExternalEdit() {
         fun handleEditState(edit: ExternalImageEditorViewModel.Edit?) {
-            (activity as? MultimediaActivity)?.isImageEditorBusy = edit != null
+            (parentFragment as? MultimediaFlowFragment)?.isImageEditorBusy = edit != null
             when (edit) {
                 is ExternalImageEditorViewModel.Edit.Ready -> {
                     externalEditorViewModel.launched()

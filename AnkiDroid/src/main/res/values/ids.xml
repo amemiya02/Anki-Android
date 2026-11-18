@@ -59,4 +59,5 @@
     <item type="id" name="lateral_nav_container" />
     <item type="id" name="web_view" />
     <item type="id" name="content" />
+    <item name="multimedia_editor_container" type="id" />
 </resources>

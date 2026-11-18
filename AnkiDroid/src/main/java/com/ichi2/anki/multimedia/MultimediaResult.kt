@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.fragment.app.Fragment
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
 import com.ichi2.anki.multimediacard.fields.IField
+import com.ichi2.anki.navigation.finishScreen
 
 /**
  * Typed result returned by a [MultimediaActivity] launched from the note editor.
@@ -79,6 +80,5 @@ fun Fragment.setMultimediaResultAndFinish(result: MultimediaResult) {
             is MultimediaResult.Success -> Activity.RESULT_OK
             is MultimediaResult.Cancelled -> Activity.RESULT_CANCELED
         }
-    requireActivity().setResult(resultCode, data)
-    requireActivity().finish()
+    (parentFragment as? MultimediaFlowFragment ?: this).finishScreen(resultCode, data)
 }

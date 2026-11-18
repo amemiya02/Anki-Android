@@ -36,7 +36,10 @@ class ImageEditorTestHelper(
     private lateinit var controller: ActivityController<MultimediaActivity>
 
     val fragment: MultimediaImageFragment
-        get() = controller.get().supportFragmentManager.findFragmentById(R.id.fragment_container) as MultimediaImageFragment
+        get() =
+            controller.get().fragment!!.childFragmentManager.findFragmentById(
+                R.id.multimedia_editor_container,
+            ) as MultimediaImageFragment
 
     override fun before() = clearFileProviderRoots()
 
