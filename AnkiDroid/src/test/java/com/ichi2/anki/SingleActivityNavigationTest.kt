@@ -11,6 +11,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.browser.CardBrowserPaneFragment
@@ -66,6 +67,25 @@ class SingleActivityNavigationTest : RobolectricTest() {
             assertTrue(deckPicker.findViewById<View>(R.id.root_layout).isShown)
             assertNull(shadowOf(deckPicker).nextStartedActivity)
         }
+
+    @Test
+    fun `the launcher Browse shortcut enters the hosted browser`() {
+        ensureCollectionLoadIsSynchronous()
+        BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
+        setIntroductionSlidesShown(true)
+        NavigationDrawerActivity.enablePostShortcut(targetContext)
+        val shortcut = ShortcutManagerCompat.getDynamicShortcuts(targetContext).single { it.id == "cardBrowserShortcutId" }
+        val entry = shortcut.intents.single()
+        assertEquals(DeckPicker::class.java.name, entry.component?.className)
+
+        val host = startActivityNormallyOpenCollectionWithIntent(DeckPicker::class.java, entry)
+        composeRule.waitUntil(10_000) {
+            advanceRobolectricLooper()
+            host.currentScreenFragment is CardBrowserPaneFragment
+        }
+        composeRule.onNodeWithText("Browse").assertIsDisplayed()
+        assertNull(shadowOf(host).nextStartedActivity)
+    }
 
     @Test
     fun `shared text waits for Welcome then opens the Note Editor once`() {
