@@ -4,7 +4,9 @@ package com.ichi2.anki.browser.search
 
 import anki.search.SearchNode
 import anki.search.searchNode
+import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.CollectionManager.TR
+import com.ichi2.anki.R
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -19,7 +21,6 @@ import kotlinx.serialization.encoding.Encoder
  * Represents a subset of available values in an `is:` search. Similar to [SearchNode.CardState].
  *
  * Excluding:
- * - `is:due` - in [SearchNode.CardState], but not visible in the UI
  * - `is:buried-sibling` - not in `SearchNode.CardState`
  * - `is:buried-manually` - not in `SearchNode.CardState`
  *
@@ -42,6 +43,8 @@ enum class CardState(
     // the logical progression of card states is is 'bury', then 'suspend'
     Buried(3),
     Suspended(4),
+    Due(5),
+    Marked(6),
     ;
 
     /**
@@ -57,38 +60,28 @@ enum class CardState(
                 Review -> TR.browsingSidebarCardStateReview()
                 Buried -> TR.statisticsCountsBuriedCards()
                 Suspended -> TR.browsingSuspended()
+                Due -> AnkiDroidApp.instance.getString(R.string.browse_state_due)
+                Marked -> AnkiDroidApp.instance.getString(R.string.browse_state_marked)
             }
 
-    /**
-     * Creates a [SearchNode.CardState] for use in a [SearchNode].
-     *
-     * Prefer [toSearchNode] for simple [SearchNode] creation.
-     *
-     * ```kotlin
-     * val review = CardState.Review
-     * val node = searchNode { cardState = review.toSearchValue() }
-     * ```
-     */
-    fun toSearchValue(): SearchNode.CardState =
-        when (this) {
-            New -> SearchNode.CardState.CARD_STATE_NEW
-            Learning -> SearchNode.CardState.CARD_STATE_LEARN
-            Review -> SearchNode.CardState.CARD_STATE_REVIEW
-            Buried -> SearchNode.CardState.CARD_STATE_BURIED
-            Suspended -> SearchNode.CardState.CARD_STATE_SUSPENDED
+    /** Creates a Card state or marked-tag predicate for the Engine. */
+    fun toSearchNode(): SearchNode =
+        searchNode {
+            if (this@CardState == Marked) {
+                tag = "marked"
+            } else {
+                cardState =
+                    when (this@CardState) {
+                        New -> SearchNode.CardState.CARD_STATE_NEW
+                        Learning -> SearchNode.CardState.CARD_STATE_LEARN
+                        Review -> SearchNode.CardState.CARD_STATE_REVIEW
+                        Buried -> SearchNode.CardState.CARD_STATE_BURIED
+                        Suspended -> SearchNode.CardState.CARD_STATE_SUSPENDED
+                        Due -> SearchNode.CardState.CARD_STATE_DUE
+                        Marked -> error("Marked is a Note tag")
+                    }
+            }
         }
-
-    /**
-     * Creates a [SearchNode] for building a search string.
-     *
-     * Use [toSearchValue] when generating a complex `SearchNode`
-     *
-     * ```kotlin
-     * val searchNode = CardState.Review.toSearchNode()
-     * val searchString = col.buildSearchString(listOf(searchNode))
-     * ```
-     */
-    fun toSearchNode(): SearchNode = searchNode { cardState = toSearchValue() }
 
     companion object {
         fun fromCode(id: Int): CardState = CardState.entries.first { it.code == id }

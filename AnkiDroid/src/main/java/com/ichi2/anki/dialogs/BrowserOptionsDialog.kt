@@ -40,7 +40,7 @@ class BrowserOptionsDialog : AppCompatDialogFragment(R.layout.dialog_browser_opt
 
     /** Persists updated options to the ViewModel */
     fun saveChanges() {
-        viewModel.setCardsOrNotes(dialogCardsOrNotes)
+        if (!useBrowserControls) viewModel.setCardsOrNotes(dialogCardsOrNotes)
         viewModel.setTruncated(binding.truncateCheckBox.isChecked)
         viewModel.setIgnoreAccents(binding.ignoreAccentsCheckBox.isChecked)
         viewModel.setDefaultSearchText(binding.defaultSearchText.text.orEmpty())
@@ -57,6 +57,8 @@ class BrowserOptionsDialog : AppCompatDialogFragment(R.layout.dialog_browser_opt
             }
         }
     }
+
+    private val useBrowserControls get() = arguments?.getBoolean(ARG_USE_BROWSER_CONTROLS) == true
 
     private val isTruncated by lazy {
         arguments?.getBoolean(ARG_IS_TRUNCATED) ?: run {
@@ -94,7 +96,13 @@ class BrowserOptionsDialog : AppCompatDialogFragment(R.layout.dialog_browser_opt
             isChecked = viewModel.shouldIgnoreAccents
         }
 
-        if (Prefs.devUsingCardBrowserSearchView) {
+        if (useBrowserControls) {
+            (binding.selectBrowserMode.parent as android.view.View).isVisible = false
+            (binding.renameFlag.parent as android.view.View).isVisible = false
+            (binding.manageColumnsButton.parent as android.view.View).isVisible = false
+        }
+
+        if (useBrowserControls || Prefs.devUsingCardBrowserSearchView) {
             binding.defaultSearchInputLayout.apply {
                 isVisible = true
                 hint = TR.preferencesDefaultSearchText()
@@ -120,12 +128,14 @@ class BrowserOptionsDialog : AppCompatDialogFragment(R.layout.dialog_browser_opt
     }
 
     companion object {
+        private const val ARG_USE_BROWSER_CONTROLS = "useBrowserControls"
         private const val ARG_CARDS_OR_NOTES = "cardsOrNotes"
         private const val ARG_IS_TRUNCATED = "isTruncated"
 
         fun newInstance(
             cardsOrNotes: CardsOrNotes,
             isTruncated: Boolean,
+            useBrowserControls: Boolean = false,
         ): BrowserOptionsDialog {
             Timber.i("BrowserOptionsDialog::newInstance")
             return BrowserOptionsDialog().apply {
@@ -133,6 +143,7 @@ class BrowserOptionsDialog : AppCompatDialogFragment(R.layout.dialog_browser_opt
                     Bundle().apply {
                         putBoolean(ARG_CARDS_OR_NOTES, cardsOrNotes == CardsOrNotes.CARDS)
                         putBoolean(ARG_IS_TRUNCATED, isTruncated)
+                        putBoolean(ARG_USE_BROWSER_CONTROLS, useBrowserControls)
                     }
             }
         }

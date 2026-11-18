@@ -24,11 +24,14 @@ import com.ichi2.anki.browser.CardBrowserViewModel.ToggleSelectionState.SELECT_N
 import com.ichi2.anki.browser.FindAndReplaceDialogFragment.Companion.ALL_FIELDS_AS_FIELD
 import com.ichi2.anki.browser.FindAndReplaceDialogFragment.Companion.TAGS_AS_FIELD
 import com.ichi2.anki.browser.RepositionCardsRequest.RepositionData
+import com.ichi2.anki.browser.SearchHistory.SearchHistoryEntry
 import com.ichi2.anki.browser.search.SavedSearch
 import com.ichi2.anki.browser.search.SavedSearches
 import com.ichi2.anki.browser.search.SearchFilters
 import com.ichi2.anki.browser.search.SearchRequest
 import com.ichi2.anki.browser.search.SearchString
+import com.ichi2.anki.browser.search.from
+import com.ichi2.anki.browser.search.toHistoryEntry
 import com.ichi2.anki.common.ALL_DECKS_ID
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
@@ -59,7 +62,6 @@ import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.preferences.SharedPreferencesProvider
 import com.ichi2.anki.progress.HasProgress
 import com.ichi2.anki.progress.ProgressManager
-import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.utils.ViewModelSavedStateHandle
 import com.ichi2.anki.utils.ext.getCardOrNull
 import com.ichi2.anki.utils.ext.setUserFlagForCards
@@ -90,6 +92,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.json.Json
 import net.ankiweb.rsdroid.BackendException
 import org.jetbrains.annotations.VisibleForTesting
 import timber.log.Timber
@@ -137,6 +140,7 @@ class CardBrowserViewModel(
 
     // TODO: abstract so we can use a `Context` and `pref_display_filenames_in_browser_key`
     val showMediaFilenames = sharedPrefs().getBoolean("card_browser_show_media_filenames", false)
+    internal val rowFontScale = sharedPrefs().getInt("relativeCardBrowserFontSize", 100) / 100f
 
     /** A job which ensures that parallel searches do not occur */
     var searchJob: Job? = null
@@ -147,11 +151,23 @@ class CardBrowserViewModel(
 
     val cards = BrowserRowCollection(CARDS, mutableListOf())
 
+    // Readers see a stable ID list for the current result. The screen loads cells only for
+    // visible rows and never rebuilds or copies the list when selection or filters change.
+    internal class RenderedResults(
+        val mode: CardsOrNotes,
+        val ids: List<CardOrNoteId>,
+    )
+
+    internal val renderedResults = MutableStateFlow(RenderedResults(CARDS, emptyList()))
+
     val flowOfSearchState =
         MutableSharedFlow<SearchState>(
             extraBufferCapacity = 1,
             onBufferOverflow = BufferOverflow.DROP_OLDEST,
         )
+
+    internal val renderedSearchState =
+        flowOfSearchState.stateIn(viewModelScope, SharingStarted.Eagerly, SearchState.Initializing)
 
     val flowOfLastCompletedSearch: StateFlow<SearchState.Completed?> =
         flowOfSearchState
@@ -608,19 +624,24 @@ class CardBrowserViewModel(
             .onEach { cardsOrNotes ->
                 Timber.d("loading columns for %s mode", cardsOrNotes)
                 updateActiveColumns(BrowserColumnCollection.load(sharedPrefs(), cardsOrNotes))
+                if (initCompleted) refreshSortState()
             }.launchIn(viewModelScope)
 
         viewModelScope.launch {
             browserOptionsRepository.load()
 
             // Apply the default search (if available)
-            if (Prefs.devUsingCardBrowserSearchView) {
+            val restoredSearch =
+                savedStateHandle.get<String>(STATE_SUBMITTED_SEARCH)?.let { json ->
+                    runCatching { Json.decodeFromString<SearchHistoryEntry>(json) }.getOrNull()
+                }
+            if (restoredSearch != null) {
+                searchRequestFlow.value = SearchRequest(restoredSearch.query, SearchFilters.from(restoredSearch) ?: SearchFilters.EMPTY)
+            } else {
                 searchTerms = searchTerms.ifEmpty { defaultBrowserSearch }
+                val initialDeckId = if (selectAllDecks) SelectableDeck.AllDecks else getInitialDeck()
+                setSelectedDeck(initialDeckId, feedbackMode = initialFeedbackMode)
             }
-
-            val initialDeckId = if (selectAllDecks) SelectableDeck.AllDecks else getInitialDeck()
-            // PERF: slightly inefficient if the source was lastDeckId
-            setSelectedDeck(initialDeckId, feedbackMode = initialFeedbackMode)
             refreshBackendColumns()
 
             refreshSortState()
@@ -873,7 +894,6 @@ class CardBrowserViewModel(
 
     fun setDefaultSearchText(text: String) =
         viewModelScope.launch {
-            if (!Prefs.devUsingCardBrowserSearchView) return@launch
             browserOptionsRepository.setDefaultBrowserSearch(text)
         }
 
@@ -1271,12 +1291,14 @@ class CardBrowserViewModel(
     /**
      * Sets the filter query (legacy): 'is:suspended'
      */
+    private fun replaceSearchRequest(request: SearchRequest) {
+        searchRequestFlow.value = request
+        savedStateHandle[STATE_SUBMITTED_SEARCH] = Json.encodeToString(request.toHistoryEntry())
+    }
+
     private suspend fun setFilterQuery(filterQuery: String) {
         this.flowOfFilterQuery.emit(filterQuery)
-        this.searchRequestFlow.value =
-            searchRequestFlow.value.copy(
-                query = filterQuery,
-            )
+        replaceSearchRequest(searchRequestFlow.value.copy(query = filterQuery))
         launchSearchForCards(feedbackMode = BrowserSearchFeedbackMode.SEARCH_RESULTS)
     }
 
@@ -1291,7 +1313,7 @@ class CardBrowserViewModel(
             return@launch
         }
 
-        searchRequestFlow.value = newValue
+        replaceSearchRequest(newValue)
         launchSearchForCards(feedbackMode = feedbackMode)
     }
 
@@ -1467,7 +1489,7 @@ class CardBrowserViewModel(
         fun SearchRequest.asSearchString(): SearchString? = this.toSearchString().getOrNull()
         val isDuplicateSearch = !forceRefresh && withCol { searchRequestFlow.value.asSearchString() == searchRequest.asSearchString() }
         // Equivalent queries can still change the text and chip filters shown to the user.
-        searchRequestFlow.value = searchRequest
+        replaceSearchRequest(searchRequest)
         if (isDuplicateSearch) {
             Timber.d("skipping duplicate search: forceRefresh is false")
             return@launch
@@ -1505,8 +1527,8 @@ class CardBrowserViewModel(
 
                     withContext(Dispatchers.Main) {
                         ensureActive()
-                        // The adapter takes snapshots on the main thread.
                         this@CardBrowserViewModel.cards.replaceWith(cardsOrNotes, cards)
+                        renderedResults.value = RenderedResults(cardsOrNotes, cards)
                     }
                     ensurePaneRowValid()
                     if (isFragmented) flowOfNoteEditorCommand.emit(NoteEditorCommand.fromCurrentSearchState())
@@ -1548,6 +1570,7 @@ class CardBrowserViewModel(
 
     private suspend fun clearCardsList() {
         cards.reset()
+        renderedResults.value = RenderedResults(cardsOrNotes, emptyList())
         flowOfCardsUpdated.emit(Unit)
     }
 
@@ -1669,6 +1692,7 @@ class CardBrowserViewModel(
         const val EXTRA_ALL_DECKS = "all_decks"
 
         /** Prevents one-shot extras from being re-applied after process death. */
+        private const val STATE_SUBMITTED_SEARCH = "submittedBrowserSearch"
         private const val STATE_LAUNCH_INTENT_CONSUMED = "launchIntentConsumed"
 
         const val STATE_MULTISELECT = "multiselect"

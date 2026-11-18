@@ -89,7 +89,7 @@ class CardBrowserSearchViewModel(
 
     val userMessageFlow = MutableSharedFlow<UserMessage?>()
 
-    val isScreenOpenFlow = MutableStateFlow(false)
+    val isScreenOpenFlow = savedStateHandle.getMutableStateFlow(STATE_SEARCH_OPEN, false)
 
     private val filterStateUpdateFlow = MutableStateFlow<FilterUpdate>(FilterUpdate.System(SearchFilters.EMPTY))
     val filtersFlow =
@@ -180,6 +180,27 @@ class CardBrowserSearchViewModel(
                 }
             }.launchIn(viewModelScope)
     }
+
+    internal fun openBrowserSearch(query: String) {
+        isScreenOpenFlow.value = true
+        updateBrowserDraft(query)
+    }
+
+    internal fun updateBrowserDraft(query: String) {
+        searchTextFlow.value = query.replace("\n", " ")
+    }
+
+    internal fun closeBrowserSearch(search: SearchRequest) {
+        filterStateUpdateFlow.value = FilterUpdate.System(search.filters)
+        isScreenOpenFlow.value = false
+    }
+
+    internal fun submitBrowserSearch(query: String) =
+        viewModelScope.launch {
+            val request = withCol { SearchRequest(query).populateChips() }
+            closeBrowserSearch(request)
+            submitCurrentSearch(request)
+        }
 
     /**
      * Toggles between Basic and Advanced search mode
@@ -360,6 +381,7 @@ class CardBrowserSearchViewModel(
 
     companion object {
         private const val STATE_ADVANCED_SEARCH_ENABLED = "advancedSearch"
+        private const val STATE_SEARCH_OPEN = "browserSearchOpen"
         private const val STATE_SEARCH_TEXT = "searchText"
         private const val STATE_HISTORY_EXPANDED = "historyExpanded"
 
@@ -368,7 +390,7 @@ class CardBrowserSearchViewModel(
     }
 }
 
-private fun SearchRequest.toHistoryEntry() =
+internal fun SearchRequest.toHistoryEntry() =
     SearchHistoryEntry(
         query = this.query.trim(),
         deckIds = this.filters.decks.map { it.id },

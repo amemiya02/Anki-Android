@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="browse_search_cards">カードを検索</string>
+    <string name="browse_search_notes">ノートを検索</string>
+    <string name="browse_card_state">カードの状態</string>
+    <string name="browse_recent_searches">最近の検索</string>
+    <string name="browse_saved_searches">保存した検索</string>
+    <string name="browse_manage_searches">管理</string>
+    <string name="browse_search_manual">検索式の書き方</string>
+    <string name="browse_search_manual_description">フィールド、タグ、デッキ、状態、日付で検索する方法をマニュアルで確認します。</string>
+    <string name="browse_no_cards">一致するカードがありません</string>
+    <string name="browse_no_notes">一致するノートがありません</string>
+    <string name="browse_clear">クリア</string>
+    <string name="browse_mode_cards">カード</string>
+    <string name="browse_mode_notes">ノート</string>
+    <string name="browse_state_marked">マーク済み</string>
+    <string name="browse_state_due">期限到来</string>
+    <string name="browse_sort">並べ替え</string>
+    <string name="browse_done">完了</string>
+    <string name="browse_history_edit">検索式を編集</string>
+    <string name="browse_sort_direction">順序</string>
+    <string name="browse_loading_results">結果を読み込み中</string>
+    <string name="browse_more_actions">その他の操作</string>
+    <string name="browse_hide_keyboard">検索を実行</string>
+    <string name="browse_card_actions">カードの操作</string>
+</resources>

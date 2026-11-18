@@ -18,6 +18,8 @@ data class SearchRequest(
     val query: String,
     val filters: SearchFilters = SearchFilters.EMPTY,
 ) {
+    val isEmpty: Boolean get() = query.isBlank() && filters.activeFilters.isEmpty()
+
     /**
      * Syntactic sugar for using [copy], to modify [filters]
      *

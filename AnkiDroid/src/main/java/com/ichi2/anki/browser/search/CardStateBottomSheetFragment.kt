@@ -134,9 +134,10 @@ fun CardState?.getIcon(context: Context): Drawable? {
             null -> androidx.appcompat.R.attr.colorPrimary
             CardState.New -> CommonR.attr.newCountColor
             CardState.Learning -> CommonR.attr.learnCountColor
-            CardState.Review -> CommonR.attr.reviewCountColor
+            CardState.Review, CardState.Due -> CommonR.attr.reviewCountColor
             CardState.Buried -> CommonR.attr.buriedColor
             CardState.Suspended -> CommonR.attr.suspendedColor
+            CardState.Marked -> CommonR.attr.markedColor
         }
     return ContextCompat.getDrawable(context, iconRes)?.mutate()?.also {
         DrawableCompat.setTint(it, MaterialColors.getColor(context, colorAttr, 0))

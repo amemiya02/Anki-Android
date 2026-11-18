@@ -27,6 +27,13 @@
     <attr name="foundationAnswerHard" format="color" />
     <attr name="foundationAnswerGood" format="color" />
     <attr name="foundationAnswerEasy" format="color" />
+    <attr name="foundationFlagRed" format="color" />
+    <attr name="foundationFlagOrange" format="color" />
+    <attr name="foundationFlagGreen" format="color" />
+    <attr name="foundationFlagBlue" format="color" />
+    <attr name="foundationFlagPink" format="color" />
+    <attr name="foundationFlagTurquoise" format="color" />
+    <attr name="foundationFlagPurple" format="color" />
     <attr name="foundationProgressTrack" format="color" />
     <attr name="foundationProgressFill" format="color" />
 
@@ -46,6 +53,13 @@
         <attr name="foundationAnswerHard" />
         <attr name="foundationAnswerGood" />
         <attr name="foundationAnswerEasy" />
+        <attr name="foundationFlagRed" />
+        <attr name="foundationFlagOrange" />
+        <attr name="foundationFlagGreen" />
+        <attr name="foundationFlagBlue" />
+        <attr name="foundationFlagPink" />
+        <attr name="foundationFlagTurquoise" />
+        <attr name="foundationFlagPurple" />
         <attr name="foundationProgressTrack" />
         <attr name="foundationProgressFill" />
     </declare-styleable>
@@ -83,6 +97,20 @@
     <color name="foundation_dark_answer_hard">#D6A24A</color>
     <color name="foundation_dark_answer_good">#8FB57F</color>
     <color name="foundation_dark_answer_easy">#86A8D4</color>
+    <color name="foundation_light_flag_red">#A63D25</color>
+    <color name="foundation_light_flag_orange">#8A5E10</color>
+    <color name="foundation_light_flag_green">#3E5B34</color>
+    <color name="foundation_light_flag_blue">#2F4A6B</color>
+    <color name="foundation_light_flag_pink">#A3436F</color>
+    <color name="foundation_light_flag_turquoise">#256B66</color>
+    <color name="foundation_light_flag_purple">#6B4A8E</color>
+    <color name="foundation_dark_flag_red">#E0694B</color>
+    <color name="foundation_dark_flag_orange">#D6A24A</color>
+    <color name="foundation_dark_flag_green">#8FB57F</color>
+    <color name="foundation_dark_flag_blue">#86A8D4</color>
+    <color name="foundation_dark_flag_pink">#DB8AB2</color>
+    <color name="foundation_dark_flag_turquoise">#6EBFB5</color>
+    <color name="foundation_dark_flag_purple">#B69AD8</color>
     <color name="foundation_dark_progress_track">#3B362E</color>
     <color name="foundation_dark_progress_fill">#ECE5D8</color>
 

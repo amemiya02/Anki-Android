@@ -13,12 +13,9 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.MainThread
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
@@ -26,8 +23,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.commit
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import anki.collection.OpChanges
 import com.google.android.material.snackbar.Snackbar
@@ -38,12 +33,9 @@ import com.ichi2.anki.browser.BrowserSearchFeedbackMode
 import com.ichi2.anki.browser.CardBrowserFragment
 import com.ichi2.anki.browser.CardBrowserLaunchOptions
 import com.ichi2.anki.browser.CardBrowserViewModel
-import com.ichi2.anki.browser.CardBrowserViewModel.ChangeMultiSelectMode
 import com.ichi2.anki.browser.CardBrowserViewModel.ChangeMultiSelectMode.SingleSelectCause
 import com.ichi2.anki.browser.CardBrowserViewModel.NoteEditorCommand
 import com.ichi2.anki.browser.CardBrowserViewModel.SearchState
-import com.ichi2.anki.browser.CardBrowserViewModel.SearchState.Initializing
-import com.ichi2.anki.browser.CardBrowserViewModel.SearchState.Searching
 import com.ichi2.anki.browser.CardOrNoteId
 import com.ichi2.anki.browser.IdsFile
 import com.ichi2.anki.browser.SaveSearchResult
@@ -53,23 +45,18 @@ import com.ichi2.anki.browser.search.SearchString
 import com.ichi2.anki.browser.search.findCards
 import com.ichi2.anki.browser.search.findNotes
 import com.ichi2.anki.browser.toCardBrowserLaunchOptions
-import com.ichi2.anki.common.ALL_DECKS_ID
-import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.destinations.NoteEditorDestination
 import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.common.utils.ext.getLongExtra
 import com.ichi2.anki.common.utils.ext.onPermanentDismissal
 import com.ichi2.anki.databinding.ActivityCardBrowserBinding
-import com.ichi2.anki.databinding.ActivityCardBrowserSearchviewBinding
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.dialogs.SavedBrowserSearchesDialogFragment
 import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.dialogs.registerSaveSearchHandler
 import com.ichi2.anki.dialogs.registerSavedSearchActionHandler
-import com.ichi2.anki.dialogs.startDeckSelection
 import com.ichi2.anki.libanki.Collection
-import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.SortOrder
 import com.ichi2.anki.model.CardsOrNotes
 import com.ichi2.anki.model.CardsOrNotes.CARDS
@@ -77,20 +64,14 @@ import com.ichi2.anki.model.CardsOrNotes.NOTES
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.scheduling.registerOnForgetHandler
-import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.uiConfigPrefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.startup.ensureStorageIsReady
 import com.ichi2.anki.ui.ResizablePaneManager
-import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.addPrepareMenuProvider
 import com.ichi2.anki.utils.ext.collectInLifecycle
 import com.ichi2.anki.utils.ext.onAllFragmentsLoaded
 import com.ichi2.themes.Themes
-import com.ichi2.ui.CardBrowserSearchView
-import com.ichi2.utils.AndroidUiUtils.hideKeyboard
-import com.ichi2.utils.LanguageUtil
-import kotlinx.coroutines.flow.filterNotNull
 import timber.log.Timber
 
 @Suppress("LeakingThis")
@@ -116,27 +97,7 @@ open class CardBrowser :
 
     lateinit var cardBrowserFragment: CardBrowserFragment
 
-    private var actionBarTitle: TextView? = null
-
-    private val searchView: CardBrowserSearchView?
-        get() = cardBrowserFragment.legacySearchView
-
-    private val searchItem: MenuItem? get() = cardBrowserFragment.searchItem
-    private val mySearchesItem: MenuItem? get() = cardBrowserFragment.mySearchesItem
-
-    // Dev option for Issue 18709
-    val useSearchView: Boolean
-        get() = Prefs.devUsingCardBrowserSearchView
-
-    // delegate the menu to the SearchBar in the fragment
-
-    val menuHost: MenuHost?
-        get() =
-            if (this::cardBrowserFragment.isInitialized && useSearchView) {
-                cardBrowserFragment
-            } else {
-                null
-            }
+    val useSearchView: Boolean get() = true
 
     init {
         ChangeManager.subscribe(this)
@@ -155,8 +116,6 @@ open class CardBrowser :
                     Snackbar.LENGTH_SHORT,
                 )
             SaveSearchResult.SUCCESS -> {
-                searchView!!.setQuery("", false)
-                mySearchesItem!!.isVisible = true
                 showSnackbar(
                     CommonString.card_browser_list_my_searches_successful_save,
                     Snackbar.LENGTH_SHORT,
@@ -173,14 +132,6 @@ open class CardBrowser :
             }
         }
 
-    @MainThread
-    @NeedsTest("search bar is set after selecting a saved search as first action")
-    private fun searchForQuery(query: String) {
-        // setQuery before expand does not set the view's value
-        searchItem?.expandActionView()
-        searchView?.setQuery(query, submit = true)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         if (showedActivityFailedScreen(savedInstanceState)) {
             return
@@ -190,12 +141,7 @@ open class CardBrowser :
             // the status bar sits over the app bar, which is the page colour
             statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme },
         )
-        val contentBinding =
-            if (useSearchView) {
-                ActivityCardBrowserSearchviewBinding.inflate(layoutInflater)
-            } else {
-                ActivityCardBrowserBinding.inflate(layoutInflater).also { binding = it }
-            }
+        val contentBinding = ActivityCardBrowserBinding.inflate(layoutInflater).also { binding = it }
         if (!ensureStorageIsReady()) {
             return
         }
@@ -216,10 +162,7 @@ open class CardBrowser :
          * [fragmented] will be true if the view size is large otherwise false
          */
         // TODO: Consider refactoring by storing noteEditorFrame and similar views in a sealed class (e.g., FragmentAccessor).
-        val fragmented =
-            Prefs.devIsCardBrowserFragmented &&
-                !useSearchView &&
-                binding?.noteEditorFrame?.visibility == View.VISIBLE
+        val fragmented = binding?.noteEditorFrame?.visibility == View.VISIBLE
         Timber.i("Using split Browser: %b", fragmented)
 
         if (fragmented) {
@@ -248,14 +191,6 @@ open class CardBrowser :
                 }
             }
 
-        if (!useSearchView) {
-            // initialize the lateinit variables
-            // Load reference to action bar title
-            actionBarTitle = findViewById(R.id.toolbar_title)
-            // new deck selection is only available when the new search view is not used
-            findViewById<LinearLayout>(R.id.toolbar_content).setOnClickListener { startDeckSelection(skipEmptyDefault = true) }
-        }
-
         startLoadingCollection()
 
         setupFlows()
@@ -276,20 +211,13 @@ open class CardBrowser :
                     launchCatchingTask {
                         val search = viewModel.savedSearches().find { it.name == searchName } ?: return@launchCatchingTask
                         Timber.d("OnSelection using search terms: %s", search.query)
-                        if (useSearchView) {
-                            cardBrowserFragment.searchViewModel.submitSavedSearch(search)
-                        } else {
-                            searchForQuery(search.query)
-                        }
+                        cardBrowserFragment.searchViewModel.submitBrowserSearch(search.query)
                     }
                 }
                 SavedBrowserSearchesDialogFragment.TYPE_SEARCH_REMOVED -> {
                     Timber.d("Removing saved search named: %s", searchName)
                     launchCatchingTask {
-                        val (_, updatedFilters) = viewModel.removeSavedSearch(searchName)
-                        if (updatedFilters.isEmpty()) {
-                            mySearchesItem!!.isVisible = false
-                        }
+                        viewModel.removeSavedSearch(searchName)
                     }
                 }
                 else -> error("Unexpected saved search action: $type")
@@ -314,28 +242,6 @@ open class CardBrowser :
                 }
 
                 override fun onMenuItemSelected(menuItem: MenuItem) = drawerToggle.onOptionsItemSelected(menuItem)
-            },
-        )
-
-        // add a MenuProvider for multi-select
-        addMenuProvider(
-            object : MenuProvider {
-                override fun onCreateMenu(
-                    menu: Menu,
-                    menuInflater: MenuInflater,
-                ) {
-                }
-
-                override fun onPrepareMenu(menu: Menu) {
-                    if (!viewModel.isInMultiSelectMode) return
-
-                    // set the number of selected rows
-                    actionBarTitle?.text = String.format(LanguageUtil.getLocaleCompat(resources), "%d", viewModel.selectedRowCount())
-                    findViewById<TextView>(R.id.deck_name)?.isVisible = !viewModel.hasSelectedAnyRows() && !viewModel.isInMultiSelectMode
-                    findViewById<TextView>(R.id.subtitle)?.isVisible = !viewModel.hasSelectedAnyRows() && !viewModel.isInMultiSelectMode
-                }
-
-                override fun onMenuItemSelected(menuItem: MenuItem) = false
             },
         )
 
@@ -420,83 +326,10 @@ open class CardBrowser :
     val fragment: NoteEditorFragment?
         get() = supportFragmentManager.findFragmentById(R.id.note_editor_frame) as? NoteEditorFragment
 
-    @Suppress("UNUSED_PARAMETER")
     private fun setupFlows() {
-        // provides a name for each flow receiver to improve stack traces
-
-        fun onSearchQueryExpanded(searchQueryExpanded: Boolean) {
-            Timber.d("query expansion changed: %b", searchQueryExpanded)
-            if (searchQueryExpanded) {
-                searchItem?.expandActionView()
-            } else {
-                searchItem?.collapseActionView()
-                // invalidate options menu so that disappeared icons would appear again
-                invalidateOptionsMenu()
-            }
-        }
-
-        fun onSelectedRowsChanged(rows: Set<Any>) = invalidateOptionsMenu()
-
-        fun onFilterQueryChanged(filterQuery: String) {
-            // setQuery before expand does not set the view's value
-            searchItem?.expandActionView()
-            searchView?.setQuery(filterQuery, submit = false)
-        }
-
-        fun onDeckIdChanged(deckId: DeckId?) {
-            if (useSearchView) return
-            launchCatchingTask {
-                findViewById<TextView>(R.id.deck_name)?.text =
-                    when (deckId) {
-                        null -> TR.sentenceCase.allDecks
-                        ALL_DECKS_ID -> TR.sentenceCase.allDecks
-                        else -> withCol { decks.getLegacy(deckId)?.name }
-                    }
-            }
-        }
-
-        fun onMultiSelectModeChanged(modeChange: ChangeMultiSelectMode) {
-            if (modeChange.resultedInMultiSelect) {
-                // Turn on Multi-Select Mode so that the user can select multiple cards at once.
-                Timber.d("load multiselect mode")
-                // show title and hide spinner
-                actionBarTitle?.visibility = View.VISIBLE
-                findViewById<TextView>(R.id.deck_name)?.isVisible = false
-                findViewById<TextView>(R.id.subtitle)?.isVisible = false
-                multiSelectOnBackPressedCallback.isEnabled = true
-            } else {
-                Timber.d("end multiselect mode")
-                findViewById<TextView>(R.id.deck_name)?.isVisible = true
-                findViewById<TextView>(R.id.subtitle)?.isVisible = true
-                actionBarTitle?.visibility = View.GONE
-                multiSelectOnBackPressedCallback.isEnabled = false
-            }
-            // reload the actionbar using the multi-select mode actionbar
+        viewModel.flowOfMultiSelectModeChanged.collectInLifecycle { mode ->
+            multiSelectOnBackPressedCallback.isEnabled = mode.resultedInMultiSelect
             invalidateOptionsMenu()
-        }
-
-        fun searchStateChanged(searchState: SearchState) {
-            Timber.d("search state: %s", searchState)
-
-            when (searchState) {
-                Initializing -> { }
-                Searching -> {
-                    if ("" != viewModel.searchTerms && searchView != null) {
-                        searchView!!.setQuery(viewModel.searchTerms, false)
-                        searchItem!!.expandActionView()
-                    }
-                }
-                is SearchState.Completed -> {
-                    // HACK: required now we use MenuProvider for searches
-                    // this causes a very brief flicker, as we call `setQuery` to restore the menu state
-                    searchView?.post { searchView?.clearFocus() }
-                }
-                is SearchState.Error -> { }
-            }
-        }
-
-        fun onLastCompletedSearchChanged(search: SearchState.Completed) {
-            findViewById<TextView>(R.id.subtitle)?.text = search.formatCardCount(resources)
         }
 
         fun onNoteEditorCommand(command: NoteEditorCommand) {
@@ -529,22 +362,7 @@ open class CardBrowser :
             }
         }
 
-        viewModel.flowOfSearchQueryExpanded.collectInLifecycle(::onSearchQueryExpanded)
-        viewModel.flowOfSelectedRows.collectInLifecycle(::onSelectedRowsChanged)
-        viewModel.flowOfFilterQuery.collectInLifecycle(::onFilterQueryChanged)
-        viewModel.flowOfDeckId.collectInLifecycle(::onDeckIdChanged)
-        viewModel.flowOfMultiSelectModeChanged.collectInLifecycle(::onMultiSelectModeChanged)
-        viewModel.flowOfSearchState.collectInLifecycle(::searchStateChanged)
-        viewModel.flowOfLastCompletedSearch.filterNotNull().collectInLifecycle(::onLastCompletedSearchChanged)
         viewModel.flowOfNoteEditorCommand.collectInLifecycle(::onNoteEditorCommand)
-    }
-
-    private fun hideKeyboard() {
-        Timber.d("hideKeyboard()")
-        searchView?.let { view ->
-            view.clearFocus()
-            view.hideKeyboard()
-        }
     }
 
     // Finish initializing the activity after the collection has been correctly loaded
@@ -559,25 +377,9 @@ open class CardBrowser :
     override fun onKeyUp(
         keyCode: Int,
         event: KeyEvent,
-    ): Boolean {
-        if (cardBrowserFragment.onKeyUp(keyCode, event)) {
-            return true
-        }
-
-        // This method is called even when the user is typing in the search text field.
-        // So we must ensure that all shortcuts uses a modifier.
-        // A shortcut without modifier would be triggered while the user types, which is not what we want.
-        when (keyCode) {
-            KeyEvent.KEYCODE_F -> {
-                if (event.isCtrlPressed) {
-                    Timber.i("Ctrl+F - Find notes")
-                    searchItem?.expandActionView()
-                    return true
-                }
-            }
-        }
-        return super.onKeyUp(keyCode, event)
-    }
+    ): Boolean =
+        (::cardBrowserFragment.isInitialized && cardBrowserFragment.onKeyUp(keyCode, event)) ||
+            super.onKeyUp(keyCode, event)
 
     override fun onPause() {
         super.onPause()
@@ -589,9 +391,6 @@ open class CardBrowser :
     override fun onResume() {
         super.onResume()
         selectNavigationItem(R.id.nav_browser)
-        searchView?.post {
-            hideKeyboard()
-        }
         viewModel.refreshColumnsFromPrefs()
     }
 
@@ -603,36 +402,15 @@ open class CardBrowser :
         }
     }
 
-    public override fun onSaveInstanceState(outState: Bundle) {
-        // Save current search terms
-        outState.putString("mSearchTerms", viewModel.searchTerms)
-        super.onSaveInstanceState(outState)
-    }
-
     public override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         viewModel.onReinit()
-        viewModel.setQuery(
-            savedInstanceState.getString("mSearchTerms", ""),
-            forceRefresh = false,
-        )
-    }
-
-    private fun forceRefreshSearch(
-        useSearchTextValue: Boolean = false,
-        feedbackMode: BrowserSearchFeedbackMode = BrowserSearchFeedbackMode.NONE,
-    ) {
-        if (useSearchTextValue && searchView != null) {
-            viewModel.setQuery(searchView!!.query.toString(), feedbackMode = feedbackMode)
-        } else {
-            viewModel.launchSearchForCards(feedbackMode = feedbackMode)
-        }
     }
 
     private fun refreshBrowserUI(feedbackMode: BrowserSearchFeedbackMode) {
         hideProgressBar()
         // reload whole view
-        forceRefreshSearch(feedbackMode = feedbackMode)
+        viewModel.launchSearchForCards(feedbackMode = feedbackMode)
         viewModel.endMultiSelectMode(SingleSelectCause.Other)
         invalidateOptionsMenu() // maybe the availability of undo changed
     }
@@ -682,53 +460,6 @@ open class CardBrowser :
 
     override val shortcuts
         get() = cardBrowserFragment.shortcuts
-
-    // region MenuHost delegation
-
-    // This only supports delegation of menus defined using MenuProvider, not `onCreateOptionsMenu`
-    //
-    // When delegating a MenuHost to a fragment, the fragment is attached after `super.onCreate`
-    // of the activity.
-    //
-    // As the activity calls `addMenuProvider` inside `super.onCreate()`, the fragment would not be
-    //  initialized
-    //
-    // Calls to activity.addMenuProvider are done after the fragment is initialized
-    // so this delegation works as long as the activity is using `onCreateOptionsMenu`
-
-    override fun addMenuProvider(provider: MenuProvider) {
-        menuHost?.addMenuProvider(provider) ?: super.addMenuProvider(provider)
-    }
-
-    override fun addMenuProvider(
-        provider: MenuProvider,
-        owner: LifecycleOwner,
-    ) {
-        menuHost?.addMenuProvider(provider, owner) ?: super.addMenuProvider(provider, owner)
-    }
-
-    override fun addMenuProvider(
-        provider: MenuProvider,
-        owner: LifecycleOwner,
-        state: Lifecycle.State,
-    ) {
-        menuHost?.addMenuProvider(provider, owner, state) ?: super.addMenuProvider(provider, owner, state)
-    }
-
-    override fun removeMenuProvider(provider: MenuProvider) {
-        menuHost?.removeMenuProvider(provider) ?: super.removeMenuProvider(provider)
-    }
-
-    override fun invalidateMenu() {
-        menuHost?.invalidateMenu() ?: super.invalidateMenu()
-    }
-
-    override fun invalidateOptionsMenu() {
-        super.invalidateOptionsMenu()
-        menuHost?.invalidateMenu()
-    }
-
-    // endregion
 
     companion object {
         // Keys for saving pane weights in SharedPreferences

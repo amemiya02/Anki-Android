@@ -107,6 +107,7 @@ import com.ichi2.anki.android.input.Shortcut
 import com.ichi2.anki.android.input.ShortcutGroup
 import com.ichi2.anki.android.input.shortcut
 import com.ichi2.anki.android.view.locationInWindow
+import com.ichi2.anki.browser.CardBrowserFragment
 import com.ichi2.anki.common.android.AdaptionUtil
 import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.annotations.NeedsTest
@@ -1743,8 +1744,11 @@ open class DeckPicker :
         keyCode: Int,
         event: KeyEvent,
     ): Boolean {
-        if (selectedBottomNavItem() == NavigationItem.BROWSER && window.currentFocus?.onCheckIsTextEditor() == true) {
-            return super.onKeyUp(keyCode, event)
+        if (selectedBottomNavItem() == NavigationItem.BROWSER) {
+            val browser = supportFragmentManager.findFragmentByTag(NavigationItem.BROWSER.tag) as? CardBrowserFragment
+            if (browser?.isVisible == true) {
+                return browser.onKeyUp(keyCode, event) || super.onKeyUp(keyCode, event)
+            }
         }
         if (toolbarSearchView?.hasFocus() == true) {
             Timber.d("Skipping keypress: search action bar is focused")

@@ -21,6 +21,13 @@
         <item name="foundationAnswerHard">@color/foundation_light_answer_hard</item>
         <item name="foundationAnswerGood">@color/foundation_light_answer_good</item>
         <item name="foundationAnswerEasy">@color/foundation_light_answer_easy</item>
+        <item name="foundationFlagRed">@color/foundation_light_flag_red</item>
+        <item name="foundationFlagOrange">@color/foundation_light_flag_orange</item>
+        <item name="foundationFlagGreen">@color/foundation_light_flag_green</item>
+        <item name="foundationFlagBlue">@color/foundation_light_flag_blue</item>
+        <item name="foundationFlagPink">@color/foundation_light_flag_pink</item>
+        <item name="foundationFlagTurquoise">@color/foundation_light_flag_turquoise</item>
+        <item name="foundationFlagPurple">@color/foundation_light_flag_purple</item>
         <item name="foundationProgressTrack">@color/foundation_light_progress_track</item>
         <item name="foundationProgressFill">@color/foundation_light_progress_fill</item>
 

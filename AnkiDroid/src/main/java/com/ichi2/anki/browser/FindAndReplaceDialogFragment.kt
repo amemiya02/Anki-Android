@@ -12,6 +12,7 @@ import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AlertDialog
 import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
 import com.ichi2.anki.CardBrowser
@@ -201,19 +202,24 @@ class FindAndReplaceDialogFragment : AnalyticsDialogFragment() {
 }
 
 fun CardBrowser.registerFindReplaceHandler(action: (FindReplaceResult) -> Unit) {
-    setFragmentResultListener(REQUEST_FIND_AND_REPLACE) { _, bundle ->
-        action(
-            FindReplaceResult(
-                search = bundle.getString(RESULT_SEARCH) ?: error("Missing required argument: search"),
-                replacement = bundle.getString(RESULT_REPLACEMENT) ?: error("Missing required argument: replacement"),
-                field = bundle.getString(RESULT_FIELD) ?: error("Missing required argument: field"),
-                onlyOnSelectedNotes = bundle.getBoolean(RESULT_ONLY_SELECTED_NOTES, true),
-                matchCase = bundle.getBoolean(RESULT_MATCH_CASE, false),
-                regex = bundle.getBoolean(RESULT_REGEX, false),
-            ),
-        )
+    setFragmentResultListener(REQUEST_FIND_AND_REPLACE) { _, bundle -> action(bundle.toFindReplaceResult()) }
+}
+
+internal fun Fragment.registerBrowserFindReplaceHandler(action: (FindReplaceResult) -> Unit) {
+    parentFragmentManager.setFragmentResultListener(REQUEST_FIND_AND_REPLACE, viewLifecycleOwner) { _, bundle ->
+        action(bundle.toFindReplaceResult())
     }
 }
+
+private fun Bundle.toFindReplaceResult() =
+    FindReplaceResult(
+        search = getString(RESULT_SEARCH) ?: error("Missing required argument: search"),
+        replacement = getString(RESULT_REPLACEMENT) ?: error("Missing required argument: replacement"),
+        field = getString(RESULT_FIELD) ?: error("Missing required argument: field"),
+        onlyOnSelectedNotes = getBoolean(RESULT_ONLY_SELECTED_NOTES, true),
+        matchCase = getBoolean(RESULT_MATCH_CASE, false),
+        regex = getBoolean(RESULT_REGEX, false),
+    )
 
 data class FindReplaceResult(
     val search: String,

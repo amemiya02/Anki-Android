@@ -1,0 +1,220 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+package com.ichi2.anki.browser
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.isSecondaryPressed
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import com.ichi2.anki.CollectionManager.withCol
+import com.ichi2.anki.Flag
+import com.ichi2.anki.R
+import com.ichi2.anki.browser.search.CardState
+import com.ichi2.anki.libanki.QueueType
+import com.ichi2.anki.model.CardsOrNotes
+import com.ichi2.compose.theme.FoundationColors
+import com.ichi2.compose.theme.foundation
+import net.ankiweb.rsdroid.BackendException
+import timber.log.Timber
+
+/** Loaded only while the corresponding ID is visible in the browser. */
+internal data class BrowserResultRow(
+    val cells: List<String>,
+    val flags: List<Flag>,
+    val marked: Boolean,
+    val states: List<CardState>,
+)
+
+internal suspend fun loadBrowserResultRow(
+    id: CardOrNoteId,
+    mode: CardsOrNotes,
+    showMediaFilenames: Boolean,
+): BrowserResultRow? =
+    withCol {
+        try {
+            val cells =
+                backend.browserRowForId(id.cardOrNoteId).cellsList.map { cell ->
+                    BrowserMultiColumnAdapter.removeSounds(cell.text, showMediaFilenames)
+                }
+            val cards =
+                if (mode == CardsOrNotes.CARDS) {
+                    listOf(getCard(id.cardOrNoteId))
+                } else {
+                    cardIdsOfNote(id.cardOrNoteId).map(::getCard)
+                }
+            val note = if (mode == CardsOrNotes.NOTES) getNote(id.cardOrNoteId) else cards.single().note(this)
+            BrowserResultRow(
+                cells = cells,
+                flags =
+                    cards
+                        .map { Flag.fromCode(it.flags and 7) }
+                        .distinct()
+                        .filterNot { it == Flag.NONE }
+                        .sortedBy(Flag::code),
+                marked = note.tags.any { it.equals("marked", ignoreCase = true) },
+                states =
+                    cards
+                        .mapNotNull { card ->
+                            when (card.queue) {
+                                QueueType.Suspended -> CardState.Suspended
+                                QueueType.ManuallyBuried, QueueType.SiblingBuried -> CardState.Buried
+                                else -> null
+                            }
+                        }.distinct(),
+            )
+        } catch (e: BackendException) {
+            // An edit or sync can remove this ID before the pending search refresh.
+            Timber.d(e, "Browser row no longer available: %s", id)
+            null
+        }
+    }
+
+@Composable
+internal fun BrowserResult(
+    row: BrowserResultRow?,
+    flagNames: Map<Flag, String>,
+    isSelected: Boolean,
+    isInSelection: Boolean,
+    isInPane: Boolean,
+    truncated: Boolean,
+    fontScale: Float,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    onRightClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val foundation = MaterialTheme.foundation
+    val colors = foundation.colors
+    Column(modifier) {
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = foundation.spacing.listRow)
+                    .background(if (isSelected || isInPane) colors.progressTrack else colors.background)
+                    .pointerInput(row, onRightClick) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                if (row == null || event.type != PointerEventType.Press || !event.buttons.isSecondaryPressed) continue
+                                event.changes.forEach { it.consume() }
+                                onRightClick()
+                            }
+                        }
+                    }.combinedClickable(
+                        enabled = row != null,
+                        onClick = onClick,
+                        onLongClick = onLongClick,
+                        onLongClickLabel = stringResource(R.string.browse_card_actions),
+                    ).then(if (isInSelection) Modifier.semantics { selected = isSelected } else Modifier)
+                    .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            if (isInSelection) {
+                Checkbox(
+                    checked = isSelected,
+                    onCheckedChange = null,
+                    colors = CheckboxDefaults.colors(checkedColor = colors.emphasis, checkmarkColor = colors.background),
+                )
+            }
+            if (row != null) {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        text = row.cells.firstOrNull().orEmpty(),
+                        style =
+                            foundation.type.rowTitle.let {
+                                it.copy(
+                                    fontSize = it.fontSize * fontScale,
+                                    lineHeight =
+                                        it.lineHeight * fontScale,
+                                )
+                            },
+                        color = if (row.states.isEmpty()) colors.onBackground else colors.onBackgroundMuted,
+                        maxLines = if (truncated) 1 else Int.MAX_VALUE,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    val details =
+                        row.cells
+                            .drop(1)
+                            .filter(String::isNotBlank)
+                            .joinToString(" · ")
+                    if (details.isNotEmpty()) {
+                        Text(
+                            text = details,
+                            style =
+                                foundation.type.caption.let {
+                                    it.copy(
+                                        fontSize = it.fontSize * fontScale,
+                                        lineHeight =
+                                            it.lineHeight * fontScale,
+                                    )
+                                },
+                            color = colors.onBackgroundMuted,
+                            maxLines = if (truncated) 1 else Int.MAX_VALUE,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    row.flags.forEach { flag ->
+                        Icon(
+                            painterResource(R.drawable.symbol_flag_red),
+                            contentDescription = flagNames[flag],
+                            modifier = Modifier.size(18.dp),
+                            tint = colors.flag(flag),
+                        )
+                    }
+                    if (row.marked) {
+                        Icon(
+                            painterResource(R.drawable.symbol_star),
+                            contentDescription = stringResource(R.string.browse_state_marked),
+                            modifier = Modifier.size(18.dp),
+                            tint = colors.onBackgroundMuted,
+                        )
+                    }
+                    row.states.forEach { state ->
+                        Text(text = state.label, style = foundation.type.label, color = colors.onBackgroundMuted)
+                    }
+                }
+            }
+        }
+        HorizontalDivider(thickness = foundation.shapes.hairline, color = colors.outline)
+    }
+}
+
+internal fun FoundationColors.flag(flag: Flag): Color =
+    when (flag) {
+        Flag.NONE -> onBackgroundMuted
+        Flag.RED -> flagRed
+        Flag.ORANGE -> flagOrange
+        Flag.GREEN -> flagGreen
+        Flag.BLUE -> flagBlue
+        Flag.PINK -> flagPink
+        Flag.TURQUOISE -> flagTurquoise
+        Flag.PURPLE -> flagPurple
+    }

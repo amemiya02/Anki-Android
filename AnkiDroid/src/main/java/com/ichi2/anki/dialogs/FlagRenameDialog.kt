@@ -39,6 +39,7 @@ class FlagRenameDialog : DialogFragment() {
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
         activity?.invalidateOptionsMenu()
+        parentFragmentManager.setFragmentResult(RENAMED_FLAGS, Bundle())
     }
 
     override fun onStart() {
@@ -70,5 +71,9 @@ class FlagRenameDialog : DialogFragment() {
                     icon = flag.drawableRes,
                 )
             }
+    }
+
+    companion object {
+        internal const val RENAMED_FLAGS = "renamed_flags"
     }
 }

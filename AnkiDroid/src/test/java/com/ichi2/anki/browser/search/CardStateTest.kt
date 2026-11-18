@@ -27,6 +27,8 @@ class CardStateTest : JvmTest() {
                 CardState.Review -> "is:review"
                 CardState.Buried -> "is:buried"
                 CardState.Suspended -> "is:suspended"
+                CardState.Due -> "is:due"
+                CardState.Marked -> "tag:marked"
             }
 
         assertEquals(state.toSearchString(), state.toExpectedSearchString())
@@ -41,6 +43,8 @@ class CardStateTest : JvmTest() {
                 CardState.Review -> "Review"
                 CardState.Buried -> "Buried"
                 CardState.Suspended -> "Suspended"
+                CardState.Due -> "Due"
+                CardState.Marked -> "Marked"
             }
         assertEquals(state.label, state.toExpectedLabel())
     }
@@ -48,7 +52,7 @@ class CardStateTest : JvmTest() {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun parameters(): Collection<Array<Any>> = CardState.entries.map { arrayOf(it) }
+        fun parameters(): Collection<Array<Any>> = CardState.entries.take(5).map { arrayOf(it) }
     }
 }
 

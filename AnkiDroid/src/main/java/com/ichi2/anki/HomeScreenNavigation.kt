@@ -54,7 +54,7 @@ fun setupBottomNavigation() {
 
     fun updateFragmentBottomMargin() {
         val margin =
-            if (scrollBehavior.isScrolledIn) {
+            if (bottomNav.isVisible && scrollBehavior.isScrolledIn) {
                 bottomNav.height
             } else {
                 ViewCompat.getRootWindowInsets(bottomNav)?.getInsets(navigationBars())?.bottom ?: 0
@@ -152,6 +152,7 @@ private fun showTab(item: NavigationItem) {
     val contentWrapper = checkNotNull(binding.deckPickerContentWrapper)
     val fragmentContainer = checkNotNull(binding.bottomNavFragmentContainer)
     deckPicker.bottomNavBackCallback.isEnabled = item != NavigationItem.HOME
+    if (item != NavigationItem.BROWSER) deckPicker.setBrowserSearchVisible(false)
     when (item) {
         NavigationItem.HOME -> {
             fragmentContainer.isVisible = false
@@ -228,6 +229,21 @@ fun Fragment.updateBottomNavOnScroll(dy: Int) {
     val bottomNav = deckPicker.binding.bottomNavigation ?: return
     val behavior = HideViewOnScrollBehavior.from(bottomNav)
     if (dy > 0) behavior.slideOut(bottomNav) else behavior.slideIn(bottomNav)
+}
+
+/** Search takes over the Browse tab until it is submitted or dismissed. */
+internal fun DeckPicker.setBrowserSearchVisible(visible: Boolean) {
+    if (!bottomNavigationEnabled) return
+    val bar = binding.bottomNavigation ?: return
+    val container = binding.bottomNavFragmentContainer ?: return
+    if (bar.isVisible == !visible) return
+    bar.isVisible = !visible
+    if (visible) {
+        container.updateLayoutParams<ViewGroup.MarginLayoutParams> { bottomMargin = 0 }
+    } else {
+        HideViewOnScrollBehavior.from(bar).slideIn(bar)
+        container.updateLayoutParams<ViewGroup.MarginLayoutParams> { bottomMargin = bar.height }
+    }
 }
 
 /** Hides any fragments currently hosted in the bottom-nav container. */

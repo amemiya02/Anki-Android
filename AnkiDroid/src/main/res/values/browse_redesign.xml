@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="browse_search_cards">Search cards</string>
+    <string name="browse_search_notes">Search notes</string>
+    <string name="browse_card_state">Card state</string>
+    <string name="browse_recent_searches">Recent</string>
+    <string name="browse_saved_searches">Saved searches</string>
+    <string name="browse_manage_searches">Manage</string>
+    <string name="browse_search_manual">How to write a search</string>
+    <string name="browse_search_manual_description">Field, tag, deck, state and date searches, in the manual.</string>
+    <string name="browse_no_cards">No cards match</string>
+    <string name="browse_no_notes">No notes match</string>
+    <string name="browse_clear">Clear</string>
+    <string name="browse_mode_cards">Cards</string>
+    <string name="browse_mode_notes">Notes</string>
+    <string name="browse_state_marked">Marked</string>
+    <string name="browse_state_due">Due</string>
+    <string name="browse_sort">Sort</string>
+    <string name="browse_done">Done</string>
+    <string name="browse_history_edit">Edit search</string>
+    <string name="browse_sort_direction">Direction</string>
+    <string name="browse_loading_results">Loading results</string>
+    <string name="browse_more_actions">More actions</string>
+    <string name="browse_hide_keyboard">Submit search</string>
+    <string name="browse_card_actions">Card actions</string>
+</resources>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="browse_search_cards">ابحث في البطاقات</string>
+    <string name="browse_search_notes">ابحث في الملاحظات</string>
+    <string name="browse_card_state">حالة البطاقة</string>
+    <string name="browse_recent_searches">الأخيرة</string>
+    <string name="browse_saved_searches">عمليات البحث المحفوظة</string>
+    <string name="browse_manage_searches">إدارة</string>
+    <string name="browse_search_manual">كيفية كتابة استعلام بحث</string>
+    <string name="browse_search_manual_description">دليل البحث حسب الحقل والوسم والرزمة والحالة والتاريخ.</string>
+    <string name="browse_no_cards">لا توجد بطاقات مطابقة</string>
+    <string name="browse_no_notes">لا توجد ملاحظات مطابقة</string>
+    <string name="browse_clear">مسح</string>
+    <string name="browse_mode_cards">البطاقات</string>
+    <string name="browse_mode_notes">الملاحظات</string>
+    <string name="browse_state_marked">معلّمة</string>
+    <string name="browse_state_due">مستحقة</string>
+    <string name="browse_sort">الفرز</string>
+    <string name="browse_done">تم</string>
+    <string name="browse_history_edit">تعديل البحث</string>
+    <string name="browse_sort_direction">الاتجاه</string>
+    <string name="browse_loading_results">جارٍ تحميل النتائج</string>
+    <string name="browse_more_actions">إجراءات أخرى</string>
+    <string name="browse_hide_keyboard">تنفيذ البحث</string>
+    <string name="browse_card_actions">إجراءات البطاقة</string>
+</resources>
