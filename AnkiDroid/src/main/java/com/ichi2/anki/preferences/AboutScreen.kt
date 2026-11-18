@@ -54,7 +54,7 @@ internal fun AboutScreen(
     onCopyDebugInfo: () -> Unit,
 ) {
     val foundation = MaterialTheme.foundation
-    val name = stringResource(R.string.fork_name)
+    val name = stringResource(CommonString.fork_name)
     SettingsScrollPage(stringResource(CommonString.pref_cat_about_title), onBack) {
         Column(
             Modifier.fillMaxWidth().padding(vertical = 16.dp),
