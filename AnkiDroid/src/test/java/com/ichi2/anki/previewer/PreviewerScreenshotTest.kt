@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ActivityScenario
+import anki.notetypes.StockNotetype
 import com.ichi2.anki.CheckAccessibility
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.Flag
@@ -19,6 +20,7 @@ import com.ichi2.anki.LanguageConfig.JAPANESE
 import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.anki.browser.IdsFile
+import com.ichi2.anki.libanki.getStockNotetype
 import com.ichi2.testutils.createTransientDirectory
 import com.ichi2.testutils.ext.reopenWithLanguage
 import org.junit.Rule
@@ -38,9 +40,10 @@ class PreviewerScreenshotTest : ScreenshotTest() {
     fun previewFromBrowser() {
         runTest { col.reopenWithLanguage(language.option) }
         val deck = addDeck("中文::HSK 4", setAsSelected = true)
+        val notetype = requireNotNull(col.notetypes.byName(col.getStockNotetype(StockNotetype.Kind.KIND_BASIC).name))
         val ids =
             (1..25).flatMap {
-                val note = col.newNote(col.notetypes.basic)
+                val note = col.newNote(notetype)
                 note.setField(0, "熟悉")
                 note.setField(1, "Familiar with")
                 col.addNote(note, deck)
@@ -67,6 +70,8 @@ class PreviewerScreenshotTest : ScreenshotTest() {
                 composeRule.onAllNodesWithText(next).fetchSemanticsNodes().isNotEmpty()
             }
             composeRule.onNodeWithText(next).assertIsDisplayed()
+            composeRule.mainClock.advanceTimeBy(500)
+            composeRule.waitForIdle()
             captureScreen("answer")
         }
     }

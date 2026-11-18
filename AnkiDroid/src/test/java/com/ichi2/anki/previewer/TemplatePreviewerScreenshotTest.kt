@@ -8,6 +8,7 @@ import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.core.app.ActivityScenario
+import anki.notetypes.StockNotetype
 import com.ichi2.anki.CheckAccessibility
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.FontSizeConfig.PERCENT_200
@@ -18,6 +19,7 @@ import com.ichi2.anki.LanguageConfig.JAPANESE
 import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.NotetypeFile
 import com.ichi2.anki.ScreenshotTest
+import com.ichi2.anki.libanki.getStockNotetype
 import com.ichi2.testutils.createTransientDirectory
 import com.ichi2.testutils.ext.reopenWithLanguage
 import org.junit.Rule
@@ -36,7 +38,7 @@ class TemplatePreviewerScreenshotTest : ScreenshotTest() {
     @Test
     fun previewFromNoteEditor() {
         runTest { col.reopenWithLanguage(language.option) }
-        val notetype = col.notetypes.basicAndReversed
+        val notetype = requireNotNull(col.notetypes.byName(col.getStockNotetype(StockNotetype.Kind.KIND_BASIC_AND_REVERSED).name))
         val arguments =
             TemplatePreviewerArguments(
                 notetypeFile = NotetypeFile(createTransientDirectory(), notetype),
