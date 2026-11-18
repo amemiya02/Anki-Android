@@ -69,7 +69,7 @@ class VersatileTextWithASwitchPreference(
     }
 
     fun onDialogClosedAndNewTextSet() {
-        preferences.edit { putBoolean(switchKey, canBeSwitchedOn) }
+        switchChecked = canBeSwitchedOn
     }
 
     override fun makeDialogFragment() = VersatileTextWithASwitchPreferenceDialogFragment()

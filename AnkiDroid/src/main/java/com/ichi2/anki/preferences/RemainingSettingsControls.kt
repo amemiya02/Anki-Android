@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -115,11 +116,12 @@ internal fun PreferenceRow(
                 modifier = modifier,
                 highlighted = highlighted,
                 trailing = {
-                    if (preference is VersatileTextWithASwitchPreference && !preference.text.isNullOrEmpty()) {
+                    if (preference is VersatileTextWithASwitchPreference) {
                         val colors = MaterialTheme.foundation.colors
+                        val canToggle = !preference.text.isNullOrEmpty()
                         Switch(
-                            checked = preference.switchChecked,
-                            onCheckedChange = { preference.switchChecked = it },
+                            checked = canToggle && preference.switchChecked,
+                            onCheckedChange = if (canToggle) { checked -> preference.switchChecked = checked } else null,
                             enabled = preference.isEnabled,
                             modifier =
                                 Modifier.semantics {
@@ -374,16 +376,18 @@ private fun DirectoryEditor(
                     DialogAction(stringResource(CommonString.pref_custom_path), { custom = true }),
                 ),
         ) {
-            directories.forEach { path ->
-                DialogChoiceRow(
-                    choice = DialogChoice(path),
-                    checked = path == preference.value,
-                    onClick = {
-                        onDismiss()
-                        if (preference.callChangeListener(path)) preference.value = path
-                    },
-                    multiple = false,
-                )
+            Column(Modifier.selectableGroup()) {
+                directories.forEach { path ->
+                    DialogChoiceRow(
+                        choice = DialogChoice(path),
+                        checked = path == preference.value,
+                        onClick = {
+                            onDismiss()
+                            if (preference.callChangeListener(path)) preference.value = path
+                        },
+                        multiple = false,
+                    )
+                }
             }
         }
     }
