@@ -1214,9 +1214,12 @@ class CardBrowserTest : RobolectricTest() {
         addBasicNote("Second result")
         getBrowserWithNotes(noteCount = 0)
 
+        composeRule.waitUntilAtLeastOneExists(hasText("First result"), 10_000)
         composeRule.onNodeWithText("First result").performTouchInput { longClick() }
+        composeRule.waitUntilAtLeastOneExists(hasText("1 selected"), 10_000)
         composeRule.onNodeWithText("1 selected").assertIsDisplayed()
         composeRule.onNodeWithText("Second result").performClick()
+        composeRule.waitUntilAtLeastOneExists(hasText("2 selected"), 10_000)
         composeRule.onNodeWithText("2 selected").assertIsDisplayed()
     }
 
