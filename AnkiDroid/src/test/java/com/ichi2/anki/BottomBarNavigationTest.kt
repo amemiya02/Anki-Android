@@ -2,6 +2,7 @@
 
 package com.ichi2.anki
 
+import android.graphics.drawable.LayerDrawable
 import android.view.View
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -38,6 +39,14 @@ class BottomBarNavigationTest : RobolectricTest() {
         withDeckPicker(deckCount = 1) { deckPicker ->
             assertThat(deckPicker.bottomBar.isVisible, equalTo(true))
             assertThat(deckPicker.bottomBar.selectedItemId, equalTo(NavigationItem.HOME.id))
+        }
+
+    @Test
+    fun `the phone bar draws the Paper background and hairline`() =
+        withDeckPicker(deckCount = 1) { deckPicker ->
+            val bar = deckPicker.bottomBar
+            assertThat(bar.background, instanceOf(LayerDrawable::class.java))
+            assertThat(bar.minimumHeight, equalTo(deckPicker.resources.getDimensionPixelSize(R.dimen.bottom_bar_height)))
         }
 
     @Test
