@@ -5,7 +5,6 @@ package com.ichi2.anki.testutil
 import androidx.test.core.app.ActivityScenario
 import com.ichi2.anki.NoteEditorActivity
 import com.ichi2.anki.NoteEditorFragment
-import com.ichi2.anki.R
 import java.util.concurrent.atomic.AtomicReference
 
 /**
@@ -33,5 +32,4 @@ fun ActivityScenario<NoteEditorActivity>.onNoteEditor(block: (NoteEditorFragment
     wrapped.get()?.let { throw it }
 }
 
-fun NoteEditorActivity.getNoteEditorFragment(): NoteEditorFragment =
-    supportFragmentManager.findFragmentById(R.id.note_editor_fragment_frame) as NoteEditorFragment
+fun NoteEditorActivity.getNoteEditorFragment(): NoteEditorFragment = noteEditorFragment

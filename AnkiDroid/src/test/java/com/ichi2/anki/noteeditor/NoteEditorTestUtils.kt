@@ -6,7 +6,6 @@ package com.ichi2.anki.noteeditor
 import android.os.Bundle
 import com.ichi2.anki.NoteEditorActivity
 import com.ichi2.anki.NoteEditorFragment
-import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.common.annotations.DuplicatedCode
 import com.ichi2.anki.common.destinations.NoteEditorDestination
@@ -29,5 +28,4 @@ fun RobolectricTest.openNoteEditorWithArgs(
 }
 
 @DuplicatedCode("NoteEditor in androidTest")
-fun NoteEditorActivity.getNoteEditorFragment(): NoteEditorFragment =
-    supportFragmentManager.findFragmentById(R.id.note_editor_fragment_frame) as NoteEditorFragment
+fun NoteEditorActivity.getNoteEditorFragment(): NoteEditorFragment = noteEditorFragment
