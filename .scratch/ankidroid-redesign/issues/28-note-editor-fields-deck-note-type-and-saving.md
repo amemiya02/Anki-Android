@@ -4,7 +4,7 @@
 
 **Blocked by:** 25 (Mockups for finding and adding)
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [x] A Note can be added to a chosen Deck with a chosen Note Type, and an existing Note can be edited.
 - [x] Fields follow the Note Type, including after the Note Type is changed while editing.
@@ -16,7 +16,7 @@
 - [x] Add/Save sits where the owner decides in the Mockup (recommended: the top bar); the duplicate warning is written under the first field.
 - [x] It matches the agreed Mockup.
 - [x] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
-- [ ] Screen-logic tests and Engine tests still pass unchanged.
+- [x] Screen-logic tests and Engine tests still pass unchanged.
 
 
 ## Implementation
@@ -33,3 +33,4 @@ The Compose top bar carries Add or Save, Preview and the editor menu. The form p
 
 - On the Pixel 9 emulator, changing the existing `T28Smoke20261118` Note from Basic to Basic (optional reversed card) returned directly to Edit note. The editor preserved the Front and Back values and displayed the new Add Reverse field and both Card Templates. With Back filled and Front empty, Add kept the editor open and displayed “The first field is empty.”
 - The full localized rendered run executed 312 cases. Three failed when Espresso tried to tap the Japanese Cloze option before scrolling it into view at 200% font. The picker test now scrolls to the choice. The targeted rerun passed all 18 executed variants, including Japanese at 200% in each theme. The other 309 cases had passed in the full run.
+- Seven focused JVM suites ran 122 editor and dialog tests on the integrated implementation, with 121 passed and one existing skip. The Engine source was unchanged from the verified ticket 22 run (143 passed, seven skips).
