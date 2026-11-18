@@ -19,6 +19,6 @@ On 2026-11-18 the owner asked development to continue across milestones while pe
 
 Six emulator sessions finished on the Pixel 9. The current API test studied all three Cards in the published AnkiVoice v38 Deck. The Upstream wiki test Deck displayed the API version-update notice with its 0.0.2 template. [Device evidence](../../../docs/redesign/milestone-2/README.md)
 
-The six Core Loop Roborazzi classes recorded 696 phone captures with no failures across the requested themes, languages and font sizes. The verification run is pending.
+The six Core Loop Roborazzi classes recorded 696 phone captures with no failures across the requested themes, languages and font sizes. Verification matched 691 of 696. Five deck-list captures raced the loading state. The regression now waits for the first deck row, and its record and verification runs are queued.
 
 All four comparisons with AnkiDroid 2.25.3 matched, including scheduling, review history and media digests. The final Official collection was imported through the production importer on an Android 14 AOSP emulator. [Package comparison](../../../docs/redesign/milestone-2/README.md#round-trip-with-the-official-app)

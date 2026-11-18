@@ -4,7 +4,7 @@
 
 **Blocked by:** 28 (Note editor: fields, Deck, Note Type and saving)
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [x] The formatting toolbar applies the same formatting as today and its custom buttons still work.
 - [x] Tags can be added and removed.
@@ -14,7 +14,7 @@
 - [x] The drawing (whiteboard) and the audio recorder opened from Attach are matched to the Foundation.
 - [x] It matches the agreed Mockup.
 - [x] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
-- [ ] Screen-logic tests and Engine tests still pass unchanged.
+- [x] Screen-logic tests and Engine tests still pass unchanged.
 
 ## Implementation and evidence
 
@@ -26,3 +26,5 @@
 - The Back field received a saved drawing stroke as WebP, a recorded 3GP clip, the selected gallery PNG and a camera JPG. Add saved that rich Note and cleared the fields. [Attachment choices](../../../docs/redesign/finding-and-adding/editor-attach-pixel9.png) · [Drawing](../../../docs/redesign/finding-and-adding/editor-drawing-pixel9.png) · [Recorded clip](../../../docs/redesign/finding-and-adding/editor-recording-pixel9.png) · [Rich draft](../../../docs/redesign/finding-and-adding/editor-rich-note-pixel9.png)
 
 The final 168 rendered cases passed across all three themes, four languages and both font sizes, including 24 drawing cases and 144 editor cases.
+
+The seven editor and media regression classes passed all 46 tests. The common Engine run passed 143 tests with seven skips.
