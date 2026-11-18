@@ -4,7 +4,7 @@
 
 **Blocked by:** 41 (Mockups for the rest)
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [x] Sync setup asks for the server address, then for sign-in to that server.
 - [x] It shows whether the Fork is signed in, and to which server, and lets the owner sign out.
@@ -13,8 +13,8 @@
 - [x] Sign-in asks for a username, and the logo and AnkiWeb privacy button are gone (per the Mockups, decision 6).
 - [x] There is still no way to sign in to AnkiWeb.
 - [x] It matches the agreed Mockup.
-- [ ] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
-- [ ] Screen-logic tests and Engine tests still pass unchanged.
+- [x] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
+- [x] Screen-logic tests and Engine tests still pass unchanged.
 
 
 ## Implementation
@@ -25,4 +25,8 @@
 
 ## Verification
 
-The original setup failed the rendered regression at the missing first step. On the emulator, username sign-in triggered a full upload to the disposable self-hosted server. A separate desktop Engine downloaded all 43 fixture Cards and 43 Notes. The account page showed the account, server, successful sync time and retained settings. Removing the emulator's connection produced the plain-language error with the server address. Retry reached the restored server, and Sign out kept the server address and collection.
+The original setup failed the rendered regression at the missing first step. On the emulator, username sign-in triggered a full upload to the disposable self-hosted server. A separate desktop Engine downloaded all 43 fixture Cards and 43 Notes. The account page showed the account, server, successful sync time and retained settings. Removing the emulator's connection produced the plain-language error with the server address. Retry reached the restored server, and Sign out kept the server address and collection. [Emulator screenshots](../../../docs/redesign/milestone-5/self-hosted-sync.png)
+
+The six sync and welcome icons were regenerated from the pinned Material Symbols assets and passed the Foundation icon checks. All 96 rendered checks passed on the integration branch across the three themes, English, Simplified Chinese, Japanese and Arabic, at normal and 200% font size.
+
+The focused Android suite passed 157 tests. Nine additional foreground media cases passed on the integration branch, covering metered consent, Wi-Fi restrictions and full-sync conflict handling. The Engine suite passed 143 tests with seven existing skips.

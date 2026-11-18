@@ -17,3 +17,5 @@
 On Android 15 the pending legacy threshold migrated on launch to one enabled all-Decks reminder at 08:00 and retained its ID and time after a second launch. With the previous delivery timestamp set before the next scheduled occurrence, the production receiver posted a “Time to study” notification with colour `#A63D25` and both snooze actions. Tapping the system notification opened the Deck list. The focused suite passed all 100 Android tests and 143 Engine tests, with seven existing Engine skips. [Emulator captures](../../../docs/redesign/milestone-5/review-reminders.png)
 
 All 192 rendered checks passed for the reminder list, editor, time picker, deletion confirmation and troubleshooting screens in Light, Dark and Black, in English, Simplified Chinese, Japanese and Arabic, at normal and 200% text size.
+
+All nine reminder instrumentation tests passed on Android 15 with the integrated APK. They exercised creating, editing, cancelling, disabling, re-enabling and deleting reminders, including a reminder for a deleted Deck.

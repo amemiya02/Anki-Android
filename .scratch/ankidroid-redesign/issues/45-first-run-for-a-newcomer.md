@@ -4,13 +4,13 @@
 
 **Blocked by:** 41 (Mockups for the rest)
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [x] The first-run screen offers to start with an empty collection, to import a collection or Deck, or to set up sync with a server.
 - [x] Each choice leads to a working next step.
 - [x] It does not appear again once the owner has begun.
 - [x] It matches the agreed Mockup.
-- [ ] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
+- [x] It passes the Quality Bar at the rendered-screen seam: Light, Dark and Black; English, Simplified Chinese, Japanese and one right-to-left language; normal and 200% font size.
 - [x] A collection or a Deck exported from the Official App or desktop Anki can be imported from the first-run screen, keeping scheduling, review history and media.
 - [x] A person arriving from AnkiWeb is shown the steps to bring their Decks in through the Official App or desktop Anki.
 
@@ -26,4 +26,6 @@ The previous first-launch screen failed the self-hosted sync choice check on And
 
 Two fresh launches imported packages exported by Official AnkiDroid 2.25.3 through the welcome’s Import action and Android’s Downloads picker. The Deck import with learning progress preserved 13 Cards and Notes and two review rows. The collection import preserved 42 Cards and Notes and 11 review rows. Calendar due dates and the SHA-256 of `m3-field.png` matched for both imports. For the Deck comparison, day-based due values were compared relative to each collection’s creation day.
 
-The focused JVM tests and rendered accessibility matrix are queued. The issue remains open for those results.
+All 11 focused JVM tests passed for the welcome, window insets and import routing. The welcome and migration guide passed all 24 rendered configurations on the integration branch across Light, Dark and Black, English, Simplified Chinese, Japanese and Arabic, at normal and 200% font size. The run produced 72 screenshots, including scrolled views of the action choices and migration steps.
+
+On a fresh Android 15 profile, the integrated APK exposed the welcome button and empty Deck list to UI Automator. The startup profile journey used the Add menu to create `Japanese::Vocabulary` and `Spanish` through the real dialog. Both Deck rows were visible through the startup selector after relaunch. The baseline profile module compiled with `:baselineprofile:compileBenchmarkBenchmarkKotlin`.
