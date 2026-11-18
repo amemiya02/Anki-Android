@@ -2615,6 +2615,7 @@ open class DeckPicker :
             Timber.i("Sync requested from Login")
             this.syncOnResume = true
         }
+        if (intent.hasExtra(EXTRA_IMPORT)) importOnResume = true
     }
 
     override fun opExecuted(

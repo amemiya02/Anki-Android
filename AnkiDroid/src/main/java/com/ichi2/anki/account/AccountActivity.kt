@@ -6,51 +6,83 @@ package com.ichi2.anki.account
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
+import com.ichi2.anki.R
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.isLoggedIn
 import com.ichi2.anki.preferences.CustomSyncServerSettingsFragment
 import com.ichi2.anki.preferences.PreferencesActivity
+import com.ichi2.anki.preferences.SyncSettingsFragment
 import com.ichi2.anki.syncServerAddress
+import kotlin.reflect.KClass
 
-/**
- * Hosts the sync account screens: [LoginFragment] or [LoggedInFragment].
- *
- * Its own activity so edge-to-edge applies to these screens alone. Each fragment insets its own root.
- */
+/** Hosts both steps so the caller receives the sign-in result even when setup starts without a server. */
 class AccountActivity : SingleFragmentActivity() {
-    companion object {
-        /** Sees if we want to go back to the DeckPicker after login*/
-        const val ARG_START_FOR_RESULT = "START_FOR_RESULT"
+    private val forResult: Boolean
+        get() = intent.getBundleExtra(EXTRA_FRAGMENT_ARGS)?.getBoolean(ARG_START_FOR_RESULT) == true
 
-        /**
-         * Returns an [Intent] to launch either [LoggedInFragment] or [LoginFragment]
-         * based on the current login state.
-         *
-         * While no sync server is set up, it opens sync setup instead: there is nothing to sign in to,
-         * as the Fork never signs in to AnkiWeb (ADR-0001).
-         *
-         * @param context The context used to create the intent.
-         * @param forResult Indicates whether the calling component expects a result.
-         * This is used to distinguish if the screen was launched from DeckPicker
-         * or any other screen that needs a result back.
-         *
-         * @return An [Intent] to start the appropriate fragment.
-         */
+    internal fun showSignIn() {
+        if (isLoggedIn()) {
+            completeSignIn()
+        } else {
+            open(LoginFragment(), ADDRESS)
+        }
+    }
+
+    internal fun changeServer() {
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            supportFragmentManager.popBackStack()
+        } else {
+            open(CustomSyncServerSettingsFragment())
+        }
+    }
+
+    internal fun completeSignIn() {
+        if (forResult) setResult(RESULT_OK)
+        finish()
+    }
+
+    private fun open(
+        fragment: Fragment,
+        backStackName: String? = null,
+    ) {
+        supportFragmentManager.commit {
+            setReorderingAllowed(true)
+            replace(R.id.fragment_container, fragment, FRAGMENT_TAG)
+            if (backStackName != null) addToBackStack(backStackName)
+        }
+    }
+
+    companion object {
+        private const val ARG_START_FOR_RESULT = "START_FOR_RESULT"
+        private const val ADDRESS = "sync_server_address"
+
         fun getIntent(
             context: Context,
             forResult: Boolean = false,
-        ): Intent {
-            if (syncServerAddress() == null) {
-                return PreferencesActivity.getIntent(context, CustomSyncServerSettingsFragment::class)
+        ): Intent =
+            when {
+                syncServerAddress() == null -> getSetupIntent(context, forResult)
+                isLoggedIn() && !forResult -> PreferencesActivity.getIntent(context, SyncSettingsFragment::class)
+                isLoggedIn() -> getSetupIntent(context, forResult)
+                else -> accountIntent(context, LoginFragment::class, forResult)
             }
-            return getIntent(
-                context = context,
-                fragmentClass = if (isLoggedIn()) LoggedInFragment::class else LoginFragment::class,
-                arguments =
-                    Bundle().apply {
-                        putBoolean(ARG_START_FOR_RESULT, forResult)
-                    },
+
+        fun getSetupIntent(
+            context: Context,
+            forResult: Boolean = false,
+        ): Intent = accountIntent(context, CustomSyncServerSettingsFragment::class, forResult)
+
+        private fun accountIntent(
+            context: Context,
+            fragment: KClass<out Fragment>,
+            forResult: Boolean,
+        ): Intent =
+            getIntent(
+                context,
+                fragment,
+                Bundle().apply { putBoolean(ARG_START_FOR_RESULT, forResult) },
             ).setClass(context, AccountActivity::class.java)
-        }
     }
 }

@@ -29,10 +29,12 @@ import com.ichi2.anki.R
 import com.ichi2.anki.cancelSync
 import com.ichi2.anki.common.android.withAppLocale
 import com.ichi2.anki.common.permissions.canPostNotifications
+import com.ichi2.anki.isSelfHostedSyncAddress
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.notifications.NotificationId
 import com.ichi2.anki.notifications.hayakiNotification
 import com.ichi2.anki.reopen
+import com.ichi2.anki.setLastSuccessfulSyncTime
 import com.ichi2.anki.setLastSyncTimeToNow
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.sync.MediaSync
@@ -154,7 +156,7 @@ class SyncWorker(
                     withCol {
                         val response = syncCollection(auth, syncMedia = false)
                         val syncAuth =
-                            if (response.hasNewEndpoint() && response.newEndpoint.isNotEmpty()) {
+                            if (response.hasNewEndpoint() && isSelfHostedSyncAddress(response.newEndpoint)) {
                                 Prefs.currentSyncUri = response.newEndpoint
                                 auth.withEndpoint(response.newEndpoint)
                             } else {
@@ -184,6 +186,7 @@ class SyncWorker(
                     monitor.cancel()
                 }
             } ?: return
+        setLastSuccessfulSyncTime(auth)
         if (syncMedia) syncMedia(syncAuth)
     }
 

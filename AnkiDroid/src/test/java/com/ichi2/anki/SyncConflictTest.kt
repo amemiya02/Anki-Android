@@ -83,9 +83,9 @@ class SyncConflictTest : RobolectricTest() {
 
             val dialog = conflictDialog()
             assertTrue(dialog.isShowing)
-            compose.onNodeWithText(getString(CommonString.sync_conflict_message_new)).assertIsDisplayed()
-            compose.onNodeWithText(getString(CommonString.sync_conflict_keep_local_new)).assertIsDisplayed()
-            compose.onNodeWithText(getString(CommonString.sync_conflict_keep_remote_new)).assertIsDisplayed()
+            compose.onNodeWithText(getString(CommonString.paper_sync_conflict_body)).assertIsDisplayed()
+            compose.onNodeWithText(getString(CommonString.paper_sync_keep_phone)).assertIsDisplayed()
+            compose.onNodeWithText(getString(CommonString.paper_sync_keep_server)).assertIsDisplayed()
         }
 
     @Test
@@ -109,7 +109,7 @@ class SyncConflictTest : RobolectricTest() {
 
             assertSame(confirmation, conflictDialog())
             assertTrue(confirmation.isShowing)
-            compose.onNodeWithText(getString(CommonString.sync_conflict_local_confirm_new)).assertIsDisplayed()
+            compose.onNodeWithText(getString(CommonString.paper_sync_keep_phone_hint)).assertIsDisplayed()
         }
 
     @Test
@@ -121,7 +121,7 @@ class SyncConflictTest : RobolectricTest() {
 
             assertSame(confirmation, conflictDialog())
             assertTrue(confirmation.isShowing)
-            compose.onNodeWithText(getString(CommonString.sync_conflict_remote_confirm_new)).assertIsDisplayed()
+            compose.onNodeWithText(getString(CommonString.paper_sync_keep_server_hint)).assertIsDisplayed()
         }
 
     @Test
@@ -164,8 +164,8 @@ class SyncConflictTest : RobolectricTest() {
         syncWithConflict()
         val button =
             when (direction) {
-                ConflictResolution.FULL_UPLOAD -> CommonString.sync_conflict_keep_local_new
-                ConflictResolution.FULL_DOWNLOAD -> CommonString.sync_conflict_keep_remote_new
+                ConflictResolution.FULL_UPLOAD -> CommonString.paper_sync_keep_phone
+                ConflictResolution.FULL_DOWNLOAD -> CommonString.paper_sync_keep_server
             }
         conflictDialog().clickButton(button)
         return conflictDialog()

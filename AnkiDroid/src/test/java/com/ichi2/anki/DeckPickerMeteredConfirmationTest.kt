@@ -443,7 +443,7 @@ class DeckPickerMeteredConfirmationTest : RobolectricTest() {
         compose.onNodeWithText(targetContext.getString(CommonString.dialog_continue)).performClick()
     }
 
-    private fun checkbox() = compose.onNodeWithText(targetContext.getString(CommonString.button_do_not_show_again))
+    private fun checkbox() = compose.onNodeWithText(targetContext.getString(CommonString.paper_sync_metered_remember))
 
     private fun assertNoWarning() {
         assertFalse(ShadowDialog.getShownDialogs().any { it.isShowing })

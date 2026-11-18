@@ -2,117 +2,203 @@
 
 package com.ichi2.anki.preferences
 
-import android.content.SharedPreferences
+import android.content.Intent
 import android.os.Bundle
-import androidx.core.content.edit
-import com.ichi2.anki.CollectionManager
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.R
-import com.ichi2.anki.SyncPreferences
 import com.ichi2.anki.account.AccountActivity
-import com.ichi2.anki.isLoggedIn
+import com.ichi2.anki.account.LoggedInViewModel
+import com.ichi2.anki.account.SyncCertificateEditor
+import com.ichi2.anki.account.SyncStepPage
+import com.ichi2.anki.account.syncStepView
+import com.ichi2.anki.isSelfHostedSyncAddress
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
-import com.ichi2.anki.syncServerAddress
-import com.ichi2.compose.ui.dialogs.ErrorDialog
-import com.ichi2.preferences.Preference
-import com.ichi2.preferences.VersatileTextPreference
-import okhttp3.HttpUrl.Companion.toHttpUrl
+import com.ichi2.anki.utils.openUrl
+import com.ichi2.compose.theme.foundation
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogBody
+import com.ichi2.compose.ui.dialogs.PaperDialog
 
-/**
- * Sync setup: the address of the owner's own sync server, then sign-in to it.
- *
- * Sign-in is only possible once an address is set: the Fork never signs in to or syncs with
- * AnkiWeb (ADR-0001). The screen also explains how to bring decks in from AnkiWeb.
- */
-class CustomSyncServerSettingsFragment : RemainingSettingsFragment(R.id.settings_sync_server) {
-    override val preferenceResource = R.xml.preferences_custom_sync_server
-    override val analyticsScreenNameConstant = "prefs.custom_sync_server"
+/** The address and optional certificate are configured before credentials can be entered. */
+class CustomSyncServerSettingsFragment : Fragment() {
+    private val account by viewModels<LoggedInViewModel>()
 
-    override fun initSubscreen() {
-        listOf(
-            R.string.custom_sync_server_collection_url_key,
-        ).forEach {
-            requirePreference<VersatileTextPreference>(it).continuousValidator =
-                VersatileTextPreference.Validator { value ->
-                    if (value.isNotEmpty()) value.toHttpUrl()
-                }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View = syncStepView(R.id.settings_sync_server) { Address() }
+
+    @Composable
+    private fun Address() {
+        val activity = requireActivity() as AccountActivity
+        val server by account.server.collectAsStateWithLifecycle()
+        var address by rememberSaveable { mutableStateOf(Prefs.customSyncUri.orEmpty()) }
+        var certificate by rememberSaveable { mutableStateOf(Prefs.customSyncCertificate.orEmpty()) }
+        var showCertificate by rememberSaveable { mutableStateOf(false) }
+        var showImportHelp by rememberSaveable { mutableStateOf(false) }
+        var confirmRemove by rememberSaveable { mutableStateOf(false) }
+        val foundation = MaterialTheme.foundation
+        val keyboard = LocalSoftwareKeyboardController.current
+        val valid = isSelfHostedSyncAddress(address.trim())
+
+        fun continueToSignIn() {
+            if (!valid) return
+            keyboard?.hide()
+            account.setServer(requireContext(), address.trim())
+            activity.showSignIn()
         }
 
-        requirePreference<VersatileTextPreference>(
-            R.string.custom_sync_certificate_key,
-        ).setOnPreferenceChangeListener { _, newValue: Any? ->
-            val newCert = newValue as String
-
-            // Empty string input causes the certificate to be unset in the backend, i.e., no error
-            if (!CollectionManager.updateCustomCertificate(newCert)) {
-                showSettingsDialog { dismiss ->
-                    ErrorDialog(
-                        title = getString(CommonString.dialog_invalid_custom_certificate_title),
-                        message = getString(CommonString.dialog_invalid_custom_certificate),
-                        onDismissRequest = dismiss,
+        SyncStepPage(
+            title = stringResource(CommonString.sync_server_title),
+            step = 1,
+            button = stringResource(CommonString.dialog_continue),
+            canContinue = valid,
+            onBack = activity.onBackPressedDispatcher::onBackPressed,
+            onContinue = ::continueToSignIn,
+        ) {
+            Text(
+                stringResource(CommonString.paper_sync_server_lead),
+                style = foundation.type.body,
+                color = foundation.colors.onBackgroundMuted,
+            )
+            OutlinedTextField(
+                value = address,
+                onValueChange = { address = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(stringResource(CommonString.paper_sync_server_address)) },
+                supportingText = {
+                    Text(
+                        stringResource(
+                            if (address.isNotBlank() && !valid) {
+                                CommonString.paper_sync_invalid_address
+                            } else {
+                                CommonString.paper_sync_address_hint
+                            },
+                        ),
                     )
-                }
-                return@setOnPreferenceChangeListener false
+                },
+                isError = address.isNotBlank() && !valid,
+                textStyle = foundation.type.body,
+                shape = foundation.shapes.button,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { continueToSignIn() }),
+                singleLine = true,
+            )
+            SettingsRow(
+                title = stringResource(CommonString.custom_sync_certificate_title),
+                summary = stringResource(CommonString.paper_sync_certificate_hint),
+                value = if (certificate.isBlank()) stringResource(CommonString.paper_sync_optional) else null,
+                icon = R.drawable.symbol_verified_user,
+                onClick = { showCertificate = true },
+                trailing = { SettingsChevron() },
+            )
+            SettingsRow(
+                title = stringResource(CommonString.paper_sync_server_help),
+                icon = R.drawable.symbol_menu_book,
+                onClick = { requireContext().openUrl(R.string.link_custom_sync_server_help_learn_more_en) },
+                trailing = {
+                    Icon(
+                        painterResource(R.drawable.symbol_open_in_new),
+                        contentDescription = null,
+                        tint = foundation.colors.onBackgroundMuted,
+                    )
+                },
+            )
+            SettingsRow(
+                title = stringResource(CommonString.paper_sync_from_ankiweb),
+                summary = stringResource(CommonString.paper_sync_from_ankiweb_hint),
+                icon = R.drawable.symbol_cloud_off,
+                onClick = { showImportHelp = true },
+                trailing = { SettingsChevron() },
+            )
+            if (server != null || !Prefs.customSyncUri.isNullOrEmpty()) {
+                SettingsRow(
+                    title = stringResource(CommonString.paper_sync_remove_server),
+                    onClick = { confirmRemove = true },
+                )
             }
-
-            showSnackbar(CommonString.dialog_updated_custom_certificate)
-            true
         }
-
-        requirePreference<Preference>(R.string.sync_setup_account_key).setOnPreferenceClickListener {
-            // AccountActivity opens this screen again while no server is set up
-            if (syncServerAddress() != null) {
-                startActivity(AccountActivity.getIntent(requireContext()))
-            }
-            true
+        if (showCertificate) {
+            SyncCertificateEditor(
+                initialText = certificate,
+                onDismiss = { showCertificate = false },
+                onSave = {
+                    certificate = it
+                    showCertificate = false
+                    showSnackbar(CommonString.dialog_updated_custom_certificate)
+                },
+            )
         }
-        updateAccount()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // the user may have signed in or out
-        updateAccount()
-    }
-
-    /** Sign-in is offered only once a server address is set */
-    private fun updateAccount() {
-        val server = syncServerAddress()
-        requirePreference<Preference>(R.string.sync_setup_account_key).apply {
-            isEnabled = server != null
-            summary =
-                when {
-                    server == null -> getString(CommonString.sync_server_required)
-                    isLoggedIn() -> Prefs.username
-                    else -> getString(CommonString.sync_server_sign_in_to, server)
-                }
+        if (confirmRemove) {
+            ConfirmationDialog(
+                title = stringResource(CommonString.paper_sync_remove_server),
+                message = stringResource(CommonString.paper_sync_sign_out_hint),
+                confirm =
+                    DialogAction(
+                        stringResource(CommonString.paper_sync_remove_server),
+                        {
+                            account.setServer(requireContext(), null)
+                            address = ""
+                            confirmRemove = false
+                        },
+                        DialogActionStyle.Destructive,
+                    ),
+                onDismissRequest = { confirmRemove = false },
+            )
         }
-    }
-
-    // See discussion at https://github.com/ankidroid/Anki-Android/pull/12367#discussion_r967681337
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Prefs.sharedPrefs
-            .registerOnSharedPreferenceChangeListener(preferenceChangeListener)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Prefs.sharedPrefs
-            .unregisterOnSharedPreferenceChangeListener(preferenceChangeListener)
-    }
-
-    private val preferenceChangeListener =
-        SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
-            if (
-                key == SyncPreferences.CUSTOM_SYNC_URI ||
-                key == SyncPreferences.CUSTOM_SYNC_ENABLED
+        if (showImportHelp) {
+            PaperDialog(
+                title = stringResource(CommonString.paper_sync_from_ankiweb),
+                onDismissRequest = { showImportHelp = false },
+                actions =
+                    listOf(
+                        DialogAction(stringResource(CommonString.dialog_cancel), { showImportHelp = false }),
+                        DialogAction(
+                            stringResource(CommonString.paper_sync_choose_file),
+                            {
+                                startActivity(
+                                    DeckPicker
+                                        .getIntent(requireContext())
+                                        .putExtra(DeckPicker.EXTRA_IMPORT, true)
+                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                                )
+                                activity.finish()
+                            },
+                            DialogActionStyle.Filled,
+                        ),
+                    ),
             ) {
-                prefs.edit {
-                    remove(SyncPreferences.PREF_CURRENT_SYNC_URI)
-                }
-                updateAccount()
+                DialogBody(stringResource(CommonString.paper_sync_import_steps))
             }
         }
+    }
 }

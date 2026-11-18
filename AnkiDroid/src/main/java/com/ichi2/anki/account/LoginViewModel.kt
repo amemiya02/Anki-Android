@@ -180,6 +180,7 @@ class LoginViewModel :
         endpoint: String,
     ): SyncAuth =
         withCol {
+            CollectionManager.updateCustomCertificate(Prefs.customSyncCertificate.orEmpty())
             SyncAuth(syncLogin(username, password, endpoint))
         }
 
@@ -199,7 +200,7 @@ class LoginViewModel :
 enum class LoginError(
     @StringRes private val messageResId: Int,
 ) {
-    EMPTY_USERNAME(CommonString.invalid_email),
+    EMPTY_USERNAME(CommonString.paper_sync_username_required),
     EMPTY_PASSWORD(CommonString.password_empty),
     ;
 

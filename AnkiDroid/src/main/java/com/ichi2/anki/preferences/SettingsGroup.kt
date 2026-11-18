@@ -93,7 +93,6 @@ internal enum class SettingsGroup(
         fun forFragment(fragment: Fragment): SettingsGroup? =
             when (fragment) {
                 is TimeboxSettingsFragment, is ReviewerMenuSettingsFragment -> STUDYING
-                is CustomSyncServerSettingsFragment -> SYNC
                 else -> entries.firstOrNull { it.destination.isInstance(fragment) }
             }
     }

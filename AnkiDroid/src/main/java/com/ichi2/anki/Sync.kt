@@ -33,6 +33,7 @@ import com.ichi2.compose.ui.dialogs.DialogBody
 import com.ichi2.compose.ui.dialogs.PaperDialog
 import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.preferences.VersatileTextWithASwitchPreference
+import com.ichi2.utils.LanguageUtil.withUnicodeIsolation
 import com.ichi2.utils.NetworkUtils
 import com.ichi2.utils.dismissSafely
 import kotlinx.coroutines.CancellationException
@@ -43,8 +44,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankiweb.rsdroid.Backend
+import net.ankiweb.rsdroid.BackendException.BackendDbException.BackendDbCorruptException
 import net.ankiweb.rsdroid.exceptions.BackendInterruptedException
+import net.ankiweb.rsdroid.exceptions.BackendNetworkException
 import net.ankiweb.rsdroid.exceptions.BackendSyncException
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import timber.log.Timber
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -93,7 +97,7 @@ fun syncAuth(): SyncAuth? {
  */
 fun syncServerAddress(): String? {
     if (!Prefs.isCustomSyncEnabled) return null
-    return Prefs.customSyncUri?.trim()?.ifEmpty { null }
+    return Prefs.customSyncUri?.trim()?.takeIf(::isSelfHostedSyncAddress)
 }
 
 /**
@@ -102,8 +106,21 @@ fun syncServerAddress(): String? {
  */
 fun getEndpoint(): String? {
     val server = syncServerAddress() ?: return null
-    return Prefs.currentSyncUri?.ifEmpty { null } ?: server
+    return Prefs.currentSyncUri?.takeIf(::isSelfHostedSyncAddress) ?: server
 }
+
+/** The Fork never hands the Engine credentials for an AnkiWeb endpoint (ADR-0001). */
+internal fun isSelfHostedSyncAddress(address: String): Boolean {
+    val url = address.toHttpUrlOrNull() ?: return false
+    val host = url.host.trimEnd('.')
+    return host != "ankiweb.net" && !host.endsWith(".ankiweb.net") &&
+        url.username.isEmpty() && url.password.isEmpty()
+}
+
+internal fun syncServerDisplayName(): String? =
+    syncServerAddress()?.toHttpUrlOrNull()?.let { url ->
+        withUnicodeIsolation(url.host)
+    }
 
 /**
  * Whether the user is signed in to their sync server.
@@ -136,9 +153,15 @@ fun DeckPicker.handleNewSync(
                     }
                 }
             } catch (exc: BackendSyncException.BackendSyncAuthFailedException) {
-                // auth failed; log out
                 updateLogin("", "")
-                throw exc
+                showSyncErrorDialog(SyncErrorDialog.Type.DIALOG_USER_NOT_LOGGED_IN_SYNC)
+                return@launchCatchingTask
+            } catch (exc: BackendNetworkException) {
+                showSyncErrorDialog(SyncErrorDialog.Type.DIALOG_CONNECTION_ERROR, exc.localizedMessage)
+                return@launchCatchingTask
+            } catch (exc: BackendDbCorruptException) {
+                showSyncErrorDialog(SyncErrorDialog.Type.DIALOG_SYNC_CORRUPT_COLLECTION, exc.localizedMessage)
+                return@launchCatchingTask
             } catch (exc: BackendSyncException) {
                 if (exc.isClockOffException()) {
                     showSyncErrorDialog(
@@ -153,6 +176,18 @@ fun DeckPicker.handleNewSync(
                         SyncErrorDialog.Type.DIALOG_COLLECTION_TOO_LARGE,
                         exc.localizedMessage,
                     )
+                    return@launchCatchingTask
+                }
+
+                if (exc.localizedMessage?.contains(TR.syncSanityCheckFailed()) == true) {
+                    mediaUsnOnConflict = null
+                    mediaNetworkTypeOnConflict = mediaNetworkType
+                    showSyncErrorDialog(SyncErrorDialog.Type.DIALOG_SYNC_SANITY_ERROR, exc.localizedMessage)
+                    return@launchCatchingTask
+                }
+
+                if (exc.localizedMessage?.contains(TR.errorsPleaseCheckDatabase()) == true) {
+                    showSyncErrorDialog(SyncErrorDialog.Type.DIALOG_SYNC_BASIC_CHECK_ERROR, exc.localizedMessage)
                     return@launchCatchingTask
                 }
 
@@ -220,7 +255,7 @@ private suspend fun handleNormalSync(
             }
         }
 
-    if (output.hasNewEndpoint() && output.newEndpoint.isNotEmpty()) {
+    if (output.hasNewEndpoint() && isSelfHostedSyncAddress(output.newEndpoint)) {
         Timber.i("sync endpoint updated")
         Prefs.currentSyncUri = output.newEndpoint
         auth2 = auth.withEndpoint(output.newEndpoint)
@@ -238,6 +273,7 @@ private suspend fun handleNormalSync(
         SyncCollectionResponse.ChangesRequired.NO_CHANGES -> {
             // scheduler version may have changed
             withCol { _loadScheduler() }
+            setLastSuccessfulSyncTime(auth)
             val message = if (syncMedia) CommonString.col_synced_media_in_background else CommonString.sync_database_acknowledge
             deckPicker.showSyncLogMessage(message, output.serverMessage)
             deckPicker.refreshState()
@@ -288,7 +324,13 @@ private suspend fun handleDownload(
     Timber.i("Sync: Full collection download requested")
     deckPicker.withProgress(
         progressContext = ProgressContext.ofBytes(context = deckPicker).copy(separator = "\n"),
-        extractProgress = fullDownloadProgress(TR.syncDownloadingFromAnkiweb()),
+        extractProgress =
+            fullDownloadProgress(
+                deckPicker.getString(
+                    CommonString.paper_sync_downloading,
+                    syncServerDisplayName() ?: deckPicker.getString(CommonString.sync_server_title),
+                ),
+            ),
         onCancel = ::cancelSync,
         manualCancelButton = CommonString.dialog_cancel,
     ) {
@@ -323,6 +365,7 @@ private suspend fun handleDownload(
         }
     }
 
+    setLastSuccessfulSyncTime(auth)
     Timber.i("Full Download Completed")
     deckPicker.showSyncLogMessage(CommonString.backup_one_way_sync_from_server, "")
 }
@@ -336,7 +379,13 @@ private suspend fun handleUpload(
     Timber.i("Sync: Full collection upload requested")
     deckPicker.withProgress(
         progressContext = ProgressContext.ofBytes(context = deckPicker).copy(separator = "\n"),
-        extractProgress = fullDownloadProgress(TR.syncUploadingToAnkiweb()),
+        extractProgress =
+            fullDownloadProgress(
+                deckPicker.getString(
+                    CommonString.paper_sync_uploading,
+                    syncServerDisplayName() ?: deckPicker.getString(CommonString.sync_server_title),
+                ),
+            ),
         onCancel = ::cancelSync,
         manualCancelButton = CommonString.dialog_cancel,
     ) {
@@ -361,6 +410,7 @@ private suspend fun handleUpload(
             SyncMediaWorker.start(deckPicker, auth, mediaNetworkType)
         }
     }
+    setLastSuccessfulSyncTime(auth)
     Timber.i("Full Upload Completed")
     deckPicker.showSyncLogMessage(CommonString.sync_log_uploading_message, "")
 }
@@ -429,8 +479,10 @@ suspend fun monitorMediaSync(deckPicker: DeckPicker) {
             showMessage(TR.syncMediaAborted())
         } catch (_: CancellationException) {
             // do nothing
-        } catch (_: Exception) {
-            showMessage(TR.syncMediaFailed())
+        } catch (error: Exception) {
+            withContext(Dispatchers.Main) {
+                deckPicker.showSyncErrorDialog(SyncErrorDialog.Type.DIALOG_MEDIA_SYNC_ERROR, error.localizedMessage)
+            }
         } finally {
             dialog.dismissSafely()
         }
@@ -465,4 +517,12 @@ fun DeckPicker.showSyncLogMessage(
 /** Starts the retry delay after every sync attempt, regardless of outcome. */
 fun setLastSyncTimeToNow() {
     Prefs.lastSyncTime = TimeManager.time.intTimeMS()
+}
+
+/** The account page reports completed collection syncs independently of auto-sync's attempt window. */
+internal fun setLastSuccessfulSyncTime(auth: SyncAuth) {
+    // A worker can finish as its account is being signed out.
+    if (Prefs.hkey == auth.hkey) {
+        Prefs.lastSuccessfulSyncTime = TimeManager.time.intTimeMS()
+    }
 }

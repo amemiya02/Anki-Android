@@ -4,22 +4,24 @@ package com.ichi2.anki.account
 
 import android.app.Activity.RESULT_OK
 import android.os.Looper
-import android.view.KeyEvent
-import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityManager
-import android.widget.Button
-import androidx.core.view.isVisible
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
+import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.backend.BackendError
 import anki.backend.backendError
 import anki.sync.SyncAuth
 import anki.sync.SyncLoginRequest
 import anki.sync.syncAuth
-import com.google.android.material.textfield.TextInputEditText
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.findAnkiActivity
 import com.ichi2.anki.settings.Prefs
@@ -30,9 +32,6 @@ import com.ichi2.testutils.ext.snackbarText
 import com.ichi2.testutils.rules.BackendOverrideRule
 import com.ichi2.testutils.setSyncServer
 import com.ichi2.testutils.withQueuedCollectionAccess
-import com.ichi2.ui.TextInputEditField
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
 import com.sun.net.httpserver.HttpServer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -54,10 +53,8 @@ import java.net.InetSocketAddress
 import java.time.Duration
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -66,6 +63,9 @@ import kotlin.time.TimeSource
 
 @RunWith(AndroidJUnit4::class)
 class LoginFragmentTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @get:Rule
     val backend = BackendOverrideRule()
 
@@ -83,9 +83,10 @@ class LoginFragmentTest : RobolectricTest() {
         runTest {
             lockCollection()
 
-            startLoginScreen().logIn()
+            startLoginScreen()
+            logIn()
 
-            assertContains(getAlertDialogText(checkDismissed = true).orEmpty(), "Advanced settings")
+            compose.onNodeWithText("Advanced settings", substring = true).assertIsDisplayed()
         }
 
     @Test
@@ -93,8 +94,8 @@ class LoginFragmentTest : RobolectricTest() {
         runTest {
             lockCollection()
             val login = startLoginScreen()
-            login.logIn()
-            assertContains(getAlertDialogText(checkDismissed = true).orEmpty(), "Advanced settings")
+            logIn()
+            compose.onNodeWithText("Advanced settings", substring = true).assertIsDisplayed()
 
             login.recreate()
             advanceRobolectricLooper()
@@ -103,7 +104,7 @@ class LoginFragmentTest : RobolectricTest() {
             val dialog = assertNotNull(ShadowDialog.getLatestDialog())
             assertSame(login.get(), dialog.context.findAnkiActivity(), "the guidance must be displayed by the recreated activity")
             assertTrue(dialog.isShowing)
-            assertContains(getAlertDialogText(checkDismissed = true).orEmpty(), "Advanced settings")
+            compose.onNodeWithText("Advanced settings", substring = true).assertIsDisplayed()
         }
 
     @Test
@@ -111,8 +112,9 @@ class LoginFragmentTest : RobolectricTest() {
         runTest {
             lockCollection()
             val login = startLoginScreen()
-            login.logIn()
-            clickAlertDialogButton { positiveButton }
+            logIn()
+            compose.onNodeWithText(targetContext.getString(CommonString.dialog_ok)).performClick()
+            advanceRobolectricLooper()
             val dismissed = ShadowDialog.getLatestDialog()
 
             login.recreate()
@@ -126,16 +128,16 @@ class LoginFragmentTest : RobolectricTest() {
         runTest {
             failAuthentication()
             val login = startLoginScreen()
-            login.enterCredentials()
-            login.get().findViewById<Button>(R.id.login_button).performClick()
+            enterCredentials()
+            signIn.performClick()
             // less than the snackbar's duration
             shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(300))
-            assertEquals("invalid credentials", login.get().snackbarText)
+            assertEquals(authenticationError, login.get().snackbarText)
 
             login.recreate()
             shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(300))
 
-            assertEquals("invalid credentials", login.get().snackbarText, "recreation must not discard a login error before it can be read")
+            assertEquals(authenticationError, login.get().snackbarText, "recreation must not discard a login error before it can be read")
         }
 
     @Test
@@ -143,11 +145,11 @@ class LoginFragmentTest : RobolectricTest() {
         runTest {
             failAuthentication()
             val login = startLoginScreen()
-            login.logIn()
+            logIn()
             assertFalse(login.get().isBlockingTouches)
 
             withQueuedCollectionAccess {
-                login.logIn()
+                logIn()
                 assertTrue(login.get().isBlockingTouches, "input must be blocked while the retry runs")
                 advanceUntilIdle()
             }
@@ -163,7 +165,7 @@ class LoginFragmentTest : RobolectricTest() {
             val login = startLoginScreen()
 
             withQueuedCollectionAccess {
-                login.logIn()
+                logIn()
                 login.recreate()
                 assertTrue(login.get().isBlockingTouches, "the recreated screen must block input while logging in")
                 advanceUntilIdle()
@@ -171,17 +173,17 @@ class LoginFragmentTest : RobolectricTest() {
             advanceRobolectricLooper()
 
             assertEquals(TEST_HKEY, Prefs.hkey)
-            assertEquals(syncNowMessage, getAlertDialogText(checkDismissed = true))
+            assertTrue(login.get().isFinishing, "sign-in returns to the Sync page")
         }
 
     @Test
-    fun `successful login while stopped shows the success dialog on return`() =
+    fun `successful login while stopped returns to the Sync page on resume`() =
         runTest {
             succeedAuthentication()
             val login = startLoginScreen()
 
             withQueuedCollectionAccess {
-                login.logIn()
+                logIn()
                 login.pause().stop()
                 advanceUntilIdle()
             }
@@ -191,30 +193,33 @@ class LoginFragmentTest : RobolectricTest() {
             login.start().resume()
             advanceRobolectricLooper()
 
-            assertEquals(syncNowMessage, getAlertDialogText(checkDismissed = true))
+            assertTrue(login.get().isFinishing, "sign-in returns to the Sync page")
         }
 
     @Test
-    fun `continue after repeated enter submissions leaves no success dialog`() =
+    fun `repeated keyboard submissions sign in once and return to the caller`() =
         runTest {
-            succeedAuthentication()
-            val login = startLoginScreen()
-            login.enterCredentials()
-            login.get().findViewById<TextInputEditField>(R.id.password).requestFocus()
+            var attempts = 0
+            backend.replaceWith {
+                object : Backend() {
+                    override fun syncLogin(input: SyncLoginRequest): SyncAuth {
+                        attempts++
+                        return syncAuth { hkey = TEST_HKEY }
+                    }
+                }
+            }
+            val login = startLoginScreen(forResult = true)
+            enterCredentials()
 
-            repeat(2) {
-                login.get().dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
-                login.get().dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
+            withQueuedCollectionAccess {
+                repeat(2) { passwordField.performImeAction() }
+                advanceUntilIdle()
             }
             advanceRobolectricLooper()
+
+            assertEquals(1, attempts)
             assertEquals(TEST_HKEY, Prefs.hkey)
-            assertEquals(syncNowMessage, getAlertDialogText(checkDismissed = true))
-
-            clickAlertDialogButton { negativeButton }
-            advanceRobolectricLooper()
-
-            assertIs<LoggedInFragment>(login.get().supportFragmentManager.findFragmentById(R.id.fragment_container))
-            assertTrue(ShadowDialog.getShownDialogs().none { it.isShowing }, "Continue must not leave a success dialog")
+            assertEquals(RESULT_OK, shadowOf(login.get()).resultCode)
         }
 
     @Test
@@ -236,12 +241,12 @@ class LoginFragmentTest : RobolectricTest() {
         setSyncServer("http://127.0.0.1:${server.address.port}/")
         val login = startLoginScreen()
         val activity = login.get()
-        login.enterCredentials()
+        enterCredentials()
         val backend = CollectionManager.getBackend()
         // the login runs on a real thread, so it waits on the server without blocking the test
         val previousQueue = CollectionManager.setTestDispatcher(Dispatchers.IO.limitedParallelism(1), useReentrantLock = false)
         try {
-            activity.findViewById<Button>(R.id.login_button).performClick()
+            signIn.performClick()
             assertTrue(requestReceived.await(5, TimeUnit.SECONDS), "the real backend must reach the local server")
             advanceRobolectricLooperUntil { ShadowDialog.getLatestDialog()?.isShowing == true }
 
@@ -268,12 +273,12 @@ class LoginFragmentTest : RobolectricTest() {
         runTest {
             succeedAuthentication()
             val login = startLoginScreen()
-            login.enterCredentials()
+            enterCredentials()
             // never advanced: the login keeps waiting for the collection
             val collectionScheduler = TestCoroutineScheduler()
             val previousQueue = CollectionManager.setTestDispatcher(StandardTestDispatcher(collectionScheduler), useReentrantLock = false)
             try {
-                login.get().findViewById<Button>(R.id.login_button).performClick()
+                signIn.performClick()
                 advanceTimeBy(601)
                 shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(601))
                 val progress = assertNotNull(ShadowDialog.getLatestDialog())
@@ -310,12 +315,12 @@ class LoginFragmentTest : RobolectricTest() {
                 setNonInteractiveUiTimeout(120_000)
             }
             val login = startLoginScreen(forResult = true)
-            login.enterCredentials()
-            login.get().findViewById<Button>(R.id.login_button).performClick()
+            enterCredentials()
+            signIn.performClick()
             shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(300))
-            assertEquals("invalid credentials", login.get().snackbarText)
+            assertEquals(authenticationError, login.get().snackbarText)
 
-            login.get().findViewById<Button>(R.id.login_button).performClick()
+            signIn.performClick()
             shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(5))
 
             assertEquals(2, attempts)
@@ -327,10 +332,36 @@ class LoginFragmentTest : RobolectricTest() {
     @Test
     @Config(qualifiers = "w480dp-h320dp-land")
     fun `logo is hidden in a compact landscape window`() {
-        val login = startLoginScreen()
+        startLoginScreen()
 
-        assertFalse(login.get().findViewById<View>(R.id.login_logo).isVisible)
+        compose.onNodeWithText("Hayaki").assertDoesNotExist()
+        compose.onNodeWithText("Privacy", substring = true).assertDoesNotExist()
     }
+
+    @Test
+    fun `address setup sends sign-in success back to the sync caller`() =
+        runTest {
+            var endpoint: String? = null
+            backend.replaceWith {
+                object : Backend() {
+                    override fun syncLogin(input: SyncLoginRequest): SyncAuth {
+                        endpoint = input.endpoint
+                        return syncAuth { hkey = TEST_HKEY }
+                    }
+                }
+            }
+            setSyncServer(null)
+            val login = startLoginScreen(forResult = true)
+            compose
+                .onNode(hasSetTextAction() and hasText(targetContext.getString(CommonString.paper_sync_server_address)))
+                .performTextReplacement(TEST_SYNC_SERVER)
+            compose.onNodeWithText(targetContext.getString(CommonString.dialog_continue)).performClick()
+            advanceRobolectricLooper()
+            logIn()
+
+            assertEquals(TEST_SYNC_SERVER, endpoint)
+            assertEquals(RESULT_OK, shadowOf(login.get()).resultCode)
+        }
 
     private suspend fun lockCollection() {
         throwOnShowError = false
@@ -365,22 +396,29 @@ class LoginFragmentTest : RobolectricTest() {
             AccountActivity.getIntent(targetContext, forResult),
         )
 
-    private fun ActivityController<AccountActivity>.enterCredentials() {
-        get().findViewById<TextInputEditText>(R.id.username).setText("user@example.com")
-        get().findViewById<TextInputEditField>(R.id.password).setText("hunter2")
+    private val passwordField get() =
+        compose.onNode(hasSetTextAction() and hasText(targetContext.getString(CommonString.password)))
+
+    private val signIn get() = compose.onNodeWithText(targetContext.getString(CommonString.paper_sync_sign_in))
+
+    private fun enterCredentials() {
+        compose
+            .onNode(hasSetTextAction() and hasText(targetContext.getString(CommonString.paper_sync_username)))
+            .performTextReplacement("paper")
+        passwordField.performTextReplacement("sample-password")
     }
 
-    private fun ActivityController<AccountActivity>.logIn() {
+    private fun logIn() {
         enterCredentials()
-        get().findViewById<Button>(R.id.login_button).performClick()
+        signIn.performClick()
         advanceRobolectricLooper()
     }
 
     private val AccountActivity.isBlockingTouches: Boolean
         get() = window.attributes.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE != 0
 
-    private val syncNowMessage: String
-        get() = targetContext.getString(CommonString.sync_now)
+    private val authenticationError: String
+        get() = targetContext.getString(CommonString.paper_sync_wrong_credentials)
 
     companion object {
         private const val TEST_HKEY = "test-hkey"

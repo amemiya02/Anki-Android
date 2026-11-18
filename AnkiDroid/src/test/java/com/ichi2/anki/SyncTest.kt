@@ -2,11 +2,12 @@
 
 package com.ichi2.anki
 
-import android.content.DialogInterface
+import android.app.Dialog
 import android.provider.Settings
-import android.view.View
-import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.backend.backendError
 import anki.sync.SyncAuth
@@ -18,14 +19,13 @@ import com.ichi2.anki.dialogs.SyncErrorDialog
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.testutils.signInToSyncServer
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
 import kotlinx.coroutines.runBlocking
 import net.ankiweb.rsdroid.Backend
 import net.ankiweb.rsdroid.BackendFactory
 import net.ankiweb.rsdroid.exceptions.BackendSyncException
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
@@ -39,6 +39,9 @@ import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class SyncTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     private lateinit var syncFailure: BackendSyncException
 
     @Before
@@ -69,16 +72,13 @@ class SyncTest : RobolectricTest() {
             val dialog = failSync(exception)
 
             assertTrue(supportFragmentManager.fragments.any { it is SyncErrorDialog })
-            assertEquals(
-                getString(CommonString.sync_clock_off_with_current_time, exception.localizedMessage, currentTime),
-                dialog.findViewById<TextView>(android.R.id.message)?.text?.toString(),
-            )
-            assertEquals(getString(CommonString.dialog_cancel), dialog.getButton(DialogInterface.BUTTON_NEGATIVE).text)
-            assertEquals(getString(CommonString.open_settings), dialog.getButton(DialogInterface.BUTTON_POSITIVE).text)
-            assertEquals(View.GONE, dialog.getButton(DialogInterface.BUTTON_NEUTRAL).visibility)
+            visible(CommonString.paper_sync_clock_error).assertIsDisplayed()
+            visible(CommonString.paper_dialog_show_details).performClick()
+            compose.onNodeWithText(currentTime).assertIsDisplayed()
+            visible(CommonString.dialog_cancel).assertIsDisplayed()
             assertEquals("test", Prefs.hkey)
 
-            dialog.getButton(DialogInterface.BUTTON_POSITIVE).performClick()
+            visible(CommonString.open_settings).performClick()
             advanceRobolectricLooper()
 
             val intent = assertNotNull(shadowOf(this).nextStartedActivity)
@@ -91,7 +91,7 @@ class SyncTest : RobolectricTest() {
         deckPicker {
             val dialog = failSync(BackendSyncException(backendError { message = CollectionManager.TR.syncClockOff() }))
 
-            dialog.getButton(DialogInterface.BUTTON_NEGATIVE).performClick()
+            visible(CommonString.dialog_cancel).performClick()
             advanceRobolectricLooper()
 
             assertFalse(dialog.isShowing)
@@ -105,13 +105,13 @@ class SyncTest : RobolectricTest() {
             val applicationShadow = shadowOf(application)
             applicationShadow.checkActivities(true)
             try {
-                dialog.getButton(DialogInterface.BUTTON_POSITIVE).performClick()
+                visible(CommonString.open_settings).performClick()
                 advanceRobolectricLooper()
 
                 assertTrue(dialog.isShowing)
                 assertNull(shadowOf(this).nextStartedActivity)
 
-                dialog.getButton(DialogInterface.BUTTON_NEGATIVE).performClick()
+                visible(CommonString.dialog_cancel).performClick()
                 advanceRobolectricLooper()
                 assertFalse(dialog.isShowing)
             } finally {
@@ -125,13 +125,11 @@ class SyncTest : RobolectricTest() {
             val message = "other sync error"
             val dialog = failSync(BackendSyncException(backendError { this.message = message }))
 
-            assertEquals(message, dialog.findViewById<TextView>(android.R.id.message)?.text?.toString())
-            assertEquals(getString(CommonString.dialog_ok), dialog.getButton(DialogInterface.BUTTON_POSITIVE).text)
-            assertEquals(View.GONE, dialog.getButton(DialogInterface.BUTTON_NEGATIVE).visibility)
-            assertEquals(View.GONE, dialog.getButton(DialogInterface.BUTTON_NEUTRAL).visibility)
+            compose.onNodeWithText(message).assertIsDisplayed()
+            visible(CommonString.dialog_cancel).assertDoesNotExist()
             assertEquals("test", Prefs.hkey)
 
-            dialog.getButton(DialogInterface.BUTTON_POSITIVE).performClick()
+            visible(CommonString.dialog_ok).performClick()
             advanceRobolectricLooper()
 
             assertFalse(dialog.isShowing)
@@ -143,29 +141,13 @@ class SyncTest : RobolectricTest() {
         deckPickerEx {
             val message = TR.syncUploadTooLarge("300.14 MB > 300.00 MB")
 
-            val dialog =
-                failSync(
-                    BackendSyncException(
-                        backendError {
-                            this.message = message
-                        },
-                    ),
-                )
+            val dialog = failSync(BackendSyncException(backendError { this.message = message }))
 
-            assertEquals(
-                message,
-                dialog.findViewById<TextView>(android.R.id.message)?.text?.toString(),
-            )
-            assertEquals(
-                TR.sentenceCase.checkDatabase,
-                dialog.positiveButton.text,
-            )
-            assertEquals(
-                getString(CommonString.dialog_cancel),
-                dialog.negativeButton.text,
-            )
-
-            dialog.positiveButton.performClick()
+            visible(CommonString.paper_sync_too_large).assertIsDisplayed()
+            visible(CommonString.paper_dialog_show_details).performClick()
+            compose.onNodeWithText(message).assertIsDisplayed()
+            visible(CommonString.dialog_cancel).assertIsDisplayed()
+            compose.onNodeWithText(TR.sentenceCase.checkDatabase).performClick()
             advanceRobolectricLooper()
 
             assertFalse(dialog.isShowing)
@@ -178,19 +160,9 @@ class SyncTest : RobolectricTest() {
             val message =
                 "Some localized backend message: 123456789 > 314572800"
 
-            val dialog =
-                failSync(
-                    BackendSyncException(
-                        backendError {
-                            this.message = message
-                        },
-                    ),
-                )
+            failSync(BackendSyncException(backendError { this.message = message }))
 
-            assertEquals(
-                TR.sentenceCase.checkDatabase,
-                dialog.positiveButton.text,
-            )
+            visible(CommonString.paper_sync_too_large).assertIsDisplayed()
         }
 
     @Test
@@ -203,23 +175,11 @@ class SyncTest : RobolectricTest() {
                     "ଏବଂ ତାପରେ ଫାଇଲ୍ ଆକାର ସଙ୍କୁଚିତ କରିବାକୁ ଡାଟାବେସ୍ ଯାଞ୍ଚ ବ୍ୟବହାର କରିପାରିବେ। " +
                     "(300.14 MB > 300.00 MB)"
 
-            val dialog =
-                failSync(
-                    BackendSyncException(
-                        backendError {
-                            this.message = message
-                        },
-                    ),
-                )
+            failSync(BackendSyncException(backendError { this.message = message }))
 
-            assertEquals(
-                message,
-                dialog.findViewById<TextView>(android.R.id.message)?.text?.toString(),
-            )
-            assertEquals(
-                TR.sentenceCase.checkDatabase,
-                dialog.positiveButton.text,
-            )
+            visible(CommonString.paper_sync_too_large).assertIsDisplayed()
+            visible(CommonString.paper_dialog_show_details).performClick()
+            compose.onNodeWithText(message).assertIsDisplayed()
         }
 
     @Test
@@ -227,14 +187,16 @@ class SyncTest : RobolectricTest() {
         deckPicker {
             Prefs.username = "test user"
             val message = "authentication failed"
-            val dialog = failSync(BackendSyncException.BackendSyncAuthFailedException(backendError { this.message = message }))
+            failSync(BackendSyncException.BackendSyncAuthFailedException(backendError { this.message = message }))
 
             assertEquals("", Prefs.hkey)
             assertEquals("", Prefs.username)
-            assertEquals(message, dialog.findViewById<TextView>(android.R.id.message)?.text?.toString())
+            visible(CommonString.paper_sync_sign_in).assertIsDisplayed()
         }
 
-    private fun DeckPicker.failSync(exception: BackendSyncException): AlertDialog {
+    private fun visible(resource: Int) = compose.onNodeWithText(targetContext.getString(resource))
+
+    private fun DeckPicker.failSync(exception: BackendSyncException): Dialog {
         syncFailure = exception
         signInToSyncServer()
         Prefs.lastSyncTime = 0
@@ -243,6 +205,6 @@ class SyncTest : RobolectricTest() {
         handleNewSync(conflict = null, syncMedia = false)
         advanceRobolectricLooperUntil { Prefs.lastSyncTime != 0L }
 
-        return assertNotNull(ShadowDialog.getLatestDialog() as? AlertDialog)
+        return assertNotNull(ShadowDialog.getLatestDialog())
     }
 }

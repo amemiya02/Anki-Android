@@ -9,17 +9,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.content.edit
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.CollectionManager.TR
-import com.ichi2.anki.SingleFragmentActivity.Companion.EXTRA_FRAGMENT_ARGS
 import com.ichi2.anki.SingleFragmentActivity.Companion.EXTRA_FRAGMENT_NAME
 import com.ichi2.anki.account.AccountActivity
 import com.ichi2.anki.account.LoginFragment
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.preferences.CustomSyncServerSettingsFragment
-import com.ichi2.anki.preferences.EXTRA_INITIAL_FRAGMENT
-import com.ichi2.anki.preferences.PreferencesActivity
 import com.ichi2.anki.settings.Prefs
-import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.testutils.BackupManagerTestUtilities
 import com.ichi2.testutils.TEST_SYNC_SERVER
 import com.ichi2.testutils.setSyncServer
@@ -79,7 +74,7 @@ class SyncSetupTest : RobolectricTest() {
             advanceRobolectricLooper()
 
             compose.onNodeWithText(getString(CommonString.sync_server_not_logged_in_title)).assertIsDisplayed()
-            compose.onNodeWithText(TR.sentenceCase.logIn).performClick()
+            compose.onNodeWithText(getString(CommonString.paper_sync_sign_in)).performClick()
             advanceRobolectricLooper()
 
             val intent = assertNotNull(shadowOf(this).nextStartedActivity)
@@ -95,8 +90,7 @@ class SyncSetupTest : RobolectricTest() {
     }
 
     private fun assertOpensSyncSetup(intent: Intent) {
-        assertEquals(PreferencesActivity::class.java.name, intent.component?.className)
-        val args = assertNotNull(intent.getBundleExtra(EXTRA_FRAGMENT_ARGS))
-        assertEquals(CustomSyncServerSettingsFragment::class.jvmName, args.getString(EXTRA_INITIAL_FRAGMENT))
+        assertEquals(AccountActivity::class.java.name, intent.component?.className)
+        assertEquals(CustomSyncServerSettingsFragment::class.jvmName, intent.getStringExtra(EXTRA_FRAGMENT_NAME))
     }
 }

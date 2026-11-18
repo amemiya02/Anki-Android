@@ -273,6 +273,7 @@ open class PrefsRepository protected constructor(
      * so it can try again once the block is lifted.
      */
     var lastSyncTime by longPref(R.string.last_sync_time_key, defaultValue = 0L)
+    var lastSuccessfulSyncTime by longPref(R.string.last_successful_sync_time_key, defaultValue = 0L)
 
     @set:VisibleForTesting
     var shouldFetchMedia: ShouldFetchMedia by enumPref(R.string.sync_fetch_media_key, ShouldFetchMedia.ALWAYS)

@@ -45,12 +45,7 @@ class RemainingSettingsScreenshotTest : ScreenshotTest() {
     ) {
         GENERAL(GeneralSettingsFragment::class, CommonString.language, CommonString.card_browser_hide_media),
         ACCESSIBILITY(AccessibilitySettingsFragment::class, CommonString.card_zoom, CommonString.remove_animations),
-        SYNC(SyncSettingsFragment::class, CommonString.menu_my_account, CommonString.sync_server_title),
-        SYNC_SERVER(
-            CustomSyncServerSettingsFragment::class,
-            CommonString.custom_sync_server_base_url_title,
-            CommonString.menu_my_account,
-        ),
+        SYNC(SyncSettingsFragment::class, CommonString.paper_sync_server_title_action, CommonString.one_way_sync_title),
         BACKUPS(
             BackupLimitsSettingsFragment::class,
             CommonString.pref__minutes_between_automatic_backups__title,
@@ -100,7 +95,7 @@ class RemainingSettingsScreenshotTest : ScreenshotTest() {
         val labels = targetContext.resources.getStringArray(R.array.sync_media_entries)
         val intent = PreferencesActivity.getIntent(targetContext, SyncSettingsFragment::class)
         ActivityScenario.launch<PreferencesActivity>(intent).use {
-            val fetchMedia = compose.onNodeWithText(targetContext.getString(CommonString.sync_fetch_missing_media))
+            val fetchMedia = compose.onNodeWithText(targetContext.getString(CommonString.paper_sync_media))
             fetchMedia.performScrollTo().performClick()
             val choice = SemanticsMatcher.keyIsDefined(SemanticsProperties.Selected)
             compose.onNode(hasText(labels[0]) and choice).assertIsDisplayed().assertIsSelected()

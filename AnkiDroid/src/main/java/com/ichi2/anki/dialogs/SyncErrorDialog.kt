@@ -30,6 +30,9 @@ import com.ichi2.anki.dialogs.SyncErrorDialog.Type.DIALOG_SYNC_SANITY_ERROR
 import com.ichi2.anki.dialogs.SyncErrorDialog.Type.DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_LOCAL
 import com.ichi2.anki.dialogs.SyncErrorDialog.Type.DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_REMOTE
 import com.ichi2.anki.dialogs.SyncErrorDialog.Type.DIALOG_USER_NOT_LOGGED_IN_SYNC
+import com.ichi2.anki.preferences.SettingsChevron
+import com.ichi2.anki.preferences.SettingsRow
+import com.ichi2.anki.syncServerDisplayName
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.dismissAllDialogFragments
 import com.ichi2.anki.utils.openUrl
@@ -37,8 +40,6 @@ import com.ichi2.compose.ui.dialogs.ConfirmationDialog
 import com.ichi2.compose.ui.dialogs.DialogAction
 import com.ichi2.compose.ui.dialogs.DialogActionStyle
 import com.ichi2.compose.ui.dialogs.DialogBody
-import com.ichi2.compose.ui.dialogs.DialogChoice
-import com.ichi2.compose.ui.dialogs.DialogChoiceRow
 import com.ichi2.compose.ui.dialogs.DialogMark
 import com.ichi2.compose.ui.dialogs.ErrorDialog
 import com.ichi2.compose.ui.dialogs.PaperDialog
@@ -96,19 +97,19 @@ class SyncErrorDialog : AsyncDialogFragment() {
                     title,
                     errorBody,
                     onDismissRequest = ::dismiss,
-                    primaryAction = action(TR.sentenceCase.logIn, listener::loginToSyncServer),
+                    primaryAction = action(getString(CommonString.paper_sync_sign_in), listener::loginToSyncServer),
                     dismissText = cancel,
                     markIcon = icon,
                 )
 
             DIALOG_CONNECTION_ERROR ->
                 ErrorDialog(
-                    getString(CommonString.paper_dialog_sync_unreachable),
+                    title,
                     errorBody,
                     details = requireArguments().getString(ARG_DIALOG_MESSAGE),
                     onDismissRequest = { activity?.dismissAllDialogFragments() },
-                    primaryAction = DialogAction(getString(CommonString.retry), { syncAndDismissAllDialogFragments() }),
-                    dismissText = cancel,
+                    primaryAction = DialogAction(getString(CommonString.paper_sync_retry), { syncAndDismissAllDialogFragments() }),
+                    dismissText = getString(CommonString.paper_sync_not_now),
                     markIcon = R.drawable.symbol_cloud_off,
                 )
 
@@ -117,46 +118,33 @@ class SyncErrorDialog : AsyncDialogFragment() {
                 PaperDialog(
                     title,
                     onDismissRequest = ::dismiss,
-                    mark = DialogMark(icon, warning = true),
-                    actions =
-                        listOfNotNull(
-                            DialogAction(cancel, ::dismiss),
-                            if (conflict) {
-                                DialogAction(
-                                    getString(CommonString.help),
-                                    { requireContext().openUrl(R.string.link_sync_conflict_help) },
-                                )
-                            } else {
-                                null
-                            },
-                        ),
+                    mark = DialogMark(R.drawable.symbol_call_split, warning = true),
+                    actions = listOf(DialogAction(cancel, ::dismiss)),
                 ) {
-                    if (errorBody.isNotEmpty()) DialogBody(errorBody)
-                    DialogChoiceRow(
-                        DialogChoice(
-                            getString(if (conflict) CommonString.sync_conflict_keep_local_new else CommonString.sync_sanity_local),
-                        ),
-                        checked = false,
+                    DialogBody(errorBody)
+                    SettingsRow(
+                        title = getString(CommonString.paper_sync_keep_phone),
+                        summary = getString(CommonString.paper_sync_keep_phone_hint),
+                        icon = R.drawable.symbol_smartphone,
                         onClick = {
                             dismiss()
                             listener.showSyncErrorDialog(
                                 if (conflict) DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_LOCAL else DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_LOCAL,
                             )
                         },
-                        multiple = false,
+                        trailing = { SettingsChevron() },
                     )
-                    DialogChoiceRow(
-                        DialogChoice(
-                            getString(if (conflict) CommonString.sync_conflict_keep_remote_new else CommonString.sync_sanity_remote),
-                        ),
-                        checked = false,
+                    SettingsRow(
+                        title = getString(CommonString.paper_sync_keep_server),
+                        summary = getString(CommonString.paper_sync_keep_server_hint),
+                        icon = R.drawable.symbol_dns,
                         onClick = {
                             dismiss()
                             listener.showSyncErrorDialog(
                                 if (conflict) DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_REMOTE else DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_REMOTE,
                             )
                         },
-                        multiple = false,
+                        trailing = { SettingsChevron() },
                     )
                 }
             }
@@ -188,6 +176,7 @@ class SyncErrorDialog : AsyncDialogFragment() {
                 ErrorDialog(
                     title,
                     errorBody,
+                    details = requireArguments().getString(ARG_DIALOG_MESSAGE),
                     onDismissRequest = ::dismiss,
                     primaryAction =
                         DialogAction(if (media) TR.sentenceCase.checkMediaAction else TR.sentenceCase.checkDatabase, {
@@ -202,7 +191,7 @@ class SyncErrorDialog : AsyncDialogFragment() {
             DIALOG_SYNC_CORRUPT_COLLECTION ->
                 ErrorDialog(
                     title,
-                    getString(CommonString.sync_corrupt_database, getString(R.string.repair_deck)),
+                    errorBody,
                     details = requireArguments().getString(ARG_DIALOG_MESSAGE),
                     onDismissRequest = {
                         listenerActivity.openUrl(R.string.repair_deck)
@@ -217,6 +206,7 @@ class SyncErrorDialog : AsyncDialogFragment() {
                 ErrorDialog(
                     title,
                     errorBody,
+                    details = DateFormat.getDateTimeInstance().format(TimeManager.time.currentDate),
                     onDismissRequest = ::dismiss,
                     primaryAction =
                         DialogAction(getString(CommonString.open_settings), {
@@ -235,99 +225,52 @@ class SyncErrorDialog : AsyncDialogFragment() {
 
     private val title: String
         get() =
-            when (dialogType) {
-                DIALOG_USER_NOT_LOGGED_IN_SYNC -> res().getString(CommonString.sync_server_not_logged_in_title)
-                DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_LOCAL, DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_REMOTE ->
-                    res().getString(
-                        CommonString.sync_conflict_replace_title,
-                    )
-                DIALOG_SYNC_CONFLICT_RESOLUTION -> res().getString(CommonString.sync_conflict_title_new)
-                DIALOG_CONNECTION_ERROR,
-                DIALOG_SYNC_SANITY_ERROR,
-                DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_LOCAL,
-                DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_REMOTE,
-                DIALOG_MEDIA_SYNC_ERROR,
-                DIALOG_SYNC_CORRUPT_COLLECTION,
-                DIALOG_SYNC_BASIC_CHECK_ERROR,
-                DIALOG_COLLECTION_TOO_LARGE,
-                -> res().getString(CommonString.sync_error)
-                DIALOG_SYNC_CLOCK_OFF -> res().getString(CommonString.vague_error)
-            }
+            res().getString(
+                when (dialogType) {
+                    DIALOG_USER_NOT_LOGGED_IN_SYNC -> CommonString.sync_server_not_logged_in_title
+                    DIALOG_CONNECTION_ERROR -> CommonString.paper_sync_unreachable_title
+                    DIALOG_SYNC_CONFLICT_RESOLUTION, DIALOG_SYNC_SANITY_ERROR -> CommonString.paper_sync_conflict_title
+                    DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_LOCAL, DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_REMOTE,
+                    DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_LOCAL, DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_REMOTE,
+                    -> CommonString.sync_conflict_replace_title
+                    else -> CommonString.sync_error
+                },
+            )
 
-    /**
-     * Get the title which is shown in notification bar when dialog fragment can't be shown
-     *
-     * @return tile to be shown in notification in bar
-     */
     override val notificationTitle: String
-        get() {
-            return if (dialogType == DIALOG_USER_NOT_LOGGED_IN_SYNC) {
-                res().getString(CommonString.sync_error)
-            } else {
-                title
-            }
-        }
+        get() = title
 
-    private val message: String?
-        get() =
-            when (dialogType) {
-                DIALOG_USER_NOT_LOGGED_IN_SYNC -> res().getString(CommonString.sync_server_login_message)
-                DIALOG_CONNECTION_ERROR -> res().getString(CommonString.connection_error_message)
-                DIALOG_SYNC_CONFLICT_RESOLUTION -> res().getString(CommonString.sync_conflict_message_new)
-                DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_LOCAL, DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_LOCAL ->
-                    res().getString(
-                        CommonString.sync_conflict_local_confirm_new,
-                    )
-                DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_REMOTE, DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_REMOTE ->
-                    res().getString(
-                        CommonString.sync_conflict_remote_confirm_new,
-                    )
-                DIALOG_SYNC_CORRUPT_COLLECTION -> {
-                    val syncMessage = requireArguments().getString(ARG_DIALOG_MESSAGE)
-                    val repairUrl = res().getString(R.string.repair_deck)
-                    val dialogMessage = res().getString(CommonString.sync_corrupt_database, repairUrl)
-                    joinSyncMessages(dialogMessage, syncMessage)
+    private val message: String
+        get() {
+            val messageResource =
+                when (dialogType) {
+                    DIALOG_USER_NOT_LOGGED_IN_SYNC -> CommonString.paper_sync_not_signed_in
+                    DIALOG_CONNECTION_ERROR -> CommonString.paper_sync_unreachable_body
+                    DIALOG_SYNC_CONFLICT_RESOLUTION -> CommonString.paper_sync_conflict_body
+                    DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_LOCAL, DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_LOCAL ->
+                        CommonString.paper_sync_keep_phone_hint
+                    DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_REMOTE, DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_REMOTE ->
+                        CommonString.paper_sync_keep_server_hint
+                    DIALOG_SYNC_SANITY_ERROR -> CommonString.paper_sync_sanity
+                    DIALOG_MEDIA_SYNC_ERROR -> CommonString.paper_sync_media_error
+                    DIALOG_SYNC_BASIC_CHECK_ERROR -> CommonString.paper_sync_db_error
+                    DIALOG_SYNC_CORRUPT_COLLECTION -> CommonString.paper_sync_corrupt_error
+                    DIALOG_SYNC_CLOCK_OFF -> CommonString.paper_sync_clock_error
+                    DIALOG_COLLECTION_TOO_LARGE -> CommonString.paper_sync_too_large
                 }
-                DIALOG_SYNC_CLOCK_OFF ->
-                    res().getString(
-                        CommonString.sync_clock_off_with_current_time,
-                        requireArguments().getString(ARG_DIALOG_MESSAGE).orEmpty(),
-                        DateFormat.getDateTimeInstance().format(TimeManager.time.currentDate),
+            val resources = res()
+            return when (dialogType) {
+                DIALOG_USER_NOT_LOGGED_IN_SYNC, DIALOG_CONNECTION_ERROR ->
+                    resources.getString(
+                        messageResource,
+                        syncServerDisplayName() ?: resources.getString(CommonString.sync_server_title),
                     )
-                else -> requireArguments().getString(ARG_DIALOG_MESSAGE)
-            }
-
-    private fun joinSyncMessages(
-        dialogMessage: String?,
-        syncMessage: String?,
-    ): String? {
-        // If both strings have text, separate them by a new line, otherwise return whichever has text
-        return if (!dialogMessage.isNullOrEmpty() && !syncMessage.isNullOrEmpty()) {
-            """
-            $dialogMessage
-            
-            $syncMessage
-            """.trimIndent()
-        } else if (!dialogMessage.isNullOrEmpty()) {
-            dialogMessage
-        } else {
-            syncMessage
-        }
-    }
-
-    /**
-     * Get the message which is shown in notification bar when dialog fragment can't be shown
-     *
-     * @return message to be shown in notification in bar
-     */
-    override val notificationMessage: String?
-        get() {
-            return if (dialogType == DIALOG_USER_NOT_LOGGED_IN_SYNC) {
-                res().getString(CommonString.sync_server_not_logged_in_title)
-            } else {
-                message
+                else -> resources.getString(messageResource)
             }
         }
+
+    override val notificationMessage: String
+        get() = message
 
     override val dialogHandlerMessage: SyncErrorDialogMessageHandler
         get() {

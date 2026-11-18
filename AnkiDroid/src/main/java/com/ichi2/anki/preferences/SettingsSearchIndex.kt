@@ -148,10 +148,12 @@ private fun Context.toolbarSearchEntries(studying: String): List<SettingsSearchE
 
 private fun Context.syncSearchEntries(sync: String): List<SettingsSearchEntry> =
     remainingSettingsSearchEntries(R.xml.preferences_sync, sync, SyncSettingsFragment::class) +
-        remainingSettingsSearchEntries(
-            R.xml.preferences_custom_sync_server,
-            breadcrumb(sync, getString(CommonString.sync_server_title)),
-            CustomSyncServerSettingsFragment::class,
+        SettingsSearchEntry(
+            title = getString(CommonString.paper_sync_server_address),
+            path = sync,
+            destination = SyncSettingsFragment::class,
+            key = getString(R.string.custom_sync_server_key),
+            details = listOf(getString(CommonString.paper_sync_change_server), getString(CommonString.sync_server_title)),
         )
 
 private fun Context.aboutSearchEntries(path: String): List<SettingsSearchEntry> =

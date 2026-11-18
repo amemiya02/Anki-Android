@@ -26,7 +26,7 @@ class MeteredSyncDialog : DialogFragment() {
             var alwaysAllow by rememberSaveable { mutableStateOf(false) }
             ConfirmationDialog(
                 title = getString(CommonString.button_sync),
-                message = getString(CommonString.metered_sync_data_warning),
+                message = getString(CommonString.paper_sync_metered_error),
                 confirm =
                     DialogAction(getString(CommonString.dialog_continue), {
                         parentFragmentManager.setFragmentResult(
@@ -38,7 +38,7 @@ class MeteredSyncDialog : DialogFragment() {
                 onDismissRequest = ::dismiss,
             ) {
                 DialogChoiceRow(
-                    choice = DialogChoice(getString(CommonString.button_do_not_show_again)),
+                    choice = DialogChoice(getString(CommonString.paper_sync_metered_remember)),
                     checked = alwaysAllow,
                     onClick = {
                         alwaysAllow = !alwaysAllow

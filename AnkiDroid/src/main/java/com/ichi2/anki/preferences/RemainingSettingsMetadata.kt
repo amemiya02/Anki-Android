@@ -50,7 +50,7 @@ internal fun PreferenceScreen.applySettingsMetadata(
         }
         R.xml.preferences_sync -> {
             preference(R.string.sync_io_timeout_secs_key).title = TR.preferencesNetworkTimeout()
-            preference(R.string.one_way_sync_key).summary = TR.preferencesOnNextSyncForceChangesIn()
+            preference(R.string.one_way_sync_key).summary = context.getString(CommonString.paper_sync_one_way_hint)
         }
         R.xml.preferences_developer_options -> {
             preference(R.string.developer_options_enabled_by_user_key).isVisible = !BuildConfig.DEBUG
@@ -78,14 +78,13 @@ internal fun Context.remainingSettingsSearchEntries(
                 if (row is PreferenceCategory) {
                     append(row, "$breadcrumb › $title")
                 } else if (row.isSelectable && row.key.isNotEmpty()) {
-                    val opensServer = row.key == getString(R.string.custom_sync_server_key)
                     val choices = (row as? ListPreference)?.entries.orEmpty().map(CharSequence::toString)
                     add(
                         SettingsSearchEntry(
                             title = title,
                             path = breadcrumb,
-                            destination = if (opensServer) CustomSyncServerSettingsFragment::class else destination,
-                            key = if (opensServer) null else row.key,
+                            destination = destination,
+                            key = row.key,
                             details = listOfNotNull(row.summary?.toString()?.takeIf { row !is ListPreference }) + choices,
                         ),
                     )

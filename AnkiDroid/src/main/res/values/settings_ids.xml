@@ -13,5 +13,6 @@
     <item type="id" name="settings_developer" />
     <item type="id" name="settings_sync" />
     <item type="id" name="settings_sync_server" />
+    <item type="id" name="settings_sync_sign_in" />
     <item type="id" name="settings_manage_space" />
 </resources>

@@ -3,83 +3,70 @@
 
 package com.ichi2.anki
 
-import android.view.View
-import android.widget.Button
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performTextInput
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.android.material.textfield.TextInputEditText
-import com.ichi2.anki.account.LoginFragment
-import com.ichi2.anki.settings.Prefs
+import com.ichi2.anki.account.AccountActivity
 import com.ichi2.testutils.TEST_SYNC_SERVER
-import com.ichi2.testutils.launchFragmentInContainer
 import com.ichi2.testutils.setSyncServer
-import junit.framework.TestCase.assertFalse
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class MyAccountTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Before
     fun setup() {
-        Prefs.username = ""
-        Prefs.hkey = ""
         setSyncServer(TEST_SYNC_SERVER)
     }
 
     @Test
-    fun `the sign-in screen offers no AnkiWeb sign up or password reset`() {
-        launchFragmentInContainer<LoginFragment>().use { scenario ->
-            scenario.onFragment { fragment ->
-                for (text in listOf("AnkiWeb", "Sign up", "Reset password", "Forgot")) {
-                    val views = ArrayList<View>()
-                    fragment.requireView().findViewsWithText(views, text, View.FIND_VIEWS_WITH_TEXT)
-                    assertTrue(views.none { it.isShown }, "'$text' is not offered")
-                }
+    fun `the sign-in screen offers no AnkiWeb links or privacy button`() =
+        withLogin {
+            field("Username").assertIsDisplayed()
+            for (text in listOf("AnkiWeb", "Sign up", "Reset password", "Forgot", "Privacy")) {
+                compose.onNodeWithText(text, substring = true).assertDoesNotExist()
             }
         }
-    }
 
     @Test
-    fun testLoginEmailPasswordProvided() {
-        launchFragmentInContainer<LoginFragment>().use { scenario ->
-            scenario.onFragment { fragment ->
-                val testPassword = "randomStrongPassword"
-                val testEmail = "random.email@example.com"
-
-                fragment.view?.findViewById<TextInputEditText>(R.id.username)?.setText(testEmail)
-                fragment.view?.findViewById<TextInputEditText>(R.id.password)?.setText(testPassword)
-
-                val loginButton = fragment.view?.findViewById<Button>(R.id.login_button)
-                assertEquals(loginButton?.isEnabled, true)
-            }
+    fun `sign-in accepts a username without an email address`() =
+        withLogin {
+            field("Username").performTextInput("paper")
+            field("Password").performTextInput("randomStrongPassword")
+            signIn.assertIsEnabled()
         }
-    }
 
     @Test
-    fun testLoginFailsNoEmailProvided() {
-        launchFragmentInContainer<LoginFragment>().use { scenario ->
-            scenario.onFragment { fragment ->
-                val testPassword = "randomStrongPassword"
-
-                fragment.view?.findViewById<TextInputEditText>(R.id.password)?.setText(testPassword)
-                val loginButton = fragment.view?.findViewById<Button>(R.id.login_button)
-                assertFalse(loginButton?.isEnabled == true)
-            }
+    fun `sign-in requires a username`() =
+        withLogin {
+            field("Password").performTextInput("randomStrongPassword")
+            signIn.assertIsNotEnabled()
         }
-    }
 
     @Test
-    fun testLoginFailsNoPasswordProvided() {
-        launchFragmentInContainer<LoginFragment>().use { scenario ->
-            scenario.onFragment { fragment ->
-                val testEmail = "random.email@example.com"
-
-                fragment.view?.findViewById<TextInputEditText>(R.id.username)?.setText(testEmail)
-                val loginButton = fragment.view?.findViewById<Button>(R.id.login_button)
-                assertFalse(loginButton?.isEnabled == true)
-            }
+    fun `sign-in requires a password`() =
+        withLogin {
+            field("Username").performTextInput("paper")
+            signIn.assertIsNotEnabled()
         }
+
+    private fun withLogin(assertions: () -> Unit) {
+        ActivityScenario.launch<AccountActivity>(AccountActivity.getIntent(targetContext)).use { assertions() }
     }
+
+    private fun field(label: String) = compose.onNode(hasSetTextAction() and hasText(label))
+
+    private val signIn get() = compose.onNodeWithText("Sign in")
 }

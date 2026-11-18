@@ -2,9 +2,15 @@
 
 package com.ichi2.anki.account
 
-import android.view.View
+import android.app.Activity
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollTo
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.R
+import com.ichi2.anki.CommonString
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.settings.Prefs
@@ -12,101 +18,67 @@ import com.ichi2.testutils.TEST_SYNC_SERVER
 import com.ichi2.testutils.dispatchInsets
 import com.ichi2.testutils.setSyncServer
 import com.ichi2.testutils.signInToSyncServer
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.equalTo
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.assertTrue
 
-/** Edge-to-edge inset handling for [AccountActivity], applied by its hosted fragments. */
 @RunWith(AndroidJUnit4::class)
 class AccountInsetsTest : RobolectricTest() {
-    @Test
-    fun `app bar draws behind the status bar, with its content inset`() =
-        withLoginScreen { activity ->
-            activity.dispatchInsets()
+    @get:Rule
+    val compose = createEmptyComposeRule()
 
-            assertThat(
-                "the root does not consume the top inset, so the app bar draws behind the status bar",
-                activity.rootLayout.paddingTop,
-                equalTo(0),
-            )
-            assertThat(
-                "app bar content is pushed clear of the status bar",
-                activity.toolbarContainer.paddingTop,
-                equalTo(24.dp.toPx(targetContext)),
-            )
+    @Test
+    fun `sign-in clears the status bar, side navigation, and cutout`() =
+        withAccount {
+            val before = submit.getUnclippedBoundsInRoot()
+            it.onActivity { activity -> activity.dispatchInsets(navBarRight = 48.dp, cutoutLeft = 32.dp) }
+            val after = submit.getUnclippedBoundsInRoot()
+            assertTrue(title.getUnclippedBoundsInRoot().top.value >= 24f)
+            assertTrue(after.left.value >= before.left.value + 31f)
+            assertTrue(after.right.value <= before.right.value - 47f)
         }
 
     @Test
-    fun `app bar is padded past a side navigation bar and cutout`() =
-        withLoginScreen { activity ->
-            // landscape with 3-button navigation: the navigation bar is a side inset and the
-            // camera cutout is on the opposite side
-            activity.dispatchInsets(navBarRight = 48.dp, cutoutLeft = 32.dp)
-
-            assertThat(activity.toolbarContainer.paddingLeft, equalTo(32.dp.toPx(targetContext)))
-            assertThat(activity.toolbarContainer.paddingRight, equalTo(48.dp.toPx(targetContext)))
+    fun `sign-in button clears the navigation bar and rounded corners`() =
+        withAccount {
+            val before = submit.getUnclippedBoundsInRoot()
+            it.onActivity { activity -> activity.dispatchInsets(navBarBottom = 24.dp, bottomCornerRadius = 48.dp) }
+            val after = submit.assertIsDisplayed().getUnclippedBoundsInRoot()
+            assertTrue(after.bottom.value <= before.bottom.value - 47f)
         }
 
     @Test
-    fun `the form clears the navigation bar`() =
-        withLoginScreen { activity ->
-            activity.dispatchInsets(navBarBottom = 48.dp)
-
-            assertThat(activity.content.paddingBottom, equalTo(48.dp.toPx(targetContext)))
+    fun `the keyboard leaves sign-in and the password field reachable`() =
+        withAccount {
+            val before = submit.getUnclippedBoundsInRoot()
+            it.onActivity { activity -> activity.dispatchInsets(navBarBottom = 48.dp, imeBottom = 300.dp) }
+            val after = submit.assertIsDisplayed().getUnclippedBoundsInRoot()
+            assertTrue(after.bottom.value <= before.bottom.value - 299f)
+            compose.onNodeWithText(targetContext.getString(CommonString.password)).performScrollTo().assertIsDisplayed()
         }
 
     @Test
-    fun `the form clears rounded display corners larger than the navigation bar`() =
-        withLoginScreen { activity ->
-            activity.dispatchInsets(navBarBottom = 24.dp, bottomCornerRadius = 48.dp)
-
-            assertThat(activity.content.paddingBottom, equalTo(48.dp.toPx(targetContext)))
+    fun `the account and settings page clears the navigation bar`() =
+        withAccount(signedIn = true) {
+            it.onActivity { activity -> activity.dispatchInsets(navBarBottom = 48.dp) }
+            compose.onNodeWithText(targetContext.getString(CommonString.paper_sync_now)).assertIsDisplayed()
+            compose.onNodeWithText(targetContext.getString(CommonString.one_way_sync_title)).performScrollTo().assertIsDisplayed()
         }
 
-    @Test
-    fun `the keyboard does not cover the password field`() =
-        withLoginScreen { activity ->
-            activity.dispatchInsets(navBarBottom = 48.dp, imeBottom = 300.dp)
+    private val submit get() = compose.onNodeWithText(targetContext.getString(CommonString.paper_sync_sign_in))
+    private val title get() = compose.onNodeWithText(targetContext.getString(CommonString.paper_sync_sign_in_title))
 
-            assertThat(activity.content.paddingBottom, equalTo(300.dp.toPx(targetContext)))
-        }
-
-    @Test
-    fun `the logged in screen is inset too`() =
-        withLoggedInScreen { activity ->
-            activity.dispatchInsets(navBarBottom = 48.dp)
-
-            assertThat(
-                "app bar content is pushed clear of the status bar",
-                activity.toolbarContainer.paddingTop,
-                equalTo(24.dp.toPx(targetContext)),
-            )
-            assertThat(activity.content.paddingBottom, equalTo(48.dp.toPx(targetContext)))
-        }
-
-    /** The activity's own root, outside the fragment. Note the fragment root shares this id. */
-    private val AccountActivity.rootLayout: View get() = findViewById(R.id.root_layout)
-
-    private val AccountActivity.toolbarContainer: View get() = findViewById(R.id.toolbar_container)
-
-    private val AccountActivity.content: View get() = findViewById(R.id.account_content)
-
-    private fun withLoginScreen(block: (AccountActivity) -> Unit) {
+    private fun withAccount(
+        signedIn: Boolean = false,
+        block: (ActivityScenario<Activity>) -> Unit,
+    ) {
         setSyncServer(TEST_SYNC_SERVER)
         Prefs.hkey = ""
-        block(startAccountActivity())
+        if (signedIn) {
+            signInToSyncServer()
+            Prefs.username = "paper"
+        }
+        ActivityScenario.launch<Activity>(AccountActivity.getIntent(targetContext)).use(block)
     }
-
-    private fun withLoggedInScreen(block: (AccountActivity) -> Unit) {
-        signInToSyncServer(hkey = "my precious hkey")
-        Prefs.username = "lovely@example.com"
-        block(startAccountActivity())
-    }
-
-    private fun startAccountActivity(): AccountActivity =
-        startActivityNormallyOpenCollectionWithIntent(
-            AccountActivity::class.java,
-            AccountActivity.getIntent(targetContext),
-        )
 }

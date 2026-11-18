@@ -3,295 +3,208 @@
 
 package com.ichi2.anki.account
 
-import android.app.Activity.RESULT_OK
-import android.content.Intent
-import android.content.res.Configuration
-import android.os.Build
 import android.os.Bundle
-import android.view.KeyEvent
+import android.view.LayoutInflater
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isVisible
-import androidx.core.view.updatePadding
-import androidx.core.widget.doOnTextChanged
+import android.view.ViewGroup
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
-import com.ichi2.anki.CollectionManager.TR
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.CrashReportData.Companion.toCrashReportData
-import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.NoSyncServerException
 import com.ichi2.anki.R
-import com.ichi2.anki.account.AccountActivity.Companion.ARG_START_FOR_RESULT
-import com.ichi2.anki.databinding.FragmentMyAccountBinding
-import com.ichi2.anki.dialogs.help.HelpDialog
 import com.ichi2.anki.exception.CollectionLockedException
+import com.ichi2.anki.preferences.SettingsChevron
+import com.ichi2.anki.preferences.SettingsRow
 import com.ichi2.anki.progress.observeProgress
 import com.ichi2.anki.showErrorAndAwaitDismissal
 import com.ichi2.anki.syncServerAddress
-import com.ichi2.anki.ui.internationalization.sentenceCase
-import com.ichi2.anki.utils.bottomCornerClearance
-import com.ichi2.anki.utils.ext.collectInViewLifecycle
-import com.ichi2.anki.utils.ext.isCompactWidth
-import com.ichi2.anki.utils.ext.showDialogFragment
-import com.ichi2.anki.utils.hideKeyboard
+import com.ichi2.anki.syncServerDisplayName
 import com.ichi2.anki.utils.observeMessages
-import com.ichi2.anki.utils.showAndAwaitDismissal
 import com.ichi2.anki.utils.showSnackbarAndAwaitDismissal
-import com.ichi2.compose.ui.dialogs.ConfirmationDialog
-import com.ichi2.compose.ui.dialogs.DialogAction
-import com.ichi2.compose.ui.dialogs.createPaperDialog
-import com.ichi2.utils.Permissions
-import dev.androidbroadcast.vbpd.viewBinding
-import timber.log.Timber
+import com.ichi2.compose.theme.foundation
+import com.ichi2.utils.LanguageUtil.withUnicodeIsolation
+import net.ankiweb.rsdroid.exceptions.BackendNetworkException
+import net.ankiweb.rsdroid.exceptions.BackendSyncException.BackendSyncAuthFailedException
 
-class LoginFragment : Fragment(R.layout.fragment_my_account) {
+class LoginFragment : Fragment() {
     private val viewModel: LoginViewModel by viewModels()
-    private val binding by viewBinding(FragmentMyAccountBinding::bind)
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View = syncStepView(R.id.settings_sync_sign_in) { SignIn() }
 
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-        setupEdgeToEdge(view)
-
-        val activity = requireActivity() as AppCompatActivity
-        activity.setSupportActionBar(binding.toolbar)
-
-        activity.supportActionBar?.apply {
-            title = getString(CommonString.menu_my_account)
-            // the server signed in to: never AnkiWeb (ADR-0001)
-            subtitle = syncServerAddress()
-            setDisplayHomeAsUpEnabled(true)
-            setDisplayShowHomeEnabled(true)
-        }
-
-        binding.toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
-        }
-
-        binding.loginButton.text = TR.sentenceCase.logIn
-        updateLogoVisibility(resources.configuration)
-
-        initListeners()
-        initObservers()
-    }
-
-    /** Applies edge-to-edge insets for the screen */
-    private fun setupEdgeToEdge(view: View) {
-        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
-            val bars =
-                insets.getInsets(
-                    WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout(),
-                )
-            val withKeyboard =
-                insets.getInsets(
-                    WindowInsetsCompat.Type.systemBars() or
-                        WindowInsetsCompat.Type.displayCutout() or
-                        WindowInsetsCompat.Type.ime(),
-                )
-            binding.toolbarContainer.updatePadding(left = bars.left, top = bars.top, right = bars.right)
-            binding.accountContent.updatePadding(
-                left = bars.left,
-                right = bars.right,
-                bottom = maxOf(withKeyboard.bottom, insets.bottomCornerClearance(binding.accountContent)),
-            )
-            insets
-        }
-    }
-
-    private fun login() {
-        hideKeyboard()
-        submitCredentials()
-    }
-
-    private fun submitCredentials() {
-        viewModel.login(
-            username =
-                binding.username.text
-                    .toString()
-                    .trim(),
-            password = binding.password.text.toString(),
-        )
-    }
-
-    private fun initListeners() {
-        initUsernameListeners()
-        initPasswordListeners()
-        initButtonListeners()
-    }
-
-    private fun initUsernameListeners() {
-        binding.username.setOnFocusChangeListener { _, hasFocus ->
-            viewModel.onUserNameFocusChange(hasFocus, binding.username.text.toString())
-        }
-
-        binding.username.doOnTextChanged { text, _, _, _ ->
-            viewModel.onTextChanged(text.toString(), binding.password.text.toString())
-        }
-    }
-
-    private fun initPasswordListeners() {
-        binding.password.setOnFocusChangeListener { _, hasFocus ->
-            viewModel.onPasswordFocusChange(hasFocus, binding.password.text.toString())
-        }
-
-        binding.password.setOnKeyListener { _, keyCode, event ->
-            if (event.action == KeyEvent.ACTION_DOWN) {
-                when (keyCode) {
-                    KeyEvent.KEYCODE_DPAD_CENTER,
-                    KeyEvent.KEYCODE_ENTER,
-                    KeyEvent.KEYCODE_NUMPAD_ENTER,
-                    -> {
-                        if (binding.loginButton.isEnabled) login()
-                        return@setOnKeyListener true
-                    }
-                }
-            }
-            false
-        }
-
-        binding.password.doOnTextChanged { text, _, _, _ ->
-            viewModel.onTextChanged(binding.username.text.toString(), text.toString())
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            binding.password.setAutoFillListener {
-                binding.passwordLayout.isEndIconVisible = false
-                Timber.i("Attempting login from autofill")
-                submitCredentials()
-            }
-        }
-    }
-
-    private fun initButtonListeners() {
-        binding.loginButton.setOnClickListener { login() }
-
-        binding.privacyPolicyButton.setOnClickListener {
-            Timber.i("Opening 'Privacy policy'")
-            showDialogFragment(HelpDialog.newPrivacyPolicyInstance())
-        }
-    }
-
-    private fun initObservers() {
         observeProgress(viewModel) { getString(CommonString.sign_in) }
-
-        observeMessages(viewModel.pendingMessages, viewModel::messageShown, ::showMessage)
-
-        viewModel.loginButtonEnabled.collectInViewLifecycle { isEnabled ->
-            binding.loginButton.isEnabled = isEnabled
-        }
-
-        viewModel.userNameError.collectInViewLifecycle { error ->
-            binding.usernameLayout.error = error?.toHumanReadableString(requireContext())
-        }
-
-        viewModel.passwordError.collectInViewLifecycle { error ->
-            binding.passwordLayout.error = error?.toHumanReadableString(requireContext())
+        observeMessages(viewModel.pendingMessages, viewModel::messageShown) { message ->
+            when (message) {
+                LoginMessage.LoggedIn -> (requireActivity() as AccountActivity).completeSignIn()
+                is LoginMessage.Failed -> showLoginError(message.exception)
+            }
         }
     }
 
-    /** Returns once the user has dealt with [message], so it is shown again if the screen is recreated first */
-    private suspend fun showMessage(message: LoginMessage) {
-        when (message) {
-            LoginMessage.LoggedIn -> onLoginSuccess()
-            is LoginMessage.Failed -> showLoginError(message.exception)
-        }
-    }
+    @Composable
+    private fun SignIn() {
+        val activity = requireActivity() as AccountActivity
+        val server = syncServerAddress()
+        var username by rememberSaveable(server) { mutableStateOf("") }
+        // Keep credentials out of the activity's saved state.
+        var password by remember(server) { mutableStateOf("") }
+        var passwordVisible by remember { mutableStateOf(false) }
+        var usernameWasFocused by remember { mutableStateOf(false) }
+        var passwordWasFocused by remember { mutableStateOf(false) }
+        val canSignIn by viewModel.loginButtonEnabled.collectAsStateWithLifecycle()
+        val usernameError by viewModel.userNameError.collectAsStateWithLifecycle()
+        val passwordError by viewModel.passwordError.collectAsStateWithLifecycle()
+        val foundation = MaterialTheme.foundation
+        val keyboard = LocalSoftwareKeyboardController.current
 
-    private suspend fun onLoginSuccess() {
-        Timber.i("Login Successful")
-        val activity = requireActivity()
-        val isForResult = arguments?.getBoolean(ARG_START_FOR_RESULT) ?: false
+        LaunchedEffect(username, password) { viewModel.onTextChanged(username.trim(), password) }
 
-        // If the user explicitly came from a sync prompt (onboarding/pressing sync)
-        // then their intent was to sync after login success
-        if (isForResult) {
-            activity.setResult(RESULT_OK)
-            activity.finish()
-            return
+        fun signIn() {
+            if (server == null || !canSignIn) return
+            keyboard?.hide()
+            viewModel.login(username.trim(), password)
         }
-        showLoginSuccessDialog()
+
+        SyncStepPage(
+            title = stringResource(CommonString.paper_sync_sign_in_title),
+            step = 2,
+            button = stringResource(CommonString.paper_sync_sign_in),
+            canContinue = server != null && canSignIn,
+            onBack = activity.onBackPressedDispatcher::onBackPressed,
+            onContinue = ::signIn,
+        ) {
+            SettingsRow(
+                title = stringResource(CommonString.paper_sync_change_server),
+                summary = server?.let(::withUnicodeIsolation),
+                icon = R.drawable.symbol_dns,
+                onClick = activity::changeServer,
+                trailing = { SettingsChevron() },
+            )
+            OutlinedTextField(
+                value = username,
+                onValueChange = { username = it },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .semantics { contentType = ContentType.Username }
+                        .onFocusChanged {
+                            if (usernameWasFocused || it.isFocused) {
+                                viewModel.onUserNameFocusChange(it.isFocused, username.trim())
+                            }
+                            usernameWasFocused = usernameWasFocused || it.isFocused
+                        },
+                label = { Text(stringResource(CommonString.paper_sync_username)) },
+                textStyle = foundation.type.body,
+                isError = usernameError != null,
+                supportingText = usernameError?.let { error -> { Text(error.toHumanReadableString(activity)) } },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                singleLine = true,
+                shape = foundation.shapes.button,
+            )
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .semantics { contentType = ContentType.Password }
+                        .onFocusChanged {
+                            if (passwordWasFocused || it.isFocused) viewModel.onPasswordFocusChange(it.isFocused, password)
+                            passwordWasFocused = passwordWasFocused || it.isFocused
+                        }.onPreviewKeyEvent {
+                            if (it.key != Key.Enter && it.key != Key.NumPadEnter && it.key != Key.DirectionCenter) {
+                                return@onPreviewKeyEvent false
+                            }
+                            if (it.type == KeyEventType.KeyDown) signIn()
+                            true
+                        },
+                label = { Text(stringResource(CommonString.password)) },
+                textStyle = foundation.type.body,
+                isError = passwordError != null,
+                supportingText = {
+                    Text(
+                        passwordError?.toHumanReadableString(activity) ?: stringResource(CommonString.paper_sync_password_note),
+                    )
+                },
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            painterResource(if (passwordVisible) R.drawable.symbol_visibility_off else R.drawable.symbol_visibility),
+                            contentDescription =
+                                stringResource(
+                                    if (passwordVisible) CommonString.paper_sync_hide_password else CommonString.paper_sync_show_password,
+                                ),
+                        )
+                    }
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { signIn() }),
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                singleLine = true,
+                shape = foundation.shapes.button,
+            )
+        }
     }
 
     private suspend fun showLoginError(exception: Exception) {
         when (exception) {
-            // the locked-collection guidance is too long for a snackbar
             is CollectionLockedException ->
                 requireContext().showErrorAndAwaitDismissal(
                     exception.localizedMessage!!,
                     exception.toCrashReportData(requireContext(), reportException = false),
                 )
             is NoSyncServerException -> showSnackbarAndAwaitDismissal(getString(CommonString.sync_server_required))
-            else -> showSnackbarAndAwaitDismissal(exception.message.toString())
-        }
-    }
-
-    /**
-     * Displays a dialog asking if a user would like to sync after a login success
-     *
-     * * **Positive:** opens the Deck Picker and starts a sync
-     * * **Negative:** continues to [LoggedInFragment]
-     */
-    private suspend fun showLoginSuccessDialog() {
-        /** @see LoggedInFragment */
-        fun showLoggedInView() {
-            Timber.i("Showing LoggedIn view")
-            val fragmentManager = requireActivity().supportFragmentManager
-            fragmentManager.popBackStack(
-                null,
-                FragmentManager.POP_BACK_STACK_INCLUSIVE,
-            )
-            fragmentManager.commit {
-                replace(R.id.fragment_container, LoggedInFragment())
-            }
-            Permissions.requestNotificationPermissionsForSyncing(requireActivity())
-        }
-
-        /** @see DeckPicker.onNewIntent */
-        fun openDeckPickerAndSync() {
-            Timber.i("Opening Deck Picker for Sync")
-            val intent =
-                DeckPicker.getIntent(
-                    requireContext(),
-                    autoSync = true,
+            is BackendNetworkException ->
+                showSnackbarAndAwaitDismissal(
+                    getString(
+                        CommonString.paper_sync_unreachable_body,
+                        syncServerDisplayName() ?: getString(CommonString.sync_server_title),
+                    ),
                 )
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            startActivity(intent)
-            requireActivity().finish()
+            is BackendSyncAuthFailedException -> showSnackbarAndAwaitDismissal(getString(CommonString.paper_sync_wrong_credentials))
+            else -> showSnackbarAndAwaitDismissal(getString(CommonString.paper_sync_sign_in_failed))
         }
-
-        Timber.i("Showing dialog: 'Sync now?'")
-        createPaperDialog(requireContext()) { dialog ->
-            ConfirmationDialog(
-                title = getString(CommonString.login_successful),
-                message = getString(CommonString.sync_now),
-                markIcon = R.drawable.symbol_sync,
-                confirm =
-                    DialogAction(getString(CommonString.button_sync), {
-                        dialog.dismiss()
-                        openDeckPickerAndSync()
-                    }),
-                dismissText = getString(CommonString.dialog_continue),
-                onDismissRequest = {
-                    dialog.dismiss()
-                    showLoggedInView()
-                },
-            )
-        }.apply { setOnCancelListener { showLoggedInView() } }.showAndAwaitDismissal()
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        updateLogoVisibility(newConfig)
-    }
-
-    private fun updateLogoVisibility(configuration: Configuration) {
-        binding.loginLogo.isVisible = !(isCompactWidth && configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
     }
 }

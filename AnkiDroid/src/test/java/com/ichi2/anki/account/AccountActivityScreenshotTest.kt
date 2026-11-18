@@ -60,20 +60,20 @@ class AccountActivityScreenshotTest : ScreenshotTest() {
         }
     }
 
-    private fun withLoggedIn(block: (AccountActivity) -> Unit) {
+    private fun withLoggedIn(block: (Activity) -> Unit) {
         signInToSyncServer(hkey = "my precious hkey")
         Prefs.username = "lovely@example.com"
         launchAccount(block)
     }
 
-    private fun withLoggedOut(block: (AccountActivity) -> Unit) {
+    private fun withLoggedOut(block: (Activity) -> Unit) {
         setSyncServer(TEST_SYNC_SERVER)
         Prefs.hkey = ""
         launchAccount(block)
     }
 
-    private fun launchAccount(block: (AccountActivity) -> Unit) {
-        ActivityScenario.launch<AccountActivity>(AccountActivity.getIntent(targetContext)).use { scenario ->
+    private fun launchAccount(block: (Activity) -> Unit) {
+        ActivityScenario.launch<Activity>(AccountActivity.getIntent(targetContext)).use { scenario ->
             scenario.onActivity(block)
         }
     }

@@ -27,6 +27,7 @@ import com.ichi2.anki.common.destinations.NoteEditorDestination
 import com.ichi2.anki.common.utils.ext.schedulerVersion
 import com.ichi2.anki.configureRenderingMode
 import com.ichi2.anki.isLoggedIn
+import com.ichi2.anki.isSelfHostedSyncAddress
 import com.ichi2.anki.launchCatchingIO
 import com.ichi2.anki.libanki.CardId
 import com.ichi2.anki.libanki.Consts.DEFAULT_DECK_ID
@@ -775,7 +776,7 @@ class DeckPickerViewModel :
             // Use CollectionManager to ensure that this doesn't block 'deck count' tasks
             // throws if a .colpkg import or similar occurs just before this call
             val output = withContext(Dispatchers.IO) { CollectionManager.getBackend().syncStatus(auth) }
-            if (output.hasNewEndpoint() && output.newEndpoint.isNotEmpty()) {
+            if (output.hasNewEndpoint() && isSelfHostedSyncAddress(output.newEndpoint)) {
                 Prefs.currentSyncUri = output.newEndpoint
             }
             when (output.required) {

@@ -117,8 +117,12 @@ abstract class RemainingSettingsFragment(
         get() = screen.title.toString()
 
     @Composable
+    protected open fun SettingsHeader() = Unit
+
+    @Composable
     private fun SettingsBody() {
         SettingsScrollPage(settingsPageTitle, settingsBackAction) {
+            SettingsHeader()
             PreferenceGroupContent(screen)
         }
         val preference = activePreferenceKey?.let { findPreference<DialogPreference>(it) }
