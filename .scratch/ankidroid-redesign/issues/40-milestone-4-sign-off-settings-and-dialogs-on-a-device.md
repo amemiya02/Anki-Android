@@ -10,8 +10,10 @@
 - [ ] The walk is done in English and Simplified Chinese.
 - [ ] Baseline pictures are regenerated and committed.
 - [ ] The owner has signed off the Milestone.
-- [ ] Round trip with the Official App: a collection and a Deck exported from the Fork import into the current release of the Official App with Cards, scheduling, review history and media intact, and the same works in the other direction.
+- [x] Round trip with the Official App: a collection and a Deck exported from the Fork import into the current release of the Official App with Cards, scheduling, review history and media intact, and the same works in the other direction.
 
 ## Comments
 
 On 2026-11-18 the owner asked development to continue across milestones while personal phone sign-off stays pending. Emulator checks and the package round trip still apply.
+
+On the Android 15 Pixel 9 emulator, both apps imported the reviewed English Deck and the whole collection. All four database and media comparisons matched, including 4 and 6 Deck review entries and 13 and 15 collection review entries. [Round-trip evidence](../../../docs/redesign/milestone-4/README.md#round-trip-with-the-official-app)
