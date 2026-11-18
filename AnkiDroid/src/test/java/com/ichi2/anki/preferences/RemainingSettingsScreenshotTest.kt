@@ -24,7 +24,9 @@ import com.ichi2.anki.LanguageConfig.JAPANESE
 import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.R
 import com.ichi2.anki.ScreenshotTest
+import com.ichi2.anki.common.storage.CollectionHelper
 import com.ichi2.anki.common.utils.dp
+import com.ichi2.preferences.ExternalDirectorySelectionPreference
 import com.ichi2.testutils.dispatchInsets
 import com.ichi2.testutils.ext.reopenWithLanguage
 import org.junit.Rule
@@ -61,10 +63,23 @@ class RemainingSettingsScreenshotTest : ScreenshotTest() {
     ) {
         setPhoneQualifiers()
         runTest { col.reopenWithLanguage(language.option) }
+        val collectionDirectory = "/storage/emulated/0/Android/data/${targetContext.packageName}/files/AnkiDroid"
         val intent = PreferencesActivity.getIntent(targetContext, page.destination)
         ActivityScenario.launch<PreferencesActivity>(intent).use { scenario ->
-            scenario.onActivity { it.dispatchInsets(navBarBottom = 24.dp) }
+            scenario.onActivity { activity ->
+                activity.dispatchInsets(navBarBottom = 24.dp)
+                if (page == Page.ADVANCED) {
+                    // Robolectric assigns a different temporary directory in every test run.
+                    val preferences = activity.fragment as PreferencesFragment
+                    val advanced =
+                        preferences.childFragmentManager.findFragmentByTag(page.destination.java.name) as AdvancedSettingsFragment
+                    advanced
+                        .requirePreference<ExternalDirectorySelectionPreference>(CollectionHelper.PREF_COLLECTION_PATH)
+                        .setSummaryProvider { collectionDirectory }
+                }
+            }
             compose.onNodeWithText(targetContext.getString(page.firstSetting)).performScrollTo().assertIsDisplayed()
+            if (page == Page.ADVANCED) compose.onNodeWithText(collectionDirectory).assertIsDisplayed()
             captureScreen("${page.name.lowercase()}_start")
             compose.onNodeWithText(targetContext.getString(page.lastSetting)).performScrollTo().assertIsDisplayed()
             captureScreen("${page.name.lowercase()}_end")
