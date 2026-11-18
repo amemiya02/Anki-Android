@@ -34,6 +34,7 @@ import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
@@ -1705,11 +1706,9 @@ class DeckPickerTest : RobolectricTest() {
         withBottomNavigationEnabled {
             assumeTrue("Not running on tablet", qualifiers != "xlarge")
             deckPicker {
-                val menu = binding.bottomNavigation!!.menu
-                assertThat(menu.findItem(R.id.nav_home)?.title.toString(), equalTo("Decks"))
-                assertThat(menu.findItem(R.id.nav_browser)?.title.toString(), equalTo("Browse"))
-                assertThat(menu.findItem(R.id.nav_stats)?.title.toString(), equalTo("Stats"))
-                assertThat(menu.findItem(R.id.nav_more)?.title.toString(), equalTo("More"))
+                listOf("Decks", "Browse", "Stats", "More").forEach { title ->
+                    composeRule.onAllNodesWithText(title).onFirst().assertExists()
+                }
             }
         }
 

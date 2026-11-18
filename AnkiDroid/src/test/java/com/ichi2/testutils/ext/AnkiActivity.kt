@@ -5,7 +5,8 @@ package com.ichi2.testutils.ext
 import android.view.Menu
 import androidx.appcompat.widget.Toolbar
 import com.ichi2.anki.AnkiActivity
+import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.R
 import kotlin.test.assertNotNull
 
-fun AnkiActivity.menu(): Menu = assertNotNull(findViewById<Toolbar>(R.id.toolbar)?.menu)
+fun AnkiActivity.menu(): Menu = assertNotNull(if (this is DeckPicker) visibleOptionsMenu else findViewById<Toolbar>(R.id.toolbar)?.menu)

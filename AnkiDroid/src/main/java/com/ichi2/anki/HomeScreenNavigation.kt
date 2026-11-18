@@ -5,7 +5,6 @@ package com.ichi2.anki
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat.Type.navigationBars
 import androidx.core.view.isVisible
-import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.ichi2.anki.BottomNavController.NavigationItem
@@ -46,13 +45,6 @@ fun setupBottomNavigation() {
         updateFragmentBottomMargin()
         // Re-apply insets so the Decks FAB and list padding follow the bar's new position.
         ViewCompat.requestApplyInsets(deckPicker.deckPickerBinding.root)
-    }
-
-    // Handle system navigation bar insets for the bottom nav
-    ViewCompat.setOnApplyWindowInsetsListener(bottomNav) { view, insets ->
-        val navBars = insets.getInsets(navigationBars())
-        view.updatePadding(bottom = navBars.bottom)
-        insets
     }
 
     bottomNav.onTabClick = { tab ->

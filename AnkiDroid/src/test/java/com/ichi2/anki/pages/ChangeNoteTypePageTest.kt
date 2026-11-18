@@ -7,7 +7,6 @@ import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.SingleFragmentActivity
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
@@ -37,8 +36,8 @@ class ChangeNoteTypePageTest : RobolectricTest() {
 
             val converted = col.getNote(selected.id)
             assertEquals(target.id, converted.noteTypeId)
-            assertContentEquals(arrayOf("answer becomes the prompt", ""), converted.fields)
+            assertEquals(listOf("answer becomes the prompt", ""), converted.fields)
             assertEquals(selected.noteTypeId, col.getNote(other.id).noteTypeId)
-            assertContentEquals(arrayOf("untouched prompt", "untouched answer"), col.getNote(other.id).fields)
+            assertEquals(listOf("untouched prompt", "untouched answer"), col.getNote(other.id).fields)
         }
 }

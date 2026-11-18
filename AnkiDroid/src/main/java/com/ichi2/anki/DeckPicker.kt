@@ -431,6 +431,16 @@ open class DeckPicker :
     private var syncOnResume = false
 
     private val deckToolbarMenu = mutableStateOf<DeckPickerToolbarMenu?>(null)
+
+    @get:VisibleForTesting
+    internal val visibleOptionsMenu: Menu? get() = deckToolbarMenu.value
+
+    private val closeDeckSearch =
+        object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                toolbarSearchItem?.collapseActionView()
+            }
+        }
     private val deckToolbarMediaSync = mutableStateOf(false)
     private val deckToolbarSyncState = mutableStateOf<SyncIconState?>(null)
     private var toolbarSearchItem: MenuItem? = null
@@ -769,6 +779,7 @@ open class DeckPicker :
                 }
             }
         drawerLayout.addView(layout, 0, params)
+        ViewCompat.requestApplyInsets(drawerLayout)
     }
 
     internal fun selectNavigationTab(tab: NavigationItem) = appNavigation.selectTab(tab)
@@ -811,6 +822,7 @@ open class DeckPicker :
         onBackPressedDispatcher.addCallback(this, exitAndSyncBackCallback)
         onBackPressedDispatcher.addCallback(this, exitViaDoubleTapBackCallback())
         onBackPressedDispatcher.addCallback(this, closeFloatingActionBarBackPressCallback)
+        onBackPressedDispatcher.addCallback(this, closeDeckSearch)
         super.setupBackPressedCallbacks()
     }
 
@@ -885,11 +897,6 @@ open class DeckPicker :
             if (deckListBottomPadding.intValue != padding) deckListBottomPadding.intValue = padding
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbarContainer) { toolbar, insets ->
-            val bars = insets.getInsets(systemBars() or displayCutout())
-            toolbar.updatePadding(left = bars.left, top = bars.top, right = bars.right)
-            insets
-        }
         var systemBottom = 0
         var keyboardBottom = 0
 
@@ -906,7 +913,10 @@ open class DeckPicker :
 
         ViewCompat.setOnApplyWindowInsetsListener(drawerLayout) { _, insets ->
             val bars = insets.getInsets(systemBars() or displayCutout())
-            systemBottom = bars.bottom
+            val navigation = insets.getInsets(navigationBars() or displayCutout())
+            binding.toolbarContainer.updatePadding(left = bars.left, top = bars.top, right = bars.right)
+            binding.bottomNavigation?.updatePadding(left = navigation.left, right = navigation.right, bottom = navigation.bottom)
+            systemBottom = navigation.bottom
             keyboardBottom = insets.getInsets(ime()).bottom
             updateFabClearance()
             insets
@@ -1428,6 +1438,7 @@ open class DeckPicker :
                 // When SearchItem is expanded
                 override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                     Timber.i("DeckPicker:: SearchItem opened")
+                    closeDeckSearch.isEnabled = true
                     viewModel.updateDeckSearchExpanded(true)
                     // Hide the floating action button if it is visible
                     floatingActionMenu.hideFloatingActionButton()
@@ -1438,6 +1449,7 @@ open class DeckPicker :
                 // When SearchItem is collapsed
                 override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
                     Timber.i("DeckPicker:: SearchItem closed")
+                    closeDeckSearch.isEnabled = false
                     viewModel.updateDeckSearchExpanded(false)
                     viewModel.updateDeckFilter("")
                     // Show the floating action button if it is hidden

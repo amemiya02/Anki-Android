@@ -102,6 +102,7 @@ import com.ichi2.anki.utils.ext.window
 import com.ichi2.anki.utils.openUrl
 import com.ichi2.anki.workarounds.SafeWebViewLayout
 import com.ichi2.compose.theme.AnkiDroidTheme
+import com.ichi2.compose.theme.foundation
 import com.ichi2.compose.ui.dialogs.ConfirmationDialog
 import com.ichi2.compose.ui.dialogs.DialogAction
 import com.ichi2.compose.ui.dialogs.DialogChoice

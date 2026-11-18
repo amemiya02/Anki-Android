@@ -22,6 +22,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -85,6 +86,7 @@ internal fun DeckPickerToolbar(
     title: @Composable () -> Unit,
 ) {
     val foundation = MaterialTheme.foundation
+    val iconColors = IconButtonDefaults.iconButtonColors(contentColor = foundation.colors.onBackground)
     var popup by remember(menu) { mutableStateOf<List<MenuItem>?>(null) }
     val version = menu?.version ?: 0
     val items = menu?.children?.filter { it.isVisible }.orEmpty()
@@ -100,7 +102,7 @@ internal fun DeckPickerToolbar(
     ) {
         if (onNavigate != null || search != null) {
             val closeSearch: () -> Unit = { menu?.findItem(R.id.deck_picker_action_filter)?.collapseActionView() }
-            IconButton(onClick = if (search != null) closeSearch else requireNotNull(onNavigate), modifier = Modifier.size(48.dp)) {
+            IconButton(onClick = if (search != null) closeSearch else requireNotNull(onNavigate), modifier = Modifier.size(48.dp), colors = iconColors) {
                 Icon(
                     painterResource(if (search == null) R.drawable.symbol_menu else CommonR.drawable.symbol_arrow_back),
                     stringResource(if (search == null) CommonString.drawer_open else AppCompatR.string.abc_action_bar_up_description),
@@ -130,6 +132,7 @@ internal fun DeckPickerToolbar(
                 },
                 enabled = item.isEnabled,
                 modifier = Modifier.size(48.dp),
+                colors = iconColors,
             ) {
                 if (item.itemId == R.id.action_sync) {
                     val label =
@@ -158,7 +161,7 @@ internal fun DeckPickerToolbar(
         val overflow = items.filterNot { it in direct }.toList()
         if (overflow.isNotEmpty() && search == null) {
             Box {
-                IconButton(onClick = { popup = overflow }, modifier = Modifier.size(48.dp)) {
+                IconButton(onClick = { popup = overflow }, modifier = Modifier.size(48.dp), colors = iconColors) {
                     Icon(
                         painterResource(CommonR.drawable.symbol_more_vert),
                         stringResource(AppCompatR.string.abc_action_menu_overflow_description),

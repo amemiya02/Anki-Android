@@ -20,6 +20,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -45,6 +46,7 @@ import com.ichi2.anki.R
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.utils.ext.setIconRes
 import com.ichi2.compose.theme.AnkiDroidTheme
+import com.ichi2.compose.theme.foundation
 import com.ichi2.compose.ui.dialogs.PaperDialog
 import com.ichi2.compose.ui.dialogs.createPaperDialog
 import kotlinx.coroutines.launch
@@ -105,6 +107,7 @@ class ReviewerMenuView(
                             Icon(
                                 painterResource(CommonR.drawable.symbol_more_vert),
                                 stringResource(AppCompatR.string.abc_action_menu_overflow_description),
+                                tint = MaterialTheme.foundation.colors.onBackground,
                             )
                         }
                     }
