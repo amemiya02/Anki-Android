@@ -3,6 +3,7 @@
 package com.ichi2.anki
 
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.core.view.isVisible
 import com.ichi2.anki.BottomNavController.NavigationItem
@@ -33,6 +34,10 @@ class BottomBarScreenshotTest : ScreenshotTest() {
             // The add button belongs to the deck list (tickets 17 and 18): in Dark and Black the
             // accessibility check reports its label colour, which is not this ticket's to change
             deckPicker.floatingActionButtonBinding.root.isVisible = false
+            composeRule.waitUntil(10_000) {
+                advanceRobolectricLooper()
+                composeRule.onAllNodesWithText("Test Deck 0").fetchSemanticsNodes().isNotEmpty()
+            }
             captureScreen("decks")
         }
 
