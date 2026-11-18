@@ -55,6 +55,7 @@ export function Phone({
   screen,
   theme = "light",
   label,
+  palette,
   children,
 }: {
   direction: Direction
@@ -62,6 +63,8 @@ export function Phone({
   screen: "decks" | "study"
   theme?: Theme
   label: string
+  /** Colour roles that replace the values file's, to try a candidate palette. */
+  palette?: Record<string, string>
   children: ReactNode
 }) {
   // The chosen Direction takes its colours from the design values file, so
@@ -69,7 +72,7 @@ export function Phone({
   const colours =
     direction === "paper"
       ? (Object.fromEntries(
-          Object.entries(values.colour[theme]).map(([role, hex]) => [
+          Object.entries({ ...values.colour[theme], ...palette }).map(([role, hex]) => [
             `--v-${role}`,
             hex,
           ])

@@ -12,6 +12,7 @@ import {
 } from "@/mock/data"
 import { FindBoard } from "@/mock/find/boards"
 import { IdentityBoard } from "@/mock/identity"
+import { PaletteBoard } from "@/mock/palette/boards"
 import { RestBoard } from "@/mock/rest/boards"
 import {
   DeckListScreen,
@@ -422,9 +423,11 @@ export function App() {
   const find = params.get("find")
   const settings = params.get("settings")
   const restKey = params.get("rest")
+  const palette = params.get("palette")
 
   let board
-  if (settings) board = <SettingsBoard which={settings} lang={lang} />
+  if (palette) board = <PaletteBoard which={palette} lang={lang} />
+  else if (settings) board = <SettingsBoard which={settings} lang={lang} />
   else if (restKey) board = <RestBoard which={restKey} lang={lang} />
   else if (identity) board = <IdentityBoard />
   else if (find) board = <FindBoard which={find} lang={lang} />

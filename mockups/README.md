@@ -31,6 +31,11 @@ npm run dev
   `/?rest=<surface>&lang=zh` shows one in Light, Dark and Black, and
   `/?rest=decide-note-types` (or `decide-sync`, `decide-welcome`) a decision. The
   surfaces are listed in `docs/redesign/the-rest/README.md`.
+- `/?palette=compare&lang=zh` shows the candidate Light palettes, one per row, on the
+  same five Light screens; `/?palette=<name>&lang=zh` (`current`, `plain`, `indigo`,
+  `celadon`, `ink`) shows one. The candidates are in `src/mock/palette/palettes.json`
+  and listed in `docs/redesign/light-palette/README.md`; check them with
+  `node scripts/check-palette-contrast.mjs`.
 
 The chosen Direction, Quiet paper, takes its colours from
 `docs/redesign/quiet-paper.values.json`. Check every colour pairing in that
@@ -42,5 +47,5 @@ node scripts/check-contrast.mjs
 
 Captured pictures are in `docs/redesign/directions/`,
 `docs/redesign/quiet-paper/`, `docs/redesign/core-loop/`,
-`docs/redesign/finding-and-adding/`, `docs/redesign/settings-and-dialogs/` and
-`docs/redesign/the-rest/`.
+`docs/redesign/finding-and-adding/`, `docs/redesign/settings-and-dialogs/`,
+`docs/redesign/the-rest/` and `docs/redesign/light-palette/`.

@@ -1,0 +1,141 @@
+{
+  "note": "Candidate Light palettes, drawn because the owner asked whether the Light colour scheme can change. Each replaces the whole `light` block of docs/redesign/quiet-paper.values.json and the Light flag colours of src/mock/find/flags.json; Dark and Black are untouched. The current palette is read from those two files and is not repeated here. The card sheet roles stand for how the app draws Card Content today, so they are the same in every candidate. Checked by scripts/check-palette-contrast.mjs.",
+  "candidates": {
+    "plain": {
+      "name": "白纸 Plain paper",
+      "line": "Clean near-white paper with ink text; cinnabar stays the one accent, so it reads as Quiet paper without the cream.",
+      "colour": {
+        "background": "#FAFAF8",
+        "onBackground": "#1F1E1C",
+        "onBackgroundMuted": "#625F59",
+        "outline": "#E2E0DB",
+        "primary": "#A63D25",
+        "onPrimary": "#FFFFFF",
+        "emphasis": "#A63D25",
+        "countNew": "#2F4A6B",
+        "countLearning": "#A63D25",
+        "countDue": "#3E5B34",
+        "answerAgain": "#A63D25",
+        "answerHard": "#8A5E10",
+        "answerGood": "#3E5B34",
+        "answerEasy": "#2F4A6B",
+        "progressTrack": "#E6E4DF",
+        "progressFill": "#1F1E1C",
+        "cardSheet": "#FFFFFF",
+        "onCardSheet": "#000000",
+        "cardSheetRule": "#8B8B8B"
+      },
+      "flags": {
+        "red": "#A63D25",
+        "orange": "#8A5E10",
+        "green": "#3E5B34",
+        "blue": "#2F4A6B",
+        "pink": "#A3436F",
+        "turquoise": "#256B66",
+        "purple": "#6B4A8E"
+      }
+    },
+    "indigo": {
+      "name": "藍 Indigo",
+      "line": "Cool grey paper and deep indigo, like an ai-zome cloth: calm and a little formal, the most like a tool.",
+      "colour": {
+        "background": "#F2F3F6",
+        "onBackground": "#1A1D26",
+        "onBackgroundMuted": "#5A606E",
+        "outline": "#DADDE4",
+        "primary": "#2B3D78",
+        "onPrimary": "#FFFFFF",
+        "emphasis": "#2B3D78",
+        "countNew": "#22598A",
+        "countLearning": "#A3343A",
+        "countDue": "#2E6343",
+        "answerAgain": "#A3343A",
+        "answerHard": "#86600F",
+        "answerGood": "#2E6343",
+        "answerEasy": "#22598A",
+        "progressTrack": "#DCDFE6",
+        "progressFill": "#1A1D26",
+        "cardSheet": "#FFFFFF",
+        "onCardSheet": "#000000",
+        "cardSheetRule": "#8B8B8B"
+      },
+      "flags": {
+        "red": "#A3343A",
+        "orange": "#86600F",
+        "green": "#2E6343",
+        "blue": "#22598A",
+        "pink": "#9E3F6E",
+        "turquoise": "#216A68",
+        "purple": "#64479A"
+      }
+    },
+    "celadon": {
+      "name": "青瓷 Celadon",
+      "line": "A very pale grey-green glaze with deep pine-teal: the softest on the eyes, quiet and a little cool.",
+      "colour": {
+        "background": "#EFF3F0",
+        "onBackground": "#1B2420",
+        "onBackgroundMuted": "#55625B",
+        "outline": "#D4DDD7",
+        "primary": "#1F5A52",
+        "onPrimary": "#FFFFFF",
+        "emphasis": "#1F5A52",
+        "countNew": "#2D4E78",
+        "countLearning": "#A13F2A",
+        "countDue": "#3D6128",
+        "answerAgain": "#A13F2A",
+        "answerHard": "#85600F",
+        "answerGood": "#3D6128",
+        "answerEasy": "#2D4E78",
+        "progressTrack": "#D6DED9",
+        "progressFill": "#1B2420",
+        "cardSheet": "#FFFFFF",
+        "onCardSheet": "#000000",
+        "cardSheetRule": "#8B8B8B"
+      },
+      "flags": {
+        "red": "#A13F2A",
+        "orange": "#85600F",
+        "green": "#3D6128",
+        "blue": "#2D4E78",
+        "pink": "#9E4270",
+        "turquoise": "#1F6A6A",
+        "purple": "#6A4A8C"
+      }
+    },
+    "ink": {
+      "name": "墨 Ink",
+      "line": "White paper and black ink: buttons are near-black, and colour appears only where it means something (counts, answers, marks), like a red seal.",
+      "colour": {
+        "background": "#FFFFFF",
+        "onBackground": "#141414",
+        "onBackgroundMuted": "#5E5E5E",
+        "outline": "#E4E4E4",
+        "primary": "#1C1C1C",
+        "onPrimary": "#FFFFFF",
+        "emphasis": "#B0371F",
+        "countNew": "#1F4E8C",
+        "countLearning": "#B0371F",
+        "countDue": "#2D6A36",
+        "answerAgain": "#B0371F",
+        "answerHard": "#8F6100",
+        "answerGood": "#2D6A36",
+        "answerEasy": "#1F4E8C",
+        "progressTrack": "#E8E8E8",
+        "progressFill": "#141414",
+        "cardSheet": "#FFFFFF",
+        "onCardSheet": "#000000",
+        "cardSheetRule": "#8B8B8B"
+      },
+      "flags": {
+        "red": "#B0371F",
+        "orange": "#8F6100",
+        "green": "#2D6A36",
+        "blue": "#1F4E8C",
+        "pink": "#A8406F",
+        "turquoise": "#1F6B66",
+        "purple": "#6A45A0"
+      }
+    }
+  }
+}
