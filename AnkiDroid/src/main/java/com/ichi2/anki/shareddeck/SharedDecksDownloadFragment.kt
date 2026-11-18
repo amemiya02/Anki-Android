@@ -75,6 +75,7 @@ class SharedDecksDownloadFragment : Fragment() {
     private var downloadId: Long = 0
 
     private var fileName: String? = null
+    private var checkMissedCompletion = false
 
     private var completedDeck: Uri? = null
 
@@ -215,11 +216,16 @@ class SharedDecksDownloadFragment : Fragment() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
         registerDownloadReceiver()
         observeLoginRequired()
+        checkMissedCompletion = fileName != null && isDownloadInProgress
         if (fileName == null) downloadFile(fileToBeDownloaded)
     }
 
     override fun onResume() {
         super.onResume()
+        if (checkMissedCompletion) {
+            checkMissedCompletion = false
+            if (isDownloadInProgress) checkDownloadProgress(recoverCompletion = true)
+        }
         if (isDownloadInProgress) startDownloadProgressChecker()
     }
 
@@ -529,7 +535,7 @@ class SharedDecksDownloadFragment : Fragment() {
     /**
      * Reads the current progress out of [DownloadManager] and reports it to the ViewModel.
      */
-    private fun checkDownloadProgress() {
+    private fun checkDownloadProgress(recoverCompletion: Boolean = false) {
         val query = DownloadManager.Query()
         query.setFilterById(downloadId)
 
@@ -549,8 +555,9 @@ class SharedDecksDownloadFragment : Fragment() {
             }
 
             // A completion broadcast can arrive while this destination is covered or the process is stopped.
-            when (it.getIntOrNull(it.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
-                DownloadManager.STATUS_SUCCESSFUL, DownloadManager.STATUS_FAILED -> {
+            if (recoverCompletion) {
+                val status = it.getIntOrNull(it.getColumnIndex(DownloadManager.COLUMN_STATUS))
+                if (status == DownloadManager.STATUS_SUCCESSFUL || status == DownloadManager.STATUS_FAILED) {
                     handleDownloadCompletion(requireContext(), downloadId)
                     return
                 }
