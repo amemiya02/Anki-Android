@@ -48,6 +48,7 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.ichi2.compose.theme.foundation
 import kotlinx.coroutines.delay
 import com.ichi2.anki.common.android.R as CommonR
@@ -71,6 +72,8 @@ internal fun SettingsPage(
     ) {
         Row(
             Modifier
+                // Keep the toolbar's touch targets above scrollable content.
+                .zIndex(1f)
                 .fillMaxWidth()
                 .heightIn(min = if (titleBelowNavigation) 48.dp else 64.dp)
                 .padding(start = if (onBack == null) foundation.spacing.screenMargin else 8.dp, end = foundation.spacing.screenMargin)
