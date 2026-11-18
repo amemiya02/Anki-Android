@@ -10,23 +10,21 @@ plugins {
 
 configure<LibraryExtension> {
     namespace = "com.ichi2.anki.widgets"
-    buildFeatures.viewBinding = true
 }
 
 dependencies {
+    api(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.activity.compose)
     implementation(project(":anki-common"))
     implementation(project(":common"))
     implementation(project(":common:android"))
     implementation(project(":compat"))
     implementation(project(":libanki"))
-    implementation(project(":vbpd"))
 
     addAnkiBackendDependencies(project)
 
     implementation(libs.androidx.annotation)
-    implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core)
-    implementation(libs.androidx.recyclerview)
     implementation(libs.google.material)
     implementation(libs.jakewharton.timber)
     implementation(libs.kotlinx.coroutines.core)

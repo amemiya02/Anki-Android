@@ -72,7 +72,7 @@ class WidgetStatusTest : RobolectricTest() {
                 unmockkObject(GlobalScope)
                 WidgetRepository.register(originalRepository)
                 with(application) {
-                    WidgetStatus.register { context -> AnkiDroidWidgetSmall.UpdateService().doUpdate(context) }
+                    WidgetStatus.register(AnkiDroidWidgetSmall::refresh)
                 }
             }
         }

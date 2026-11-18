@@ -2,14 +2,7 @@
 
 package com.ichi2.anki.widget.cardanalysis
 
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
-import android.os.Build
-import android.os.Bundle
-import android.util.SizeF
-import android.view.View.MeasureSpec
 import com.ichi2.anki.ScreenshotTest
-import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.libanki.CardType
 import com.ichi2.anki.libanki.Consts
 import com.ichi2.anki.libanki.DeckId
@@ -17,11 +10,10 @@ import com.ichi2.anki.libanki.QueueType
 import com.ichi2.widget.AppWidgetId
 import com.ichi2.widget.cardanalysis.CardAnalysisWidget
 import com.ichi2.widget.cardanalysis.CardAnalysisWidgetPreferences
+import com.ichi2.widget.renderWidget
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
 import org.robolectric.RuntimeEnvironment
-import org.robolectric.Shadows.shadowOf
 
 /**
  * `./gradlew :AnkiDroid:recordRoborazziPlayDebug -Pscreenshot --tests "com.ichi2.anki.widget.cardanalysis.CardAnalysisWidgetScreenshotTest"`
@@ -89,7 +81,7 @@ class CardAnalysisWidgetScreenshotTest : ScreenshotTest() {
             captureWidget("empty_collection", deckId = Consts.DEFAULT_DECK_ID, widthDp = 262, heightDp = 220)
         }
 
-    private fun TestScope.captureDeck(
+    private suspend fun TestScope.captureDeck(
         name: String,
         widthDp: Int,
         heightDp: Int,
@@ -111,7 +103,7 @@ class CardAnalysisWidgetScreenshotTest : ScreenshotTest() {
         captureWidget(name, deckId, widthDp, heightDp, fontScale)
     }
 
-    private fun TestScope.captureWidget(
+    private suspend fun TestScope.captureWidget(
         name: String,
         deckId: DeckId?,
         widthDp: Int,
@@ -120,32 +112,7 @@ class CardAnalysisWidgetScreenshotTest : ScreenshotTest() {
     ) {
         RuntimeEnvironment.setFontScale(fontScale)
         CardAnalysisWidgetPreferences(targetContext).saveSelectedDeck(WIDGET_ID, deckId)
-        val manager = AppWidgetManager.getInstance(targetContext)
-        shadowOf(manager).bindAppWidgetId(WIDGET_ID.id, ComponentName(targetContext, CardAnalysisWidget::class.java))
-        manager.updateAppWidgetOptions(
-            WIDGET_ID.id,
-            Bundle().apply {
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, widthDp)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, widthDp)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, heightDp)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, heightDp)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val size = SizeF(widthDp.toFloat(), heightDp.toFloat())
-                    putParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES, arrayListOf(size))
-                }
-            },
-        )
-        CardAnalysisWidget.updateWidget(targetContext, manager, WIDGET_ID)
-        advanceUntilIdle()
-        val view = requireNotNull(shadowOf(manager).getViewFor(WIDGET_ID.id))
-        val width = widthDp.dp.toPx(targetContext)
-        val height = heightDp.dp.toPx(targetContext)
-        view.measure(
-            MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
-            MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY),
-        )
-        view.layout(0, 0, width, height)
-        captureView(name, view)
+        captureView(name, targetContext.renderWidget(CardAnalysisWidget(), width = widthDp, height = heightDp, id = WIDGET_ID))
     }
 
     companion object {

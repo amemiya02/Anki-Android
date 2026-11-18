@@ -88,14 +88,7 @@ object Themes {
         val prefs = PrefsRepository(context)
         val appTheme = prefs.appTheme
 
-        val themeIsDark =
-            (appTheme == AppTheme.FOLLOW_SYSTEM && systemIsInNightMode(context.applicationContext)) || appTheme == AppTheme.NIGHT
-        currentTheme =
-            if (themeIsDark) {
-                prefs.nightTheme
-            } else {
-                DayTheme.LIGHT
-            }
+        currentTheme = resolveTheme(context, prefs)
         val defaultNightMode =
             when (appTheme) {
                 AppTheme.FOLLOW_SYSTEM -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
@@ -103,6 +96,18 @@ object Themes {
                 AppTheme.NIGHT -> AppCompatDelegate.MODE_NIGHT_YES
             }
         AppCompatDelegate.setDefaultNightMode(defaultNightMode)
+    }
+
+    /** Reads the appearance without changing AppCompat's default mode or any active Activity. */
+    fun resolveTheme(context: Context): Theme = resolveTheme(context, PrefsRepository(context))
+
+    private fun resolveTheme(
+        context: Context,
+        prefs: PrefsRepository,
+    ): Theme {
+        val mode = prefs.appTheme
+        val dark = mode == AppTheme.NIGHT || (mode == AppTheme.FOLLOW_SYSTEM && systemIsInNightMode(context.applicationContext))
+        return if (dark) prefs.nightTheme else DayTheme.LIGHT
     }
 }
 

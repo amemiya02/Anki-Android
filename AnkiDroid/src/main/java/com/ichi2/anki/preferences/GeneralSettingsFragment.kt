@@ -15,6 +15,7 @@ import com.ichi2.anki.contextmenu.AnkiCardContextMenu
 import com.ichi2.anki.contextmenu.CardBrowserContextMenu
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.setupNotificationChannels
+import com.ichi2.anki.widget.refreshHomeScreenWidgets
 import com.ichi2.preferences.ListPreference
 import com.ichi2.preferences.SwitchPreference
 import com.ichi2.utils.LanguageUtil
@@ -76,6 +77,7 @@ class GeneralSettingsFragment : RemainingSettingsFragment(R.id.settings_general)
                 val context = requireContext().applicationContext
                 AppCompatDelegate.setApplicationLocales(localeList)
                 setupNotificationChannels(context.withAppLocale())
+                refreshHomeScreenWidgets(context)
                 Timber.w("Known bug: some strings may be stale after a language change until the app is restarted")
             }
         }

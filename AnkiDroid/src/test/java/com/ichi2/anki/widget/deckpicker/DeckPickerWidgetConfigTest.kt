@@ -3,141 +3,87 @@
 
 package com.ichi2.anki.widget.deckpicker
 
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Intent
-import android.view.View
-import androidx.recyclerview.widget.RecyclerView
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.core.os.bundleOf
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.ichi2.anki.CommonString
 import com.ichi2.anki.RobolectricTest
+import com.ichi2.anki.dialogs.DeckSelectionDialog
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.widgets.R
 import com.ichi2.widget.AppWidgetId
-import com.ichi2.widget.deckpicker.DeckPickerWidget
+import com.ichi2.widget.AppWidgetId.Companion.updateWidget
 import com.ichi2.widget.deckpicker.DeckPickerWidgetConfig
 import com.ichi2.widget.deckpicker.DeckPickerWidgetPreferences
-import kotlinx.coroutines.runBlocking
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.equalTo
-import org.junit.Before
+import kotlinx.coroutines.test.advanceUntilIdle
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-
-val testWidgetId = AppWidgetId(1)
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class DeckPickerWidgetConfigTest : RobolectricTest() {
-    private lateinit var activity: DeckPickerWidgetConfig
-    private val widgetPreferences = DeckPickerWidgetPreferences(targetContext)
+    @get:Rule
+    val compose = createEmptyComposeRule()
 
-    /**
-     * Sets up the test environment before each test.
-     *
-     * Initializes the `DeckPickerWidgetConfig` activity and associated components like
-     * `WidgetPreferences`. This setup is executed before each test method.
-     */
-    @Before
-    override fun setUp() {
-        super.setUp()
-        ensureNonEmptyCollection()
-        AppWidgetManager.getInstance(targetContext).bindAppWidgetIdIfAllowed(
-            testWidgetId.id,
-            ComponentName(targetContext, DeckPickerWidget::class.java),
-        )
+    @Test
+    fun `setup saves selected Decks in the displayed order`() =
+        runTest {
+            val first = addDeck("Japanese")
+            val second = addDeck("Chinese")
+            val preferences = DeckPickerWidgetPreferences(targetContext)
+            val activity = openSetup()
+            advanceUntilIdle()
 
-        val intent =
-            Intent(targetContext, DeckPickerWidgetConfig::class.java).apply {
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, 1)
+            compose.onNodeWithText(activity.getString(CommonString.save)).assertIsNotEnabled()
+            for (deck in listOf(SelectableDeck.Deck(first, "Japanese"), SelectableDeck.Deck(second, "Chinese"))) {
+                activity.supportFragmentManager.setFragmentResult(
+                    DeckSelectionDialog.REQUEST_SELECT_DECK,
+                    bundleOf(DeckSelectionDialog.RESULT_SELECTED_DECK to deck),
+                )
             }
 
-        activity = startActivityNormallyOpenCollectionWithIntent(DeckPickerWidgetConfig::class.java, intent)
+            compose.onNodeWithText(activity.getString(R.string.widget_config_chosen, 2, 5)).assertIsDisplayed()
+            compose.onNodeWithContentDescription(activity.getString(R.string.widget_config_reorder, "Japanese")).performClick()
+            compose.onNodeWithText(activity.getString(R.string.widget_config_move_down)).performClick()
+            compose.onNodeWithText(activity.getString(CommonString.save)).performClick()
 
-        // Ensure deckAdapter is initialized
-        runBlocking { activity.initTask.join() }
-    }
-
-    /**
-     * Tests the functionality of saving selected decks to preferences.
-     *
-     * This test adds a deck to the adapter and verifies if it gets correctly saved to the
-     * `WidgetPreferences`.
-     */
-    @Test
-    fun testSaveSelectedDecksToPreferences() {
-        // Add decks to adapter
-        val deck1 = SelectableDeck.Deck(1, "Deck 1")
-        activity.deckAdapter.addDeck(deck1)
-
-        // Save selected decks
-        activity.saveSelectedDecksToPreferencesDeckPickerWidget()
-
-        // Verify saved decks
-        val selectedDeckIds = widgetPreferences.getSelectedDeckIdsFromPreferences(testWidgetId).toList()
-        assertThat(selectedDeckIds.contains(deck1.deckId), equalTo(true))
-    }
-
-    /**
-     * Tests the loading of saved preferences into the activity's view.
-     *
-     * This test saves decks to preferences, then loads them into the activity and checks if the
-     * `RecyclerView` displays the correct number of items based on the saved preferences.
-     */
-    @Test
-    fun testLoadSavedPreferences() =
-        runTest {
-            // Save decks to preferences
-            val deckIds = listOf(1L)
-            widgetPreferences.saveSelectedDecks(testWidgetId, deckIds.map { it.toString() })
-
-            // Load preferences
-            activity.updateViewWithSavedPreferences()
-
-            // Get the RecyclerView and its adapter
-            val recyclerView = activity.findViewById<RecyclerView>(R.id.recyclerViewSelectedDecks)
-            val adapter = recyclerView.adapter
-
-            // Verify the adapter has the correct item count
-            assertThat(adapter?.itemCount, equalTo(deckIds.size))
+            assertEquals(listOf(second, first), preferences.getSelectedDeckIdsFromPreferences(widgetId).toList())
+            assertTrue(activity.isFinishing)
         }
 
-    /**
-     * Tests the visibility of different views based on the selected decks.
-     *
-     * This test checks the visibility of the placeholder and configuration container views
-     * before and after adding a deck.
-     */
     @Test
-    fun testUpdateViewVisibility() {
-        val noDecksPlaceholder = activity.findViewById<View>(R.id.no_decks_placeholder)
-        val widgetConfigContainer = activity.findViewById<View>(R.id.widgetConfigContainer)
+    fun `reconfiguration restores existing choices and allows a Deck to be removed`() =
+        runTest {
+            val first = addDeck("Japanese")
+            val second = addDeck("Chinese")
+            val preferences = DeckPickerWidgetPreferences(targetContext)
+            preferences.saveSelectedDecks(widgetId, listOf(first.toString(), second.toString()))
+            val activity = openSetup()
+            advanceUntilIdle()
 
-        // Initially, no decks should be selected
-        activity.updateViewVisibility()
-        assertThat(noDecksPlaceholder.visibility, equalTo(View.VISIBLE))
-        assertThat(widgetConfigContainer.visibility, equalTo(View.GONE))
+            compose.onNodeWithText("Japanese").assertIsDisplayed()
+            compose.onNodeWithText("Chinese").assertIsDisplayed()
+            compose.onNodeWithContentDescription(activity.getString(R.string.widget_config_remove, "Japanese")).performClick()
+            compose.onNodeWithText(activity.getString(CommonString.save)).performClick()
 
-        // Add a deck and update view visibility
-        val deck = SelectableDeck.Deck(1, "Deck 1")
-        activity.deckAdapter.addDeck(deck)
-        activity.updateViewVisibility()
+            assertEquals(listOf(second), preferences.getSelectedDeckIdsFromPreferences(widgetId).toList())
+        }
 
-        assertThat(noDecksPlaceholder.visibility, equalTo(View.GONE))
-        assertThat(widgetConfigContainer.visibility, equalTo(View.VISIBLE))
-    }
+    private fun openSetup() =
+        startActivityNormallyOpenCollectionWithIntent(
+            DeckPickerWidgetConfig::class.java,
+            Intent(targetContext, DeckPickerWidgetConfig::class.java).updateWidget(widgetId),
+        )
 
-    /**
-     * Tests the selection of a deck.
-     *
-     * This test verifies that when a deck is selected, it gets added to the adapter and displayed
-     * in the `RecyclerView`.
-     */
-    @Test
-    fun testOnDeckSelected() {
-        val deck = SelectableDeck.Deck(1, "Deck 1")
-        activity.onDeckSelected(deck)
-
-        // Verify deck is added to adapter
-        val recyclerView = activity.findViewById<RecyclerView>(R.id.recyclerViewSelectedDecks)
-        assertThat(recyclerView.adapter?.itemCount, equalTo(1))
+    companion object {
+        private val widgetId = AppWidgetId(1)
     }
 }

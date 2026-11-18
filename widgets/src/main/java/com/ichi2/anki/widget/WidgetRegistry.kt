@@ -2,6 +2,7 @@
 
 package com.ichi2.anki.widget
 
+import android.content.Context
 import com.ichi2.widget.AddNoteWidget
 import com.ichi2.widget.AnalyticsWidgetProvider
 import com.ichi2.widget.AnkiDroidWidgetSmall
@@ -19,3 +20,11 @@ val NON_RECURRING_WIDGETS: List<Class<out AnalyticsWidgetProvider>> =
         AddNoteWidget::class.java,
         AnkiDroidWidgetSmall::class.java,
     )
+
+/** Reapply the app locale and appearance to widgets already on the home screen. */
+fun refreshHomeScreenWidgets(context: Context) {
+    AddNoteWidget.refresh(context)
+    AnkiDroidWidgetSmall.refresh(context)
+    CardAnalysisWidget.updateCardAnalysisWidgets(context)
+    DeckPickerWidget.updateDeckPickerWidgets(context)
+}

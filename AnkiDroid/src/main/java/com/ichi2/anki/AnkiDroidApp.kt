@@ -10,6 +10,7 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.database.DatabaseErrorHandler
 import android.database.sqlite.SQLiteDatabase
@@ -72,12 +73,15 @@ import com.ichi2.anki.startup.getDefaultAnkiDroidDirectory
 import com.ichi2.anki.startup.maybeSetDefaultCollectionPath
 import com.ichi2.anki.ui.dialogs.ActivityAgnosticDialogs
 import com.ichi2.anki.widget.RECURRING_WIDGETS
+import com.ichi2.anki.widget.refreshHomeScreenWidgets
+import com.ichi2.themes.Themes
 import com.ichi2.utils.ExceptionUtil
 import com.ichi2.utils.LanguageUtil
 import com.ichi2.utils.measureTime
 import com.ichi2.utils.setWebContentsDebuggingEnabled
 import com.ichi2.widget.AnkiDroidWidgetSmall
 import com.ichi2.widget.DayRolloverAlarm
+import com.ichi2.widget.WidgetAppearance
 import com.ichi2.widget.WidgetStatus
 import com.ichi2.widget.cardanalysis.CardAnalysisWidget
 import com.ichi2.widget.deckpicker.DeckPickerWidget
@@ -224,6 +228,11 @@ open class AnkiDroidApp :
         setupCustomFieldFilters()
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (!isPhoenixProcess()) refreshHomeScreenWidgets(this)
+    }
+
     override fun onTerminate() {
         // WARN: onTerminate is not called on production Android devices, only emulated environments
 
@@ -316,7 +325,8 @@ open class AnkiDroidApp :
             initializeWidgetRepository()
             initializeDatabaseErrorDialogs()
             initializeActivitySetup()
-            WidgetStatus.register { context -> AnkiDroidWidgetSmall.UpdateService().doUpdate(context) }
+            WidgetAppearance.registerThemeResolver(Themes::resolveTheme)
+            WidgetStatus.register(AnkiDroidWidgetSmall::refresh)
             Animations.setPreferencesProvider { context -> PrefsRepository(context) }
             CollectionLockedException.messageProvider = {
                 getString(CommonString.database_locked_summary_new, getString(CommonString.col_path))

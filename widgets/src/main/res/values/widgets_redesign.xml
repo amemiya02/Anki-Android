@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="widget_due_label">due</string>
+    <string name="widget_minutes">%d min</string>
+    <string name="widget_brand">Hayaki</string>
+    <plurals name="widget_due_today">
+        <item quantity="one">%d due today</item>
+        <item quantity="other">%d due today</item>
+    </plurals>
+    <string name="widget_count_new">New</string>
+    <string name="widget_count_learning">Learning</string>
+    <string name="widget_count_due">Due</string>
+    <string name="widget_deck_missing">This Deck is gone</string>
+    <string name="widget_choose_decks_hint">Tap to choose another</string>
+    <string name="widget_choose_decks">Choose Decks</string>
+    <string name="widget_collection_empty">Collection is empty</string>
+    <string name="widget_collection_empty_hint">Add Decks in Hayaki</string>
+    <string name="widget_list_title">Deck list widget</string>
+    <string name="widget_config_lead">Choose up to %d Decks. Drag to change their order.</string>
+    <string name="widget_config_chosen">%1$d of %2$d chosen</string>
+    <string name="widget_config_add">Add a Deck</string>
+    <string name="widget_config_remove">Remove %s</string>
+    <string name="widget_config_reorder">Reorder %s</string>
+    <string name="widget_config_move_up">Move up</string>
+    <string name="widget_config_move_down">Move down</string>
+    <string name="widget_small_title">Due count</string>
+    <string name="widget_one_deck_title">One Deck</string>
+    <string name="widget_config_back">Back</string>
+    <string name="widget_collection_unavailable">Collection unavailable</string>
+    <string name="widget_tap_to_open">Tap to open</string>
+    <string name="widget_choose_decks_hint_short">Tap to choose</string>
+</resources>

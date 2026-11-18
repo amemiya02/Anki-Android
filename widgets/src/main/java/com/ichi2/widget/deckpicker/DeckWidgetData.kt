@@ -3,54 +3,83 @@
 
 package com.ichi2.widget.deckpicker
 
+import android.content.Intent
 import com.ichi2.anki.CollectionManager.withCol
+import com.ichi2.anki.common.destinations.DeckOptionsDestination
+import com.ichi2.anki.common.destinations.DeferredNavigation
+import com.ichi2.anki.common.destinations.ReviewDeckDestination
+import com.ichi2.anki.common.destinations.toIntent
+import com.ichi2.anki.libanki.Consts.DEFAULT_DECK_ID
 import com.ichi2.anki.libanki.DeckId
+import com.ichi2.anki.libanki.sched.DeckNode
+import kotlinx.coroutines.CancellationException
+import timber.log.Timber
 
-/**
- * Data class representing the data for a deck displayed in the widget.
- *
- * @property deckId The ID of the deck.
- * @property name The name of the deck.
- * @property reviewCount The number of cards due for review.
- * @property learnCount The number of cards in the learning phase.
- * @property newCount The number of new cards.
- */
 data class DeckWidgetData(
     val deckId: DeckId,
     val name: String,
     val reviewCount: Int,
     val learnCount: Int,
     val newCount: Int,
+    internal val isFiltered: Boolean = false,
+    internal val fullName: String = name,
+) {
+    internal val total = newCount + learnCount + reviewCount
+
+    internal fun studyIntent(): Intent =
+        with(DeferredNavigation) {
+            if (total > 0) {
+                ReviewDeckDestination.ExternalLaunch(deckId).toIntent()
+            } else {
+                DeckOptionsDestination(deckId, isFiltered).toIntent()
+            }
+        }
+}
+
+internal data class DeckWidgetSnapshot(
+    val decks: List<DeckWidgetData> = emptyList(),
+    val totalDue: Int = 0,
+    val emptyCollection: Boolean = false,
+    val unavailable: Boolean = false,
 )
 
-/**
- * Map deck id to the associated DeckPickerWidgetData. Omits any id that does not correspond to a deck.
- *
- * Note: This operation may be slow, as it involves processing the entire deck collection.
- *
- * @param deckId the list of deck ID to retrieve data for
- * @return a list of DeckPickerWidgetData objects containing deck names and statistics
- */
-suspend fun getDeckNameAndStats(deckId: DeckId): DeckWidgetData? = getDeckNamesAndStats(listOf(deckId)).getOrNull(0)
+suspend fun getDeckNamesAndStats(deckIds: List<DeckId>): List<DeckWidgetData> = readDeckWidgetSnapshot(deckIds).decks
 
-suspend fun getDeckNamesAndStats(deckIds: List<DeckId>): List<DeckWidgetData> {
-    val result = mutableListOf<DeckWidgetData>()
-
-    val deckTree = withCol { sched.deckDueTree() }
-
-    deckTree.forEach { node ->
-        if (node.did !in deckIds) return@forEach
-        result.add(
-            DeckWidgetData(
-                deckId = node.did,
-                name = node.lastDeckNameComponent,
-                reviewCount = node.revCount,
-                learnCount = node.lrnCount,
-                newCount = node.newCount,
-            ),
-        )
+internal suspend fun getDeckWidgetSnapshot(deckIds: List<DeckId>): DeckWidgetSnapshot =
+    try {
+        readDeckWidgetSnapshot(deckIds)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Timber.w(e, "Could not load Decks for the widget")
+        DeckWidgetSnapshot(unavailable = true)
     }
 
-    val deckIdToData = result.associateBy { it.deckId }
-    return deckIds.mapNotNull { deckIdToData[it] }
+private suspend fun readDeckWidgetSnapshot(deckIds: List<DeckId>): DeckWidgetSnapshot {
+    if (deckIds.isEmpty()) return DeckWidgetSnapshot()
+    return withCol {
+        val tree = sched.deckDueTree()
+        val onlyDefaultDeck = tree.children.singleOrNull()?.did == DEFAULT_DECK_ID
+        val selectedIds = deckIds.toSet()
+        val byId = tree.filter { it.did in selectedIds }.associateBy(DeckNode::did)
+        DeckWidgetSnapshot(
+            decks =
+                deckIds.mapNotNull { id ->
+                    byId[id]?.let { node ->
+                        DeckWidgetData(
+                            deckId = node.did,
+                            name = node.lastDeckNameComponent,
+                            reviewCount = node.revCount,
+                            learnCount = node.lrnCount,
+                            newCount = node.newCount,
+                            isFiltered = node.filtered,
+                            fullName = node.fullDeckName,
+                        )
+                    }
+                },
+            // Aggregate top-level Decks only. A parent already includes its children's counts.
+            totalDue = tree.children.sumOf { it.newCount + it.lrnCount + it.revCount },
+            emptyCollection = onlyDefaultDeck && decks.cardCount(DEFAULT_DECK_ID, includeSubdecks = true) == 0,
+        )
+    }
 }

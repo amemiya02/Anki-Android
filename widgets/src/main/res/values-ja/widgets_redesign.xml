@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="widget_due_label">要復習</string>
+    <string name="widget_minutes">%d 分</string>
+    <string name="widget_brand">Hayaki</string>
+    <plurals name="widget_due_today">
+        <item quantity="other">今日の残り %d 枚</item>
+    </plurals>
+    <string name="widget_count_new">新規</string>
+    <string name="widget_count_learning">学習中</string>
+    <string name="widget_count_due">復習</string>
+    <string name="widget_deck_missing">デッキがありません</string>
+    <string name="widget_choose_decks_hint">タップして選び直す</string>
+    <string name="widget_choose_decks">デッキを選択</string>
+    <string name="widget_collection_empty">コレクションが空です</string>
+    <string name="widget_collection_empty_hint">Hayaki でデッキを追加</string>
+    <string name="widget_list_title">デッキ一覧ウィジェット</string>
+    <string name="widget_config_lead">デッキを %d 個まで選べます。ドラッグで並べ替えられます。</string>
+    <string name="widget_config_chosen">%2$d 個中 %1$d 個を選択</string>
+    <string name="widget_config_add">デッキを追加</string>
+    <string name="widget_config_remove">%s を削除</string>
+    <string name="widget_config_reorder">%s を並べ替え</string>
+    <string name="widget_config_move_up">上へ移動</string>
+    <string name="widget_config_move_down">下へ移動</string>
+    <string name="widget_small_title">残りのカード数</string>
+    <string name="widget_one_deck_title">単一デッキ</string>
+    <string name="widget_config_back">戻る</string>
+    <string name="widget_collection_unavailable">コレクションを開けません</string>
+    <string name="widget_tap_to_open">タップして開く</string>
+    <string name="widget_choose_decks_hint_short">タップして選択</string>
+</resources>

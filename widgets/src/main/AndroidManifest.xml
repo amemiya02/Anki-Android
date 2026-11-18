@@ -28,14 +28,11 @@
             </intent-filter>
         </receiver>
 
-        <!-- Service to perform web API queries -->
-        <service android:name="com.ichi2.widget.AnkiDroidWidgetSmall$UpdateService" />
-
         <!-- Don't disable/enable the widgets here until min API>=31, see issue #15747 & https://issuetracker.google.com/issues/36914010 -->
         <!-- small widget -->
         <receiver
             android:name="com.ichi2.widget.AnkiDroidWidgetSmall"
-            android:label="@string/widget_small"
+            android:label="@string/widget_small_title"
             android:exported="true"
             >
             <intent-filter>
@@ -52,7 +49,7 @@
              The way to add it depends on the phone. It usually consists in a long press on the screen, followed by finding a "widget" button"-->
         <receiver
             android:name="com.ichi2.widget.cardanalysis.CardAnalysisWidget"
-            android:label="@string/card_analysis_extra_widget_description"
+            android:label="@string/widget_one_deck_title"
             android:exported="false"
             >
             <intent-filter>
@@ -68,7 +65,7 @@
              The way to add it depends on the phone. It usually consists in a long press on the screen, followed by finding a "widget" button"-->
         <receiver
             android:name="com.ichi2.widget.deckpicker.DeckPickerWidget"
-            android:label="@string/deck_picker_widget_description"
+            android:label="@string/widget_list_title"
             android:exported="false"
             >
             <intent-filter>

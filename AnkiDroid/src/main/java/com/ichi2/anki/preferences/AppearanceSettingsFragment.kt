@@ -25,6 +25,7 @@ import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.enums.AppTheme
 import com.ichi2.anki.settings.enums.NightTheme
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.widget.refreshHomeScreenWidgets
 import com.ichi2.compose.ui.dialogs.ConfirmationDialog
 import com.ichi2.compose.ui.dialogs.DialogAction
 import com.ichi2.compose.ui.dialogs.DialogActionStyle
@@ -120,6 +121,7 @@ class AppearanceSettingsFragment : Fragment() {
     private fun applyTheme() {
         val previous = Themes.currentTheme
         Themes.updateCurrentTheme(requireContext())
+        refreshHomeScreenWidgets(requireContext())
         updateAppearance()
         if (previous != Themes.currentTheme) ActivityCompat.recreate(requireActivity())
     }

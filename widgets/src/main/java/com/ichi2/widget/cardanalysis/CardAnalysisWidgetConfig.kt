@@ -40,6 +40,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.os.BundleCompat
 import com.ichi2.anki.BaseAnkiActivity
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.canUserAccessDeck
 import com.ichi2.anki.common.android.AnkiBroadcastReceiver
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.ext.unregisterReceiverSilently
@@ -50,13 +51,12 @@ import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.startup.ensureStorageIsReady
 import com.ichi2.anki.ui.internationalization.trCase
+import com.ichi2.anki.widgets.R
 import com.ichi2.anki.withProgress
 import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.compose.theme.foundation
 import com.ichi2.widget.AppWidgetId.Companion.INVALID_APPWIDGET_ID
 import com.ichi2.widget.AppWidgetId.Companion.getAppWidgetId
-import com.ichi2.widget.cardanalysis.CardAnalysisWidget.Companion.EXTRA_SELECTED_DECK_ID
-import com.ichi2.widget.getAppWidgetManager
 import timber.log.Timber
 import com.ichi2.anki.common.android.R as CommonR
 
@@ -151,7 +151,7 @@ class CardAnalysisWidgetConfig : BaseAnkiActivity() {
         val shouldClose = this.deck == null
         this.deck = deck
         preferences.saveSelectedDeck(appWidgetId, deck.deckId)
-        updateWidget()
+        CardAnalysisWidget.updateWidget(this, appWidgetId)
         if (shouldClose) {
             close()
         }
@@ -171,7 +171,7 @@ class CardAnalysisWidgetConfig : BaseAnkiActivity() {
                     return@withProgress
                 }
                 val selectedDeckId = preferences.getSelectedDeckIdFromPreferences(appWidgetId)
-                if (selectedDeckId == null) {
+                if (selectedDeckId == null || !canUserAccessDeck(selectedDeckId)) {
                     showDeckSelectionDialog()
                 } else {
                     deck = SelectableDeck.Deck.fromId(selectedDeckId)
@@ -186,20 +186,6 @@ class CardAnalysisWidgetConfig : BaseAnkiActivity() {
             allowAll = false,
             skipEmptyDefault = true,
         )
-    }
-
-    private fun updateWidget() {
-        val appWidgetManager = getAppWidgetManager(this) ?: return
-        val updateIntent =
-            Intent(this, CardAnalysisWidget::class.java).apply {
-                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArrayOf(appWidgetId.id))
-                putExtra(EXTRA_SELECTED_DECK_ID, deck?.deckId)
-            }
-
-        sendBroadcast(updateIntent)
-
-        CardAnalysisWidget.updateWidget(this, appWidgetManager, appWidgetId)
     }
 
     private fun close() {
@@ -254,7 +240,7 @@ internal fun SingleDeckWidgetSetup(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
-                stringResource(CommonString.card_analysis_extra_widget_description),
+                stringResource(R.string.widget_one_deck_title),
                 Modifier.semantics { heading() },
                 color = paper.colors.onBackground,
                 style = paper.type.screenTitle,

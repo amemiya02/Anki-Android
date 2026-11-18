@@ -11,7 +11,9 @@ import com.ichi2.anki.navigation.initializeNavigator
 import com.ichi2.anki.settings.PrefsRepository
 import com.ichi2.anki.startup.maybeSetDefaultCollectionPath
 import com.ichi2.testutils.EmptyApplication
+import com.ichi2.themes.Themes
 import com.ichi2.widget.AnkiDroidWidgetSmall
+import com.ichi2.widget.WidgetAppearance
 import com.ichi2.widget.WidgetStatus
 
 /**
@@ -24,7 +26,8 @@ fun registerTestApplicationSingletons() {
     initializeWidgetRepository()
     initializeDatabaseErrorDialogs()
     initializeActivitySetup()
-    WidgetStatus.register { context -> AnkiDroidWidgetSmall.UpdateService().doUpdate(context) }
+    WidgetAppearance.registerThemeResolver(Themes::resolveTheme)
+    WidgetStatus.register(AnkiDroidWidgetSmall::refresh)
     Animations.setPreferencesProvider { context -> PrefsRepository(context) }
     maybeSetDefaultCollectionPath(application)
 }

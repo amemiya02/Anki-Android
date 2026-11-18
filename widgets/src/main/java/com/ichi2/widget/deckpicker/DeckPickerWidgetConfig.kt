@@ -3,482 +3,399 @@
 
 package com.ichi2.widget.deckpicker
 
-import android.appwidget.AppWidgetManager
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
-import android.view.View
-import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.BackHandler
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.StringRes
-import androidx.annotation.VisibleForTesting
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsCompat.Type.displayCutout
-import androidx.core.view.WindowInsetsCompat.Type.systemBars
-import androidx.core.view.isVisible
-import androidx.core.view.updateLayoutParams
-import androidx.core.view.updateMargins
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.ichi2.anki.BaseAnkiActivity
-import com.ichi2.anki.CommonPlurals
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.common.android.AnkiBroadcastReceiver
 import com.ichi2.anki.common.utils.android.showThemedToast
-import com.ichi2.anki.common.utils.dp
-import com.ichi2.anki.common.utils.ext.unregisterReceiverSilently
 import com.ichi2.anki.dialogs.DeckSelectionDialog
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.dialogs.startDeckSelection
-import com.ichi2.anki.isCollectionEmpty
-import com.ichi2.anki.isDefaultDeckEmpty
+import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.model.SelectableDeck
-import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
-import com.ichi2.anki.snackbar.SnackbarBuilder
-import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.startup.ensureStorageIsReady
 import com.ichi2.anki.widgets.R
-import com.ichi2.anki.widgets.databinding.WidgetDeckPickerConfigBinding
+import com.ichi2.anki.withProgress
+import com.ichi2.compose.theme.AnkiDroidTheme
+import com.ichi2.compose.theme.foundation
 import com.ichi2.widget.AppWidgetId.Companion.INVALID_APPWIDGET_ID
 import com.ichi2.widget.AppWidgetId.Companion.getAppWidgetId
 import com.ichi2.widget.AppWidgetId.Companion.updateWidget
-import com.ichi2.widget.WidgetConfigScreenAdapter
-import com.ichi2.widget.getAppWidgetManager
-import dev.androidbroadcast.vbpd.viewBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import timber.log.Timber
+import kotlin.math.abs
+import com.ichi2.anki.common.android.R as CommonR
 
-/**
- * Activity for configuring the Deck Picker Widget.
- * This activity allows the user to select decks from deck selection dialog to be displayed in the widget.
- * User can Select up to 5 decks.
- * User Can remove, reorder decks and reconfigure by holding the widget.
- */
-class DeckPickerWidgetConfig :
-    BaseAnkiActivity(R.layout.widget_deck_picker_config),
-    BaseSnackbarBuilderProvider {
-    private val binding by viewBinding(WidgetDeckPickerConfigBinding::bind)
+private const val MAX_DECKS = 5
 
-    private var appWidgetId = INVALID_APPWIDGET_ID
-    lateinit var deckAdapter: WidgetConfigScreenAdapter
-    private lateinit var deckPickerWidgetPreferences: DeckPickerWidgetPreferences
-
-    private var hasUnsavedChanges = false
-    private var isAdapterObserverRegistered = false
-    private lateinit var onBackPressedCallback: OnBackPressedCallback
-
-    /** Tracks coroutine running [initializeUIComponents]: must be run on a non-empty collection */
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    lateinit var initTask: Job
+/** Configures the Deck list shown by a single launcher widget. */
+class DeckPickerWidgetConfig : BaseAnkiActivity() {
+    private var widgetId = INVALID_APPWIDGET_ID
+    private lateinit var preferences: DeckPickerWidgetPreferences
+    private var allDecks by mutableStateOf<List<SelectableDeck.Deck>?>(null)
+    private var selected by mutableStateOf(emptyList<SelectableDeck.Deck>())
+    private var savedIds = emptyList<Long>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (showedActivityFailedScreen(savedInstanceState)) {
-            return
-        }
-
+        if (showedActivityFailedScreen(savedInstanceState)) return
         super.onCreate(savedInstanceState)
-
-        if (!ensureStorageIsReady()) {
-            return
-        }
-        enableEdgeToEdge()
-        ViewCompat.setOnApplyWindowInsetsListener(binding.content) { _, insets ->
-            val constraints = insets.getInsets(systemBars() or displayCutout())
-            binding.content.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                updateMargins(
-                    left = constraints.left,
-                    right = constraints.right,
-                    bottom = constraints.bottom + 16.dp.toPx(this@DeckPickerWidgetConfig),
-                    top = constraints.top + 16.dp.toPx(this@DeckPickerWidgetConfig),
-                )
-            }
-            WindowInsetsCompat.CONSUMED
-        }
-        deckPickerWidgetPreferences = DeckPickerWidgetPreferences(this)
-
-        appWidgetId = intent.getAppWidgetId()
-
-        if (appWidgetId == INVALID_APPWIDGET_ID) {
-            Timber.v("Invalid App Widget ID")
+        if (!ensureStorageIsReady()) return
+        widgetId = intent.getAppWidgetId()
+        if (widgetId == INVALID_APPWIDGET_ID) {
             finish()
             return
         }
 
-        registerDeckSelectedHandler(action = ::onDeckSelected)
+        setResult(RESULT_CANCELED, Intent().updateWidget(widgetId))
+        enableEdgeToEdge()
+        preferences = DeckPickerWidgetPreferences(this)
+        savedIds = preferences.getSelectedDeckIdsFromPreferences(widgetId).toList()
 
-        // The widget can only be configured against an existing deck. If the collection has
-        // none, show the same message the widget itself displays and close the config screen.
-        this.initTask =
-            lifecycleScope.launch {
-                if (isCollectionEmpty()) {
-                    Timber.w("Closing: Collection is empty")
-                    showThemedToast(
-                        this@DeckPickerWidgetConfig,
-                        CommonString.empty_collection_state_in_widget,
-                        false,
-                    )
+        setContentView(
+            CoordinatorLayout(this).apply {
+                id = CommonR.id.root_layout
+                addView(
+                    ComposeView(context).apply {
+                        setContent {
+                            AnkiDroidTheme {
+                                BackHandler(onBack = ::close)
+                                val decks = allDecks
+                                DeckListWidgetSetup(
+                                    selected = selected,
+                                    canAdd = decks != null && selected.size < minOf(MAX_DECKS, decks.size),
+                                    onClose = ::close,
+                                    onAdd = ::selectDecks,
+                                    onRemove = { id -> selected = selected.filterNot { it.deckId == id } },
+                                    onMove = ::moveDeck,
+                                    onSave = ::save,
+                                )
+                            }
+                        }
+                    },
+                    CoordinatorLayout.LayoutParams(-1, -1),
+                )
+            },
+        )
+        registerDeckSelectedHandler { candidate -> addDeck(candidate as? SelectableDeck.Deck) }
+        launchCatchingTask {
+            withProgress {
+                val decks = SelectableDeck.fromCollection(includeFiltered = true, skipEmptyDefault = true)
+                if (decks.isEmpty()) {
+                    showThemedToast(this@DeckPickerWidgetConfig, CommonString.empty_collection_state_in_widget, false)
                     finish()
-                    return@launch
+                    return@withProgress
                 }
-
-                initializeUIComponents()
+                val byId = decks.associateBy(SelectableDeck.Deck::deckId)
+                savedIds = savedIds.filter { it in byId }
+                val restored = savedInstanceState?.getLongArray(STATE_DECKS)?.toList() ?: savedIds
+                selected = restored.distinct().mapNotNull(byId::get).take(MAX_DECKS)
+                allDecks = decks
             }
+        }
     }
 
-    fun showSnackbar(message: CharSequence) {
-        showSnackbar(
-            message,
-            Snackbar.LENGTH_LONG,
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (allDecks != null) outState.putLongArray(STATE_DECKS, selected.map { it.deckId }.toLongArray())
+    }
+
+    private fun selectDecks() {
+        startDeckSelection(
+            title = getString(CommonString.select_decks_title),
+            allowMultipleSelection = true,
+            allowAll = false,
+            skipEmptyDefault = true,
         )
     }
 
-    fun showSnackbar(
-        @StringRes messageResId: Int,
+    private fun addDeck(deck: SelectableDeck.Deck?) {
+        if (deck == null || selected.size >= MAX_DECKS) return
+        if (selected.any { it.deckId == deck.deckId }) {
+            showThemedToast(this, CommonString.deck_already_selected_message, false)
+            return
+        }
+        allDecks?.let { available ->
+            if (available.none { it.deckId == deck.deckId }) allDecks = available + deck
+        }
+        selected = selected + deck
+        if (selected.size == MAX_DECKS || selected.size == allDecks?.size) {
+            (supportFragmentManager.findFragmentByTag(DeckSelectionDialog.TAG) as? DeckSelectionDialog)?.dismiss()
+        }
+    }
+
+    private fun moveDeck(
+        from: Int,
+        to: Int,
     ) {
-        showSnackbar(getString(messageResId))
+        if (from == to || from !in selected.indices || to !in selected.indices) return
+        selected = selected.toMutableList().apply { add(to, removeAt(from)) }
     }
 
-    private fun initializeUIComponents() {
-        deckAdapter =
-            WidgetConfigScreenAdapter(lifecycleScope) { deck, _ ->
-                deckAdapter.removeDeck(deck.deckId)
-                // Removal always frees at least one slot, so the FAB is going
-                // to be visible. Show it now (synchronously) so the snackbar
-                // anchors to it instead of the Save button while the async
-                // updateFabVisibility() is still in flight.
-                binding.fabWidgetDeckPicker.isVisible = true
-                showSnackbar(CommonString.deck_removed_from_widget)
-                updateViewVisibility()
-                updateFabVisibility()
-                updateDoneButtonVisibility()
-                hasUnsavedChanges = true
-                setUnsavedChanges(true)
-            }
-
-        binding.recyclerViewSelectedDecks.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = this@DeckPickerWidgetConfig.deckAdapter
-            val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
-            itemTouchHelper.attachToRecyclerView(this)
-        }
-
-        setupDoneButton()
-
-        binding.fabWidgetDeckPicker.setOnClickListener {
-            // TODO previous code filtered the already selected decks, we guard against this for now
-            startDeckSelection(
-                title = getString(CommonString.select_decks_title),
-                allowAll = false,
-                skipEmptyDefault = true,
-                allowMultipleSelection = true,
-            )
-        }
-
-        lifecycleScope.launch { updateViewWithSavedPreferences() }
-
-        // Update the visibility of the "no decks" placeholder and the widget configuration container
-        updateViewVisibility()
-
-        registerReceiver(widgetRemovedReceiver, IntentFilter(AppWidgetManager.ACTION_APPWIDGET_DELETED))
-
-        onBackPressedCallback =
-            object : OnBackPressedCallback(false) {
-                override fun handleOnBackPressed() {
-                    if (hasUnsavedChanges) {
-                        DiscardChangesDialog.showDialog(
-                            context = this@DeckPickerWidgetConfig,
-                            positiveMethod = {
-                                // Set flag to indicate that changes are discarded
-                                hasUnsavedChanges = false
-                                finish()
-                            },
-                        )
-                    } else {
-                        finish()
-                    }
-                }
-            }
-
-        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
-
-        // Register the AdapterDataObserver if not already registered
-        if (!isAdapterObserverRegistered) {
-            deckAdapter.registerAdapterDataObserver(
-                object : RecyclerView.AdapterDataObserver() {
-                    override fun onChanged() {
-                        updateDoneButtonVisibility() // Update visibility when data changes
-                    }
-                },
-            )
-            isAdapterObserverRegistered = true
-        }
-    }
-
-    private fun updateCallbackState() {
-        onBackPressedCallback.isEnabled = hasUnsavedChanges
-    }
-
-    // Call this method when there are unsaved changes
-    private fun setUnsavedChanges(unsaved: Boolean) {
-        hasUnsavedChanges = unsaved
-        updateCallbackState()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiverSilently(widgetRemovedReceiver)
-    }
-
-    override val baseSnackbarBuilder: SnackbarBuilder = {
-        // Prefer the FAB so snackbars sit above it. Fall back to the Save button
-        // for the brief window after a removal where the FAB is being un-hidden
-        // asynchronously, so snackbars never overlap the bottom button row.
-        anchorView =
-            when {
-                binding.fabWidgetDeckPicker.isVisible -> binding.fabWidgetDeckPicker
-                binding.submitButton.isVisible -> binding.submitButton
-                else -> null
-            }
-    }
-
-    /**
-     * Configures the "Done" button based on the number of selected decks.
-     *
-     *   If no decks are selected: The button is hidden.
-     *   If decks are selected: The button is visible with the text "Save".
-     *   When clicked, the selected decks are saved, the widget is updated,
-     *   and the activity is finished.
-     */
-    private fun setupDoneButton() {
-        val saveText = getString(CommonString.save).uppercase()
-
-        // Set the button text and click listener only once during initialization
-        binding.submitButton.text = saveText
-        binding.submitButton.setOnClickListener {
-            saveSelectedDecksToPreferencesDeckPickerWidget()
-            hasUnsavedChanges = false
-            setUnsavedChanges(false)
-
-            val selectedDeckIds = deckPickerWidgetPreferences.getSelectedDeckIdsFromPreferences(appWidgetId)
-
-            getAppWidgetManager(this)?.let { appWidgetManager ->
-                DeckPickerWidget.updateWidget(this, appWidgetManager, appWidgetId, selectedDeckIds)
-            }
-
-            val resultValue = Intent().updateWidget(appWidgetId)
-            setResult(RESULT_OK, resultValue)
+    private fun close() {
+        if (allDecks == null || selected.map { it.deckId } == savedIds) {
             finish()
-        }
-
-        // Initially set the visibility based on the number of selected decks
-        updateDoneButtonVisibility()
-    }
-
-    private fun updateDoneButtonVisibility() {
-        binding.submitButton.isVisible = deckAdapter.itemCount != 0
-    }
-
-    /** Updates the visibility of the FloatingActionButton based on the number of selected decks */
-    private fun updateFabVisibility() {
-        lifecycleScope.launch {
-            val defaultDeckEmpty = isDefaultDeckEmpty()
-
-            val totalSelectableDecks = getTotalSelectableDecks()
-
-            // Adjust totalSelectableDecks if the default deck is empty
-            var adjustedTotalSelectableDecks = totalSelectableDecks
-            if (defaultDeckEmpty) {
-                adjustedTotalSelectableDecks -= 1
-            }
-
-            val selectedDeckCount = deckAdapter.itemCount
-
-            binding.fabWidgetDeckPicker.isVisible =
-                !(selectedDeckCount >= MAX_DECKS_ALLOWED || selectedDeckCount >= adjustedTotalSelectableDecks)
-        }
-    }
-
-    /**
-     * Returns the total number of selectable decks.
-     *
-     * The operation involves accessing the collection, which might be a time-consuming
-     * I/O-bound task. Hence, we switch to the IO dispatcher
-     * to avoid blocking the main thread and ensure a smooth user experience.
-     */
-    private suspend fun getTotalSelectableDecks(): Int =
-        withContext(Dispatchers.IO) {
-            SelectableDeck.fromCollection(includeFiltered = true).size
-        }
-
-    /** Updates the view according to the saved preference for appWidgetId.*/
-    suspend fun updateViewWithSavedPreferences() {
-        val selectedDeckIds = deckPickerWidgetPreferences.getSelectedDeckIdsFromPreferences(appWidgetId)
-        if (selectedDeckIds.isNotEmpty()) {
-            val decks = fetchDecks()
-            val deckMap = decks.associateBy { it.deckId }
-            selectedDeckIds.forEach { deckId ->
-                deckMap[deckId]?.let { deckAdapter.addDeck(it) }
-            }
-            updateViewVisibility()
-            updateFabVisibility()
-            setupDoneButton()
-        }
-    }
-
-    /** Returns the list of standard deck. */
-    private suspend fun fetchDecks(): List<SelectableDeck.Deck> =
-        withContext(Dispatchers.IO) {
-            SelectableDeck.fromCollection(includeFiltered = true)
-        }
-
-    private fun dismissDeckSelectionDialog() {
-        (supportFragmentManager.findFragmentByTag(DECK_SELECTION_DIALOG_TAG) as? DeckSelectionDialog)?.dismiss()
-    }
-
-    /** Called when a deck is selected from the deck selection dialog. */
-    fun onDeckSelected(deck: SelectableDeck?) {
-        if (deck == null) {
-            return
-        }
-        require(deck is SelectableDeck.Deck)
-
-        val isDeckAlreadySelected = deckAdapter.deckIds.contains(deck.deckId)
-
-        if (isDeckAlreadySelected) {
-            showSnackbar(getString(CommonString.deck_already_selected_message))
-            return
-        }
-
-        // Check if the deck is being added to a fully occupied selection
-        if (deckAdapter.itemCount >= MAX_DECKS_ALLOWED) {
-            // Snackbar will only be shown when adding the 5th deck
-            if (deckAdapter.itemCount == MAX_DECKS_ALLOWED) {
-                showSnackbar(resources.getQuantityString(CommonPlurals.deck_limit_reached, MAX_DECKS_ALLOWED, MAX_DECKS_ALLOWED))
-            }
-            // The FAB visibility should be handled in updateFabVisibility()
-            return
-        }
-        // Add the deck and update views
-        deckAdapter.addDeck(deck)
-        updateViewVisibility()
-        updateFabVisibility()
-        setupDoneButton()
-        hasUnsavedChanges = true
-        setUnsavedChanges(true)
-        // Show snackbar and dismiss the selection dialog once the 5th deck is reached
-        if (deckAdapter.itemCount == MAX_DECKS_ALLOWED) {
-            showSnackbar(resources.getQuantityString(CommonPlurals.deck_limit_reached, MAX_DECKS_ALLOWED, MAX_DECKS_ALLOWED))
-            dismissDeckSelectionDialog()
-        }
-    }
-
-    /** Updates the visibility of the "no decks" placeholder and the widget configuration container */
-    fun updateViewVisibility() {
-        if (deckAdapter.itemCount > 0) {
-            binding.noDecksPlaceholder.visibility = View.GONE
-            binding.widgetConfigContainer.visibility = View.VISIBLE
         } else {
-            binding.noDecksPlaceholder.visibility = View.VISIBLE
-            binding.widgetConfigContainer.visibility = View.GONE
+            DiscardChangesDialog.showDialog(this, positiveMethod = ::finish)
         }
     }
 
-    /** ItemTouchHelper callback for handling drag and drop of decks. */
-    private val itemTouchHelperCallback =
-        object : ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-            0,
-        ) {
-            override fun getDragDirs(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-            ): Int {
-                val selectedDeckCount = deckAdapter.itemCount
-                return if (selectedDeckCount > 1) {
-                    super.getDragDirs(recyclerView, viewHolder)
-                } else {
-                    0 // Disable drag if there's only one item
-                }
-            }
-
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder,
-            ): Boolean {
-                val fromPosition = viewHolder.bindingAdapterPosition
-                val toPosition = target.bindingAdapterPosition
-                deckAdapter.moveDeck(fromPosition, toPosition)
-                hasUnsavedChanges = true
-                setUnsavedChanges(true)
-                return true
-            }
-
-            override fun onSwiped(
-                viewHolder: RecyclerView.ViewHolder,
-                direction: Int,
-            ) {
-                // No swipe action
-            }
-        }
-
-    /**
-     * Saves the selected deck IDs to SharedPreferences and triggers a widget update.
-     *
-     * This function retrieves the selected decks from the `deckAdapter`, converts their IDs
-     * to a comma-separated string, and stores it in SharedPreferences.
-     * It then sends a broadcast to update the widget with the new deck selection.
-     */
-    fun saveSelectedDecksToPreferencesDeckPickerWidget() {
-        val selectedDecks = deckAdapter.deckIds.map { it }
-        deckPickerWidgetPreferences.saveSelectedDecks(appWidgetId, selectedDecks.map { it.toString() })
-
-        val updateIntent =
-            Intent(this, DeckPickerWidget::class.java).apply {
-                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArrayOf(appWidgetId.id))
-
-                putExtra(DeckPickerWidget.EXTRA_SELECTED_DECK_IDS, selectedDecks.toList().toLongArray())
-            }
-
-        sendBroadcast(updateIntent)
+    private fun save() {
+        preferences.saveSelectedDecks(widgetId, selected.map { it.deckId.toString() })
+        DeckPickerWidget.updateWidget(this, widgetId)
+        setResult(RESULT_OK, Intent().updateWidget(widgetId))
+        finish()
     }
-
-    /** BroadcastReceiver to handle widget removal. */
-    private val widgetRemovedReceiver =
-        object : AnkiBroadcastReceiver() {
-            override fun onReceiveBroadcast(
-                context: Context,
-                intent: Intent,
-            ) {
-                if (intent.action != AppWidgetManager.ACTION_APPWIDGET_DELETED) {
-                    return
-                }
-
-                val appWidgetId = intent.getAppWidgetId()
-                if (appWidgetId == INVALID_APPWIDGET_ID) {
-                    return
-                }
-
-                deckPickerWidgetPreferences.deleteDeckData(appWidgetId)
-            }
-        }
 
     companion object {
-        /**
-         * Maximum number of decks allowed in the widget.
-         */
-        private const val MAX_DECKS_ALLOWED = 5
-        private const val DECK_SELECTION_DIALOG_TAG = "DeckSelectionDialog"
+        private const val STATE_DECKS = "widget_selected_decks"
+    }
+}
+
+@Composable
+private fun DeckListWidgetSetup(
+    selected: List<SelectableDeck.Deck>,
+    canAdd: Boolean,
+    onClose: () -> Unit,
+    onAdd: () -> Unit,
+    onRemove: (Long) -> Unit,
+    onMove: (Int, Int) -> Unit,
+    onSave: () -> Unit,
+) {
+    val paper = MaterialTheme.foundation
+    val listState = rememberLazyListState()
+    var draggedId by remember { mutableStateOf<Long?>(null) }
+    var dragOffset by remember { mutableFloatStateOf(0f) }
+
+    fun dropDeck() {
+        val from = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == draggedId }
+        if (from != null) {
+            val center = from.offset + from.size / 2f + dragOffset
+            val to =
+                listState.layoutInfo.visibleItemsInfo
+                    .filter { it.key is Long }
+                    .minByOrNull { abs(center - (it.offset + it.size / 2f)) }
+            onMove(selected.indexOfFirst { it.deckId == from.key }, selected.indexOfFirst { it.deckId == to?.key })
+        }
+        draggedId = null
+        dragOffset = 0f
+    }
+
+    val drop by rememberUpdatedState(::dropDeck)
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(paper.colors.background)
+            .windowInsetsPadding(WindowInsets.safeDrawing)
+            .padding(horizontal = paper.spacing.screenMargin),
+    ) {
+        IconButton(onClick = onClose) {
+            Icon(painterResource(CommonR.drawable.symbol_arrow_back), stringResource(R.string.widget_config_back))
+        }
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.weight(1f).fillMaxWidth(),
+        ) {
+            item {
+                Text(
+                    stringResource(R.string.widget_list_title),
+                    Modifier.semantics { heading() },
+                    style = paper.type.screenTitle,
+                    color = paper.colors.onBackground,
+                )
+                Text(
+                    stringResource(R.string.widget_config_lead, MAX_DECKS),
+                    Modifier.padding(top = 8.dp, bottom = 18.dp),
+                    style = paper.type.lead,
+                    color = paper.colors.onBackgroundMuted,
+                )
+                Text(
+                    stringResource(R.string.widget_config_chosen, selected.size, MAX_DECKS),
+                    Modifier.padding(bottom = 8.dp),
+                    style = paper.type.caption,
+                    color = paper.colors.onBackgroundMuted,
+                )
+                HorizontalDivider(color = paper.colors.outline)
+            }
+            itemsIndexed(selected, key = { _, deck -> deck.deckId }) { index, deck ->
+                val moving = deck.deckId == draggedId
+                val name = deck.name.replace("::", " › ")
+                Column(
+                    Modifier
+                        .zIndex(if (moving) 1f else 0f)
+                        .graphicsLayer { if (moving) translationY = dragOffset }
+                        .background(paper.colors.background),
+                ) {
+                    Row(
+                        Modifier.fillMaxWidth().heightIn(min = paper.spacing.touchTarget),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        ReorderDeck(
+                            name = name,
+                            canMoveUp = index > 0,
+                            canMoveDown = index < selected.lastIndex,
+                            onMove = { onMove(index, index + it) },
+                            modifier =
+                                Modifier.pointerInput(deck.deckId, selected.size) {
+                                    detectDragGestures(
+                                        onDragStart = { draggedId = deck.deckId },
+                                        onDragEnd = { drop() },
+                                        onDragCancel = {
+                                            draggedId = null
+                                            dragOffset = 0f
+                                        },
+                                    ) { change, amount ->
+                                        change.consume()
+                                        dragOffset += amount.y
+                                    }
+                                },
+                        )
+                        Text(name, Modifier.weight(1f), color = paper.colors.onBackground, style = paper.type.rowTitle)
+                        IconButton(onClick = { onRemove(deck.deckId) }) {
+                            Icon(
+                                painterResource(CommonR.drawable.symbol_close),
+                                stringResource(R.string.widget_config_remove, name),
+                                tint = paper.colors.onBackgroundMuted,
+                            )
+                        }
+                    }
+                    HorizontalDivider(color = paper.colors.outline)
+                }
+            }
+            if (canAdd) {
+                item {
+                    TextButton(onClick = onAdd, modifier = Modifier.heightIn(min = paper.spacing.touchTarget)) {
+                        Icon(painterResource(CommonR.drawable.symbol_add), contentDescription = null)
+                        Text(
+                            stringResource(R.string.widget_config_add),
+                            Modifier.padding(start = 10.dp),
+                            style = paper.type.rowTitle,
+                        )
+                    }
+                }
+            }
+        }
+        Button(
+            onClick = onSave,
+            enabled = selected.isNotEmpty(),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp).heightIn(min = paper.spacing.primaryButton),
+            shape = paper.shapes.button,
+        ) {
+            Text(stringResource(CommonString.save))
+        }
+    }
+}
+
+@Composable
+private fun ReorderDeck(
+    name: String,
+    canMoveUp: Boolean,
+    canMoveDown: Boolean,
+    onMove: (Int) -> Unit,
+    modifier: Modifier,
+) {
+    var menu by remember { mutableStateOf(false) }
+    val paper = MaterialTheme.foundation
+    val moveUp = stringResource(R.string.widget_config_move_up)
+    val moveDown = stringResource(R.string.widget_config_move_down)
+    Box {
+        IconButton(
+            onClick = { menu = true },
+            enabled = canMoveUp || canMoveDown,
+            modifier =
+                modifier.size(paper.spacing.touchTarget).semantics {
+                    customActions =
+                        buildList {
+                            if (canMoveUp) {
+                                add(
+                                    CustomAccessibilityAction(moveUp) {
+                                        onMove(-1)
+                                        true
+                                    },
+                                )
+                            }
+                            if (canMoveDown) {
+                                add(
+                                    CustomAccessibilityAction(moveDown) {
+                                        onMove(1)
+                                        true
+                                    },
+                                )
+                            }
+                        }
+                },
+        ) {
+            Icon(
+                painterResource(R.drawable.symbol_drag_indicator_widget),
+                stringResource(R.string.widget_config_reorder, name),
+                tint = paper.colors.onBackgroundMuted,
+            )
+        }
+        DropdownMenu(
+            expanded = menu,
+            onDismissRequest = { menu = false },
+            shape = paper.shapes.button,
+            shadowElevation = 0.dp,
+            containerColor = paper.colors.background,
+        ) {
+            if (canMoveUp) {
+                DropdownMenuItem(text = { Text(moveUp) }, onClick = {
+                    menu = false
+                    onMove(-1)
+                })
+            }
+            if (canMoveDown) {
+                DropdownMenuItem(text = { Text(moveDown) }, onClick = {
+                    menu = false
+                    onMove(1)
+                })
+            }
+        }
     }
 }

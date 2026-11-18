@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024 Anoop <xenonnn4w@gmail.com>
 
 import android.appwidget.AppWidgetManager
+import android.content.Context
 import android.content.Intent
 import android.os.Looper
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -9,8 +10,8 @@ import com.ichi2.anki.common.analytics.Analytics
 import com.ichi2.anki.common.analytics.AnalyticsEvent
 import com.ichi2.testutils.AndroidTest
 import com.ichi2.testutils.targetContext
+import com.ichi2.widget.AddNoteWidget
 import com.ichi2.widget.AnalyticsWidgetProvider
-import com.ichi2.widget.AppWidgetIds
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
@@ -66,11 +67,9 @@ class AnalyticalWidgetProviderTest : AndroidTest {
         @Volatile
         var updated = false
 
-        override fun performUpdate(
-            context: android.content.Context,
-            appWidgetManager: AppWidgetManager,
-            appWidgetIds: AppWidgetIds,
-        ) {
+        override val glanceAppWidget get() = AddNoteWidget().glanceAppWidget
+
+        override fun onReadyToUpdate(context: Context) {
             updated = true
         }
     }

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="widget_due_label">待复习</string>
+    <string name="widget_minutes">%d 分钟</string>
+    <string name="widget_brand">Hayaki</string>
+    <plurals name="widget_due_today">
+        <item quantity="other">今天 %d 张</item>
+    </plurals>
+    <string name="widget_count_new">新卡</string>
+    <string name="widget_count_learning">学习中</string>
+    <string name="widget_count_due">待复习</string>
+    <string name="widget_deck_missing">牌组已删除</string>
+    <string name="widget_choose_decks_hint">轻点另选牌组</string>
+    <string name="widget_choose_decks">选择牌组</string>
+    <string name="widget_collection_empty">集合为空</string>
+    <string name="widget_collection_empty_hint">请在 Hayaki 中添加牌组</string>
+    <string name="widget_list_title">牌组列表小组件</string>
+    <string name="widget_config_lead">最多选择 %d 个牌组。拖动可调整顺序。</string>
+    <string name="widget_config_chosen">已选 %1$d/%2$d</string>
+    <string name="widget_config_add">添加牌组</string>
+    <string name="widget_config_remove">移除 %s</string>
+    <string name="widget_config_reorder">调整 %s 的顺序</string>
+    <string name="widget_config_move_up">上移</string>
+    <string name="widget_config_move_down">下移</string>
+    <string name="widget_small_title">待复习数量</string>
+    <string name="widget_one_deck_title">单个牌组</string>
+    <string name="widget_config_back">返回</string>
+    <string name="widget_collection_unavailable">集合不可用</string>
+    <string name="widget_tap_to_open">轻点打开</string>
+    <string name="widget_choose_decks_hint_short">轻点另选</string>
+</resources>
