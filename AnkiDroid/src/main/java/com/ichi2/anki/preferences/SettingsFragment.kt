@@ -64,6 +64,9 @@ abstract class SettingsFragment :
             setNavigationOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
         }
 
+        settingsSearchTarget?.let { key ->
+            listView.post { if (this.view != null) revealSearchTarget(key) }
+        }
         ViewGroupCompat.installCompatInsetsDispatch(binding.root)
         val initialScrimVisibleHeightTrigger = binding.collapsingToolbarLayout.scrimVisibleHeightTrigger
         var previousTopInset = 0
@@ -95,6 +98,8 @@ abstract class SettingsFragment :
         addPreferencesFromResource(preferenceResource)
         initSubscreen()
     }
+
+    internal open fun revealSearchTarget(key: String) = highlightSearchPreference(key)
 
     protected abstract val analyticsScreenNameConstant: String
 

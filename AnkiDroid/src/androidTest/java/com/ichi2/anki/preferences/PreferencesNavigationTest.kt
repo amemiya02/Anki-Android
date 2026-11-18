@@ -1,27 +1,23 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// SPDX-FileCopyrightText: Copyright (c) 2025 Amit Bisht <iamitsbisht07@gmail.com>
 
 package com.ichi2.anki.preferences
 
 import android.content.Context
-import androidx.recyclerview.widget.RecyclerView
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.typeText
-import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
-import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.DrawerActions
-import androidx.test.espresso.matcher.ViewMatchers.hasFocus
-import androidx.test.espresso.matcher.ViewMatchers.hasMinimumChildCount
-import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withClassName
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withResourceName
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.IntentHandler
@@ -31,8 +27,6 @@ import com.ichi2.anki.testutil.awaitResumedActivity
 import com.ichi2.anki.testutil.closeGetStartedScreenIfExists
 import com.ichi2.anki.testutil.grantPermissions
 import com.ichi2.anki.utils.isWindowCompact
-import org.hamcrest.Matchers.allOf
-import org.hamcrest.Matchers.endsWith
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -43,57 +37,43 @@ class PreferencesNavigationTest {
     @get:Rule
     val runtimePermissionRule = grantPermissions(GrantStoragePermission.storagePermission)
 
-    /**
-     * Verifies navigation behavior when the search bar is tapped.
-     * - When the user searches for something using the search bar,the search view should close upon pressing the back button.
-     * - The back button should not close the entire preferences activity.
-     */
+    @get:Rule
+    val composeRule = createEmptyComposeRule()
+
+    private val context = ApplicationProvider.getApplicationContext<Context>()
+
     @Test
-    fun testOnCompactMode() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
+    fun compactSettingsOpensFromMoreAndReturnsFromSearch() {
         assumeTrue(context.resources.isWindowCompact())
-        ActivityScenario.launch(IntentHandler::class.java)
-        closeGetStartedScreenIfExists()
-        openSettings()
-        onView(withId(com.bytehamster.lib.preferencesearch.R.id.search)).perform(click())
-        onView(allOf(withId(com.bytehamster.lib.preferencesearch.R.id.search), hasFocus())).perform(typeText("Controls"))
-        // Checking the list of Settings Categories are displayed on the basis of our search "Controls"
-        onView(allOf(withResourceName("list"), isAssignableFrom(RecyclerView::class.java))).check(
-            matches(
-                hasMinimumChildCount(1),
-            ),
-        )
-        pressBack()
-        onView(withId(R.id.settings_container)).check(matches(isDisplayed()))
+        ActivityScenario.launch(IntentHandler::class.java).use {
+            closeGetStartedScreenIfExists()
+            onView(withId(R.id.nav_more)).perform(click())
+            composeRule.onNodeWithText(context.getString(CommonString.settings)).performClick()
+
+            val settings = awaitResumedActivity<PreferencesActivity>()
+            val appearance = context.getString(R.string.settings_appearance)
+            val search = composeRule.onNodeWithContentDescription(context.getString(R.string.settings_search))
+            search.performTextInput(appearance)
+            composeRule.onNode(hasText(appearance) and hasClickAction() and !hasSetTextAction()).assertIsDisplayed().performClick()
+            composeRule.onNodeWithText(context.getString(R.string.settings_theme_light)).assertIsDisplayed()
+            composeRule.runOnIdle { settings.onBackPressedDispatcher.onBackPressed() }
+            search.assertIsDisplayed()
+        }
     }
 
-    /**
-     * Verifies navigation behavior when multiple menus are opened.
-     * - Even after opening multiple menus, pressing the back button should
-     * close the preference activity instead of navigating back through the previously opened menus.
-     */
     @Test
-    fun testOnNonCompactMode() {
-        fun isTablet(context: Context): Boolean = context.resources.configuration.smallestScreenWidthDp >= 600
+    fun tabletSettingsOpensFromTheDrawerAndKeepsBothPanes() {
+        assumeTrue(!context.resources.isWindowCompact())
+        ActivityScenario.launch(IntentHandler::class.java).use {
+            closeGetStartedScreenIfExists()
+            onView(withId(R.id.drawer_layout)).perform(DrawerActions.open())
+            onView(withId(R.id.nav_settings)).perform(click())
 
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        assumeTrue(isTablet(context))
-        ActivityScenario.launch(IntentHandler::class.java)
-        closeGetStartedScreenIfExists()
-        openSettings()
-        onView(withId(com.bytehamster.lib.preferencesearch.R.id.search)).perform(click())
-        onView(allOf(withId(com.bytehamster.lib.preferencesearch.R.id.search), hasFocus())).perform(typeText("Card"))
-        onView(withText(CommonString.card_zoom)).perform(click())
-        onView(withId(R.id.settings_container)).check(matches(isDisplayed()))
-        onView(withText(CommonString.notification_pref)).perform(click())
-        pressBack()
-        onView(withClassName(endsWith("PreferencesActivity"))).check(doesNotExist())
-    }
-
-    /** Opens [PreferencesActivity] via the navigation drawer. */
-    private fun openSettings() {
-        onView(withId(R.id.drawer_layout)).perform(DrawerActions.open())
-        onView(withId(R.id.nav_settings)).perform(click())
-        awaitResumedActivity<PreferencesActivity>()
+            awaitResumedActivity<PreferencesActivity>()
+            val search = composeRule.onNodeWithContentDescription(context.getString(R.string.settings_search))
+            composeRule.onNodeWithText(context.getString(R.string.settings_appearance)).performClick()
+            composeRule.onNodeWithText(context.getString(R.string.settings_theme_light)).assertIsDisplayed()
+            search.assertIsDisplayed()
+        }
     }
 }

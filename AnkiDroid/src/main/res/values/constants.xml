@@ -200,64 +200,6 @@
 
 
     <!-- Preferences headers summaries -->
-    <string-array name="general_summary_entries">
-        <item>@string/language</item>
-        <item>@string/pref_cat_studying</item>
-        <item>@string/pref_cat_system_wide</item>
-    </string-array>
-
-    <string-array name="study_screen_summary_entries">
-        <item>@string/screen</item>
-        <item>@string/toolbar</item>
-        <item>@string/answer_buttons</item>
-    </string-array>
-
-    <string-array name="reviewing_summary_entries">
-        <item>@string/pref_cat_scheduling</item>
-        <item>@string/pref_keep_screen_on</item>
-    </string-array>
-
-    <string-array name="sync_summary_entries">
-        <item>@string/automatic_sync_choice</item>
-    </string-array>
-
-    <string-array name="backup_limits_summary_entries">
-        <item>@string/backup_limits_frequency</item>
-        <item>@string/backup_limits_lifetime</item>
-    </string-array>
-
-    <string-array name="notifications_summary_entries">
-        <item>@string/notification_pref_title</item>
-        <item>@string/notification_minimum_cards_due_vibrate</item>
-        <item>@string/notification_minimum_cards_due_blink</item>
-    </string-array>
-
-    <string-array name="review_reminders_summary_entries">
-        <item>@string/review_reminders_summary_app_wide</item>
-        <item>@string/review_reminders_summary_deck_specific</item>
-    </string-array>
-
-    <string-array name="appearance_summary_entries">
-        <item>@string/pref_cat_themes</item>
-        <item>@string/background_image_title</item>
-    </string-array>
-
-    <string-array name="accessibility_summary_entries">
-        <item>@string/card_zoom</item>
-        <item>@string/button_size</item>
-    </string-array>
-
-    <string-array name="controls_summary_entries">
-        <item>@string/pref_cat_gestures</item>
-        <item>@string/keyboard</item>
-        <item>@string/bluetooth</item>
-    </string-array>
-
-    <string-array name="advanced_summary_entries">
-        <item>@string/pref_cat_workarounds</item>
-        <item>@string/pref_cat_plugins</item>
-    </string-array>
-
     <!-- Related settings -->
     <string name="fragment_controls_preferences" tools:ignore="TranslationTypo">com.ichi2.anki.preferences.ControlsSettingsFragment</string>
     <string name="fragment_accessibility_preferences" tools:ignore="TranslationTypo">com.ichi2.anki.preferences.AccessibilitySettingsFragment</string>

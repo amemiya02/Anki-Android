@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="settings_search">Search settings</string>
+    <string name="settings_search_clear">Clear search</string>
+    <string name="settings_search_empty">No matching settings</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_studying">Studying</string>
+    <string name="settings_backups">Backups</string>
+    <string name="settings_general_summary">Language, deck for new cards, back button</string>
+    <string name="settings_appearance_summary">Theme, deck list background</string>
+    <string name="settings_studying_summary">Start of day, study screen, answer buttons, toolbar</string>
+    <string name="settings_controls_summary">Gestures, keys and game controllers</string>
+    <string name="settings_accessibility_summary">Card zoom, button size, press timing</string>
+    <string name="settings_sync_summary">Sync server, automatic sync, media</string>
+    <string name="settings_notifications_summary">When to notify, vibrate, light</string>
+    <string name="settings_backups_summary">How often, how many to keep</string>
+    <string name="settings_advanced_summary">Storage folder, workarounds, plugins, security</string>
+    <string name="settings_about_summary">Version, licence, source code</string>
+    <string name="settings_developer_summary">Debugging and experimental features</string>
+    <string name="settings_switch_profile_summary">Choose a collection profile</string>
+    <string name="settings_theme_note">Follow system uses Light when the device is set to light and the night theme below when it is set to dark.</string>
+    <string name="settings_theme_system">@string/theme_follow_system</string>
+    <string name="settings_theme_light">@string/day_theme_light</string>
+    <string name="settings_theme_dark">@string/night_theme_dark</string>
+    <string name="settings_theme_black">@string/night_theme_black</string>
+    <string name="settings_night_theme">@string/night_theme</string>
+    <string name="settings_deck_list_background">Deck list background</string>
+    <string name="settings_choose_image">Choose an image</string>
+    <string name="settings_choose_image_summary">Shown behind the deck list</string>
+    <string name="settings_remove_background">Remove background</string>
+    <string name="settings_study_screen">Study screen</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_build_date">Build date</string>
+    <string name="settings_engine_version">Engine version</string>
+    <string name="settings_fsrs_version">FSRS version</string>
+    <string name="settings_source_code">Source code</string>
+    <plurals name="settings_search_results">
+        <item quantity="one">%d setting</item>
+        <item quantity="other">%d settings</item>
+    </plurals>
+</resources>

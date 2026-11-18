@@ -13,7 +13,7 @@ import kotlin.reflect.KClass
  * Supplies every preference fragment as a [com.google.testing.junit.testparameterinjector.TestParameter],
  * so a test runs once per fragment.
  *
- * Values are provided before Robolectric starts, so the fragments can't be read from XML:
+ * Values are provided before Robolectric starts:
  * [PreferencesTest] checks this list matches [PreferenceTestUtils.getAllPreferencesFragments].
  */
 class PreferenceFragmentsProvider : TestParameterValuesProvider() {
@@ -24,6 +24,7 @@ class PreferenceFragmentsProvider : TestParameterValuesProvider() {
             listOf(
                 HeaderFragment::class,
                 GeneralSettingsFragment::class,
+                StudyingSettingsIndexFragment::class,
                 ReviewingSettingsFragment::class,
                 TimeboxSettingsFragment::class,
                 SyncSettingsFragment::class,

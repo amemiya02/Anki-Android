@@ -114,6 +114,21 @@ class AboutFragment : Fragment(R.layout.fragment_about) {
 
         binding.copyDebugInfo.text = TR.sentenceCase.copyDebugInfo
         binding.copyDebugInfo.setOnClickListener { copyDebugInfo() }
+
+        val target =
+            when (settingsSearchTarget) {
+                "version" -> binding.version
+                "build_date" -> binding.buildDate
+                "backend_version" -> binding.backendVersion
+                "fsrs_version" -> binding.fsrsVersion
+                "about_contributors_title" -> binding.aboutContributorsTitle
+                "about_license_title" -> binding.aboutLicenseTitle
+                "license_description" -> binding.licenseDescription
+                "open_changelog" -> binding.openChangelog
+                "copy_debug_info" -> binding.copyDebugInfo
+                else -> null
+            }
+        target?.revealSettingsSearchTarget()
     }
 
     /**

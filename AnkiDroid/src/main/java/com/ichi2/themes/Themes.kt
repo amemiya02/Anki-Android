@@ -88,7 +88,8 @@ object Themes {
         val prefs = PrefsRepository(context)
         val appTheme = prefs.appTheme
 
-        val themeIsDark = (appTheme == AppTheme.FOLLOW_SYSTEM && systemIsInNightMode(context)) || appTheme == AppTheme.NIGHT
+        val themeIsDark =
+            (appTheme == AppTheme.FOLLOW_SYSTEM && systemIsInNightMode(context.applicationContext)) || appTheme == AppTheme.NIGHT
         currentTheme =
             if (themeIsDark) {
                 prefs.nightTheme

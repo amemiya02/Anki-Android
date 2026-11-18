@@ -5,18 +5,15 @@ package com.ichi2.anki.preferences
 import android.content.res.Configuration
 import androidx.annotation.XmlRes
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.withResumed
-import androidx.lifecycle.withStarted
 import androidx.preference.Preference
 import androidx.preference.children
-import com.bytehamster.lib.preferencesearch.SearchPreferenceResult
 import com.google.android.material.tabs.TabLayout
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.preferences.reviewer.ViewerAction
+import com.ichi2.anki.preferences.reviewer.WhiteboardAction
 import com.ichi2.anki.previewer.PreviewerAction
 import com.ichi2.anki.reviewer.CardSide
 import com.ichi2.anki.reviewer.MappableAction
@@ -28,7 +25,6 @@ import com.ichi2.preferences.ReviewerControlPreference
 import com.ichi2.utils.negativeButton
 import com.ichi2.utils.positiveButton
 import com.ichi2.utils.show
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class ControlsSettingsFragment :
@@ -68,30 +64,14 @@ class ControlsSettingsFragment :
             return
         }
 
-        view?.post {
-            requirePreference<ControlsTabPreference>(
-                R.string.pref_controls_tab_layout_key,
-            ).selectTab(targetTabIndex)
-        }
+        requirePreference<ControlsTabPreference>(
+            R.string.pref_controls_tab_layout_key,
+        ).selectTab(targetTabIndex)
     }
 
-    /**
-     * Highlights a search result with proper lifecycle handling.
-     *
-     * This handles the specific case where a tab must be selected before highlighting,
-     * ensuring the fragment is in the appropriate lifecycle states.
-     */
-    fun highlightPreference(result: SearchPreferenceResult) {
-        lifecycleScope.launch {
-            withStarted {
-                selectTabForPreference(result.key)
-            }
-            withResumed {
-                view?.post {
-                    result.highlight(this@ControlsSettingsFragment)
-                }
-            }
-        }
+    override fun revealSearchTarget(key: String) {
+        if (key in actionToScreenMap) selectTabForPreference(key)
+        listView.post { highlightSearchPreference(key) }
     }
 
     private fun setControlPreferencesDefaultValues(screen: ControlPreferenceScreen) {
@@ -243,7 +223,7 @@ class ControlsSettingsFragment :
         private val actionToScreenMap: Map<String, ControlPreferenceScreen> by lazy {
             ControlPreferenceScreen.entries
                 .flatMap { screen ->
-                    screen.getActions().map { action -> action.preferenceKey to screen }
+                    screen.searchableActions().map { action -> action.preferenceKey to screen }
                 }.toMap()
         }
     }
@@ -262,3 +242,6 @@ enum class ControlPreferenceScreen(
             PREVIEWER -> PreviewerAction.entries
         }
 }
+
+internal fun ControlPreferenceScreen.searchableActions(): List<MappableAction<*>> =
+    if (this == ControlPreferenceScreen.REVIEWER) getActions() + WhiteboardAction.entries else getActions()

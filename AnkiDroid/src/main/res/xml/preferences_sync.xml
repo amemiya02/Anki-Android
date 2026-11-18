@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:search="http://schemas.android.com/apk/com.bytehamster.lib.preferencesearch"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:title="@string/pref_cat_sync"
     android:key="@string/pref_sync_screen_key"
@@ -47,19 +46,13 @@
             app:min="30"
             app:max="99999"
             tools:title="Network timeout" />
-        <!-- `search:ignore` is set so that we can add this preference manually in the search index.
-        We want to add it manually because we provide the summary at run time instead of build time, because it comes from the backend.
-        If we didn't ignore it, searching for the title would return this preference twice.-->
         <Preference
-            search:ignore="true"
             android:key="@string/one_way_sync_key"
             android:title="@string/one_way_sync_title"
             tools:summary="On next sync, force changes in one direction" />
-        <!-- This is ignored in the search as it opens a submenu. The submenu content is what should actually appear in search result. -->
-        <Preference
+            <Preference
             android:key="@string/custom_sync_server_key"
             android:title="@string/sync_server_title"
-            android:fragment="com.ichi2.anki.preferences.CustomSyncServerSettingsFragment"
-            search:ignore="true"/>
+            android:fragment="com.ichi2.anki.preferences.CustomSyncServerSettingsFragment"/>
     </PreferenceCategory>
 </PreferenceScreen>

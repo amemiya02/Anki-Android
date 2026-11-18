@@ -23,7 +23,7 @@ import timber.log.Timber
  * Lets the user switch between profiles.
  *
  * Thin host for the Compose [SwitchProfilesScreen]. Stays a Fragment because
- * preference_headers.xml launches it by class name.
+ * The Settings home launches it when profile switching is enabled.
  */
 class SwitchProfilesFragment : Fragment() {
     override fun onCreateView(

@@ -7,11 +7,12 @@ import com.github.ivanshafran.sharedpreferencesmock.SPMockBuilder
 import com.ichi2.anki.EmptyApplicationCategory
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.libanki.utils.append
-import com.ichi2.anki.preferences.HeaderFragment
 import com.ichi2.anki.preferences.PreferenceTestUtils
 import com.ichi2.anki.preferences.PreferenceTestUtils.getAttrsFromXml
 import com.ichi2.anki.preferences.PreferenceTestUtils.resValue
 import com.ichi2.anki.preferences.SettingsFragment
+import com.ichi2.anki.settings.enums.AppTheme
+import com.ichi2.anki.settings.enums.NightTheme
 import com.ichi2.anki.settings.enums.PrefEnum
 import com.ichi2.testutils.EmptyApplication
 import com.ichi2.testutils.inMemoryPrefs
@@ -75,7 +76,6 @@ class PrefsRobolectricTest : RobolectricTest() {
             PreferenceTestUtils
                 .getAllPreferencesFragments(targetContext)
                 .asSequence()
-                .filter { it !is HeaderFragment }
                 .filterIsInstance<SettingsFragment>()
                 .map { it.preferenceResource }
                 .flatMap { getAttrsFromXml(targetContext, it, listOf("defaultValue", "key")) }
@@ -119,7 +119,8 @@ class PrefsRobolectricTest : RobolectricTest() {
         val allPropertiesAndKeys = getPropertyNamesAndKeys()
         val enumProperties =
             Prefs::class.memberProperties.filter {
-                it.returnType.isSubtypeOf(PrefEnum::class.createType())
+                it.returnType.isSubtypeOf(PrefEnum::class.createType()) &&
+                    it.returnType.classifier !in setOf(AppTheme::class, NightTheme::class)
             }
         // Key (String) -> Prefs property
         val enumPropertiesMap = enumProperties.associateBy { allPropertiesAndKeys.getValue(it.name) }

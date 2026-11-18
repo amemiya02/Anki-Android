@@ -1249,6 +1249,8 @@ open class DeckPicker :
             showBackgroundImageError(result.message(this))
         }
         val drawable = (result as? BackgroundImage.ResolveResult.Ready)?.drawable
+        // Over worst-case black or white pixels, the Foundation's deck text still meets AA contrast.
+        deckPickerBinding.background.imageAlpha = 20
         deckPickerBinding.background.setImageDrawableSafe(drawable) {
             showBackgroundImageError(getString(CommonString.background_image_too_large))
         }

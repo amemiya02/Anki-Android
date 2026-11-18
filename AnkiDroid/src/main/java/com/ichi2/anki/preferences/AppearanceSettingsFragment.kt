@@ -3,140 +3,149 @@
 package com.ichi2.anki.preferences
 
 import android.content.ActivityNotFoundException
-import android.os.Build
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat
-import androidx.preference.ListPreference
-import androidx.preference.Preference
-import com.ichi2.anki.CollectionManager.TR
+import androidx.core.content.edit
+import androidx.fragment.app.Fragment
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
+import com.ichi2.anki.common.analytics.Analytics
 import com.ichi2.anki.common.utils.android.showThemedToast
-import com.ichi2.anki.common.utils.android.systemIsInNightMode
 import com.ichi2.anki.deckpicker.BackgroundImage
 import com.ichi2.anki.deckpicker.BackgroundImage.FileSizeResult
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.enums.AppTheme
+import com.ichi2.anki.settings.enums.NightTheme
 import com.ichi2.anki.snackbar.showSnackbar
-import com.ichi2.anki.ui.internationalization.sentenceCase
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
 import com.ichi2.themes.Themes
-import com.ichi2.themes.Themes.updateCurrentTheme
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
-import com.ichi2.utils.title
 import timber.log.Timber
-import com.ichi2.anki.common.android.R as CommonR
 
-class AppearanceSettingsFragment : SettingsFragment() {
-    private var backgroundImage: Preference? = null
-    private var removeBackgroundPref: Preference? = null
-    override val preferenceResource: Int
-        get() = R.xml.preferences_appearance
-    override val analyticsScreenNameConstant: String
-        get() = "prefs.appearance"
+class AppearanceSettingsFragment : Fragment() {
+    private var state by mutableStateOf(AppearanceSettingsState(AppearanceTheme.SYSTEM, NightTheme.DARK, false))
+    private var removeDialog by mutableStateOf(false)
 
-    override fun initSubscreen() {
-        preferenceScreen.title = TR.preferencesAppearance()
-
-        // Configure background
-        backgroundImage = requirePreference<Preference>("deckPickerBackground")
-        backgroundImage!!.title = TR.sentenceCase.selectImage
-        removeBackgroundPref = requirePreference<Preference>("removeWallPaper")
-        backgroundImage!!.onPreferenceClickListener =
-            Preference.OnPreferenceClickListener {
-                try {
-                    backgroundImageResultLauncher.launch("image/*")
-                } catch (ex: ActivityNotFoundException) {
-                    Timber.w(ex, "No app found to handle background preference change request")
-                    activity?.showSnackbar(CommonString.activity_start_failed)
-                }
-                true
-            }
-        removeBackgroundPref?.setOnPreferenceClickListener {
-            showRemoveBackgroundImageDialog()
-            true
-        }
-
-        // Initially update visibility based on whether a background exists
-        updateRemoveBackgroundVisibility()
-
-        setupThemePreferences()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        removeDialog = savedInstanceState?.getBoolean(REMOVE_DIALOG) ?: false
+        updateAppearance()
     }
 
-    private fun updateRemoveBackgroundVisibility() {
-        removeBackgroundPref?.isVisible = BackgroundImage.shouldBeShown(requireContext())
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(REMOVE_DIALOG, removeDialog)
     }
 
-    private fun showRemoveBackgroundImageDialog() {
-        AlertDialog.Builder(requireContext()).show {
-            title(CommonString.remove_background_image)
-            positiveButton(CommonString.dialog_remove) {
-                if (BackgroundImage.remove(requireContext())) {
-                    showSnackbar(CommonString.background_image_removed)
-                    updateRemoveBackgroundVisibility()
-                } else {
-                    showSnackbar(CommonString.error_deleting_image)
-                }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        Analytics.sendAnalyticsScreenView("prefs.appearance")
+        return settingsComposeView(R.id.settings_appearance) {
+            AppearanceSettingsScreen(
+                state,
+                settingsSearchTarget,
+                settingsBackAction,
+                onThemeChange = ::changeTheme,
+                onNightThemeChange = ::changeNightTheme,
+                onChooseBackground = ::chooseBackground,
+                onRemoveBackground = { removeDialog = true },
+            )
+            if (removeDialog) {
+                ConfirmationDialog(
+                    title = stringResource(R.string.settings_remove_background),
+                    message = stringResource(CommonString.remove_background_image),
+                    confirm =
+                        DialogAction(
+                            stringResource(CommonString.dialog_remove),
+                            style = DialogActionStyle.Destructive,
+                            onClick = ::removeBackground,
+                        ),
+                    onDismissRequest = { removeDialog = false },
+                    dismissText = stringResource(CommonString.dialog_keep),
+                )
             }
-            negativeButton(CommonString.dialog_keep)
         }
     }
 
-    private fun setupThemePreferences() {
-        val appTheme = Prefs.appTheme
-        val appThemePref = requirePreference<ListPreference>(R.string.app_theme_key)
-        val nightThemePref = requirePreference<ListPreference>(R.string.night_theme_key)
+    private fun updateAppearance() {
+        val theme =
+            when (Prefs.appTheme) {
+                AppTheme.FOLLOW_SYSTEM -> AppearanceTheme.SYSTEM
+                AppTheme.DAY -> AppearanceTheme.LIGHT
+                AppTheme.NIGHT -> if (Prefs.nightTheme == NightTheme.BLACK) AppearanceTheme.BLACK else AppearanceTheme.DARK
+            }
+        state = AppearanceSettingsState(theme, Prefs.nightTheme, BackgroundImage.shouldBeShown(requireContext()))
+        (parentFragment as? PreferencesFragment)?.refreshSearchIndex()
+    }
 
-        nightThemePref.isEnabled = appTheme != AppTheme.DAY
-
-        // Remove follow system options in android versions which do not have system dark mode
-        // When minSdk reaches 29, the only necessary change is to remove this if-block
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            // Drop "Follow system" option (the first one)
-            appThemePref.entries = resources.getStringArray(R.array.app_theme_labels).drop(1).toTypedArray()
-            appThemePref.entryValues = resources.getStringArray(CommonR.array.app_theme_values).drop(1).toTypedArray()
-            if (appTheme == AppTheme.FOLLOW_SYSTEM) {
-                appThemePref.value = getString(Themes.currentTheme.entryResId)
+    private fun changeTheme(theme: AppearanceTheme) {
+        if (state.theme == theme) return
+        val mode =
+            when (theme) {
+                AppearanceTheme.SYSTEM -> AppTheme.FOLLOW_SYSTEM
+                AppearanceTheme.LIGHT -> AppTheme.DAY
+                AppearanceTheme.DARK, AppearanceTheme.BLACK -> AppTheme.NIGHT
+            }
+        // The two existing preference values already encode all four choices. Store them together
+        // so that restoring an activity cannot observe a partially applied dark or black choice.
+        Prefs.sharedPrefs.edit {
+            putString(getString(R.string.app_theme_key), getString(mode.entryResId))
+            when (theme) {
+                AppearanceTheme.DARK -> putString(getString(R.string.night_theme_key), getString(NightTheme.DARK.entryResId))
+                AppearanceTheme.BLACK -> putString(getString(R.string.night_theme_key), getString(NightTheme.BLACK.entryResId))
+                else -> Unit
             }
         }
+        applyTheme()
+    }
 
-        appThemePref.setOnPreferenceChangeListener { newValue ->
-            if (newValue != appThemePref.value) {
-                val previousThemeId = Themes.currentTheme.styleResId
-                appThemePref.value = newValue
-                updateCurrentTheme(requireContext())
+    private fun changeNightTheme(theme: NightTheme) {
+        if (state.nightTheme == theme) return
+        Prefs.nightTheme = theme
+        applyTheme()
+    }
 
-                if (previousThemeId != Themes.currentTheme.styleResId) {
-                    ActivityCompat.recreate(requireActivity())
-                } else {
-                    nightThemePref.isEnabled = newValue != getString(AppTheme.DAY.entryResId)
-                }
-            }
+    private fun applyTheme() {
+        val previous = Themes.currentTheme
+        Themes.updateCurrentTheme(requireContext())
+        updateAppearance()
+        if (previous != Themes.currentTheme) ActivityCompat.recreate(requireActivity())
+    }
+
+    private fun chooseBackground() {
+        try {
+            backgroundImageResultLauncher.launch("image/*")
+        } catch (exception: ActivityNotFoundException) {
+            Timber.w(exception, "No app found to select a background image")
+            showSnackbar(CommonString.activity_start_failed)
         }
+    }
 
-        nightThemePref.setOnPreferenceChangeListener { newValue ->
-            if (
-                newValue != nightThemePref.value &&
-                (appTheme == AppTheme.NIGHT || (appTheme == AppTheme.FOLLOW_SYSTEM && systemIsInNightMode(requireContext())))
-            ) {
-                ActivityCompat.recreate(requireActivity())
-            }
-        }
+    private fun removeBackground() {
+        removeDialog = false
+        val removed = BackgroundImage.remove(requireContext())
+        updateAppearance()
+        showSnackbar(if (removed) CommonString.background_image_removed else CommonString.error_deleting_image)
     }
 
     private val backgroundImageResultLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { selectedImage ->
             if (selectedImage == null) {
-                if (BackgroundImage.shouldBeShown(requireContext())) {
-                    showRemoveBackgroundImageDialog()
-                } else {
-                    showSnackbar(CommonString.no_image_selected)
-                }
+                if (state.hasBackground) removeDialog = true else showSnackbar(CommonString.no_image_selected)
                 return@registerForActivityResult
             }
-            // handling file may result in exception
             try {
                 when (val sizeResult = BackgroundImage.validateBackgroundImageFileSize(this, selectedImage)) {
                     is FileSizeResult.FileTooLarge -> {
@@ -151,7 +160,7 @@ class AppearanceSettingsFragment : SettingsFragment() {
                     }
                     is FileSizeResult.OK -> {
                         BackgroundImage.import(this, selectedImage)
-                        updateRemoveBackgroundVisibility()
+                        updateAppearance()
                     }
                 }
             } catch (e: OutOfMemoryError) {
@@ -162,4 +171,8 @@ class AppearanceSettingsFragment : SettingsFragment() {
                 showSnackbar(getString(CommonString.error_selecting_image, e.localizedMessage))
             }
         }
+
+    companion object {
+        private const val REMOVE_DIALOG = "remove_background_dialog"
+    }
 }

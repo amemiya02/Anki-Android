@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="settings_search">البحث في الإعدادات</string>
+    <string name="settings_search_clear">مسح البحث</string>
+    <string name="settings_search_empty">لا توجد إعدادات مطابقة</string>
+    <string name="settings_appearance">المظهر</string>
+    <string name="settings_studying">الدراسة</string>
+    <string name="settings_backups">النسخ الاحتياطية</string>
+    <string name="settings_general_summary">اللغة ورزمة البطاقات الجديدة وزر الرجوع</string>
+    <string name="settings_appearance_summary">السمة وخلفية قائمة الرزم</string>
+    <string name="settings_studying_summary">بداية اليوم وشاشة الدراسة وأزرار الإجابة وشريط الأدوات</string>
+    <string name="settings_controls_summary">الإيماءات والمفاتيح ووحدات التحكم بالألعاب</string>
+    <string name="settings_accessibility_summary">تكبير البطاقات وحجم الأزرار ومدة الضغط</string>
+    <string name="settings_sync_summary">خادم المزامنة والمزامنة التلقائية والوسائط</string>
+    <string name="settings_notifications_summary">موعد التنبيه والاهتزاز والضوء</string>
+    <string name="settings_backups_summary">وتيرة النسخ وعدد النسخ المحفوظة</string>
+    <string name="settings_advanced_summary">مجلد التخزين والحلول البديلة والإضافات والأمان</string>
+    <string name="settings_about_summary">الإصدار والترخيص والشيفرة المصدرية</string>
+    <string name="settings_developer_summary">تصحيح الأخطاء والميزات التجريبية</string>
+    <string name="settings_switch_profile_summary">اختيار ملف تعريف المجموعة</string>
+    <string name="settings_theme_note">عند اتباع إعدادات النظام، تُستخدم السمة الفاتحة عندما يكون الجهاز في الوضع الفاتح والسمة الليلية أدناه عندما يكون في الوضع الداكن.</string>
+    <string name="settings_theme_system">اتّباع النظام</string>
+    <string name="settings_theme_light">فاتح</string>
+    <string name="settings_theme_dark">داكن</string>
+    <string name="settings_theme_black">أسود</string>
+    <string name="settings_night_theme">السمة الليلية</string>
+    <string name="settings_deck_list_background">خلفية قائمة الرزم</string>
+    <string name="settings_choose_image">اختيار صورة</string>
+    <string name="settings_choose_image_summary">تظهر خلف قائمة الرزم</string>
+    <string name="settings_remove_background">إزالة الخلفية</string>
+    <string name="settings_study_screen">شاشة الدراسة</string>
+    <string name="settings_version">الإصدار</string>
+    <string name="settings_build_date">تاريخ البناء</string>
+    <string name="settings_engine_version">إصدار المحرّك</string>
+    <string name="settings_fsrs_version">إصدار FSRS</string>
+    <string name="settings_source_code">الشيفرة المصدرية</string>
+    <plurals name="settings_search_results">
+        <item quantity="zero">%d إعداد</item>
+        <item quantity="one">إعداد واحد</item>
+        <item quantity="two">إعدادان</item>
+        <item quantity="few">%d إعدادات</item>
+        <item quantity="many">%d إعدادًا</item>
+        <item quantity="other">%d إعداد</item>
+    </plurals>
+</resources>

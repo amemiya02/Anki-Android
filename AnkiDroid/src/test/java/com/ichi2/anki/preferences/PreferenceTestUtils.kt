@@ -89,7 +89,14 @@ object PreferenceTestUtils {
 
     /** @return [List] of all the distinct preferences fragments **/
     fun getAllPreferencesFragments(context: Context): List<Fragment> {
-        val fragments = getFragmentsFromXmlRecursively(context, R.xml.preference_headers) + HeaderFragment()
+        val roots =
+            SettingsGroup.entries.map { getInstanceFromClassName<Fragment>(it.destination.java.name) } +
+                listOf(HeaderFragment(), ReviewingSettingsFragment(), ReviewerOptionsFragment())
+        val fragments =
+            roots +
+                roots
+                    .filterIsInstance<PreferenceXmlSource>()
+                    .flatMap { getFragmentsFromXmlRecursively(context, it.preferenceResource) }
         return fragments.distinctBy { it::class } // and remove any repeated fragments
     }
 
@@ -139,7 +146,9 @@ object PreferenceTestUtils {
             .map { it.preferenceResource }
             .flatMapTo(hashSetOf()) {
                 getKeysFromXml(context, it, excludeCategories = false)
-            } + ControlPreferenceScreen.entries.flatMap { getKeysFromXml(context, it.xmlRes) }
+            } + ControlPreferenceScreen.entries.flatMap { getKeysFromXml(context, it.xmlRes) } +
+            listOf(R.string.app_theme_key, R.string.night_theme_key, R.string.pref_deck_picker_background_key)
+                .map(context::getString)
 
     fun getDeveloperOptionsKeys(context: Context): Set<String> = getKeysFromXml(context, R.xml.preferences_developer_options).toSet()
 }

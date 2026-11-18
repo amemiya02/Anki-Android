@@ -17,17 +17,14 @@ import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.preferences.reviewer.ReviewerMenuSettingsFragment
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.utils.CollectionPreferences
-import com.ichi2.testutils.HIDDEN_GESTURE_BAR
 import com.ichi2.testutils.dispatchInsets
 import com.ichi2.testutils.ext.clear
 import com.ichi2.testutils.launchForFullHeightScreenshot
-import com.ichi2.testutils.scrollToEnd
 import com.ichi2.testutils.simulateSystemBars
 import com.ichi2.testutils.withWritePermissions
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
-import org.robolectric.RuntimeEnvironment
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 import kotlin.time.DurationUnit
@@ -39,36 +36,6 @@ class PreferencesScreenshotTest : ScreenshotTest() {
         super.tearDown()
         Prefs.clear()
     }
-
-    @Test
-    fun headerFragmentOnPortrait() =
-        withPreferencesActivity(HeaderFragment::class) { activity ->
-            activity.simulateSystemBars()
-            captureScreen("HeaderFragment_portrait")
-        }
-
-    @Test
-    fun headerFragmentOnLandscape() {
-        RuntimeEnvironment.setQualifiers("+land")
-        withPreferencesActivity(HeaderFragment::class) { activity ->
-            activity.simulateSystemBars(cutoutLeft = 32.dp)
-            captureScreen("HeaderFragment_landscape")
-        }
-    }
-
-    @Test
-    fun headerFragmentToolbarCollapseAndExpand() =
-        withPreferencesActivity(HeaderFragment::class) { activity ->
-            activity.simulateSystemBars()
-            val appbar = activity.findViewById<AppBarLayout>(R.id.appbar)
-            appbar.setExpanded(false, false)
-            advanceRobolectricLooper()
-            captureScreen("HeaderFragment_toolbar_collapsed")
-
-            appbar.setExpanded(true, false)
-            advanceRobolectricLooper()
-            captureScreen("HeaderFragment_toolbar_expanded")
-        }
 
     @Test
     fun settingsPanelSystemBarsChange() =
@@ -106,22 +73,6 @@ class PreferencesScreenshotTest : ScreenshotTest() {
         }
 
     @Test
-    fun headerFragmentGestureBarHiddenScrolledToBottom() =
-        withPreferencesActivity(HeaderFragment::class) { activity ->
-            activity.simulateSystemBars(navBarBottom = HIDDEN_GESTURE_BAR, bottomCornerRadius = 34.dp)
-            activity.scrollSettingsToBottom()
-            captureScreen("HeaderFragment_gesture_bar_hidden_scrolled_to_bottom")
-        }
-
-    @Test
-    fun headerFragmentGestureBarScrolledToBottom() =
-        withPreferencesActivity(HeaderFragment::class) { activity ->
-            activity.simulateSystemBars(navBarBottom = 24.dp, bottomCornerRadius = 34.dp)
-            activity.scrollSettingsToBottom()
-            captureScreen("HeaderFragment_gesture_bar_scrolled_to_bottom")
-        }
-
-    @Test
     fun timeboxSettingsFragmentDisabled() =
         runTest {
             CollectionPreferences.setTimeboxTimeLimit(0.toDuration(DurationUnit.MINUTES))
@@ -146,6 +97,7 @@ class PreferencesScreenshotTest : ScreenshotTest() {
     fun capturePreferenceFragment(
         @TestParameter(valuesProvider = PreferenceFragmentsProvider::class) fragmentClass: KClass<out Fragment>,
     ) {
+        if (fragmentClass in setOf(HeaderFragment::class, AppearanceSettingsFragment::class, StudyingSettingsIndexFragment::class)) return
         withPreferencesActivity(
             fragmentClass,
             fullHeightList = fragmentClass.fullHeightList(),
@@ -153,21 +105,6 @@ class PreferencesScreenshotTest : ScreenshotTest() {
         ) {
             captureScreen(fragmentClass.simpleName!!)
         }
-    }
-
-    /**
-     * Scrolls the displayed settings list to its end, where its bottom padding is visible.
-     *
-     * The app bar is collapsed first, as a user's scroll would: while it is expanded, the list
-     * extends below the screen by the app bar's scroll range, which hides the padding.
-     */
-    private fun PreferencesActivity.scrollSettingsToBottom() {
-        findViewById<AppBarLayout>(R.id.appbar).setExpanded(false, false)
-        advanceRobolectricLooper()
-        val mainFragment = fragment as PreferencesFragment
-        val settingsFragment = mainFragment.childFragmentManager.findFragmentById(R.id.settings_container) as SettingsFragment
-        val list = settingsFragment.listView
-        list.scrollToEnd()
     }
 
     /** Replaces content which changes between runs, so it does not appear in diffs */

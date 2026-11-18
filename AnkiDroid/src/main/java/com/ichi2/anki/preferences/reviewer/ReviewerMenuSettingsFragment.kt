@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.ActionMenuView
+import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -13,6 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.ichi2.anki.R
 import com.ichi2.anki.databinding.FragmentPreferencesReviewerMenuBinding
+import com.ichi2.anki.preferences.markSettingsSearchTarget
+import com.ichi2.anki.preferences.settingsSearchTarget
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.ext.sharedPrefs
 import dev.androidbroadcast.vbpd.viewBinding
@@ -64,6 +67,15 @@ class ReviewerMenuSettingsFragment :
             layoutManager = LinearLayoutManager(requireContext())
             this.adapter = adapter
             itemTouchHelper.attachToRecyclerView(this)
+            val index =
+                recyclerViewItems.indexOfFirst {
+                    (it as? ReviewerMenuSettingsRecyclerItem.Action)?.viewerAction?.name == settingsSearchTarget &&
+                        settingsSearchTarget != null
+                }
+            if (index >= 0) {
+                scrollToPosition(index)
+                doOnPreDraw { findViewHolderForAdapterPosition(index)?.itemView?.markSettingsSearchTarget() }
+            }
         }
     }
 

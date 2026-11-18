@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="settings_search">搜索设置</string>
+    <string name="settings_search_clear">清除搜索</string>
+    <string name="settings_search_empty">没有匹配的设置</string>
+    <string name="settings_appearance">外观</string>
+    <string name="settings_studying">学习</string>
+    <string name="settings_backups">备份</string>
+    <string name="settings_general_summary">语言、新卡片的牌组、返回键</string>
+    <string name="settings_appearance_summary">主题、牌组列表背景</string>
+    <string name="settings_studying_summary">一天的开始时间、学习界面、回答按钮、工具栏</string>
+    <string name="settings_controls_summary">手势、按键和游戏手柄</string>
+    <string name="settings_accessibility_summary">卡片缩放、按钮大小、按键时长</string>
+    <string name="settings_sync_summary">同步服务器、自动同步、媒体</string>
+    <string name="settings_notifications_summary">通知时机、振动、指示灯</string>
+    <string name="settings_backups_summary">备份频率、保留数量</string>
+    <string name="settings_advanced_summary">存储文件夹、兼容选项、插件、安全</string>
+    <string name="settings_about_summary">版本、许可证、源代码</string>
+    <string name="settings_developer_summary">调试和实验功能</string>
+    <string name="settings_switch_profile_summary">选择集合配置</string>
+    <string name="settings_theme_note">跟随系统时，系统使用浅色外观时显示亮色，系统使用深色外观时则采用下方的夜间主题。</string>
+    <string name="settings_theme_system">跟随系统</string>
+    <string name="settings_theme_light">亮色</string>
+    <string name="settings_theme_dark">深色</string>
+    <string name="settings_theme_black">黑色</string>
+    <string name="settings_night_theme">夜间主题</string>
+    <string name="settings_deck_list_background">牌组列表背景</string>
+    <string name="settings_choose_image">选择图片</string>
+    <string name="settings_choose_image_summary">显示在牌组列表后面</string>
+    <string name="settings_remove_background">移除背景</string>
+    <string name="settings_study_screen">学习界面</string>
+    <string name="settings_version">版本</string>
+    <string name="settings_build_date">构建日期</string>
+    <string name="settings_engine_version">引擎版本</string>
+    <string name="settings_fsrs_version">FSRS 版本</string>
+    <string name="settings_source_code">源代码</string>
+    <plurals name="settings_search_results">
+        <item quantity="other">%d 项设置</item>
+    </plurals>
+</resources>

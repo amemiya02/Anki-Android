@@ -3,7 +3,6 @@
 
 package com.ichi2.anki.preferences.profiles
 
-import androidx.preference.Preference
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.CommonString
@@ -12,7 +11,7 @@ import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.preferences.HeaderFragment
 import com.ichi2.anki.preferences.PreferencesActivity
 import com.ichi2.anki.preferences.PreferencesFragment
-import com.ichi2.anki.preferences.requirePreference
+import com.ichi2.anki.preferences.SettingsGroup
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -46,11 +45,7 @@ class SwitchProfilesFragmentTest : RobolectricTest() {
         app.profileManager = null
         try {
             val activity = startRegularActivity<PreferencesActivity>(PreferencesActivity.getIntent(targetContext))
-            activity.settings.fragments
-                .filterIsInstance<HeaderFragment>()
-                .single()
-                .requirePreference<Preference>(R.string.pref_switch_profile_screen_key)
-                .performClick()
+            (activity.fragment as PreferencesFragment).openGroup(SettingsGroup.SWITCH_PROFILE)
             advanceRobolectricLooper()
             return activity
         } finally {

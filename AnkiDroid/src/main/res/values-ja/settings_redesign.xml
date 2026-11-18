@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="settings_search">設定を検索</string>
+    <string name="settings_search_clear">検索をクリア</string>
+    <string name="settings_search_empty">一致する設定がありません</string>
+    <string name="settings_appearance">外観</string>
+    <string name="settings_studying">学習</string>
+    <string name="settings_backups">バックアップ</string>
+    <string name="settings_general_summary">言語、新規カードのデッキ、戻るボタン</string>
+    <string name="settings_appearance_summary">テーマ、デッキ一覧の背景</string>
+    <string name="settings_studying_summary">日の開始時刻、学習画面、回答ボタン、ツールバー</string>
+    <string name="settings_controls_summary">ジェスチャー、キー、ゲームコントローラー</string>
+    <string name="settings_accessibility_summary">カードの拡大、ボタンの大きさ、押す時間</string>
+    <string name="settings_sync_summary">同期サーバー、自動同期、メディア</string>
+    <string name="settings_notifications_summary">通知のタイミング、振動、ライト</string>
+    <string name="settings_backups_summary">バックアップの間隔と保存数</string>
+    <string name="settings_advanced_summary">保存フォルダー、互換性、プラグイン、セキュリティ</string>
+    <string name="settings_about_summary">バージョン、ライセンス、ソースコード</string>
+    <string name="settings_developer_summary">デバッグと試験的な機能</string>
+    <string name="settings_switch_profile_summary">コレクションのプロファイルを選択</string>
+    <string name="settings_theme_note">システムに合わせる場合、端末がライトモードのときは「ライト」、ダークモードのときは下の夜間テーマが使われます。</string>
+    <string name="settings_theme_system">システムに合わせる</string>
+    <string name="settings_theme_light">ライト</string>
+    <string name="settings_theme_dark">ダーク</string>
+    <string name="settings_theme_black">ブラック</string>
+    <string name="settings_night_theme">夜間テーマ</string>
+    <string name="settings_deck_list_background">デッキ一覧の背景</string>
+    <string name="settings_choose_image">画像を選択</string>
+    <string name="settings_choose_image_summary">デッキ一覧の背面に表示します</string>
+    <string name="settings_remove_background">背景を削除</string>
+    <string name="settings_study_screen">学習画面</string>
+    <string name="settings_version">バージョン</string>
+    <string name="settings_build_date">ビルド日</string>
+    <string name="settings_engine_version">エンジンのバージョン</string>
+    <string name="settings_fsrs_version">FSRS のバージョン</string>
+    <string name="settings_source_code">ソースコード</string>
+    <plurals name="settings_search_results">
+        <item quantity="other">設定 %d 件</item>
+    </plurals>
+</resources>

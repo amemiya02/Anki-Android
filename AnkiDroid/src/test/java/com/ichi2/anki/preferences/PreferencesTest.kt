@@ -4,7 +4,6 @@ package com.ichi2.anki.preferences
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.commitNow
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.R
@@ -12,20 +11,14 @@ import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.common.destinations.PreferencesDestination
 import com.ichi2.anki.common.destinations.launchActivity
 import com.ichi2.anki.libanki.exception.ConfirmModSchemaException
-import com.ichi2.anki.preferences.HeaderFragment.Companion.getHeaderKeyForFragment
-import com.ichi2.anki.preferences.PreferenceTestUtils.getAttrFromXml
 import com.ichi2.anki.utils.CollectionPreferences
-import com.ichi2.preferences.HeaderPreference
-import com.ichi2.testutils.getInstanceFromClassName
 import com.ichi2.testutils.getJavaMethodAsAccessible
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class PreferencesTest : RobolectricTest() {
@@ -72,47 +65,6 @@ class PreferencesTest : RobolectricTest() {
                 }
             }
         }
-    }
-
-    @Test
-    fun `All preferences fragments highlight the correct header`() {
-        val headers =
-            PreferenceTestUtils
-                .getAttrsFromXml(
-                    targetContext,
-                    R.xml.preference_headers,
-                    listOf("key", "fragment"),
-                ).filter { it["fragment"] != null }
-
-        assertTrue(headers.all { it["key"] != null })
-
-        fun assertThatFragmentLeadsToHeaderKey(
-            fragmentClass: String,
-            parentFragmentClass: String? = null,
-        ) {
-            val fragment = getInstanceFromClassName<Fragment>(fragmentClass)
-            val headerFragmentClass = parentFragmentClass ?: fragmentClass
-            val expectedKey = headers.first { it["fragment"] == headerFragmentClass }["key"]!!.removePrefix("@").toInt()
-            val key = getHeaderKeyForFragment(fragment)
-            assertEquals(expectedKey, key, "$fragment (parent $parentFragmentClass) handle error")
-
-            if (fragment is SettingsFragment) {
-                val subFragments = getAttrFromXml(targetContext, fragment.preferenceResource, "fragment")
-                for (subFragment in subFragments) {
-                    assertThatFragmentLeadsToHeaderKey(subFragment, headerFragmentClass)
-                }
-            }
-        }
-
-        for (header in headers) {
-            assertThatFragmentLeadsToHeaderKey(header["fragment"]!!)
-        }
-    }
-
-    @Test
-    @Config(qualifiers = "ar")
-    fun buildHeaderSummary_RTL_Test() {
-        assertThat(HeaderPreference.buildHeaderSummary("حساب أنكي ويب", "مزامنة تلقائية"), equalTo("مزامنة تلقائية • حساب أنكي ويب"))
     }
 
     @Test

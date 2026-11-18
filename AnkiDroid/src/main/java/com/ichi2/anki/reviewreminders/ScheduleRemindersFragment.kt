@@ -140,7 +140,7 @@ class ScheduleRemindersFragment :
     /**
      * Whether this fragment has been opened to edit all review reminders or just a specific deck's reminders.
      * If no arguments have been passed to this fragment, defaults to [ReviewReminderScope.Global]. This default is a used
-     * code path, as opening this fragment from the Settings screen is accomplished via a preference_headers android:fragment field
+     * code path, as opening this fragment from the Settings screen is accomplished via the Settings home
      * rather than a custom on-click handler for the sake of simplicity.
      *
      * @see ReviewReminderScope
@@ -153,7 +153,7 @@ class ScheduleRemindersFragment :
     /**
      * The [FragmentHost] of this fragment, which determines how certain UI elements are displayed.
      * If no arguments have been passed to this fragment, defaults to [FragmentHost.SETTINGS]. This default is a used
-     * code path, as opening this fragment from the Settings screen is accomplished via a preference_headers android:fragment field
+     * code path, as opening this fragment from the Settings screen is accomplished via the Settings home
      * rather than a custom on-click handler for the sake of simplicity.
      *
      * @see FragmentHost

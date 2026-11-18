@@ -38,11 +38,6 @@
         <attr name="substitution3" format="string" />
     </declare-styleable>
 
-    <declare-styleable name="HeaderPreference">
-        <!-- String array of entries to join in order to build the preference summary -->
-        <attr name="summaryEntries" format="reference"/>
-    </declare-styleable>
-
     <declare-styleable name="ExtendedPreferenceCategory">
         <!-- Adds a help button that opens the provided link when tapped -->
         <attr name="helpLink" format="string"/>

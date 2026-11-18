@@ -172,7 +172,7 @@ class DeveloperOptionsFragment : SettingsFragment() {
      * In a DEBUG build, hide the preference to disable developer options
      * In a RELEASE build, configure the preference to disable dev options
      * Ensure that the preference is searchable or not
-     * based on the same condition at [HeaderFragment.configureSearchBar]
+     * based on the same condition at the settings search index
      */
     private fun setupEnableDeveloperOptions() {
         val enableDeveloperOptionsPref =
