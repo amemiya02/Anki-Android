@@ -18,6 +18,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.core.content.edit
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.ichi2.anki.CommonPreferenceKey
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
@@ -52,7 +53,7 @@ class RemainingSettingsNavigationTest : RobolectricTest() {
 
     @Test
     fun choosingADueThresholdSchedulesDailyRemindersAndDisablingItCancelsThem() {
-        val key = targetContext.getString(R.string.pref_notifications_minimum_cards_due_key)
+        val key = targetContext.getString(CommonPreferenceKey.pref_notifications_minimum_cards_due_key)
         Prefs.sharedPrefs.edit { putString(key, PENDING_NOTIFICATIONS_ONLY.toString()) }
         val title = targetContext.getString(CommonString.notification_pref_title)
         val due = targetContext.getString(CommonString.notification_minimum_cards_due, 10)

@@ -15,6 +15,7 @@ import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceScreen
 import com.ichi2.anki.BuildConfig
 import com.ichi2.anki.CollectionManager.TR
+import com.ichi2.anki.CommonPreferenceKey
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.common.android.AdaptionUtil
@@ -55,7 +56,7 @@ internal fun PreferenceScreen.applySettingsMetadata(
             preference(R.string.one_way_sync_key).summary = TR.preferencesOnNextSyncForceChangesIn()
         }
         R.xml.preferences_notifications -> {
-            val minimum = preference(R.string.pref_notifications_minimum_cards_due_key) as ListPreference
+            val minimum = preference(CommonPreferenceKey.pref_notifications_minimum_cards_due_key) as ListPreference
             val locale = ConfigurationCompat.getLocales(context.resources.configuration)[0]
             minimum.entries =
                 minimum.entries
