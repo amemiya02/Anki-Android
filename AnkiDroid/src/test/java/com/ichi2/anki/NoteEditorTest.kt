@@ -158,8 +158,8 @@ class NoteEditorTest : RobolectricTest() {
         restored.id = lineView.id
         restored.restoreHierarchyState(viewState)
 
-        assertThat(restored.binding.editText.selectionStart, equalTo(2))
-        assertThat(restored.binding.editText.selectionEnd, equalTo(5))
+        assertThat(restored.editText.selectionStart, equalTo(2))
+        assertThat(restored.editText.selectionEnd, equalTo(5))
     }
 
     @Test

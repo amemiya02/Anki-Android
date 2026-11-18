@@ -52,5 +52,3 @@ class FieldEditLineTest : NoteEditorTest() {
         return reference.get()
     }
 }
-
-val FieldEditLine.editText get() = binding.editText

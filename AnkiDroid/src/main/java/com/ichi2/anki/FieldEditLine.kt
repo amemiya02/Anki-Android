@@ -4,18 +4,22 @@ package com.ichi2.anki
 
 import android.content.Context
 import android.os.Parcelable
-import android.util.AttributeSet
+import android.text.InputType
 import android.util.SparseArray
 import android.view.ActionMode
-import android.view.LayoutInflater
-import android.widget.FrameLayout
+import android.view.Gravity
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.LinearLayout
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.isVisible
 import com.ichi2.anki.common.android.themes.interfaceTypeface
+import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
-import com.ichi2.anki.databinding.ViewCardMultimediaEditlineBinding
+import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.noteeditor.NoteEditorFieldFooter
 import com.ichi2.anki.noteeditor.NoteEditorFieldHeader
 import com.ichi2.compose.theme.AnkiDroidTheme
@@ -23,10 +27,16 @@ import com.ichi2.ui.AnimationUtil.collapseView
 import com.ichi2.ui.AnimationUtil.expandView
 import kotlinx.parcelize.Parcelize
 import java.util.Locale
+import com.ichi2.anki.common.android.R as CommonR
 
 @KotlinCleanup("replace _name with `field`")
-class FieldEditLine : FrameLayout {
-    val binding = ViewCardMultimediaEditlineBinding.inflate(LayoutInflater.from(context), this, true)
+class FieldEditLine(
+    context: Context,
+) : LinearLayout(context) {
+    val editText = FieldEditText(context)
+    private val fieldHeader = ComposeView(context)
+    private val fieldFooter = ComposeView(context)
+
     private var _name by mutableStateOf<String?>(null)
     private var expansionState by mutableStateOf(ExpansionState.EXPANDED)
     var sticky by mutableStateOf<Boolean?>(null)
@@ -35,18 +45,23 @@ class FieldEditLine : FrameLayout {
 
     var enableAnimation = true
 
-    constructor(context: Context) : super(context)
-
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
-
     init {
-        binding.editText.apply {
+        orientation = VERTICAL
+        editText.apply {
             id = generateViewId()
-            init()
+            background = null
+            gravity = Gravity.START or Gravity.TOP
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            minHeight = 48.dp.toPx(context)
+            setPadding(0, 6.dp.toPx(context), 0, 9.dp.toPx(context))
+            setTextAppearance(CommonR.style.TextAppearance_Foundation_EditorField)
+            setTextColor(getColorFromAttr(context, CommonR.attr.foundationOnBackground))
             typeface = context.interfaceTypeface()
+            init()
         }
+        addView(fieldHeader, MATCH_PARENT, WRAP_CONTENT)
+        addView(editText, MATCH_PARENT, WRAP_CONTENT)
+        addView(fieldFooter, MATCH_PARENT, WRAP_CONTENT)
     }
 
     fun bindPresentation(
@@ -54,7 +69,7 @@ class FieldEditLine : FrameLayout {
         onAttach: () -> Unit,
         onShowDuplicates: () -> Unit,
     ) {
-        binding.fieldHeader.setContent {
+        fieldHeader.setContent {
             AnkiDroidTheme {
                 NoteEditorFieldHeader(
                     label = name.orEmpty(),
@@ -66,7 +81,7 @@ class FieldEditLine : FrameLayout {
                 )
             }
         }
-        binding.fieldFooter.setContent {
+        fieldFooter.setContent {
             AnkiDroidTheme {
                 if (expansionState == ExpansionState.EXPANDED) {
                     NoteEditorFieldFooter(focused, duplicate, onShowDuplicates)
@@ -79,25 +94,25 @@ class FieldEditLine : FrameLayout {
         expansionState =
             when (expansionState) {
                 ExpansionState.EXPANDED -> {
-                    collapseView(binding.editText, enableAnimation)
-                    if (binding.editText.isFocused) binding.editText.clearFocus()
+                    collapseView(editText, enableAnimation)
+                    if (editText.isFocused) editText.clearFocus()
                     ExpansionState.COLLAPSED
                 }
                 ExpansionState.COLLAPSED -> {
-                    expandView(binding.editText, enableAnimation)
+                    expandView(editText, enableAnimation)
                     ExpansionState.EXPANDED
                 }
             }
     }
 
     fun setActionModeCallbacks(callback: ActionMode.Callback?) {
-        binding.editText.customSelectionActionModeCallback = callback
-        binding.editText.customInsertionActionModeCallback = callback
+        editText.customSelectionActionModeCallback = callback
+        editText.customInsertionActionModeCallback = callback
     }
 
     fun setHintLocale(hintLocale: Locale?) {
         if (hintLocale != null) {
-            binding.editText.setHintLocale(hintLocale)
+            editText.setHintLocale(hintLocale)
         }
     }
 
@@ -105,18 +120,18 @@ class FieldEditLine : FrameLayout {
         content: String?,
         replaceNewline: Boolean,
     ) {
-        binding.editText.setContent(content, replaceNewline)
+        editText.setContent(content, replaceNewline)
     }
 
     fun setOrd(i: Int) {
-        binding.editText.ord = i
+        editText.ord = i
     }
 
     var name: String?
         get() = _name
         set(name) {
             _name = name
-            binding.editText.contentDescription = name
+            editText.contentDescription = name
         }
 
     override fun dispatchSaveInstanceState(container: SparseArray<Parcelable>) {
@@ -133,11 +148,11 @@ class FieldEditLine : FrameLayout {
         SavedState(
             state = super.onSaveInstanceState(),
             name = _name,
-            content = binding.editText.text?.toString(),
-            ord = binding.editText.ord,
+            content = editText.text?.toString(),
+            ord = editText.ord,
             expansionState = expansionState,
-            selectionStart = binding.editText.selectionStart,
-            selectionEnd = binding.editText.selectionEnd,
+            selectionStart = editText.selectionStart,
+            selectionEnd = editText.selectionEnd,
         )
 
     public override fun onRestoreInstanceState(state: Parcelable) {
@@ -149,13 +164,13 @@ class FieldEditLine : FrameLayout {
         name = state.name
         setContent(state.content, replaceNewline = false)
         // put the cursor/selection back where it was, ignoring stale out of range values
-        val textLength = binding.editText.text?.length ?: 0
+        val textLength = editText.text?.length ?: 0
         if (state.selectionStart in 0..textLength && state.selectionEnd in 0..textLength) {
-            binding.editText.setSelection(state.selectionStart, state.selectionEnd)
+            editText.setSelection(state.selectionStart, state.selectionEnd)
         }
-        binding.editText.ord = state.ord
+        editText.ord = state.ord
         expansionState = state.expansionState
-        binding.editText.isVisible = expansionState == ExpansionState.EXPANDED
+        editText.isVisible = expansionState == ExpansionState.EXPANDED
     }
 
     @Parcelize

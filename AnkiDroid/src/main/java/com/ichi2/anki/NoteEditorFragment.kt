@@ -2007,7 +2007,7 @@ class NoteEditorFragment :
         for (i in editLines.indices) {
             val editLineView = editLines[i]
             customViewIds.add(editLineView.id)
-            val newEditText = editLineView.binding.editText
+            val newEditText = editLineView.editText
             lifecycleScope.launch {
                 val pasteAsPng = shouldPasteAsPng()
                 newEditText.setPasteListener { editText: EditText?, uri: Uri?, description: ClipDescription? ->
@@ -2133,7 +2133,7 @@ class NoteEditorFragment :
         field.sticky = !field.sticky
         line.sticky = field.sticky
         if (field.sticky) {
-            toggleStickyText[index] = line.binding.editText.fieldText
+            toggleStickyText[index] = line.editText.fieldText
         } else {
             toggleStickyText.remove(index)
         }
@@ -2173,8 +2173,8 @@ class NoteEditorFragment :
         fieldLine: FieldEditLine,
         index: Int,
     ) {
-        fieldLine.binding.editText.addTextChangedListener(EditFieldTextWatcher(index))
-        fieldLine.binding.editText.onFocusChangeListener =
+        fieldLine.editText.addTextChangedListener(EditFieldTextWatcher(index))
+        fieldLine.editText.onFocusChangeListener =
             OnFocusChangeListener { view, hasFocus ->
                 if (hasFocus) lastFocusedField = view as FieldEditText
                 fieldLine.focused = hasFocus
