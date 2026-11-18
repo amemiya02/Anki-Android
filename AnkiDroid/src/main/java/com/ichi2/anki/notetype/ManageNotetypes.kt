@@ -26,7 +26,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import anki.notetypes.StockNotetype
 import com.ichi2.anki.AnkiActivity
-import com.ichi2.anki.CardTemplateEditor
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
@@ -69,7 +68,7 @@ class ManageNotetypes : AnkiActivity() {
                     viewModel = viewModel,
                     templateRevision = templateRevision,
                     onClose = ::finish,
-                    onTemplate = { id, row -> templateEditor.launch(CardTemplateEditor.getIntent(this, id, ord = row.ord)) },
+                    onTemplate = { id, row -> templateEditor.launch(ManageNoteTypesState.CardEditor(id, row.ord).toIntent(this)) },
                     runTask = { block -> launchCatchingTask { block() } },
                     onAdd = { item, name ->
                         val added =

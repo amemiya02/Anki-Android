@@ -2,12 +2,17 @@
 
 package com.ichi2.anki.notetype
 
+import android.content.Context
+
 import android.widget.Toast
 import anki.notetypes.Notetype
 import anki.notetypes.NotetypeNameIdUseCount
 import com.google.android.material.snackbar.Snackbar
+import com.ichi2.anki.CardTemplateEditor
 import com.ichi2.anki.exception.ReportableException
+import com.ichi2.anki.libanki.CardOrdinal
 import com.ichi2.anki.libanki.NoteTypeId
+import com.ichi2.anki.utils.Destination
 
 /** Encapsulates the entire state for [ManageNotetypes] */
 data class ManageNoteTypesState(
@@ -35,6 +40,13 @@ data class ManageNoteTypesState(
     enum class UserMessage {
         /** Message to inform that the last [Notetype] can't be removed */
         DeletingLastModel,
+    }
+
+    data class CardEditor(
+        val ntid: NoteTypeId,
+        val ord: CardOrdinal? = null,
+    ) : Destination {
+        override fun toIntent(context: Context) = CardTemplateEditor.getIntent(context, noteTypeId = ntid, ord = ord)
     }
 }
 
