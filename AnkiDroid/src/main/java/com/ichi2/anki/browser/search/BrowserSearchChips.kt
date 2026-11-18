@@ -14,18 +14,20 @@ context(col: Collection)
 internal fun SearchRequest.populateChips(): SearchRequest {
     val normalized = SearchString.fromUserInput(query).getOrNull()?.value ?: return this
     val terms = normalized.topLevelTerms()
-    if ("OR" in terms) return this
+    if ("OR" in terms) {
+        // The Engine removes redundant outer parentheses. A whole-query OR group can
+        // still be represented by one chip when every alternative belongs to that chip.
+        val choices = terms.disjunctionChoices() ?: return this
+        val replacement = filters.withChoices(choices) ?: return this
+        return SearchRequest("", replacement)
+    }
 
     var updated = filters
     val remaining =
         terms.filter { term ->
             val choices =
                 if (term.startsWith('(') && term.endsWith(')')) {
-                    val words = term.substring(1, term.lastIndex).topLevelTerms()
-                    if (words.size < 3 || words.size % 2 == 0 || words.filterIndexed { index, _ -> index % 2 == 1 }.any { it != "OR" }) {
-                        return@filter true
-                    }
-                    words.filterIndexed { index, _ -> index % 2 == 0 }
+                    term.substring(1, term.lastIndex).topLevelTerms().disjunctionChoices() ?: return@filter true
                 } else {
                     listOf(term)
                 }
@@ -36,6 +38,11 @@ internal fun SearchRequest.populateChips(): SearchRequest {
     // Keep the original spelling and spacing when nothing was extracted.
     if (updated == filters) return this
     return SearchRequest(remaining.filter { it != "AND" }.joinToString(" "), updated)
+}
+
+private fun List<String>.disjunctionChoices(): List<String>? {
+    if (size < 3 || size % 2 == 0 || indices.any { it % 2 == 1 && this[it] != "OR" }) return null
+    return filterIndexed { index, _ -> index % 2 == 0 }
 }
 
 context(col: Collection)

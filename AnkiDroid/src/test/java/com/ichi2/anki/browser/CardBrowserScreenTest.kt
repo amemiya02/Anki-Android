@@ -16,10 +16,10 @@ import androidx.core.view.isVisible
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.CollectionManager.TR
-import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.Flag
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.getBrowserWithNotes
+import com.ichi2.anki.withDeckPicker
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,6 +49,7 @@ class CardBrowserScreenTest : RobolectricTest() {
         waitForText("Midnight")
 
         val red = TR.actionsFlagRed()
+        waitForText("$red +1")
         composeRule.onNodeWithText("$red +1").performClick()
         composeRule.onNodeWithText(red).assertIsOn()
         composeRule.onNodeWithText(TR.actionsFlagBlue()).assertIsOn()
@@ -80,20 +81,21 @@ class CardBrowserScreenTest : RobolectricTest() {
     @Test
     fun `reselecting Browse opens search and closing search brings back the bar`() {
         addBasicNote("Ginkgo")
-        ensureCollectionLoadIsSynchronous()
-        val deckPicker = startRegularActivity<DeckPicker>()
-        val bar = requireNotNull(deckPicker.binding.bottomNavigation)
+        withDeckPicker(deckCount = 0) { deckPicker ->
+            val bar = requireNotNull(deckPicker.binding.bottomNavigation)
+            bar.selectedItemId = NavigationItem.BROWSER.id
+            deckPicker.supportFragmentManager.executePendingTransactions()
+            waitForText("Ginkgo")
 
-        bar.selectedItemId = NavigationItem.BROWSER.id
-        waitForText("Ginkgo")
-        bar.selectedItemId = NavigationItem.BROWSER.id
-        composeRule.waitUntil(10_000) { !bar.isVisible }
-        composeRule.onNode(hasSetTextAction()).assertIsDisplayed()
-        assertFalse(bar.isVisible)
+            bar.selectedItemId = NavigationItem.BROWSER.id
+            composeRule.waitUntil(10_000) { !bar.isVisible }
+            composeRule.onNode(hasSetTextAction()).assertIsDisplayed()
+            assertFalse(bar.isVisible)
 
-        deckPicker.onBackPressedDispatcher.onBackPressed()
-        waitForText("Ginkgo")
-        assertTrue(bar.isVisible)
+            deckPicker.onBackPressedDispatcher.onBackPressed()
+            waitForText("Ginkgo")
+            assertTrue(bar.isVisible)
+        }
     }
 
     private fun flaggedNote(
