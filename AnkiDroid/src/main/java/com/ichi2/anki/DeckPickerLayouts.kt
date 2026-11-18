@@ -59,6 +59,8 @@ internal class DeckPickerLayout(
             val bar =
                 BottomNavigationView(context, null, 0, R.style.Widget_Foundation_BottomBar).apply {
                     id = R.id.bottom_navigation
+                    setBackgroundResource(R.drawable.bottom_bar_background)
+                    minimumHeight = resources.getDimensionPixelSize(R.dimen.bottom_bar_height)
                     inflateMenu(R.menu.bottom_nav_menu)
                     visibility = View.GONE
                 }
