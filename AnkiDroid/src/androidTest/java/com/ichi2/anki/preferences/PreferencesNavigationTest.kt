@@ -112,10 +112,24 @@ class PreferencesNavigationTest {
             onView(withId(R.id.drawer_layout)).perform(DrawerActions.open())
             composeRule.onNodeWithText(context.getString(CommonString.settings)).performClick()
 
-            awaitSettingsHost()
+            val host = awaitSettingsHost()
             val search = composeRule.onNodeWithContentDescription(context.getString(R.string.settings_search))
             composeRule.onNodeWithText(context.getString(R.string.settings_appearance)).performClick()
             composeRule.onNodeWithText(context.getString(R.string.settings_theme_light)).assertIsDisplayed()
+
+            val timeLimit = context.getString(CommonString.time_limit)
+            search.performTextInput(timeLimit)
+            composeRule.onNode(hasText(timeLimit) and hasClickAction() and !hasSetTextAction()).performClick()
+            composeRule.onNodeWithText(context.getString(CommonString.use_timebox)).assertIsDisplayed()
+            search.assertIsDisplayed()
+            val studying = composeRule.onNode(hasText(context.getString(R.string.settings_studying)) and hasClickAction())
+            studying.assertIsSelected()
+
+            composeRule.runOnIdle { host.onBackPressedDispatcher.onBackPressed() }
+            composeRule.waitUntil(10_000) {
+                (host.currentScreenFragment as? PreferencesFragment)?.currentPage is StudyingSettingsFragment
+            }
+            studying.assertIsSelected()
             search.assertIsDisplayed()
         }
     }

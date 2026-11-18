@@ -4,6 +4,8 @@ package com.ichi2.anki.preferences
 
 import android.util.TypedValue
 import android.view.KeyEvent
+import android.view.View
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
@@ -32,7 +34,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import com.ichi2.anki.common.android.R as CommonR
 
 @RunWith(AndroidJUnit4::class)
@@ -67,6 +71,43 @@ class SettingsSearchNavigationTest : RobolectricTest() {
             result(title).assertIsDisplayed().performClick()
             advanceRobolectricLooper()
             compose.onNodeWithText(targetContext.getString(CommonString.use_timebox)).assertIsDisplayed()
+        }
+    }
+
+    @Test
+    @Config(qualifiers = "w800dp-h1280dp")
+    fun tabletSearchKeepsTheCategorySelectedAndBackReturnsToTheCategory() {
+        openSettings().use { scenario ->
+            scenario.onActivity { activity ->
+                val settings = activity.fragment as PreferencesFragment
+                assertIs<ComposeView>(settings.requireView().findViewById<View>(R.id.settings_container))
+            }
+            val timeLimit = targetContext.getString(CommonString.time_limit)
+            search(timeLimit)
+            result(timeLimit).performClick()
+            compose.onNodeWithText(targetContext.getString(CommonString.use_timebox)).assertIsDisplayed()
+
+            val studying = result(targetContext.getString(R.string.settings_studying))
+            studying.assertIsSelected()
+
+            // Back clears a search in the left pane before changing the right pane.
+            search("distinct search query")
+            scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+            studying.assertIsSelected()
+            compose.onNodeWithText(targetContext.getString(CommonString.use_timebox)).assertIsDisplayed()
+
+            scenario.onActivity { activity ->
+                val settings = activity.fragment as PreferencesFragment
+                assertIs<TimeboxSettingsFragment>(settings.currentPage)
+                assertEquals(0, settings.childFragmentManager.backStackEntryCount)
+                activity.onBackPressedDispatcher.onBackPressed()
+            }
+
+            studying.assertIsSelected()
+            scenario.onActivity { activity ->
+                val settings = activity.fragment as PreferencesFragment
+                assertIs<StudyingSettingsFragment>(settings.currentPage)
+            }
         }
     }
 
