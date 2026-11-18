@@ -41,6 +41,6 @@ node scripts/check-contrast.mjs
 ```
 
 Captured pictures are in `docs/redesign/directions/`,
-`docs/redesign/quiet-paper/`, `docs/redesign/core-loop/` and
+`docs/redesign/quiet-paper/`, `docs/redesign/core-loop/`,
 `docs/redesign/finding-and-adding/`, `docs/redesign/settings-and-dialogs/` and
 `docs/redesign/the-rest/`.
