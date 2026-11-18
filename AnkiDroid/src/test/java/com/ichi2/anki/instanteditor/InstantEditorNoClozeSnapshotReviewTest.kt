@@ -3,7 +3,6 @@
 package com.ichi2.anki.instanteditor
 
 import android.content.Intent
-import android.os.Handler
 import android.os.Looper
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasSetTextAction
@@ -21,7 +20,6 @@ import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.instantnoteeditor.InstantEditorViewModel
 import com.ichi2.anki.instantnoteeditor.InstantNoteEditorFragment
 import com.ichi2.testutils.withCollectionAccessOn
-import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Assert.assertEquals
@@ -46,10 +44,7 @@ class InstantEditorNoClozeSnapshotReviewTest : RobolectricTest() {
                     type = "text/plain"
                     putExtra(Intent.EXTRA_TEXT, originalText)
                 }
-            val activity =
-                withCollectionAccessOn(Handler(Looper.getMainLooper()).asCoroutineDispatcher()) {
-                    openSharedInstantNote(intent)
-                }
+            val activity = openSharedInstantNote(intent)
             compose.onNodeWithContentDescription(getResourceString(CommonString.change_editor_mode)).performClick()
             val editor = requireNotNull(ShadowDialog.getLatestDialog())
             val viewModel = ViewModelProvider(checkNotNull(activity.currentScreenFragment))[InstantEditorViewModel::class.java]

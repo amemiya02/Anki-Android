@@ -75,7 +75,6 @@ import com.ichi2.anki.export.ExportDialogFragment
 import com.ichi2.anki.filtered.FilteredDeckOptionsFragment
 import com.ichi2.anki.formatCardCount
 import com.ichi2.anki.launchCatchingTask
-import com.ichi2.anki.pages.ChangeNoteTypePage
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.exception.InvalidSearchException
 import com.ichi2.anki.libanki.undoAvailable
@@ -85,6 +84,7 @@ import com.ichi2.anki.model.CardsOrNotes.CARDS
 import com.ichi2.anki.model.CardsOrNotes.NOTES
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.observability.ChangeManager
+import com.ichi2.anki.pages.ChangeNoteTypePage
 import com.ichi2.anki.previewer.PreviewerFragment
 import com.ichi2.anki.progress.observeProgress
 import com.ichi2.anki.requireAnkiActivity
@@ -508,10 +508,12 @@ class CardBrowserFragment :
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         if (hidden) {
-            searchViewModel.closeBrowserSearch(activityViewModel.searchRequestFlow.value)
+            closeSearch()
         }
         browserChromeChanged(!hidden && activityViewModel.isInMultiSelectMode)
     }
+
+    internal fun closeSearch() = searchViewModel.closeBrowserSearch(activityViewModel.searchRequestFlow.value)
 
     override fun onResume() {
         super.onResume()

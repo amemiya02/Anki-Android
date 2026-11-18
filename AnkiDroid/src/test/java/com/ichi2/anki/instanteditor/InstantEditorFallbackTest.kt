@@ -3,8 +3,6 @@
 package com.ichi2.anki.instanteditor
 
 import android.content.Intent
-import android.os.Handler
-import android.os.Looper
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -13,8 +11,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.NoteEditorPaneFragment
 import com.ichi2.anki.RobolectricTest
-import com.ichi2.testutils.withCollectionAccessOn
-import kotlinx.coroutines.android.asCoroutineDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,10 +37,7 @@ class InstantEditorFallbackTest : RobolectricTest() {
                     type = "text/plain"
                     putExtra(Intent.EXTRA_TEXT, text)
                 }
-            val editor =
-                withCollectionAccessOn(Handler(Looper.getMainLooper()).asCoroutineDispatcher()) {
-                    openSharedInstantNote(intent)
-                }
+            val editor = openSharedInstantNote(intent)
             compose.onNodeWithText(getResourceString(CommonString.cloze_note_required)).assertIsDisplayed()
             compose.onNodeWithText(getResourceString(CommonString.open)).performClick()
             val destination = assertIs<NoteEditorPaneFragment>(editor.currentScreenFragment)

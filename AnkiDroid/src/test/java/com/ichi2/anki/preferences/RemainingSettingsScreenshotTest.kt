@@ -72,7 +72,7 @@ class RemainingSettingsScreenshotTest : ScreenshotTest() {
                     // Robolectric assigns a different temporary directory in every test run.
                     val preferences = activity.fragment as PreferencesFragment
                     val advanced =
-                        preferences.childFragmentManager.findFragmentByTag(page.destination.java.name) as AdvancedSettingsFragment
+                        preferences.currentPage as AdvancedSettingsFragment
                     advanced
                         .requirePreference<ExternalDirectorySelectionPreference>(CollectionHelper.PREF_COLLECTION_PATH)
                         .setSummaryProvider { collectionDirectory }

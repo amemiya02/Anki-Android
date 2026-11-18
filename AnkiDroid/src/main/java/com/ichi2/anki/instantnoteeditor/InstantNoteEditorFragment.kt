@@ -11,13 +11,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -33,8 +33,8 @@ import com.ichi2.anki.dialogs.startDeckSelection
 import com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity.ClozeMode
 import com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity.DialogType
 import com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity.EditMode
-import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.model.SelectableDeck
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.noteeditor.toIntent
 import com.ichi2.anki.progress.ViewModelProgress
 import com.ichi2.anki.progress.observeProgress
@@ -172,7 +172,9 @@ class InstantNoteEditorFragment : Fragment() {
                     onSave = ::checkAndSave,
                 )
             }.apply {
-                setCancelable(false)
+                setCancelable(true)
+                setCanceledOnTouchOutside(false)
+                onBackPressedDispatcher.addCallback { onBack() }
                 setOnKeyListener { _, keyCode, event ->
                     if (keyCode != KeyEvent.KEYCODE_BACK || event.action != KeyEvent.ACTION_UP) {
                         return@setOnKeyListener false
@@ -288,21 +290,22 @@ class InstantNoteEditorFragment : Fragment() {
     /** Show a dialog when there is no cloze note type is found, allowing user either to cancel or to open
      * AnkiDroid Note Editor **/
     private fun noClozeNoteTypesFoundDialog() {
-        instantAlertDialog = createPaperDialog(requireContext()) { dialog ->
-            ConfirmationDialog(
-                title = getString(CommonString.cloze_note_required),
-                message = getString(CommonString.cloze_not_found_message),
-                confirm =
-                    DialogAction(getString(CommonString.open), {
+        instantAlertDialog =
+            createPaperDialog(requireContext()) { dialog ->
+                ConfirmationDialog(
+                    title = getString(CommonString.cloze_note_required),
+                    message = getString(CommonString.cloze_not_found_message),
+                    confirm =
+                        DialogAction(getString(CommonString.open), {
+                            dialog.dismiss()
+                            openNoteEditor()
+                        }),
+                    onDismissRequest = {
                         dialog.dismiss()
-                        openNoteEditor()
-                    }),
-                onDismissRequest = {
-                    dialog.dismiss()
-                    closeEditor()
-                },
-            )
-        }.apply { show() }
+                        closeEditor()
+                    },
+                )
+            }.apply { show() }
     }
 
     private fun setupErrorListeners() {

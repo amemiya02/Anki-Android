@@ -122,7 +122,7 @@ private inline fun <reified F : RemainingSettingsFragment> withPreferences(
     launchActivity<PreferencesActivity>(destination).use { scenario ->
         scenario.onActivity { activity ->
             val preferencesFragment = activity.fragment as PreferencesFragment
-            val settingsFragment = preferencesFragment.childFragmentManager.findFragmentByTag(F::class.java.name) as F
+            val settingsFragment = preferencesFragment.currentPage as F
             settingsFragment.block()
         }
     }

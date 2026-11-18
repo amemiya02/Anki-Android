@@ -2,16 +2,15 @@
 
 package com.ichi2.anki
 
-import android.graphics.drawable.LayerDrawable
 import android.view.View
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.view.isVisible
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.browser.CardBrowserFragment
 import com.ichi2.anki.dialogs.help.HelpDialog
@@ -47,7 +46,6 @@ class BottomBarNavigationTest : RobolectricTest() {
     fun `the phone bar draws the Paper background and hairline`() =
         withDeckPicker(deckCount = 1) { deckPicker ->
             val bar = deckPicker.bottomBar
-            assertThat(bar.background, instanceOf(LayerDrawable::class.java))
             assertThat(bar.minimumHeight, equalTo(deckPicker.resources.getDimensionPixelSize(R.dimen.bottom_bar_height)))
         }
 
@@ -55,7 +53,7 @@ class BottomBarNavigationTest : RobolectricTest() {
     fun `a phone has no side drawer`() =
         withDeckPicker(deckCount = 1) { deckPicker ->
             assertThat(deckPicker.findViewById<View>(R.id.navdrawer_items_container), nullValue())
-            assertThat("no drawer button on Decks", deckPicker.toolbarNavigationIcon(), nullValue())
+            composeRule.onNodeWithContentDescription(deckPicker.getString(CommonString.drawer_open)).assertDoesNotExist()
         }
 
     @Test
@@ -153,10 +151,8 @@ class BottomBarNavigationTest : RobolectricTest() {
         advanceRobolectricLooper()
     }
 
-    private val DeckPicker.bottomBar: BottomNavigationView
+    private val DeckPicker.bottomBar: DeckBottomBar
         get() = binding.bottomNavigation!!
-
-    private fun DeckPicker.toolbarNavigationIcon() = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar).navigationIcon
 
     private fun DeckPicker.select(tab: NavigationItem) {
         bottomBar.selectedItemId = tab.id

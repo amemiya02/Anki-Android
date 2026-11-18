@@ -95,7 +95,7 @@ class ReminderTroubleshootingFragment : Fragment() {
                 AnkiDroidTheme {
                     val state by viewModel.state.collectAsStateWithLifecycle()
                     ReminderPage(
-                        onNavigateUp = if (hasExternalToolbar) null else ({ parentFragmentManager.popBackStack() }),
+                        onNavigateUp = if (hasExternalToolbar) null else ({ requireActivity().onBackPressedDispatcher.onBackPressed() }),
                     ) {
                         val paper = MaterialTheme.foundation
                         Column(

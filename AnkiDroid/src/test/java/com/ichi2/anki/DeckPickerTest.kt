@@ -62,7 +62,6 @@ import anki.backend.backendError
 import anki.collection.opChanges
 import anki.scheduler.CardAnswer.Rating
 import app.cash.turbine.test
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.DeckPickerFloatingActionMenu.CloseAnimation
@@ -612,7 +611,7 @@ class DeckPickerTest : RobolectricTest() {
     private fun withBottomNavigationEnabled(action: () -> Unit) = action()
 
     private fun DeckPicker.openEmbeddedCardBrowser(): CardBrowserFragment {
-        val bar = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        val bar = findViewById<DeckBottomBar>(R.id.bottom_navigation)
         composeRule.waitUntil(10_000) { bar.isShown && deckPickerBinding.deckList.isShown }
         bar.selectedItemId =
             BottomNavController.NavigationItem.BROWSER.id
@@ -1739,16 +1738,12 @@ class DeckPickerTest : RobolectricTest() {
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
-    fun `bottom navigation exposes a long title as a tooltip`() =
+    fun `bottom navigation exposes the complete translated Stats label`() =
         withBottomNavigationEnabled {
             assumeTrue("Not running on tablet", qualifiers != "xlarge")
             deckPicker {
-                val bottomNav = binding.bottomNavigation!!
-                val longTitle = "Statistikenübersicht"
-
-                bottomNav.menu.findItem(R.id.nav_stats).title = longTitle
-
-                assertThat(bottomNav.findViewById<View>(R.id.nav_stats).tooltipText.toString(), equalTo(longTitle))
+                val label = BottomNavController.NavigationItem.STATS.title(this)
+                composeRule.onNodeWithText(label).assertExists()
             }
         }
 

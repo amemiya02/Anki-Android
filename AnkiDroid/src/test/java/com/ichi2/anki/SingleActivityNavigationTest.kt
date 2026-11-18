@@ -5,6 +5,7 @@ package com.ichi2.anki
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.view.View
+import android.webkit.WebView
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -168,12 +169,12 @@ class SingleActivityNavigationTest : RobolectricTest() {
             composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment is NoteEditorPaneFragment }
 
             composeRule.onNodeWithText(note.notetype.name).performClick()
-            advanceRobolectricLooper()
+            composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment is PageFragment }
 
-            val page = deckPicker.currentScreenFragment as? PageFragment
+            val page = deckPicker.currentScreenFragment as PageFragment
             assertEquals(
                 "https://appassets.androidplatform.net/change-notetype/${note.noteTypeId}",
-                (page?.webViewLayout?.getChildAt(0) as? android.webkit.WebView)?.url?.substringBefore('#'),
+                (page.webViewLayout.getChildAt(0) as? WebView)?.url?.substringBefore('#'),
             )
         }
 
@@ -185,18 +186,22 @@ class SingleActivityNavigationTest : RobolectricTest() {
                     type = "text/plain"
                     putExtra(Intent.EXTRA_TEXT, "Shared instant note")
                 }
-            val entry = Robolectric.buildActivity(InstantNoteEditorActivity::class.java, shared).use { controller ->
-                val handler = controller.create().get()
-                assertTrue(handler.isFinishing)
-                shadowOf(handler).nextStartedActivity
-            }
+            val entry =
+                Robolectric.buildActivity(InstantNoteEditorActivity::class.java, shared).use { controller ->
+                    val handler = controller.create().get()
+                    assertTrue(handler.isFinishing)
+                    shadowOf(handler).nextStartedActivity
+                }
             assertEquals(DeckPicker::class.java.name, entry.component?.className)
             val controller = startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, entry)
             val host = controller.get()
             val openEditor = composeRule.onNodeWithContentDescription(getResourceString(CommonString.open_note_editor))
             openEditor.assertIsDisplayed().performClick()
             composeRule.waitUntil(10_000) { host.currentScreenFragment is NoteEditorPaneFragment }
-            assertEquals("Shared instant note", (host.currentScreenFragment as NoteEditorPaneFragment).launchIntent.getStringExtra(Intent.EXTRA_TEXT))
+            assertEquals(
+                "Shared instant note",
+                (host.currentScreenFragment as NoteEditorPaneFragment).launchIntent.getStringExtra(Intent.EXTRA_TEXT),
+            )
             assertNull(shadowOf(host).nextStartedActivity)
         }
 

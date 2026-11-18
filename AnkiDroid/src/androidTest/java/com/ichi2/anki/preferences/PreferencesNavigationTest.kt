@@ -12,6 +12,7 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -55,7 +56,7 @@ class PreferencesNavigationTest {
         assumeTrue(context.resources.isWindowCompact())
         ActivityScenario.launch(IntentHandler::class.java).use {
             closeGetStartedScreenIfExists()
-            onView(withId(R.id.nav_more)).perform(click())
+            composeRule.onNodeWithTag("tab-more").performClick()
             composeRule.onNodeWithText(context.getString(CommonString.settings)).performClick()
 
             val settings = awaitSettingsHost()
@@ -74,10 +75,10 @@ class PreferencesNavigationTest {
         assumeTrue(context.resources.isWindowCompact())
         ActivityScenario.launch(IntentHandler::class.java).use {
             closeGetStartedScreenIfExists()
-            onView(withId(R.id.nav_home)).perform(click())
+            composeRule.onNodeWithTag("tab-home").performClick()
             val originalClearance = addButtonClearance()
             assertTrue("The Add button clears the bottom bar on opening Decks", originalClearance > 0)
-            onView(withId(R.id.nav_more)).perform(click())
+            composeRule.onNodeWithTag("tab-more").performClick()
             composeRule.onNodeWithText(context.getString(CommonString.settings)).performClick()
             composeRule.onNodeWithText(context.getString(R.string.settings_appearance)).performClick()
 
@@ -91,7 +92,7 @@ class PreferencesNavigationTest {
                 composeRule.runOnIdle { settings.onBackPressedDispatcher.onBackPressed() }
             }
             awaitResumedActivity<DeckPicker>()
-            onView(withId(R.id.nav_home)).perform(click())
+            composeRule.onNodeWithTag("tab-home").performClick()
             assertEquals("Changing themes preserves the Add button clearance", originalClearance, addButtonClearance())
             onView(withId(R.id.fab_main)).perform(click())
             onView(withId(R.id.add_deck_button)).perform(click())
@@ -124,7 +125,7 @@ class PreferencesNavigationTest {
         ActivityScenario.launch(IntentHandler::class.java).use {
             closeGetStartedScreenIfExists()
             onView(withId(R.id.drawer_layout)).perform(DrawerActions.open())
-            onView(withId(R.id.nav_settings)).perform(click())
+            composeRule.onNodeWithText(context.getString(CommonString.settings)).performClick()
 
             awaitSettingsHost()
             val search = composeRule.onNodeWithContentDescription(context.getString(R.string.settings_search))

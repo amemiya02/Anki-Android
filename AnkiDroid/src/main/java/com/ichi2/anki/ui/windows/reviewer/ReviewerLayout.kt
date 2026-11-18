@@ -7,7 +7,6 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Build
 import android.text.InputType
-import android.view.ContextThemeWrapper
 import android.view.Gravity
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -15,7 +14,6 @@ import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Space
-import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.compose.ui.platform.ComposeView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -31,7 +29,6 @@ import com.ichi2.anki.cardviewer.TypeAnswerWebViewLayout
 import com.ichi2.anki.preferences.reviewer.ReviewerMenuView
 import com.ichi2.ui.TypeAnswerEditText
 import kotlin.math.roundToInt
-import androidx.appcompat.R as AppCompatR
 import com.ichi2.anki.common.android.R as CommonR
 
 /** Places the Compose study controls around the card's WebView and its Android input connection. */
@@ -41,17 +38,7 @@ internal class ReviewerLayout(
     val mainLayout = column(R.id.main_layout)
     val studyBar = column(R.id.study_bar)
     val toolsLayout = ConstraintLayout(context).apply { id = R.id.tools_layout }
-    val backButton =
-        AppCompatImageButton(context, null, AppCompatR.attr.actionButtonStyle).apply {
-            id = R.id.back_button
-            contentDescription = context.getString(AppCompatR.string.abc_action_bar_up_description)
-            val theme = context.obtainStyledAttributes(intArrayOf(AppCompatR.attr.homeAsUpIndicator))
-            try {
-                setImageDrawable(theme.getDrawable(0))
-            } finally {
-                theme.recycle()
-            }
-        }
+    val backButton = ComposeView(context).apply { id = R.id.back_button }
     val studyBarTitles = ComposeView(context).apply { id = R.id.study_bar_titles }
     val timer =
         AnswerTimerView(context, null).apply {
@@ -61,7 +48,7 @@ internal class ReviewerLayout(
             visibility = GONE
         }
     val reviewerMenuView =
-        ReviewerMenuView(ContextThemeWrapper(context, R.style.ThemeOverlay_Foundation_StudyBarMenu)).apply {
+        ReviewerMenuView(context).apply {
             id = R.id.reviewer_menu_view
         }
     val studyProgress = ComposeView(context).apply { id = R.id.study_progress }

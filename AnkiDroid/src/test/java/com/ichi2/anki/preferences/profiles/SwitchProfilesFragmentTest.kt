@@ -6,7 +6,6 @@ package com.ichi2.anki.preferences.profiles
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.preferences.HeaderFragment
 import com.ichi2.anki.preferences.PreferencesActivity
@@ -26,7 +25,7 @@ class SwitchProfilesFragmentTest : RobolectricTest() {
     fun `screen goes back with a message when profiles failed to load`() {
         val activity = openSwitchProfilesWhenProfilesFailedToLoad()
 
-        assertIs<HeaderFragment>(activity.settings.findFragmentById(R.id.settings_container))
+        assertIs<HeaderFragment>(activity.settings.currentPage)
         assertEquals(targetContext.getString(CommonString.something_wrong), ShadowToast.getTextOfLatestToast())
     }
 
@@ -54,5 +53,5 @@ class SwitchProfilesFragmentTest : RobolectricTest() {
     }
 
     private val PreferencesActivity.settings
-        get() = (fragment as PreferencesFragment).childFragmentManager
+        get() = fragment as PreferencesFragment
 }

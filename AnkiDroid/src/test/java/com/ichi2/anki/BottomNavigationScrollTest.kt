@@ -24,7 +24,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.behavior.HideViewOnScrollBehavior
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.pages.Statistics
 import com.ichi2.anki.pages.scrolledUpToBottom
@@ -305,6 +304,6 @@ class BottomNavigationScrollTest : RobolectricTest() {
     private val DeckPicker.statisticsWebView: WebView
         get() = (currentScreenFragment as Statistics).webViewLayout.getChildAt(0) as WebView
 
-    private val DeckPicker.bottomNav: BottomNavigationView
+    private val DeckPicker.bottomNav: DeckBottomBar
         get() = binding.bottomNavigation!!
 }

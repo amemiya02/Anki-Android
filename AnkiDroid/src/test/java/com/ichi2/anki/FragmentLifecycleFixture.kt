@@ -5,7 +5,6 @@ package com.ichi2.anki
 import androidx.fragment.app.Fragment
 import com.ichi2.anki.browser.BrowserColumnSelectionFragment
 import com.ichi2.anki.cardviewer.SingleCardSide
-import com.ichi2.anki.dialogs.ChangeNoteTypeDialog
 import com.ichi2.anki.dialogs.InsertFieldDialog
 import com.ichi2.anki.dialogs.InsertFieldMetadata
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog
@@ -52,9 +51,6 @@ fun fragmentLifecycleFixtures(): List<FragmentLifecycleFixture> =
         },
         FragmentLifecycleFixture("MediaCheck") { MediaCheckFragment() },
         FragmentLifecycleFixture("ManageSpace") { ManageSpaceFragment() },
-        FragmentLifecycleFixture("ChangeNoteType") {
-            ChangeNoteTypeDialog.newInstance(listOf(addBasicNote().id))
-        },
         FragmentLifecycleFixture("CustomStudy", hasFragmentView = false) {
             // Empty decks dismiss the dialog instead of remaining resumed.
             addBasicNote()

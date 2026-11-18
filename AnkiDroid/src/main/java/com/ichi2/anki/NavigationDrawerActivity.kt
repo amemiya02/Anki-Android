@@ -6,18 +6,13 @@ package com.ichi2.anki
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Canvas
 import android.os.Bundle
-import android.util.TypedValue
-import android.view.Gravity
 import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.widget.FrameLayout
-import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CallSuper
@@ -34,8 +29,6 @@ import androidx.core.graphics.drawable.IconCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.get
-import androidx.core.view.size
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.drawerlayout.widget.ClosableDrawerLayout
@@ -43,8 +36,6 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.color.MaterialColors
-import com.google.android.material.navigation.NavigationView
-import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.NoteEditorFragment.Companion.NoteEditorCaller
 import com.ichi2.anki.common.android.animationEnabled
 import com.ichi2.anki.common.destinations.BrowserDestination
@@ -63,8 +54,7 @@ import com.ichi2.anki.common.android.R as CommonR
 
 abstract class NavigationDrawerActivity(
     @LayoutRes contentLayoutId: Int? = null,
-) : AnkiActivity(contentLayoutId),
-    NavigationView.OnNavigationItemSelectedListener {
+) : AnkiActivity(contentLayoutId) {
     /**
      * Navigation Drawer
      */
@@ -81,7 +71,7 @@ abstract class NavigationDrawerActivity(
 
     // Navigation drawer list item entries
     lateinit var drawerLayout: DrawerLayout
-    private var navigationView: NavigationView? = null
+    private var navigationView: TabletDrawer? = null
     lateinit var drawerToggle: ActionBarDrawerToggle
         private set
 
@@ -127,42 +117,7 @@ abstract class NavigationDrawerActivity(
         setContentView(drawer)
     }
 
-    private fun createNavigationView(): NavigationView =
-        NavigationView(this).apply {
-            id = R.id.navdrawer_items_container
-            itemMaxLines = 2
-            val color = TypedValue()
-            if (context.theme.resolveAttribute(CommonR.attr.navDrawerItemColor, color, true)) {
-                val tint =
-                    if (color.resourceId != 0) {
-                        AppCompatResources.getColorStateList(context, color.resourceId)
-                    } else {
-                        ColorStateList.valueOf(color.data)
-                    }
-                itemIconTintList = tint
-                itemTextColor = tint
-            }
-            val background = TypedValue()
-            if (context.theme.resolveAttribute(CommonR.attr.navDrawerItemBackground, background, true) && background.resourceId != 0) {
-                itemBackground = AppCompatResources.getDrawable(context, background.resourceId)
-            }
-            inflateMenu(R.menu.navigation_drawer)
-            addHeaderView(
-                FrameLayout(context).apply {
-                    val margin = resources.getDimensionPixelSize(CommonR.dimen.foundation_spacing_screen_margin)
-                    val top = resources.getDimensionPixelSize(CommonR.dimen.foundation_space_24)
-                    val bottom = resources.getDimensionPixelSize(CommonR.dimen.foundation_space_8)
-                    setPadding(margin, top, margin, bottom)
-                    val mark =
-                        ImageView(context).apply {
-                            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                            setImageResource(R.drawable.hayaki_mark)
-                        }
-                    val size = context.layoutDp(72)
-                    addView(mark, FrameLayout.LayoutParams(size, size).apply { gravity = Gravity.START })
-                },
-            )
-        }
+    private fun createNavigationView() = TabletDrawer(this, ::onNavigationItemSelected)
 
     /** Whether android:fitsSystemWindows="true" should be applied to the navigation drawer  */
     protected open fun fitsSystemWindows(): Boolean = true
@@ -185,13 +140,7 @@ abstract class NavigationDrawerActivity(
         )
         // Setup toolbar and hamburger
         // Phones' layout holds no drawer (see hasNavigationDrawer)
-        navigationView =
-            drawerLayout.findViewById<NavigationView>(R.id.navdrawer_items_container)?.apply {
-                setNavigationItemSelectedListener(this@NavigationDrawerActivity)
-                menu.findItem(R.id.nav_decks)?.title = TR.actionsDecks()
-                menu.findItem(R.id.nav_stats)?.title = TR.statisticsTitle()
-                setupDrawerInsets(this)
-            }
+        navigationView = drawerLayout.findViewById<TabletDrawer>(R.id.navdrawer_items_container)?.also(::setupDrawerInsets)
         val toolbar: Toolbar? = mainView.findViewById(R.id.toolbar)
         if (toolbar != null) {
             setSupportActionBar(toolbar)
@@ -252,28 +201,18 @@ abstract class NavigationDrawerActivity(
      * Edge to edge: the header image and rows extend to the window edge. The text labels
      * are not drawn underneath the system UI.
      */
-    private fun setupDrawerInsets(navigationView: NavigationView) {
+    private fun setupDrawerInsets(navigationView: TabletDrawer) {
         val contentWidth = resources.getDimensionPixelSize(R.dimen.nav_drawer_width)
-        val itemPadding = navigationView.itemHorizontalPadding
-        val dividerInset = navigationView.dividerInsetStart
-        // setting the values below requests a layout: only do so if the inset changed
-        var appliedStartInset = -1
-        val header = navigationView.getHeaderView(0)
-        val headerTopPadding = header?.paddingTop ?: 0
         ViewCompat.setOnApplyWindowInsetsListener(navigationView) { view, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
-            // the drawer's page draws under the status bar; Hayaki's mark in the header sits below it
-            view.updatePadding(bottom = bars.bottom)
-            header?.updatePadding(top = headerTopPadding + bars.top)
-
-            // Widen by the start inset, so the usable width is unchanged.
-            val startInset = if (view.layoutDirection == View.LAYOUT_DIRECTION_RTL) bars.right else bars.left
-            if (startInset != appliedStartInset) {
-                appliedStartInset = startInset
-                navigationView.itemHorizontalPadding = itemPadding + startInset
-                navigationView.dividerInsetStart = dividerInset + startInset
-                view.updateLayoutParams { width = contentWidth + startInset }
-            }
+            val start = if (view.layoutDirection == View.LAYOUT_DIRECTION_RTL) bars.right else bars.left
+            view.updatePadding(
+                left = if (view.layoutDirection == View.LAYOUT_DIRECTION_LTR) start else 0,
+                top = bars.top,
+                right = if (view.layoutDirection == View.LAYOUT_DIRECTION_RTL) start else 0,
+                bottom = bars.bottom,
+            )
+            if (view.layoutParams.width != contentWidth + start) view.updateLayoutParams { width = contentWidth + start }
             insets
         }
     }
@@ -293,19 +232,7 @@ abstract class NavigationDrawerActivity(
      * Sets selected navigation drawer item
      */
     protected fun selectNavigationItem(itemId: Int) {
-        val menu = navigationView?.menu ?: return
-        if (itemId == -1) {
-            for (i in 0 until menu.size) {
-                menu[i].isChecked = false
-            }
-        } else {
-            val item = menu.findItem(itemId)
-            if (item != null) {
-                item.isChecked = true
-            } else {
-                Timber.e("Could not find item %d", itemId)
-            }
-        }
+        navigationView?.select(itemId)
     }
 
     override fun setTitle(title: CharSequence) {
@@ -381,7 +308,7 @@ abstract class NavigationDrawerActivity(
         }
     }
 
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+    fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Don't do anything if user selects already selected position
         if (item.isChecked) {
             closeDrawer()

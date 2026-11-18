@@ -4,6 +4,7 @@
 package com.ichi2.widget.deckpicker
 
 import android.content.Context
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceComposable
@@ -79,36 +80,52 @@ private object DeckList : PaperWidget<DeckListDisplay>(DeckPickerWidget::class.j
         appearance: WidgetAppearance,
         data: DeckListDisplay,
     ) {
-        val snapshot = data.snapshot
-        if (snapshot.decks.isEmpty() || snapshot.emptyCollection) {
-            EmptyDeckWidget(
-                appearance,
-                with(DeferredNavigation) { WidgetConfigDestination.DeckPicker(data.id.id).toIntent() },
-                snapshot = snapshot,
-                selectedDeckMissing = false,
-            )
-            return
+        DeckListContent(appearance, data.snapshot) {
+            with(DeferredNavigation) { WidgetConfigDestination.DeckPicker(data.id.id).toIntent() }
         }
+    }
+}
 
-        val size = LocalSize.current
-        val narrow = size.width < 190.dp
-        val horizontalPadding = if (narrow) 7.dp else 14.dp
-        val verticalPadding = if (size.height < 80.dp) 5.dp else 10.dp
-        val compact = size.height < 80.dp
-        val head = appearance.textSize(if (narrow) 13 else 17, if (compact) 14 else 22)
-        val summary = appearance.textSize(if (narrow) 10 else 13, if (compact) 11 else 18)
-        val name = appearance.textSize(if (narrow) 12 else 16, if (compact) 13 else 23)
-        val countColumn = if (narrow) 21.dp else 36.dp
-        val count = appearance.textSize(if (narrow) 11 else 15, if (compact) 13 else 21)
-        val headerHeight = maxOf(appearance.textHeight(head) + 1f, if (compact) 18f else 24f).dp
-        val rowHeight = maxOf(appearance.textHeight(name) + 3f, if (compact) 19f else 32f).dp
-        val rows = if (compact) 1 else ((size.height - verticalPadding * 2 - headerHeight).value / rowHeight.value).toInt().coerceIn(1, 5)
-        val colors = appearance.colors
-        WidgetSheet(appearance) {
-            Column(
-                GlanceModifier.fillMaxSize().padding(horizontal = horizontalPadding, vertical = verticalPadding),
-                verticalAlignment = if (compact) Alignment.CenterVertically else Alignment.Top,
-            ) {
+@Composable
+@GlanceComposable
+internal fun DeckListContent(
+    appearance: WidgetAppearance,
+    snapshot: DeckWidgetSnapshot,
+    configure: () -> Intent,
+) {
+    if (snapshot.decks.isEmpty() || snapshot.emptyCollection) {
+        EmptyDeckWidget(appearance, configure(), snapshot = snapshot, selectedDeckMissing = false)
+        return
+    }
+
+    val size = LocalSize.current
+    val narrow = size.width < 190.dp
+    val horizontalPadding = if (narrow) 7.dp else 14.dp
+    val preferredPadding = if (size.height < 80.dp) 3.dp else 10.dp
+    val compact = size.height < 80.dp
+    val head = appearance.textSize(if (narrow) 13 else 17, if (compact) 14 else 22)
+    val summary = appearance.textSize(if (narrow) 10 else 13, if (compact) 11 else 18)
+    val name = appearance.textSize(if (narrow) 12 else 16, if (compact) 13 else 23)
+    val countColumn = if (narrow) 21.dp else 36.dp
+    val count = appearance.textSize(if (narrow) 11 else 15, if (compact) 13 else 21)
+    val headerHeight = maxOf(appearance.textHeight(head) + 1f, if (compact) 18f else 24f).dp
+    val rowHeight = maxOf(48f, appearance.textHeight(name) + 3f).dp
+    val dividerHeight = if (compact) 0.dp else 1.dp
+    val headerFits = size.height >= preferredPadding * 2 + headerHeight + dividerHeight + rowHeight
+    val verticalPadding = if (headerFits) preferredPadding else 0.dp
+    val rows =
+        if (headerFits) {
+            ((size.height - verticalPadding * 2 - headerHeight) / (rowHeight + dividerHeight)).toInt().coerceIn(1, 5)
+        } else {
+            1
+        }
+    val colors = appearance.colors
+    WidgetSheet(appearance) {
+        Column(
+            GlanceModifier.fillMaxSize().padding(horizontal = horizontalPadding, vertical = verticalPadding),
+            verticalAlignment = if (compact) Alignment.CenterVertically else Alignment.Top,
+        ) {
+            if (headerFits) {
                 Row(
                     GlanceModifier.fillMaxWidth().height(headerHeight),
                     verticalAlignment = Alignment.CenterVertically,
@@ -135,23 +152,23 @@ private object DeckList : PaperWidget<DeckListDisplay>(DeckPickerWidget::class.j
                         summary,
                     )
                 }
-                val showRules = !compact
-                for (deck in snapshot.decks.take(rows)) {
-                    Column(GlanceModifier.fillMaxWidth()) {
-                        if (showRules) {
-                            Spacer(GlanceModifier.fillMaxWidth().height(1.dp).background(ColorProvider(colors.outline)))
-                        }
-                        Row(
-                            GlanceModifier
-                                .fillMaxWidth()
-                                .height(rowHeight - if (showRules) 1.dp else 0.dp)
-                                .clickable(actionStartActivity(deck.studyIntent())),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            WidgetText(deck.name, colors.onBackground, name, GlanceModifier.defaultWeight())
-                            Spacer(GlanceModifier.width(3.dp))
-                            CompactDeckCounts(appearance, deck, countColumn, count)
-                        }
+            }
+            val showRules = headerFits && dividerHeight > 0.dp
+            for (deck in snapshot.decks.take(rows)) {
+                Column(GlanceModifier.fillMaxWidth()) {
+                    if (showRules) {
+                        Spacer(GlanceModifier.fillMaxWidth().height(dividerHeight).background(ColorProvider(colors.outline)))
+                    }
+                    Row(
+                        GlanceModifier
+                            .fillMaxWidth()
+                            .height(rowHeight)
+                            .clickable(actionStartActivity(deck.studyIntent())),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        WidgetText(deck.name, colors.onBackground, name, GlanceModifier.defaultWeight())
+                        Spacer(GlanceModifier.width(3.dp))
+                        CompactDeckCounts(appearance, deck, countColumn, count)
                     }
                 }
             }

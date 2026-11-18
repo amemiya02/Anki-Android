@@ -30,6 +30,7 @@ import android.view.MotionEvent
 import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
+import android.view.Window
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
@@ -40,7 +41,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.widget.SearchView
-import androidx.appcompat.widget.Toolbar
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.lazy.LazyListState
@@ -430,6 +430,9 @@ open class DeckPicker :
      */
     private var syncOnResume = false
 
+    private val deckToolbarMenu = mutableStateOf<DeckPickerToolbarMenu?>(null)
+    private val deckToolbarMediaSync = mutableStateOf(false)
+    private val deckToolbarSyncState = mutableStateOf<SyncIconState?>(null)
     private var toolbarSearchItem: MenuItem? = null
     private var toolbarSearchView: AccessibleSearchView? = null
 
@@ -612,7 +615,6 @@ open class DeckPicker :
                 }
             }
         }
-        enableToolbar()
         // TODO This method is run on every activity recreation, which can happen often.
         //  It seems that the original idea was for this to only run once, on app start.
         //  This method triggers backups, sync, and may re-show dialogs
@@ -632,7 +634,6 @@ open class DeckPicker :
         title = resources.getString(R.string.app_name)
 
         setupDeckList()
-        if (bottomNavigationEnabled) showDeckListTitle()
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -659,6 +660,8 @@ open class DeckPicker :
                     },
                 initiallyOpen = savedInstanceState?.getBoolean("mIsFABOpen") == true,
             )
+
+        setupDeckPickerToolbar()
 
         shortAnimDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
 
@@ -832,19 +835,32 @@ open class DeckPicker :
         }
     }
 
-    /** On phones the top bar shows today's date over "Decks", in place of the app's name */
-    private fun showDeckListTitle() {
-        val toolbar = findViewById<Toolbar>(R.id.toolbar) ?: return
-        supportActionBar?.setDisplayShowTitleEnabled(false)
-        val title =
-            ComposeView(this).apply {
-                setContent {
-                    AnkiDroidTheme {
+    private fun setupDeckPickerToolbar() {
+        binding.toolbarContainer.setContent {
+            AnkiDroidTheme {
+                DeckPickerToolbar(
+                    menu = deckToolbarMenu.value,
+                    syncState = deckToolbarSyncState.value,
+                    syncingMedia = deckToolbarMediaSync.value,
+                    onNavigate = if (hasNavigationDrawer) ::onNavigationPressed else null,
+                    onAction = { onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, it) },
+                ) {
+                    if (bottomNavigationEnabled) {
                         DeckListTitle(date = deckListDate.value)
+                    } else {
+                        Text(getString(R.string.app_name), style = MaterialTheme.typography.titleLarge)
                     }
                 }
             }
-        toolbar.addView(title, Toolbar.LayoutParams(Toolbar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT))
+        }
+        invalidateOptionsMenu()
+    }
+
+    override fun invalidateOptionsMenu() {
+        if (!::binding.isInitialized || !navDrawerIsReady() || !::floatingActionMenu.isInitialized) return
+        val menu = DeckPickerToolbarMenu(this)
+        onCreatePanelMenu(Window.FEATURE_OPTIONS_PANEL, menu)
+        deckToolbarMenu.value = menu
     }
 
     /** Applied edge-to-edge insets for the screen */
@@ -1347,7 +1363,7 @@ open class DeckPicker :
         }
 
         Timber.d("onCreateOptionsMenu()")
-        if (isDrawerOpen) {
+        if (isDrawerOpen && ::floatingActionMenu.isInitialized) {
             floatingActionMenu.closeFloatingActionMenu(style = CloseAnimation.LONG)
         }
         // Fragments own their menus: each fragment registers a MenuProvider against this
@@ -1401,6 +1417,7 @@ open class DeckPicker :
             lifecycleScope.launch {
                 flow.flowWithLifecycle(lifecycle).collectLatest {
                     provider.isProgressShown = it.lastOrNull()?.state == WorkInfo.State.RUNNING
+                    deckToolbarMediaSync.value = provider.isProgressShown
                 }
             }
     }
@@ -1522,6 +1539,7 @@ open class DeckPicker :
         menuItem: MenuItem,
         state: OptionsMenuState,
     ) {
+        deckToolbarSyncState.value = state.syncIcon
         val provider =
             MenuItemCompat.getActionProvider(menuItem) as? SyncActionProvider
                 ?: return
@@ -2697,6 +2715,7 @@ open class DeckPicker :
                 Intent(ACTION_DEFERRED_IMPORT).putExtra(EXTRA_IMPORT_SOURCE, Intent(source)),
                 source,
             )
+
         private const val STATE_WAIT_FOR_WELCOME_ACTION = "waitForWelcomeAction"
 
         internal fun getEntryIntent(

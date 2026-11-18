@@ -3,7 +3,6 @@
 package com.ichi2.anki
 
 import android.content.Context
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.util.TypedValue
 import android.view.Gravity
@@ -23,12 +22,9 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.FragmentContainerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.behavior.HideViewOnScrollBehavior
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.ui.ResizablePaneLayout
 import com.ichi2.anki.ui.ResizingDivider
-import com.google.android.material.R as MaterialR
 import com.ichi2.anki.common.android.R as CommonR
 
 /** Native containers for the Compose deck list and the adaptive study pane. */
@@ -38,9 +34,9 @@ internal class DeckPickerLayout(
     val root = CoordinatorLayout(context).apply { id = R.id.root_layout }
     val rootLayout: View get() = root
     val deckPickerPane = DeckListLayout(context)
-    val toolbarContainer = createAppToolbar(context)
+    val toolbarContainer = ComposeView(context).apply { id = R.id.toolbar_container }
     val deckPickerContentWrapper: LinearLayout?
-    val bottomNavigation: BottomNavigationView?
+    val bottomNavigation: DeckBottomBar?
     val deckpickerXlView: ResizablePaneLayout?
     val resizingDivider: ResizingDivider?
     val studyoptionsFragment: FragmentContainerView?
@@ -57,18 +53,17 @@ internal class DeckPickerLayout(
             content.addView(deckPickerPane.root, MATCH_PARENT, MATCH_PARENT)
             root.addView(content, MATCH_PARENT, MATCH_PARENT)
             val bar =
-                BottomNavigationView(context, null, 0, R.style.Widget_Foundation_BottomBar).apply {
+                DeckBottomBar(context).apply {
                     id = R.id.bottom_navigation
-                    setBackgroundResource(R.drawable.bottom_bar_background)
+                    setBackgroundColor(getColorFromAttr(context, CommonR.attr.foundationBackground))
                     minimumHeight = resources.getDimensionPixelSize(R.dimen.bottom_bar_height)
-                    inflateMenu(R.menu.bottom_nav_menu)
                     visibility = View.GONE
                 }
             root.addView(
                 bar,
                 CoordinatorLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
                     gravity = Gravity.BOTTOM
-                    behavior = HideViewOnScrollBehavior<BottomNavigationView>()
+                    behavior = HideViewOnScrollBehavior<DeckBottomBar>()
                 },
             )
             bottomNavigation = bar
@@ -158,18 +153,9 @@ class AddMenuLayout internal constructor(
         addOption(context, R.id.add_filtered_deck_button, R.drawable.symbol_filter_alt, CommonString.new_dynamic_deck)
     val addDeckButton = addOption(context, R.id.add_deck_button, R.drawable.symbol_create_new_folder)
     val fabMain =
-        ExtendedFloatingActionButton(ContextThemeWrapper(context, MaterialR.style.Widget_Material3_ExtendedFloatingActionButton_Primary))
-            .apply {
-                id = R.id.fab_main
-                setIconResource(CommonR.drawable.symbol_add)
-                backgroundTintList = ColorStateList.valueOf(getColorFromAttr(context, CommonR.attr.fabNormalColor))
-                val onPrimary = getColorFromAttr(context, CommonR.attr.foundationOnPrimary)
-                iconTint = ColorStateList.valueOf(onPrimary)
-                setTextColor(onPrimary)
-                contentDescription = context.getString(CommonString.menu_add)
-                isFocusable = true
-                isClickable = true
-            }
+        DeckPickerAddButton(context, CommonR.drawable.symbol_add, primary = true).apply {
+            id = R.id.fab_main
+        }
 
     init {
         val scroll = ScrollView(context).apply { addView(fabLinearLayout, WRAP_CONTENT, WRAP_CONTENT) }
@@ -189,21 +175,13 @@ class AddMenuLayout internal constructor(
         id: Int,
         icon: Int,
         label: Int? = null,
-    ): ExtendedFloatingActionButton =
-        ExtendedFloatingActionButton(ContextThemeWrapper(context, MaterialR.style.Widget_Material3_ExtendedFloatingActionButton_Secondary))
-            .apply {
-                this.id = id
-                setIconResource(icon)
-                if (label != null) {
-                    setText(label)
-                    contentDescription = context.getString(label)
-                }
-                maxLines = 3
-                isFocusable = true
-                isClickable = true
-                visibility = View.GONE
-                fabLinearLayout.addView(this, optionLayoutParams(context))
-            }
+    ): DeckPickerAddButton =
+        DeckPickerAddButton(context, icon, primary = false).apply {
+            this.id = id
+            text = label?.let(context::getText)
+            visibility = View.GONE
+            fabLinearLayout.addView(this, optionLayoutParams(context))
+        }
 
     private fun optionLayoutParams(context: Context) =
         LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {

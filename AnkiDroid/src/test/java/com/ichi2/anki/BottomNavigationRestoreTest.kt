@@ -12,7 +12,6 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.core.view.isVisible
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.testutils.BackupManagerTestUtilities
 import org.hamcrest.MatcherAssert.assertThat
@@ -54,7 +53,7 @@ class BottomNavigationRestoreTest : RobolectricTest() {
             assertThat(deckPicker.dispatchKeyEvent(shortcut), equalTo(true))
             composeRule.onNode(hasSetTextAction()).assertDoesNotExist()
 
-            deckPicker.bottomNav.findViewById<View>(NavigationItem.BROWSER.id).performClick()
+            deckPicker.bottomNav.onTabClick(NavigationItem.BROWSER)
             composeRule.waitUntil(10_000) { !deckPicker.bottomNav.isVisible }
             composeRule.onNode(hasSetTextAction()).assertIsDisplayed()
         }
@@ -189,7 +188,7 @@ class BottomNavigationRestoreTest : RobolectricTest() {
         )
     }
 
-    private val DeckPicker.bottomNav: BottomNavigationView
+    private val DeckPicker.bottomNav: DeckBottomBar
         get() = binding.bottomNavigation!!
 
     private val DeckPicker.deckList: View

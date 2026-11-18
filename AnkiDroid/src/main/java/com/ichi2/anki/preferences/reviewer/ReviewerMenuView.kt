@@ -3,62 +3,120 @@
 package com.ichi2.anki.preferences.reviewer
 
 import android.content.Context
-import android.util.AttributeSet
-import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
-import android.widget.HorizontalScrollView
-import android.widget.LinearLayout
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuItemImpl
 import androidx.appcompat.widget.ActionMenuView
-import androidx.appcompat.widget.PopupMenu
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.AbstractComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.children
-import androidx.core.view.size
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.ichi2.anki.Flag
 import com.ichi2.anki.R
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.utils.ext.setIconRes
-import com.ichi2.utils.increaseHorizontalPaddingOfMenuIcons
+import com.ichi2.compose.theme.AnkiDroidTheme
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import kotlinx.coroutines.launch
+import androidx.appcompat.R as AppCompatR
+import com.ichi2.anki.common.android.R as CommonR
 
-/**
- * View for displaying the reviewer menu actions.
- *
- * It works like an [ActionMenuView], but the visible action items are horizontally scrollable by
- * using an [ActionMenuView] inside a [HorizontalScrollView], and another one for the overflown
- * actions.
- */
-class ReviewerMenuView : LinearLayout {
-    private val repository = ReviewerMenuRepository(context.sharedPrefs())
-    private val frontMenuView = ActionMenuView(context).apply { id = R.id.front_menu_view }
-    private val overflowMenuView = ActionMenuView(context).apply { id = R.id.overflow_menu_view }
-    private val frontMenu: Menu = frontMenuView.menu
-    private val overflowMenu: Menu =
-        overflowMenuView.menu.apply {
-            (this as? MenuBuilder)?.setOptionalIconsVisible(true)
-        }
+/** Compose Card actions backed by the reviewer’s configurable Android menu model. */
+class ReviewerMenuView(
+    context: Context,
+) : AbstractComposeView(context) {
+    private var menuVersion by mutableIntStateOf(0)
+    private val frontMenu = newMenu()
+    private val overflowMenu = newMenu()
     private var onMenuItemClickListener: ActionMenuView.OnMenuItemClickListener? = null
+    private var openedMenu by mutableStateOf<Menu?>(null)
 
-    constructor(context: Context) : this(context, null)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        val scroll =
-            HorizontalScrollView(context).apply {
-                id = R.id.horizontalScrollView
-                isHorizontalScrollBarEnabled = false
-                addView(
-                    frontMenuView,
-                    android.widget.FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.END),
-                )
+    init {
+        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        val menuItems =
+            ReviewerMenuRepository(
+                context.sharedPrefs(),
+            ).getActionsByMenuDisplayTypes(MenuDisplayType.ALWAYS, MenuDisplayType.MENU_ONLY)
+        addActions(menuItems.getValue(MenuDisplayType.ALWAYS), menuItems.getValue(MenuDisplayType.MENU_ONLY))
+    }
+
+    private fun newMenu() =
+        object : MenuBuilder(context) {
+            override fun onItemsChanged(structureChanged: Boolean) {
+                super.onItemsChanged(structureChanged)
+                menuVersion++
             }
-        addView(scroll, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1f))
-        addView(overflowMenuView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
-        setupMenus()
+        }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        findViewTreeLifecycleOwner()?.lifecycleScope?.launch { setFlagTitles() }
+    }
+
+    @Composable
+    override fun Content() {
+        AnkiDroidTheme {
+            val version = menuVersion
+            Row(Modifier.widthIn(max = 192.dp), verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.weight(1f, fill = false).horizontalScroll(rememberScrollState())) {
+                    for (item in frontMenu.children.filter(MenuItem::isVisible)) {
+                        IconButton(
+                            onClick = { select(item) },
+                            enabled = item.isEnabled,
+                            modifier = Modifier.size(48.dp).semantics { contentDescription = item.title.toString() },
+                        ) {
+                            MenuIcon(item, version)
+                        }
+                    }
+                }
+                Box {
+                    if (overflowMenu.hasVisibleItems()) {
+                        IconButton(onClick = { openedMenu = overflowMenu }, modifier = Modifier.size(48.dp)) {
+                            Icon(
+                                painterResource(CommonR.drawable.symbol_more_vert),
+                                stringResource(AppCompatR.string.abc_action_menu_overflow_description),
+                            )
+                        }
+                    }
+                    val opened = openedMenu
+                    DropdownMenu(opened != null, onDismissRequest = { openedMenu = null }) {
+                        for (item in opened?.children?.filter(MenuItem::isVisible).orEmpty()) {
+                            MenuRow(item, version) { select(item) }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun clear() {
@@ -66,49 +124,72 @@ class ReviewerMenuView : LinearLayout {
         overflowMenu.clear()
     }
 
-    fun isEmpty() = frontMenu.size == 0 && overflowMenu.size == 0
+    fun isEmpty() = frontMenu.size() == 0 && overflowMenu.size() == 0
 
     fun findItem(id: Int): MenuItemImpl? = (frontMenu.findItem(id) ?: overflowMenu.findItem(id)) as? MenuItemImpl
 
     fun setOnMenuItemClickListener(listener: ActionMenuView.OnMenuItemClickListener) {
         onMenuItemClickListener = listener
-        frontMenuView.setOnMenuItemClickListener(listener)
-        overflowMenuView.setOnMenuItemClickListener(listener)
     }
 
-    /** Opens the configured Card actions even when a template has hidden the toolbar. */
-    fun showOptionsMenu(anchor: View): Boolean {
-        if (isShown && overflowMenuView.showOverflowMenu()) return true
-        val popup = PopupMenu(context, anchor, Gravity.END)
-        copyVisibleItems(frontMenu, popup.menu)
-        copyVisibleItems(overflowMenu, popup.menu)
-        if (!popup.menu.hasVisibleItems()) return false
-        popup.setOnMenuItemClickListener { onMenuItemClickListener?.onMenuItemClick(it) ?: false }
-        popup.show()
+    /** Also supports keyboard and gesture shortcuts when the Card Template hides the app bar. */
+    fun showOptionsMenu(): Boolean {
+        if (isShown && overflowMenu.hasVisibleItems()) {
+            openedMenu = overflowMenu
+            return true
+        }
+        val items = (frontMenu.children + overflowMenu.children).filter(MenuItem::isVisible).toList()
+        if (items.isEmpty()) return false
+        createPaperDialog(context) { dialog ->
+            var available by androidx.compose.runtime.remember { mutableStateOf(items) }
+            PaperDialog(
+                title = stringResource(AppCompatR.string.abc_action_menu_overflow_description),
+                onDismissRequest = dialog::dismiss,
+            ) {
+                Column {
+                    for (item in available) {
+                        MenuRow(item, menuVersion) {
+                            val submenu = item.subMenu
+                            if (submenu == null) {
+                                dialog.dismiss()
+                                onMenuItemClickListener?.onMenuItemClick(item)
+                            } else {
+                                available = submenu.children.filter(MenuItem::isVisible).toList()
+                            }
+                        }
+                    }
+                }
+            }
+        }.show()
         return true
     }
 
-    private fun copyVisibleItems(
-        from: Menu,
-        to: Menu,
+    private fun select(item: MenuItem) {
+        openedMenu = item.subMenu
+        if (!item.hasSubMenu()) onMenuItemClickListener?.onMenuItemClick(item)
+    }
+
+    @Composable
+    private fun MenuRow(
+        item: MenuItem,
+        version: Int,
+        activate: () -> Unit,
     ) {
-        for (item in from.children.filter { it.isVisible }) {
-            val submenu = item.subMenu
-            val copy =
-                if (submenu == null) {
-                    to.add(item.groupId, item.itemId, item.order, item.title)
-                } else {
-                    to
-                        .addSubMenu(item.groupId, item.itemId, item.order, item.title)
-                        .also {
-                            copyVisibleItems(submenu, it)
-                        }.item
-                }
-            copy.isEnabled = item.isEnabled
-            copy.isCheckable = item.isCheckable
-            copy.isChecked = item.isChecked
-            copy.icon = item.icon
-        }
+        DropdownMenuItem(
+            text = { Text(item.title.toString()) },
+            onClick = activate,
+            enabled = item.isEnabled,
+            leadingIcon = item.icon?.let { { MenuIcon(item, version) } },
+        )
+    }
+
+    @Composable
+    private fun MenuIcon(
+        item: MenuItem,
+        version: Int,
+    ) {
+        val icon = androidx.compose.runtime.remember(item, version) { item.icon?.toBitmap()?.asImageBitmap() }
+        icon?.let { Image(it, contentDescription = null, Modifier.size(24.dp)) }
     }
 
     fun addActions(
@@ -118,10 +199,9 @@ class ReviewerMenuView : LinearLayout {
         addActionsToMenu(frontMenu, alwaysShow, MenuItem.SHOW_AS_ACTION_ALWAYS)
         addActionsToMenu(overflowMenu, menuOnly, MenuItem.SHOW_AS_ACTION_NEVER)
 
-        val submenuActions = ViewerAction.entries.filter { it.parentMenu != null }
-        for (action in submenuActions) {
+        for (action in ViewerAction.entries.filter { it.parentMenu != null }) {
             val subMenu = findItem(action.parentMenu!!.menuId)?.subMenu ?: continue
-            subMenu.add(Menu.NONE, action.menuId, Menu.NONE, action.title(context))?.apply {
+            subMenu.add(Menu.NONE, action.menuId, Menu.NONE, action.title(context)).apply {
                 action.drawableRes?.let { setIconRes(context, it) }
             }
         }
@@ -132,6 +212,7 @@ class ReviewerMenuView : LinearLayout {
         for ((flag, name) in Flag.queryDisplayNames(context)) {
             submenu.findItem(flag.id)?.title = name
         }
+        menuVersion++
     }
 
     private fun addActionsToMenu(
@@ -142,35 +223,14 @@ class ReviewerMenuView : LinearLayout {
         val subMenus = ViewerAction.getSubMenus()
         for (action in actions) {
             val title = action.title(context)
-            val menuItem =
+            val item =
                 if (action in subMenus) {
                     menu.addSubMenu(Menu.NONE, action.menuId, Menu.NONE, title).item
                 } else {
                     menu.add(Menu.NONE, action.menuId, Menu.NONE, title)
                 }
-            with(menuItem) {
-                action.drawableRes?.let { setIconRes(context, it) }
-                setShowAsAction(menuActionType)
-            }
+            action.drawableRes?.let { item.setIconRes(context, it) }
+            item.setShowAsAction(menuActionType)
         }
-    }
-
-    private fun setupMenus() {
-        val menuItems = repository.getActionsByMenuDisplayTypes(MenuDisplayType.ALWAYS, MenuDisplayType.MENU_ONLY)
-        addActions(menuItems.getValue(MenuDisplayType.ALWAYS), menuItems.getValue(MenuDisplayType.MENU_ONLY))
-
-        context.increaseHorizontalPaddingOfMenuIcons(overflowMenu)
-
-        // wait until attached to a fragment or activity to launch the coroutine to setup flags
-        viewTreeObserver.addOnGlobalLayoutListener(
-            object : OnGlobalLayoutListener {
-                override fun onGlobalLayout() {
-                    findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
-                        setFlagTitles()
-                    }
-                    viewTreeObserver.removeOnGlobalLayoutListener(this)
-                }
-            },
-        )
     }
 }

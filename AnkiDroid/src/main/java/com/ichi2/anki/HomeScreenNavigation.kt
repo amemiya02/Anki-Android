@@ -2,24 +2,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 package com.ichi2.anki
 
-import android.graphics.Typeface
-import android.os.Build
-import android.view.ViewGroup
-import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat.Type.navigationBars
-import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import com.google.android.material.behavior.HideViewOnScrollBehavior
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.browser.CardBrowserFragment
 import com.ichi2.anki.common.analytics.Analytics
-import com.ichi2.anki.common.android.themes.interfaceTypeface
 import com.ichi2.anki.common.annotations.NeedsTest
-import com.google.android.material.R as MaterialR
 
 /**
  * Manages the bottom navigation bar for the home screen.
@@ -56,9 +48,6 @@ fun setupBottomNavigation() {
         ViewCompat.requestApplyInsets(deckPicker.deckPickerBinding.root)
     }
 
-    NavigationItem.populateMenu(bottomNav, deckPicker)
-    bottomNav.useInterfaceTypeface()
-
     // Handle system navigation bar insets for the bottom nav
     ViewCompat.setOnApplyWindowInsetsListener(bottomNav) { view, insets ->
         val navBars = insets.getInsets(navigationBars())
@@ -66,21 +55,13 @@ fun setupBottomNavigation() {
         insets
     }
 
-    bottomNav.setOnItemSelectedListener { item ->
-        val navItem = NavigationItem.fromId(item.itemId) ?: return@setOnItemSelectedListener false
-        if (item.itemId != bottomNav.selectedItemId) {
-            Analytics.sendAnalyticsScreenView(navItem.analyticsScreenName)
+    bottomNav.onTabClick = { tab ->
+        if (tab != bottomNav.selectedTab) {
+            Analytics.sendAnalyticsScreenView(tab.analyticsScreenName)
             scrollBehavior.slideIn(bottomNav)
-        }
-        deckPicker.selectNavigationTab(navItem)
-        true
-    }
-
-    // A second tap on Browse opens search in the current browser.
-    bottomNav.setOnItemReselectedListener { item ->
-        if (item.itemId == NavigationItem.BROWSER.id) {
-            val browser = deckPicker.currentScreenFragment as? CardBrowserFragment
-            browser?.openSearch()
+            deckPicker.selectNavigationTab(tab)
+        } else if (tab == NavigationItem.BROWSER) {
+            (deckPicker.currentScreenFragment as? CardBrowserFragment)?.openSearch()
         }
     }
 
@@ -89,37 +70,15 @@ fun setupBottomNavigation() {
     }
 }
 
-/**
- * Draws the bar's labels in the interface typeface of the app's language, the current tab's at
- * weight 600. Material builds the labels itself, so they miss the typeface every inflated text gets,
- * and its text appearances alone leave Chinese and Japanese labels at the regular weight.
- */
-private fun BottomNavigationView.useInterfaceTypeface() {
-    val regular = context.interfaceTypeface(opticalSize = 12f)
-    val current =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            Typeface.create(regular, 600, false)
-        } else {
-            Typeface.create(regular, Typeface.BOLD)
-        }
-    val items = getChildAt(0) as? ViewGroup ?: return
-    items.children.forEach { item ->
-        item.findViewById<TextView>(MaterialR.id.navigation_bar_item_small_label_view)?.typeface = regular
-        item.findViewById<TextView>(MaterialR.id.navigation_bar_item_large_label_view)?.typeface = current
-    }
-}
-
-internal fun BottomNavigationView.selectTab(item: NavigationItem) {
-    if (selectedItemId != item.id) {
-        selectedItemId = item.id
-    }
+internal fun DeckBottomBar.selectTab(item: NavigationItem) {
+    if (selectedTab != item) onTabClick(item)
 }
 
 context(deckPicker: DeckPicker)
 fun selectedBottomNavItem(): NavigationItem? {
     if (!deckPicker.bottomNavigationEnabled) return null
     val bottomNav = deckPicker.binding.bottomNavigation ?: return null
-    return NavigationItem.fromId(bottomNav.selectedItemId)
+    return bottomNav.selectedTab
 }
 
 internal fun DeckPicker.updateTabChrome(tab: NavigationItem?) {
@@ -127,11 +86,12 @@ internal fun DeckPicker.updateTabChrome(tab: NavigationItem?) {
     val bar = binding.bottomNavigation ?: return
     binding.deckPickerContentWrapper?.isVisible = tab == NavigationItem.HOME
     if (tab == null) {
+        floatingActionMenu.resetMenuAfterAdding()
         bar.isVisible = false
         return
     }
 
-    bar.menu.findItem(tab.id).isChecked = true
+    bar.selectedTab = tab
     setBrowserFullScreen(false)
     if (tab == NavigationItem.HOME) floatingActionMenu.showFloatingActionButton()
 }

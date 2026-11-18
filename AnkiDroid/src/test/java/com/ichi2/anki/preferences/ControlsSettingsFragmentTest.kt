@@ -211,7 +211,7 @@ class ControlsSettingsFragmentTest : RobolectricTest() {
             lateinit var answerTitle: String
             scenario.onActivity { activity ->
                 val host = activity.fragment as PreferencesFragment
-                val controls = host.childFragmentManager.findFragmentById(R.id.settings_container)!!
+                val controls = checkNotNull(host.currentPage)
                 answerTitle = controls.controlPreferenceTitle(ViewerAction.ANSWER_GOOD.preferenceKey)!!
             }
             compose.onNodeWithText(answerTitle).performScrollTo().performClick()

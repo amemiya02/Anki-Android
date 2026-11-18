@@ -13,20 +13,14 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentContainerView
-import androidx.fragment.app.commit
-import androidx.fragment.app.commitNow
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -75,6 +69,7 @@ import com.ichi2.anki.preferences.PreferencesFragment
 import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.anki.previewer.PreviewerFragment
 import com.ichi2.anki.previewer.TemplatePreviewerFragment
+import com.ichi2.anki.reviewreminders.ReminderTroubleshootingFragment
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
 import com.ichi2.anki.shareddeck.SharedDecksActivity
 import com.ichi2.anki.shareddeck.SharedDecksFragment
@@ -98,12 +93,12 @@ internal class AppNavigation(
 ) {
     private var controller: NavHostController? = null
     private val pending = ArrayDeque<(NavHostController) -> Unit>()
-    private val fragments = mutableMapOf<String, Fragment>()
+    private val destinations = FragmentDestinations(deckPicker.supportFragmentManager)
     private val completedResults = mutableMapOf<String, ActivityResult>()
     private val forwardedResults = mutableSetOf<String>()
 
     val currentFragment: Fragment?
-        get() = controller?.currentBackStackEntry?.id?.let(fragments::get)
+        get() = destinations.find(controller?.currentBackStackEntry)
 
     val showsStandaloneScreen: Boolean
         get() = controller?.currentDestination?.route?.let { it !in tabRouteNames } == true
@@ -192,58 +187,11 @@ internal class AppNavigation(
         modifier: Modifier = Modifier,
         screenArguments: Bundle? = entry.arguments?.getBundle(SCREEN_ARGUMENTS),
     ) {
-        val manager = deckPicker.supportFragmentManager
-        val tag = "navigation:${entry.id}"
-        // FragmentManager already saves the container ID alongside the Fragment's state.
-        val containerId = remember(tag) { manager.findFragmentByTag(tag)?.id ?: allocateContainerId() }
-        val container =
-            remember(containerId) {
-                FragmentContainerView(deckPicker).apply {
-                    id = containerId
-                    // AndroidView forwards nested scroll from its descendants when the hosted view opts in.
-                    isNestedScrollingEnabled = true
-                }
-            }
-        AndroidView(factory = { container }, modifier = modifier.fillMaxSize())
-
-        DisposableEffect(container) {
-            val existing = manager.findFragmentByTag(tag)
-            val fragment =
-                existing ?: manager.fragmentFactory.instantiate(deckPicker.classLoader, fragmentClass.name).apply {
-                    arguments = screenArguments
-                }
-            fragments[entry.id] = fragment
-            if (!manager.isStateSaved) {
-                manager.commitNow {
-                    setReorderingAllowed(true)
-                    if (existing == null) {
-                        add(container, fragment, tag)
-                    } else {
-                        manager.onContainerAvailable(container)
-                    }
-                    setMaxLifecycle(fragment, Lifecycle.State.RESUMED)
-                }
-            }
-            onDispose {
-                if (!manager.isStateSaved && !manager.isDestroyed && fragment.isAdded) {
-                    manager.commitNow { setMaxLifecycle(fragment, Lifecycle.State.CREATED) }
-                }
-            }
-        }
-    }
-
-    private fun allocateContainerId(): Int {
-        val manager = deckPicker.supportFragmentManager
-        var id = View.generateViewId()
-        while (manager.findFragmentById(id) != null) id = View.generateViewId()
-        return id
+        destinations.Content(entry, fragmentClass.name, screenArguments, modifier)
     }
 
     private fun onEntryPopped(entry: NavBackStackEntry) {
-        val fragment = fragments.remove(entry.id) ?: deckPicker.supportFragmentManager.findFragmentByTag("navigation:${entry.id}")
-        if (fragment != null && fragment.isAdded && !deckPicker.supportFragmentManager.isStateSaved) {
-            deckPicker.supportFragmentManager.commit { remove(fragment) }
-        }
+        destinations.remove(entry)
         if (forwardedResults.remove(entry.id)) return
         if (entry.arguments?.getBoolean(RETURN_TO_SHARING_APP) == true) {
             deckPicker.moveTaskToBack(true)
@@ -257,9 +205,7 @@ internal class AppNavigation(
     fun selectTab(tab: NavigationItem) {
         navigateWhenReady { navigation ->
             if (navigation.currentDestination?.route == tab.tag) return@navigateWhenReady
-            (currentFragment as? CardBrowserFragment)?.let { browser ->
-                browser.searchViewModel.closeBrowserSearch(browser.activityViewModel.searchRequestFlow.value)
-            }
+            (currentFragment as? CardBrowserFragment)?.closeSearch()
             if (tab == NavigationItem.HOME) {
                 navigation.popBackStack(HOME, inclusive = false)
             } else {
@@ -286,22 +232,11 @@ internal class AppNavigation(
         val target = intent.component ?: return false
         if (target.packageName != deckPicker.packageName) return false
         val component = target.className
-        if (component !in hostedComponents) return false
         val fragment =
-            when (component) {
-                CardBrowser::class.java.name -> CardBrowserPaneFragment::class.java
-                CardTemplateBrowserAppearanceEditor::class.java.name -> BrowserAppearanceFragment::class.java
-                CardTemplateEditor::class.java.name -> CardTemplateEditorFragment::class.java
-                ManageNotetypes::class.java.name -> ManageNoteTypesFragment::class.java
-                AllPermissionsExplanationActivity::class.java.name -> AllPermissionsExplanationFragment::class.java
-                PermissionsActivity::class.java.name -> CollectionPermissionsFragment::class.java
-                ManageSpaceActivity::class.java.name -> ManageSpaceFragment::class.java
-                Info::class.java.name -> InfoFragment::class.java
-                SharedDecksActivity::class.java.name -> SharedDecksFragment::class.java
-                StudyOptionsActivity::class.java.name -> StudyOptionsFlowFragment::class.java
-                MultimediaActivity::class.java.name -> MultimediaFlowFragment::class.java
-                NoteEditorActivity::class.java.name -> NoteEditorPaneFragment::class.java
-                else -> intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME)?.let(fragmentScreens::get) ?: return false
+            activityScreens[component] ?: if (component in fragmentHosts) {
+                intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME)?.let(fragmentScreens::get) ?: return false
+            } else {
+                return false
             }
         val screenArguments =
             when (component) {
@@ -381,21 +316,25 @@ internal class AppNavigation(
             )
         val tabRouteNames = NavigationItem.entries.map { it.tag }
 
-        val hostedComponents =
+        val activityScreens =
+            mapOf(
+                CardBrowser::class.java.name to CardBrowserPaneFragment::class.java,
+                CardTemplateBrowserAppearanceEditor::class.java.name to BrowserAppearanceFragment::class.java,
+                CardTemplateEditor::class.java.name to CardTemplateEditorFragment::class.java,
+                ManageNotetypes::class.java.name to ManageNoteTypesFragment::class.java,
+                AllPermissionsExplanationActivity::class.java.name to AllPermissionsExplanationFragment::class.java,
+                PermissionsActivity::class.java.name to CollectionPermissionsFragment::class.java,
+                ManageSpaceActivity::class.java.name to ManageSpaceFragment::class.java,
+                Info::class.java.name to InfoFragment::class.java,
+                SharedDecksActivity::class.java.name to SharedDecksFragment::class.java,
+                StudyOptionsActivity::class.java.name to StudyOptionsFlowFragment::class.java,
+                MultimediaActivity::class.java.name to MultimediaFlowFragment::class.java,
+                NoteEditorActivity::class.java.name to NoteEditorPaneFragment::class.java,
+            )
+
+        val fragmentHosts =
             setOf(
                 AccountActivity::class.java.name,
-                AllPermissionsExplanationActivity::class.java.name,
-                PermissionsActivity::class.java.name,
-                CardBrowser::class.java.name,
-                CardTemplateBrowserAppearanceEditor::class.java.name,
-                CardTemplateEditor::class.java.name,
-                ManageNotetypes::class.java.name,
-                ManageSpaceActivity::class.java.name,
-                Info::class.java.name,
-                StudyOptionsActivity::class.java.name,
-                SharedDecksActivity::class.java.name,
-                MultimediaActivity::class.java.name,
-                NoteEditorActivity::class.java.name,
                 SingleFragmentActivity::class.java.name,
                 ConfigAwareSingleFragmentActivity::class.java.name,
                 PreferencesActivity::class.java.name,
@@ -405,14 +344,9 @@ internal class AppNavigation(
         val fragmentScreens =
             listOf(
                 AccountFlowFragment::class.java,
-                AllPermissionsExplanationFragment::class.java,
-                CollectionPermissionsFragment::class.java,
                 AnkiPackageImporterFragment::class.java,
-                BrowserAppearanceFragment::class.java,
-                CardBrowserPaneFragment::class.java,
                 CardInfoFragment::class.java,
                 ChangeNoteTypePage::class.java,
-                CardTemplateEditorFragment::class.java,
                 CsvImporter::class.java,
                 DeckOptions::class.java,
                 DrawingFragment::class.java,
@@ -420,22 +354,16 @@ internal class AppNavigation(
                 FinishedFragment::class.java,
                 ImageCropper::class.java,
                 ImageOcclusion::class.java,
-                InfoFragment::class.java,
                 InstantNoteEditorFragment::class.java,
-                ManageNoteTypesFragment::class.java,
-                ManageSpaceFragment::class.java,
                 MediaCheckFragment::class.java,
-                MultimediaFlowFragment::class.java,
-                NoteEditorPaneFragment::class.java,
                 PreferencesFragment::class.java,
                 PreviewerFragment::class.java,
                 ReviewerFragment::class.java,
+                ReminderTroubleshootingFragment::class.java,
                 ScheduleRemindersFragment::class.java,
                 Statistics::class.java,
-                StudyOptionsFlowFragment::class.java,
-                SharedDecksFragment::class.java,
                 TemplatePreviewerFragment::class.java,
-            ).associateBy { it.name }
+            ).plus(activityScreens.values).associateBy { it.name }
     }
 }
 

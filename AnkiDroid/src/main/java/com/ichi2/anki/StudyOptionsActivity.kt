@@ -82,11 +82,7 @@ class StudyOptionsFlowFragment :
             childFragmentManager.commit { replace(R.id.studyoptions_frame, StudyOptionsFragment()) }
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            if (childFragmentManager.backStackEntryCount > 0) {
-                childFragmentManager.popBackStack()
-            } else {
-                finishScreen(Activity.RESULT_OK)
-            }
+            finishScreen(Activity.RESULT_OK)
         }
         childFragmentManager.setFragmentResultListener(REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
             when (CustomStudyAction.fromBundle(bundle)) {
@@ -105,16 +101,7 @@ class StudyOptionsFlowFragment :
     }
 
     internal fun showReminders(deck: DeckId) {
-        childFragmentManager.commit {
-            replace(
-                R.id.studyoptions_frame,
-                ScheduleRemindersFragment.newInstance(
-                    ReviewReminderScope.DeckSpecific(deck),
-                    ScheduleRemindersFragment.FragmentHost.STUDY_OPTIONS_FRAME,
-                ),
-            )
-            addToBackStack(null)
-        }
+        startActivity(ScheduleRemindersFragment.getIntent(requireContext(), ReviewReminderScope.DeckSpecific(deck)))
     }
 
     @Composable

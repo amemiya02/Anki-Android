@@ -15,7 +15,7 @@ class InstantNoteEditorActivity : AbstractIntentHandler() {
     override fun onCreate(savedInstanceState: Bundle?) {
         if (showedActivityFailedScreen(savedInstanceState)) return
         super.onCreate(savedInstanceState)
-        if (intent.action == Intent.ACTION_SEND && intent.type == TEXT_PLAIN) {
+        if (intent.action == Intent.ACTION_SEND && (intent.type == null || intent.type == TEXT_PLAIN)) {
             val args = Bundle().apply { putCharSequence(Intent.EXTRA_TEXT, intent.getCharSequenceExtra(Intent.EXTRA_TEXT)) }
             val destination = SingleFragmentActivity.getIntent(this, InstantNoteEditorFragment::class, args)
             startActivity(DeckPicker.getEntryIntent(this, destination))

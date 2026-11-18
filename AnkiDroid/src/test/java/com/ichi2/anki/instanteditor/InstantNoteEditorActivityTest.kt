@@ -4,7 +4,6 @@
 package com.ichi2.anki.instanteditor
 
 import android.content.Intent
-import android.os.Handler
 import android.os.Looper
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
@@ -28,7 +27,6 @@ import com.ichi2.anki.instantnoteeditor.InstantNoteEditorFragment
 import com.ichi2.anki.progress.ViewModelProgress
 import com.ichi2.testutils.withCollectionAccessOn
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Assert.assertEquals
@@ -157,8 +155,6 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, text)
             }
-        return withCollectionAccessOn(Handler(Looper.getMainLooper()).asCoroutineDispatcher()) {
-            openSharedInstantNote(intent)
-        }
+        return openSharedInstantNote(intent)
     }
 }

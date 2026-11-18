@@ -20,10 +20,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.R
+import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.canUserAccessDeck
 import com.ichi2.anki.launchCatchingViewTask
 import com.ichi2.anki.migrateLegacyNotifications
+import com.ichi2.anki.preferences.PreferencesFragment
 import com.ichi2.anki.reviewreminders.AddEditReminderDialog.Companion.registerAddEditReminderHandler
 import com.ichi2.anki.utils.ConfigAwareSingleFragmentActivity
 import com.ichi2.anki.utils.ext.getParcelableCompat
@@ -188,9 +191,17 @@ class ScheduleRemindersFragment : Fragment() {
     }
 
     private fun openTroubleshootingScreen() {
-        parentFragmentManager.commit {
-            replace(host.containerId, ReminderTroubleshootingFragment.newInstance(host))
-            addToBackStack(null)
+        val settings = parentFragment as? PreferencesFragment
+        if (settings != null) {
+            settings.openSubpage(ReminderTroubleshootingFragment.newInstance(FragmentHost.SETTINGS))
+        } else if (activity is DeckPicker) {
+            val page = ReminderTroubleshootingFragment.newInstance(FragmentHost.STANDALONE_ACTIVITY)
+            startActivity(SingleFragmentActivity.getIntent(requireContext(), ReminderTroubleshootingFragment::class, page.arguments))
+        } else {
+            parentFragmentManager.commit {
+                replace(host.containerId, ReminderTroubleshootingFragment.newInstance(host))
+                addToBackStack(null)
+            }
         }
     }
 

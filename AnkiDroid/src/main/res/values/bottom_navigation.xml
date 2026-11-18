@@ -2,6 +2,9 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <!-- SPDX-FileCopyrightText: Copyright (c) 2026 Shaan Narendran <shaannaren06@gmail.com> -->
 <resources>
+    <item name="nav_home" type="id" />
+    <item name="nav_more" type="id" />
+
     <!-- Matches the single-pane activity_homescreen layout. Phones navigate with the bottom bar and have no side drawer. -->
     <bool name="bottom_navigation_available">true</bool>
 

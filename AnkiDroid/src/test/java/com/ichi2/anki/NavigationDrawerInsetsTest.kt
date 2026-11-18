@@ -3,16 +3,16 @@
 package com.ichi2.anki
 
 import android.os.Build
-import android.view.ViewGroup
-import android.widget.ImageView
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.core.view.GravityCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
-import com.google.android.material.navigation.NavigationView
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.testutils.dispatchInsets
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.greaterThanOrEqualTo
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RuntimeEnvironment
@@ -25,6 +25,9 @@ import com.ichi2.anki.common.android.R as CommonR
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
 @RunWith(AndroidJUnit4::class)
 class NavigationDrawerInsetsTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Test
     fun `Hayaki's mark in the drawer header sits below the status bar`() {
         // Only large screens have the side drawer
@@ -36,13 +39,18 @@ class NavigationDrawerInsetsTest : RobolectricTest() {
             deckPicker.dispatchInsets()
             advanceRobolectricLooper()
 
-            val header = deckPicker.findViewById<NavigationView>(R.id.navdrawer_items_container).getHeaderView(0)
-            val mark = (header as ViewGroup).getChildAt(0) as ImageView
-            val markTop = IntArray(2).also { mark.getLocationInWindow(it) }[1]
+            val markTop =
+                compose
+                    .onNodeWithTag("drawer-mark")
+                    .fetchSemanticsNode()
+                    .boundsInWindow.top
+                    .toInt()
             assertThat(
                 "the mark clears the status bar and keeps the header's own space above it",
                 markTop,
-                greaterThanOrEqualTo(24.dp.toPx(targetContext) + header.resources.getDimensionPixelSize(CommonR.dimen.foundation_space_24)),
+                greaterThanOrEqualTo(
+                    24.dp.toPx(targetContext) + deckPicker.resources.getDimensionPixelSize(CommonR.dimen.foundation_space_24),
+                ),
             )
         }
     }
