@@ -3,6 +3,8 @@
 package com.ichi2.anki.dialogs
 
 import android.os.Bundle
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.testing.launchFragment
@@ -17,11 +19,15 @@ import com.ichi2.testutils.windowInsetsOf
 import com.ichi2.themes.Themes
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.math.roundToInt
 
 @RunWith(AndroidJUnit4::class)
 class ChangeNoteTypeDialogInsetsTest : RobolectricTest() {
+    @get:Rule val compose = createEmptyComposeRule()
+
     @Test
     fun `dialog clears system bars and cutouts`() =
         withDialog { dialog ->
@@ -32,10 +38,11 @@ class ChangeNoteTypeDialogInsetsTest : RobolectricTest() {
             ViewCompat.dispatchApplyWindowInsets(dialog.requireDialog().window!!.decorView, insets)
 
             val root = dialog.requireView()
-            assertThat(root.paddingLeft, equalTo(32.dp.toPx(targetContext)))
-            assertThat(root.paddingTop, equalTo(24.dp.toPx(targetContext)))
-            assertThat(root.paddingRight, equalTo(48.dp.toPx(targetContext)))
-            assertThat(root.paddingBottom, equalTo(48.dp.toPx(targetContext)))
+            val safe = compose.onNodeWithTag("mapping_safe_area").fetchSemanticsNode().boundsInRoot
+            assertThat(safe.left.roundToInt(), equalTo(32.dp.toPx(targetContext)))
+            assertThat(safe.top.roundToInt(), equalTo(24.dp.toPx(targetContext)))
+            assertThat(root.width - safe.right.roundToInt(), equalTo(48.dp.toPx(targetContext)))
+            assertThat(root.height - safe.bottom.roundToInt(), equalTo(48.dp.toPx(targetContext)))
         }
 
     @Test

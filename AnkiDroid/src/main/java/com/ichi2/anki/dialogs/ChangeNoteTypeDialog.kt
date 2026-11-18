@@ -113,7 +113,12 @@ class ChangeNoteTypeDialog : AnalyticsDialogFragment() {
         val foundation = MaterialTheme.foundation
         Surface(color = foundation.colors.background, contentColor = foundation.colors.onBackground) {
             Column(
-                Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).padding(horizontal = foundation.spacing.screenMargin),
+                Modifier
+                    .fillMaxSize()
+                    .windowInsetsPadding(
+                        WindowInsets.safeDrawing,
+                    ).testTag("mapping_safe_area")
+                    .padding(horizontal = foundation.spacing.screenMargin),
             ) {
                 DialogTitle(TR.sentenceCase.changeNoteType)
                 if (status == InitStatus.Completed) {
