@@ -123,6 +123,7 @@ fun selectedBottomNavItem(): NavigationItem? {
 }
 
 internal fun DeckPicker.updateTabChrome(tab: NavigationItem?) {
+    if (tab == NavigationItem.HOME) title = getString(R.string.app_name)
     val bar = binding.bottomNavigation ?: return
     binding.deckPickerContentWrapper?.isVisible = tab == NavigationItem.HOME
     if (tab == null) {
