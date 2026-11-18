@@ -96,7 +96,6 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import anki.collection.OpChanges
 import com.google.android.material.behavior.HideViewOnScrollBehavior
-import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.ichi2.anki.BottomNavController.NavigationItem
@@ -1379,24 +1378,14 @@ open class DeckPicker :
         syncMediaProgressJob?.cancel()
 
         val syncItem = menu.findItem(R.id.action_sync)
-        val progressIndicator =
-            syncItem.actionView
-                ?.findViewById<LinearProgressIndicator>(R.id.progress_indicator)
-
+        val provider = MenuItemCompat.getActionProvider(syncItem) as? SyncActionProvider ?: return
         val workManager = WorkManager.getInstance(this)
         val flow = workManager.getWorkInfosForUniqueWorkFlow(UniqueWorkNames.SYNC_MEDIA)
 
         syncMediaProgressJob =
             lifecycleScope.launch {
                 flow.flowWithLifecycle(lifecycle).collectLatest {
-                    val workInfo = it.lastOrNull()
-                    if (workInfo?.state == WorkInfo.State.RUNNING && progressIndicator?.isVisible == false) {
-                        Timber.i("DeckPicker: Showing media sync progress indicator")
-                        progressIndicator.isVisible = true
-                    } else if (progressIndicator?.isVisible == true) {
-                        Timber.i("DeckPicker: Hiding media sync progress indicator")
-                        progressIndicator.isVisible = false
-                    }
+                    provider.isProgressShown = it.lastOrNull()?.state == WorkInfo.State.RUNNING
                 }
             }
     }
