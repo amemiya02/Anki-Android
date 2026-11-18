@@ -78,7 +78,7 @@ class ScheduleRemindersFragment : Fragment() {
                     val checks by troubleshootingViewModel.state.collectAsStateWithLifecycle()
                     ReviewRemindersScreen(
                         rows = rows,
-                        deckName = deckName,
+                        deckName = deckName.takeUnless { hasExternalToolbar },
                         onNavigateUp = if (hasExternalToolbar) null else ::navigateUp,
                         showWarning = checks.summaryStatus == SummaryStatus.Error && rows.any { it.reminder.enabled },
                         snackbar = snackbar,

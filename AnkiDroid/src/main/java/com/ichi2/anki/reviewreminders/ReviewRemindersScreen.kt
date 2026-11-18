@@ -55,6 +55,7 @@ import com.ichi2.anki.preferences.SettingsDivider
 import com.ichi2.anki.preferences.SettingsRow
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.compose.theme.foundation
+import com.ichi2.utils.LanguageUtil.withUnicodeIsolation
 import androidx.appcompat.R as AppCompatR
 import com.ichi2.anki.common.android.R as CommonR
 
@@ -208,7 +209,7 @@ private fun ReviewReminderRow(
             if (row.deletedDeck) {
                 add(stringResource(R.string.review_reminders_deleted_deck))
             } else {
-                add(row.deckName ?: with(context) { TR.sentenceCase.allDecks })
+                add(row.deckName?.let(::withUnicodeIsolation) ?: with(context) { TR.sentenceCase.allDecks })
                 if (threshold > 1) {
                     add(pluralStringResource(R.plurals.review_reminders_condition_due, threshold, threshold))
                 }

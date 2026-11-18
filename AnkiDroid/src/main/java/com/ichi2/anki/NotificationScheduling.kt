@@ -27,7 +27,8 @@ suspend fun scheduleAllNotifications(context: Context) {
 
 internal suspend fun migrateLegacyNotifications(context: Context) {
     val thresholdKey = context.getString(CommonPreferenceKey.pref_notifications_minimum_cards_due_key)
-    val oldThreshold = (context.sharedPrefs().all[thresholdKey] as? String)?.toIntOrNull()
+    // A locale-specific Context can bypass the Application's active-profile preference wrapper.
+    val oldThreshold = (context.applicationContext.sharedPrefs().all[thresholdKey] as? String)?.toIntOrNull()
     ReviewRemindersDatabase.migrateLegacyThreshold(oldThreshold?.takeIf { it in 0 until LEGACY_PENDING_MESSAGES_ONLY })
 
     // Pending intents can survive an app update. This is the old broadcast, with no action.
