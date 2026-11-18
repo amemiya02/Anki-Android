@@ -17,3 +17,5 @@
 Android 15 rendered all seven Anki Pages in Light, Dark and Black. All seven also loaded the bundled Newsreader face in English, LXGW WenKai for Simplified Chinese and Klee One for Japanese. The same seeded routes and visible page text matched before and after. [Android capture gallery](../../../docs/redesign/milestone-5/anki-pages/README.md)
 
 The Statistics palette regression failed on the previous APK and passed in all three themes on the updated APK. The full focused runs passed 16 Android tests and 20 JVM tests.
+
+The Android Browse and Note Editor actions open the bundled Change Note Type page. A round-trip conversion preserved both fields and the surviving Card’s scheduling. [On-device conversion](../../../docs/redesign/milestone-5/anki-pages/README.md)

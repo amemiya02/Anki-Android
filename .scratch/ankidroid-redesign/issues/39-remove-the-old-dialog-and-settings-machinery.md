@@ -12,7 +12,7 @@
 
 ## Implementation and verification
 
-The Settings pages use Compose, backed by the existing keys, types and defaults. Deck and tag pickers, Manage Space, binding editors, Custom Study, Change Note Type, Find and Replace, and Set Due Date use the native shared components. The old AndroidX preference presenters, custom preference Views, adapter-driven tag and note-type dialogs and dormant search and sort layouts have been removed. XML preference metadata still supplies the persisted settings definitions.
+The Settings pages use Compose, backed by the existing keys, types and defaults. Deck and tag pickers, Manage Space, binding editors, Custom Study, Find and Replace, and Set Due Date use the native shared components. The old AndroidX preference presenters, custom preference Views, adapter-driven tag and note-type dialogs and dormant search and sort layouts have been removed. XML preference metadata still supplies the persisted settings definitions.
 
 The integrated run executed 270 focused cases, with ten existing skips and two failures in Study Options. Its first refresh had opened the same recovery dialog twice. After the fix, all 23 Study Options and recovery tests passed, including the two previously failing cases. Rendered verification covered 240 tag and note-type mapping cases plus 144 Custom Study cases. The full-app run and the final About, sync and media presenter audits are tracked with tickets 44, 49 and 50.
 

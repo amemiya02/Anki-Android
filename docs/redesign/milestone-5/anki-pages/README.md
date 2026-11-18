@@ -12,7 +12,7 @@ Each sheet shows the bundled Anki Page in Light, Dark and Black on the Android 1
 | Change Note Type | Two Note Types, field and Card Template mapping, and Save | [Light, Dark and Black](change-note-type.png) |
 | Image occlusion | Image, mask tools and note tab | [Light, Dark and Black](image-occlusion.png) |
 
-The emulator used the production WebView and POST bridge. The before and after captures produced identical routes and rendered text for all seven pages. The bundled Change Note Type page was opened through the instrumented page host. The Browse action continues to open its native Change Note Type dialog.
+The emulator used the production WebView and POST bridge. The before and after captures produced identical routes and rendered text for all seven pages. The original Change Note Type palette captures used the instrumented page host. The final review exercised the page through Browse and the Note Editor on Android. Converting a Basic Note to Basic (and reversed card) added its second Card. Converting it back removed that Card. The Note ID, both fields, the first Card ID and its scheduling values survived both saves. Each save returned to the screen that opened the page.
 
 The WebView loaded Newsreader on all 35 page and profile checks. All seven pages loaded LXGW WenKai in Simplified Chinese and Klee One in Japanese, with Newsreader first for Latin text. [Simplified Chinese and Japanese captures](languages.png)
 
