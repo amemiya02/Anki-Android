@@ -251,9 +251,6 @@
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
 
         <!-- Widget styles -->
-        <item name="switchPreferenceCompatStyle">@style/Preference.SwitchPreferenceCompat.Material3</item>
-        <item name="sliderStyle">@style/SliderStyle</item>
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay.AnkiDroid</item>
         <item name="alertDialogTheme">@style/ThemeOverlay.AnkiDroid.AlertDialog</item>
 
         <!-- ProgressDialog-->

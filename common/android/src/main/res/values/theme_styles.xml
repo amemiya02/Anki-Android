@@ -32,24 +32,6 @@
         <item name="android:popupBackground">@drawable/bg_popup</item>
     </style>
 
-    <!-- Switches -->
-    <style name="Preference.SwitchPreferenceCompat.Material3" parent="@style/Preference.SwitchPreferenceCompat.Material">
-        <item name="widgetLayout">@layout/preference_material_switch_widget</item>
-    </style>
-
-    <style name="SliderLabelStyle" parent="Widget.MaterialComponents.Tooltip">
-        <item name="android:textColor">@color/white</item>
-    </style>
-
-    <style name="SliderStyle" parent="Widget.Material3.Slider">
-        <item name="labelStyle">@style/SliderLabelStyle</item>
-        <item name="tickVisible">false</item>
-    </style>
-
-    <style name="PreferenceThemeOverlay.AnkiDroid">
-        <item name="singleLineTitle">false</item>
-    </style>
-
     <style name="ThemeOverlay.AnkiDroid.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="dialogCornerRadius">@dimen/foundation_shape_button</item>
         <item name="materialAlertDialogBodyTextStyle">@style/AnkiDroid.AlertDialog.Body.Text</item>
