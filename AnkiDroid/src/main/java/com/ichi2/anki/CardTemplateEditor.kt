@@ -17,6 +17,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CheckResult
 import androidx.annotation.VisibleForTesting
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -24,13 +25,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat.Type.ime
+import androidx.core.view.doOnAttach
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commitNow
 import androidx.lifecycle.lifecycleScope
 import anki.notetypes.StockNotetype
 import anki.notetypes.StockNotetype.OriginalStockKind.ORIGINAL_STOCK_KIND_UNKNOWN_VALUE
 import anki.notetypes.notetypeId
-import com.google.android.material.snackbar.Snackbar
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.android.input.ShortcutGroup
@@ -72,7 +73,6 @@ import com.ichi2.anki.previewer.TemplatePreviewerArguments
 import com.ichi2.anki.previewer.TemplatePreviewerFragment
 import com.ichi2.anki.previewer.TemplatePreviewerPage
 import com.ichi2.anki.settings.uiConfigPrefs
-import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.startup.ensureStorageIsReady
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.dismissAllDialogFragments
@@ -129,6 +129,7 @@ open class CardTemplateEditor : AnkiActivity() {
     private var previewContainer: FragmentContainerView? = null
     private var previewRefresh: Job? = null
     private var previewFile: NotetypeFile? = null
+    private val snackbar = SnackbarHostState()
 
     val displayDiscardChangesCallback =
         object : OnBackPressedCallback(false) {
@@ -193,6 +194,7 @@ open class CardTemplateEditor : AnkiActivity() {
                         saving = saving,
                         splitPane = LocalConfiguration.current.smallestScreenWidthDp >= 600,
                         panePreferences = uiConfigPrefs(),
+                        snackbar = snackbar,
                         onBack = { onActionBarBackPressed() },
                         onSelectTemplate = ::selectTemplate,
                         onSelectSection = ::selectSection,
@@ -254,7 +256,7 @@ open class CardTemplateEditor : AnkiActivity() {
 
     private fun updateDiscardChangesCallback() {
         // Full IMEs take Back themselves. The accessory strip for a hardware keyboard does not.
-        displayDiscardChangesCallback.isEnabled = !softwareKeyboardVisible && noteTypeHasChanged()
+        displayDiscardChangesCallback.isEnabled = !softwareKeyboardVisible && templateNames.isNotEmpty() && noteTypeHasChanged()
     }
 
     private fun refreshTemplateNames() {
@@ -298,6 +300,9 @@ open class CardTemplateEditor : AnkiActivity() {
         rememberCursor()
         codeEditor = editor
         showCode()
+        editor.doOnAttach {
+            editor.post { if (codeEditor === editor) editor.requestFocus() }
+        }
     }
 
     private fun showCode() {
@@ -580,7 +585,7 @@ open class CardTemplateEditor : AnkiActivity() {
         val tempNoteType = tempNoteType ?: return
         if (tempNoteType.notetype.isCloze) {
             Timber.w("Attempted to set deck for cloze note type")
-            showSnackbar(getString(CommonString.multimedia_editor_something_wrong), Snackbar.LENGTH_SHORT)
+            showEditorMessage(getString(CommonString.multimedia_editor_something_wrong))
             return
         }
 
@@ -589,7 +594,7 @@ open class CardTemplateEditor : AnkiActivity() {
 
         if (deck != null && getColUnsafe.decks.isFiltered(deck.deckId)) {
             Timber.w("Attempted to set default deck of %s to dynamic deck %s", templateName, deck.name)
-            showSnackbar(getString(CommonString.multimedia_editor_something_wrong), Snackbar.LENGTH_SHORT)
+            showEditorMessage(getString(CommonString.multimedia_editor_something_wrong))
             return
         }
 
@@ -604,11 +609,15 @@ open class CardTemplateEditor : AnkiActivity() {
                 getString(CommonString.model_manager_deck_override_added_message, templateName, deck.name)
             }
 
-        showSnackbar(message, Snackbar.LENGTH_SHORT)
+        showEditorMessage(message)
 
         // Deck Override can change from "on" <-> "off"
         refreshTemplateNames()
         updateDiscardChangesCallback()
+    }
+
+    private fun showEditorMessage(text: String) {
+        lifecycleScope.launch { snackbar.showSnackbar(text) }
     }
 
     override val shortcuts
@@ -989,8 +998,8 @@ open class CardTemplateEditor : AnkiActivity() {
     }
 
     companion object {
-        private const val STATE_TAB_TO_CURSOR_POSITION = "tabToCursorPosition"
-        private const val STATE_TAB_TO_VIEW_ID = "tabToViewId"
+        private const val STATE_TAB_TO_CURSOR_POSITION = "templateCursorPositions"
+        private const val STATE_TAB_TO_VIEW_ID = "templateSections"
         const val EXTRA_NOTE_TYPE_ID = "noteTypeId"
         private const val EXTRA_NOTE_ID = "noteId"
         private const val EXTRA_START_ORD_ID = "ordId"

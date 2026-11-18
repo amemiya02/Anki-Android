@@ -54,13 +54,13 @@ internal fun Collection.noteTypeDetails(id: NoteTypeId): NoteTypeDetails? {
     )
 }
 
-private val fieldPlaceholder = Regex("""\{\{([^{}]+)}}""")
+internal val templateFieldPlaceholder = Regex("""\{\{([^{}]+)\}\}""")
 
 private fun templateFields(
     template: String,
     fieldNames: Set<String>,
 ): List<String> =
-    fieldPlaceholder
+    templateFieldPlaceholder
         .findAll(template)
         .map { it.groupValues[1].trim() }
         .filterNot { it.startsWith('#') || it.startsWith('^') || it.startsWith('/') }

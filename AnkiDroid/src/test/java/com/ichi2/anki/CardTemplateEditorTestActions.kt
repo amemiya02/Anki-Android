@@ -10,8 +10,9 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.ComposeTestRule
-import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ApplicationProvider
@@ -26,7 +27,7 @@ fun ComposeTestRule.selectSection(
     context: Context,
     section: EditorViewType,
 ) {
-    onNodeWithText(templateSectionLabel(context, section)).performClick()
+    onAllNodesWithText(templateSectionLabel(context, section)).onLast().performClick()
     waitForIdle()
 }
 
@@ -34,7 +35,7 @@ fun ComposeTestRule.selectTemplate(
     editor: CardTemplateEditor,
     index: Int,
 ) {
-    onNodeWithText(editor.tempNoteType!!.notetype.templatesNames[index]).performClick()
+    onAllNodesWithText(editor.tempNoteType!!.notetype.templatesNames[index]).onLast().performClick()
     waitForIdle()
     ShadowLooper.idleMainLooper()
 }
@@ -47,7 +48,7 @@ fun ComposeTestRule.selectedTemplate(editor: CardTemplateEditor): Int =
     }
 
 fun ComposeTestRule.openTemplateActions(context: Context = ApplicationProvider.getApplicationContext()) {
-    onNodeWithContentDescription(context.getString(AppCompatR.string.abc_action_menu_overflow_description)).performClick()
+    onAllNodesWithContentDescription(context.getString(AppCompatR.string.abc_action_menu_overflow_description)).onLast().performClick()
     waitForIdle()
 }
 
@@ -57,11 +58,14 @@ fun ComposeTestRule.clickTemplateEditorAction(
 ): Boolean {
     when (action) {
         EditorControl.BACK ->
-            onNodeWithContentDescription(
+            onAllNodesWithContentDescription(
                 context.getString(AppCompatR.string.abc_action_bar_up_description),
-            ).performClick()
-        EditorControl.SAVE -> onNodeWithContentDescription(context.getString(CommonString.save)).performClick()
-        EditorControl.PREVIEW -> onNodeWithContentDescription(context.getString(CommonString.card_editor_preview_card)).performClick()
+            ).onLast().performClick()
+        EditorControl.SAVE -> onAllNodesWithContentDescription(context.getString(CommonString.save)).onLast().performClick()
+        EditorControl.PREVIEW ->
+            onAllNodesWithContentDescription(
+                context.getString(CommonString.card_editor_preview_card),
+            ).onLast().performClick()
         else -> {
             openTemplateActions(context)
             val label =
@@ -72,7 +76,6 @@ fun ComposeTestRule.clickTemplateEditorAction(
                     EditorControl.DELETE -> context.getString(CommonString.delete_card_type)
                     EditorControl.BROWSER_APPEARANCE -> with(context) { TR.sentenceCase.browserAppearance }
                     EditorControl.INSERT_FIELD -> context.getString(CommonString.card_template_editor_insert_field)
-                    else -> error("Unrecognized template action")
                 }
             onNode(hasText(label) and hasClickAction() and hasAnyAncestor(isDialog())).performScrollTo().performClick()
         }

@@ -12,6 +12,7 @@ import com.ichi2.anki.testutil.ensureWebViewIsSupported
 import com.ichi2.anki.testutil.grantPermissions
 import com.ichi2.anki.testutil.notificationPermission
 import com.ichi2.anki.testutil.waitUntil
+import com.ichi2.anki.workarounds.SafeWebViewLayout
 import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.atomic.AtomicBoolean
@@ -28,8 +29,7 @@ class CardViewerMathJaxTest : InstrumentedTest() {
             val rendered = AtomicBoolean(false)
             waitUntil(timeout = 30.seconds, message = { "MathJax equation did not render" }) {
                 scenario.onActivity { activity ->
-                    val previewer = activity.fragment as PreviewerFragment
-                    previewer.binding.webViewLayout.evaluateJavascript(
+                    activity.findViewById<SafeWebViewLayout>(R.id.web_view_layout)?.evaluateJavascript(
                         """
                         document.querySelector('#qa mjx-container mjx-math')?.getBoundingClientRect().height > 0
                             && getComputedStyle(document.getElementById('qa')).opacity === '1'

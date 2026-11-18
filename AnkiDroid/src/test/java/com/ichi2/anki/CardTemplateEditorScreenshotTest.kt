@@ -52,23 +52,30 @@ class CardTemplateEditorScreenshotTest : ScreenshotTest() {
     @Test
     fun preview() {
         runTest { col.reopenWithLanguage(language.option) }
-        withCardTemplateEditor(vocabularyNoteType()) {
-            val first = tempNoteType!!.notetype.templatesNames.first()
-            compose.onNodeWithContentDescription(getString(CommonString.card_editor_preview_card)).performClick()
-            val shadow = shadowOf(this)
-            compose.waitUntil(10_000) {
-                ShadowLooper.idleMainLooper()
-                shadow.peekNextStartedActivity != null
-            }
-            ActivityScenario.launch<CardViewerActivity>(shadow.nextStartedActivity).use {
+        val noteType = vocabularyNoteType()
+        val first = noteType.templatesNames.first()
+        ensureCollectionLoadIsSynchronous()
+        val editorIntent = CardTemplateEditor.getIntent(targetContext, noteType.id)
+        val previewIntent =
+            ActivityScenario.launch<CardTemplateEditor>(editorIntent).use { scenario ->
+                lateinit var editor: CardTemplateEditor
+                scenario.onActivity { editor = it }
+                compose.onNodeWithContentDescription(editor.getString(CommonString.card_editor_preview_card)).performClick()
+                val shadow = shadowOf(editor)
                 compose.waitUntil(10_000) {
                     ShadowLooper.idleMainLooper()
-                    runCatching { compose.onNodeWithText(first).assertIsSelected() }.isSuccess
+                    shadow.peekNextStartedActivity() != null
                 }
-                compose.onNodeWithText(getString(R.string.template_previewer_first_note)).assertIsDisplayed()
-                compose.onNodeWithText(getString(CommonString.show_answer)).assertIsDisplayed()
-                captureScreen("template_preview")
+                shadow.nextStartedActivity
             }
+        ActivityScenario.launch<CardViewerActivity>(previewIntent).use {
+            compose.waitUntil(10_000) {
+                ShadowLooper.idleMainLooper()
+                runCatching { compose.onNodeWithText(first).assertIsSelected() }.isSuccess
+            }
+            compose.onNodeWithText(targetContext.getString(R.string.template_previewer_first_note)).assertIsDisplayed()
+            compose.onNodeWithText(targetContext.getString(CommonString.show_answer)).assertIsDisplayed()
+            captureScreen("template_preview")
         }
     }
 
@@ -80,9 +87,10 @@ class CardTemplateEditorScreenshotTest : ScreenshotTest() {
             compose.onNodeWithText(getString(R.string.note_type_templates)).assertIsDisplayed()
             compose.waitUntil(10_000) {
                 ShadowLooper.idleMainLooper()
-                runCatching {
-                    compose.onNodeWithText(getString(R.string.template_previewer_first_note)).assertIsDisplayed()
-                }.isSuccess
+                kotlin
+                    .runCatching {
+                        compose.onNodeWithText(getString(R.string.template_previewer_first_note)).assertIsDisplayed()
+                    }.isSuccess
             }
             captureScreen("template_tablet")
         }

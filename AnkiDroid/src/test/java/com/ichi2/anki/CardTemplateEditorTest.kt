@@ -17,10 +17,12 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.ViewModelProvider
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CardTemplateEditor.CardTemplate
 import com.ichi2.anki.CollectionManager.withCol
@@ -292,14 +294,10 @@ class CardTemplateEditorTest : RobolectricTest() {
         assertTrue("Note type should have changed", testEditor.noteTypeHasChanged())
         assertEquals("Note type should have 1 template now", 1, testEditor.tempNoteType?.templateCount)
 
-        // Try to delete the template again, but there's only one
-        assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.DELETE))
-        advanceRobolectricLooper()
-        assertEquals(
-            "Did not show dialog about deleting only card?",
-            getResourceString(CommonString.card_template_editor_cant_delete),
-            renderedDialogMessage(),
-        )
+        // With one remaining template the delete action is unavailable.
+        compose.openTemplateActions(testEditor)
+        compose.onNodeWithText(getResourceString(CommonString.delete_card_type)).assertDoesNotExist()
+        pressBack()
         assertEquals(
             "Change already in database?",
             collectionBasicNoteTypeOriginal.toString().trim(),
@@ -979,9 +977,10 @@ class CardTemplateEditorTest : RobolectricTest() {
             selectTab(1)
             val second = editText.text.toString()
             selectTab(0)
+            editText.setSelection(0)
 
             compose.clickTemplateEditorAction(EditorControl.INSERT_FIELD)
-            compose.onNode(hasText("Back") and hasClickAction() and hasAnyAncestor(isDialog())).performClick()
+            compose.onAllNodes(hasText("Back") and hasClickAction()).onLast().performClick()
             advanceRobolectricLooper()
 
             assertEquals("The field is inserted at the caret", "{{Back}}$first", editText.text.toString())
@@ -1040,7 +1039,7 @@ class CardTemplateEditorTest : RobolectricTest() {
         saveControllerForCleanup(controller)
         val editor = controller.get()
 
-        addCardType(editor, shadowOf(editor))
+        addCardType(editor)
         assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.ADD))
         advanceRobolectricLooper()
         assertEquals(
@@ -1101,7 +1100,7 @@ class CardTemplateEditorTest : RobolectricTest() {
         withCardTemplateEditor(noteType) {
             selectTab(1)
             advanceRobolectricLooper()
-            addCardType(this, shadowOf(this))
+            addCardType(this)
             advanceRobolectricLooper()
             assertEquals("The first duplicate should be selected", 2, selectedTabPosition)
             assertTrue(

@@ -2,38 +2,43 @@
 
 package com.ichi2.anki.notetype
 
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.AnkiActivity
+import com.ichi2.anki.CommonString
 import com.ichi2.anki.RobolectricTest
-import com.ichi2.utils.getInputField
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.shadows.ShadowDialog
 
 @RunWith(AndroidJUnit4::class)
 class RepositionCardTemplateDialogTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Test
     fun `only positions in the displayed range are accepted`() {
         var selectedPosition: Int? = null
         RepositionCardTemplateDialog.showInstance(startRegularActivity<AnkiActivity>(), 3) { selectedPosition = it }
-        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-        assertFalse(dialog.positiveButton.isEnabled)
+        val inputField = compose.onNode(hasSetTextAction())
+        val confirm = compose.onNodeWithText(getResourceString(CommonString.dialog_ok))
+        confirm.assertIsNotEnabled()
         for (input in listOf("0", "4", "2147483648", "")) {
-            dialog.getInputField().setText(input)
-            assertFalse("Invalid input: $input", dialog.positiveButton.isEnabled)
+            inputField.performTextReplacement(input)
+            confirm.assertIsNotEnabled()
         }
         for (input in listOf("1", "3")) {
-            dialog.getInputField().setText(input)
-            assertTrue(dialog.positiveButton.isEnabled)
+            inputField.performTextReplacement(input)
+            confirm.assertIsEnabled()
         }
-        dialog.positiveButton.performClick()
-        advanceRobolectricLooper()
+        confirm.performClick()
         assertEquals(3, selectedPosition)
     }
 
@@ -42,10 +47,8 @@ class RepositionCardTemplateDialogTest : RobolectricTest() {
         RepositionCardTemplateDialog.showInstance(startRegularActivity<AnkiActivity>(), 3) {
             error("Cancel must not reposition the template")
         }
-        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-        dialog.getInputField().setText("2")
-        dialog.negativeButton.performClick()
-        advanceRobolectricLooper()
-        assertFalse(dialog.isShowing)
+        compose.onNode(hasSetTextAction()).performTextReplacement("2")
+        val cancel = compose.onNodeWithText(getResourceString(CommonString.dialog_cancel))
+        cancel.performClick().assertDoesNotExist()
     }
 }

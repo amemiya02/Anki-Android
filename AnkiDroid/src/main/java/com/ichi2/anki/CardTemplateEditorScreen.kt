@@ -16,6 +16,7 @@ import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -30,6 +31,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,6 +41,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -47,8 +50,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -61,12 +65,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
@@ -77,6 +85,7 @@ import androidx.fragment.app.FragmentContainerView
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.notetype.FieldActionRow
 import com.ichi2.anki.notetype.NoteTypeSheet
+import com.ichi2.anki.notetype.templateFieldPlaceholder
 import com.ichi2.anki.previewer.PreviewerTabs
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.compose.theme.foundation
@@ -109,6 +118,7 @@ internal fun CardTemplateEditorScreen(
     saving: Boolean,
     splitPane: Boolean,
     panePreferences: SharedPreferences,
+    snackbar: SnackbarHostState,
     onBack: () -> Unit,
     onSelectTemplate: (Int) -> Unit,
     onSelectSection: (EditorViewType) -> Unit,
@@ -125,6 +135,7 @@ internal fun CardTemplateEditorScreen(
         Modifier.fillMaxSize().background(paper.colors.background).windowInsetsPadding(WindowInsets.safeDrawing),
     ) {
         val compactHeight = maxHeight < 240.dp
+        val combineTabRows = compactHeight && !splitPane && maxWidth >= 560.dp
         Column(Modifier.fillMaxSize()) {
             Row(
                 Modifier.fillMaxWidth().padding(horizontal = 4.dp).heightIn(min = 56.dp),
@@ -167,7 +178,6 @@ internal fun CardTemplateEditorScreen(
                     !saving,
                 ) { menuOpen = true }
             }
-            val combineTabRows = compactHeight && !splitPane && maxWidth >= 560.dp
             if (combineTabRows) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.weight(1f)) {
@@ -211,6 +221,7 @@ internal fun CardTemplateEditorScreen(
                 Box(Modifier.weight(1f).fillMaxWidth()) { editor() }
             }
         }
+        SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
     }
     if (menuOpen) {
         NoteTypeSheet(
@@ -282,14 +293,14 @@ private fun TemplateSections(
                 Modifier
                     .weight(1f)
                     .heightIn(min = paper.spacing.touchTarget)
-                    .background(if (selected) paper.colors.primary else paper.colors.background)
+                    .background(if (selected) paper.colors.onBackground else paper.colors.background)
                     .selectable(selected, role = Role.Tab) { onSelect(candidate) }
                     .padding(6.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
                     templateSectionLabel(context, candidate),
-                    color = if (selected) paper.colors.onPrimary else paper.colors.onBackground,
+                    color = if (selected) paper.colors.background else paper.colors.onBackground,
                     style = paper.type.caption,
                     textAlign = TextAlign.Center,
                     maxLines = if (compactHeight) 1 else 2,
@@ -317,10 +328,7 @@ private fun FieldInsertRow(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            TextButton(
-                onClick = onOpenPicker,
-                modifier = Modifier.heightIn(min = paper.spacing.touchTarget),
-            ) {
+            FieldInsertAction(onClick = onOpenPicker, outlined = false) {
                 Icon(painterResource(R.drawable.symbol_code), null, Modifier.size(18.dp), tint = paper.colors.onBackgroundMuted)
                 Text(
                     stringResource(CommonString.card_template_editor_insert_field),
@@ -330,20 +338,43 @@ private fun FieldInsertRow(
                 )
             }
             fields.forEach { field ->
-                Box(
-                    Modifier
-                        .heightIn(min = paper.spacing.touchTarget)
-                        .clip(paper.shapes.button)
-                        .border(paper.shapes.hairline, paper.colors.outline, paper.shapes.button)
-                        .clickable(role = Role.Button) { onInsertField(field) }
-                        .padding(horizontal = 12.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
+                FieldInsertAction(onClick = { onInsertField(field) }, outlined = true) {
                     Text(field, style = paper.type.caption, color = paper.colors.onBackground, maxLines = 1)
                 }
             }
         }
     }
+}
+
+@Composable
+private fun FieldInsertAction(
+    onClick: () -> Unit,
+    outlined: Boolean,
+    content: @Composable RowScope.() -> Unit,
+) {
+    val paper = MaterialTheme.foundation
+    val touchTarget = paper.spacing.touchTarget
+    val minWidthPx = with(LocalDensity.current) { touchTarget.toPx() }
+    var isTouchable by remember { mutableStateOf(true) }
+    Row(
+        Modifier
+            .widthIn(min = touchTarget)
+            .heightIn(min = touchTarget)
+            .onGloballyPositioned { isTouchable = it.boundsInRoot().width >= minWidthPx - 0.5f }
+            .clip(paper.shapes.button)
+            .then(if (outlined) Modifier.border(paper.shapes.hairline, paper.colors.outline, paper.shapes.button) else Modifier)
+            // At the edge of the row, a clipped chip hints that the row scrolls.
+            .then(
+                if (isTouchable) {
+                    Modifier.clickable(role = Role.Button, onClick = onClick)
+                } else {
+                    Modifier.clearAndSetSemantics { hideFromAccessibility() }
+                },
+            ).padding(horizontal = 12.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+        content = content,
+    )
 }
 
 @Composable
@@ -465,6 +496,7 @@ private fun TemplateCode(
                 id = R.id.edit_text
                 isSaveEnabled = false // The Activity persists the code and the selection by template and section.
                 inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+                imeOptions = EditorInfo.IME_FLAG_NO_FULLSCREEN or EditorInfo.IME_FLAG_NO_EXTRACT_UI
                 typeface = Typeface.MONOSPACE
                 gravity = Gravity.TOP or Gravity.LEFT
                 layoutDirection = View.LAYOUT_DIRECTION_LTR
@@ -536,14 +568,13 @@ private class TemplateCodeInput(
     var fieldColor = 0
     var lineColor = 0
     private var gutterSize = 0
-    private val fieldPattern = Regex("\\{\\{[^{}]+}}")
 
     fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 
     fun highlightFields() {
         val code = text ?: return
         code.getSpans(0, code.length, FieldSpan::class.java).forEach(code::removeSpan)
-        fieldPattern.findAll(code).forEach { match ->
+        templateFieldPlaceholder.findAll(code).forEach { match ->
             code.setSpan(FieldSpan(fieldColor), match.range.first, match.range.last + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
         linePaint.textSize = textSize * 0.76f
