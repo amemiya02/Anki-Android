@@ -24,8 +24,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -106,7 +108,12 @@ fun TextInputDialog(
             ),
     ) {
         if (description != null) DialogBody(description)
-        Text(label, Modifier.testTag("text_input_label"), style = foundation.type.caption, color = colors.onBackgroundMuted)
+        Text(
+            label,
+            Modifier.testTag("text_input_label").semantics { hideFromAccessibility() },
+            style = foundation.type.caption,
+            color = colors.onBackgroundMuted,
+        )
         OutlinedTextField(
             value = input,
             onValueChange = { proposed ->
@@ -119,7 +126,7 @@ fun TextInputDialog(
                     input = proposed
                 }
             },
-            modifier = Modifier.fillMaxWidth().focusRequester(focusRequester).semantics { contentDescription = label },
+            modifier = Modifier.fillMaxWidth().focusRequester(focusRequester).semantics { text = AnnotatedString(label) },
             textStyle = foundation.type.deckNameNested,
             shape = foundation.shapes.dialog,
             colors =
