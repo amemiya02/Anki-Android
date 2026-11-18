@@ -266,7 +266,7 @@ class FinishedFragmentTest : RobolectricTest() {
                     screen.onCustomStudy()
                     shadowOf(Looper.getMainLooper()).idle()
                     clickText(TR.customStudyStudyByCardStateOrTag())
-                    clickText(with(activity) { TR.sentenceCase.chooseTags })
+                    clickText(with(screen) { TR.sentenceCase.chooseTags })
                     controller.saveState()
                 }
 
@@ -279,7 +279,7 @@ class FinishedFragmentTest : RobolectricTest() {
                 onView(allOf(withId(R.id.tags_dialog_tag_item), hasDescendant(withText("selected"))))
                     .inRoot(isDialog())
                     .perform(click())
-                clickDialogPositiveButton()
+                clickText(getResourceString(CommonString.select))
             }
 
             assertEquals(assertNotNull(col.decks.customStudySession).id, selectedNote.firstCard().did)
@@ -309,12 +309,5 @@ class FinishedFragmentTest : RobolectricTest() {
         assertEquals(StudyOptionsActivity::class.java.name, shadowOf(activity).nextStartedActivity?.component?.className)
         assertNull(shadowOf(activity).nextStartedActivity, "study options should open once")
         assertTrue(activity.isFinishing)
-    }
-
-    private fun clickDialogPositiveButton() {
-        onView(withId(android.R.id.button1))
-            .inRoot(isDialog())
-            .perform(click())
-        shadowOf(Looper.getMainLooper()).idle()
     }
 }

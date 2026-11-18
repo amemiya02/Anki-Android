@@ -10,6 +10,14 @@ import android.os.Looper
 import android.view.KeyEvent
 import android.view.View
 import android.widget.EditText
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.performClick
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CardTemplateEditor.CardTemplateFragment
@@ -31,14 +39,13 @@ import com.ichi2.anki.scheduling.selectTab
 import com.ichi2.testutils.assertFalse
 import com.ichi2.testutils.dispatchInsets
 import com.ichi2.testutils.withSplitPaneUi
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers
 import org.json.JSONObject
 import org.junit.Assume.assumeThat
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -54,6 +61,23 @@ import kotlin.time.Duration
 
 @RunWith(AndroidJUnit4::class)
 class CardTemplateEditorTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
+    private fun renderedDialogMessage(): String =
+        compose
+            .onAllNodes(hasAnyAncestor(isDialog()) and !hasClickAction() and SemanticsMatcher.keyIsDefined(SemanticsProperties.Text))
+            .fetchSemanticsNodes()
+            .last()
+            .config[SemanticsProperties.Text]
+            .single()
+            .text
+
+    private fun clickDialogAction(label: String) {
+        compose.onNode(hasText(label) and hasClickAction() and hasAnyAncestor(isDialog())).performClick()
+        advanceRobolectricLooper()
+    }
+
     @Test
     fun `field insertion previews the original card after an unsaved deletion`() {
         val note = addBasicAndReversedNote()
@@ -94,7 +118,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertEquals(
                 "The remaining reverse card type has one card in the database",
                 getQuantityString(CommonPlurals.card_template_editor_confirm_delete, 1, 1, "Card 2"),
-                getAlertDialogText(true),
+                renderedDialogMessage(),
             )
         }
     }
@@ -182,15 +206,15 @@ class CardTemplateEditorTest : RobolectricTest() {
         // Make sure we get a confirmation dialog if we hit the back button
         assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(android.R.id.home))
         advanceRobolectricLooper()
-        assertEquals("Wrong dialog shown?", getAlertDialogText(true), "Discard changes?")
-        clickAlertDialogButton(checkDismissed = false) { negativeButton }
+        assertEquals("Wrong dialog shown?", renderedDialogMessage(), "Discard changes?")
+        clickDialogAction("Keep editing")
         advanceRobolectricLooper()
         assertTrue("note type change not preserved despite canceling back button?", testEditor.noteTypeHasChanged())
 
         // Make sure we things are cleared out after a cancel
         assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(android.R.id.home))
-        assertEquals("Wrong dialog shown?", getAlertDialogText(true), "Discard changes?")
-        clickAlertDialogButton(checkDismissed = false) { positiveButton }
+        assertEquals("Wrong dialog shown?", renderedDialogMessage(), "Discard changes?")
+        clickDialogAction(getResourceString(CommonString.discard))
         advanceRobolectricLooper()
         assertFalse("note type change not cleared despite discarding changes?", testEditor.noteTypeHasChanged())
 
@@ -264,8 +288,8 @@ class CardTemplateEditorTest : RobolectricTest() {
         val shadowTestEditor = shadowOf(testEditor)
         assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_delete))
         advanceRobolectricLooper()
-        assertEquals("Wrong dialog shown?", "Delete the “Card 1” card type, and its 0 cards?", getAlertDialogText(true))
-        clickAlertDialogButton { positiveButton }
+        assertEquals("Wrong dialog shown?", "Delete the “Card 1” card type, and its 0 cards?", renderedDialogMessage())
+        clickDialogAction(getResourceString(CommonString.dialog_positive_delete))
         advanceRobolectricLooper()
         assertTrue("Note type should have changed", testEditor.noteTypeHasChanged())
         assertEquals("Note type should have 1 template now", 1, testEditor.tempNoteType?.templateCount)
@@ -276,7 +300,7 @@ class CardTemplateEditorTest : RobolectricTest() {
         assertEquals(
             "Did not show dialog about deleting only card?",
             getResourceString(CommonString.card_template_editor_cant_delete),
-            getAlertDialogText(true),
+            renderedDialogMessage(),
         )
         assertEquals(
             "Change already in database?",
@@ -402,8 +426,8 @@ class CardTemplateEditorTest : RobolectricTest() {
             val shadowTestEditor = shadowOf(testEditor)
             assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_delete))
             advanceRobolectricLooper()
-            assertEquals("Wrong dialog shown?", "Delete the “Card 1” card type, and its 0 cards?", getAlertDialogText(true))
-            clickAlertDialogButton { negativeButton }
+            assertEquals("Wrong dialog shown?", "Delete the “Card 1” card type, and its 0 cards?", renderedDialogMessage())
+            clickDialogAction(getResourceString(CommonString.dialog_cancel))
             advanceRobolectricLooper()
             assertFalse("Note type should not have changed", testEditor.noteTypeHasChanged())
 
@@ -424,9 +448,9 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertEquals(
                 "Did not show dialog about deleting only card?",
                 getResourceString(CommonString.orphan_note_message),
-                getAlertDialogText(true),
+                renderedDialogMessage(),
             )
-            clickAlertDialogButton { positiveButton }
+            clickDialogAction(getResourceString(android.R.string.ok))
             advanceRobolectricLooper()
             assertNull(
                 "Can delete used template?",
@@ -510,9 +534,9 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertEquals(
                 "Did not show dialog about deleting template and it's card?",
                 getQuantityString(CommonPlurals.card_template_editor_confirm_delete, 1, 1, "Card 1"),
-                getAlertDialogText(true),
+                renderedDialogMessage(),
             )
-            clickAlertDialogButton { negativeButton }
+            clickDialogAction(getResourceString(CommonString.dialog_cancel))
             advanceRobolectricLooper()
             assertNotNull("Cannot delete template?", collectionBasicNoteTypeOriginal.getCardIds(0))
             assertNotNull("Cannot delete template?", collectionBasicNoteTypeOriginal.getCardIds(1))
@@ -578,9 +602,9 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertEquals(
                 "Did not show dialog about deleting template and it's card?",
                 getQuantityString(CommonPlurals.card_template_editor_confirm_delete, 1, 1, "Card 1"),
-                getAlertDialogText(true),
+                renderedDialogMessage(),
             )
-            clickAlertDialogButton { positiveButton }
+            clickDialogAction(getResourceString(CommonString.dialog_positive_delete))
             advanceRobolectricLooper()
             advanceRobolectricLooper()
             testEditor.mainBinding.cardTemplateEditorPager.currentItem = 0
@@ -589,9 +613,9 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertEquals(
                 "Did not show dialog about deleting template and it's card?",
                 getQuantityString(CommonPlurals.card_template_editor_confirm_delete, 1, 1, "Card 2"),
-                getAlertDialogText(true),
+                renderedDialogMessage(),
             )
-            clickAlertDialogButton { positiveButton }
+            clickDialogAction(getResourceString(CommonString.dialog_positive_delete))
             advanceRobolectricLooper()
 
             // - assert can delete any 1 or 2 Card templates but not all
@@ -666,9 +690,9 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertEquals(
                 "Did not show dialog about deleting template and it's card?",
                 getQuantityString(CommonPlurals.card_template_editor_confirm_delete, 1, 1, "Card 2"),
-                getAlertDialogText(true),
+                renderedDialogMessage(),
             )
-            clickAlertDialogButton { positiveButton }
+            clickDialogAction(getResourceString(CommonString.dialog_positive_delete))
             advanceRobolectricLooper()
             assertTrue("Note type should have changed", testEditor.noteTypeHasChanged())
             assertNotNull("Cannot delete template?", collectionBasicNoteTypeOriginal.getCardIds(0))
@@ -696,9 +720,9 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertEquals(
                 "Did not show dialog about deleting template and it's card?",
                 getQuantityString(CommonPlurals.card_template_editor_confirm_delete, 0, 0, CollectionManager.TR.cardTemplatesCard(2)),
-                getAlertDialogText(true),
+                renderedDialogMessage(),
             )
-            clickAlertDialogButton { positiveButton }
+            clickDialogAction(getResourceString(CommonString.dialog_positive_delete))
             advanceRobolectricLooper()
             assertTrue("Note type should have changed", testEditor.noteTypeHasChanged())
             assertNotNull("Cannot delete template?", collectionBasicNoteTypeOriginal.getCardIds(0))
@@ -746,7 +770,7 @@ class CardTemplateEditorTest : RobolectricTest() {
 
             dispatchInsets()
             onBackPressedDispatcher.onBackPressed()
-            assertEquals("Back should now confirm discarding edits", "Discard changes?", getAlertDialogText(true))
+            assertEquals("Back should now confirm discarding edits", "Discard changes?", renderedDialogMessage())
             assertFalse("Edits must not be discarded without confirmation", isFinishing)
         }
     }
@@ -777,10 +801,10 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertTrue("Back should confirm discarding edits", onBackPressedDispatcher.hasEnabledCallbacks())
             onBackPressedDispatcher.onBackPressed()
 
-            assertEquals("Back should confirm discarding edits", "Discard changes?", getAlertDialogText(true))
+            assertEquals("Back should confirm discarding edits", "Discard changes?", renderedDialogMessage())
             assertFalse("Edits must not be discarded without confirmation", isFinishing)
             // dismiss: the next case would otherwise assert against this dialog if it showed none
-            clickAlertDialogButton(checkDismissed = false) { negativeButton }
+            clickDialogAction("Keep editing")
         }
 
         // 3-button navigation reports a visible IME with no height
@@ -821,7 +845,7 @@ class CardTemplateEditorTest : RobolectricTest() {
         withCardTemplateEditor(col.notetypes.basicAndReversed) {
             assertTrue("Unable to delete the card type", shadowOf(this).clickMenuItem(R.id.action_delete))
             advanceRobolectricLooper()
-            clickAlertDialogButton { positiveButton }
+            clickDialogAction(getResourceString(CommonString.dialog_positive_delete))
             advanceRobolectricLooper()
             assertEquals("One card type should remain", 1, tempNoteType!!.templateCount)
             assertTrue("The deletion is unsaved", noteTypeHasChanged())
@@ -832,7 +856,7 @@ class CardTemplateEditorTest : RobolectricTest() {
 
             dispatchInsets()
             onBackPressedDispatcher.onBackPressed()
-            assertEquals("Back should now confirm discarding the deletion", "Discard changes?", getAlertDialogText(true))
+            assertEquals("Back should now confirm discarding the deletion", "Discard changes?", renderedDialogMessage())
             assertFalse("The deletion must not be discarded without confirmation", isFinishing)
         }
     }
@@ -842,7 +866,7 @@ class CardTemplateEditorTest : RobolectricTest() {
         withCardTemplateEditor(col.notetypes.basicAndReversed) {
             assertTrue("Unable to delete the card type", shadowOf(this).clickMenuItem(R.id.action_delete))
             advanceRobolectricLooper()
-            clickAlertDialogButton { positiveButton }
+            clickDialogAction(getResourceString(CommonString.dialog_positive_delete))
             advanceRobolectricLooper()
             assertEquals("One card type should remain", 1, tempNoteType!!.templateCount)
 
@@ -877,7 +901,7 @@ class CardTemplateEditorTest : RobolectricTest() {
 
             assertTrue("Unable to click?", shadowOf(this).clickMenuItem(android.R.id.home))
 
-            assertEquals("The toolbar should confirm discarding edits", "Discard changes?", getAlertDialogText(true))
+            assertEquals("The toolbar should confirm discarding edits", "Discard changes?", renderedDialogMessage())
             assertFalse("Edits must not be discarded without confirmation", isFinishing)
         }
     }
@@ -904,8 +928,8 @@ class CardTemplateEditorTest : RobolectricTest() {
             advanceRobolectricLooper()
             assertTrue("Unable to click?", shadowEditor.clickMenuItem(android.R.id.home))
             advanceRobolectricLooper()
-            assertEquals("Wrong dialog shown?", "Discard changes?", getAlertDialogText(true))
-            clickAlertDialogButton(checkDismissed = false) { positiveButton }
+            assertEquals("Wrong dialog shown?", "Discard changes?", renderedDialogMessage())
+            clickDialogAction(getResourceString(CommonString.discard))
         }
 
         // Case 1: Show dialog after deck override
@@ -1181,7 +1205,7 @@ class CardTemplateEditorTest : RobolectricTest() {
         assertEquals(
             "Adding from a new card type should count the notes",
             getQuantityString(CommonPlurals.card_template_editor_confirm_add, 1, 1),
-            getAlertDialogText(true),
+            renderedDialogMessage(),
         )
     }
 
@@ -1202,8 +1226,8 @@ class CardTemplateEditorTest : RobolectricTest() {
 
             assertTrue("Unable to add a card type", shadowOf(this).clickMenuItem(R.id.action_add))
             advanceRobolectricLooper()
-            val confirmation = getAlertDialogText(true)
-            clickAlertDialogButton { positiveButton }
+            val confirmation = renderedDialogMessage()
+            clickDialogAction(getResourceString(CommonString.menu_add))
             assertEquals("The duplicate template should be added", 3, tempNoteType!!.templateCount)
 
             // Saving rejects identical fronts. Keep the empty condition while making the new front distinct.
@@ -1248,8 +1272,8 @@ class CardTemplateEditorTest : RobolectricTest() {
             templateFragment(2).binding.editText.setText("{{#Add Reverse}}{{Front}} {{Back}}{{/Add Reverse}}")
             assertTrue("Unable to add a card type", shadowOf(this).clickMenuItem(R.id.action_add))
             advanceRobolectricLooper()
-            val confirmation = getAlertDialogText(true)
-            clickAlertDialogButton { positiveButton }
+            val confirmation = renderedDialogMessage()
+            clickDialogAction(getResourceString(CommonString.menu_add))
             advanceRobolectricLooper()
             assertEquals("The second duplicate should be selected", 3, selectedTabPosition)
             templateFragment(3).binding.editText.setText("{{#Add Reverse}}{{Back}} {{Front}}{{/Add Reverse}}")
@@ -1283,7 +1307,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertEquals(
                 "A broken template should not create cards",
                 getQuantityString(CommonPlurals.card_template_editor_confirm_add, 0, 0),
-                getAlertDialogText(true),
+                renderedDialogMessage(),
             )
         }
     }
@@ -1300,8 +1324,8 @@ class CardTemplateEditorTest : RobolectricTest() {
             templateFragment(0).binding.editText.setText("{{#c3}}{{Front}}{{/c3}}")
             assertTrue("Unable to add a card type", shadowOf(this).clickMenuItem(R.id.action_add))
             advanceRobolectricLooper()
-            val confirmation = getAlertDialogText(true)
-            clickAlertDialogButton { positiveButton }
+            val confirmation = renderedDialogMessage()
+            clickDialogAction(getResourceString(CommonString.menu_add))
             advanceRobolectricLooper()
             assertEquals("The new template should be selected", 2, selectedTabPosition)
 
@@ -1350,7 +1374,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             repeat(2) {
                 assertTrue("Unable to add a card type", shadowOf(this).clickMenuItem(R.id.action_add))
                 advanceRobolectricLooper()
-                clickAlertDialogButton { positiveButton }
+                clickDialogAction(getResourceString(CommonString.menu_add))
                 advanceRobolectricLooper()
             }
             assertEquals("The new card types should share a front", tempNoteType!!.getTemplate(1).qfmt, tempNoteType!!.getTemplate(2).qfmt)
@@ -1397,7 +1421,7 @@ class CardTemplateEditorTest : RobolectricTest() {
     private fun CardTemplateEditor.deleteSelectedCardType() {
         assertTrue("Unable to delete the card type", shadowOf(this).clickMenuItem(R.id.action_delete))
         advanceRobolectricLooper()
-        clickAlertDialogButton { positiveButton }
+        clickDialogAction(getResourceString(CommonString.dialog_positive_delete))
         advanceRobolectricLooper()
     }
 
@@ -1424,9 +1448,9 @@ class CardTemplateEditorTest : RobolectricTest() {
         assertEquals(
             "Did not show dialog about adding template and it's card?",
             getQuantityString(CommonPlurals.card_template_editor_confirm_add, numAffectedCards, numAffectedCards),
-            getAlertDialogText(true),
+            renderedDialogMessage(),
         )
-        clickAlertDialogButton { positiveButton }
+        clickDialogAction(getResourceString(CommonString.menu_add))
     }
 
     @Test

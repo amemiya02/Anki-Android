@@ -17,7 +17,6 @@ import androidx.test.core.app.ActivityScenario.ActivityAction
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.OptionalPermissionSet
 import com.ichi2.anki.PermissionSet
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
@@ -134,7 +133,7 @@ class PermissionsActivityTest : RobolectricTest() {
     @Test
     fun `Each screen starts normally and has the same permissions of a PermissionSet`() {
         testActivity { activity ->
-            val permissionSets: List<PermissionSet> = StoragePermissionSet.entries + OptionalPermissionSet.entries
+            val permissionSets: List<PermissionSet> = StoragePermissionSet.entries
             for (permissionSet in permissionSets) {
                 val fragmentClass = permissionSet.permissionsFragment
                 if (fragmentClass == null) {

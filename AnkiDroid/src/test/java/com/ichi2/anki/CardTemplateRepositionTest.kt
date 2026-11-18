@@ -2,7 +2,16 @@
 
 package com.ichi2.anki
 
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.dialogs.InsertFieldDialog
@@ -10,12 +19,10 @@ import com.ichi2.anki.dialogs.InsertFieldDialogViewModel
 import com.ichi2.anki.libanki.Notetypes
 import com.ichi2.anki.libanki.testutils.ext.addNote
 import com.ichi2.testutils.withSplitPaneUi
-import com.ichi2.utils.getInputField
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
@@ -23,6 +30,23 @@ import org.robolectric.shadows.ShadowDialog
 
 @RunWith(AndroidJUnit4::class)
 class CardTemplateRepositionTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
+    private fun renderedDialogMessage(): String =
+        compose
+            .onAllNodes(hasAnyAncestor(isDialog()) and !hasClickAction() and SemanticsMatcher.keyIsDefined(SemanticsProperties.Text))
+            .fetchSemanticsNodes()
+            .last()
+            .config[SemanticsProperties.Text]
+            .single()
+            .text
+
+    private fun clickDialogAction(label: String) {
+        compose.onNode(hasText(label) and hasClickAction() and hasAnyAncestor(isDialog())).performClick()
+        advanceRobolectricLooper()
+    }
+
     @Test
     fun `reposition keeps edits and editor selection with the moved template`() {
         withCardTemplateEditor(col.notetypes.basicAndReversed) {
@@ -138,7 +162,7 @@ class CardTemplateRepositionTest : RobolectricTest() {
         withCardTemplateEditor(col.notetypes.basicAndReversed) {
             assertTrue(shadowOf(this).clickMenuItem(R.id.action_add))
             advanceRobolectricLooper()
-            clickAlertDialogButton { positiveButton }
+            clickDialogAction(getResourceString(CommonString.menu_add))
             advanceRobolectricLooper()
             assertEquals(2, selectedTabPosition)
 
@@ -165,8 +189,8 @@ class CardTemplateRepositionTest : RobolectricTest() {
             moveSelectedTemplateTo(2)
             assertTrue(shadowOf(this).clickMenuItem(R.id.action_delete))
             advanceRobolectricLooper()
-            assertEquals(getResourceString(CommonString.orphan_note_message), getAlertDialogText(true))
-            clickAlertDialogButton { positiveButton }
+            assertEquals(getResourceString(CommonString.orphan_note_message), renderedDialogMessage())
+            clickDialogAction(getResourceString(android.R.string.ok))
             assertEquals(2, tempNoteType!!.templateCount)
         }
     }
@@ -191,7 +215,7 @@ class CardTemplateRepositionTest : RobolectricTest() {
             advanceRobolectricLooper()
             assertEquals(
                 getQuantityString(CommonPlurals.card_template_editor_confirm_delete, 1, 1, "Card 2"),
-                getAlertDialogText(true),
+                renderedDialogMessage(),
             )
         }
     }
@@ -227,7 +251,7 @@ class CardTemplateRepositionTest : RobolectricTest() {
         withCardTemplateEditor(col.notetypes.basicAndReversed) {
             assertTrue(shadowOf(this).clickMenuItem(R.id.action_reposition))
             advanceRobolectricLooper()
-            clickAlertDialogButton { negativeButton }
+            clickDialogAction(getResourceString(CommonString.dialog_cancel))
             assertFalse(noteTypeHasChanged())
             moveSelectedTemplateTo(1)
             assertFalse(noteTypeHasChanged())
@@ -246,16 +270,16 @@ class CardTemplateRepositionTest : RobolectricTest() {
         assertFalse(col.schemaChanged())
         withCardTemplateEditor(col.notetypes.basicAndReversed) {
             moveSelectedTemplateTo(2)
-            assertEquals(getResourceString(CommonString.full_sync_confirmation), getAlertDialogText(true))
+            assertEquals(getResourceString(CommonString.full_sync_confirmation), renderedDialogMessage())
             assertFalse(noteTypeHasChanged())
-            clickAlertDialogButton { negativeButton }
+            clickDialogAction(getResourceString(CommonString.dialog_cancel))
             advanceRobolectricLooper()
             assertFalse(noteTypeHasChanged())
             assertFalse(col.schemaChanged())
             assertEquals(0, selectedTabPosition)
 
             moveSelectedTemplateTo(2)
-            clickAlertDialogButton { positiveButton }
+            clickDialogAction(getResourceString(CommonString.dialog_ok))
             advanceRobolectricLooper()
             assertEquals(listOf("Card 2", "Card 1"), tempNoteType!!.notetype.templatesNames)
             assertTrue(col.schemaChanged())
@@ -291,17 +315,15 @@ class CardTemplateRepositionTest : RobolectricTest() {
     private fun CardTemplateEditor.moveSelectedTemplateTo(position: Int) {
         assertTrue(shadowOf(this).clickMenuItem(R.id.action_reposition))
         advanceRobolectricLooper()
-        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-        dialog.getInputField().setText(position.toString())
-        assertTrue(dialog.positiveButton.isEnabled)
-        dialog.positiveButton.performClick()
+        compose.onNode(hasSetTextAction() and hasAnyAncestor(isDialog())).performTextInput(position.toString())
+        clickDialogAction(getResourceString(CommonString.dialog_ok))
         advanceRobolectricLooper()
     }
 
     private fun CardTemplateEditor.deleteSelectedTemplate() {
         assertTrue(shadowOf(this).clickMenuItem(R.id.action_delete))
         advanceRobolectricLooper()
-        clickAlertDialogButton { positiveButton }
+        clickDialogAction(getResourceString(CommonString.dialog_positive_delete))
         advanceRobolectricLooper()
     }
 

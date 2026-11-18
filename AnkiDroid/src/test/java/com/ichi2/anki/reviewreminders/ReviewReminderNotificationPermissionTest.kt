@@ -3,12 +3,14 @@
 package com.ichi2.anki.reviewreminders
 
 import android.app.NotificationManager
-import android.os.Build
 import android.view.View
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.core.content.edit
 import androidx.core.content.getSystemService
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.R
+import com.ichi2.anki.CommonString
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.windows.permissions.PermissionsBottomSheet
@@ -29,6 +31,9 @@ import org.robolectric.Shadows.shadowOf
 /** Tests AnkiDroid's permission sheet without changing the device's notification permission. */
 @RunWith(AndroidJUnit4::class)
 class ReviewReminderNotificationPermissionTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @get:Rule
     val notificationPreferences =
         OverridePropertyRule(
@@ -53,23 +58,9 @@ class ReviewReminderNotificationPermissionTest : RobolectricTest() {
         withScheduleRemindersFragment { fragment ->
             fragment.createReminder(expectedCount = 1)
 
-            val permissionViewId =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    R.id.notification_permission
-                } else {
-                    R.id.legacy_notification_permission
-                }
-            advanceRobolectricLooperUntil {
-                fragment.permissionsBottomSheet
-                    ?.view
-                    ?.findViewById<View>(permissionViewId)
-                    ?.isShown == true
-            }
+            advanceRobolectricLooperUntil { fragment.permissionsBottomSheet?.dialog?.isShowing == true }
             assertThat(Prefs.reminderNotifsRequestShown, equalTo(true))
-            fragment.permissionsBottomSheet!!
-                .requireView()
-                .findViewById<View>(R.id.close_button)
-                .performClick()
+            compose.onNodeWithText(getResourceString(CommonString.dialog_cancel)).performClick()
             advanceRobolectricLooperUntil { fragment.permissionsBottomSheet == null }
             assertThat(fragment.reminderCount, equalTo(1))
             assertThat(storedReminders().size, equalTo(1))
