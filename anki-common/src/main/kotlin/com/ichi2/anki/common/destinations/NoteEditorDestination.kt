@@ -20,6 +20,9 @@ sealed class NoteEditorDestination : Destination() {
         val deckId: DeckId? = null,
     ) : NoteEditorDestination()
 
+    /** Opens the Add Note screen when Android delivers a home-screen widget tap. */
+    data object AddNoteFromWidget : NoteEditorDestination()
+
     /**
      * Opens the Note Editor for image occlusion editing.
      * @property imageUri The image to occlude. May be null if not yet known.

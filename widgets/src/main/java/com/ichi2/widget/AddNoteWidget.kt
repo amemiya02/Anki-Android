@@ -64,7 +64,7 @@ private object AddNote : PaperWidget<Unit>(AddNoteWidget::class.java) {
             }
         val strings = appearance.localizedContext.resources
         val label = strings.getString(CommonString.menu_add_note)
-        val intent = with(DeferredNavigation) { NoteEditorDestination.AddNote().toIntent() }
+        val intent = with(DeferredNavigation) { NoteEditorDestination.AddNoteFromWidget.toIntent() }
         WidgetSheet(appearance, actionStartActivity(intent)) {
             Column(
                 GlanceModifier.fillMaxSize().padding(horizontal = 2.dp),
