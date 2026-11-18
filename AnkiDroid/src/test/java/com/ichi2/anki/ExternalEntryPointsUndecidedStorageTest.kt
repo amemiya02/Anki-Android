@@ -126,7 +126,8 @@ class ExternalEntryPointsUndecidedStorageTest : RobolectricTest() {
             shadowOf(AppWidgetManager.getInstance(targetContext))
                 .bindAppWidgetId(appWidgetId, ComponentName(targetContext, receiverClass))
         }
-        receiverClass.getDeclaredConstructor().newInstance().onReceive(targetContext, intent)
+        // Android supplies the PendingResult that Glance finishes after updating a widget.
+        targetContext.sendBroadcast(intent.setComponent(ComponentName(targetContext, receiverClass)))
     }
 
     private fun queryContentProvider(className: String) {
