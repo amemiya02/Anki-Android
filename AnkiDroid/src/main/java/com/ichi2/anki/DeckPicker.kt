@@ -769,7 +769,7 @@ open class DeckPicker :
 
     override fun launchInApp(intent: Intent): Boolean = ::appNavigation.isInitialized && appNavigation.launch(intent)
 
-    @Suppress("DEPRECATION")
+    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
     override fun startActivityForResult(
         intent: Intent,
         requestCode: Int,

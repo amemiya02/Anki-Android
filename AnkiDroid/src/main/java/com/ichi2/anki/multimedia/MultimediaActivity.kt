@@ -182,7 +182,7 @@ class MultimediaFlowFragment :
 
     override val baseSnackbarBuilder: SnackbarBuilder = {
         // Keep error messages above the editor's bottom controls.
-        anchorView = view?.findViewById<View>(R.id.multimedia_controls_anchor)
+        anchorView = this@MultimediaFlowFragment.view?.findViewById<View>(R.id.multimedia_controls_anchor)
     }
 }
 

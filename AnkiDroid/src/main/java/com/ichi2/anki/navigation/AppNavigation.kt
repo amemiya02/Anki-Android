@@ -252,9 +252,10 @@ internal class AppNavigation(
         intent: Intent,
         requestCode: Int = NO_RESULT,
     ): Boolean {
-        if (intent.component?.packageName != deckPicker.packageName) return false
-        if (intent.component?.className !in hostedComponents) return false
-        val component = intent.component?.className
+        val target = intent.component ?: return false
+        if (target.packageName != deckPicker.packageName) return false
+        val component = target.className
+        if (component !in hostedComponents) return false
         val fragment =
             when (component) {
                 CardBrowser::class.java.name -> CardBrowserPaneFragment::class.java
@@ -267,7 +268,7 @@ internal class AppNavigation(
                 StudyOptionsActivity::class.java.name -> StudyOptionsFlowFragment::class.java
                 MultimediaActivity::class.java.name -> MultimediaFlowFragment::class.java
                 NoteEditorActivity::class.java.name -> NoteEditorPaneFragment::class.java
-                else -> fragmentScreens[intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME)] ?: return false
+                else -> intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME)?.let(fragmentScreens::get) ?: return false
             }
         val screenArguments =
             when (component) {
