@@ -62,7 +62,7 @@ class RemainingSettingsNavigationTest : RobolectricTest() {
             fun repeatingAlarmExists(): Boolean {
                 lateinit var alarms: AlarmManager
                 scenario.onActivity { alarms = requireNotNull(it.getSystemService(AlarmManager::class.java)) }
-                return shadowOf(alarms).scheduledAlarms.any { it.interval == AlarmManager.INTERVAL_DAY }
+                return shadowOf(alarms).scheduledAlarms.any { it.intervalMs == AlarmManager.INTERVAL_DAY }
             }
 
             assertFalse(repeatingAlarmExists())
