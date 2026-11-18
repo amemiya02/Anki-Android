@@ -131,6 +131,7 @@ class BottomNavigationRestoreTest : RobolectricTest() {
     }
 
     private fun restoreAfterProcessDeath(controller: ActivityController<DeckPicker>): DeckPicker {
+        composeRule.waitForIdle()
         val savedState = Bundle()
         controller
             .pause()

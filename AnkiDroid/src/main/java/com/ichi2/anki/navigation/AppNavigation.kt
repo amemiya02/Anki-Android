@@ -17,7 +17,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
@@ -193,7 +192,8 @@ internal class AppNavigation(
     ) {
         val manager = deckPicker.supportFragmentManager
         val tag = "navigation:${entry.id}"
-        val containerId = rememberSaveable { allocateContainerId() }
+        // FragmentManager already saves the container ID alongside the Fragment's state.
+        val containerId = remember(tag) { manager.findFragmentByTag(tag)?.id ?: allocateContainerId() }
         val container =
             remember(containerId) {
                 FragmentContainerView(deckPicker).apply {
