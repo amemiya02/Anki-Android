@@ -9,65 +9,61 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.text.InputFilter
 import android.text.Spanned
-import android.view.MenuItem
-import android.view.View
 import android.view.WindowManager
-import android.widget.EditText
-import android.widget.RadioGroup
 import androidx.annotation.VisibleForTesting
-import androidx.appcompat.widget.SearchView
-import androidx.appcompat.widget.Toolbar
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
 import androidx.core.os.BundleCompat
-import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import androidx.recyclerview.widget.RecyclerView
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.OnContextAndLongClickListener
 import com.ichi2.anki.R
 import com.ichi2.anki.analytics.AnalyticsDialogFragment
 import com.ichi2.anki.browser.IdsFile
-import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.android.showThemedToast
-import com.ichi2.anki.databinding.DialogTagsBinding
-import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.NoteId
 import com.ichi2.anki.libanki.withCollapsedWhitespace
 import com.ichi2.anki.model.CardStateFilter
-import com.ichi2.anki.snackbar.showSnackbar
-import com.ichi2.anki.ui.StableScrollbarLayoutManager
 import com.ichi2.anki.utils.ext.requireParcelable
+import com.ichi2.compose.theme.foundation
 import com.ichi2.compose.ui.dialogs.DialogAction
 import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.DialogChoiceRow
 import com.ichi2.compose.ui.dialogs.PaperDialog
 import com.ichi2.compose.ui.dialogs.TextInputDialog
 import com.ichi2.compose.ui.dialogs.createPaperDialog
-import com.ichi2.ui.AccessibleSearchView
 import com.ichi2.utils.DisplayUtils.setDialogKeyboardResize
 import com.ichi2.utils.TagsUtil
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
 import timber.log.Timber
 import java.io.IOException
@@ -93,18 +89,14 @@ class TagsDialog : AnalyticsDialogFragment {
         CUSTOM_STUDY,
     }
 
-    @VisibleForTesting
-    internal lateinit var binding: DialogTagsBinding
-        private set
-
     private var type: DialogType? = null
     internal val isEditingTags: Boolean get() = type == DialogType.EDIT_TAGS
-    private var tagsArrayAdapter: TagsArrayAdapter? = null
-    private var toolbarSearchView: AccessibleSearchView? = null
-    private var toolbarSearchItem: MenuItem? = null
+    private var picker by mutableStateOf<TagPickerState?>(null)
+    private var query by mutableStateOf("")
+    private var feedback by mutableStateOf<String?>(null)
     private val listener: TagsDialogListener?
 
-    private lateinit var selectedOption: CardStateFilter
+    private var selectedOption by mutableStateOf(CardStateFilter.ALL_CARDS)
 
     @VisibleForTesting
     val viewModel: TagsDialogViewModel by viewModels {
@@ -169,7 +161,15 @@ class TagsDialog : AnalyticsDialogFragment {
         super.onCreate(savedInstanceState)
 
         type = requireArguments().requireParcelable(ARG_DIALOG_TYPE)
+        query = savedInstanceState?.getString("tagQuery").orEmpty()
+        selectedOption = savedInstanceState?.getString("tagCardState")?.let(CardStateFilter::valueOf) ?: CardStateFilter.ALL_CARDS
         isCancelable = true
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("tagQuery", query)
+        outState.putString("tagCardState", selectedOption.name)
     }
 
     private val tagsDialogListener: TagsDialogListener
@@ -187,94 +187,121 @@ class TagsDialog : AnalyticsDialogFragment {
             dismiss()
             return super.onCreateDialog(savedInstanceState)
         }
-        binding = DialogTagsBinding.inflate(layoutInflater)
-
-        val tagsListLayout: RecyclerView.LayoutManager = StableScrollbarLayoutManager(requireContext())
-        binding.tagsList.apply {
-            requestFocus()
-            layoutManager = tagsListLayout
-        }
-        binding.optionsGroup.apply {
-            isVisible = type != DialogType.EDIT_TAGS && type != DialogType.CUSTOM_STUDY
-            for (i in 0 until childCount) {
-                getChildAt(i).id = i
-            }
-            check(0)
-        }
-        selectedOption = radioButtonIdToCardState(binding.optionsGroup.checkedRadioButtonId)
-        binding.optionsGroup.setOnCheckedChangeListener { _: RadioGroup?, checkedId: Int ->
-            selectedOption = radioButtonIdToCardState(checkedId)
-        }
-
-        adjustToolbar(binding.root)
-
-        var loaded by mutableStateOf(false)
-        val dialog =
-            createPaperDialog(requireContext()) {
-                PaperDialog(
-                    title = getString(if (isEditingTags) CommonString.card_details_tags else CommonString.studyoptions_limit_select_tags),
-                    onDismissRequest = ::dismiss,
-                    scrollContent = false,
-                    actions =
-                        listOf(
-                            DialogAction(getString(CommonString.dialog_cancel), ::dismiss),
-                            DialogAction(confirmLabel(), {
-                                onPositiveButton()
-                                dismiss()
-                            }, DialogActionStyle.Filled, enabled = loaded),
-                        ),
-                ) {
-                    AndroidView(factory = { binding.root }, modifier = Modifier.fillMaxWidth().heightIn(max = 360.dp))
-                }
-            }
-
-        lifecycleScope.launch {
-            val showProgressJob =
-                launch {
+        return createPaperDialog(requireContext()) {
+            var searching by rememberSaveable { mutableStateOf(false) }
+            var showProgress by remember { mutableStateOf(false) }
+            LaunchedEffect(viewModel) { picker = TagPickerState(viewModel.tags.await()).also { if (query.isNotEmpty()) it.filter(query) } }
+            LaunchedEffect(picker) {
+                if (picker == null) {
                     delay(600.milliseconds)
-                    withContext(Dispatchers.Main) {
-                        binding.loadingContainer.visibility = View.VISIBLE
-                        viewModel.initProgress
-                            .flowWithLifecycle(lifecycle)
-                            .onEach { progress ->
-                                binding.progressText.text =
-                                    when (progress) {
-                                        TagsDialogViewModel.InitProgress.Processing ->
-                                            getString(CommonString.dialog_processing)
-                                        is TagsDialogViewModel.InitProgress.FetchingNoteTags ->
-                                            "${progress.noteNumber}/${progress.noteCount}"
-                                        TagsDialogViewModel.InitProgress.Finished -> null
-                                    }
-                            }.launchIn(lifecycleScope)
-                    }
+                    showProgress = true
                 }
-            val tags = viewModel.tags.await()
-
-            tagsArrayAdapter = TagsArrayAdapter(tags) { binding.root.showMaxTagSelectedNotice(tags) }
-            binding.tagsList.adapter = tagsArrayAdapter
-            if (tags.isEmpty) {
-                binding.noTagsTextView.visibility = View.VISIBLE
             }
-            tagsArrayAdapter?.tagContextAndLongClickListener =
-                if (type == DialogType.EDIT_TAGS) {
-                    OnContextAndLongClickListener { v ->
-                        createAddTagDialog(v.tag as String)
-                        true
+            val state = picker
+            PaperDialog(
+                title = getString(if (isEditingTags) CommonString.card_details_tags else CommonString.studyoptions_limit_select_tags),
+                onDismissRequest = ::dismiss,
+                scrollContent = false,
+                actions =
+                    listOf(
+                        DialogAction(getString(CommonString.dialog_cancel), ::dismiss),
+                        DialogAction(confirmLabel(), {
+                            if (state != null) {
+                                tagsDialogListener.onSelectedTags(
+                                    state.tags.copyOfCheckedTagList(),
+                                    state.tags.copyOfPartiallySelectedTagList(),
+                                    selectedOption,
+                                )
+                                dismiss()
+                            }
+                        }, DialogActionStyle.Filled, enabled = state != null),
+                    ),
+            ) {
+                if (state == null) {
+                    if (showProgress) {
+                        LinearProgressIndicator()
+                        val progress by viewModel.initProgress.collectAsState()
+                        val fetching = progress as? TagsDialogViewModel.InitProgress.FetchingNoteTags
+                        Text(fetching?.let { "${it.noteNumber}/${it.noteCount}" } ?: getString(CommonString.dialog_processing))
                     }
-                } else {
-                    OnContextAndLongClickListener { false }
+                    return@PaperDialog
                 }
-            showProgressJob.cancel()
-            binding.loadingContainer.isVisible = false
-            loaded = true
-        }
-
-        dialog.updateSoftInputMode(resources.configuration)
-
-        return dialog
+                if (searching) {
+                    OutlinedTextField(
+                        value = query,
+                        onValueChange = {
+                            query = applyTagFilter(it)
+                            state.filter(query)
+                        },
+                        label = { Text(getString(if (isEditingTags) CommonString.add_new_filter_tags else CommonString.filter_tags)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                Row {
+                    IconButton(onClick = {
+                        searching = !searching
+                        if (!searching) {
+                            query = ""
+                            state.filter(query)
+                        }
+                    }) { Icon(painterResource(CommonR.drawable.symbol_search), getString(CommonString.filter_tags)) }
+                    if (isEditingTags) {
+                        IconButton(onClick = {
+                            if (searching && query.isNotEmpty()) {
+                                val tag = query
+                                query = ""
+                                addTag(tag)
+                            } else {
+                                createAddTagDialog(null)
+                            }
+                        }) { Icon(painterResource(CommonR.drawable.symbol_add), getString(CommonString.add_tag)) }
+                    }
+                    IconButton(onClick = {
+                        state.toggleAll()
+                        showMaxTagSelectedNotice(state.tags)
+                    }) { Icon(painterResource(R.drawable.symbol_select_all), getString(CommonString.check_all_tags)) }
+                }
+                TagPickerList(
+                    state,
+                    onChecked = {
+                        showMaxTagSelectedNotice(state.tags)
+                    },
+                    onAddChild = if (isEditingTags) ::createAddTagDialog else null,
+                    header = {
+                        if (type == DialogType.FILTER_BY_TAG) {
+                            listOf(
+                                CardStateFilter.ALL_CARDS to CommonString.tags_dialog_option_all_cards,
+                                CardStateFilter.NEW to CommonString.tags_dialog_option_new_cards,
+                                CardStateFilter.DUE to CommonString.tags_dialog_option_due_cards,
+                            ).forEach { (option, label) ->
+                                DialogChoiceRow(DialogChoice(getString(label)), checked = selectedOption == option, onClick = {
+                                    selectedOption =
+                                        option
+                                }, multiple = false)
+                            }
+                        }
+                        if (state.tags.isEmpty) Text(getString(CommonString.no_tags))
+                    },
+                    modifier =
+                        Modifier
+                            .weight(
+                                1f,
+                                fill = false,
+                            ).heightIn(max = 360.dp),
+                )
+                feedback?.let { message ->
+                    Text(message, Modifier.semantics { liveRegion = LiveRegionMode.Polite }, style = MaterialTheme.foundation.type.caption)
+                    LaunchedEffect(message) {
+                        delay(4_000)
+                        feedback = null
+                    }
+                }
+            }
+        }.also { it.updateSoftInputMode(resources.configuration) }
     }
 
-    private fun View.showMaxTagSelectedNotice(tags: TagsList) {
+    private fun showMaxTagSelectedNotice(tags: TagsList) {
         if (type == DialogType.CUSTOM_STUDY && tags.copyOfCheckedTagList().size > 100) {
             // the backend text is long and is more like an explanation and doesn't fit into
             // a snackbar so cut just for the first sentence:
@@ -288,18 +315,7 @@ class TagsDialog : AnalyticsDialogFragment {
                 } else {
                     backendText.substring(0..firstPointIndex)
                 }
-            this.showSnackbar(userFacingText)
-        }
-    }
-
-    private fun onPositiveButton() {
-        lifecycleScope.launch {
-            val tags = viewModel.tags.await()
-            tagsDialogListener.onSelectedTags(
-                tags.copyOfCheckedTagList(),
-                tags.copyOfPartiallySelectedTagList(),
-                selectedOption,
-            )
+            feedback = userFacingText
         }
     }
 
@@ -315,73 +331,6 @@ class TagsDialog : AnalyticsDialogFragment {
 
     private fun Dialog.updateSoftInputMode(configuration: Configuration) {
         setDialogKeyboardResize(this, resize = configuration.screenHeightDp >= COMPACT_HEIGHT_DP)
-    }
-
-    private fun radioButtonIdToCardState(id: Int) =
-        when (id) {
-            0 -> CardStateFilter.ALL_CARDS
-            1 -> CardStateFilter.NEW
-            2 -> CardStateFilter.DUE
-            else -> {
-                Timber.w("unexpected value: %d", id)
-                CardStateFilter.ALL_CARDS
-            }
-        }
-
-    private fun adjustToolbar(tagsDialogView: View) {
-        val toolbar: Toolbar = binding.toolbar.root
-
-        val toolbarAddItem = toolbar.menu.findItem(R.id.tags_dialog_action_add)
-        val drawable = ContextCompat.getDrawable(requireContext(), CommonR.drawable.symbol_add)
-        drawable?.setTint(getColorFromAttr(requireContext(), CommonR.attr.foundationOnBackground))
-        toolbarAddItem.icon = drawable
-
-        toolbarAddItem.setOnMenuItemClickListener {
-            val query = toolbarSearchView!!.query.toString()
-            if (toolbarSearchItem!!.isActionViewExpanded && query.isNotEmpty()) {
-                addTag(query)
-                toolbarSearchView!!.setQuery("", true)
-            } else {
-                createAddTagDialog(null)
-            }
-            true
-        }
-        toolbarSearchItem = toolbar.menu.findItem(R.id.tags_dialog_action_filter)
-        val toolbarSearchItem: MenuItem? = toolbarSearchItem
-        toolbarSearchView = toolbarSearchItem?.actionView as AccessibleSearchView
-        val queryET = toolbarSearchView!!.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
-        queryET.filters = arrayOf(addTagFilter)
-        toolbarSearchView!!.queryHint = getString(CommonString.filter_tags)
-        toolbarSearchView!!.setOnQueryTextListener(
-            object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String): Boolean {
-                    toolbarSearchView!!.clearFocus()
-                    return true
-                }
-
-                override fun onQueryTextChange(newText: String): Boolean {
-                    tagsArrayAdapter?.filter?.filter(newText)
-                    return true
-                }
-            },
-        )
-        val checkAllItem = toolbar.menu.findItem(R.id.tags_dialog_action_select_all)
-        checkAllItem.setOnMenuItemClickListener {
-            launchCatchingTask {
-                val tags = viewModel.tags.await()
-                val didChange = tags.toggleAllCheckedStatuses()
-                if (didChange) {
-                    tagsArrayAdapter?.notifyCheckedStatusesChanged()
-                    view?.showMaxTagSelectedNotice(tags)
-                }
-            }
-            true
-        }
-        if (type == DialogType.EDIT_TAGS) {
-            toolbarSearchView!!.queryHint = getString(CommonString.add_new_filter_tags)
-        } else {
-            toolbarAddItem.isVisible = false
-        }
     }
 
     /**
@@ -441,23 +390,14 @@ class TagsDialog : AnalyticsDialogFragment {
             val tag = TagsUtil.getUniformedTag(rawTag)
             val feedbackText: String
             if (tags.add(tag)) {
-                binding.noTagsTextView.isVisible = false
-                tags.add(tag)
                 feedbackText = getString(CommonString.tag_editor_add_feedback, tag, confirmLabel())
             } else {
                 feedbackText = getString(CommonString.tag_editor_add_feedback_existing, tag)
             }
             tags.check(tag)
-            tagsArrayAdapter?.sortData()
-            tagsArrayAdapter?.notifyDataSetChanged()
-            // Expand to reveal the newly added tag.
-            tagsArrayAdapter?.filter?.apply {
-                setExpandTarget(tag)
-                refresh()
-            }
-
-            // Show a snackbar to let the user know the tag was added successfully
-            binding.tagsDialogSnackbar.showSnackbar(feedbackText)
+            tags.sort()
+            picker?.filter(query, expandTarget = tag)
+            feedback = feedbackText
         }
     }
 

@@ -2,21 +2,32 @@
 
 package com.ichi2.anki.dialogs.tags
 
-import androidx.core.view.isVisible
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToKey
+import androidx.compose.ui.test.performTextReplacement
 import com.google.testing.junit.testparameterinjector.TestParameter
+import com.ichi2.anki.CommonString
 import com.ichi2.anki.DialogScreenshotTest
-import com.ichi2.anki.R
 import com.ichi2.anki.dialogs.tags.TagsDialog.DialogType
+import org.junit.Rule
 import org.junit.Test
 
 class TagsDialogScreenshotTest : DialogScreenshotTest() {
+    @get:Rule val compose = createEmptyComposeRule()
+
     @Test
     fun `empty tags`() =
         runTest {
             val dialog = TagsDialog().withArguments(targetContext, DialogType.EDIT_TAGS)
             withDialog(dialog) {
                 dialog.viewModel.tags.await()
-                advanceRobolectricLooperUntil { dialog.binding.noTagsTextView.isVisible }
+                compose.onNodeWithText(targetContext.getString(CommonString.no_tags)).assertIsDisplayed()
                 captureScreen("empty_tags")
             }
         }
@@ -42,17 +53,17 @@ class TagsDialogScreenshotTest : DialogScreenshotTest() {
             )
         withDialog(dialog) {
             dialog.viewModel.tags.await()
-            advanceRobolectricLooperUntil { dialog.binding.tagsList.adapter != null }
+            val list = compose.onNodeWithTag("tag_list")
+            list.performScrollToKey("chemistry")
+            compose.onNodeWithContentDescription("chemistry").assertIsDisplayed()
             captureScreen(name)
 
-            captureSearchResults(
-                name,
-                list = dialog.binding.tagsList,
-                searchItem =
-                    dialog.binding.toolbar.root.menu
-                        .findItem(R.id.tags_dialog_action_filter),
-                query = "biology",
-            )
+            compose.onNodeWithContentDescription(targetContext.getString(CommonString.filter_tags)).performClick()
+            compose.onNode(hasSetTextAction()).performTextReplacement("biology")
+            compose.onNodeWithText("chemistry").assertDoesNotExist()
+            list.performScrollToKey("biology")
+            compose.onNodeWithContentDescription("biology").assertIsDisplayed()
+            captureScreen("${name}_search")
         }
     }
 }

@@ -14,12 +14,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.fragment.app.commitNow
 import androidx.lifecycle.Lifecycle
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
@@ -43,7 +37,6 @@ import com.ichi2.testutils.uninitializeField
 import com.ichi2.testutils.withFragment
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import org.hamcrest.Matchers.allOf
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -277,9 +270,7 @@ class FinishedFragmentTest : RobolectricTest() {
             Robolectric.buildActivity(EmptyAnkiActivity::class.java).use { controller ->
                 controller.setup(savedState)
                 shadowOf(Looper.getMainLooper()).idle()
-                onView(allOf(withId(R.id.tags_dialog_tag_item), hasDescendant(withText("selected"))))
-                    .inRoot(isDialog())
-                    .perform(click())
+                clickText("selected")
                 clickText(getResourceString(CommonString.select))
             }
 

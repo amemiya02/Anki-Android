@@ -4,373 +4,272 @@
 package com.ichi2.anki.dialogs
 
 import android.content.Context
-import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
-import android.text.SpannableStringBuilder
-import android.text.TextUtils
-import android.view.Gravity
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.widget.ArrayAdapter
-import android.widget.CheckedTextView
-import android.widget.LinearLayout
-import android.widget.Spinner
 import androidx.annotation.CheckResult
-import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import androidx.core.text.BidiFormatter
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat.Type.displayCutout
-import androidx.core.view.WindowInsetsCompat.Type.systemBars
-import androidx.core.view.doOnNextLayout
-import androidx.core.view.isVisible
-import androidx.core.view.updateLayoutParams
-import androidx.core.widget.TextViewCompat
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
-import com.google.android.material.textview.MaterialTextView
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.CrashReportData.Companion.toCrashReportData
 import com.ichi2.anki.R
 import com.ichi2.anki.analytics.AnalyticsDialogFragment
-import com.ichi2.anki.common.annotations.NeedsTest
-import com.ichi2.anki.common.utils.android.getColorFromAttr
-import com.ichi2.anki.common.utils.android.getResFromAttr
-import com.ichi2.anki.compat.setTooltipTextCompat
-import com.ichi2.anki.databinding.DialogChangeNoteTypeBinding
-import com.ichi2.anki.databinding.DialogFieldsBinding
-import com.ichi2.anki.databinding.DialogTemplatesBinding
-import com.ichi2.anki.databinding.ViewTabLayoutIconOnStartBinding
-import com.ichi2.anki.dialogs.ConversionType.CLOZE_TO_CLOZE
-import com.ichi2.anki.dialogs.ConversionType.CLOZE_TO_REGULAR
-import com.ichi2.anki.dialogs.ConversionType.REGULAR_TO_CLOZE
-import com.ichi2.anki.dialogs.ConversionType.REGULAR_TO_REGULAR
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.NoteId
-import com.ichi2.anki.libanki.NoteTypeId
 import com.ichi2.anki.showError
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.sync.launchCatchingRequiringOneWaySync
-import com.ichi2.anki.ui.BasicItemSelectedListener
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.InitStatus
 import com.ichi2.anki.withProgress
 import com.ichi2.compose.theme.AnkiDroidTheme
+import com.ichi2.compose.theme.foundation
 import com.ichi2.compose.ui.dialogs.DialogAction
 import com.ichi2.compose.ui.dialogs.DialogActionStyle
 import com.ichi2.compose.ui.dialogs.DialogActions
+import com.ichi2.compose.ui.dialogs.DialogChoice
 import com.ichi2.compose.ui.dialogs.DialogTitle
+import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
 import com.ichi2.themes.Themes
 import com.ichi2.utils.LanguageUtil
-import com.ichi2.utils.boldList
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import com.ichi2.anki.common.android.R as CommonR
 
-/**
- * Supports bulk remapping of notes a different note type, remapping fields and templates
- *
- * A full sync is required for this operation
- *
- * input:
- * - a distinct list of notes, which all have the same note type
- *
- * state:
- * - output note type
- * - a map of input field to output field
- * - a map of input template to output template
- *     - only if both input and output note types are non-cloze
- *
- * For maps: a user selects each field/template of the **input note type** which maps to the output
- *
- * @see ChangeNoteTypeViewModel
- */
-@NeedsTest("Screenshot baseline for Change Note Type Dialog UI")
-class ChangeNoteTypeDialog : AnalyticsDialogFragment(R.layout.dialog_change_note_type) {
+class ChangeNoteTypeDialog : AnalyticsDialogFragment() {
     private val viewModel: ChangeNoteTypeViewModel by viewModels { defaultViewModelProviderFactory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NO_TITLE, R.style.ThemeOverlay_AnkiDroid_AlertDialog_FullScreen)
-        setupFlows()
-    }
-
-    override fun onViewCreated(
-        view: View,
-        savedInstanceState: Bundle?,
-    ) {
-        super.onViewCreated(view, savedInstanceState)
-        val binding = DialogChangeNoteTypeBinding.bind(view)
-        setupEdgeToEdge(binding)
-
-        val title = TR.sentenceCase.changeNoteType
-        binding.dialogTitle.setContent {
-            AnkiDroidTheme {
-                androidx.compose.foundation.layout.Box(Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
-                    DialogTitle(title)
-                }
-            }
-        }
-        binding.dialogActions.setContent {
-            val status by viewModel.flowOfInitStatus.collectAsState()
-            AnkiDroidTheme {
-                DialogActions(
-                    actions =
-                        listOfNotNull(
-                            DialogAction(getString(CommonString.dialog_cancel), ::dismiss),
-                            if (status == InitStatus.Completed) {
-                                val hasChanges by viewModel.hasChangesFlow.collectAsState()
-                                DialogAction(getString(CommonString.save), {
-                                    requireActivity().changeNoteType(viewModel)
-                                }, DialogActionStyle.Filled, enabled = hasChanges)
-                            } else {
-                                null
-                            },
-                        ),
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
-                )
-            }
-        }
-
-        launchCatchingTask {
-            viewModel.flowOfInitStatus.collect {
-                Timber.i("dialog init: %s", it)
-                when (it) {
-                    InitStatus.Pending, InitStatus.InProgress -> {
-                        binding.changeNoteTypeLayout.isVisible = false
-                        binding.changeNoteTypeLoadingLayout.isVisible = true
-                    }
-                    InitStatus.Completed -> {
-                        binding.changeNoteTypeLayout.isVisible = true
-                        binding.changeNoteTypeLoadingLayout.isVisible = false
-                        setupChangeNoteTypeDialog(binding = binding)
-                    }
-                    is InitStatus.Failed -> {
-                        requireContext().showError(it.exception.toString(), it.exception.toCrashReportData(requireContext()))
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
-
-    private fun setupEdgeToEdge(binding: DialogChangeNoteTypeBinding) {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
-            val bars = insets.getInsets(systemBars() or displayCutout())
-            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
-            insets
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            val window = dialog?.window ?: return
-            WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = !Themes.isNightTheme
-        }
-    }
-
-    private fun setupFlows() {
         launchCatchingTask {
             viewModel.closeDialogFlow.filterNotNull().collect {
-                Timber.i("Dismissing dialog")
                 parentFragmentManager.setFragmentResult(REQUEST_KEY_NOTE_TYPE_CHANGED, Bundle())
                 dismiss()
             }
         }
     }
 
-    private fun setupChangeNoteTypeDialog(binding: DialogChangeNoteTypeBinding) {
-        Timber.d("setting up dialog")
-        setupNoteTypeSpinner(binding)
-        setupViewPagerAndTabs(binding)
-    }
-
-    private fun setupNoteTypeSpinner(binding: DialogChangeNoteTypeBinding) {
-        binding.CardEditorModelText.text = BidiFormatter.getInstance().unicodeWrap(viewModel.inputNoteType.name)
-        binding.CardEditorModelText.setTooltipTextCompat(viewModel.inputNoteType.name)
-
-        binding.destNoteTypeSpinner.apply {
-            adapter = createNoteTypeAdapter()
-
-            val position = viewModel.availableNoteTypes.indexOfFirst { it.id == viewModel.outputNoteType.id }
-            setSelection(position, false)
-
-            onItemSelectedListener =
-                BasicItemSelectedListener { position, id: NoteTypeId ->
-                    viewModel.setOutputNoteTypeId(id)
-                }
-        }
-
-        binding.toCard.setOnClickListener {
-            binding.destNoteTypeSpinner.performClick()
+    override fun onStart() {
+        super.onStart()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            val window = dialog?.window ?: return
+            WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = !Themes.isNightTheme
         }
     }
 
-    private fun createNoteTypeAdapter(): ArrayAdapter<DisplayNoteType> {
-        val noteTypes = viewModel.availableNoteTypes.map { DisplayNoteType(it.name, it.isCloze) }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ) = ComposeView(requireContext()).apply {
+        setContent { AnkiDroidTheme { ChangeNoteTypeContent() } }
+    }
 
-        return object : ArrayAdapter<DisplayNoteType>(
-            requireContext(),
-            android.R.layout.simple_spinner_dropdown_item,
-            noteTypes,
-        ) {
-            var clozeColor = getColorFromAttr(context, CommonR.attr.clozeColor)
-
-            private val defaultViewTextColor: Int by lazy {
-                (super.getView(0, null, Spinner(context)) as CheckedTextView).currentTextColor
-            }
-
-            private val defaultDropDownViewTextColor: Int by lazy {
-                (super.getDropDownView(0, null, Spinner(context)) as CheckedTextView).currentTextColor
-            }
-
-            override fun getItemId(position: Int): Long = viewModel.availableNoteTypes[position].id
-
-            override fun getView(
-                position: Int,
-                convertView: View?,
-                parent: ViewGroup,
-            ) = (super.getView(position, convertView, parent) as CheckedTextView).apply {
-                val noteType = getItem(position)!!
-                text = noteType.name
-                setTextColor(if (noteType.isCloze) clozeColor else defaultViewTextColor)
-                isSingleLine = false
-                // Leave room for the mappings even when the selected note type has a long name.
-                maxLines = resources.getInteger(R.integer.change_note_type_name_max_lines)
-                ellipsize = TextUtils.TruncateAt.END
-                setTooltipTextCompat(noteType.name)
-                updateLayoutParams {
-                    height = ViewGroup.LayoutParams.WRAP_CONTENT
+    @Composable
+    private fun ChangeNoteTypeContent() {
+        val status by viewModel.flowOfInitStatus.collectAsState()
+        val foundation = MaterialTheme.foundation
+        Surface(color = foundation.colors.background, contentColor = foundation.colors.onBackground) {
+            Column(
+                Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).padding(horizontal = foundation.spacing.screenMargin),
+            ) {
+                DialogTitle(TR.sentenceCase.changeNoteType)
+                if (status == InitStatus.Completed) {
+                    MappingPages(Modifier.weight(1f))
+                } else {
+                    Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
                 }
-                setPaddingRelative(0, paddingTop, paddingEnd, paddingBottom)
+                if (status is InitStatus.Failed) {
+                    LaunchedEffect(status) {
+                        val error = (status as InitStatus.Failed).exception
+                        requireContext().showError(error.toString(), error.toCrashReportData(requireContext()))
+                        dismiss()
+                    }
+                }
+                val actions = mutableListOf(DialogAction(getString(CommonString.dialog_cancel), ::dismiss))
+                if (status == InitStatus.Completed) {
+                    val changed by viewModel.hasChangesFlow.collectAsState()
+                    actions.add(
+                        DialogAction(getString(CommonString.save), {
+                            requireActivity().changeNoteType(viewModel)
+                        }, DialogActionStyle.Filled, enabled = changed),
+                    )
+                }
+                DialogActions(actions, modifier = Modifier.padding(vertical = 8.dp))
             }
-
-            override fun getDropDownView(
-                position: Int,
-                convertView: View?,
-                parent: ViewGroup,
-            ) = (super.getDropDownView(position, convertView, parent) as CheckedTextView).apply {
-                val noteType = getItem(position)!!
-                text = noteType.name
-                setTextColor(if (noteType.isCloze) clozeColor else defaultDropDownViewTextColor)
-            }
-
-            override fun hasStableIds() = true
-        }.apply {
-            // The resource passed to the constructor is normally used for both the spinner view
-            // and the dropdown list. This keeps the former and overrides the latter.
-            setDropDownViewResource(R.layout.item_spinner_dropdown_with_radio)
         }
     }
 
-    private fun setupViewPagerAndTabs(binding: DialogChangeNoteTypeBinding) {
-        val viewPager = binding.changeNoteTypePager
-        viewPager.adapter = ChangeNoteTypeStateAdapter(this@ChangeNoteTypeDialog)
-        viewPager.registerOnPageChangeCallback(
-            object : ViewPager2.OnPageChangeCallback() {
-                override fun onPageSelected(position: Int) {
-                    viewModel.selectTabByPosition(position)
-                    super.onPageSelected(position)
-                }
-            },
-        )
-
-        val tabLayout = binding.changeNoteTypeTabLayout
-        createTabMediator(tabLayout, viewPager).attach()
-        // Measure the labels and icons before fixed tabs constrain their width.
-        val minimumTabWidth =
-            (0 until tabLayout.tabCount).maxOf { position ->
-                val tab = requireNotNull(tabLayout.getTabAt(position))
-                val content = requireNotNull(tab.customView)
-                content.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-                content.measuredWidth + tab.view.paddingLeft + tab.view.paddingRight
-            }
-        tabLayout.addOnLayoutChangeListener { _, left, _, right, _, _, _, _, _ ->
-            val availableWidth = right - left - tabLayout.paddingLeft - tabLayout.paddingRight
-            val mode =
-                if (minimumTabWidth * tabLayout.tabCount <= availableWidth) TabLayout.MODE_FIXED else TabLayout.MODE_AUTO
-            if (tabLayout.tabMode != mode) {
-                tabLayout.tabMode = mode
-                tabLayout.doOnNextLayout {
-                    tabLayout.setScrollPosition(tabLayout.selectedTabPosition, 0f, true)
-                }
-            }
+    @Composable
+    private fun MappingPages(modifier: Modifier) {
+        val output by viewModel.outputNoteTypeFlow.collectAsState()
+        val fieldMap by viewModel.fieldChangeMapFlow.collectAsState()
+        val templateMap by viewModel.templateChangeMapFlow.collectAsState()
+        val discardedFields by viewModel.discardedFieldsFlow.collectAsState()
+        val discardedTemplates by viewModel.discardedTemplatesFlow.collectAsState()
+        val input = viewModel.inputNoteType
+        val foundation = MaterialTheme.foundation
+        var pickingType by rememberSaveable { mutableStateOf(false) }
+        val pager = rememberPagerState(viewModel.currentTab.position) { 2 }
+        val scope = rememberCoroutineScope()
+        LaunchedEffect(pager.currentPage) { viewModel.selectTabByPosition(pager.currentPage) }
+        if (pickingType) {
+            SingleChoiceDialog(
+                title = getString(CommonString.change_note_type_to),
+                choices = viewModel.availableNoteTypes.map { DialogChoice(it.name) },
+                selectedIndex = viewModel.availableNoteTypes.indexOfFirst { it.id == output.id },
+                onSelect = {
+                    viewModel.setOutputNoteTypeId(viewModel.availableNoteTypes[it].id)
+                    pickingType = false
+                },
+                onDismissRequest = { pickingType = false },
+            )
         }
-        // Explicitly set initial tab in ViewModel to match UI
-
-        viewPager.setCurrentItem(0, false)
-        viewModel.selectTabByPosition(0)
-    }
-
-    private fun createTabMediator(
-        tabLayout: TabLayout,
-        viewPager: ViewPager2,
-    ): TabLayoutMediator =
-        TabLayoutMediator(tabLayout, viewPager) { tab: TabLayout.Tab, position: Int ->
-            val binding = ViewTabLayoutIconOnStartBinding.inflate(LayoutInflater.from(tabLayout.context), tabLayout, false)
-            when (position) {
-                0 -> {
-                    binding.tabIcon.setImageResource(R.drawable.symbol_edit)
-                    binding.tabText.text = TR.changeNotetypeFields()
-                }
-                1 -> {
-                    binding.tabIcon.setImageResource(R.drawable.symbol_question_mark)
-                    binding.tabText.text = TR.changeNotetypeTemplates()
-                }
-            }
-
-            val selectedColor =
-                MaterialColors.getColor(
-                    tabLayout,
-                    com.google.android.material.R.attr.colorPrimaryVariant,
+        HorizontalPager(pager, modifier = modifier, verticalAlignment = Alignment.Top) { page ->
+            val fields = page == 0
+            val inputs = if (fields) input.fieldsNames else input.templatesNames
+            val outputs = if (fields) output.fieldsNames else output.templatesNames
+            val mapping = if (fields) fieldMap else templateMap
+            val discarded = if (fields) discardedFields else discardedTemplates
+            var pickingRow by rememberSaveable(output.id, page) { mutableIntStateOf(-1) }
+            if (pickingRow in outputs.indices) {
+                val choices = inputs + TR.changeNotetypeNothing()
+                SingleChoiceDialog(
+                    title = outputs[pickingRow],
+                    choices = choices.map { DialogChoice(it) },
+                    selectedIndex = mapping[pickingRow] ?: inputs.size,
+                    onSelect = { index ->
+                        val selected = if (index == inputs.size) SelectedIndex.NOTHING else SelectedIndex.from(index)
+                        if (fields) {
+                            viewModel.updateFieldMapping(
+                                pickingRow,
+                                selected,
+                            )
+                        } else {
+                            viewModel.updateTemplateMapping(pickingRow, selected)
+                        }
+                        pickingRow = -1
+                    },
+                    onDismissRequest = { pickingRow = -1 },
                 )
-
-            val unselectedColor =
-                MaterialColors.getColor(
-                    tabLayout,
-                    com.google.android.material.R.attr.colorOnSurfaceVariant,
-                )
-
-            val colorStateList =
-                ColorStateList(
-                    arrayOf(
-                        intArrayOf(android.R.attr.state_selected),
-                        intArrayOf(),
-                    ),
-                    intArrayOf(
-                        selectedColor,
-                        unselectedColor,
-                    ),
-                )
-
-            binding.tabIcon.imageTintList = colorStateList
-            binding.tabText.setTextColor(colorStateList)
-
-            tab.customView = binding.root
+            }
+            LazyColumn(Modifier.fillMaxSize().testTag("mapping_page_$page"), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                item {
+                    Text(
+                        getString(CommonString.change_note_type_from),
+                        style = foundation.type.caption,
+                        color = foundation.colors.onBackgroundMuted,
+                    )
+                    Text(input.name, style = foundation.type.rowTitle)
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable(
+                                role = Role.Button,
+                            ) { pickingType = true }
+                            .testTag("target_type")
+                            .padding(vertical = 8.dp),
+                    ) {
+                        Text(
+                            getString(CommonString.change_note_type_to),
+                            style = foundation.type.caption,
+                            color = foundation.colors.onBackgroundMuted,
+                        )
+                        Text(output.name, style = foundation.type.rowTitle)
+                    }
+                    Row(Modifier.fillMaxWidth()) {
+                        listOf(TR.changeNotetypeFields(), TR.changeNotetypeTemplates()).forEachIndexed { index, title ->
+                            Tab(selected = page == index, onClick = {
+                                scope.launch { pager.scrollToPage(index) }
+                            }, modifier = Modifier.weight(1f), text = { Text(title, style = foundation.type.button) })
+                        }
+                    }
+                }
+                if (!fields && !viewModel.canChangeTemplates) {
+                    item {
+                        val message =
+                            if (input.isCloze &&
+                                !output.isCloze
+                            ) {
+                                CommonString.extra_cloze_deletions_removed
+                            } else {
+                                CommonString.card_numbers_unchanged
+                            }
+                        Text(getString(message))
+                    }
+                } else {
+                    item {
+                        Row(Modifier.fillMaxWidth()) {
+                            Text(TR.changeNotetypeCurrent(), Modifier.weight(1f), style = foundation.type.caption)
+                            Text(TR.changeNotetypeNew(), Modifier.weight(1f), style = foundation.type.caption)
+                        }
+                    }
+                    items(outputs.size) { index ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = foundation.spacing.touchTarget)
+                                .clickable(role = Role.Button) { pickingRow = index }
+                                .testTag("mapping_$index"),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(mapping[index]?.let(inputs::getOrNull) ?: TR.changeNotetypeNothing(), Modifier.weight(1f))
+                            Text(outputs[index], Modifier.weight(1f))
+                        }
+                        HorizontalDivider(color = foundation.colors.outline)
+                    }
+                    if (discarded.isNotEmpty()) {
+                        item {
+                            val label = if (fields) TR.changeNotetypeWillDiscardContent() else TR.changeNotetypeWillDiscardCards()
+                            Text(label + " " + discarded.joinToString(LanguageUtil.getListSeparator(requireContext())))
+                        }
+                    }
+                }
+            }
         }
-
-    /** Display model for note types in the spinner */
-    private data class DisplayNoteType(
-        val name: String,
-        val isCloze: Boolean,
-    )
+    }
 
     companion object {
         const val ARG_NOTE_IDS = "ARG_NOTE_IDS"
@@ -389,333 +288,8 @@ class ChangeNoteTypeDialog : AnalyticsDialogFragment(R.layout.dialog_change_note
                 Timber.i("Showing 'change note type' dialog for %d notes", ids.size)
             }
     }
-
-    class ChangeNoteTypeStateAdapter(
-        fragment: Fragment,
-    ) : FragmentStateAdapter(fragment) {
-        override fun createFragment(position: Int): Fragment =
-            when (position) {
-                0 -> SelectFieldsFragment()
-                1 -> SelectTemplateFragment()
-                else -> throw IllegalStateException("invalid position: $position")
-            }
-
-        override fun getItemCount() = 2
-    }
-
-    class SelectFieldsFragment : Fragment(R.layout.dialog_fields) {
-        private val viewModel: ChangeNoteTypeViewModel by viewModels({ requireParentFragment() })
-        private lateinit var binding: DialogFieldsBinding
-
-        override fun onViewCreated(
-            view: View,
-            savedInstanceState: Bundle?,
-        ) {
-            super.onViewCreated(view, savedInstanceState)
-            binding = DialogFieldsBinding.bind(view)
-
-            binding.currentFieldLabel.text =
-                TR.changeNotetypeCurrent()
-            binding.newFieldLabel.text = TR.changeNotetypeNew()
-
-            lifecycleScope.launch {
-                viewModel.flowOfInitStatus.collect {
-                    if (it is InitStatus.Completed) {
-                        setupFlows()
-                        createFieldSpinner()
-                    }
-                }
-            }
-        }
-
-        fun setupFlows() {
-            lifecycleScope.launch {
-                Timber.d("setupFlows: collecting outputNoteTypeFlow")
-                viewModel.outputNoteTypeFlow.collect {
-                    createFieldSpinner()
-                }
-            }
-
-            lifecycleScope.launch {
-                Timber.d("setupFlows: collecting discardedFieldsFlow")
-                viewModel.discardedFieldsFlow.collect { fields ->
-                    showDiscardedFieldsMessage(fields)
-                }
-            }
-        }
-
-        private fun showDiscardedFieldsMessage(discardedFields: List<String>) {
-            binding.fieldRemovalText.isVisible = discardedFields.isNotEmpty()
-            if (discardedFields.isEmpty()) {
-                return
-            }
-
-            binding.fieldRemovalText.text =
-                SpannableStringBuilder()
-                    .append(TR.changeNotetypeWillDiscardContent() + " ")
-                    .boldList(discardedFields, ", ")
-        }
-
-        /**
-         * Builds the field mapping UI with paired spinners and labels.
-         *
-         * Creates one row per output field, each containing:
-         * - A spinner to select which input field maps to it (or Nothing to discard field content)
-         * - A label showing the output field name
-         *
-         * Automatically selects default mappings from the ViewModel and updates them on user selection.
-         */
-        private fun createFieldSpinner() {
-            binding.fieldsContainer.removeAllViews()
-
-            val inputFieldNames = viewModel.inputNoteType.fieldsNames
-            val outputFieldNames = viewModel.outputNoteType.fieldsNames
-
-            fun buildFieldSpinner(spinnerIndex: Int) =
-                Spinner(requireContext())
-                    .apply {
-                        layoutParams =
-                            LinearLayout
-                                .LayoutParams(
-                                    0,
-                                    WRAP_CONTENT,
-                                    1f,
-                                )
-                    }.apply {
-                        val fieldSpinnerOptions = inputFieldNames + TR.changeNotetypeNothing()
-                        Timber.d("createTemplateSpinner: %d items + (nothing)", fieldSpinnerOptions.size - 1)
-                        this.adapter =
-                            ArrayAdapter(
-                                context,
-                                android.R.layout.simple_spinner_dropdown_item,
-                                fieldSpinnerOptions,
-                            ).apply {
-                                // The resource passed to the constructor is normally used for both the spinner view
-                                // and the dropdown list. This keeps the former and overrides the latter.
-                                this.setDropDownViewResource(R.layout.item_spinner_dropdown_with_radio)
-                            }
-
-                        val selectionIndex = viewModel.fieldChangeMap[spinnerIndex] ?: fieldSpinnerOptions.lastIndex
-                        setSelection(selectionIndex, false)
-
-                        // Add an item selection listener to update the field mapping when user changes selection
-                        val oldIndex = spinnerIndex
-                        onItemSelectedListener =
-                            BasicItemSelectedListener { position, id ->
-                                // The last index is '(Nothing)'
-                                val newMapping =
-                                    if (position == fieldSpinnerOptions.lastIndex) {
-                                        SelectedIndex.NOTHING
-                                    } else {
-                                        SelectedIndex.from(position)
-                                    }
-                                viewModel.updateFieldMapping(oldIndex, newMapping)
-                            }
-                    }
-
-            for ((i, name) in outputFieldNames.withIndex()) {
-                binding.fieldsContainer.addView(createMappingRow(buildFieldSpinner(i), name))
-            }
-        }
-    }
-
-    class SelectTemplateFragment : Fragment(R.layout.dialog_templates) {
-        private val viewModel: ChangeNoteTypeViewModel by viewModels({ requireParentFragment() })
-
-        private lateinit var binding: DialogTemplatesBinding
-
-        override fun onViewCreated(
-            view: View,
-            savedInstanceState: Bundle?,
-        ) {
-            super.onViewCreated(view, savedInstanceState)
-            binding = DialogTemplatesBinding.bind(view)
-
-            binding.currentTemplateLabel.text = TR.changeNotetypeCurrent()
-            binding.newTemplateLabel.text = TR.changeNotetypeNew()
-
-            lifecycleScope.launch {
-                viewModel.flowOfInitStatus.collect {
-                    if (it is InitStatus.Completed) {
-                        setupFlows()
-                        createTemplateSpinner()
-                    }
-                }
-            }
-        }
-
-        fun setupFlows() {
-            // show/hide cloze info layout based on note type
-            lifecycleScope.launch {
-                viewModel.outputNoteTypeFlow.collect {
-                    createTemplateSpinner()
-                }
-            }
-
-            // Updates to (Nothing) if the map changes
-            lifecycleScope.launch {
-                viewModel.templateChangeMapFlow.collect {
-                    createTemplateSpinner()
-                }
-            }
-
-            lifecycleScope.launch {
-                viewModel.conversionTypeFlow.collect { type ->
-                    when (val layout = Layout.fromConversionType(type)) {
-                        is Layout.Standard -> {
-                            binding.clozeInfoLayout.isVisible = false
-                        }
-                        is Layout.WithWarning -> {
-                            binding.clozeInfoLayout.isVisible = true
-                            binding.clozeInfoText.text = getString(layout.warningRes)
-                        }
-                    }
-                }
-            }
-
-            lifecycleScope.launch {
-                viewModel.canChangeTemplatesFlow.collect { canChangeTemplates ->
-                    binding.templatesContainer.isVisible = canChangeTemplates
-                    binding.templatesHeaderLayout.isVisible = canChangeTemplates
-                    if (!canChangeTemplates) {
-                        binding.templateRemovalText.isVisible = false
-                    }
-                }
-            }
-
-            lifecycleScope.launch {
-                viewModel.discardedTemplatesFlow.collect { discarded ->
-                    if (viewModel.canChangeTemplatesFlow.value) {
-                        showDiscardedTemplatesMessage(discarded)
-                    }
-                }
-            }
-        }
-
-        /**
-         * Controls the layout and warning display for the template selection tab.
-         *
-         * - [Standard]: No warning shown, only template mapping spinners visible
-         * - [WithWarning]: Shows a warning message above the template mapping spinners
-         *
-         * The layout type is determined by the [ConversionType] between input and output note types.
-         */
-        sealed class Layout {
-            data object Standard : Layout()
-
-            data class WithWarning(
-                @StringRes val warningRes: Int,
-            ) : Layout()
-
-            companion object {
-                fun fromConversionType(conversionType: ConversionType): Layout =
-                    when (conversionType) {
-                        REGULAR_TO_REGULAR -> Standard
-                        CLOZE_TO_CLOZE, REGULAR_TO_CLOZE ->
-                            WithWarning(
-                                warningRes = CommonString.card_numbers_unchanged,
-                            )
-                        // Improvement: we could detect this using the max ord of provided notes
-                        CLOZE_TO_REGULAR ->
-                            WithWarning(
-                                warningRes = CommonString.extra_cloze_deletions_removed,
-                            )
-                    }
-            }
-        }
-
-        /**
-         * Show message listing discarded templates when not all templates are mapped to new ones
-         */
-        private fun showDiscardedTemplatesMessage(discardedTemplateNames: List<String>) {
-            val templateRemovalLabel = binding.templateRemovalText
-            templateRemovalLabel.isVisible = discardedTemplateNames.isNotEmpty()
-            if (discardedTemplateNames.isEmpty()) {
-                return
-            }
-
-            templateRemovalLabel.text =
-                SpannableStringBuilder()
-                    .append(TR.changeNotetypeWillDiscardCards())
-                    .append(" ")
-                    .boldList(discardedTemplateNames, LanguageUtil.getListSeparator(requireContext()))
-        }
-
-        private fun createTemplateSpinner() {
-            binding.templatesContainer.removeAllViews()
-
-            if (!viewModel.canChangeTemplates) return
-
-            val inputTemplateNames = viewModel.inputNoteType.templatesNames
-            val outputTemplateNames = viewModel.outputNoteType.templatesNames
-
-            fun buildTemplateSpinner(spinnerIndex: Int) =
-                Spinner(requireContext())
-                    .apply {
-                        layoutParams =
-                            LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f)
-                    }.apply {
-                        val templateSpinnerOptions = inputTemplateNames + TR.changeNotetypeNothing()
-                        Timber.d("createTemplateSpinner: %d items + (nothing)", templateSpinnerOptions.size - 1)
-                        adapter =
-                            ArrayAdapter(
-                                context,
-                                android.R.layout.simple_spinner_dropdown_item,
-                                templateSpinnerOptions,
-                            ).apply {
-                                // The resource passed to the constructor is normally used for both the spinner view
-                                // and the dropdown list. This keeps the former and overrides the latter.
-                                setDropDownViewResource(R.layout.item_spinner_dropdown_with_radio)
-                            }
-
-                        val selectionIndex = viewModel.templateChangeMap[spinnerIndex] ?: templateSpinnerOptions.lastIndex
-                        setSelection(selectionIndex, false)
-
-                        onItemSelectedListener =
-                            BasicItemSelectedListener { position, id ->
-                                // The last index is '(Nothing)'
-                                val newMapping =
-                                    if (position == templateSpinnerOptions.lastIndex) {
-                                        SelectedIndex.NOTHING
-                                    } else {
-                                        SelectedIndex.from(position)
-                                    }
-                                viewModel.updateTemplateMapping(outputTemplateIndex = spinnerIndex, newMapping)
-                            }
-                    }
-
-            for ((i, name) in outputTemplateNames.withIndex()) {
-                binding.templatesContainer.addView(createMappingRow(buildTemplateSpinner(i), name))
-            }
-        }
-    }
 }
 
-private fun createMappingRow(
-    spinner: Spinner,
-    label: String,
-) = LinearLayout(spinner.context).apply {
-    orientation = LinearLayout.HORIZONTAL
-    gravity = Gravity.CENTER_VERTICAL
-    // Baseline alignment can push wrapped labels below the row's measured height.
-    isBaselineAligned = false
-    layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-    addView(spinner)
-    addView(
-        MaterialTextView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f)
-            val themeTextColors = textColors
-            TextViewCompat.setTextAppearance(this, getResFromAttr(context, com.google.android.material.R.attr.textAppearanceBodyLarge))
-            setTextColor(themeTextColors)
-            text = label
-            textAlignment = View.TEXT_ALIGNMENT_CENTER
-        },
-    )
-}
-
-/**
- * Changes note type of multiple notes, displaying a message on success
- */
 private fun FragmentActivity.changeNoteType(viewModel: ChangeNoteTypeViewModel) =
     this.launchCatchingRequiringOneWaySync {
         try {

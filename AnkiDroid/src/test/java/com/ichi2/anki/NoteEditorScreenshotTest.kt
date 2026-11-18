@@ -268,7 +268,7 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
             val confirm = composeRule.onNode(hasText(targetContext.getString(CommonString.dialog_confirm)) and inDialog)
             tags.performClick()
             advanceRobolectricLooper()
-            onView(withContentDescription(targetContext.getString(CommonString.add_tag))).inRoot(isDialog()).perform(click())
+            composeRule.onNodeWithContentDescription(targetContext.getString(CommonString.add_tag)).performClick()
             composeRule.onNode(hasSetTextAction() and inDialog).performTextReplacement(tag)
             advanceRobolectricLooper()
             composeRule.onNode(hasText(targetContext.getString(CommonString.menu_add)) and inDialog).performClick()

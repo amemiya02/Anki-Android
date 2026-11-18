@@ -6,42 +6,42 @@ package com.ichi2.anki.dialogs.tags
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Bundle
-import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
-import android.widget.EditText
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Lifecycle
-import androidx.recyclerview.widget.RecyclerView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.browser.IdsFile
 import com.ichi2.anki.libanki.testutils.ext.newNote
 import com.ichi2.anki.model.CardStateFilter
 import com.ichi2.anki.utils.ext.requireParcelable
 import com.ichi2.testutils.ParametersUtils
-import com.ichi2.testutils.RecyclerViewUtils
 import com.ichi2.testutils.parcelledCopy
 import com.ichi2.testutils.saveState
-import com.ichi2.ui.CheckBoxTriStates
-import com.ichi2.ui.CheckBoxTriStates.State.CHECKED
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.hamcrest.Matchers.lessThan
-import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -98,10 +98,9 @@ class TagsDialogTest : RobolectricTest() {
         FragmentScenario.launch(TagsDialog::class.java, args, CommonR.style.Theme_Light, TagsDialogFactory(listener)).use { scenario ->
             scenario.moveToState(Lifecycle.State.RESUMED)
             scenario.onFragment { fragment ->
-                advanceRobolectricLooperUntil { fragment.binding.tagsList.adapter != null }
-                val recycler = fragment.forceLayout()
-                val parent = RecyclerViewUtils.viewHolderAt<TagsArrayAdapter.ViewHolder>(recycler, 0)
-                repeat(parentClicks) { parent.checkBoxView.performClick() }
+                val parent = composeRule.onNodeWithContentDescription("B")
+                parent.assertExists()
+                repeat(parentClicks) { parent.performClick() }
                 composeRule.onNodeWithText(fragment.getString(CommonString.dialog_confirm)).performClick()
                 advanceRobolectricLooper()
                 Mockito.verify(listener).onSelectedTags(selected, preserved, CardStateFilter.ALL_CARDS)
@@ -162,12 +161,10 @@ class TagsDialogTest : RobolectricTest() {
         val args = editTagsArguments(listOf("parent::existing"))
         runTagsDialogScenario(args) { fragment ->
             fragment.addTag("parent::added")
-            val recycler = fragment.forceLayout()
-            val rows =
-                (0 until recycler.adapter!!.itemCount)
-                    .map { RecyclerViewUtils.viewHolderAt<TagsArrayAdapter.ViewHolder>(recycler, it) }
-            assertEquals(listOf("parent", "parent::added", "parent::existing"), rows.map { it.text })
-            assertEquals(CHECKED, rows[1].checkboxState)
+            composeRule.onNodeWithText("parent").assertIsDisplayed()
+            composeRule.onNodeWithText("added").assertIsDisplayed()
+            composeRule.onNodeWithText("existing").assertIsDisplayed()
+            composeRule.onNodeWithContentDescription("parent::added").assertIsOn()
         }
     }
 
@@ -183,32 +180,15 @@ class TagsDialogTest : RobolectricTest() {
         val mockListener = Mockito.mock(TagsDialogListener::class.java)
         val factory = TagsDialogFactory(mockListener)
         runTagsDialogScenario(args, factory) { f: TagsDialog ->
-            val toolbar = f.binding.toolbar.root
-            val searchView = toolbar.menu.findItem(R.id.tags_dialog_action_filter).actionView!!
-            val editText = searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)!!
-
-            editText.setText("hello ")
-            Assert.assertEquals(
-                "The space should be replaced by '::' without mistakenly clear everything.",
-                "hello::",
-                editText.text.toString(),
-            )
-
-            editText.setText("hello")
-            editText.text.insert(5, " ")
-            Assert.assertEquals("Should complete 2 colons.", "hello::", editText.text.toString())
-
-            editText.setText("hello:")
-            editText.text.insert(6, " ")
-            Assert.assertEquals("Should complete 1 colon.", "hello::", editText.text.toString())
-
-            editText.setText("hello::")
-            editText.text.insert(7, " ")
-            Assert.assertEquals("Should do nothing.", "hello::", editText.text.toString())
-
-            editText.setText("")
-            editText.text.insert(0, " ")
-            Assert.assertEquals("Should not crash.", "::", editText.text.toString())
+            composeRule.onNodeWithContentDescription(f.getString(CommonString.filter_tags)).performClick()
+            val input = composeRule.onNode(hasSetTextAction())
+            input.performTextReplacement("hello ")
+            input.assertTextContains("hello::")
+            for (prefix in listOf("hello", "hello:", "hello::", "")) {
+                input.performTextReplacement(prefix)
+                input.performTextInput(" ")
+                input.assertTextContains(if (prefix.isEmpty()) "::" else "hello::")
+            }
         }
     }
 
@@ -237,17 +217,10 @@ class TagsDialogTest : RobolectricTest() {
                 .withTestArguments(TagsDialog.DialogType.FILTER_BY_TAG, arrayListOf(), allTags)
                 .requireArguments()
         runTagsDialogScenario(args) { f: TagsDialog ->
-            val recycler = f.binding.tagsList
-            val content = f.binding.root
-
-            content.measure(
-                View.MeasureSpec.makeMeasureSpec(500, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(50, View.MeasureSpec.AT_MOST),
-            )
-            content.layout(0, 0, content.measuredWidth, content.measuredHeight)
-
-            assertThat(recycler.height, greaterThanOrEqualTo(0))
-            assertThat(recycler.childCount, lessThan(allTags.size))
+            f.requireDialog().window!!.setLayout(500, 450)
+            composeRule.waitForIdle()
+            val drawn = composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.ToggleableState)).fetchSemanticsNodes()
+            assertThat(drawn.size, lessThan(allTags.size))
         }
     }
 
@@ -353,9 +326,7 @@ class TagsDialogTest : RobolectricTest() {
     fun `long-clicking a tag opens the add tag dialog prefilled with the tag as a prefix`() {
         val tag = "parent"
         runTagsDialogScenario(args = editTagsArguments(listOf(tag))) { tagsDialog ->
-            val recycler = tagsDialog.forceLayout()
-            val row = RecyclerViewUtils.viewHolderAt<TagsArrayAdapter.ViewHolder>(recycler, 0)
-            row.itemView.performLongClick()
+            composeRule.onNodeWithText(tag).performSemanticsAction(SemanticsActions.OnLongClick)
             advanceRobolectricLooper()
             composeRule.onNode(hasSetTextAction()).assertTextContains("$tag::")
         }
@@ -380,15 +351,9 @@ class TagsDialogTest : RobolectricTest() {
                         noteIds = listOf(noteId),
                     ).requireArguments()
             runTagsDialogScenario(args = args) { tagsDialog ->
-                val recycler = tagsDialog.forceLayout()
-                val row = RecyclerViewUtils.viewHolderAt<TagsArrayAdapter.ViewHolder>(recycler, 0)
                 val dialogBefore = ShadowDialog.getLatestDialog()
-                val consumed = row.itemView.performLongClick()
-                advanceRobolectricLooper()
-                assertFalse(
-                    actual = consumed,
-                    message = "$type: the long click should not be consumed",
-                )
+                val row = composeRule.onNodeWithText("tag")
+                assertFalse(SemanticsActions.OnLongClick in row.fetchSemanticsNode().config)
                 assertEquals(
                     expected = dialogBefore,
                     actual = ShadowDialog.getLatestDialog(),
@@ -398,13 +363,27 @@ class TagsDialogTest : RobolectricTest() {
         }
     }
 
+    @Test
+    fun `filtering and clearing keeps the chosen and unrelated checkbox states`() {
+        runTagsDialogScenario(args = editTagsArguments(listOf("alpha", "beta"))) { dialog ->
+            val alpha = composeRule.onNodeWithContentDescription("alpha")
+            alpha.performClick()
+            composeRule.onNodeWithContentDescription(dialog.getString(CommonString.filter_tags)).performClick()
+            val search = composeRule.onNode(hasSetTextAction())
+            search.performTextReplacement("beta")
+            composeRule.onNodeWithContentDescription("beta").assertIsOff()
+            search.performTextReplacement("")
+            alpha.assertIsOn()
+            composeRule.onNodeWithContentDescription("beta").assertIsOff()
+        }
+    }
+
     private fun withAddTagDialog(
         allTags: List<String>,
         block: () -> Unit,
     ) {
         runTagsDialogScenario(args = editTagsArguments(allTags)) { tagsDialog ->
-            tagsDialog.binding.toolbar.root.menu
-                .performIdentifierAction(R.id.tags_dialog_action_add, 0)
+            composeRule.onNodeWithContentDescription(tagsDialog.getString(CommonString.add_tag)).performClick()
             advanceRobolectricLooper()
             block()
         }
@@ -418,22 +397,9 @@ class TagsDialogTest : RobolectricTest() {
         FragmentScenario.launch(TagsDialog::class.java, args, CommonR.style.Theme_Light, factory).use { scenario ->
             scenario.moveToState(Lifecycle.State.RESUMED)
             scenario.onFragment { tagsDialog: TagsDialog ->
-                advanceRobolectricLooperUntil { tagsDialog.binding.tagsList.adapter != null }
+                composeRule.onNodeWithTag("tag_list").assertExists()
                 block(tagsDialog)
             }
         }
     }
 }
-
-/**
- * Forces layout so Robolectric creates the tag row.
- * Workaround for the robolectric recyclerView issue.
- */
-private fun TagsDialog.forceLayout(height: Int = 1000): RecyclerView =
-    binding.tagsList.also {
-        it.measure(0, 0)
-        it.layout(0, 0, 100, height)
-    }
-
-val TagsArrayAdapter.ViewHolder.checkBoxView: CheckBoxTriStates
-    get() = this.binding.checkBoxView

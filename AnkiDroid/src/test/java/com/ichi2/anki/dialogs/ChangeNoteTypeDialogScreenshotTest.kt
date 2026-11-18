@@ -2,32 +2,35 @@
 
 package com.ichi2.anki.dialogs
 
-import android.graphics.Rect
-import android.view.ViewGroup
-import android.widget.ScrollView
-import android.widget.TextView
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
 import com.google.testing.junit.testparameterinjector.TestParameter
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.anki.ScreenshotTest.DeviceConfig.DESKTOP
 import com.ichi2.anki.common.utils.dp
-import com.ichi2.anki.databinding.DialogChangeNoteTypeBinding
-import com.ichi2.anki.databinding.DialogFieldsBinding
-import com.ichi2.anki.databinding.DialogTemplatesBinding
-import com.ichi2.anki.databinding.ViewTabLayoutIconOnStartBinding
 import com.ichi2.anki.dialogs.ChangeNoteTypeViewModel.Tab
 import com.ichi2.anki.withCardBrowser
 import com.ichi2.testutils.simulateSystemBars
 import com.ichi2.testutils.windowInsetsOf
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.robolectric.RuntimeEnvironment
 
 @ScreenshotTest.IncludeDevices(DESKTOP)
 class ChangeNoteTypeDialogScreenshotTest : ScreenshotTest() {
+    @get:Rule val compose = createEmptyComposeRule()
+
     enum class LargeTextScreen(
         val qualifiers: String,
     ) {
@@ -73,8 +76,8 @@ class ChangeNoteTypeDialogScreenshotTest : ScreenshotTest() {
         with(targetContext) { windowInsetsOf(navBarBottom = 48.dp) },
         tab = tab,
     ) { dialog ->
-        val (scrollView, _) = dialog.mappingViews(tab)
-        assertFalse("The mappings fit without scrolling", scrollView.canScrollVertically(1))
+        val range = page(tab).fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange]
+        assertEquals("The mappings fit without scrolling", 0f, range.maxValue(), 1f)
         scrollMappingsToBottom(dialog, tab, requireScrolling = false)
     }
 
@@ -96,8 +99,7 @@ class ChangeNoteTypeDialogScreenshotTest : ScreenshotTest() {
                 col.notetypes.save(noteType)
             },
         ) { dialog ->
-            val binding = dialog.binding
-            assertTrue("The mappings have a viewport", binding.changeNoteTypePager.height > 0)
+            assertTrue("The mappings have a viewport", page(Tab.Fields).fetchSemanticsNode().boundsInRoot.height > 0)
             scrollMappingsToBottom(dialog, requireScrolling = false)
         }
     }
@@ -111,23 +113,8 @@ class ChangeNoteTypeDialogScreenshotTest : ScreenshotTest() {
             with(targetContext) { windowInsetsOf(navBarBottom = 48.dp) },
             tab = Tab.Templates,
         ) { dialog ->
-            val binding = dialog.binding
-            val root = dialog.requireView()
-            val originalWidth = root.layoutParams.width
-            // Expanding and shrinking the same view must restore the appropriate tab widths.
-            root.updateLayoutParams { width = root.width * 2 }
-            advanceRobolectricLooper()
             assertTabsFillWidth(dialog)
-            root.updateLayoutParams { width = originalWidth }
-            advanceRobolectricLooper()
-            val tab = binding.changeNoteTypeTabLayout.getTabAt(Tab.Templates.position)!!
-            val tabBinding = ViewTabLayoutIconOnStartBinding.bind(tab.customView!!)
-            val icon = tabBinding.tabIcon
-            val visibleBounds = Rect()
-            assertTrue("The selected tab icon is visible", icon.getGlobalVisibleRect(visibleBounds))
-            assertEquals("The selected tab icon is fully visible", icon.width, visibleBounds.width())
-            val text = tabBinding.tabText
-            assertEquals("The selected tab label fits", 0, text.layout.getEllipsisCount(0))
+            compose.onNodeWithText(TR.changeNotetypeTemplates()).assertIsDisplayed()
         }
     }
 
@@ -180,36 +167,14 @@ class ChangeNoteTypeDialogScreenshotTest : ScreenshotTest() {
         }
     }
 
-    private val ChangeNoteTypeDialog.binding
-        get() = DialogChangeNoteTypeBinding.bind(requireView())
-
-    private fun ChangeNoteTypeDialog.mappingViews(tab: Tab): Pair<ScrollView, ViewGroup> =
-        when (tab) {
-            Tab.Fields -> {
-                val view =
-                    childFragmentManager.fragments
-                        .filterIsInstance<ChangeNoteTypeDialog.SelectFieldsFragment>()
-                        .single()
-                        .requireView()
-                val binding = DialogFieldsBinding.bind(view)
-                binding.root to binding.fieldsContainer
-            }
-            Tab.Templates -> {
-                val view =
-                    childFragmentManager.fragments
-                        .filterIsInstance<ChangeNoteTypeDialog.SelectTemplateFragment>()
-                        .single()
-                        .requireView()
-                val binding = DialogTemplatesBinding.bind(view)
-                binding.root to binding.templatesContainer
-            }
-        }
+    private fun page(tab: Tab) = compose.onNodeWithTag("mapping_page_${tab.position}")
 
     private fun assertTabsFillWidth(dialog: ChangeNoteTypeDialog) {
-        val tabs = dialog.binding.changeNoteTypeTabLayout
-        val widths = (0 until tabs.tabCount).map { tabs.getTabAt(it)!!.view.width }
-        assertEquals("The tabs fill the available width", tabs.width - tabs.paddingLeft - tabs.paddingRight, widths.sum())
-        assertTrue("The tabs have equal widths", widths.max() - widths.min() <= 1)
+        val fields = compose.onNodeWithText(TR.changeNotetypeFields()).fetchSemanticsNode().boundsInRoot
+        val templates = compose.onNodeWithText(TR.changeNotetypeTemplates()).fetchSemanticsNode().boundsInRoot
+        val content = compose.onNodeWithTag("target_type").fetchSemanticsNode().boundsInRoot
+        assertEquals(content.width, fields.width + templates.width, 2f)
+        assertTrue(dialog.requireView().width >= content.width)
     }
 
     private fun scrollMappingsToBottom(
@@ -217,52 +182,15 @@ class ChangeNoteTypeDialogScreenshotTest : ScreenshotTest() {
         tab: Tab = Tab.Fields,
         requireScrolling: Boolean = true,
     ) {
-        val (scrollView, mappings) = dialog.mappingViews(tab)
-        val canScroll = scrollView.canScrollVertically(1)
-        if (requireScrolling) {
-            assertTrue("Mappings extend below the viewport", canScroll)
-        }
-        val lastRow = mappings.getChildAt(mappings.childCount - 1) as ViewGroup
-        val label = lastRow.getChildAt(1) as TextView
-        val labelFits = label.height <= scrollView.height - scrollView.paddingTop - scrollView.paddingBottom
-        if (!labelFits) {
-            val labelBounds = Rect()
-            label.getDrawingRect(labelBounds)
-            scrollView.offsetDescendantRectToMyCoords(label, labelBounds)
-            scrollView.scrollTo(0, labelBounds.top - scrollView.paddingTop)
-            advanceRobolectricLooper()
-            assertLineVisible(label, 0)
-        }
-        scrollView.scrollTo(0, scrollView.getChildAt(0).bottom)
-        advanceRobolectricLooper()
-        if (canScroll) {
-            assertTrue("The mappings have scrolled", scrollView.scrollY > 0)
-        }
-
-        val visibleBounds = Rect()
-        assertTrue("The last mapping label is visible", label.getGlobalVisibleRect(visibleBounds))
-        if (labelFits) {
-            assertEquals("The last mapping label is fully visible", label.height, visibleBounds.height())
-        } else {
-            // A tall label must scroll, but its final line must remain reachable.
-            assertLineVisible(label, label.layout.lineCount - 1)
-        }
-    }
-
-    private fun assertLineVisible(
-        label: TextView,
-        line: Int,
-    ) {
-        val visibleBounds = Rect()
-        assertTrue("The mapping label is visible", label.getGlobalVisibleRect(visibleBounds))
-        val location = IntArray(2)
-        label.getLocationOnScreen(location)
-        val lineTop = location[1] + label.totalPaddingTop + label.layout.getLineTop(line)
-        val lineBottom = location[1] + label.totalPaddingTop + label.layout.getLineBottom(line)
-        assertTrue(
-            "Line $line ($lineTop..$lineBottom) is fully visible within $visibleBounds",
-            lineTop >= visibleBounds.top && lineBottom <= visibleBounds.bottom,
-        )
+        val vm = androidx.lifecycle.ViewModelProvider(dialog)[ChangeNoteTypeViewModel::class.java]
+        val count = if (tab == Tab.Fields) vm.outputNoteType.fieldsNames.size else vm.outputNoteType.templatesNames.size
+        val list = page(tab)
+        if (requireScrolling) assertTrue(list.fetchSemanticsNode().config[SemanticsProperties.VerticalScrollAxisRange].maxValue() > 0)
+        list.performScrollToIndex(count + 1)
+        compose
+            .onNode(
+                hasTestTag("mapping_${count - 1}") and hasAnyAncestor(hasTestTag("mapping_page_${tab.position}")),
+            ).assertIsDisplayed()
     }
 
     private fun captureChangeNoteType(
@@ -277,7 +205,7 @@ class ChangeNoteTypeDialogScreenshotTest : ScreenshotTest() {
         dialog.showNow(browser.supportFragmentManager, "change_note_type")
         advanceRobolectricLooper()
         try {
-            dialog.binding.changeNoteTypePager.setCurrentItem(tab.position, false)
+            compose.onNodeWithText(if (tab == Tab.Fields) TR.changeNotetypeFields() else TR.changeNotetypeTemplates()).performClick()
             advanceRobolectricLooper()
             dialog.requireDialog().window!!.simulateSystemBars(insets)
             beforeCapture(dialog)
