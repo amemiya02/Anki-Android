@@ -5,6 +5,7 @@ package com.ichi2.anki
 import android.content.Intent
 import android.view.View
 import android.view.View.MeasureSpec
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.core.content.edit
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.android.view.locationInWindow
@@ -15,6 +16,7 @@ import com.ichi2.testutils.dispatchInsets
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.greaterThan
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -25,6 +27,15 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class DeckPickerInsetsTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
+    private fun DeckPicker.awaitDecks() {
+        compose.waitUntil(10_000) {
+            deckPickerBinding.deckList.isShown && deckPickerBinding.deckList.height > 0
+        }
+    }
+
     @Test
     fun `destroying the deck picker removes its global layout listener`() {
         ensureCollectionLoadIsSynchronous()
@@ -37,6 +48,7 @@ class DeckPickerInsetsTest : RobolectricTest() {
         advanceRobolectricLooperUntil(lazyMessage = { "the deck list should be shown" }) {
             deckPicker.viewModel.flowOfDeckListScreen.value != null
         }
+        deckPicker.awaitDecks()
         deckPicker.dispatchInsets(navBarBottom = 48.dp)
         deckPicker.layoutForTest()
         val list = deckPicker.deckPickerBinding.deckList
@@ -59,6 +71,7 @@ class DeckPickerInsetsTest : RobolectricTest() {
     @Test
     fun `deck list padding follows a dialog keyboard opening and closing`() =
         withDeckPicker(deckCount = 2) { deckPicker ->
+            deckPicker.awaitDecks()
             deckPicker.dispatchInsets(navBarBottom = 48.dp)
             deckPicker.layoutForTest()
             val padding = deckPicker.deckListBottomPadding
@@ -83,6 +96,7 @@ class DeckPickerInsetsTest : RobolectricTest() {
     @Test
     fun `FAB is above the navigation bar`() =
         withDeckPicker(deckCount = 2) { deckPicker ->
+            deckPicker.awaitDecks()
             val navBarBottom = 48.dp.toPx(targetContext)
             deckPicker.dispatchInsets(navBarBottom = 48.dp)
             deckPicker.layoutForTest()

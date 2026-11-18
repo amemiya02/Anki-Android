@@ -132,11 +132,7 @@ internal fun DeckPicker.updateTabChrome(tab: NavigationItem?) {
 
     bar.menu.findItem(tab.id).isChecked = true
     setBrowserFullScreen(false)
-    if (tab == NavigationItem.HOME) {
-        floatingActionMenu.showFloatingActionButton()
-        // A hidden Decks pane can miss a bottom bar change when another tab is restored.
-        updateAddButtonInsets()
-    }
+    if (tab == NavigationItem.HOME) floatingActionMenu.showFloatingActionButton()
 }
 
 /**
