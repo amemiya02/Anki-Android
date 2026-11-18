@@ -10,6 +10,7 @@ import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.common.utils.dp
@@ -50,7 +51,12 @@ class CardBrowserInsetsTest : RobolectricTest() {
             advanceRobolectricLooper()
             composeRule.onNode(hasScrollToIndexAction()).performScrollToIndex(30)
 
-            val last = composeRule.onNodeWithText("Card 29").assertIsDisplayed().getUnclippedBoundsInRoot()
+            val last =
+                composeRule
+                    .onNodeWithText("Card 29")
+                    .performScrollTo()
+                    .assertIsDisplayed()
+                    .getUnclippedBoundsInRoot()
             assertTrue(last.bottom <= window.bottom - 48.composeDp, "Last result bounds are $last. Window bounds are $window.")
         }
     }

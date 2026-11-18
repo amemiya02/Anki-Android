@@ -10,10 +10,10 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.SpinnerAdapter
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.longClick
@@ -22,6 +22,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
 import androidx.core.net.toUri
@@ -139,6 +140,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 import timber.log.Timber
 import java.io.File
 import java.text.SimpleDateFormat
@@ -1045,6 +1047,7 @@ class CardBrowserTest : RobolectricTest() {
         get() = getBrowserWithNotes(3)
 
     @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun truncateAndExpand() =
         runTest {
             val title = "A long result whose text wraps on narrow screens. ".repeat(8).trimEnd()
@@ -1052,13 +1055,17 @@ class CardBrowserTest : RobolectricTest() {
             val browser = getBrowserWithNotes(noteCount = 0)
             browser.viewModel.setTruncated(true).join()
             composeRule.waitUntilAtLeastOneExists(hasText(title), 10_000)
-            val row = composeRule.onNodeWithText(title)
-            val collapsed = row.getUnclippedBoundsInRoot()
+            val titleNode = composeRule.onNodeWithText(title, useUnmergedTree = true)
 
+            fun visibleLines(): Int {
+                val layouts = mutableListOf<TextLayoutResult>()
+                checkNotNull(titleNode.fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action)(layouts)
+                return layouts.single().lineCount
+            }
+
+            composeRule.waitUntil(10_000) { visibleLines() == 1 }
             browser.viewModel.setTruncated(false).join()
-            composeRule.waitForIdle()
-            val expanded = row.getUnclippedBoundsInRoot()
-            assertTrue(expanded.bottom - expanded.top > collapsed.bottom - collapsed.top)
+            composeRule.waitUntil(10_000) { visibleLines() > 1 }
         }
 
     @Test
