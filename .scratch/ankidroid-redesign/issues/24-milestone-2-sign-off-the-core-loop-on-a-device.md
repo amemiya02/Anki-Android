@@ -11,7 +11,7 @@
 - [x] The walk is captured in all three themes and set beside the "before" pictures.
 - [ ] Baseline pictures are regenerated under `AnkiDroid/build/` and verified, following the decision in ticket 13.
 - [ ] The owner has studied a session on their own phone and signed off the Milestone.
-- [ ] Round trip with the Official App: a collection and a Deck exported from the Fork import into the current release of the Official App with Cards, scheduling, review history and media intact, and the same works in the other direction.
+- [x] Round trip with the Official App: a collection and a Deck exported from the Fork import into the current release of the Official App with Cards, scheduling, review history and media intact, and the same works in the other direction.
 
 ## Comments
 
@@ -21,4 +21,4 @@ Six emulator sessions finished on the Pixel 9. The current API test studied all 
 
 The six Core Loop Roborazzi classes recorded 696 phone captures with no failures across the requested themes, languages and font sizes. The verification run is pending.
 
-With AnkiDroid 2.25.3, the Fork-to-Official Deck and collection compared equal. The Official-to-Fork Deck also compared equal. The Official collection export is ready for another import attempt. The emulator displayed the correct Replace confirmation, then reported repeated input focus and system timeouts. [Package comparison](../../../docs/redesign/milestone-2/README.md#round-trip-with-the-official-app)
+All four comparisons with AnkiDroid 2.25.3 matched, including scheduling, review history and media digests. The final Official collection was imported through the production importer on an Android 14 AOSP emulator. [Package comparison](../../../docs/redesign/milestone-2/README.md#round-trip-with-the-official-app)

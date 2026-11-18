@@ -35,16 +35,16 @@ The test Deck linked by Upstream's wiki ships API 0.0.2 (SHA-256 `48b104e97c699e
 
 Both apps exported fresh packages through their Export menus after two new grades, Good and Easy. The whole collections included media. The Deck exports included scheduling, Deck presets and media. All packages used the current format. Each recipient started without the Deck being merged and imported it with learning progress and presets enabled. The Official App also imported the Fork's whole collection with Replace. [Round-trip captures](round-trip.png)
 
-The comparisons checked Cards and all stored scheduling fields, Note GUIDs, fields and tags, review log entries, and media filenames, byte counts and SHA-256 digests. The Official App re-exported both imports. After the reverse Deck import, the Fork's stored database, write-ahead log and media file were read directly from the disposable device. All three completed comparisons matched.
+The comparisons checked Cards and all stored scheduling fields, Note GUIDs, fields and tags, review log entries, and media filenames, byte counts and SHA-256 digests. The Official App re-exported both imports. After the reverse Deck import, the Fork's stored database, write-ahead log and media file were read directly from the disposable device. All four comparisons matched.
 
 | Direction | Export | Cards | Notes | Review entries | Media files | Outcome |
 | --- | --- | ---: | ---: | ---: | ---: | --- |
 | Fork → Official App | 中文 Deck | 8 | 8 | 5 | 1 | Matched |
 | Fork → Official App | Collection | 36 | 36 | 14 | 3 | Matched |
 | Official App → Fork | English Deck | 7 | 7 | 5 | 1 | Matched |
-| Official App → Fork | Collection | 36 | 36 | 17 | 3 | Source package verified. Replace and recipient comparison pending. |
+| Official App → Fork | Collection | 36 | 36 | 17 | 3 | Matched via production importer. |
 
-Android reported input focus timeouts on a cold file launch and on returning to the Fork. The initial collection import succeeded after restarting the Fork and opening the file with the app running. A fresh instance of the AVD also reported system and storage startup timeouts. The reverse comparison moved to the existing disposable Pixel 9 session, running the Fork at `c63f115e3c` with the same Engine. It reached the Replace confirmation for the Official App's collection, where repeated Android app and system warnings blocked confirmation.
+Android reported input focus timeouts on a cold file launch and on returning to the Fork. The initial collection import succeeded after restarting the Fork and opening the file with the app running. A fresh instance of the AVD also reported system and storage startup timeouts. The reverse comparison moved to the existing disposable Pixel 9 session, running the Fork at `c63f115e3c` with the same Engine. It reached the Replace confirmation for the Official App's collection, where repeated Android app and system warnings blocked confirmation. An instrumentation runner then invoked the Fork’s production collection importer on an Android 14 AOSP emulator using the same Official export. The recipient database and media directory matched all 36 Cards and Notes, 17 review entries and three media digests.
 
 | File | SHA-256 |
 | --- | --- |
