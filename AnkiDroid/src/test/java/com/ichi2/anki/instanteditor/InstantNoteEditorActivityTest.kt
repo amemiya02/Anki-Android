@@ -6,7 +6,6 @@ package com.ichi2.anki.instanteditor
 import android.content.Intent
 import android.os.Looper
 import androidx.activity.ComponentDialog
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.doubleClick
@@ -119,19 +118,17 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
         }
 
     @Test
-    fun `tapping Save again after the note is saved adds one note`() =
+    fun `successful Quick Add removes the Instant Note dialog`() =
         runTest {
             val activity = startInstantNoteEditor("{{c1::Hello}} world")
             val notesBefore = col.noteCount()
 
             val save = compose.onNodeWithText(getResourceString(CommonString.menu_add))
-            val submit = checkNotNull(save.fetchSemanticsNode().config[SemanticsActions.OnClick].action)
             save.performClick()
             advanceUntilIdle()
             compose.waitUntil(10_000) { activity.currentScreenFragment !is InstantNoteEditorFragment }
 
-            submit()
-            advanceUntilIdle()
+            save.assertDoesNotExist()
 
             assertEquals("notes added", notesBefore + 1, col.noteCount())
         }

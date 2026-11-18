@@ -6,6 +6,7 @@ package com.ichi2.anki
 import android.view.View
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions
@@ -52,6 +53,9 @@ class DeckPickerTest : InstrumentedTest() {
         assumeTrue(!isTablet)
 
         tapOnCountLayouts("Default")
+        composeRule.waitUntil(10_000) {
+            composeRule.onAllNodesWithTag("study_deck_title").fetchSemanticsNodes().isNotEmpty()
+        }
         composeRule.onNodeWithTag("study_deck_title").assertIsDisplayed()
         activityRule.scenario.onActivity { deckPicker ->
             check(deckPicker.currentScreenFragment is StudyOptionsFlowFragment)

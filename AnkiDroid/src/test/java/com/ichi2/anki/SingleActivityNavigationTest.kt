@@ -30,6 +30,7 @@ import com.ichi2.anki.noteeditor.toIntent
 import com.ichi2.anki.pages.PageFragment
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.testutils.BackupManagerTestUtilities
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -191,15 +192,19 @@ class SingleActivityNavigationTest : RobolectricTest() {
     }
 
     @Test
-    fun `saving shared text in the full editor returns to the sender`() {
+    fun `saving shared text in the full editor returns to the sender`() = runTest {
         val text = "A shared note saved in the full editor"
         val host = openFullEditorFromInstantShare(text)
         val notesBefore = col.noteCount()
         val add = host.getString(CommonString.menu_add)
         composeRule.onNode(hasText(add) and hasClickAction()).performClick()
 
-        composeRule.waitUntil(10_000) { col.noteCount() == notesBefore + 1 }
-        composeRule.waitUntil(10_000) { host.currentScreenFragment is MediaCheckFragment }
+        advanceUntilIdle()
+        composeRule.waitUntil(10_000) {
+            advanceRobolectricLooper()
+            host.currentScreenFragment is MediaCheckFragment
+        }
+        assertEquals(notesBefore + 1, col.noteCount())
         assertTrue(shadowOf(host).isTaskMovedToBack)
     }
 

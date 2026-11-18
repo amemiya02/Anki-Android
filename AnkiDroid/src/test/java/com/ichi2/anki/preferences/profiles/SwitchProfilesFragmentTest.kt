@@ -3,6 +3,7 @@
 
 package com.ichi2.anki.preferences.profiles
 
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.CommonString
@@ -11,6 +12,7 @@ import com.ichi2.anki.preferences.HeaderFragment
 import com.ichi2.anki.preferences.PreferencesActivity
 import com.ichi2.anki.preferences.PreferencesFragment
 import com.ichi2.anki.preferences.SettingsGroup
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -21,6 +23,9 @@ import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class SwitchProfilesFragmentTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Test
     fun `screen goes back with a message when profiles failed to load`() {
         val activity = openSwitchProfilesWhenProfilesFailedToLoad()
@@ -45,7 +50,11 @@ class SwitchProfilesFragmentTest : RobolectricTest() {
         try {
             val activity = startRegularActivity<PreferencesActivity>(PreferencesActivity.getIntent(targetContext))
             (activity.fragment as PreferencesFragment).openGroup(SettingsGroup.SWITCH_PROFILE)
-            advanceRobolectricLooper()
+            compose.waitUntil(10_000) {
+                advanceRobolectricLooper()
+                val displayedError = ShadowToast.getTextOfLatestToast() == targetContext.getString(CommonString.something_wrong)
+                displayedError && (activity.isFinishing || activity.settings.currentPage is HeaderFragment)
+            }
             return activity
         } finally {
             app.profileManager = profileManager

@@ -1484,7 +1484,7 @@ open class DeckPicker :
                             viewModel.updateDeckFilter(newText)
                         } else {
                             // Ignore empty callbacks from a replaced action view.
-                            searchView.post {
+                            binding.root.post {
                                 if (
                                     !isDestroyed &&
                                     toolbarSearchView === searchView &&

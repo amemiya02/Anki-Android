@@ -13,6 +13,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.InputStreamReader
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 @RunWith(AndroidJUnit4::class)
 class PostRequestHandlerTest : RobolectricTest() {
@@ -75,15 +76,24 @@ class PostRequestHandlerTest : RobolectricTest() {
 
     private val unsupportedRouteFunctions = experimentalEditorFunctions + editorAndPreferencesFunctions
 
+    // ChangeNoteTypePage binds the request to the notes selected by the Android caller.
+    private val pageMethods = setOf("changeNotetype")
+
     @Test
     fun `All backend typescript functions should be handled`() {
         assertThat(
             "Mapping exists for every TS backend function call",
             typescriptFunctionsUsedByBackend - unsupportedRouteFunctions,
             // this matcher asserts equality in everything but order, no extras, nothing missing
-            containsInAnyOrder((collectionMethods + uiMethods).keys),
+            containsInAnyOrder(collectionMethods.keys + uiMethods.keys + pageMethods),
         )
     }
+
+    @Test
+    fun `change note type requires the page caller context`() =
+        runTest {
+            assertNull(handleCollectionPostRequest("changeNotetype", byteArrayOf()))
+        }
 
     @Test
     fun `saveCustomColours does not throw`() =

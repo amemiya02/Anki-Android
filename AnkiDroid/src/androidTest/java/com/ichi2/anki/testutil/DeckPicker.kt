@@ -9,7 +9,6 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.testutil.ThreadUtils.sleep
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import java.util.regex.Pattern
 
@@ -54,15 +53,12 @@ fun createDeckWithUniqueName(): String {
 
 /** Taps the counts of the Deck named [deckName], which open its study options */
 fun tapOnCountLayouts(deckName: String) {
-    val deck = By.res("deck_row").hasDescendant(By.res("deck_name").text(deckName))
+    val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
+    val deck = By.res(packageName, "deck_name").hasDescendant(By.text(deckName))
     val row = checkNotNull(device.wait(Until.findObject(deck), DECK_TIMEOUT_MS)) { "Deck '$deckName' not shown" }
     val number = Pattern.compile("\\p{Nd}+")
     val count = row.findObject(By.text(number)) ?: row.findObject(By.desc(number))
     checkNotNull(count) { "Deck '$deckName' has no counts" }.click()
-
-    // without this sleep, the study options fragment sometimes loses the "load and become active" race vs the assertion below.
-    // It actually won the race sometimes so sleeping a full second is generous. This should be quite stable
-    sleep(1000)
 }
 
 /**

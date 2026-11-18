@@ -16,6 +16,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.common.utils.android.showThemedToast
+import com.ichi2.anki.navigation.finishScreen
+import com.ichi2.anki.preferences.PreferencesFragment
 import com.ichi2.compose.theme.AnkiDroidTheme
 import timber.log.Timber
 
@@ -35,12 +37,13 @@ class SwitchProfilesFragment : Fragment() {
         if (profileManager == null) {
             Timber.w("Profile environment unavailable, closing the switch profile screen")
             showThemedToast(requireContext(), CommonString.something_wrong, false)
-            if (parentFragmentManager.backStackEntryCount > 0) {
-                parentFragmentManager.popBackStack()
-            } else {
-                requireActivity().finish()
+            return View(requireContext()).also { errorView ->
+                errorView.post {
+                    if (isAdded && view === errorView && (parentFragment as? PreferencesFragment)?.popPage() != true) {
+                        finishScreen()
+                    }
+                }
             }
-            return View(requireContext())
         }
         val viewModel: SwitchProfilesViewModel by viewModels { SwitchProfilesViewModel.factory(profileManager) }
         return ComposeView(requireContext()).apply {

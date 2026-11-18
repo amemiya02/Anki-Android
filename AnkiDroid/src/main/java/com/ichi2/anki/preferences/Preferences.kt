@@ -156,6 +156,13 @@ class PreferencesFragment : Fragment() {
         showPage(fragment, addToBackStack = true)
     }
 
+    internal fun popPage(): Boolean {
+        if (!settingsIsSplit) return navigation.pop()
+        if (childFragmentManager.backStackEntryCount == 0) return false
+        childFragmentManager.popBackStack()
+        return true
+    }
+
     internal fun refreshSearchIndex() {
         (childFragmentManager.findFragmentById(R.id.lateral_nav_container) as? HeaderFragment)?.refreshSearchIndex()
     }

@@ -4,24 +4,26 @@ package com.ichi2.anki.preferences
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.commitNow
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
-import com.ichi2.anki.common.destinations.PreferencesDestination
-import com.ichi2.anki.common.destinations.launchActivity
 import com.ichi2.anki.libanki.exception.ConfirmModSchemaException
 import com.ichi2.anki.utils.CollectionPreferences
 import com.ichi2.testutils.getJavaMethodAsAccessible
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.test.assertEquals
 
 @RunWith(AndroidJUnit4::class)
 class PreferencesTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     private lateinit var preferences: PreferencesActivity
 
     @Before
@@ -56,12 +58,13 @@ class PreferencesTest : RobolectricTest() {
     /** checks if any of the Preferences fragments throws while being created */
     @Test
     fun fragmentsDoNotThrowOnCreation() {
-        launchActivity<PreferencesActivity>(PreferencesDestination.Root).use { activityScenario ->
-            activityScenario.onActivity { activity ->
-                PreferenceTestUtils.getAllPreferencesFragments(activity).forEach {
-                    activity.supportFragmentManager.commitNow {
-                        add(R.id.settings_container, it)
-                    }
+        for (fragment in PreferenceTestUtils.getAllPreferencesFragments(targetContext)) {
+            val intent = PreferencesActivity.getIntent(targetContext, fragment::class)
+            ActivityScenario.launch<PreferencesActivity>(intent).use { activityScenario ->
+                compose.waitForIdle()
+                activityScenario.onActivity { activity ->
+                    val preferences = activity.fragment as PreferencesFragment
+                    assertEquals(fragment::class, preferences.currentPage!!::class)
                 }
             }
         }

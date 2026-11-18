@@ -34,10 +34,10 @@ class BottomNavigationRestoreTest : RobolectricTest() {
     @Test
     fun `a configuration change keeps the open tab on screen`() =
         forEachTab { tab ->
-            val controller = launchOn(tab)
-            controller.recreate()
-
-            assertShowsTab(controller.get(), tab)
+            launchOn(tab).use { controller ->
+                controller.recreate()
+                assertShowsTab(controller.get(), tab)
+            }
         }
 
     @Test
@@ -63,20 +63,26 @@ class BottomNavigationRestoreTest : RobolectricTest() {
     @Test
     fun `restoring after process death keeps the open tab on screen`() =
         forEachTab { tab ->
-            assertShowsTab(restoreAfterProcessDeath(launchOn(tab)), tab)
+            restoreAfterProcessDeath(launchOn(tab)).use { restored ->
+                assertShowsTab(restored.get(), tab)
+            }
         }
 
     @Test
     fun `back returns to the deck list after a restore`() =
         forEachTab { tab ->
-            val deckPicker = restoreAfterProcessDeath(launchOn(tab))
-            assertShowsTab(deckPicker, tab)
+            restoreAfterProcessDeath(launchOn(tab)).use { restored ->
+                val deckPicker = restored.get()
+                assertShowsTab(deckPicker, tab)
 
-            deckPicker.onBackPressedDispatcher.onBackPressed()
-            composeRule.waitUntil(10_000) { deckPicker.deckList.isShown && deckPicker.bottomNav.selectedItemId == NavigationItem.HOME.id }
+                deckPicker.onBackPressedDispatcher.onBackPressed()
+                composeRule.waitUntil(10_000) {
+                    deckPicker.deckList.isShown && deckPicker.bottomNav.selectedItemId == NavigationItem.HOME.id
+                }
 
-            assertThat("$tab: back selects Home", deckPicker.bottomNav.selectedItemId, equalTo(NavigationItem.HOME.id))
-            assertThat("$tab: back shows the deck list", deckPicker.deckList.isShown, equalTo(true))
+                assertThat("$tab: back selects Home", deckPicker.bottomNav.selectedItemId, equalTo(NavigationItem.HOME.id))
+                assertThat("$tab: back shows the deck list", deckPicker.deckList.isShown, equalTo(true))
+            }
         }
 
     @Test
@@ -107,7 +113,7 @@ class BottomNavigationRestoreTest : RobolectricTest() {
             val controller = launchOn(NavigationItem.BROWSER)
             controller.get().select(NavigationItem.HOME)
 
-            val deckPicker = restoreAfterProcessDeath(controller)
+            val deckPicker = restoreAfterProcessDeath(controller).get()
 
             composeRule.waitUntil(10_000) { deckPicker.deckList.isShown }
             assertThat(deckPicker.bottomNav.selectedItemId, equalTo(NavigationItem.HOME.id))
@@ -121,7 +127,7 @@ class BottomNavigationRestoreTest : RobolectricTest() {
 
             // e.g. a foldable opened: the split-pane layout has the drawer and no bottom bar
             RuntimeEnvironment.setQualifiers("w1280dp-h800dp-xlarge")
-            val deckPicker = restoreAfterProcessDeath(controller)
+            val deckPicker = restoreAfterProcessDeath(controller).get()
 
             assertThat(deckPicker.binding.bottomNavigation, nullValue())
             assertThat(deckPicker.hasNavigationDrawer, equalTo(true))
@@ -153,7 +159,7 @@ class BottomNavigationRestoreTest : RobolectricTest() {
         }
     }
 
-    private fun restoreAfterProcessDeath(controller: ActivityController<DeckPicker>): DeckPicker {
+    private fun restoreAfterProcessDeath(controller: ActivityController<DeckPicker>): ActivityController<DeckPicker> {
         composeRule.waitForIdle()
         val savedState = Bundle()
         controller
@@ -167,7 +173,7 @@ class BottomNavigationRestoreTest : RobolectricTest() {
                 .setup(savedState)
         saveControllerForCleanup(restored)
         advanceRobolectricLooper()
-        return restored.get()
+        return restored
     }
 
     private fun assertShowsTab(

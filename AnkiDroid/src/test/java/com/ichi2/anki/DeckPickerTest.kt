@@ -441,7 +441,8 @@ class DeckPickerTest : RobolectricTest() {
         deckPicker.supportFragmentManager.executePendingTransactions()
         advanceRobolectricLooper()
 
-        val settingsButton = composeRule.onNodeWithText(getResourceString(CommonString.settings)).assertIsDisplayed()
+        val settingsButton =
+            composeRule.onNode(hasText(getResourceString(CommonString.settings)) and hasAnyAncestor(isDialog())).assertIsDisplayed()
         shadowOf(deckPicker).clearNextStartedActivities()
         settingsButton.performClick()
         advanceRobolectricLooper()
@@ -850,7 +851,9 @@ class DeckPickerTest : RobolectricTest() {
 
             for ((query, expectedCount) in listOf("s" to 10, "Test Deck 1" to 1, "missing" to 0, "" to 11)) {
                 searchView.setQuery(query, false)
-                advanceRobolectricLooperUntil { visibleDeckCount == expectedCount }
+                advanceRobolectricLooperUntil(
+                    lazyMessage = { "Query '$query' shows $visibleDeckCount decks, expected $expectedCount" },
+                ) { visibleDeckCount == expectedCount }
 
                 val currentSearchItem = menu().findItem(R.id.deck_picker_action_filter)
                 assertTrue(currentSearchItem.isActionViewExpanded, "Search should stay open for '$query'")
