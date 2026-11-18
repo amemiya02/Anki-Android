@@ -5,6 +5,7 @@ package com.ichi2.anki.instanteditor
 
 import android.content.Intent
 import android.os.Looper
+import androidx.activity.ComponentDialog
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.doubleClick
@@ -35,6 +36,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.shadows.ShadowDialog
 import kotlin.coroutines.CoroutineContext
 
 @RunWith(AndroidJUnit4::class)
@@ -149,7 +151,17 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
             assertTrue("editor closes once the note is saved", activity.currentScreenFragment !is InstantNoteEditorFragment)
         }
 
-    private suspend fun startInstantNoteEditor(text: String): DeckPicker {
+    @Test
+    fun `Back from the dialog returns to the sharing app`() {
+        val activity = startInstantNoteEditor("Shared text")
+        compose.onNodeWithText("Shared").assertIsDisplayed()
+        val dialog = ShadowDialog.getLatestDialog() as ComponentDialog
+        dialog.onBackPressedDispatcher.onBackPressed()
+        compose.waitUntil(10_000) { shadowOf(activity).isTaskMovedToBack }
+        assertTrue(activity.currentScreenFragment !is InstantNoteEditorFragment)
+    }
+
+    private fun startInstantNoteEditor(text: String): DeckPicker {
         val intent =
             Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"

@@ -179,31 +179,42 @@ class SingleActivityNavigationTest : RobolectricTest() {
         }
 
     @Test
-    fun `instant share dispatches to the existing host and opens the full editor there`() =
-        withDeckPicker(deckCount = 1) {
-            val shared =
-                Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, "Shared instant note")
-                }
-            val entry =
-                Robolectric.buildActivity(InstantNoteEditorActivity::class.java, shared).use { controller ->
-                    val handler = controller.create().get()
-                    assertTrue(handler.isFinishing)
-                    shadowOf(handler).nextStartedActivity
-                }
-            assertEquals(DeckPicker::class.java.name, entry.component?.className)
-            val controller = startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, entry)
-            val host = controller.get()
-            val openEditor = composeRule.onNodeWithContentDescription(getResourceString(CommonString.open_note_editor))
-            openEditor.assertIsDisplayed().performClick()
-            composeRule.waitUntil(10_000) { host.currentScreenFragment is NoteEditorPaneFragment }
-            assertEquals(
-                "Shared instant note",
-                (host.currentScreenFragment as NoteEditorPaneFragment).launchIntent.getStringExtra(Intent.EXTRA_TEXT),
-            )
-            assertNull(shadowOf(host).nextStartedActivity)
-        }
+    fun `instant share dispatches to the existing host and opens the full editor there`() {
+        ensureCollectionLoadIsSynchronous()
+        BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
+        setIntroductionSlidesShown(true)
+        val controller = startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent())
+        val host = controller.get()
+        host.viewModel.awaitStartup()
+        host.startActivity(MediaCheckFragment.getIntent(host))
+        composeRule.waitUntil(10_000) { host.currentScreenFragment is MediaCheckFragment }
+
+        val shared =
+            Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, "Shared instant note")
+            }
+        val entry =
+            Robolectric.buildActivity(InstantNoteEditorActivity::class.java, shared).use { controller ->
+                val handler = controller.create().get()
+                assertTrue(handler.isFinishing)
+                shadowOf(handler).nextStartedActivity
+            }
+        assertEquals(DeckPicker::class.java.name, entry.component?.className)
+        controller.pause().newIntent(entry).resume()
+        val openEditor = composeRule.onNodeWithContentDescription(getResourceString(CommonString.open_note_editor))
+        openEditor.assertIsDisplayed().performClick()
+        composeRule.waitUntil(10_000) { host.currentScreenFragment is NoteEditorPaneFragment }
+        assertEquals(
+            "Shared instant note",
+            (host.currentScreenFragment as NoteEditorPaneFragment).launchIntent.getStringExtra(Intent.EXTRA_TEXT),
+        )
+        assertNull(shadowOf(host).nextStartedActivity)
+        host.onBackPressedDispatcher.onBackPressed()
+        composeRule.onNodeWithText(host.getString(CommonString.discard)).performClick()
+        composeRule.waitUntil(10_000) { host.currentScreenFragment is MediaCheckFragment }
+        assertTrue(shadowOf(host).isTaskMovedToBack)
+    }
 
     @Test
     fun `first run opens Welcome and continues to Decks in the same activity`() {
