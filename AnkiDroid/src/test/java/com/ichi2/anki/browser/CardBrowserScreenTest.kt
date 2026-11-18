@@ -2,6 +2,7 @@
 
 package com.ichi2.anki.browser
 
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
@@ -22,7 +23,6 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.Flag
 import com.ichi2.anki.RobolectricTest
@@ -94,11 +94,11 @@ class CardBrowserScreenTest : RobolectricTest() {
         addBasicNote("Ginkgo")
         withDeckPicker(deckCount = 0) { deckPicker ->
             val bar = requireNotNull(deckPicker.binding.bottomNavigation)
-            bar.selectedItemId = NavigationItem.BROWSER.id
+            composeRule.onNodeWithTag("tab-browser").performClick()
             deckPicker.supportFragmentManager.executePendingTransactions()
             waitForText("Ginkgo")
 
-            bar.selectedItemId = NavigationItem.BROWSER.id
+            composeRule.onNodeWithTag("tab-browser").performClick()
             composeRule.waitUntil(10_000) { !bar.isVisible }
             composeRule.onNode(hasSetTextAction()).assertIsDisplayed()
             assertFalse(bar.isVisible)

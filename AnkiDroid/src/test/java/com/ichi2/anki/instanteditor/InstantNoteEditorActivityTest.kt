@@ -8,6 +8,7 @@ import android.os.Looper
 import androidx.activity.ComponentDialog
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -79,7 +80,7 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
             }
             advanceUntilIdle()
 
-            assertTrue("editor closes after saving", activity.currentScreenFragment !is InstantNoteEditorFragment)
+            compose.waitUntil(10_000) { activity.currentScreenFragment !is InstantNoteEditorFragment }
             assertEquals("notes added", notesBefore + 1, col.noteCount())
             assertEquals("saved fields must match the validated fields", originalText, col.getNote(viewModel.editorNote.id).fields[0])
         }
@@ -127,7 +128,7 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
             val submit = checkNotNull(save.fetchSemanticsNode().config[SemanticsActions.OnClick].action)
             save.performClick()
             advanceUntilIdle()
-            assertTrue("editor is closing", activity.currentScreenFragment !is InstantNoteEditorFragment)
+            compose.waitUntil(10_000) { activity.currentScreenFragment !is InstantNoteEditorFragment }
 
             submit()
             advanceUntilIdle()
@@ -148,7 +149,7 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
             }
             advanceUntilIdle()
 
-            assertTrue("editor closes once the note is saved", activity.currentScreenFragment !is InstantNoteEditorFragment)
+            compose.waitUntil(10_000) { activity.currentScreenFragment !is InstantNoteEditorFragment }
         }
 
     @Test
@@ -158,7 +159,18 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
         val dialog = ShadowDialog.getLatestDialog() as ComponentDialog
         dialog.onBackPressedDispatcher.onBackPressed()
         compose.waitUntil(10_000) { shadowOf(activity).isTaskMovedToBack }
-        assertTrue(activity.currentScreenFragment !is InstantNoteEditorFragment)
+        compose.waitUntil(10_000) { activity.currentScreenFragment !is InstantNoteEditorFragment }
+    }
+
+    @Test
+    fun `recreation retains the edited shared text`() {
+        val intent = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, "Shared text")
+        val controller = openSharedInstantNote(intent, compose)
+        compose.onNodeWithText("Shared").performClick().assertIsSelected()
+
+        controller.recreate()
+
+        compose.onNodeWithText("Shared").assertIsDisplayed().assertIsSelected()
     }
 
     private fun startInstantNoteEditor(text: String): DeckPicker {
@@ -167,6 +179,6 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, text)
             }
-        return openSharedInstantNote(intent, compose)
+        return openSharedInstantNote(intent, compose).get()
     }
 }

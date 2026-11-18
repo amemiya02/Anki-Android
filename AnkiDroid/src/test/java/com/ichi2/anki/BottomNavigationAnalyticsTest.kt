@@ -4,6 +4,9 @@
 package com.ichi2.anki
 
 import android.content.Intent
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.common.analytics.Analytics
@@ -17,12 +20,16 @@ import org.hamcrest.Matchers.empty
 import org.hamcrest.Matchers.equalTo
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.android.controller.ActivityController
 
 @RunWith(AndroidJUnit4::class)
 class BottomNavigationAnalyticsTest : RobolectricTest() {
+    @get:Rule
+    val composeRule = createEmptyComposeRule()
+
     private val screenViews = mutableListOf<String>()
 
     @Before
@@ -84,11 +91,12 @@ class BottomNavigationAnalyticsTest : RobolectricTest() {
     private fun screenViewsDuring(action: () -> Unit): List<String> {
         screenViews.clear()
         action()
+        composeRule.waitForIdle()
         return screenViews.toList()
     }
 
     private fun ActivityController<DeckPicker>.select(tab: NavigationItem) {
-        get().binding.bottomNavigation!!.selectedItemId = tab.id
-        advanceRobolectricLooper()
+        composeRule.onNodeWithTag("tab-${tab.tag}").performClick()
+        composeRule.waitUntil(10_000) { get().binding.bottomNavigation?.selectedTab == tab }
     }
 }

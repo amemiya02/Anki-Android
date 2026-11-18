@@ -5,6 +5,7 @@ package com.ichi2.anki
 import android.view.View
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.view.isVisible
@@ -155,7 +156,7 @@ class BottomBarNavigationTest : RobolectricTest() {
         get() = binding.bottomNavigation!!
 
     private fun DeckPicker.select(tab: NavigationItem) {
-        bottomBar.selectedItemId = tab.id
+        composeRule.onNodeWithTag("tab-${tab.tag}").performClick()
         composeRule.waitUntil(10_000) {
             when (tab) {
                 NavigationItem.HOME -> currentScreenFragment == null && binding.deckPickerContentWrapper?.isShown == true

@@ -2,11 +2,12 @@
 
 package com.ichi2.anki
 
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.core.view.isVisible
-import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.FontSizeConfig.PERCENT_200
 import com.ichi2.anki.LanguageConfig.ARABIC
 import com.ichi2.anki.LanguageConfig.JAPANESE
@@ -43,8 +44,8 @@ class BottomBarScreenshotTest : ScreenshotTest() {
 
     @Test
     fun more() =
-        withDeckPicker(deckCount = 3) { deckPicker ->
-            deckPicker.binding.bottomNavigation!!.selectedItemId = NavigationItem.MORE.id
+        withDeckPicker(deckCount = 3) {
+            composeRule.onNodeWithTag("tab-more").performClick()
             advanceRobolectricLooper()
             composeRule.onNodeWithText(targetContext.getString(CommonR.string.more_help_summary)).assertExists()
             captureScreen("more")

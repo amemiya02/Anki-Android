@@ -7,6 +7,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
@@ -53,7 +55,7 @@ class BottomNavigationRestoreTest : RobolectricTest() {
             assertThat(deckPicker.dispatchKeyEvent(shortcut), equalTo(true))
             composeRule.onNode(hasSetTextAction()).assertDoesNotExist()
 
-            deckPicker.bottomNav.onTabClick(NavigationItem.BROWSER)
+            composeRule.onNodeWithTag("tab-browser").performClick()
             composeRule.waitUntil(10_000) { !deckPicker.bottomNav.isVisible }
             composeRule.onNode(hasSetTextAction()).assertIsDisplayed()
         }
@@ -142,7 +144,7 @@ class BottomNavigationRestoreTest : RobolectricTest() {
         }
 
     private fun DeckPicker.select(tab: NavigationItem) {
-        bottomNav.selectedItemId = tab.id
+        composeRule.onNodeWithTag("tab-${tab.tag}").performClick()
         composeRule.waitUntil(10_000) {
             when (tab) {
                 NavigationItem.HOME -> currentScreenFragment == null && deckList.isShown
@@ -174,7 +176,9 @@ class BottomNavigationRestoreTest : RobolectricTest() {
     ) {
         composeRule.waitUntil(10_000) {
             advanceRobolectricLooper()
-            deckPicker.currentScreenFragment?.isVisible == true && !deckPicker.deckList.isShown
+            deckPicker.currentScreenFragment?.isVisible == true && !deckPicker.deckList.isShown &&
+                deckPicker.bottomNav.selectedTab == tab &&
+                deckPicker.bottomNavContentClearance.intValue == deckPicker.bottomNav.height
         }
         val screen = deckPicker.currentScreenFragment!!
         assertThat("$tab is selected", deckPicker.bottomNav.selectedItemId, equalTo(tab.id))

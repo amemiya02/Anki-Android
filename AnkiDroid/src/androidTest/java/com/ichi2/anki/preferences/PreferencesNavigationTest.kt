@@ -92,14 +92,14 @@ class PreferencesNavigationTest {
             awaitResumedActivity<DeckPicker>()
             composeRule.onNodeWithTag("tab-home").performClick()
             assertEquals("Changing themes preserves the Add button clearance", originalClearance, addButtonClearance())
-            composeRule.onNodeWithContentDescription(context.getString(CommonString.menu_add)).performClick()
+            composeRule.onNodeWithTag("deck-add").performClick()
             composeRule.onNodeWithText(with(context) { TR.sentenceCase.createDeck }).performClick()
             composeRule.onNodeWithContentDescription(context.getString(CommonString.paper_dialog_deck_name)).assertIsDisplayed()
         }
     }
 
     private fun addButtonClearance(): Int {
-        val add = composeRule.onNodeWithContentDescription(context.getString(CommonString.menu_add)).assertIsDisplayed()
+        val add = composeRule.onNodeWithTag("deck-add").assertIsDisplayed()
         val tab = composeRule.onNodeWithTag("tab-home").assertIsDisplayed()
         return (tab.fetchSemanticsNode().boundsInWindow.top - add.fetchSemanticsNode().boundsInWindow.bottom).toInt()
     }

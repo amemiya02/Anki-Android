@@ -4,9 +4,11 @@
 package com.ichi2.anki
 
 import android.view.View
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions
-import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -18,7 +20,6 @@ import com.ichi2.anki.testutil.discardPreliminaryViews
 import com.ichi2.anki.testutil.grantPermissions
 import com.ichi2.anki.testutil.notificationPermission
 import com.ichi2.anki.testutil.tapOnCountLayouts
-import com.ichi2.anki.testutil.useResumedActivity
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -26,6 +27,9 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 class DeckPickerTest : InstrumentedTest() {
+    @get:Rule
+    val composeRule = createEmptyComposeRule()
+
     @get:Rule
     val activityRule = ActivityScenarioRule(DeckPicker::class.java)
 
@@ -47,12 +51,11 @@ class DeckPickerTest : InstrumentedTest() {
         // For mobile. If it is not a mobile, then test will be ignored.
         assumeTrue(!isTablet)
 
-        // Go to RecyclerView item having "Test Deck" and click on the counts layout
         tapOnCountLayouts("Default")
-
-        // ActivityScenarioRule only owns DeckPicker. Close Study Options before collection cleanup.
-        useResumedActivity<StudyOptionsActivity> {
-            onView(withId(R.id.studyoptions_frame)).check(matches(isDisplayed()))
+        composeRule.onNodeWithTag("study_deck_title").assertIsDisplayed()
+        activityRule.scenario.onActivity { deckPicker ->
+            check(deckPicker.currentScreenFragment is StudyOptionsFlowFragment)
+            deckPicker.onBackPressedDispatcher.onBackPressed()
         }
     }
 

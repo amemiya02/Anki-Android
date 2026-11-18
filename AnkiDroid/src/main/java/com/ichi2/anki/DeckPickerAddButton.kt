@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.ichi2.compose.theme.AnkiDroidTheme
@@ -69,7 +70,10 @@ class DeckPickerAddButton internal constructor(
             Surface(
                 onClick = { performClick() },
                 shape = foundation.shapes.addButton,
-                modifier = Modifier.heightIn(min = if (primary) 56.dp else 48.dp).widthIn(min = if (primary) 56.dp else 48.dp),
+                modifier =
+                    Modifier.heightIn(min = if (primary) 56.dp else 48.dp)
+                        .widthIn(min = if (primary) 56.dp else 48.dp)
+                        .then(if (primary) Modifier.testTag("deck-add") else Modifier),
                 shadowElevation = if (primary) 4.dp else 2.dp,
                 color = if (primary) foundation.colors.primary else foundation.colors.background,
                 contentColor = if (primary) foundation.colors.onPrimary else foundation.colors.onBackground,

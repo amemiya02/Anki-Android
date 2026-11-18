@@ -1358,13 +1358,14 @@ class NoteEditorFragment :
     private fun onNoteAdded(count: Int) {
         changed = true
         sourceText = null
-        if (caller == NoteEditorCaller.NOTEEDITOR || caller == NoteEditorCaller.NOTEEDITOR_INTENT_ADD || aedictIntent) {
+        val sharedNote = caller == NoteEditorCaller.NOTEEDITOR_INTENT_ADD || caller == NoteEditorCaller.INSTANT_NOTE_EDITOR
+        if (caller == NoteEditorCaller.NOTEEDITOR || sharedNote || aedictIntent) {
             // Do not queue field or preview updates for an activity which is about to finish.
             val closeIntent = Intent()
             if (caller == NoteEditorCaller.NOTEEDITOR_INTENT_ADD) {
                 closeIntent.putExtra(EXTRA_ID, requireArguments().getString(EXTRA_ID))
             }
-            if (caller == NoteEditorCaller.NOTEEDITOR_INTENT_ADD || aedictIntent) {
+            if (sharedNote || aedictIntent) {
                 showThemedToast(requireContext(), CommonString.note_message, shortLength = true)
             }
             closeNoteEditor(closeIntent)

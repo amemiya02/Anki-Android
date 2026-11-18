@@ -45,11 +45,7 @@ internal class DeckBottomBar(
     var selectedTab by mutableStateOf(NavigationItem.HOME)
     var onTabClick: (NavigationItem) -> Unit = {}
 
-    var selectedItemId: Int
-        get() = selectedTab.id
-        set(id) {
-            NavigationItem.fromId(id)?.let(onTabClick)
-        }
+    val selectedItemId: Int get() = selectedTab.id
 
     init {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)

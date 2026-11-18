@@ -4,13 +4,14 @@ package com.ichi2.anki.browser
 
 import android.app.Dialog
 import android.content.Intent
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.core.content.edit
-import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.setIntroductionSlidesShown
@@ -65,7 +66,7 @@ class CardBrowserSearchErrorTest : RobolectricTest() {
                 setIntroductionSlidesShown(true)
                 runTest {
                     val activity = startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent()).get()
-                    activity.binding.bottomNavigation!!.selectedItemId = NavigationItem.BROWSER.id
+                    compose.onNodeWithTag("tab-browser").performClick()
                     compose.waitUntil(10_000) {
                         advanceRobolectricLooper()
                         activity.currentScreenFragment is CardBrowserFragment

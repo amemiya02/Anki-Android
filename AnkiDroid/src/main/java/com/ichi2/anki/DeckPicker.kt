@@ -640,6 +640,9 @@ open class DeckPicker :
             disableDrawerIndicator()
         }
         setupBottomNavigation()
+        savedInstanceState?.getString(STATE_SELECTED_TAB)?.let { tag ->
+            binding.bottomNavigation?.selectedTab = NavigationItem.entries.firstOrNull { it.tag == tag } ?: NavigationItem.HOME
+        }
         setupEdgeToEdge()
         title = resources.getString(R.string.app_name)
 
@@ -1013,7 +1016,12 @@ open class DeckPicker :
             }
         }
 
-        fun onOptionsMenuUpdated(unused: OptionsMenuState) = invalidateOptionsMenu()
+        fun onOptionsMenuUpdated(unused: OptionsMenuState) {
+            deckToolbarMenu.value?.let { menu ->
+                updateMenuFromState(menu)
+                updateSearchVisibilityFromState(menu)
+            }
+        }
 
         fun onCollectionStatusChanged(isInInitialState: Boolean) {
             // Hide the background when there are no cards to improve text readability.
@@ -1752,6 +1760,7 @@ open class DeckPicker :
     public override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("mIsFABOpen", floatingActionMenu.isFABOpen)
+        outState.putString(STATE_SELECTED_TAB, binding.bottomNavigation?.selectedTab?.tag)
         outState.putParcelable(STATE_PENDING_ENTRY, pendingEntry)
         outState.putBoolean(STATE_WAIT_FOR_WELCOME_ACTION, waitForWelcomeAction)
         importColpkgListener?.let {
@@ -2716,6 +2725,7 @@ open class DeckPicker :
          */
         internal const val EXTRA_ENTRY_SCREEN = "appNavigationEntryScreen"
         private const val STATE_PENDING_ENTRY = "pendingEntryScreen"
+        private const val STATE_SELECTED_TAB = "selectedNavigationTab"
         private const val ACTION_DEFERRED_IMPORT = "com.ichi2.anki.DEFERRED_IMPORT"
         private const val EXTRA_IMPORT_SOURCE = "deferredImportSource"
 

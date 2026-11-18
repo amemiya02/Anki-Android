@@ -44,7 +44,7 @@ class InstantEditorNoClozeSnapshotReviewTest : RobolectricTest() {
                     type = "text/plain"
                     putExtra(Intent.EXTRA_TEXT, originalText)
                 }
-            val activity = openSharedInstantNote(intent, compose)
+            val activity = openSharedInstantNote(intent, compose).get()
             compose.onNodeWithContentDescription(getResourceString(CommonString.change_editor_mode)).performClick()
             val editor = requireNotNull(ShadowDialog.getLatestDialog())
             val viewModel = ViewModelProvider(checkNotNull(activity.currentScreenFragment))[InstantEditorViewModel::class.java]
@@ -63,7 +63,7 @@ class InstantEditorNoClozeSnapshotReviewTest : RobolectricTest() {
             shadowOf(Looper.getMainLooper()).idle()
             advanceUntilIdle()
 
-            assertTrue("confirmed note is saved", activity.currentScreenFragment !is InstantNoteEditorFragment)
+            compose.waitUntil(10_000) { activity.currentScreenFragment !is InstantNoteEditorFragment }
             assertEquals("one note added", notesBefore + 1, col.noteCount())
             assertEquals(
                 "confirmation must not insert unvalidated replacement fields",

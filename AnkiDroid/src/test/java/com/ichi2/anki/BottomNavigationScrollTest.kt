@@ -11,6 +11,8 @@ import android.webkit.WebView
 import android.widget.ScrollView
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasScrollToIndexAction
@@ -255,7 +257,7 @@ class BottomNavigationScrollTest : RobolectricTest() {
         }
 
     private fun DeckPicker.selectTab(tab: NavigationItem) {
-        bottomNav.selectedItemId = tab.id
+        composeRule.onNodeWithTag("tab-${tab.tag}").performClick()
         composeRule.waitUntil(10_000) { currentScreenFragment?.isVisible == true }
     }
 

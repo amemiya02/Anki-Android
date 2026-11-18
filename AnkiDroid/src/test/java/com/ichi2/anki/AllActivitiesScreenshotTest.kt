@@ -57,7 +57,7 @@ class AllActivitiesScreenshotTest : ScreenshotTest() {
             SingleFragmentActivity::class.java.simpleName,
             "Implemented, but the test fails because the activity throws if a specific intent extra isn't set",
         )
-        notYetHandled(InstantNoteEditorActivity::class.java.simpleName, "Single instance activity so should be used")
+        notYetHandled(InstantNoteEditorActivity::class.java.simpleName, "Dispatches to the hosted Instant Note Editor")
 
         // Fragment-host activities: need a 'fragmentName' intent extra to render anything.
         // TODO: split these into per-class screenshot tests that pass a real fragment.

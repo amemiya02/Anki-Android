@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo
 import android.view.View
 import android.webkit.WebView
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
@@ -182,6 +183,27 @@ class SingleActivityNavigationTest : RobolectricTest() {
 
     @Test
     fun `instant share dispatches to the existing host and opens the full editor there`() {
+        val host = openFullEditorFromInstantShare("Shared instant note")
+        host.onBackPressedDispatcher.onBackPressed()
+        composeRule.onNodeWithText(host.getString(CommonString.discard)).performClick()
+        composeRule.waitUntil(10_000) { host.currentScreenFragment is MediaCheckFragment }
+        assertTrue(shadowOf(host).isTaskMovedToBack)
+    }
+
+    @Test
+    fun `saving shared text in the full editor returns to the sender`() {
+        val text = "A shared note saved in the full editor"
+        val host = openFullEditorFromInstantShare(text)
+        val notesBefore = col.noteCount()
+        val add = host.getString(CommonString.menu_add)
+        composeRule.onNode(hasText(add) and hasClickAction()).performClick()
+
+        composeRule.waitUntil(10_000) { col.noteCount() == notesBefore + 1 }
+        composeRule.waitUntil(10_000) { host.currentScreenFragment is MediaCheckFragment }
+        assertTrue(shadowOf(host).isTaskMovedToBack)
+    }
+
+    private fun openFullEditorFromInstantShare(text: String): DeckPicker {
         ensureCollectionLoadIsSynchronous()
         BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
         setIntroductionSlidesShown(true)
@@ -194,7 +216,7 @@ class SingleActivityNavigationTest : RobolectricTest() {
         val shared =
             Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, "Shared instant note")
+                putExtra(Intent.EXTRA_TEXT, text)
             }
         val entry =
             Robolectric.buildActivity(InstantNoteEditorActivity::class.java, shared).use { controller ->
@@ -208,14 +230,11 @@ class SingleActivityNavigationTest : RobolectricTest() {
         openEditor.assertIsDisplayed().performClick()
         composeRule.waitUntil(10_000) { host.currentScreenFragment is NoteEditorPaneFragment }
         assertEquals(
-            "Shared instant note",
+            text,
             (host.currentScreenFragment as NoteEditorPaneFragment).launchIntent.getStringExtra(Intent.EXTRA_TEXT),
         )
         assertNull(shadowOf(host).nextStartedActivity)
-        host.onBackPressedDispatcher.onBackPressed()
-        composeRule.onNodeWithText(host.getString(CommonString.discard)).performClick()
-        composeRule.waitUntil(10_000) { host.currentScreenFragment is MediaCheckFragment }
-        assertTrue(shadowOf(host).isTaskMovedToBack)
+        return host
     }
 
     @Test

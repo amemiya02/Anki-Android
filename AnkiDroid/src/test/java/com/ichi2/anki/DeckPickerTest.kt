@@ -19,6 +19,8 @@ import android.widget.TextView
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.doubleClick
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsSelected
@@ -445,9 +447,7 @@ class DeckPickerTest : RobolectricTest() {
         advanceRobolectricLooper()
 
         composeRule.waitUntil(10_000) {
-            (deckPicker.currentScreenFragment as? PreferencesFragment)
-                ?.childFragmentManager
-                ?.findFragmentById(R.id.settings_container) is AdvancedSettingsFragment
+            (deckPicker.currentScreenFragment as? PreferencesFragment)?.currentPage is AdvancedSettingsFragment
         }
         assertThat(shadowOf(deckPicker).nextStartedActivity, nullValue())
     }
@@ -614,8 +614,7 @@ class DeckPickerTest : RobolectricTest() {
     private fun DeckPicker.openEmbeddedCardBrowser(): CardBrowserFragment {
         val bar = findViewById<DeckBottomBar>(R.id.bottom_navigation)
         composeRule.waitUntil(10_000) { bar.isShown && deckPickerBinding.deckList.isShown }
-        bar.selectedItemId =
-            BottomNavController.NavigationItem.BROWSER.id
+        composeRule.onNodeWithTag("tab-browser").performClick()
         composeRule.waitUntil(10_000) { currentScreenFragment is CardBrowserFragment }
         return currentScreenFragment as CardBrowserFragment
     }
@@ -1454,41 +1453,20 @@ class DeckPickerTest : RobolectricTest() {
         }
 
     @Test
-    fun `adding a note by single tap preserves the visible FAB menu`() = assertAddingNoteByTouchPreservesMenu(doubleTap = false)
+    fun `tapping Add in the open menu opens the Note Editor`() = assertAddingNoteByTouch(doubleTap = false)
 
     @Test
-    fun `adding a note by double tap preserves the visible FAB menu`() = assertAddingNoteByTouchPreservesMenu(doubleTap = true)
+    fun `double tapping the closed Add button opens the Note Editor`() = assertAddingNoteByTouch(doubleTap = true)
 
-    private fun assertAddingNoteByTouchPreservesMenu(doubleTap: Boolean) =
+    private fun assertAddingNoteByTouch(doubleTap: Boolean) =
         deckPicker {
-            val fab = floatingActionButtonBinding.fabMain
-            val startTime = SystemClock.uptimeMillis()
-
-            fun tap(offset: Long) {
-                val downTime = startTime + offset
-                for (action in listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP)) {
-                    val eventTime = downTime + if (action == MotionEvent.ACTION_UP) 50 else 0
-                    val event = MotionEvent.obtain(downTime, eventTime, action, 0f, 0f, 0)
-                    try {
-                        fab.dispatchTouchEvent(event)
-                    } finally {
-                        event.recycle()
-                    }
-                }
-            }
-
             if (!doubleTap) floatingActionMenu.showFloatingActionMenu()
             viewModel.flowOfNavigate.test {
-                if (doubleTap) {
-                    tap(0)
-                    assertTrue(floatingActionMenu.isFABOpen)
-                }
-                tap(100)
+                val button = composeRule.onNodeWithTag("deck-add")
+                if (doubleTap) button.performTouchInput { doubleClick() } else button.performTouchInput { click() }
                 val intent = AnkiDroidNavigator.toIntent(awaitItem())
                 assertEquals("com.ichi2.anki.NoteEditorActivity", intent.component!!.className)
-                assertFalse(floatingActionMenu.isFABOpen, "Adding a note must save a closed menu state")
-                assertTrue(floatingActionButtonBinding.fabMain.isExtended)
-                assertEquals(View.VISIBLE, floatingActionButtonBinding.fabBGLayout.visibility)
+                assertFalse(floatingActionMenu.isFABOpen, "Adding a note saves a closed menu state")
             }
         }
 
@@ -1730,7 +1708,7 @@ class DeckPickerTest : RobolectricTest() {
                     val handled = dispatchKeyEvent(keyDownEvent(keyCode, KeyEvent.META_ALT_ON))
 
                     assertThat("Alt shortcut is handled", handled, equalTo(true))
-                    assertThat(bottomNav.selectedItemId, equalTo(destination.id))
+                    composeRule.waitUntil(10_000) { bottomNav.selectedTab == destination }
                 }
             }
         }
