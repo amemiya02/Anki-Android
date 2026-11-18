@@ -27,7 +27,6 @@ class PreferenceFragmentsProvider : TestParameterValuesProvider() {
                 StudyingSettingsFragment::class,
                 TimeboxSettingsFragment::class,
                 SyncSettingsFragment::class,
-                CustomSyncServerSettingsFragment::class,
                 ScheduleRemindersFragment::class,
                 AppearanceSettingsFragment::class,
                 ControlsSettingsFragment::class,
