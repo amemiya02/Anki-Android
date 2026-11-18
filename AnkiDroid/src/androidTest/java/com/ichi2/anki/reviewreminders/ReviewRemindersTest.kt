@@ -2,63 +2,61 @@
 
 package com.ichi2.anki.reviewreminders
 
-import android.view.View
+import android.text.format.DateFormat
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasAnyDescendant
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextReplacement
 import androidx.core.content.edit
-import androidx.fragment.app.findFragment
-import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.UiController
-import androidx.test.espresso.ViewAction
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
-import androidx.test.espresso.action.ViewActions.replaceText
-import androidx.test.espresso.action.ViewActions.scrollTo
-import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItem
-import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
-import androidx.test.espresso.matcher.ViewMatchers.isChecked
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.android.material.timepicker.MaterialTimePicker
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.TR
+import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
-import com.ichi2.anki.TestUtils.clickChildViewWithId
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.tests.InstrumentedTest
-import com.ichi2.anki.tests.checkWithTimeout
 import com.ichi2.anki.testutil.GrantStoragePermission
 import com.ichi2.anki.testutil.waitUntil
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ConfigAwareSingleFragmentActivity
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.Matcher
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.empty
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.hamcrest.Matchers.lessThanOrEqualTo
-import org.hamcrest.Matchers.not
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import com.google.android.material.R as MaterialR
-import com.ichi2.anki.ankicommon.R as AnkiCommonR
+import java.text.DateFormatSymbols
+import java.util.Locale
 
 /** Exercises the reminder dialogs through the UI and checks their persisted results. */
 @RunWith(AndroidJUnit4::class)
 class ReviewRemindersTest : InstrumentedTest() {
     @get:Rule
     val storagePermissionRule = GrantStoragePermission.instance
+
+    @get:Rule
+    val compose = createEmptyComposeRule()
 
     private var originalReminderNotifsRequestShown = false
 
@@ -86,7 +84,7 @@ class ReviewRemindersTest : InstrumentedTest() {
     fun createReminderWithDefaults() {
         withReminders {
             openAddDialog()
-            onView(withId(android.R.id.button1)).perform(click())
+            text(CommonString.save).performClick()
 
             val reminder = awaitSingleReminder()
             assertThat(reminder.scope, equalTo(ReviewReminderScope.Global))
@@ -109,10 +107,9 @@ class ReviewRemindersTest : InstrumentedTest() {
             openAddDialog()
             selectDeck(deckName)
             selectTime(time)
-            openAdvancedSettings()
-            onView(withId(R.id.add_edit_reminder_card_threshold_input)).perform(scrollTo(), replaceText("5"), closeSoftKeyboard())
-            onView(withId(R.id.add_edit_reminder_only_notify_if_no_reviews_checkbox)).perform(scrollTo(), click())
-            onView(withId(android.R.id.button1)).perform(click())
+            threshold().performScrollTo().performTextReplacement("5")
+            unstudied().performScrollTo().performClick()
+            text(CommonString.save).performClick()
 
             val reminder = awaitSingleReminder()
             assertThat(reminder.scope, equalTo(ReviewReminderScope.DeckSpecific(deckId)))
@@ -124,10 +121,9 @@ class ReviewRemindersTest : InstrumentedTest() {
         }
         withReminders(scope = ReviewReminderScope.DeckSpecific(deckId), reminderCount = 1) {
             assertReminderRow(storedReminders().single(), deckName)
-            onView(withId(R.id.reminders_list_time_text)).perform(click())
-            openAdvancedSettings()
-            onView(withId(R.id.add_edit_reminder_card_threshold_input)).check(matches(withText("5")))
-            onView(withId(R.id.add_edit_reminder_only_notify_if_no_reviews_checkbox)).check(matches(isChecked()))
+            openOnlyReminder()
+            threshold().performScrollTo().assertTextContains("5")
+            unstudied().performScrollTo().assertIsOn()
         }
     }
 
@@ -135,10 +131,10 @@ class ReviewRemindersTest : InstrumentedTest() {
     fun cancelCreatingReminder() {
         withReminders {
             openAddDialog()
-            onView(withId(android.R.id.button3)).perform(click())
+            text(CommonString.dialog_cancel).performClick()
 
-            onView(withId(R.id.add_edit_reminder_toolbar)).check(doesNotExist())
-            onView(withId(R.id.no_reminders_placeholder)).check(matches(isDisplayed()))
+            text(CommonString.save).assertDoesNotExist()
+            text(CommonString.you_have_no_review_reminders).assertIsDisplayed()
             assertThat(storedReminders(), empty())
         }
     }
@@ -161,21 +157,18 @@ class ReviewRemindersTest : InstrumentedTest() {
         val updatedTime = ReviewReminderTime(9, 45)
         withReminders(reminderCount = 1) {
             assertReminderRow(original, "Original deck")
-            onView(withId(R.id.reminders_list_time_text)).perform(click())
-            onView(withId(R.id.add_edit_reminder_deck_name)).checkWithTimeout(matches(withText("Original deck")))
-            onView(
-                withId(R.id.add_edit_reminder_time_button),
-            ).checkWithTimeout(matches(withText(original.time.toFormattedString(testContext))))
-            openAdvancedSettings()
-            onView(withId(R.id.add_edit_reminder_card_threshold_input)).check(matches(withText("2")))
-            onView(withId(R.id.add_edit_reminder_only_notify_if_no_reviews_checkbox)).check(matches(not(isChecked())))
+            openOnlyReminder()
+            editorLabel("Original deck").assertExists()
+            editorLabel(original.time.toFormattedString(testContext)).assertExists()
+            threshold().performScrollTo().assertTextContains("2")
+            unstudied().performScrollTo().assertIsOff()
 
             selectDeck(destinationDeckName)
             selectTime(updatedTime)
-            onView(withId(R.id.add_edit_reminder_card_threshold_input)).perform(scrollTo(), replaceText("7"), closeSoftKeyboard())
-            onView(withId(R.id.add_edit_reminder_only_notify_if_no_reviews_checkbox)).perform(scrollTo(), click())
+            threshold().performScrollTo().performTextReplacement("7")
+            unstudied().performScrollTo().performClick()
             val beforeSave = TimeManager.time.intTimeMS()
-            onView(withId(android.R.id.button1)).perform(click())
+            text(CommonString.save).performClick()
 
             val updated = awaitSingleReminder { it.scope == destinationScope }
             val afterSave = TimeManager.time.intTimeMS()
@@ -193,13 +186,12 @@ class ReviewRemindersTest : InstrumentedTest() {
         }
         withReminders(scope = destinationScope, reminderCount = 1) {
             assertReminderRow(storedReminders().single(), destinationDeckName)
-            onView(withId(R.id.reminders_list_time_text)).perform(click())
-            openAdvancedSettings()
-            onView(withId(R.id.add_edit_reminder_card_threshold_input)).check(matches(withText("7")))
-            onView(withId(R.id.add_edit_reminder_only_notify_if_no_reviews_checkbox)).check(matches(isChecked()))
+            openOnlyReminder()
+            threshold().performScrollTo().assertTextContains("7")
+            unstudied().performScrollTo().assertIsOn()
         }
         withReminders(scope = originalScope) {
-            onView(withId(R.id.no_reminders_placeholder)).check(matches(isDisplayed()))
+            text(CommonString.you_have_no_review_reminders).assertIsDisplayed()
         }
     }
 
@@ -208,11 +200,11 @@ class ReviewRemindersTest : InstrumentedTest() {
         val original = ReviewReminder.createReviewReminder(time = ReviewReminderTime(7, 30))
         insertReminder(original)
         withReminders(reminderCount = 1) {
-            onView(withId(R.id.reminders_list_time_text)).perform(click())
+            openOnlyReminder()
             selectTime(ReviewReminderTime(9, 45))
-            onView(withId(android.R.id.button3)).perform(click())
+            text(CommonString.dialog_cancel).performClick()
 
-            onView(withId(R.id.add_edit_reminder_toolbar)).check(doesNotExist())
+            text(CommonString.save).assertDoesNotExist()
             assertThat(storedReminders(), equalTo(listOf(original)))
             assertReminderRow(original, allDecksName)
         }
@@ -226,16 +218,16 @@ class ReviewRemindersTest : InstrumentedTest() {
         val reminder = ReviewReminder.createReviewReminder(time = ReviewReminderTime(9, 15))
         insertReminder(reminder)
         withReminders(reminderCount = 1) {
-            onView(withId(R.id.reminders_list_time_text)).perform(click())
+            openOnlyReminder()
             openDeleteConfirmation()
             assertThat("Deletion must wait for confirmation", storedReminders(), equalTo(listOf(reminder)))
-            onView(withId(android.R.id.button1)).perform(click())
+            confirmationAction(CommonString.dialog_positive_delete).performClick()
 
             waitUntil(message = { "The deleted reminder is still stored: ${storedReminders()}" }) { storedReminders().isEmpty() }
             assertReminderCount(0)
         }
         withReminders {
-            onView(withId(R.id.no_reminders_placeholder)).check(matches(isDisplayed()))
+            text(CommonString.you_have_no_review_reminders).assertIsDisplayed()
         }
     }
 
@@ -244,14 +236,14 @@ class ReviewRemindersTest : InstrumentedTest() {
         val reminder = ReviewReminder.createReviewReminder(time = ReviewReminderTime(9, 15))
         insertReminder(reminder)
         withReminders(reminderCount = 1) {
-            onView(withId(R.id.reminders_list_time_text)).perform(click())
+            openOnlyReminder()
             openDeleteConfirmation()
-            onView(withId(android.R.id.button2)).perform(click())
+            confirmationAction(CommonString.dialog_cancel).performClick()
 
-            onView(withText("Delete this reminder?")).check(doesNotExist())
+            text(CommonString.add_edit_reminder_delete_confirmation_title).assertDoesNotExist()
             assertThat(storedReminders(), equalTo(listOf(reminder)))
-            onView(withId(R.id.add_edit_reminder_toolbar)).check(matches(isDisplayed()))
-            onView(withId(android.R.id.button3)).perform(click())
+            text(CommonString.edit_review_reminder).assertIsDisplayed()
+            text(CommonString.dialog_cancel).performClick()
             assertReminderRow(reminder, allDecksName)
         }
         withReminders(reminderCount = 1) {
@@ -273,10 +265,10 @@ class ReviewRemindersTest : InstrumentedTest() {
         col.decks.remove(listOf(deckId))
 
         withReminders(reminderCount = 2) {
-            onView(withText("Deck not found")).checkWithTimeout(matches(isDisplayed()))
-            onView(withText("Deck not found")).perform(click())
+            text(R.string.review_reminders_deleted_deck).assertIsDisplayed()
+            text(R.string.review_reminders_deleted_deck).performClick()
             openDeleteConfirmation()
-            onView(withId(android.R.id.button1)).perform(click())
+            confirmationAction(CommonString.dialog_positive_delete).performClick()
 
             assertThat(awaitSingleReminder { it.id == remaining.id }, equalTo(remaining))
             assertThat(runBlocking { ReviewRemindersDatabase.getRemindersForScope(orphan.scope).isEmpty() }, equalTo(true))
@@ -301,23 +293,23 @@ class ReviewRemindersTest : InstrumentedTest() {
 
         withReminders(reminderCount = 1) {
             assertReminderRow(reminder, deckName)
-            onView(withId(R.id.reminders_list_switch)).perform(click())
+            switches()[0].performClick()
 
             val disabled = awaitSingleReminder { !it.enabled }
             reminder.enabled = false
             assertThat("Disabling must preserve the reminder's other settings", disabled, equalTo(reminder))
             assertReminderRow(disabled, deckName)
-            onView(withId(R.id.add_edit_reminder_toolbar)).check(doesNotExist())
+            text(CommonString.save).assertDoesNotExist()
         }
         withReminders(reminderCount = 1) {
             assertReminderRow(reminder, deckName)
-            onView(withId(R.id.reminders_list_switch)).perform(click())
+            switches()[0].performClick()
 
             val enabled = awaitSingleReminder { it.enabled }
             reminder.enabled = true
             assertThat("Enabling must preserve the reminder's other settings", enabled, equalTo(reminder))
             assertReminderRow(enabled, deckName)
-            onView(withId(R.id.add_edit_reminder_toolbar)).check(doesNotExist())
+            text(CommonString.save).assertDoesNotExist()
         }
         withReminders(reminderCount = 1) {
             assertReminderRow(reminder, deckName)
@@ -337,61 +329,67 @@ class ReviewRemindersTest : InstrumentedTest() {
             }
     }
 
+    private fun text(resource: Int) = compose.onNodeWithText(testContext.getString(resource))
+
+    private fun switches() = compose.onAllNodes(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch))
+
+    private fun threshold() = compose.onNodeWithContentDescription(testContext.getString(R.string.review_reminder_card_count))
+
+    private fun unstudied() = text(R.string.review_reminder_only_if_unstudied)
+
+    private fun editorLabel(value: String) =
+        compose.onNode(
+            hasText(value, substring = true) and hasAnyAncestor(hasAnyDescendant(hasText(testContext.getString(CommonString.save)))),
+        )
+
+    private fun openOnlyReminder() {
+        val time = storedReminders().single().time.toFormattedString(testContext)
+        compose.onNodeWithText(time).performClick()
+        text(CommonString.edit_review_reminder).assertExists()
+    }
+
     private fun openAddDialog() {
-        onView(withId(R.id.floating_action_button_add)).perform(click())
-        onView(withId(R.id.add_edit_reminder_deck_name)).checkWithTimeout(matches(withText(allDecksName)))
+        compose.onNodeWithContentDescription(testContext.getString(CommonString.add_reminder)).performClick()
+        editorLabel(allDecksName).assertExists()
     }
 
     private fun openDeleteConfirmation() {
-        onView(withId(android.R.id.button2)).perform(click())
-        onView(withText("Delete this reminder?")).check(matches(isDisplayed()))
+        text(CommonString.dialog_positive_delete).performScrollTo().performClick()
+        text(CommonString.add_edit_reminder_delete_confirmation_title).assertIsDisplayed()
     }
 
-    /** Expanding the advanced section travels through the view model, so wait for its content. */
-    private fun openAdvancedSettings() {
-        onView(withId(R.id.add_edit_reminder_advanced_dropdown)).perform(click())
-        onView(withId(R.id.add_edit_reminder_card_threshold_input)).checkWithTimeout(matches(isDisplayed()))
-    }
+    private fun confirmationAction(resource: Int) =
+        compose.onNode(
+            hasText(testContext.getString(resource)) and
+                hasAnyAncestor(hasAnyDescendant(hasText(testContext.getString(CommonString.add_edit_reminder_delete_confirmation_title)))),
+        )
 
     private fun selectDeck(deckName: String) {
-        onView(withId(R.id.add_edit_reminder_deck_name)).perform(click())
-        onView(withText(deckName)).checkWithTimeout(matches(isDisplayed()))
-        // .click() can open "Create subdeck", so invoke the handler directly
-        onView(withId(AnkiCommonR.id.decks)).perform(
-            actionOnItem<RecyclerView.ViewHolder>(
-                hasDescendant(withText(deckName)),
-                clickChildViewWithId(AnkiCommonR.id.DeckPickerHoriz),
-            ),
-        )
-        onView(withId(R.id.add_edit_reminder_deck_name)).inRoot(isDialog()).checkWithTimeout(matches(withText(deckName)))
+        text(R.string.review_reminder_deck).performScrollTo().performClick()
+        compose.onNodeWithText(deckName).performClick()
+        editorLabel(deckName).assertExists()
     }
 
-    /** Sets the time on the picker directly, as a tap on its mode button can become a long press that only shows a tooltip. */
     private fun selectTime(time: ReviewReminderTime) {
-        onView(withId(R.id.add_edit_reminder_time_button)).inRoot(isDialog()).perform(click())
-        onView(withId(MaterialR.id.material_timepicker_ok_button)).inRoot(isDialog()).perform(confirmTime(time))
-        onView(withId(R.id.add_edit_reminder_time_button))
-            .inRoot(isDialog())
-            .checkWithTimeout(matches(withText(time.toFormattedString(testContext))))
-    }
-
-    private fun confirmTime(time: ReviewReminderTime) =
-        object : ViewAction {
-            override fun getConstraints(): Matcher<View> = isDisplayed()
-
-            override fun getDescription(): String = "confirm $time in the time picker"
-
-            override fun perform(
-                uiController: UiController,
-                view: View,
-            ) {
-                view.findFragment<MaterialTimePicker>().apply {
-                    hour = time.hour
-                    minute = time.minute
-                }
-                view.performClick()
-            }
+        text(R.string.review_reminder_time).performScrollTo().performClick()
+        val clockTitle = testContext.getString(R.string.review_reminder_select_time)
+        val clock = hasAnyAncestor(hasAnyDescendant(hasText(clockTitle)))
+        val keyboard = testContext.getString(R.string.review_reminder_keyboard_input)
+        if (compose.onAllNodes(hasText(keyboard) and clock).fetchSemanticsNodes().isNotEmpty()) {
+            text(R.string.review_reminder_keyboard_input).performScrollTo().performClick()
         }
+        val inputs = compose.onAllNodes(hasSetTextAction() and clock)
+        val is24 = DateFormat.is24HourFormat(testContext)
+        val hour = if (is24) time.hour else (time.hour + 11) % 12 + 1
+        inputs[0].performClick().performTextReplacement(hour.toString())
+        inputs[1].performClick().performTextReplacement("%02d".format(Locale.ROOT, time.minute))
+        if (!is24) {
+            val period = DateFormatSymbols.getInstance(testContext.resources.configuration.locales[0]).amPmStrings[time.hour / 12]
+            compose.onNode(hasText(period, ignoreCase = true) and clock).performClick()
+        }
+        text(CommonString.dialog_ok).performClick()
+        editorLabel(time.toFormattedString(testContext)).assertExists()
+    }
 
     private fun storedReminders(): List<ReviewReminder> = runBlocking { ReviewRemindersDatabase.getAllReminders().getRemindersList() }
 
@@ -405,13 +403,9 @@ class ReviewRemindersTest : InstrumentedTest() {
     }
 
     private fun assertReminderCount(count: Int) {
-        onView(withId(R.id.recycler_view)).checkWithTimeout(
-            { view, exception ->
-                if (exception != null) throw exception
-                assertThat((view as RecyclerView).adapter!!.itemCount, equalTo(count))
-            },
-        )
-        onView(withId(R.id.no_reminders_placeholder)).checkWithTimeout(matches(if (count == 0) isDisplayed() else not(isDisplayed())))
+        compose.waitUntil(10_000) { switches().fetchSemanticsNodes().size == count }
+        val placeholder = text(CommonString.you_have_no_review_reminders)
+        if (count == 0) placeholder.assertIsDisplayed() else placeholder.assertDoesNotExist()
     }
 
     private fun assertReminderRow(
@@ -419,8 +413,8 @@ class ReviewRemindersTest : InstrumentedTest() {
         deckName: String,
     ) {
         assertReminderCount(1)
-        onView(withId(R.id.reminders_list_deck_text)).checkWithTimeout(matches(withText(deckName)))
-        onView(withId(R.id.reminders_list_time_text)).check(matches(withText(reminder.time.toFormattedString(testContext))))
-        onView(withId(R.id.reminders_list_switch)).check(matches(if (reminder.enabled) isChecked() else not(isChecked())))
+        compose.onNodeWithText(deckName, substring = true).assertIsDisplayed()
+        compose.onNodeWithText(reminder.time.toFormattedString(testContext)).assertIsDisplayed()
+        if (reminder.enabled) switches()[0].assertIsOn() else switches()[0].assertIsOff()
     }
 }

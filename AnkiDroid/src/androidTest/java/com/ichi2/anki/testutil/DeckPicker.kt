@@ -5,7 +5,6 @@ package com.ichi2.anki.testutil
 
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.platform.app.InstrumentationRegistry
@@ -15,7 +14,6 @@ import androidx.test.uiautomator.Until
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.testutil.ThreadUtils.sleep
-import com.ichi2.anki.common.android.R as CommonR
 
 /**
  * This file contains utility methods to interact with the DeckPicker.
@@ -48,8 +46,10 @@ fun createDeckWithUniqueName(): String {
     val deckName = "TestDeck$testString"
     onView(withId(R.id.fab_main)).perform(click())
     onView(withId(R.id.add_deck_button)).perform(click())
-    onView(withId(CommonR.id.dialog_text_input)).perform(typeText(deckName))
-    onView(withText(CommonString.dialog_ok)).perform(click())
+    val name = checkNotNull(device.wait(Until.findObject(By.clazz("android.widget.EditText")), DECK_TIMEOUT_MS))
+    name.text = deckName
+    val create = InstrumentationRegistry.getInstrumentation().targetContext.getString(CommonString.dialog_positive_create)
+    checkNotNull(device.wait(Until.findObject(By.text(create)), DECK_TIMEOUT_MS)).click()
     return deckName
 }
 

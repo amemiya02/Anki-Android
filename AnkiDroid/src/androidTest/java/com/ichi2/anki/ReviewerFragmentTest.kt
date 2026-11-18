@@ -4,15 +4,15 @@ package com.ichi2.anki
 
 import android.view.View
 import android.webkit.WebView
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.core.content.edit
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -432,7 +432,7 @@ class ReviewerFragmentTest : InstrumentedTest() {
         addCardToTestDeck()
         withReviewerWebView { webView ->
             assertThat(webView.runCardApiScript("return (await api.ankiAddTagToCard()).value;"), equalTo("true"))
-            onView(withId(R.id.tags_list)).check(matches(isDisplayed()))
+            composeRule.onNodeWithContentDescription(testContext.getString(CommonString.filter_tags)).assertIsDisplayed()
             pressBack()
 
             val instrumentation = InstrumentationRegistry.getInstrumentation()
