@@ -17,10 +17,6 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.core.content.edit
 import androidx.test.core.app.ActivityScenario
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
@@ -53,13 +49,13 @@ class SettingsSearchNavigationTest : RobolectricTest() {
     }
 
     @Test
-    fun searchingForReviewRemindersOpensTheEnabledScreen() {
+    fun searchingForReviewRemindersOpensTheScreen() {
         openSettings().use {
             val title = targetContext.getString(CommonString.review_reminders_title)
             search(title)
             result(title).assertIsDisplayed().performClick()
             advanceRobolectricLooper()
-            onView(withText(CommonString.add_reminder)).check(matches(isDisplayed()))
+            compose.onNodeWithContentDescription(targetContext.getString(CommonString.add_reminder)).assertIsDisplayed()
         }
     }
 

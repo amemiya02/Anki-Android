@@ -7,7 +7,10 @@ import android.app.NotificationManager
 import android.provider.Settings
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -62,8 +65,12 @@ class ReviewReminderWorkflowTest : RobolectricTest() {
             compose.onNodeWithText(reminders.getString(R.string.review_reminder_time)).performScrollTo().performClick()
             advanceRobolectricLooper()
             compose.onNodeWithText(reminders.getString(R.string.review_reminder_keyboard_input)).performScrollTo().performClick()
-            compose.onAllNodes(hasSetTextAction())[0].performTextReplacement("09")
-            compose.onAllNodes(hasSetTextAction())[1].performTextReplacement("35")
+            // The editor is still visible behind the clock dialog and has its own number field.
+            val timeTitle = reminders.getString(R.string.review_reminder_select_time)
+            val clockInputs = compose.onAllNodes(hasSetTextAction() and hasAnyAncestor(hasAnyDescendant(hasText(timeTitle))))
+            assertEquals(2, clockInputs.fetchSemanticsNodes().size)
+            clockInputs[0].performClick().performTextReplacement("09")
+            clockInputs[1].performClick().performTextReplacement("35")
             compose.onNodeWithText(reminders.getString(CommonString.dialog_ok)).performClick()
             advanceRobolectricLooper()
 
@@ -91,8 +98,13 @@ class ReviewReminderWorkflowTest : RobolectricTest() {
             advanceRobolectricLooper()
             compose.onNodeWithText(reminders.getString(CommonString.dialog_positive_delete)).performScrollTo().performClick()
             advanceRobolectricLooper()
-            compose.onNodeWithText(reminders.getString(CommonString.add_edit_reminder_delete_confirmation_title)).assertIsDisplayed()
-            compose.onNodeWithText(reminders.getString(CommonString.dialog_positive_delete)).performClick()
+            val confirmationTitle = reminders.getString(CommonString.add_edit_reminder_delete_confirmation_title)
+            compose.onNodeWithText(confirmationTitle).assertIsDisplayed()
+            compose
+                .onNode(
+                    hasText(reminders.getString(CommonString.dialog_positive_delete)) and
+                        hasAnyAncestor(hasAnyDescendant(hasText(confirmationTitle))),
+                ).performClick()
             advanceRobolectricLooperUntil { storedReminder() == null }
             compose.onNodeWithText(reminders.getString(CommonString.you_have_no_review_reminders)).assertIsDisplayed()
         }
