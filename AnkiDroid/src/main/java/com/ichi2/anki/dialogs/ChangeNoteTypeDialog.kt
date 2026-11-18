@@ -22,6 +22,11 @@ import android.widget.Spinner
 import androidx.annotation.CheckResult
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.core.text.BidiFormatter
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -68,8 +73,12 @@ import com.ichi2.anki.sync.launchCatchingRequiringOneWaySync
 import com.ichi2.anki.ui.BasicItemSelectedListener
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.InitStatus
-import com.ichi2.anki.utils.ext.collectInLifecycle
 import com.ichi2.anki.withProgress
+import com.ichi2.compose.theme.AnkiDroidTheme
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogActions
+import com.ichi2.compose.ui.dialogs.DialogTitle
 import com.ichi2.themes.Themes
 import com.ichi2.utils.LanguageUtil
 import com.ichi2.utils.boldList
@@ -114,11 +123,33 @@ class ChangeNoteTypeDialog : AnalyticsDialogFragment(R.layout.dialog_change_note
         val binding = DialogChangeNoteTypeBinding.bind(view)
         setupEdgeToEdge(binding)
 
-        binding.toolbar.title = TR.sentenceCase.changeNoteType
-        binding.toolbar.setNavigationOnClickListener { dismiss() }
-        binding.btnSave.setOnClickListener {
-            requireActivity().changeNoteType(viewModel)
-            // dismiss() is handled via closeDialogFlow
+        val title = TR.sentenceCase.changeNoteType
+        binding.dialogTitle.setContent {
+            AnkiDroidTheme {
+                androidx.compose.foundation.layout.Box(Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
+                    DialogTitle(title)
+                }
+            }
+        }
+        binding.dialogActions.setContent {
+            val status by viewModel.flowOfInitStatus.collectAsState()
+            AnkiDroidTheme {
+                DialogActions(
+                    actions =
+                        listOfNotNull(
+                            DialogAction(getString(CommonString.dialog_cancel), ::dismiss),
+                            if (status == InitStatus.Completed) {
+                                val hasChanges by viewModel.hasChangesFlow.collectAsState()
+                                DialogAction(getString(CommonString.save), {
+                                    requireActivity().changeNoteType(viewModel)
+                                }, DialogActionStyle.Filled, enabled = hasChanges)
+                            } else {
+                                null
+                            },
+                        ),
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+                )
+            }
         }
 
         launchCatchingTask {
@@ -128,12 +159,10 @@ class ChangeNoteTypeDialog : AnalyticsDialogFragment(R.layout.dialog_change_note
                     InitStatus.Pending, InitStatus.InProgress -> {
                         binding.changeNoteTypeLayout.isVisible = false
                         binding.changeNoteTypeLoadingLayout.isVisible = true
-                        binding.btnSave.isVisible = false
                     }
                     InitStatus.Completed -> {
                         binding.changeNoteTypeLayout.isVisible = true
                         binding.changeNoteTypeLoadingLayout.isVisible = false
-                        binding.btnSave.isVisible = true
                         setupChangeNoteTypeDialog(binding = binding)
                     }
                     is InitStatus.Failed -> {
@@ -171,15 +200,6 @@ class ChangeNoteTypeDialog : AnalyticsDialogFragment(R.layout.dialog_change_note
         Timber.d("setting up dialog")
         setupNoteTypeSpinner(binding)
         setupViewPagerAndTabs(binding)
-        bindSaveButtonState(binding)
-    }
-
-    private fun bindSaveButtonState(binding: DialogChangeNoteTypeBinding) {
-        // disabled by default until hasChangesFlow emits true
-        binding.btnSave.isEnabled = false
-        viewModel.hasChangesFlow.collectInLifecycle {
-            binding.btnSave.isEnabled = it
-        }
     }
 
     private fun setupNoteTypeSpinner(binding: DialogChangeNoteTypeBinding) {

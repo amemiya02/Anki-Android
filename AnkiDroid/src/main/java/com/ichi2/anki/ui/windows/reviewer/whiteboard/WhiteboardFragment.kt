@@ -21,7 +21,6 @@ import android.widget.FrameLayout
 import android.widget.PopupWindow
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.VisibleForTesting
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.ThemeUtils
@@ -51,6 +50,10 @@ import com.ichi2.anki.reviewer.BindingMap
 import com.ichi2.anki.reviewer.ReviewerBinding
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.ext.sharedPrefs
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.utils.increaseHorizontalPaddingOfMenuIcons
 import com.ichi2.utils.toRGBAHex
 import dev.androidbroadcast.vbpd.viewBinding
@@ -335,14 +338,19 @@ class WhiteboardFragment :
      * Shows a confirmation dialog for removing a brush.
      */
     private fun showRemoveColorDialog(index: Int) {
-        AlertDialog
-            .Builder(requireContext())
-            .setMessage(CommonString.whiteboard_remove_brush_message)
-            .setPositiveButton(CommonString.dialog_remove) { dialog, _ ->
-                Timber.i("Removed brush of index %d", index)
-                viewModel.removeBrush(index)
-            }.setNegativeButton(CommonString.dialog_cancel, null)
-            .show()
+        createPaperDialog(requireContext()) { dialog ->
+            ConfirmationDialog(
+                title = "",
+                message = getString(CommonString.whiteboard_remove_brush_message),
+                onDismissRequest = dialog::dismiss,
+                confirm =
+                    DialogAction(getString(CommonString.dialog_remove), {
+                        dialog.dismiss()
+                        Timber.i("Removed brush of index %d", index)
+                        viewModel.removeBrush(index)
+                    }, DialogActionStyle.Destructive),
+            )
+        }.show()
     }
 
     /**

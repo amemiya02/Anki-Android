@@ -3,17 +3,15 @@
 
 package com.ichi2.anki.dialogs
 
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.ichi2.anki.CardBrowser
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.ui.internationalization.sentenceCase
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -21,6 +19,9 @@ import org.robolectric.RobolectricTestRunner
 /** Tests [GradeNowDialog] */
 @RunWith(RobolectricTestRunner::class)
 class GradeNowDialogTest : RobolectricTest() {
+    @get:Rule
+    val composeRule = createEmptyComposeRule()
+
     @Test
     fun dialogLoads() {
         val cardId = addBasicNote().firstCard().id
@@ -30,9 +31,7 @@ class GradeNowDialogTest : RobolectricTest() {
 
         GradeNowDialog.showDialog(cardBrowser, listOf(cardId))
 
-        onView(withText(translatedTitle))
-            .inRoot(isDialog())
-            .check(matches(isDisplayed()))
+        composeRule.onNodeWithText(translatedTitle).assertIsDisplayed()
     }
 
     @Test
@@ -42,21 +41,13 @@ class GradeNowDialogTest : RobolectricTest() {
 
         GradeNowDialog.showDialog(cardBrowser, listOf(cardId))
 
-        onView(withText(TR.studyingAgain()))
-            .inRoot(isDialog())
-            .check(matches(isDisplayed()))
+        composeRule.onNodeWithText(TR.studyingAgain()).assertIsDisplayed()
 
-        onView(withText(TR.studyingHard()))
-            .inRoot(isDialog())
-            .check(matches(isDisplayed()))
+        composeRule.onNodeWithText(TR.studyingHard()).assertIsDisplayed()
 
-        onView(withText(TR.studyingGood()))
-            .inRoot(isDialog())
-            .check(matches(isDisplayed()))
+        composeRule.onNodeWithText(TR.studyingGood()).assertIsDisplayed()
 
-        onView(withText(TR.studyingEasy()))
-            .inRoot(isDialog())
-            .check(matches(isDisplayed()))
+        composeRule.onNodeWithText(TR.studyingEasy()).assertIsDisplayed()
     }
 
     @Test
@@ -68,12 +59,9 @@ class GradeNowDialogTest : RobolectricTest() {
 
         GradeNowDialog.showDialog(cardBrowser, listOf(cardId))
 
-        onView(withText(TR.studyingGood()))
-            .inRoot(isDialog())
-            .perform(click())
+        composeRule.onNodeWithText(TR.studyingGood()).performClick()
 
-        onView(withText(translatedTitle))
-            .check(doesNotExist())
+        composeRule.onNodeWithText(translatedTitle).assertDoesNotExist()
     }
 
     @Test
@@ -83,7 +71,6 @@ class GradeNowDialogTest : RobolectricTest() {
 
         GradeNowDialog.showDialog(cardBrowser, emptyList())
 
-        onView(withText(translatedTitle))
-            .check(doesNotExist())
+        composeRule.onNodeWithText(translatedTitle).assertDoesNotExist()
     }
 }

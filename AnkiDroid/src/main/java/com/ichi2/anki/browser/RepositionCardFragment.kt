@@ -5,23 +5,35 @@ package com.ichi2.anki.browser
 import android.app.Dialog
 import android.content.res.Configuration
 import android.os.Bundle
-import android.text.InputFilter
-import android.view.WindowManager
-import androidx.appcompat.app.AlertDialog
-import androidx.core.widget.doOnTextChanged
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import com.ichi2.anki.CardBrowser
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.databinding.FragmentRepositionCardBinding
 import com.ichi2.anki.ui.internationalization.sentenceCase
-import com.ichi2.utils.create
-import com.ichi2.utils.customView
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.textAsIntOrNull
-import com.ichi2.utils.title
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.DialogChoiceRow
+import com.ichi2.compose.ui.dialogs.DialogDetail
+import com.ichi2.compose.ui.dialogs.DialogField
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 
 /**
  * Follows desktop implementation to show the same ui with all the options to reposition new
@@ -30,94 +42,66 @@ import com.ichi2.utils.title
  * See https://github.com/ankitects/anki/blob/1fb1cbbf85c48a54c05cb4442b1b424a529cac60/qt/aqt/operations/scheduling.py#L107
  */
 class RepositionCardFragment : DialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val binding = FragmentRepositionCardBinding.inflate(layoutInflater)
-        binding.queueLimitsLabel.text =
-            """
-            ${TR.browsingQueueTop(requireArguments().getInt(ARG_QUEUE_TOP))}
-            ${TR.browsingQueueBottom(requireArguments().getInt(ARG_QUEUE_BOTTOM))}
-            """.trimIndent()
-        binding.startInputLayout.hint =
-            TR.browsingStartPosition().removeSuffix(":")
-        binding.stepInputLayout.hint =
-            TR.browsingStep().removeSuffix(":")
-
-        binding.startInputEditText.requestFocus()
-        binding.startInputEditText.selectAll()
-
-        // Match upstream Anki UI limits:
-        // - Start position: max 6 digits
-        // - Step size: max 4 digits
-        // Backend accepts uint32 values (scheduler.proto), but UI is intentionally
-        // restricted to match upstream behavior and prevent unrealistic inputs.
-        binding.startInputEditText.filters = arrayOf(InputFilter.LengthFilter(6))
-        binding.stepInputEditText.filters = arrayOf(InputFilter.LengthFilter(4))
-
-        binding.randomizeOrderCheck.apply {
-            text = TR.browsingRandomizeOrder()
-            isChecked = requireArguments().getBoolean(ARG_RANDOM)
-        }
-        binding.shiftPositionCheck.apply {
-            text = TR.browsingShiftPositionOfExistingCards()
-            isChecked = requireArguments().getBoolean(ARG_SHIFT)
-        }
-        val title = TR.sentenceCase.repositionNewCards
-        val dialog =
-            AlertDialog.Builder(requireContext()).create {
-                title(text = title)
-                customView(binding.root)
-                negativeButton(CommonString.dialog_cancel)
-                positiveButton(text = TR.actionsReposition()) {
-                    val position =
-                        binding.startInputEditText.textAsIntOrNull() ?: return@positiveButton
-                    val step =
-                        binding.stepInputEditText.textAsIntOrNull() ?: return@positiveButton
-                    setFragmentResult(
-                        REQUEST_REPOSITION_NEW_CARDS,
-                        Bundle().apply {
-                            putInt(RESULT_POSITION, position)
-                            putInt(RESULT_STEP, step)
-                            putBoolean(RESULT_RANDOM, binding.randomizeOrderCheck.isChecked)
-                            putBoolean(RESULT_SHIFT, binding.shiftPositionCheck.isChecked)
-                        },
-                    )
-                }
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+        createPaperDialog(requireContext()) {
+            var start by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+                mutableStateOf(TextFieldValue("0", selection = TextRange(0, 1)))
             }
-
-        dialog.setOnShowListener {
-            val repositionButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-
-            val editTexts =
-                listOf(
-                    binding.startInputEditText,
-                    binding.stepInputEditText,
-                )
-
-            val validate = {
-                repositionButton.isEnabled =
-                    editTexts.all {
-                        it.text
-                            ?.toString()
-                            ?.trim()
-                            ?.isNotEmpty() == true
+            var step by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("1")) }
+            var random by rememberSaveable { mutableStateOf(requireArguments().getBoolean(ARG_RANDOM)) }
+            var shift by rememberSaveable { mutableStateOf(requireArguments().getBoolean(ARG_SHIFT)) }
+            val position = start.text.toIntOrNull()
+            val stepSize = step.text.toIntOrNull()
+            PaperDialog(
+                title = TR.sentenceCase.repositionNewCards,
+                onDismissRequest = ::dismiss,
+                actions =
+                    listOf(
+                        DialogAction(getString(CommonString.dialog_cancel), ::dismiss),
+                        DialogAction(TR.actionsReposition(), {
+                            if (position != null && stepSize != null) {
+                                setFragmentResult(
+                                    REQUEST_REPOSITION_NEW_CARDS,
+                                    Bundle().apply {
+                                        putInt(RESULT_POSITION, position)
+                                        putInt(RESULT_STEP, stepSize)
+                                        putBoolean(RESULT_RANDOM, random)
+                                        putBoolean(RESULT_SHIFT, shift)
+                                    },
+                                )
+                                dismiss()
+                            }
+                        }, DialogActionStyle.Filled, enabled = position != null && stepSize != null),
+                    ),
+            ) {
+                DialogDetail(TR.browsingQueueTop(requireArguments().getInt(ARG_QUEUE_TOP)))
+                DialogDetail(TR.browsingQueueBottom(requireArguments().getInt(ARG_QUEUE_BOTTOM)))
+                val numeric = KeyboardOptions(keyboardType = KeyboardType.Number)
+                val focus = remember { FocusRequester() }
+                val keyboard = LocalSoftwareKeyboardController.current
+                if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    LaunchedEffect(focus) {
+                        focus.requestFocus()
+                        keyboard?.show()
                     }
-            }
-
-            validate()
-
-            editTexts.forEach {
-                it.doOnTextChanged { _, _, _, _ -> validate() }
+                }
+                // Desktop limits the start position to six digits and the step to four.
+                DialogField(
+                    TR.browsingStartPosition().removeSuffix(":"),
+                    start,
+                    { start = it.withDigitLimit(6) },
+                    modifier = Modifier.focusRequester(focus),
+                    keyboardOptions = numeric,
+                )
+                DialogField(TR.browsingStep().removeSuffix(":"), step, { step = it.withDigitLimit(4) }, keyboardOptions = numeric)
+                DialogChoiceRow(DialogChoice(TR.browsingRandomizeOrder()), random, { random = !random }, multiple = true)
+                DialogChoiceRow(DialogChoice(TR.browsingShiftPositionOfExistingCards()), shift, { shift = !shift }, multiple = true)
             }
         }
 
-        // Only automatically show the keyboard in portrait mode
-        // In landscape mode, the keyboard would take up too much screen space and hide the dialog
-        val isPortrait = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
-        if (isPortrait) {
-            dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
-        }
-
-        return dialog
+    private fun TextFieldValue.withDigitLimit(limit: Int): TextFieldValue {
+        val digits = text.filter(Char::isDigit).take(limit)
+        return if (digits == text) this else copy(text = digits, composition = null)
     }
 
     companion object {

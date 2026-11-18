@@ -3,6 +3,7 @@
 package com.ichi2.anki.previewer
 
 import android.Manifest
+import android.app.Dialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
@@ -19,7 +20,6 @@ import android.widget.FrameLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.ThemeUtils
 import androidx.core.app.ActivityCompat
 import androidx.core.net.toUri
@@ -46,16 +46,19 @@ import com.ichi2.anki.utils.openUrl
 import com.ichi2.anki.workarounds.OnWebViewRecreatedListener
 import com.ichi2.anki.workarounds.SafeWebViewClient
 import com.ichi2.anki.workarounds.SafeWebViewLayout
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogBody
+import com.ichi2.compose.ui.dialogs.DialogMark
+import com.ichi2.compose.ui.dialogs.ErrorDialog
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.themes.Themes
 import com.ichi2.utils.Permissions
 import com.ichi2.utils.Permissions.openAppSettingsScreen
 import com.ichi2.utils.isBlockedCardScheme
-import com.ichi2.utils.message
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
 import com.ichi2.utils.stripDangerousPermissions
-import com.ichi2.utils.title
 import com.ichi2.utils.usesDangerousScheme
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -73,7 +76,7 @@ abstract class CardViewerFragment(
     private var activeRequest: PermissionRequest? = null
 
     /** The dialog asking the user to allow [activeRequest]. `null` if not shown */
-    private var optInDialog: AlertDialog? = null
+    private var optInDialog: Dialog? = null
 
     /** Whether the user declined the opt-in: further requests are denied without a prompt */
     private var userDeclinedRecording = false
@@ -100,12 +103,19 @@ abstract class CardViewerFragment(
     private fun onMicrophonePermissionDenied() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.RECORD_AUDIO)) return
 
-        AlertDialog.Builder(requireContext()).show {
-            title(CommonString.permission_denied)
-            message(CommonString.microphone_permission_denied_message)
-            positiveButton(CommonString.dialog_ok) { openAppSettingsScreen() }
-            negativeButton(CommonString.dialog_cancel)
-        }
+        createPaperDialog(requireContext()) { dialog ->
+            ErrorDialog(
+                title = getString(CommonString.permission_denied),
+                message = getString(CommonString.microphone_permission_denied_message),
+                onDismissRequest = dialog::dismiss,
+                dismissText = getString(CommonString.dialog_cancel),
+                primaryAction =
+                    DialogAction(getString(CommonString.dialog_ok), {
+                        dialog.dismiss()
+                        openAppSettingsScreen()
+                    }),
+            )
+        }.show()
     }
 
     /**
@@ -128,21 +138,31 @@ abstract class CardViewerFragment(
 
         activeRequest = request
         optInDialog =
-            AlertDialog.Builder(requireContext()).show {
-                message(CommonString.template_is_trying_to_record_audio)
-                positiveButton(CommonString.dialog_allow) {
-                    if (canRecordAudio) {
-                        activeRequest = null
-                        Prefs.allowTemplatesToRecordAudio = true
-                        request.grantAudioCapture()
-                    } else {
-                        // the request stays active until microphonePermissionLauncher handles it
-                        microphonePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                    }
-                }
-                negativeButton(CommonString.dialog_cancel) { decline() }
+            createPaperDialog(requireContext()) { dialog ->
+                ConfirmationDialog(
+                    title = "",
+                    message = getString(CommonString.template_is_trying_to_record_audio),
+                    confirm =
+                        DialogAction(getString(CommonString.dialog_allow), {
+                            dialog.dismiss()
+                            if (canRecordAudio) {
+                                activeRequest = null
+                                Prefs.allowTemplatesToRecordAudio = true
+                                request.grantAudioCapture()
+                            } else {
+                                // The request stays active until microphonePermissionLauncher handles it.
+                                microphonePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                            }
+                        }),
+                    onDismissRequest = {
+                        decline()
+                        dialog.dismiss()
+                    },
+                )
+            }.apply {
                 setOnCancelListener { decline() }
                 setOnDismissListener { optInDialog = null }
+                show()
             }
     }
 
@@ -227,11 +247,13 @@ abstract class CardViewerFragment(
 
     private fun setupErrorListeners() {
         viewModel.onError.collectInViewLifecycle { errorMessage ->
-            AlertDialog
-                .Builder(requireContext())
-                .setTitle(CommonString.vague_error)
-                .setMessage(errorMessage)
-                .show()
+            createPaperDialog(requireContext()) { dialog ->
+                ErrorDialog(
+                    title = getString(CommonString.vague_error),
+                    message = errorMessage,
+                    onDismissRequest = dialog::dismiss,
+                )
+            }.show()
         }
 
         viewModel.onMediaError.collectInViewLifecycle {
@@ -307,13 +329,21 @@ abstract class CardViewerFragment(
                 "missing-user-action" -> {
                     val actionNumber = url.toString().substringAfter(":")
                     val message = getString(CommonString.missing_user_action_dialog_message, actionNumber)
-                    AlertDialog.Builder(requireContext()).show {
-                        setMessage(message)
-                        setPositiveButton(CommonString.dialog_ok) { _, _ -> }
-                        setNeutralButton(CommonString.help) { _, _ ->
-                            openUrl(R.string.link_user_actions_help)
-                        }
-                    }
+                    createPaperDialog(requireContext()) { dialog ->
+                        PaperDialog(
+                            title = getString(CommonString.vague_error),
+                            onDismissRequest = dialog::dismiss,
+                            mark = DialogMark(R.drawable.symbol_warning, warning = true),
+                            actions =
+                                listOf(
+                                    DialogAction(getString(CommonString.help), {
+                                        dialog.dismiss()
+                                        openUrl(R.string.link_user_actions_help)
+                                    }),
+                                    DialogAction(getString(CommonString.dialog_ok), dialog::dismiss, DialogActionStyle.Filled),
+                                ),
+                        ) { DialogBody(message) }
+                    }.show()
                 }
                 else -> {
                     if (isBlockedCardScheme(url.scheme)) {

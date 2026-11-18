@@ -6,7 +6,9 @@ import android.os.Bundle
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.testing.launchFragment
@@ -26,7 +28,6 @@ import com.ichi2.anki.scheduling.SetDueDateViewModel.Tab
 import com.ichi2.anki.servicelayer.getFSRSStatus
 import com.ichi2.anki.utils.ext.DIALOG_FRAGMENT_TAG
 import com.ichi2.anki.utils.ext.requireParcelable
-import com.ichi2.utils.positiveButton
 import io.mockk.coEvery
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
@@ -35,6 +36,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -50,6 +52,16 @@ import com.ichi2.anki.common.android.R as CommonR
 
 @RunWith(AndroidJUnit4::class)
 class SetDueDateDialogTest : RobolectricTest() {
+    @get:Rule
+    val composeRule = createEmptyComposeRule()
+
+    private val SetDueDateDialog.positiveButtonIsEnabled: Boolean
+        get() {
+            advanceRobolectricLooper()
+            return SemanticsProperties.Disabled !in
+                composeRule.onNodeWithText(getString(CommonString.dialog_ok)).fetchSemanticsNode().config
+        }
+
     @Test
     fun `switch tabs`() =
         testDialog {
@@ -399,9 +411,6 @@ fun SetDueDateDialog.selectTab(index: Int) {
     // FragmentStateAdapter attaches fragments asynchronously via the main looper
     advanceRobolectricLooper()
 }
-
-val SetDueDateDialog.positiveButtonIsEnabled get() =
-    (dialog as AlertDialog).positiveButton.isEnabled
 
 val SetDueDateDialog.singleDayTextLayout: TextInputLayout get() =
     dialog!!.findViewById(R.id.set_due_date_single_day_input_layout)

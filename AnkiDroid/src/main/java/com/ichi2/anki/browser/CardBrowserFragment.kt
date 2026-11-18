@@ -721,6 +721,7 @@ class CardBrowserFragment :
             allowAll = false,
             allowFiltered = false,
             requestKey = REQUEST_DECK_SELECTION_CHANGE_DECK,
+            usePaperDialog = true,
         )
     }
 

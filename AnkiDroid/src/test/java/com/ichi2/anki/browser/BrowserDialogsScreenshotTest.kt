@@ -36,8 +36,8 @@ class BrowserDialogsScreenshotTest : ScreenshotTest() {
 
     @Test
     fun `browser options expose save and return to the browser`() {
-        runBlocking { col.reopenWithLanguage(language.option) }
         addBasicNote("Ginkgo", "Fan-shaped leaf")
+        runBlocking { col.reopenWithLanguage(language.option) }
         val browser = getBrowserWithNotes(noteCount = 0)
         composeRule.waitUntil(10_000) {
             ShadowLooper.idleMainLooper()

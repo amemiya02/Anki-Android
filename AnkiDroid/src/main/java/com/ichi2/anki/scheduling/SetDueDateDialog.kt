@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.text.InputFilter
 import android.view.KeyEvent
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
 import android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 import android.view.inputmethod.EditorInfo
@@ -17,6 +16,13 @@ import android.widget.EditText
 import androidx.annotation.CheckResult
 import androidx.annotation.MainThread
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
@@ -26,7 +32,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -39,7 +44,6 @@ import com.ichi2.anki.asyncCatching
 import com.ichi2.anki.browser.IdsFile
 import com.ichi2.anki.browser.removeSafely
 import com.ichi2.anki.common.utils.android.showThemedToast
-import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.databinding.DialogSetDueDateBinding
 import com.ichi2.anki.databinding.FragmentSetDueDateRangeBinding
 import com.ichi2.anki.databinding.FragmentSetDueDateSingleBinding
@@ -55,19 +59,17 @@ import com.ichi2.anki.utils.ext.requireParcelable
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.utils.openUrl
 import com.ichi2.anki.withProgress
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.utils.AndroidUiUtils
-import com.ichi2.utils.create
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.title
-import com.ichi2.utils.titleWithHelpIcon
 import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
-import kotlin.math.min
 
 /**
  * Dialog for [Scheduler.setDueDate], containing two tabs: [Tab.SINGLE_DAY] and [Tab.DATE_RANGE]
@@ -159,103 +161,95 @@ class SetDueDateDialog : AnalyticsDialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         binding = DialogSetDueDateBinding.inflate(layoutInflater)
-        return MaterialAlertDialogBuilder(requireContext())
-            .create {
-                titleWithHelpIcon(
-                    text = TR.sentenceCase.setDueDate,
-                ) {
-                    openUrl(R.string.link_set_due_date_help)
-                }
-                title(text = TR.sentenceCase.setDueDate)
-                positiveButton(CommonString.dialog_ok) { launchUpdateDueDate() }
-                negativeButton(CommonString.dialog_cancel)
-                setView(binding.root)
-            }.apply {
-                show()
+        val title = TR.sentenceCase.setDueDate
+        return createPaperDialog(requireContext()) {
+            val valid by viewModel.isValidFlow.collectAsState()
+            PaperDialog(
+                title = title,
+                onDismissRequest = ::dismiss,
+                scrollContent = false,
+                actions =
+                    listOf(
+                        DialogAction(getString(CommonString.help), { openUrl(R.string.link_set_due_date_help) }),
+                        DialogAction(getString(CommonString.dialog_cancel), ::dismiss),
+                        DialogAction(getString(CommonString.dialog_ok), {
+                            // The update outlives the dialog, matching button submission before the redraw.
+                            launchUpdateDueDate()
+                            dismiss()
+                        }, DialogActionStyle.Filled, enabled = valid),
+                    ),
+            ) {
+                AndroidView(
+                    factory = { binding.root },
+                    modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp),
+                )
+            }
+        }.apply {
+            window?.clearFlags(FLAG_NOT_FOCUSABLE or FLAG_ALT_FOCUSABLE_IM)
+            configureControls()
+        }
+    }
 
-                lifecycleScope.launch {
-                    viewModel.isValidFlow.collect { isValid -> positiveButton.isEnabled = isValid }
+    private fun configureControls() {
+        // setup viewpager + tabs
+        binding.setDueDatePager.adapter = DueDateStateAdapter(this@SetDueDateDialog)
+        TabLayoutMediator(
+            binding.tabLayout,
+            binding.setDueDatePager,
+        ) { tab: TabLayout.Tab, position: Int ->
+            SetDueDateViewModel.Tab.entries
+                .first { it.position == position }
+                .let { selectedTab ->
+                    tab.setIcon(selectedTab.icon)
+                    tab.setText(selectedTab.text)
                 }
-                // setup viewpager + tabs
-                binding.setDueDatePager.adapter = DueDateStateAdapter(this@SetDueDateDialog)
-                TabLayoutMediator(
-                    binding.tabLayout,
-                    binding.setDueDatePager,
-                ) { tab: TabLayout.Tab, position: Int ->
+        }.attach()
+        binding.tabLayout.selectTab(binding.tabLayout.getTabAt(0))
+
+        binding.setDueDatePager.registerOnPageChangeCallback(
+            object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
                     SetDueDateViewModel.Tab.entries
                         .first { it.position == position }
                         .let { selectedTab ->
-                            tab.setIcon(selectedTab.icon)
-                            tab.setText(selectedTab.text)
+                            viewModel.currentTab = selectedTab
                         }
-                }.attach()
-                binding.tabLayout.selectTab(binding.tabLayout.getTabAt(0))
-
-                binding.setDueDatePager.registerOnPageChangeCallback(
-                    object : ViewPager2.OnPageChangeCallback() {
-                        override fun onPageSelected(position: Int) {
-                            SetDueDateViewModel.Tab.entries
-                                .first { it.position == position }
-                                .let { selectedTab ->
-                                    viewModel.currentTab = selectedTab
-                                }
-                            super.onPageSelected(position)
-                        }
-                    },
-                )
-
-                // setup 'set interval to same value' checkbox
-                binding.changeInterval.also { cb ->
-                    // `.also` is used as .isVisible is an extension, so Kotlin prefers
-                    // incorrectly setting Fragment.isVisible
-                    viewModel.fsrsEnabled.collectInLifecycle {
-                        cb.isVisible = viewModel.canSetUpdateIntervalToMatchDueDate
-                        cb.isChecked = viewModel.updateIntervalToMatchDueDate
-                    }
-                    cb.setOnCheckedChangeListener { _, isChecked ->
-                        viewModel.updateIntervalToMatchDueDate = isChecked
-                    }
+                    super.onPageSelected(position)
                 }
+            },
+        )
 
-                lifecycleScope.launch {
-                    viewModel.currentInterval.collect { currentInterval ->
-                        binding.currentIntervalText.also { tv ->
-                            // Current interval is set to null when multiple cards are selected
-                            if (currentInterval != null) {
-                                tv.isVisible = true
-                                tv.text =
-                                    resources.getQuantityString(
-                                        CommonPlurals.set_due_date_current_interval,
-                                        currentInterval,
-                                        currentInterval,
-                                    )
-                            } else {
-                                tv.isVisible = false
-                            }
-                        }
+        // setup 'set interval to same value' checkbox
+        binding.changeInterval.also { cb ->
+            // `.also` is used as .isVisible is an extension, so Kotlin prefers
+            // incorrectly setting Fragment.isVisible
+            viewModel.fsrsEnabled.collectInLifecycle {
+                cb.isVisible = viewModel.canSetUpdateIntervalToMatchDueDate
+                cb.isChecked = viewModel.updateIntervalToMatchDueDate
+            }
+            cb.setOnCheckedChangeListener { _, isChecked ->
+                viewModel.updateIntervalToMatchDueDate = isChecked
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.currentInterval.collect { currentInterval ->
+                binding.currentIntervalText.also { tv ->
+                    // Current interval is set to null when multiple cards are selected
+                    if (currentInterval != null) {
+                        tv.isVisible = true
+                        tv.text =
+                            resources.getQuantityString(
+                                CommonPlurals.set_due_date_current_interval,
+                                currentInterval,
+                                currentInterval,
+                            )
+                    } else {
+                        tv.isVisible = false
                     }
                 }
             }
-    }
-
-    override fun setupDialog(
-        dialog: Dialog,
-        style: Int,
-    ) {
-        super.setupDialog(dialog, style)
-        // this is required for the keyboard to appear: https://stackoverflow.com/a/10133603/
-        dialog.window?.clearFlags(FLAG_NOT_FOCUSABLE or FLAG_ALT_FOCUSABLE_IM)
-
-        // The dialog is too wide on tablets
-        // Select either 450dp (tablets)
-        // or 100% of the screen width (smaller phones)
-        val intendedWidth =
-            min(MAX_WIDTH_DP.dp.toPx(this.requireContext()), resources.displayMetrics.widthPixels)
-        Timber.d("updating width to %d", intendedWidth)
-        this.dialog?.window?.setLayout(
-            intendedWidth,
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-        )
+        }
     }
 
     private fun getScreenRotation() = ContextCompat.getDisplayOrDefault(requireContext()).rotation
@@ -264,7 +258,6 @@ class SetDueDateDialog : AnalyticsDialogFragment() {
 
     companion object {
         const val ARG_IDS_FILE = "ARGS_IDS_FILE"
-        const val MAX_WIDTH_DP = 450f
 
         private const val REQUEST_SUBMIT_DUE_DATE = "SubmitDueDate"
 

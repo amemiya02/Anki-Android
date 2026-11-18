@@ -5,7 +5,6 @@ package com.ichi2.anki.dialogs
 
 import android.app.Activity
 import android.content.Intent
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentManager
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
@@ -13,7 +12,12 @@ import com.ichi2.anki.TtsVoices
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.libanki.TTSTag
 import com.ichi2.anki.utils.openUrl
-import com.ichi2.utils.show
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogBody
+import com.ichi2.compose.ui.dialogs.DialogMark
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import timber.log.Timber
 
 object TtsPlaybackErrorDialog {
@@ -25,17 +29,28 @@ object TtsPlaybackErrorDialog {
         activity.runOnUiThread {
             if (showMissingEngineDialogIfNeeded(activity)) return@runOnUiThread
             Timber.i("Displaying TTS Error: 'Language not supported'")
-            AlertDialog.Builder(activity).show {
-                setTitle(activity.getString(CommonString.tts_error_dialog_title))
-                setMessage(activity.getString(CommonString.tts_error_dialog_reason_text, TtsVoices.ttsEngine, ttsTag?.lang))
-                setNegativeButton(context.getString(CommonString.tts_error_dialog_change_button_text)) { _, _ -> openSettings(activity) }
-                setPositiveButton(
-                    activity.getString(CommonString.tts_error_dialog_supported_voices_button_text),
-                ) { _, _ -> showVoicesDialog(fragmentManager) }
-                setNeutralButton(context.getString(CommonString.help)) { _, _ ->
-                    activity.openUrl(R.string.link_faq_tts)
-                }
-            }
+            createPaperDialog(activity) { dialog ->
+                PaperDialog(
+                    title = activity.getString(CommonString.tts_error_dialog_title),
+                    onDismissRequest = dialog::dismiss,
+                    mark = DialogMark(R.drawable.symbol_warning, warning = true),
+                    actions =
+                        listOf(
+                            DialogAction(activity.getString(CommonString.help), {
+                                dialog.dismiss()
+                                activity.openUrl(R.string.link_faq_tts)
+                            }),
+                            DialogAction(activity.getString(CommonString.tts_error_dialog_change_button_text), {
+                                dialog.dismiss()
+                                openSettings(activity)
+                            }),
+                            DialogAction(activity.getString(CommonString.tts_error_dialog_supported_voices_button_text), {
+                                dialog.dismiss()
+                                showVoicesDialog(fragmentManager)
+                            }, DialogActionStyle.Filled),
+                        ),
+                ) { DialogBody(activity.getString(CommonString.tts_error_dialog_reason_text, TtsVoices.ttsEngine, ttsTag?.lang)) }
+            }.show()
         }
     }
 
@@ -49,12 +64,21 @@ object TtsPlaybackErrorDialog {
 
         Timber.w("no TTS engines installed")
         activity.runOnUiThread {
-            AlertDialog.Builder(activity).show {
-                setTitle(CommonString.tts_no_engine_title)
-                setMessage(CommonString.tts_no_engine_message)
-                setPositiveButton(CommonString.dialog_ok, null)
-                setNeutralButton(CommonString.help) { _, _ -> activity.openUrl(R.string.link_faq_tts_no_engine) }
-            }
+            createPaperDialog(activity) { dialog ->
+                PaperDialog(
+                    title = activity.getString(CommonString.tts_no_engine_title),
+                    mark = DialogMark(R.drawable.symbol_warning, warning = true),
+                    onDismissRequest = dialog::dismiss,
+                    actions =
+                        listOf(
+                            DialogAction(activity.getString(CommonString.help), {
+                                dialog.dismiss()
+                                activity.openUrl(R.string.link_faq_tts_no_engine)
+                            }),
+                            DialogAction(activity.getString(CommonString.dialog_ok), dialog::dismiss, DialogActionStyle.Filled),
+                        ),
+                ) { DialogBody(activity.getString(CommonString.tts_no_engine_message)) }
+            }.show()
         }
         return true
     }

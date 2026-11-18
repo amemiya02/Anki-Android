@@ -143,7 +143,9 @@ internal fun paperScrimAmount(context: Context): Float {
     }
 }
 
-/** Flat paper frame for any combination of dialog pieces. */
+/** Flat paper frame for any combination of dialog pieces.
+ * @param scrollContent set to false for a body that manages its own scrolling
+ */
 @Composable
 fun PaperDialog(
     title: String,
@@ -151,11 +153,12 @@ fun PaperDialog(
     actions: List<DialogAction> = emptyList(),
     mark: DialogMark? = null,
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    scrollContent: Boolean = true,
     content: @Composable ColumnScope.() -> Unit = {},
 ) {
     if (LocalPaperDialogWindow.current) {
         Box(Modifier.padding(horizontal = 24.dp, vertical = 16.dp).semantics { dialog() }) {
-            PaperDialogCard(title, actions, mark, content)
+            PaperDialogCard(title, actions, mark, scrollContent, content)
         }
     } else {
         AnkiDroidDialog(
@@ -163,7 +166,7 @@ fun PaperDialog(
             properties = properties,
             dimAmount = paperScrimAmount(LocalContext.current),
         ) {
-            PaperDialogCard(title, actions, mark, content)
+            PaperDialogCard(title, actions, mark, scrollContent, content)
         }
     }
 }
@@ -173,6 +176,7 @@ private fun PaperDialogCard(
     title: String,
     actions: List<DialogAction>,
     mark: DialogMark?,
+    scrollContent: Boolean,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val foundation = MaterialTheme.foundation
@@ -186,13 +190,14 @@ private fun PaperDialogCard(
         border = BorderStroke(foundation.shapes.hairline, border),
     ) {
         Column(Modifier.padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 16.dp)) {
+            val viewport = Modifier.weight(1f, fill = false)
             Column(
-                modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
+                modifier = if (scrollContent) viewport.verticalScroll(rememberScrollState()) else viewport,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 if (mark != null) PaperDialogMark(mark)
                 if (title.isNotEmpty()) {
-                    Text(title, Modifier.semantics { heading() }, style = foundation.type.dialogTitle)
+                    DialogTitle(title)
                 }
                 ProvideTextStyle(foundation.type.body.copy(lineHeight = 23.25.sp)) { content() }
             }
@@ -218,6 +223,13 @@ private fun PaperDialogMark(mark: DialogMark) {
     }
 }
 
+/** The title treatment also used by dialogs with full-screen content. */
+@Composable
+fun DialogTitle(text: String) {
+    val foundation = MaterialTheme.foundation
+    Text(text, Modifier.semantics { heading() }, style = foundation.type.dialogTitle, color = foundation.colors.onBackground)
+}
+
 @Composable
 fun DialogBody(text: String) {
     Text(text)
@@ -230,7 +242,10 @@ fun DialogDetail(text: String) {
 }
 
 @Composable
-private fun DialogActions(actions: List<DialogAction>) {
+fun DialogActions(
+    actions: List<DialogAction>,
+    modifier: Modifier = Modifier,
+) {
     val focus = remember { FocusRequester() }
     val safeAction =
         if (actions.any { it.style == DialogActionStyle.Destructive }) {
@@ -239,7 +254,7 @@ private fun DialogActions(actions: List<DialogAction>) {
             -1
         }
     Layout(
-        modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
+        modifier = modifier.fillMaxWidth().padding(top = 20.dp),
         content = {
             actions.forEachIndexed { index, action ->
                 DialogActionButton(action, if (index == safeAction) Modifier.focusRequester(focus) else Modifier)

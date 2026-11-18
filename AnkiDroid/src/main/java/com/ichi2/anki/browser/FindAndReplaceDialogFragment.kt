@@ -9,7 +9,14 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.Companion.PRIVATE
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -36,12 +43,10 @@ import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.requireParcelable
 import com.ichi2.anki.utils.ext.setFragmentResultListener
 import com.ichi2.anki.utils.openUrl
-import com.ichi2.utils.customView
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.neutralButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
-import com.ichi2.utils.title
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -58,6 +63,7 @@ import timber.log.Timber
 // TODO desktop offers history for inputs
 class FindAndReplaceDialogFragment : AnalyticsDialogFragment() {
     private lateinit var binding: FragmentFindReplaceBinding
+    private var ready by mutableStateOf(false)
 
     private val idsFile: IdsFile by lazy {
         requireArguments().requireParcelable(ARG_IDS)
@@ -67,17 +73,30 @@ class FindAndReplaceDialogFragment : AnalyticsDialogFragment() {
         binding = FragmentFindReplaceBinding.inflate(layoutInflater)
         setupLabels()
         val title = TR.sentenceCase.findAndReplace
-        return AlertDialog
-            .Builder(requireContext())
-            .show {
-                title(text = title)
-                customView(binding.root)
-                neutralButton(CommonString.help) { openUrl(R.string.link_manual_browser_find_replace) }
-                negativeButton(CommonString.dialog_cancel) { removeIdsFile() }
-                positiveButton(CommonString.dialog_positive_replace) { startFindReplace() }
-            }.also { dialog ->
-                dialog.positiveButton.isEnabled = false
+        return createPaperDialog(requireContext()) {
+            PaperDialog(
+                title = title,
+                onDismissRequest = ::dismiss,
+                scrollContent = false,
+                actions =
+                    listOf(
+                        DialogAction(getString(CommonString.help), {
+                            dismiss()
+                            openUrl(R.string.link_manual_browser_find_replace)
+                        }),
+                        DialogAction(getString(CommonString.dialog_cancel), {
+                            removeIdsFile()
+                            dismiss()
+                        }),
+                        DialogAction(getString(CommonString.dialog_positive_replace), {
+                            startFindReplace()
+                            dismiss()
+                        }, DialogActionStyle.Filled, enabled = ready),
+                    ),
+            ) {
+                AndroidView(factory = { binding.root }, modifier = Modifier.fillMaxWidth().heightIn(max = 480.dp))
             }
+        }
     }
 
     // TODO maybe get rid of the html tags that come with the backend strings and handle the
@@ -97,7 +116,7 @@ class FindAndReplaceDialogFragment : AnalyticsDialogFragment() {
     override fun onStart() {
         super.onStart()
         lifecycleScope.launch {
-            (dialog as? AlertDialog)?.positiveButton?.isEnabled = false
+            ready = false
             binding.contentViewsGroup.isVisible = false
             binding.loadingViewsGroup.isVisible = true
             val noteIds = runCatching { idsFile.getIdsOrNull() }.getOrNull()
@@ -122,7 +141,7 @@ class FindAndReplaceDialogFragment : AnalyticsDialogFragment() {
                 ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
             binding.loadingViewsGroup.isVisible = false
             binding.contentViewsGroup.isVisible = true
-            (dialog as? AlertDialog)?.positiveButton?.isEnabled = true
+            ready = true
         }
     }
 

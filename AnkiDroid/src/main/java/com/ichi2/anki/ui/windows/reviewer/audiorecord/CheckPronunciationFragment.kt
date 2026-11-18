@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -18,7 +17,9 @@ import com.ichi2.anki.R
 import com.ichi2.anki.databinding.FragmentCheckPronunciationBinding
 import com.ichi2.anki.ui.windows.reviewer.ReviewerViewModel
 import com.ichi2.anki.utils.ext.collectInViewLifecycle
-import com.ichi2.utils.show
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.ErrorDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import dev.androidbroadcast.vbpd.viewBinding
 
 /**
@@ -33,17 +34,21 @@ class CheckPronunciationFragment : Fragment(R.layout.fragment_check_pronunciatio
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (!isGranted) {
-                AlertDialog.Builder(requireContext()).show {
-                    setTitle(CommonString.permission_denied)
-                    setMessage(CommonString.microphone_permission_denied_message)
-                    setPositiveButton(CommonString.dialog_ok) { _, _ ->
-                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                        val uri = Uri.fromParts("package", requireContext().packageName, null)
-                        intent.data = uri
-                        startActivity(intent)
-                    }
-                    setNegativeButton(CommonString.dialog_cancel, null)
-                }
+                createPaperDialog(requireContext()) { dialog ->
+                    ErrorDialog(
+                        title = getString(CommonString.permission_denied),
+                        message = getString(CommonString.microphone_permission_denied_message),
+                        onDismissRequest = dialog::dismiss,
+                        dismissText = getString(CommonString.dialog_cancel),
+                        primaryAction =
+                            DialogAction(getString(CommonString.dialog_ok), {
+                                dialog.dismiss()
+                                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                intent.data = Uri.fromParts("package", requireContext().packageName, null)
+                                startActivity(intent)
+                            }),
+                    )
+                }.show()
             }
         }
 

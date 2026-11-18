@@ -4,11 +4,15 @@ package com.ichi2.anki.scheduling
 
 import android.app.Dialog
 import android.os.Bundle
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.setFragmentResultListener
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonPlurals
@@ -17,7 +21,6 @@ import com.ichi2.anki.R
 import com.ichi2.anki.analytics.AnalyticsDialogFragment
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.preferences.sharedPrefs
-import com.ichi2.anki.databinding.DialogForgetCardsBinding
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.CardId
 import com.ichi2.anki.libanki.sched.Scheduler
@@ -26,10 +29,12 @@ import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.ext.setFragmentResultListener
 import com.ichi2.anki.utils.openUrl
 import com.ichi2.anki.withProgress
-import com.ichi2.utils.create
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.titleWithHelpIcon
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.DialogChoiceRow
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import timber.log.Timber
 
 // TODO: Rename the labels opening this class once Anki Desktop's translations support plurals
@@ -53,22 +58,14 @@ class ForgetCardsDialog : AnalyticsDialogFragment() {
      *
      * If `false`, cards are moved to the end of the new queue
      */
-    private var restoreOriginalPositionIfPossible = true
-        set(value) {
-            Timber.i("restoreOriginalPositionIfPossible: %b", value)
-            field = value
-        }
+    private var restoreOriginalPositionIfPossible by mutableStateOf(true)
 
     /**
      * Set the review and failure counters back to zero.
      *
      * This does not affect CardInfo/review history
      */
-    private var resetRepetitionAndLapseCounts = false
-        set(value) {
-            Timber.i("resetRepetitionAndLapseCounts: %b", value)
-            field = value
-        }
+    private var resetRepetitionAndLapseCounts by mutableStateOf(false)
 
     @NeedsTest("Test if the preferences for resetting options are correctly loaded and saved.")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -83,44 +80,43 @@ class ForgetCardsDialog : AnalyticsDialogFragment() {
                 resetRepetitionAndLapseCounts = getBoolean(PREF_RESET_REPETITION, false)
             }
         }
-        val binding = DialogForgetCardsBinding.inflate(layoutInflater)
-
-        binding.restoreOriginalPosition.apply {
-            isChecked = restoreOriginalPositionIfPossible
-            setOnCheckedChangeListener { _, isChecked ->
-                restoreOriginalPositionIfPossible = isChecked
-            }
-            text = TR.schedulingRestorePosition()
-        }
-        binding.resetLapseCounts.apply {
-            isChecked = resetRepetitionAndLapseCounts
-            setOnCheckedChangeListener { _, isChecked ->
-                resetRepetitionAndLapseCounts = isChecked
-            }
-            text = TR.schedulingResetCounts()
-        }
-
-        return MaterialAlertDialogBuilder(requireContext()).create {
-            // BUG: this is 'Reset Card'/'Forget Card' in Anki Desktop (24.04)
-            // "Reset card progress" is less explicit on the singular/plural dimension
-            titleWithHelpIcon(stringRes = CommonString.reset_card_dialog_title) {
-                requireContext().openUrl(R.string.link_help_forget_cards)
-            }
-            positiveButton(CommonString.reset) {
-                sharedPrefs.edit {
-                    putBoolean(PREF_RESTORE_ORIGINAL, restoreOriginalPositionIfPossible)
-                    putBoolean(PREF_RESET_REPETITION, resetRepetitionAndLapseCounts)
-                }
-                parentFragmentManager.setFragmentResult(
-                    REQUEST_KEY_FORGET,
-                    Bundle().apply {
-                        putBoolean(RESULT_RESTORE_ORIGINAL, restoreOriginalPositionIfPossible)
-                        putBoolean(RESULT_RESET_REPETITION, resetRepetitionAndLapseCounts)
-                    },
+        return createPaperDialog(requireContext()) {
+            ConfirmationDialog(
+                title = getString(CommonString.reset_card_dialog_title),
+                message = "",
+                confirm =
+                    DialogAction(getString(CommonString.reset), {
+                        sharedPrefs.edit {
+                            putBoolean(PREF_RESTORE_ORIGINAL, restoreOriginalPositionIfPossible)
+                            putBoolean(PREF_RESET_REPETITION, resetRepetitionAndLapseCounts)
+                        }
+                        parentFragmentManager.setFragmentResult(
+                            REQUEST_KEY_FORGET,
+                            Bundle().apply {
+                                putBoolean(RESULT_RESTORE_ORIGINAL, restoreOriginalPositionIfPossible)
+                                putBoolean(RESULT_RESET_REPETITION, resetRepetitionAndLapseCounts)
+                            },
+                        )
+                        dismiss()
+                    }, DialogActionStyle.Destructive),
+                onDismissRequest = ::dismiss,
+            ) {
+                DialogChoiceRow(
+                    DialogChoice(TR.schedulingRestorePosition()),
+                    restoreOriginalPositionIfPossible,
+                    { restoreOriginalPositionIfPossible = !restoreOriginalPositionIfPossible },
+                    multiple = true,
                 )
+                DialogChoiceRow(
+                    DialogChoice(TR.schedulingResetCounts()),
+                    resetRepetitionAndLapseCounts,
+                    { resetRepetitionAndLapseCounts = !resetRepetitionAndLapseCounts },
+                    multiple = true,
+                )
+                TextButton(onClick = { requireContext().openUrl(R.string.link_help_forget_cards) }) {
+                    Text(getString(CommonString.help))
+                }
             }
-            negativeButton(CommonString.dialog_cancel)
-            setView(binding.root)
         }
     }
 

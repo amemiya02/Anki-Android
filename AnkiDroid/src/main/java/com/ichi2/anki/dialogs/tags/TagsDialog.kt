@@ -4,12 +4,10 @@ package com.ichi2.anki.dialogs.tags
 
 import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Parcelable
 import android.text.InputFilter
-import android.text.InputType
 import android.text.Spanned
 import android.view.MenuItem
 import android.view.View
@@ -17,13 +15,23 @@ import android.view.WindowManager
 import android.widget.EditText
 import android.widget.RadioGroup
 import androidx.annotation.VisibleForTesting
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.os.BundleCompat
 import androidx.core.view.isVisible
-import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -46,17 +54,14 @@ import com.ichi2.anki.model.CardStateFilter
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.ui.StableScrollbarLayoutManager
 import com.ichi2.anki.utils.ext.requireParcelable
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.TextInputDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.ui.AccessibleSearchView
 import com.ichi2.utils.DisplayUtils.setDialogKeyboardResize
 import com.ichi2.utils.TagsUtil
-import com.ichi2.utils.customView
-import com.ichi2.utils.getInputField
-import com.ichi2.utils.input
-import com.ichi2.utils.moveCursorToEnd
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
-import com.ichi2.utils.title
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
@@ -184,13 +189,6 @@ class TagsDialog : AnalyticsDialogFragment {
         }
         binding = DialogTagsBinding.inflate(layoutInflater)
 
-        val positiveText =
-            if (type == DialogType.EDIT_TAGS) {
-                getString(CommonString.dialog_confirm)
-            } else {
-                getString(CommonString.select)
-            }
-
         val tagsListLayout: RecyclerView.LayoutManager = StableScrollbarLayoutManager(requireContext())
         binding.tagsList.apply {
             requestFocus()
@@ -210,13 +208,25 @@ class TagsDialog : AnalyticsDialogFragment {
 
         adjustToolbar(binding.root)
 
+        var loaded by mutableStateOf(false)
         val dialog =
-            AlertDialog
-                .Builder(requireActivity())
-                .positiveButton(text = positiveText) { onPositiveButton() }
-                .negativeButton(CommonString.dialog_cancel)
-                .customView(view = binding.root)
-                .create()
+            createPaperDialog(requireContext()) {
+                PaperDialog(
+                    title = getString(if (isEditingTags) CommonString.card_details_tags else CommonString.studyoptions_limit_select_tags),
+                    onDismissRequest = ::dismiss,
+                    scrollContent = false,
+                    actions =
+                        listOf(
+                            DialogAction(getString(CommonString.dialog_cancel), ::dismiss),
+                            DialogAction(confirmLabel(), {
+                                onPositiveButton()
+                                dismiss()
+                            }, DialogActionStyle.Filled, enabled = loaded),
+                        ),
+                ) {
+                    AndroidView(factory = { binding.root }, modifier = Modifier.fillMaxWidth().heightIn(max = 360.dp))
+                }
+            }
 
         lifecycleScope.launch {
             val showProgressJob =
@@ -238,9 +248,6 @@ class TagsDialog : AnalyticsDialogFragment {
                             }.launchIn(lifecycleScope)
                     }
                 }
-            val positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE)
-            positiveButton?.isEnabled = false
-
             val tags = viewModel.tags.await()
 
             tagsArrayAdapter = TagsArrayAdapter(tags) { binding.root.showMaxTagSelectedNotice(tags) }
@@ -259,7 +266,7 @@ class TagsDialog : AnalyticsDialogFragment {
                 }
             showProgressJob.cancel()
             binding.loadingContainer.isVisible = false
-            positiveButton?.isEnabled = true
+            loaded = true
         }
 
         dialog.updateSoftInputMode(resources.configuration)
@@ -323,8 +330,6 @@ class TagsDialog : AnalyticsDialogFragment {
 
     private fun adjustToolbar(tagsDialogView: View) {
         val toolbar: Toolbar = binding.toolbar.root
-        val titleRes = if (type == DialogType.EDIT_TAGS) CommonString.card_details_tags else CommonString.studyoptions_limit_select_tags
-        toolbar.setTitle(titleRes)
 
         val toolbarAddItem = toolbar.menu.findItem(R.id.tags_dialog_action_add)
         val drawable = ContextCompat.getDrawable(requireContext(), CommonR.drawable.symbol_add)
@@ -385,71 +390,48 @@ class TagsDialog : AnalyticsDialogFragment {
      * @param prefixTag: The tag to be prefilled into the EditText section. A trailing '::' will be appended.
      */
     private fun createAddTagDialog(prefixTag: String?) {
-        val addTagDialog =
-            AlertDialog
-                .Builder(requireActivity())
-                .show {
-                    title(text = getString(CommonString.add_tag))
-                    positiveButton(CommonString.menu_add)
-                    negativeButton(CommonString.dialog_cancel)
-                    setView(CommonR.layout.dialog_generic_text_input)
-                }.input(
-                    hint = TR.actionsName().dropLastWhile { it == ':' },
-                    inputType = InputType.TYPE_CLASS_TEXT,
-                    displayKeyboard = true,
-                ) { d: AlertDialog?, input: CharSequence ->
-                    addTag(input.toString())
-                    d?.dismiss()
-                }
-        val inputET = addTagDialog.getInputField()
-        inputET.filters = arrayOf(addTagFilter)
-        if (!prefixTag.isNullOrEmpty()) {
-            // utilize the addTagFilter to append '::' properly by appending a space to prefixTag
-            inputET.setText("$prefixTag ")
-        }
-        inputET.moveCursorToEnd()
-        val positiveButton =
-            addTagDialog.getButton(AlertDialog.BUTTON_POSITIVE)
-
-        positiveButton.isEnabled = false
-
-        val textInputLayout =
-            inputET.parent?.parent
-                as? com.google.android.material.textfield.TextInputLayout
-
-        inputET.doAfterTextChanged { text ->
-
-            val rawTag = text?.toString()?.trim()
-
-            if (rawTag.isNullOrEmpty()) {
-                textInputLayout?.error = null
-                positiveButton.isEnabled = false
-                return@doAfterTextChanged
-            }
-
-            lifecycleScope.launch {
-                val tags = viewModel.tags.await()
-
-                val normalized =
-                    TagsUtil.getUniformedTag(rawTag)
-
-                val exists =
-                    tags.contains(normalized)
-
-                if (exists) {
-                    textInputLayout?.error =
-                        getString(CommonString.tag_already_exists)
-
-                    positiveButton.isEnabled = false
-                } else {
-                    textInputLayout?.error = null
-
-                    positiveButton.isEnabled = true
-                }
-            }
-        }
-        addTagDialog.show()
+        createPaperDialog(requireContext()) { dialog ->
+            val tags by produceState<TagsList?>(null) { value = viewModel.tags.await() }
+            TextInputDialog(
+                title = getString(CommonString.add_tag),
+                label = TR.actionsName().dropLastWhile { it == ':' },
+                confirmText = getString(CommonString.menu_add),
+                onDismissRequest = dialog::dismiss,
+                initialText = prefixTag?.let { applyTagFilter("$it ") }.orEmpty(),
+                capitalization = KeyboardCapitalization.None,
+                enabled = tags != null,
+                transformInput = { input ->
+                    if (' ' !in input.text) {
+                        input
+                    } else {
+                        TextFieldValue(
+                            applyTagFilter(input.text),
+                            selection =
+                                TextRange(
+                                    applyTagFilter(input.text.take(input.selection.start)).length,
+                                    applyTagFilter(input.text.take(input.selection.end)).length,
+                                ),
+                        )
+                    }
+                },
+                errorMessageFor = { tag ->
+                    when {
+                        tag.isBlank() -> ""
+                        tags?.contains(TagsUtil.getUniformedTag(tag.trim())) == true -> getString(CommonString.tag_already_exists)
+                        else -> null
+                    }
+                },
+                onConfirm = {
+                    addTag(it)
+                    dialog.dismiss()
+                },
+            )
+        }.show()
     }
+
+    private fun applyTagFilter(text: String): String = addTagFilter.filter(text, 0, text.length, null, 0, 0)?.toString() ?: text
+
+    private fun confirmLabel(): String = getString(if (isEditingTags) CommonString.dialog_confirm else CommonString.select)
 
     @VisibleForTesting
     fun addTag(rawTag: String?) {
@@ -461,8 +443,7 @@ class TagsDialog : AnalyticsDialogFragment {
             if (tags.add(tag)) {
                 binding.noTagsTextView.isVisible = false
                 tags.add(tag)
-                val positiveText = (dialog as? AlertDialog)?.positiveButton?.text ?: getString(CommonString.dialog_ok)
-                feedbackText = getString(CommonString.tag_editor_add_feedback, tag, positiveText)
+                feedbackText = getString(CommonString.tag_editor_add_feedback, tag, confirmLabel())
             } else {
                 feedbackText = getString(CommonString.tag_editor_add_feedback_existing, tag)
             }

@@ -5,46 +5,42 @@ package com.ichi2.anki.dialogs
 
 import android.app.Dialog
 import android.os.Bundle
-import android.text.Editable
-import androidx.appcompat.app.AppCompatDialogFragment
-import androidx.core.view.isVisible
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.browser.BrowserColumnSelectionFragment
 import com.ichi2.anki.browser.CardBrowserViewModel
-import com.ichi2.anki.databinding.DialogBrowserOptionsBinding
 import com.ichi2.anki.model.CardsOrNotes
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.internationalization.sentenceCase
-import com.ichi2.utils.create
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.DialogChoiceRow
+import com.ichi2.compose.ui.dialogs.DialogDetail
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import timber.log.Timber
+import com.ichi2.anki.common.android.R as CommonR
 
-class BrowserOptionsDialog : AppCompatDialogFragment(R.layout.dialog_browser_options) {
+class BrowserOptionsDialog : DialogFragment() {
     private val viewModel: CardBrowserViewModel by activityViewModels()
-
-    private lateinit var binding: DialogBrowserOptionsBinding
-
-    /** The unsaved value of [CardsOrNotes] */
-    private val dialogCardsOrNotes: CardsOrNotes
-        get() {
-            return when (binding.selectBrowserMode.checkedRadioButtonId) {
-                R.id.select_cards_mode -> CardsOrNotes.CARDS
-                else -> CardsOrNotes.NOTES
-            }
-        }
-
-    /** Persists updated options to the ViewModel */
-    fun saveChanges() {
-        if (!useBrowserControls) viewModel.setCardsOrNotes(dialogCardsOrNotes)
-        viewModel.setTruncated(binding.truncateCheckBox.isChecked)
-        viewModel.setIgnoreAccents(binding.ignoreAccentsCheckBox.isChecked)
-        viewModel.setDefaultSearchText(binding.defaultSearchText.text.orEmpty())
-    }
 
     private val cardsOrNotes by lazy {
         when (arguments?.getBoolean(ARG_CARDS_OR_NOTES)) {
@@ -67,59 +63,81 @@ class BrowserOptionsDialog : AppCompatDialogFragment(R.layout.dialog_browser_opt
         }
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        binding = DialogBrowserOptionsBinding.inflate(layoutInflater)
-
-        if (cardsOrNotes == CardsOrNotes.CARDS) {
-            binding.selectCardsMode.isChecked = true
-        } else {
-            binding.selectNotesMode.isChecked = true
-        }
-
-        binding.truncateCheckBox.isChecked = isTruncated
-        binding.toggleCardsNotesTitle.text = TR.sentenceCase.toggleCardsNotes
-        binding.flagTitle.text = TR.browsingFlag()
-
-        binding.renameFlag.setOnClickListener {
-            Timber.d("Rename flag clicked")
-            val flagRenameDialog = FlagRenameDialog()
-            flagRenameDialog.show(parentFragmentManager, "FlagRenameDialog")
-            dismiss()
-        }
-
-        binding.manageColumnsButton.setOnClickListener {
-            openColumnManager()
-        }
-
-        binding.ignoreAccentsCheckBox.apply {
-            text = TR.preferencesIgnoreAccentsInSearch()
-            isChecked = viewModel.shouldIgnoreAccents
-        }
-
-        if (useBrowserControls) {
-            (binding.selectBrowserMode.parent as android.view.View).isVisible = false
-            (binding.renameFlag.parent as android.view.View).isVisible = false
-            (binding.manageColumnsButton.parent as android.view.View).isVisible = false
-        }
-
-        if (useBrowserControls || Prefs.devUsingCardBrowserSearchView) {
-            binding.defaultSearchInputLayout.apply {
-                isVisible = true
-                hint = TR.preferencesDefaultSearchText()
-                placeholderText = TR.preferencesDefaultSearchTextExample()
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+        createPaperDialog(requireContext()) {
+            var mode by rememberSaveable { mutableStateOf(cardsOrNotes) }
+            var truncated by rememberSaveable { mutableStateOf(isTruncated) }
+            var ignoreAccents by rememberSaveable { mutableStateOf(viewModel.shouldIgnoreAccents) }
+            val showDefaultSearch = useBrowserControls || Prefs.devUsingCardBrowserSearchView
+            var search by rememberSaveable { mutableStateOf(if (showDefaultSearch) viewModel.defaultBrowserSearch else "") }
+            PaperDialog(
+                title = TR.sentenceCase.browserOptions,
+                onDismissRequest = ::dismiss,
+                actions =
+                    listOf(
+                        DialogAction(getString(CommonString.dialog_cancel), ::dismiss),
+                        DialogAction(getString(CommonString.save), {
+                            if (!useBrowserControls) viewModel.setCardsOrNotes(mode)
+                            viewModel.setTruncated(truncated)
+                            viewModel.setIgnoreAccents(ignoreAccents)
+                            viewModel.setDefaultSearchText(search)
+                            dismiss()
+                        }, DialogActionStyle.Filled),
+                    ),
+            ) {
+                if (!useBrowserControls) {
+                    DialogDetail(TR.sentenceCase.toggleCardsNotes)
+                    Column(Modifier.selectableGroup()) {
+                        DialogChoiceRow(DialogChoice(getString(CommonString.show_cards)), mode == CardsOrNotes.CARDS, {
+                            mode = CardsOrNotes.CARDS
+                        }, multiple = false)
+                        DialogChoiceRow(DialogChoice(getString(CommonString.show_notes)), mode == CardsOrNotes.NOTES, {
+                            mode = CardsOrNotes.NOTES
+                        }, multiple = false)
+                    }
+                }
+                DialogChoiceRow(
+                    DialogChoice(getString(CommonString.card_browser_truncate), getString(CommonString.truncate_content_help)),
+                    truncated,
+                    { truncated = !truncated },
+                    multiple = true,
+                )
+                DialogDetail(TR.preferencesBrowsing())
+                DialogChoiceRow(
+                    DialogChoice(TR.preferencesIgnoreAccentsInSearch()),
+                    ignoreAccents,
+                    { ignoreAccents = !ignoreAccents },
+                    multiple = true,
+                )
+                if (showDefaultSearch) {
+                    OutlinedTextField(
+                        value = search,
+                        onValueChange = { search = it },
+                        label = { Text(TR.preferencesDefaultSearchText()) },
+                        placeholder = { Text(TR.preferencesDefaultSearchTextExample()) },
+                        trailingIcon = {
+                            if (search.isNotEmpty()) {
+                                IconButton(onClick = { search = "" }) {
+                                    Icon(
+                                        painterResource(CommonR.drawable.symbol_close),
+                                        getString(androidx.appcompat.R.string.abc_searchview_description_clear),
+                                    )
+                                }
+                            }
+                        },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                if (!useBrowserControls) {
+                    TextButton(onClick = ::openColumnManager) { Text(getString(CommonString.browse_manage_columns)) }
+                    TextButton(onClick = {
+                        FlagRenameDialog().show(parentFragmentManager, "FlagRenameDialog")
+                        dismiss()
+                    }) { Text(getString(CommonString.rename_flag)) }
+                }
             }
-            binding.defaultSearchText.setText(viewModel.defaultBrowserSearch)
         }
-
-        binding.browsingTextView.text = TR.preferencesBrowsing()
-
-        return MaterialAlertDialogBuilder(requireContext()).create {
-            setView(binding.root)
-            setTitle(TR.sentenceCase.browserOptions)
-            positiveButton(CommonString.save) { saveChanges() }
-            negativeButton(CommonString.dialog_cancel)
-        }
-    }
 
     /** Opens [BrowserColumnSelectionFragment] for the current selection of [CardsOrNotes] */
     private fun openColumnManager() {
@@ -149,6 +167,3 @@ class BrowserOptionsDialog : AppCompatDialogFragment(R.layout.dialog_browser_opt
         }
     }
 }
-
-/** Returns the text content as a [String], or `""` if the receiver is `null`. */
-private fun Editable?.orEmpty(): String = this?.toString().orEmpty()

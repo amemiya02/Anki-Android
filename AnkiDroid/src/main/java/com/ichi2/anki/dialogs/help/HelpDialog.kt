@@ -4,14 +4,15 @@ package com.ichi2.anki.dialogs.help
 
 import android.app.Dialog
 import android.os.Bundle
-import android.view.View
 import androidx.activity.addCallback
 import androidx.annotation.VisibleForTesting
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.os.BundleCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.BuildConfig
 import com.ichi2.anki.CommonString
@@ -21,18 +22,14 @@ import com.ichi2.anki.ankiActivity
 import com.ichi2.anki.common.analytics.Analytics
 import com.ichi2.anki.common.analytics.AnalyticsEvent.LinkClicked
 import com.ichi2.anki.common.analytics.LinkAction
-import com.ichi2.anki.common.utils.dp
-import com.ichi2.anki.databinding.DialogHelpBinding
-import com.ichi2.anki.databinding.FragmentHelpPageBinding
-import com.ichi2.anki.databinding.ItemHelpEntryBinding
 import com.ichi2.anki.dialogs.help.HelpItem.Action.OpenUrl
 import com.ichi2.anki.dialogs.help.HelpItem.Action.OpenUrlResource
 import com.ichi2.anki.dialogs.help.HelpItem.Action.Rate
-import com.ichi2.anki.utils.ext.setCompoundDrawablesRelativeWithIntrinsicBoundsKt
-import com.ichi2.utils.createAndApply
-import com.ichi2.utils.customView
-import com.ichi2.utils.title
-import dev.androidbroadcast.vbpd.viewBinding
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.DialogChoiceRow
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.anki.common.android.R as CommonR
 
 /**
@@ -42,77 +39,62 @@ class HelpDialog : AnalyticsDialogFragment() {
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     lateinit var actionsDispatcher: HelpItemActionsDispatcher
 
+    private var submenuId by mutableStateOf<Long?>(null)
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val binding = DialogHelpBinding.inflate(requireActivity().layoutInflater)
-        ankiActivity?.let { ankiActivity ->
-            actionsDispatcher = AnkiActivityHelpActionsDispatcher(ankiActivity)
+        ankiActivity?.let { actionsDispatcher = AnkiActivityHelpActionsDispatcher(it) }
+        if (savedInstanceState?.containsKey(STATE_SUBMENU) == true) {
+            submenuId = savedInstanceState.getLong(STATE_SUBMENU)
         }
-        childFragmentManager.setFragmentResultListener(
-            REQUEST_HELP_PAGE,
-            this,
-        ) { _, arguments -> handleItemSelection(arguments) }
-        return AlertDialog
-            .Builder(requireContext())
-            .title(requireArguments().getInt(ARG_MENU_TITLE))
-            .customView(binding.root)
-            .createAndApply {
-                // Child fragments can recreate their views before onStart() shows the dialog.
-                // Install the content now so their fragment_container is already available.
-                create()
-                // the dialog captures the BACK call so we manually pop the inner FragmentManager
-                // if there's a second page
-                onBackPressedDispatcher.addCallback(this@HelpDialog, true) {
-                    if (childFragmentManager.backStackEntryCount > 1) {
-                        childFragmentManager.popBackStack()
-                    } else {
-                        dismiss()
-                    }
-                }
-                setOnShowListener {
-                    // if there's no fragment added this is a fresh start so add the initial page from arguments
-                    if (childFragmentManager.findFragmentByTag(PAGE_TAG) == null) {
-                        newHelpPage(requireArgsHelpEntries())
+        val initialItems = requireArgsHelpEntries().asList()
+        return createPaperDialog(requireContext()) {
+            val id = submenuId
+            val items = if (id == null) initialItems else childHelpMenuItems.filter { it.parentId == id }
+            val close = if (id == null) CommonString.close else CommonString.previewer_back
+            key(id) {
+                PaperDialog(
+                    title = getString(requireArguments().getInt(ARG_MENU_TITLE)),
+                    onDismissRequest = ::back,
+                    actions = listOf(DialogAction(getString(close), ::back)),
+                ) {
+                    items.forEach { item ->
+                        DialogChoiceRow(
+                            DialogChoice(getString(item.titleResId), icon = item.iconResId),
+                            checked = false,
+                            onClick = { select(item) },
+                            multiple = false,
+                        )
                     }
                 }
             }
+        }.apply {
+            onBackPressedDispatcher.addCallback(this@HelpDialog, true) { back() }
+        }
     }
 
-    private fun handleItemSelection(from: Bundle) {
-        from.classLoader = javaClass.classLoader
-        val selectedItem =
-            BundleCompat.getParcelable(
-                from,
-                RESULT_SELECTED_MENU_ITEM,
-                HelpItem::class.java,
-            ) ?: return
-        when (selectedItem.action) {
-            is OpenUrl -> actionsDispatcher.onOpenUrl(selectedItem.action.url)
-            is OpenUrlResource -> actionsDispatcher.onOpenUrlResource(selectedItem.action.urlResourceId)
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        submenuId?.let { outState.putLong(STATE_SUBMENU, it) }
+    }
+
+    private fun back() {
+        if (submenuId != null) submenuId = null else dismiss()
+    }
+
+    private fun select(item: HelpItem) {
+        Analytics.send(LinkClicked(item.analyticsId))
+        when (val action = item.action) {
+            is OpenUrl -> actionsDispatcher.onOpenUrl(action.url)
+            is OpenUrlResource -> actionsDispatcher.onOpenUrlResource(action.urlResourceId)
             Rate -> actionsDispatcher.onRate()
-            null -> {
-                // there's no action so check if the selected item has children to show
-                val children = childHelpMenuItems.filter { it.parentId == selectedItem.id }
-                if (children.isNotEmpty()) {
-                    newHelpPage(children.toTypedArray())
-                }
-            }
-        }
-    }
-
-    private fun newHelpPage(items: Array<HelpItem>) {
-        val menuPage =
-            HelpPageFragment().apply {
-                arguments = Bundle().apply { putParcelableArray(ARG_MENU_ITEMS, items) }
-            }
-        childFragmentManager.commit {
-            replace(R.id.fragment_container, menuPage, PAGE_TAG).addToBackStack(null)
+            null -> if (childHelpMenuItems.any { it.parentId == item.id }) submenuId = item.id
         }
     }
 
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val ARG_MENU_TITLE = "arg_menu_title"
-        private const val PAGE_TAG = "HelpMenuPage"
+        private const val STATE_SUBMENU = "state_submenu"
 
         fun newHelpInstance(): HelpDialog {
             Analytics.send(LinkClicked(LinkAction.OPENED_HELP_DIALOG))
@@ -171,38 +153,6 @@ internal fun Fragment.requireArgsHelpEntries(): Array<HelpItem> {
 }
 
 internal const val ARG_MENU_ITEMS = "arg_menu_items"
-internal const val REQUEST_HELP_PAGE = "request_help_page"
-internal const val RESULT_SELECTED_MENU_ITEM = " selected_menu_item"
-
-/**
- * This fragment is responsible for showing a list of menu items in the application's [HelpDialog].
- */
-class HelpPageFragment : Fragment(R.layout.fragment_help_page) {
-    private val binding by viewBinding(FragmentHelpPageBinding::bind)
-
-    override fun onViewCreated(
-        view: View,
-        savedInstanceState: Bundle?,
-    ) {
-        super.onViewCreated(view, savedInstanceState)
-        requireArgsHelpEntries().forEach { menuItem ->
-            val contentRow = ItemHelpEntryBinding.inflate(layoutInflater, binding.pageContent, false).root
-            contentRow.apply {
-                setText(menuItem.titleResId)
-                setCompoundDrawablesRelativeWithIntrinsicBoundsKt(start = menuItem.iconResId)
-                compoundDrawablePadding = 16.dp.toPx(requireContext())
-                setOnClickListener {
-                    Analytics.send(LinkClicked(menuItem.analyticsId))
-                    parentFragmentManager.setFragmentResult(
-                        REQUEST_HELP_PAGE,
-                        Bundle().apply { putParcelable(RESULT_SELECTED_MENU_ITEM, menuItem) },
-                    )
-                }
-                binding.pageContent.addView(this)
-            }
-        }
-    }
-}
 
 /**
  * The top level menu items being shown in the help menu.

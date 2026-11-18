@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
@@ -31,6 +30,8 @@ import com.ichi2.anki.libanki.TtsVoice
 import com.ichi2.anki.localizedErrorMessage
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.openUrl
+import com.ichi2.compose.ui.dialogs.ErrorDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.themes.Themes
 import com.ichi2.utils.UiUtil.makeFullscreen
 import dev.androidbroadcast.vbpd.viewBinding
@@ -127,11 +128,16 @@ class TtsVoicesDialogFragment : DialogFragment(R.layout.dialog_tts_voices) {
         viewModel.availableVoicesFlow.observe {
             if (it is TtsVoicesViewModel.VoiceLoadingState.Failure) {
                 binding.progress.visibility = View.VISIBLE
-                AlertDialog
-                    .Builder(requireContext())
-                    .setMessage(it.exception.localizedMessage)
-                    .setOnDismissListener { this@TtsVoicesDialogFragment.dismiss() }
-                    .show()
+                createPaperDialog(requireContext()) { error ->
+                    ErrorDialog(
+                        title = getString(CommonString.vague_error),
+                        message = it.exception.localizedMessage.orEmpty(),
+                        onDismissRequest = error::dismiss,
+                    )
+                }.apply {
+                    setOnDismissListener { this@TtsVoicesDialogFragment.dismiss() }
+                    show()
+                }
             }
 
             if (it is TtsVoicesViewModel.VoiceLoadingState.Success) {

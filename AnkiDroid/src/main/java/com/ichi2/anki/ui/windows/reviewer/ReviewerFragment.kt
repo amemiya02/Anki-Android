@@ -2,6 +2,7 @@
 
 package com.ichi2.anki.ui.windows.reviewer
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -16,7 +17,6 @@ import android.webkit.WebView
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.annotation.VisibleForTesting
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.ActionMenuView
 import androidx.compose.runtime.getValue
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -99,11 +99,15 @@ import com.ichi2.anki.utils.ext.window
 import com.ichi2.anki.utils.openUrl
 import com.ichi2.anki.workarounds.SafeWebViewLayout
 import com.ichi2.compose.theme.AnkiDroidTheme
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.themes.Themes
 import com.ichi2.ui.TypeAnswerEditText
 import com.ichi2.utils.IntentUtil
 import com.ichi2.utils.ViewGroupUtils.setRenderWorkaround
-import com.ichi2.utils.show
 import com.squareup.seismic.ShakeDetector
 import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.Job
@@ -148,7 +152,7 @@ class ReviewerFragment :
     }
 
     private lateinit var tagsDialogFactory: TagsDialogFactory
-    private var templateNavigationDialog: AlertDialog? = null
+    private var templateNavigationDialog: Dialog? = null
 
     private val jsApiDelegate =
         lazy {
@@ -730,27 +734,34 @@ class ReviewerFragment :
                 getString(CommonString.help_title_support_ankidroid),
             )
         templateNavigationDialog =
-            AlertDialog.Builder(requireContext()).show {
-                setItems(destinations) { _, item ->
-                    when (item) {
-                        0 ->
-                            startActivity(
-                                DeckPicker
-                                    .getIntent(
-                                        requireContext(),
-                                    ).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
-                            )
-                        1 -> navigate(BrowserDestination.Open)
-                        2 -> navigate(StatisticsDestination)
-                        3 -> navigate(PreferencesDestination.Root)
-                        4 -> showDialogFragment(HelpDialog.newHelpInstance())
-                        5 -> {
-                            val canRateApp = IntentUtil.canOpenIntent(requireContext(), AnkiDroidApp.getMarketIntent(requireContext()))
-                            showDialogFragment(HelpDialog.newSupportInstance(canRateApp))
+            createPaperDialog(requireContext()) { dialog ->
+                SingleChoiceDialog(
+                    title = getString(CommonString.navigation),
+                    choices = destinations.map { DialogChoice(it) },
+                    selectedIndex = null,
+                    onDismissRequest = dialog::dismiss,
+                    onSelect = { item ->
+                        dialog.dismiss()
+                        when (item) {
+                            0 ->
+                                startActivity(
+                                    DeckPicker
+                                        .getIntent(
+                                            requireContext(),
+                                        ).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                                )
+                            1 -> navigate(BrowserDestination.Open)
+                            2 -> navigate(StatisticsDestination)
+                            3 -> navigate(PreferencesDestination.Root)
+                            4 -> showDialogFragment(HelpDialog.newHelpInstance())
+                            5 -> {
+                                val canRateApp = IntentUtil.canOpenIntent(requireContext(), AnkiDroidApp.getMarketIntent(requireContext()))
+                                showDialogFragment(HelpDialog.newSupportInstance(canRateApp))
+                            }
                         }
-                    }
-                }
-            }
+                    },
+                )
+            }.apply { show() }
         return true
     }
 
@@ -840,18 +851,26 @@ class ReviewerFragment :
             val minutes = (timebox.secs / 60f).roundToInt()
             val message = CollectionManager.TR.studyingCardStudiedIn(timebox.reps) + " " + CollectionManager.TR.studyingMinute(minutes)
 
-            AlertDialog.Builder(requireContext()).show {
-                setTitle(CommonString.timebox_reached_title)
-                setMessage(message)
-                setPositiveButton(CollectionManager.TR.studyingContinue()) { _, _ ->
-                    Timber.i("ReviewerFragment: Timebox 'Continue'")
-                    viewModel.onPageFinished(false)
-                }
-                setNegativeButton(CollectionManager.TR.studyingFinish()) { _, _ ->
-                    Timber.i("ReviewerFragment: Timebox 'Finish'")
-                    requireActivity().finish()
-                }
+            createPaperDialog(requireContext()) { dialog ->
+                ConfirmationDialog(
+                    title = getString(CommonString.timebox_reached_title),
+                    message = message,
+                    confirm =
+                        DialogAction(CollectionManager.TR.studyingContinue(), {
+                            Timber.i("ReviewerFragment: Timebox 'Continue'")
+                            dialog.dismiss()
+                            viewModel.onPageFinished(false)
+                        }),
+                    dismissText = CollectionManager.TR.studyingFinish(),
+                    onDismissRequest = {
+                        Timber.i("ReviewerFragment: Timebox 'Finish'")
+                        dialog.dismiss()
+                        requireActivity().finish()
+                    },
+                )
+            }.apply {
                 setCancelable(false)
+                show()
             }
         }
     }

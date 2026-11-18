@@ -2,31 +2,23 @@
 
 package com.ichi2.anki.dialogs
 
-import android.content.Context
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import anki.scheduler.CardAnswer.Rating
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.common.annotations.NeedsTest
-import com.ichi2.anki.databinding.ItemGradeNowBinding
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.CardId
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.undoAndShowSnackbar
-import com.ichi2.anki.utils.ext.setCompoundDrawablesRelativeWithIntrinsicBoundsKt
 import com.ichi2.anki.withProgress
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.show
-import com.ichi2.utils.title
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import timber.log.Timber
 
 /**
@@ -52,19 +44,21 @@ object GradeNowDialog {
 
         Timber.i("Opening 'Grade Now'")
 
-        val adapter = GradeNowListAdapter(context, Grade.entries)
-
-        MaterialAlertDialogBuilder(context).show {
-            title(text = with(context) { TR.sentenceCase.gradeNow })
-            negativeButton(CommonString.dialog_cancel)
-            setAdapter(adapter) { dialog, which ->
-                val selectedGrade = adapter.getItem(which)!!
-                Timber.i("selected '%s'", selectedGrade.name)
-                // dismiss the dialog before the operation completes to stop duplicate clicks
-                context.gradeNow(cardIds, selectedGrade)
-                dialog.dismiss()
-            }
-        }
+        val title = with(context) { TR.sentenceCase.gradeNow }
+        createPaperDialog(context) { dialog ->
+            SingleChoiceDialog(
+                title = title,
+                choices = Grade.entries.map { DialogChoice(it.getLabel(), icon = it.iconRes) },
+                selectedIndex = null,
+                onDismissRequest = dialog::dismiss,
+                onSelect = { index ->
+                    dialog.dismiss()
+                    val selectedGrade = Grade.entries[index]
+                    Timber.i("selected '%s'", selectedGrade.name)
+                    context.gradeNow(cardIds, selectedGrade)
+                },
+            )
+        }.show()
     }
 
     private fun AppCompatActivity.gradeNow(
@@ -78,31 +72,6 @@ object GradeNowDialog {
         showSnackbar(TR.schedulingGradedCardsDone(ids.size)) {
             setAction(CommonString.undo) { launchCatchingTask { undoAndShowSnackbar() } }
         }
-    }
-}
-
-private class GradeNowListAdapter(
-    context: Context,
-    grades: List<Grade>,
-) : ArrayAdapter<Grade>(context, R.layout.item_grade_now, grades) {
-    override fun getView(
-        position: Int,
-        convertView: View?,
-        parent: ViewGroup,
-    ): View {
-        val binding =
-            if (convertView != null) {
-                ItemGradeNowBinding.bind(convertView)
-            } else {
-                ItemGradeNowBinding.inflate(LayoutInflater.from(context), parent, false)
-            }
-
-        val grade = getItem(position)!!
-        binding.gradeTextView.apply {
-            text = grade.getLabel()
-            setCompoundDrawablesRelativeWithIntrinsicBoundsKt(start = grade.iconRes)
-        }
-        return binding.root
     }
 }
 

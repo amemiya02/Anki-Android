@@ -3,13 +3,17 @@
 
 package com.ichi2.anki.ui.windows.reviewer.whiteboard
 
+import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.os.Looper
 import android.view.MotionEvent
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.ichi2.anki.CommonString
 import com.ichi2.themes.Themes
 import com.skydoves.colorpickerview.ColorPickerView
 import org.hamcrest.MatcherAssert.assertThat
@@ -18,10 +22,10 @@ import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.Matchers.not
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
-import org.robolectric.shadows.ShadowChoreographer
 import org.robolectric.shadows.ShadowDialog
 import java.time.Duration
 import kotlin.test.assertNotNull
@@ -29,6 +33,9 @@ import kotlin.test.assertNotNull
 /** Tests for [showColorPickerDialog] */
 @RunWith(AndroidJUnit4::class)
 class ColorPickerDialogTest {
+    @get:Rule
+    val composeRule = createEmptyComposeRule()
+
     private lateinit var context: Context
     private var pickedColor: Int? = null
 
@@ -36,11 +43,6 @@ class ColorPickerDialogTest {
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
         Themes.setTheme(context)
-        // The dialog repositions its color bubble on every frame, so an unbounded
-        // looper drain would never terminate. Pause the choreographer so frames only
-        // run while the clock advances, and advance it in bounded steps (see idleMainLooper).
-        ShadowChoreographer.setPaused(true)
-        ShadowChoreographer.setFrameDelay(Duration.ofMillis(15))
     }
 
     @Test
@@ -55,9 +57,9 @@ class ColorPickerDialogTest {
 
     @Test
     fun `confirming without touching anything returns the initial color`() {
-        val dialog = showPicker(initialColor = Color.BLACK)
+        showPicker(initialColor = Color.BLACK)
 
-        dialog.confirm()
+        confirm()
 
         assertThat(pickedColor, equalTo(Color.BLACK))
     }
@@ -69,7 +71,7 @@ class ColorPickerDialogTest {
 
         dialog.wheel().tapRightEdge()
         idleMainLooper()
-        dialog.confirm()
+        confirm()
 
         val color = assertNotNull(pickedColor, "a color should be returned on OK")
         val pickedBrightness = FloatArray(3).also { Color.colorToHSV(color, it) }[2]
@@ -87,7 +89,7 @@ class ColorPickerDialogTest {
 
         dialog.wheel().tapRightEdge() // pure red at full saturation
         idleMainLooper()
-        dialog.confirm()
+        confirm()
 
         val color = assertNotNull(pickedColor, "a color should be returned on OK")
         val hsv = FloatArray(3).also { Color.colorToHSV(color, it) }
@@ -96,21 +98,21 @@ class ColorPickerDialogTest {
     }
 
     /** Shows the color picker dialog and waits for the picker to finish initializing. */
-    private fun showPicker(initialColor: Int): AlertDialog {
+    private fun showPicker(initialColor: Int): Dialog {
         context.showColorPickerDialog(initialColor) { pickedColor = it }
         val dialog =
             assertNotNull(
-                ShadowDialog.getLatestDialog() as? AlertDialog,
+                ShadowDialog.getLatestDialog(),
                 "color picker dialog should be shown",
             )
         repeat(3) { idleMainLooper() }
         return dialog
     }
 
-    private fun AlertDialog.wheel(): ColorPickerView = assertNotNull(findViewById(com.skydoves.colorpickerview.R.id.colorPickerView))
+    private fun Dialog.wheel(): ColorPickerView = assertNotNull(findViewById(com.skydoves.colorpickerview.R.id.colorPickerView))
 
-    private fun AlertDialog.confirm() {
-        getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+    private fun confirm() {
+        composeRule.onNodeWithText(context.getString(CommonString.dialog_ok)).performClick()
         idleMainLooper()
     }
 
@@ -126,9 +128,6 @@ class ColorPickerDialogTest {
         up.recycle()
     }
 
-    /**
-     * Bounded, because the dialog re-posts a frame callback forever: this runs the
-     * pending messages plus a few frames, then stops instead of draining endlessly.
-     */
+    /** Let the wheel and its sliders finish layout and apply the seed before a touch. */
     private fun idleMainLooper() = shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(200))
 }

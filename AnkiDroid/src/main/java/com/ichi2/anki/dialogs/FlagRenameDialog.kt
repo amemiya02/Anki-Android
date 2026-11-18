@@ -6,71 +6,103 @@ package com.ichi2.anki.dialogs
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.view.WindowManager
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.Flag
-import com.ichi2.anki.databinding.DialogRenameFlagBinding
-import com.ichi2.utils.customView
-import com.ichi2.utils.title
+import com.ichi2.anki.R
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
-/**
- * A DialogFragment for renaming flags through a RecyclerView.
- */
+/** Renames flags individually, persisting each name when its Save action is selected. */
 class FlagRenameDialog : DialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val binding = DialogRenameFlagBinding.inflate(requireActivity().layoutInflater)
-        val builder =
-            AlertDialog.Builder(requireContext()).apply {
-                customView(view = binding.root, 4, 4, 4, 4)
-                title(CommonString.rename_flag)
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+        createPaperDialog(requireContext()) {
+            val names by produceState(emptyMap<Flag, String>()) {
+                value = Flag.queryDisplayNames(requireContext()).filterKeys { it != Flag.NONE }
             }
-        val dialog = builder.create()
-
-        setupRecyclerView(binding)
-        return dialog
-    }
+            PaperDialog(
+                title = getString(CommonString.rename_flag),
+                onDismissRequest = ::dismiss,
+                actions = listOf(DialogAction(getString(CommonString.close), ::dismiss)),
+            ) {
+                names.forEach { (flag, initialName) ->
+                    key(flag) {
+                        var name by rememberSaveable { mutableStateOf(initialName) }
+                        var draft by rememberSaveable { mutableStateOf<String?>(null) }
+                        val focus = remember { FocusRequester() }
+                        val edit = getString(CommonString.rename_flag)
+                        if (draft == null) {
+                            Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painterResource(flag.drawableRes),
+                                    null,
+                                    Modifier.size(24.dp),
+                                    tint = androidx.compose.ui.graphics.Color.Unspecified,
+                                )
+                                Text(name, Modifier.weight(1f))
+                                IconButton(onClick = { draft = name }) {
+                                    Icon(painterResource(R.drawable.symbol_edit), edit)
+                                }
+                            }
+                        } else {
+                            OutlinedTextField(
+                                value = draft.orEmpty(),
+                                onValueChange = { draft = it },
+                                label = { Text(name) },
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth().focusRequester(focus),
+                            )
+                            androidx.compose.runtime.LaunchedEffect(focus) { focus.requestFocus() }
+                            androidx.compose.foundation.layout.FlowRow {
+                                TextButton(onClick = { draft = null }) { Text(getString(CommonString.dialog_cancel)) }
+                                TextButton(onClick = {
+                                    val newName = draft.orEmpty().ifEmpty { name }
+                                    draft = null
+                                    if (newName != name) {
+                                        name = newName
+                                        val manager = parentFragmentManager
+                                        requireActivity().lifecycleScope.launch {
+                                            flag.rename(newName)
+                                            manager.setFragmentResult(REQUEST_RENAMED_FLAGS, Bundle())
+                                        }
+                                    }
+                                }) { Text(getString(CommonString.save)) }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
         activity?.invalidateOptionsMenu()
         parentFragmentManager.setFragmentResult(REQUEST_RENAMED_FLAGS, Bundle())
-    }
-
-    override fun onStart() {
-        super.onStart()
-        dialog?.window?.clearFlags(
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                or WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM,
-        )
-    }
-
-    private fun setupRecyclerView(binding: DialogRenameFlagBinding) =
-        requireActivity().lifecycleScope.launch {
-            val flagItems = createFlagList()
-            val flagAdapter = FlagAdapter(lifecycleScope = lifecycleScope)
-            binding.recyclerViewFlags.adapter = flagAdapter
-            flagAdapter.submitList(flagItems)
-            binding.recyclerViewFlags.layoutManager = LinearLayoutManager(requireContext())
-        }
-
-    private suspend fun createFlagList(): List<FlagItem> {
-        Timber.d("Creating flag list")
-        return Flag
-            .queryDisplayNames(requireContext())
-            .filter { it.key != Flag.NONE }
-            .map { (flag, displayName) ->
-                FlagItem(
-                    flag = flag,
-                    title = displayName,
-                    icon = flag.drawableRes,
-                )
-            }
     }
 
     companion object {

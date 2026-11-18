@@ -83,6 +83,7 @@ data class DialogChoice(
     val label: String,
     val description: String? = null,
     val enabled: Boolean = true,
+    @DrawableRes val icon: Int? = null,
 )
 
 @Composable
@@ -180,6 +181,9 @@ fun DialogChoiceRow(
                 enabled = choice.enabled,
                 colors = RadioButtonDefaults.colors(selectedColor = colors.primary, unselectedColor = colors.onBackgroundMuted),
             )
+        }
+        if (choice.icon != null) {
+            Icon(painterResource(choice.icon), contentDescription = null, modifier = Modifier.size(24.dp))
         }
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(choice.label, style = foundation.type.lead, color = if (choice.enabled) colors.onBackground else colors.onBackgroundMuted)

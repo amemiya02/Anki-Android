@@ -4,10 +4,14 @@ package com.ichi2.anki.dialogs
 
 import android.app.Dialog
 import android.os.Bundle
-import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.RecyclerView
 import com.ichi2.anki.CardBrowser
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.analytics.AnalyticsDialogFragment
@@ -15,18 +19,19 @@ import com.ichi2.anki.browser.search.SavedSearch
 import com.ichi2.anki.browser.search.SavedSearches
 import com.ichi2.anki.browser.search.toMap
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
-import com.ichi2.anki.databinding.ItemSavedSearchBinding
 import com.ichi2.anki.dialogs.SavedBrowserSearchesDialogFragment.Companion.RESULT_SAVED_SEARCH
 import com.ichi2.anki.dialogs.SavedBrowserSearchesDialogFragment.Companion.TYPE_SEARCH_REMOVED
 import com.ichi2.anki.dialogs.SavedBrowserSearchesDialogFragment.Companion.TYPE_SEARCH_SELECTED
 import com.ichi2.anki.launchCatchingTask
-import com.ichi2.utils.customListAdapter
-import com.ichi2.utils.message
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
-import com.ichi2.utils.title
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.DialogChoiceRow
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import timber.log.Timber
+import com.ichi2.anki.common.android.R as CommonR
 
 /**
  * Dialog that displays the user's saved browser searches.
@@ -43,80 +48,57 @@ class SavedBrowserSearchesDialogFragment : AnalyticsDialogFragment() {
                 ?.sortedWith { str1: Pair<String, String>, str2: Pair<String, String> ->
                     str1.first.compareTo(str2.first, ignoreCase = true)
                 } ?: emptyList()
-        val adapter =
-            SavedSearchesAdapter(
-                data,
-                onSelection = { searchName ->
-                    Timber.d("Saved search clicked: %s", searchName)
-                    parentFragmentManager.setFragmentResult(
-                        REQUEST_SAVED_SEARCH_ACTION,
-                        Bundle().apply {
-                            putInt(RESULT_SAVED_SEARCH_ACTION, TYPE_SEARCH_SELECTED)
-                            putString(RESULT_SAVED_SEARCH, searchName)
-                        },
-                    )
-                    dismiss()
-                },
-                onRemoval = { searchName ->
-                    Timber.d("Saved search delete button clicked: %s", searchName)
-                    removeSearch(searchName)
-                },
-            )
-        return AlertDialog
-            .Builder(requireContext())
-            .title(text = resources.getString(CommonString.card_browser_list_my_searches_title))
-            .negativeButton(CommonString.dialog_cancel)
-            .apply { customListAdapter(adapter) }
-            .create()
+        return createPaperDialog(requireContext()) {
+            PaperDialog(
+                title = getString(CommonString.card_browser_list_my_searches_title),
+                onDismissRequest = ::dismiss,
+                actions = listOf(DialogAction(getString(CommonString.dialog_cancel), ::dismiss)),
+            ) {
+                data.forEach { (name, query) ->
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        androidx.compose.foundation.layout.Box(Modifier.weight(1f)) {
+                            DialogChoiceRow(DialogChoice(name, query), false, {
+                                setSearchResult(TYPE_SEARCH_SELECTED, name)
+                                dismiss()
+                            }, multiple = false)
+                        }
+                        IconButton(onClick = { removeSearch(name) }) {
+                            Icon(painterResource(CommonR.drawable.symbol_delete), getString(CommonString.dialog_positive_delete))
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun removeSearch(searchName: String) {
-        AlertDialog.Builder(requireActivity()).show {
-            message(text = resources.getString(CommonString.card_browser_list_my_searches_remove_content, searchName))
-            positiveButton(android.R.string.ok) {
-                parentFragmentManager.setFragmentResult(
-                    REQUEST_SAVED_SEARCH_ACTION,
-                    Bundle().apply {
-                        putInt(RESULT_SAVED_SEARCH_ACTION, TYPE_SEARCH_REMOVED)
-                        putString(RESULT_SAVED_SEARCH, searchName)
-                    },
-                )
-                dialog?.dismiss() // Dismiss the root dialog
-            }
-            negativeButton(CommonString.dialog_cancel)
-        }
+        createPaperDialog(requireContext()) { confirmation ->
+            ConfirmationDialog(
+                title = "",
+                message = getString(CommonString.card_browser_list_my_searches_remove_content, searchName),
+                confirm =
+                    DialogAction(getString(CommonString.dialog_positive_delete), {
+                        setSearchResult(TYPE_SEARCH_REMOVED, searchName)
+                        confirmation.dismiss()
+                        dismiss()
+                    }, DialogActionStyle.Destructive),
+                onDismissRequest = confirmation::dismiss,
+            )
+        }.show()
     }
 
-    private inner class SavedSearchesAdapter(
-        private val entries: List<Pair<String, String>>,
-        private val onSelection: (String) -> Unit,
-        private val onRemoval: (String) -> Unit,
-    ) : RecyclerView.Adapter<SavedSearchesViewHolder>() {
-        override fun onCreateViewHolder(
-            parent: ViewGroup,
-            viewType: Int,
-        ): SavedSearchesViewHolder {
-            val binding = ItemSavedSearchBinding.inflate(layoutInflater, parent, false)
-            return SavedSearchesViewHolder(binding)
-        }
-
-        override fun onBindViewHolder(
-            holder: SavedSearchesViewHolder,
-            position: Int,
-        ) {
-            val entry = entries[position]
-            holder.binding.searchName.text = entry.first
-            holder.binding.searchQuery.text = entry.second
-            holder.itemView.setOnClickListener { onSelection(entry.first) }
-            holder.binding.deleteSearchButton.setOnClickListener { onRemoval(entry.first) }
-        }
-
-        override fun getItemCount(): Int = entries.size
+    private fun setSearchResult(
+        action: Int,
+        searchName: String,
+    ) {
+        parentFragmentManager.setFragmentResult(
+            REQUEST_SAVED_SEARCH_ACTION,
+            Bundle().apply {
+                putInt(RESULT_SAVED_SEARCH_ACTION, action)
+                putString(RESULT_SAVED_SEARCH, searchName)
+            },
+        )
     }
-
-    private class SavedSearchesViewHolder(
-        val binding: ItemSavedSearchBinding,
-    ) : RecyclerView.ViewHolder(binding.root)
 
     companion object {
         const val TAG: String = "manageSavedSearches"

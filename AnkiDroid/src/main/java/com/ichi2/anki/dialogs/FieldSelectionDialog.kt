@@ -7,7 +7,6 @@ import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.dialogs.FieldSelectionDialog.Companion.RESULT_TYPE
@@ -16,7 +15,9 @@ import com.ichi2.anki.libanki.Field
 import com.ichi2.anki.model.ResultType
 import com.ichi2.anki.utils.ext.requireParcelable
 import com.ichi2.anki.utils.ext.requireString
-import com.ichi2.utils.create
+import com.ichi2.compose.ui.dialogs.DialogChoice
+import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import timber.log.Timber
 
 /**
@@ -40,11 +41,18 @@ class FieldSelectionDialog : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
-        MaterialAlertDialogBuilder(requireContext()).create {
-            setTitle(CommonString.card_template_editor_select_field)
-            setItems(fieldNames.toTypedArray()) { _, which ->
-                onFieldSelected(fieldNames[which])
-            }
+        createPaperDialog(requireContext()) {
+            val fields = fieldNames
+            SingleChoiceDialog(
+                title = getString(CommonString.card_template_editor_select_field),
+                choices = fields.map { DialogChoice(it) },
+                selectedIndex = null,
+                onSelect = {
+                    onFieldSelected(fields[it])
+                    dismiss()
+                },
+                onDismissRequest = ::dismiss,
+            )
         }
 
     private fun onFieldSelected(fieldName: String) {

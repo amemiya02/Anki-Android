@@ -10,7 +10,15 @@ import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextReplacement
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Lifecycle
@@ -29,14 +37,12 @@ import com.ichi2.testutils.parcelledCopy
 import com.ichi2.testutils.saveState
 import com.ichi2.ui.CheckBoxTriStates
 import com.ichi2.ui.CheckBoxTriStates.State.CHECKED
-import com.ichi2.utils.getInputField
-import com.ichi2.utils.getInputTextLayout
-import com.ichi2.utils.positiveButton
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.hamcrest.Matchers.lessThan
 import org.junit.Assert
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -53,6 +59,9 @@ import com.ichi2.anki.common.android.R as CommonR
 
 @RunWith(AndroidJUnit4::class)
 class TagsDialogTest : RobolectricTest() {
+    @get:Rule
+    val composeRule = createEmptyComposeRule()
+
     @Test
     fun `confirming removal of a parent does not preserve its display state`() {
         confirmTags(listOf("B B::child"), parentClicks = 1, selected = listOf("B::child"), preserved = emptyList())
@@ -87,13 +96,13 @@ class TagsDialogTest : RobolectricTest() {
         val listener = Mockito.mock(TagsDialogListener::class.java)
         val args = TagsDialog().withArguments(targetContext, TagsDialog.DialogType.EDIT_TAGS, ids).requireArguments()
         FragmentScenario.launch(TagsDialog::class.java, args, CommonR.style.Theme_Light, TagsDialogFactory(listener)).use { scenario ->
-            scenario.moveToState(Lifecycle.State.STARTED)
+            scenario.moveToState(Lifecycle.State.RESUMED)
             scenario.onFragment { fragment ->
                 advanceRobolectricLooperUntil { fragment.binding.tagsList.adapter != null }
                 val recycler = fragment.forceLayout()
                 val parent = RecyclerViewUtils.viewHolderAt<TagsArrayAdapter.ViewHolder>(recycler, 0)
                 repeat(parentClicks) { parent.checkBoxView.performClick() }
-                (fragment.requireDialog() as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+                composeRule.onNodeWithText(fragment.getString(CommonString.dialog_confirm)).performClick()
                 advanceRobolectricLooper()
                 Mockito.verify(listener).onSelectedTags(selected, preserved, CardStateFilter.ALL_CARDS)
             }
@@ -215,7 +224,7 @@ class TagsDialogTest : RobolectricTest() {
         val mockListener = Mockito.mock(TagsDialogListener::class.java)
         val factory = TagsDialogFactory(mockListener)
         FragmentScenario.launch(TagsDialog::class.java, args, CommonR.style.Theme_Light, factory).use { scenario ->
-            scenario.moveToState(Lifecycle.State.STARTED)
+            scenario.moveToState(Lifecycle.State.RESUMED)
             scenario.onFragment { Timber.d("Dialog successfully opened") }
         }
     }
@@ -314,28 +323,14 @@ class TagsDialogTest : RobolectricTest() {
     fun `entering an existing tag shows an error and disables OK`() {
         val existingTag = "a"
         val validTag = "b"
-        withAddTagDialog(allTags = listOf(existingTag)) { addTagDialog ->
-            // OK starts disabled: Ensure its enabled for a valid input
-            addTagDialog.getInputField().setText(validTag)
-            advanceRobolectricLooperUntil(
-                lazyMessage = { "OK was never enabled for a valid tag" },
-            ) {
-                addTagDialog.positiveButton.isEnabled
-            }
-            addTagDialog.getInputField().setText(existingTag)
-            advanceRobolectricLooperUntil(
-                lazyMessage = { "error was never shown for an existing tag" },
-            ) {
-                addTagDialog.getInputTextLayout().error != null
-            }
-            assertEquals(
-                expected = targetContext.getString(CommonString.tag_already_exists),
-                actual = addTagDialog.getInputTextLayout().error.toString(),
-            )
-            assertFalse(
-                actual = addTagDialog.positiveButton.isEnabled,
-                message = "OK should be disabled for an existing tag",
-            )
+        withAddTagDialog(allTags = listOf(existingTag)) {
+            val input = composeRule.onNode(hasSetTextAction())
+            val add = composeRule.onNodeWithText(targetContext.getString(CommonString.menu_add))
+            input.performTextReplacement(validTag)
+            add.assertIsEnabled()
+            input.performTextReplacement(existingTag)
+            composeRule.onNodeWithText(targetContext.getString(CommonString.tag_already_exists)).assertIsDisplayed()
+            add.assertIsNotEnabled()
         }
     }
 
@@ -343,24 +338,14 @@ class TagsDialogTest : RobolectricTest() {
     fun `entering a new valid tag clears the error and enables OK`() {
         val existingTag = "a"
         val validTag = "b"
-        withAddTagDialog(allTags = listOf(existingTag)) { addTagDialog ->
-            // Start from the error state
-            addTagDialog.getInputField().setText(existingTag)
-            advanceRobolectricLooperUntil(
-                lazyMessage = { "error was never shown for an existing tag" },
-            ) {
-                addTagDialog.getInputTextLayout().error != null
-            }
-            addTagDialog.getInputField().setText(validTag)
-            advanceRobolectricLooperUntil(
-                lazyMessage = { "error was never cleared for a valid tag" },
-            ) {
-                addTagDialog.getInputTextLayout().error == null
-            }
-            assertTrue(
-                actual = addTagDialog.positiveButton.isEnabled,
-                message = "OK should be enabled for a valid tag",
-            )
+        withAddTagDialog(allTags = listOf(existingTag)) {
+            val input = composeRule.onNode(hasSetTextAction())
+            val error = composeRule.onNodeWithText(targetContext.getString(CommonString.tag_already_exists))
+            input.performTextReplacement(existingTag)
+            error.assertIsDisplayed()
+            input.performTextReplacement(validTag)
+            error.assertDoesNotExist()
+            composeRule.onNodeWithText(targetContext.getString(CommonString.menu_add)).assertIsEnabled()
         }
     }
 
@@ -372,8 +357,7 @@ class TagsDialogTest : RobolectricTest() {
             val row = RecyclerViewUtils.viewHolderAt<TagsArrayAdapter.ViewHolder>(recycler, 0)
             row.itemView.performLongClick()
             advanceRobolectricLooper()
-            val addTagDialog = ShadowDialog.getLatestDialog() as AlertDialog
-            assertEquals("$tag::", addTagDialog.getInputField().text.toString())
+            composeRule.onNode(hasSetTextAction()).assertTextContains("$tag::")
         }
     }
 
@@ -416,13 +400,13 @@ class TagsDialogTest : RobolectricTest() {
 
     private fun withAddTagDialog(
         allTags: List<String>,
-        block: (AlertDialog) -> Unit,
+        block: () -> Unit,
     ) {
         runTagsDialogScenario(args = editTagsArguments(allTags)) { tagsDialog ->
             tagsDialog.binding.toolbar.root.menu
                 .performIdentifierAction(R.id.tags_dialog_action_add, 0)
             advanceRobolectricLooper()
-            block(ShadowDialog.getLatestDialog() as AlertDialog)
+            block()
         }
     }
 
@@ -432,7 +416,7 @@ class TagsDialogTest : RobolectricTest() {
         block: (TagsDialog) -> Unit,
     ) {
         FragmentScenario.launch(TagsDialog::class.java, args, CommonR.style.Theme_Light, factory).use { scenario ->
-            scenario.moveToState(Lifecycle.State.STARTED)
+            scenario.moveToState(Lifecycle.State.RESUMED)
             scenario.onFragment { tagsDialog: TagsDialog ->
                 advanceRobolectricLooperUntil { tagsDialog.binding.tagsList.adapter != null }
                 block(tagsDialog)

@@ -4,7 +4,6 @@ package com.ichi2.anki.dialogs
 
 import android.app.Dialog
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
@@ -16,13 +15,9 @@ import com.ichi2.anki.dialogs.SaveBrowserSearchDialogFragment.Companion.RESULT_S
 import com.ichi2.anki.dialogs.SaveBrowserSearchDialogFragment.Companion.RESULT_SEARCH_QUERY_NAME
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.snackbar.showSnackbar
-import com.ichi2.utils.input
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
-import com.ichi2.utils.title
+import com.ichi2.compose.ui.dialogs.TextInputDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import timber.log.Timber
-import com.ichi2.anki.common.android.R as CommonR
 
 /**
  * Dialog that allows the user to save searches made in [CardBrowser] to make them available for
@@ -36,29 +31,28 @@ class SaveBrowserSearchDialogFragment : DialogFragment() {
         // TODO: validation on duplicate name (case sensitive)
         val searchQuery =
             requireArguments().getString(ARG_SEARCH_QUERY) ?: error("Missing search query")
-        return AlertDialog
-            .Builder(requireContext())
-            .show {
-                title(text = getString(CommonString.card_browser_list_my_searches_save))
-                positiveButton(CommonString.dialog_ok)
-                negativeButton(CommonString.dialog_cancel)
-                setView(CommonR.layout.dialog_generic_text_input)
-            }.input(
-                hint = getString(CommonString.card_browser_list_my_searches_new_name),
-                allowEmpty = false,
-                displayKeyboard = true,
-                waitForPositiveButton = true,
-            ) { dialog, name ->
-                Timber.d("Saving user search: %s with given name %s", searchQuery, name)
-                setFragmentResult(
-                    REQUEST_SAVE_SEARCH,
-                    Bundle().apply {
-                        putString(RESULT_SEARCH_QUERY, searchQuery)
-                        putCharSequence(RESULT_SEARCH_QUERY_NAME, name)
-                    },
-                )
-                dialog.dismiss()
-            }
+        return createPaperDialog(requireContext()) {
+            TextInputDialog(
+                title = getString(CommonString.card_browser_list_my_searches_save),
+                label = getString(CommonString.card_browser_list_my_searches_new_name),
+                confirmText = getString(CommonString.save),
+                errorMessageFor = { name ->
+                    getString(CommonString.card_browser_list_my_searches_new_search_error_empty_name).takeIf { name.isEmpty() }
+                },
+                onDismissRequest = ::dismiss,
+                onConfirm = { name ->
+                    Timber.d("Saving user search: %s with given name %s", searchQuery, name)
+                    setFragmentResult(
+                        REQUEST_SAVE_SEARCH,
+                        Bundle().apply {
+                            putString(RESULT_SEARCH_QUERY, searchQuery)
+                            putString(RESULT_SEARCH_QUERY_NAME, name)
+                        },
+                    )
+                    dismiss()
+                },
+            )
+        }
     }
 
     companion object {

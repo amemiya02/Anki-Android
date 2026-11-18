@@ -6,24 +6,35 @@ package com.ichi2.anki.ui.windows.reviewer.whiteboard
 import android.content.Context
 import android.graphics.Color
 import android.os.Build
-import android.view.Choreographer
+import android.view.LayoutInflater
+import android.view.ViewTreeObserver
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import androidx.annotation.ColorInt
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.doOnAttach
+import androidx.core.view.doOnDetach
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
-import com.ichi2.anki.common.utils.Dp
-import com.ichi2.anki.common.utils.dp
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.show
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.skydoves.colorpickerview.AlphaTileView
 import com.skydoves.colorpickerview.ColorEnvelope
-import com.skydoves.colorpickerview.ColorPickerDialog
+import com.skydoves.colorpickerview.databinding.ColorpickerviewDialogColorpickerBinding
 import com.skydoves.colorpickerview.flag.FlagView
-import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
-import com.skydoves.colorpickerview.sliders.AlphaSlideBar
-import com.skydoves.colorpickerview.sliders.BrightnessSlideBar
+import com.ichi2.anki.common.utils.dp as nativeDp
 
 /**
  * Shows a customizable color picker dialog with alpha and brightness controls.
@@ -37,74 +48,84 @@ fun Context.showColorPickerDialog(
     @ColorInt initialColor: Int,
     onColorSelected: (Int) -> Unit,
 ) {
-    val choreographer = Choreographer.getInstance()
-    var dismissed = false
-    ColorPickerDialog
-        .Builder(this)
-        .show {
-            val onPositiveCallback =
-                ColorEnvelopeListener { envelope, _ ->
-                    envelope?.color?.let(onColorSelected)
-                }
-            // Use post() so setInitialColor() runs after the view is laid out.
-            // This ensures the BrightnessSlideBar is fully initialized before applying
-            // the initial color. Calling it too early causes the slider to use its
-            // default position, resulting in an incorrect displayed color.
-            colorPickerView.post {
-                colorPickerView.setInitialColor(initialColor)
-                // The wheel only sets hue and saturation; brightness comes from the slider below it.
-                // A near-black seed parks that slider at zero, so any hue picked on the wheel would
-                // assemble back to black and the picker would seem to ignore the choice (issue #21329).
-                // Lift the slider once so the wheel is usable. Brighter seeds keep their own brightness.
-                if (initialColor.isNearBlack()) {
-                    colorPickerView.post {
-                        colorPickerView.brightnessSlider?.setSelectorByHalfSelectorPosition(1f)
-                    }
-                }
+    val binding = ColorpickerviewDialogColorpickerBinding.inflate(LayoutInflater.from(this))
+    val picker = binding.colorPickerView
+    picker.attachAlphaSlider(binding.alphaSlideBar)
+    picker.attachBrightnessSlider(binding.brightnessSlideBar)
+
+    val bubbleFlag = BubbleFlag(this)
+    picker.flagView = bubbleFlag
+    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
+        bubbleFlag.findViewById<FrameLayout>(R.id.flag_color_layout_wrapper).updatePadding(
+            10.nativeDp.toPx(this),
+            7.nativeDp.toPx(this),
+            10.nativeDp.toPx(this),
+        )
+        bubbleFlag.alphaTileView.updateLayoutParams {
+            width = 12.nativeDp.toPx(this@showColorPickerDialog)
+            height = 12.nativeDp.toPx(this@showColorPickerDialog)
+        }
+    }
+    // Supply the starting colour after the wheel and its brightness slider have been laid out.
+    picker.post {
+        picker.setInitialColor(initialColor)
+        if (initialColor.isNearBlack()) {
+            // Make the first hue pick visible. The colour remains the seed until the user edits it.
+            picker.post { picker.brightnessSlider?.setSelectorByHalfSelectorPosition(1f) }
+        }
+    }
+
+    picker.doOnAttach {
+        val observer = picker.viewTreeObserver
+        val listener = ViewTreeObserver.OnPreDrawListener {
+            bubbleFlag.x = picker.selector.x + (picker.selector.width - bubbleFlag.width) / 2
+            val y = picker.selector.y - bubbleFlag.height
+            if (y > 0f) {
+                bubbleFlag.y = y
+                bubbleFlag.rotation = 0f
+            } else {
+                bubbleFlag.y = picker.selector.y + bubbleFlag.height
+                bubbleFlag.rotation = 180f
             }
-            // Bubble showing the selected color
-            val bubbleFlag = BubbleFlag(this@showColorPickerDialog)
-            colorPickerView.flagView = bubbleFlag
-            // TODO on these lower Android versions the view clipping fails and we end up with a
-            //  square(standard view shape) instead of the expected circle so we update the
-            //  positioning values so the square sis smaller and is centered in the background pin
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
-                bubbleFlag
-                    .findViewById<FrameLayout>(R.id.flag_color_layout_wrapper)
-                    .updatePadding(
-                        10.dp.toPx(this@showColorPickerDialog),
-                        7.dp.toPx(this@showColorPickerDialog),
-                        10.dp.toPx(this@showColorPickerDialog),
-                    )
-                bubbleFlag.alphaTileView.updateLayoutParams {
-                    this.width = 12.dp.toPx(this@showColorPickerDialog)
-                    this.height = 12.dp.toPx(this@showColorPickerDialog)
-                }
-            }
-            setTitle(CommonString.choose_color)
-            setPositiveButton(CommonString.dialog_ok, onPositiveCallback)
-            negativeButton(CommonString.dialog_cancel)
-            setBottomSpace(12.dp)
-            val callback =
-                object : Choreographer.FrameCallback {
-                    override fun doFrame(frameTimeNanos: Long) {
-                        if (dismissed) return
-                        colorPickerView.flagView.x =
-                            (colorPickerView.selector.x + colorPickerView.selector.width / 2 - colorPickerView.flagView.width / 2)
-                        val y = (colorPickerView.selector.y - colorPickerView.flagView.height)
-                        if (y > 0) {
-                            colorPickerView.flagView.y = y
-                            colorPickerView.flagView.rotation = 0f
-                        } else {
-                            colorPickerView.flagView.y =
-                                colorPickerView.selector.y + colorPickerView.flagView.height
-                            colorPickerView.flagView.rotation = 180f
+            true
+        }
+        observer.addOnPreDrawListener(listener)
+        picker.doOnDetach {
+            if (observer.isAlive) observer.removeOnPreDrawListener(listener)
+        }
+    }
+    createPaperDialog(this) { dialog ->
+        PaperDialog(
+            title = getString(CommonString.choose_color),
+            onDismissRequest = dialog::dismiss,
+            scrollContent = false,
+            actions =
+                listOf(
+                    DialogAction(getString(CommonString.dialog_cancel), dialog::dismiss),
+                    DialogAction(getString(CommonString.dialog_ok), {
+                        onColorSelected(picker.color)
+                        dialog.dismiss()
+                    }, DialogActionStyle.Filled),
+                ),
+        ) {
+            BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+                val diameter = minOf(maxWidth, 300.dp)
+                val diameterPx = with(LocalDensity.current) { diameter.roundToPx() }
+                AndroidView(
+                    factory = {
+                        picker.layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, diameterPx)
+                        binding.root
+                    },
+                    modifier = Modifier.width(diameter).heightIn(max = 420.dp),
+                    update = {
+                        if (picker.layoutParams.height != diameterPx) {
+                            picker.updateLayoutParams { height = diameterPx }
                         }
-                        choreographer.postFrameCallback(this)
-                    }
-                }
-            choreographer.postFrameCallback(callback)
-        }.setOnDismissListener { dismissed = true }
+                    },
+                )
+            }
+        }
+    }.show()
 }
 
 /**
@@ -135,11 +156,3 @@ private class BubbleFlag(
     override fun onFlipped(isFlipped: Boolean?) {
     }
 }
-
-/**
- * Sets the margin of the bottom. this space is visible when [AlphaSlideBar] or
- * [BrightnessSlideBar] is attached.
- *
- * @param bottomSpace the bottom margin in display pixels.
- */
-private fun ColorPickerDialog.Builder.setBottomSpace(bottomSpace: Dp) = this.setBottomSpace(bottomSpace.dp.toInt())
