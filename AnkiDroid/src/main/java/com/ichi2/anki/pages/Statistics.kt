@@ -8,6 +8,10 @@ import android.print.PrintJob
 import android.print.PrintManager
 import android.view.View
 import androidx.annotation.VisibleForTesting
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat.getSystemService
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.withCol
@@ -15,7 +19,6 @@ import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.time.getTimestamp
-import com.ichi2.anki.databinding.PageStatisticsBinding
 import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.dialogs.startDeckSelection
 import com.ichi2.anki.launchCatchingTask
@@ -23,12 +26,20 @@ import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.updateBottomNavOnScroll
 import com.ichi2.anki.withProgress
-import dev.androidbroadcast.vbpd.viewBinding
 import timber.log.Timber
 
-class Statistics : PageFragment(R.layout.page_statistics) {
+class Statistics : PageFragment() {
     override val pagePath: String = "graphs"
-    private val binding by viewBinding(PageStatisticsBinding::bind)
+    override val scrollToolbar = true
+    override val showBack get() = arguments?.getBoolean(ARG_HIDE_BACK_BUTTON) != true
+    override val selectDeck: () -> Unit = { startDeckSelection(allowAll = false, allowFiltered = false, skipEmptyDefault = true) }
+
+    @Composable
+    override fun PageActions() {
+        IconButton(onClick = ::exportWebViewContentAsPDF) {
+            Icon(painterResource(R.drawable.symbol_file_export), CollectionManager.TR.statisticsSavePdf())
+        }
+    }
 
     /** The PrintJob launched by this Fragment */
     // After killing the app, printManager.printJobs can still list active jobs
@@ -40,24 +51,6 @@ class Statistics : PageFragment(R.layout.page_statistics) {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Hide the back arrow when requested (e.g. hosted in bottom nav)
-        if (arguments?.getBoolean(ARG_HIDE_BACK_BUTTON) == true) {
-            binding.toolbar.navigationIcon = null
-        }
-
-        binding.deckName.setOnClickListener {
-            startDeckSelection(allowAll = false, allowFiltered = false, skipEmptyDefault = true)
-        }
-
-        binding.toolbar.apply {
-            menu.findItem(R.id.action_export_stats).title = CollectionManager.TR.statisticsSavePdf()
-            setOnMenuItemClickListener { item ->
-                if (item.itemId == R.id.action_export_stats) {
-                    exportWebViewContentAsPDF()
-                }
-                true
-            }
-        }
         registerDeckSelectedHandler(action = ::onDeckSelected)
         requireActivity().launchCatchingTask {
             withProgress {
@@ -112,7 +105,7 @@ class Statistics : PageFragment(R.layout.page_statistics) {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString(STATE_DECK_NAME, binding.deckName.text.toString())
+        outState.putString(STATE_DECK_NAME, pageTitle)
     }
 
     /**
@@ -123,7 +116,7 @@ class Statistics : PageFragment(R.layout.page_statistics) {
      * stats. See issue #3394 in Anki repository.
      **/
     private fun changeDeck(selectedDeckName: String) {
-        binding.deckName.text = selectedDeckName
+        pageTitle = selectedDeckName
         val javascriptCode =
             """
             var textBox = document.getElementById("statisticsSearchText");

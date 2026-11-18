@@ -3,6 +3,7 @@
 package com.ichi2.anki.multimedia
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,8 +33,9 @@ import com.ichi2.anki.common.android.R as CommonR
 @Composable
 internal fun AttachmentAppBar(
     title: String,
-    onBack: () -> Unit,
+    onBack: (() -> Unit)?,
     onSave: (() -> Unit)? = null,
+    onTitleClick: (() -> Unit)? = null,
     actions: @Composable () -> Unit = {},
 ) {
     val foundation = MaterialTheme.foundation
@@ -42,24 +44,40 @@ internal fun AttachmentAppBar(
             modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            IconButton(onClick = onBack, modifier = Modifier.size(foundation.spacing.touchTarget)) {
-                Icon(
-                    painterResource(CommonR.drawable.symbol_arrow_back),
-                    contentDescription = stringResource(AppCompatR.string.abc_action_bar_up_description),
-                    tint = foundation.colors.onBackground,
-                    modifier =
-                        Modifier.scale(
-                            scaleX = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1f else 1f,
-                            scaleY = 1f,
-                        ),
-                )
+            if (onBack != null) {
+                IconButton(onClick = onBack, modifier = Modifier.size(foundation.spacing.touchTarget)) {
+                    Icon(
+                        painterResource(CommonR.drawable.symbol_arrow_back),
+                        contentDescription = stringResource(AppCompatR.string.abc_action_bar_up_description),
+                        tint = foundation.colors.onBackground,
+                        modifier =
+                            Modifier.scale(
+                                scaleX = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1f else 1f,
+                                scaleY = 1f,
+                            ),
+                    )
+                }
             }
-            Text(
-                title,
-                modifier = Modifier.weight(1f).padding(vertical = 4.dp),
-                color = foundation.colors.onBackground,
-                style = foundation.type.studyTitle,
-            )
+            Row(
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .then(
+                            if (onTitleClick ==
+                                null
+                            ) {
+                                Modifier
+                            } else {
+                                Modifier.clickable(onClick = onTitleClick).heightIn(min = foundation.spacing.touchTarget)
+                            },
+                        ).padding(horizontal = 4.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(title, modifier = Modifier.weight(1f), color = foundation.colors.onBackground, style = foundation.type.studyTitle)
+                if (onTitleClick != null) {
+                    Icon(painterResource(com.ichi2.anki.R.drawable.symbol_arrow_drop_down), null, tint = foundation.colors.onBackground)
+                }
+            }
             actions()
             if (onSave != null) {
                 Button(

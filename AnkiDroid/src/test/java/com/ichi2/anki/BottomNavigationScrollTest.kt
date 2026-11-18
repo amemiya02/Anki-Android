@@ -26,7 +26,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ichi2.anki.BottomNavController.NavigationItem
-import com.ichi2.anki.databinding.PageStatisticsBinding
+import com.ichi2.anki.pages.Statistics
 import com.ichi2.anki.pages.scrolledUpToBottom
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
@@ -301,12 +301,9 @@ class BottomNavigationScrollTest : RobolectricTest() {
         return range.value()
     }
 
-    private val DeckPicker.statisticsBinding: PageStatisticsBinding
-        get() = PageStatisticsBinding.bind(supportFragmentManager.findFragmentByTag(NavigationItem.STATS.tag)!!.requireView())
-
     /** The [WebView] wrapped by the Statistics page's [com.ichi2.anki.workarounds.SafeWebViewLayout] */
     private val DeckPicker.statisticsWebView: WebView
-        get() = statisticsBinding.webviewLayout.getChildAt(0) as WebView
+        get() = (supportFragmentManager.findFragmentByTag(NavigationItem.STATS.tag) as Statistics).webViewLayout.getChildAt(0) as WebView
 
     private val DeckPicker.bottomNav: BottomNavigationView
         get() = binding.bottomNavigation!!

@@ -16,12 +16,10 @@ import anki.collection.ComputeParamsProgress
 import anki.collection.OpChanges
 import anki.deck_config.UpdateDeckConfigsMode
 import anki.deck_config.UpdateDeckConfigsRequest
-import com.google.android.material.appbar.MaterialToolbar
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.ProgressContext
-import com.ichi2.anki.R
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
@@ -159,11 +157,11 @@ class DeckOptions : PageFragment() {
         view: View,
         savedInstanceState: Bundle?,
     ) {
-        pageLoadingIndicator.isVisible = true
+        pageLoading = true
         super.onViewCreated(view, savedInstanceState)
         launchCatchingTask {
             val deckName = withCol { decks.name(deckId, default = true) }
-            view.findViewById<MaterialToolbar>(R.id.toolbar).title = deckName
+            pageTitle = deckName
         }
     }
 
@@ -297,7 +295,7 @@ class DeckOptions : PageFragment() {
         Timber.d("WebView ready to receive input")
         webViewIsReady = true
         webViewLayout.isVisible = true
-        pageLoadingIndicator.isVisible = false
+        pageLoading = false
         saveAndOptimizeReload.onPageReady()
         setParameterUnlockClickTimeout()
     }

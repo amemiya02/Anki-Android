@@ -2,13 +2,10 @@
 
 package com.ichi2.anki.pages
 
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.R
@@ -18,6 +15,7 @@ import com.ichi2.anki.common.destinations.StatisticsDestination
 import com.ichi2.anki.common.destinations.launchActivity
 import com.ichi2.anki.dialogs.DeckSelectionDialog
 import kotlinx.coroutines.test.advanceUntilIdle
+import org.junit.Rule
 import org.junit.Test
 import org.junit.jupiter.api.assertNotNull
 import org.junit.runner.RunWith
@@ -26,12 +24,15 @@ import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class StatisticsTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Test
     fun `shows 'Default' deck when collection is empty`() =
         runTest {
             launchActivity<SingleFragmentActivity>(StatisticsDestination).use {
                 advanceUntilIdle()
-                onView(withText("Default")).check(matches(isDisplayed()))
+                compose.onNodeWithText("Default").assertIsDisplayed()
             }
         }
 
@@ -45,13 +46,14 @@ class StatisticsTest : RobolectricTest() {
             addDeck(testDeckName2)
             launchActivity<SingleFragmentActivity>(StatisticsDestination).use {
                 advanceUntilIdle()
-                onView(withId(R.id.deck_name)).check(matches(withText(testDeckName1)))
-                onView(withId(R.id.deck_name)).perform(click())
+                compose.onNodeWithText(testDeckName1).assertIsDisplayed()
+                compose.onNodeWithText(testDeckName1).performClick()
                 advanceUntilIdle()
                 // select test deck 2
-                onView(withText(testDeckName2)).inRoot(isDialog()).perform(click())
+                compose.onNodeWithText(testDeckName2).performClick()
                 // check the activity that it has the new deck name
-                onView(withId(R.id.deck_name)).check(matches(withText(testDeckName2)))
+                advanceUntilIdle()
+                compose.onNodeWithText(testDeckName2).assertIsDisplayed()
             }
         }
 
@@ -60,19 +62,21 @@ class StatisticsTest : RobolectricTest() {
         runTest {
             // the statistics screen doesn't allow the selection of 'All Decks' and filtered decks,
             // also 'Default' deck should be enabled no matter its status(empty/not empty)
-            launchActivity<SingleFragmentActivity>(StatisticsDestination)
-                .onActivity { activity ->
+            launchActivity<SingleFragmentActivity>(StatisticsDestination).use { scenario ->
+                advanceUntilIdle()
+                compose.onNodeWithText("Default").performClick()
+                advanceUntilIdle()
+                scenario.onActivity { activity ->
                     val statisticsFragment =
                         activity.supportFragmentManager.findFragmentById(R.id.fragment_container)
                     assertNotNull(statisticsFragment)
-                    onView(withId(R.id.deck_name)).perform(click())
-                    advanceRobolectricLooper()
                     val deckSelectionDialog =
                         activity.supportFragmentManager.findFragmentByTag(DeckSelectionDialog.TAG)
                     assertNotNull(deckSelectionDialog)
                     assertFalse(deckSelectionDialog.requireArguments().getBoolean(DeckSelectionDialog.ARG_ALLOW_ALL, true))
                     assertFalse(deckSelectionDialog.requireArguments().getBoolean(DeckSelectionDialog.ARG_ALLOW_FILTERED, true))
                     assertTrue(deckSelectionDialog.requireArguments().getBoolean(DeckSelectionDialog.ARG_SKIP_EMPTY_DEFAULT, false))
-                }.close()
+                }
+            }
         }
 }

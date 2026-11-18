@@ -3,20 +3,34 @@
 package com.ichi2.anki.pages
 
 import android.os.Bundle
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.webkit.JavascriptInterface
 import android.webkit.WebViewClient
+import android.widget.FrameLayout
 import androidx.annotation.CallSuper
-import androidx.annotation.LayoutRes
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.color.MaterialColors
-import com.google.android.material.progressindicator.CircularProgressIndicator
-import com.ichi2.anki.R
+import com.ichi2.anki.multimedia.AttachmentAppBar
+import com.ichi2.anki.workarounds.NestedScrollingSafeWebViewLayout
 import com.ichi2.anki.workarounds.OnWebViewRecreatedListener
 import com.ichi2.anki.workarounds.SafeWebViewLayout
+import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.themes.Themes
 import com.ichi2.utils.showDialogIfWebViewOutdated
 import timber.log.Timber
@@ -25,22 +39,81 @@ import com.ichi2.anki.common.android.R as CommonR
 /**
  * Base class for displaying Anki HTML pages
  */
-abstract class PageFragment(
-    @LayoutRes contentLayoutId: Int = R.layout.fragment_page,
-) : Fragment(contentLayoutId),
+abstract class PageFragment :
+    Fragment(),
     PostRequestHandler,
     OnWebViewRecreatedListener {
     lateinit var webViewLayout: SafeWebViewLayout
     protected abstract val pagePath: String
 
-    /**
-     * A loading indicator for the page. May be shown before the WebView is loaded to
-     * stop flickering
-     *
-     * @exception IllegalStateException if accessed before [onViewCreated]
-     */
-    val pageLoadingIndicator: CircularProgressIndicator
-        get() = requireView().findViewById(R.id.page_loading)
+    protected var pageTitle by mutableStateOf("")
+    protected var pageLoading by mutableStateOf(false)
+    protected open val scrollToolbar = false
+    protected open val showBack = true
+    protected open val selectDeck: (() -> Unit)? = null
+    protected open val save: (() -> Unit)? = null
+
+    @Composable
+    protected open fun PageActions() { }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        val context = inflater.context
+        val header =
+            ComposeView(context).apply {
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    AnkiDroidTheme {
+                        AttachmentAppBar(
+                            title = pageTitle,
+                            onBack = if (showBack) ({ requireActivity().onBackPressedDispatcher.onBackPressed() }) else null,
+                            onSave = save,
+                            onTitleClick = selectDeck,
+                        ) { PageActions() }
+                    }
+                }
+            }
+        val appBar =
+            AppBarLayout(context).apply {
+                addView(
+                    header,
+                    AppBarLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                        scrollFlags =
+                            if (scrollToolbar) {
+                                AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or
+                                    AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS or AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP
+                            } else {
+                                0
+                            }
+                    },
+                )
+            }
+        webViewLayout = if (scrollToolbar) NestedScrollingSafeWebViewLayout(context) else SafeWebViewLayout(context)
+        webViewLayout.visibility = if (scrollToolbar) View.VISIBLE else View.INVISIBLE
+        val body =
+            FrameLayout(context).apply {
+                addView(webViewLayout, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+                addView(
+                    ComposeView(context).apply {
+                        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                        setContent { AnkiDroidTheme { if (pageLoading) CircularProgressIndicator() } }
+                    },
+                    FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.CENTER),
+                )
+            }
+        return CoordinatorLayout(context).apply {
+            addView(appBar, CoordinatorLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+            addView(
+                body,
+                CoordinatorLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
+                    behavior = AppBarLayout.ScrollingViewBehavior()
+                },
+            )
+        }
+    }
 
     /**
      * Override this to set a custom [WebViewClient] to the page.
@@ -89,8 +162,6 @@ abstract class PageFragment(
         view: View,
         savedInstanceState: Bundle?,
     ) {
-        webViewLayout = view.findViewById(R.id.webview_layout)
-
         // the pages can't send requests without PostRequestBridge, which requires a modern WebView
         val isOutdated =
             with(requireContext()) {
@@ -101,9 +172,6 @@ abstract class PageFragment(
         if (isOutdated) {
             Timber.w("${this::class.simpleName} requires modern WebView version, aborting load")
             return
-        }
-        view.findViewById<MaterialToolbar>(R.id.toolbar)?.setNavigationOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
         setupWebView(savedInstanceState)
     }
