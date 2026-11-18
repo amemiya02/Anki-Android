@@ -2,30 +2,31 @@
 
 package com.ichi2.anki.noteeditor
 
-import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTextReplacement
 import androidx.core.content.edit
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.ichi2.anki.CommonString
 import com.ichi2.anki.NoteEditorActivity
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.common.destinations.NoteEditorDestination
 import com.ichi2.anki.common.destinations.toIntent
 import com.ichi2.anki.common.preferences.sharedPrefs
-import com.ichi2.anki.databinding.DialogNoteEditorToolbarEditCustomItemBinding
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.GraphicsMode
-import org.robolectric.shadows.ShadowDialog
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -53,25 +54,23 @@ class NoteEditorToolbarTest : RobolectricTest() {
     fun `editing requires text on at least one side of the cursor`() {
         openEditor()
         editCustomButton()
-        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-        val binding = dialog.binding
-        val before = binding.noteEditorToolbarBefore
-        val after = binding.noteEditorToolbarAfter
-        val save = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+        val before = toolbarField(CommonString.before_text)
+        val after = toolbarField(CommonString.after_text)
+        val save = toolbarAction(CommonString.save)
 
-        assertTrue(save.isEnabled)
-        before.setText("")
-        assertTrue(save.isEnabled)
-        after.setText("")
-        assertFalse(save.isEnabled, "Both fields empty must disable Save")
+        save.assertIsEnabled()
+        before.performTextReplacement("")
+        save.assertIsEnabled()
+        after.performTextReplacement("")
+        save.assertIsNotEnabled()
 
-        after.setText("<br>")
-        assertTrue(save.isEnabled)
-        after.setText(" ")
-        assertFalse(save.isEnabled, "Whitespace alone must not enable Save")
-        before.setText("<br>")
-        assertTrue(save.isEnabled)
-        dialog.dismiss()
+        after.performTextReplacement("<br>")
+        save.assertIsEnabled()
+        after.performTextReplacement(" ")
+        save.assertIsNotEnabled()
+        before.performTextReplacement("<br>")
+        save.assertIsEnabled()
+        toolbarAction(CommonString.dialog_cancel).performClick()
     }
 
     private fun checkEditedButton(
@@ -81,11 +80,9 @@ class NoteEditorToolbarTest : RobolectricTest() {
     ) {
         val editor = openEditor()
         editCustomButton()
-        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-        val binding = dialog.binding
-        binding.noteEditorToolbarBefore.setText(prefix)
-        binding.noteEditorToolbarAfter.setText(suffix)
-        clickAlertDialogButton { getButton(AlertDialog.BUTTON_POSITIVE) }
+        toolbarField(CommonString.before_text).performTextReplacement(prefix)
+        toolbarField(CommonString.after_text).performTextReplacement(suffix)
+        toolbarAction(CommonString.save).performClick()
 
         val field = editor.getFieldForTest(0)
         composeRule.runOnIdle { field.requestFocus() }
@@ -96,12 +93,16 @@ class NoteEditorToolbarTest : RobolectricTest() {
 
         // Reopening reads the saved button from preferences.
         editCustomButton()
-        val reopened = ShadowDialog.getLatestDialog() as AlertDialog
-        val reopenedBinding = reopened.binding
-        assertEquals(prefix, reopenedBinding.noteEditorToolbarBefore.text.toString())
-        assertEquals(suffix, reopenedBinding.noteEditorToolbarAfter.text.toString())
-        reopened.dismiss()
+        assertEquals(prefix, fieldValue(CommonString.before_text))
+        assertEquals(suffix, fieldValue(CommonString.after_text))
+        toolbarAction(CommonString.dialog_cancel).performClick()
     }
+
+    private fun toolbarField(label: Int) = composeRule.onNode(hasSetTextAction() and hasText(targetContext.getString(label)))
+
+    private fun toolbarAction(label: Int) = composeRule.onNodeWithText(targetContext.getString(label))
+
+    private fun fieldValue(label: Int) = toolbarField(label).fetchSemanticsNode().config[SemanticsProperties.EditableText].text
 
     private fun openEditor() =
         run {
@@ -113,11 +114,5 @@ class NoteEditorToolbarTest : RobolectricTest() {
                 )
             }
             startRegularActivity<NoteEditorActivity>(NoteEditorDestination.AddNote().toIntent()).getNoteEditorFragment()
-        }
-
-    private val AlertDialog.binding: DialogNoteEditorToolbarEditCustomItemBinding
-        get() {
-            val customPanel = assertNotNull(findViewById<ViewGroup>(androidx.appcompat.R.id.custom))
-            return DialogNoteEditorToolbarEditCustomItemBinding.bind(customPanel.getChildAt(0))
         }
 }

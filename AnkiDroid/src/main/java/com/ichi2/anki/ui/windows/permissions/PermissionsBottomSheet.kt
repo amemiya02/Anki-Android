@@ -3,92 +3,92 @@
 
 package com.ichi2.anki.ui.windows.permissions
 
+import android.app.Dialog
+import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.commit
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.ichi2.anki.CommonString
 import com.ichi2.anki.OptionalPermissionSet
 import com.ichi2.anki.R
-import com.ichi2.anki.databinding.FragmentPermissionsBottomSheetBinding
-import com.ichi2.anki.utils.ext.behavior
+import com.ichi2.anki.common.permissions.LEGACY_POST_NOTIFICATIONS
+import com.ichi2.anki.common.permissions.canPostNotifications
+import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.utils.ext.requireParcelable
-import dev.androidbroadcast.vbpd.viewBinding
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.createPaperDialog
+import com.ichi2.utils.Permissions.notificationsPermission
+import com.ichi2.utils.Permissions.requestPermissionThroughDialogOrSettings
+import com.ichi2.utils.Permissions.showToastAndOpenAppSettingsScreenForPermission
 
 /**
- * BottomSheet that requests permissions from the user.
- *
- * The full-screen [PermissionsActivity] which launches on initial app installation should be used to request
- * mandatory permissions from the user that AnkiDroid cannot run without. This more relaxed BottomSheet
- * should be used to request optional permissions from the user, and can be launched as the user gradually
- * encounters features that require permissions rather than being shoved in the face of every first-time user.
+ * Requests optional notification access when a feature needs it. Required permissions are handled
+ * separately by [PermissionsActivity].
  */
-class PermissionsBottomSheet : BottomSheetDialogFragment() {
-    private val binding by viewBinding(FragmentPermissionsBottomSheetBinding::bind)
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View? = inflater.inflate(R.layout.fragment_permissions_bottom_sheet, container, false)
-
-    override fun onViewCreated(
-        view: View,
-        savedInstanceState: Bundle?,
-    ) {
-        super.onViewCreated(view, savedInstanceState)
-
-        this.behavior.apply {
-            state = BottomSheetBehavior.STATE_EXPANDED
-            skipCollapsed = true
+class PermissionsBottomSheet : DialogFragment() {
+    private val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) dismiss()
         }
 
-        binding.closeButton.setOnClickListener { dismiss() }
-        childFragmentManager.setFragmentResultListener(REQUEST_DISMISS_PERMISSIONS_SHEET, this) { _, _ ->
-            dismiss()
-        }
-
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val permissionSet = requireArguments().requireParcelable<OptionalPermissionSet>(ARG_PERMISSION_SET)
-        val permissionsFragment = permissionSet.permissionsFragment.getDeclaredConstructor().newInstance()
-        view.post {
-            childFragmentManager.commit {
-                replace(binding.bottomSheetFragmentContainer.id, permissionsFragment)
-            }
+        val canRequestPermission =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                permissionSet == OptionalPermissionSet.NOTIFICATIONS
+        val actionLabel =
+            if (canRequestPermission) CommonString.reminder_troubleshooting_action_grant_permission else CommonString.open_settings
+        return createPaperDialog(requireContext()) {
+            ConfirmationDialog(
+                title = getString(CommonString.permissions_screen_optional_headline),
+                message = getString(CommonString.notifications_permission_explanation),
+                confirm =
+                    DialogAction(
+                        label =
+                            getString(
+                                if (canRequestPermission) CommonString.reminder_troubleshooting_action_grant_permission else CommonString.open_settings,
+                            ),
+                        onClick = {
+                            if (canRequestPermission) {
+                                requestPermissionThroughDialogOrSettings(
+                                    activity = requireActivity(),
+                                    permission = notificationsPermission,
+                                    permissionRequestedFlag = Prefs::notificationsPermissionRequested,
+                                    permissionRequestLauncher = permissionLauncher,
+                                )
+                            } else {
+                                showToastAndOpenAppSettingsScreenForPermission(
+                                    LEGACY_POST_NOTIFICATIONS,
+                                    CommonString.manually_grant_permissions,
+                                )
+                            }
+                        },
+                    ),
+                markIcon = R.drawable.symbol_notifications,
+                onDismissRequest = ::dismiss,
+            )
         }
     }
 
-    companion object {
-        /**
-         * Unique fragment tag for launching this bottom sheet.
-         */
-        private const val FRAGMENT_TAG = "notifications_bottom_sheet"
+    override fun onResume() {
+        super.onResume()
+        if (canPostNotifications(requireContext())) dismiss()
+    }
 
-        /**
-         * Arguments key for the [OptionalPermissionSet] to launch this BottomSheet with.
-         */
+    companion object {
+        private const val FRAGMENT_TAG = "notifications_bottom_sheet"
         private const val ARG_PERMISSION_SET = "arg_permission_set"
 
-        /**
-         * Fragment result request key for dismissing this BottomSheet.
-         * Public so that child fragments can set it.
-         */
-        const val REQUEST_DISMISS_PERMISSIONS_SHEET = "result_dismiss"
-
-        /**
-         * Starts this BottomSheet with the provided [OptionalPermissionSet].
-         */
         fun launch(
             fragmentManager: FragmentManager,
             permissionsSet: OptionalPermissionSet,
         ) {
-            val bottomSheet =
-                PermissionsBottomSheet().apply {
+            PermissionsBottomSheet()
+                .apply {
                     arguments = Bundle().apply { putParcelable(ARG_PERMISSION_SET, permissionsSet) }
-                }
-            bottomSheet.show(fragmentManager, FRAGMENT_TAG)
+                }.show(fragmentManager, FRAGMENT_TAG)
         }
     }
 }

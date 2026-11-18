@@ -108,6 +108,7 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
         super.onSaveInstanceState(outState)
         outState.putLongArray(STATE_REMOVED_DECK_IDS, removedDeckIds)
     }
+
     private val title: String
         get() =
             requireArguments().getString(ARG_TITLE, null)
@@ -737,6 +738,7 @@ fun FragmentActivity.startDeckSelection(
     allowAll: Boolean = true,
     allowFiltered: Boolean = true,
     skipEmptyDefault: Boolean = false,
+    usePaperDialog: Boolean = false,
 ) {
     launchCatchingTask {
         val decks =
@@ -762,6 +764,7 @@ fun FragmentActivity.startDeckSelection(
                 allowAll = allowAll,
                 allowFiltered = allowFiltered,
                 skipEmptyDefault = skipEmptyDefault,
+                usePaperDialog = usePaperDialog,
             )
         if (!supportFragmentManager.isStateSaved) {
             dialog.show(supportFragmentManager, DeckSelectionDialog.TAG)

@@ -3,18 +3,22 @@
 
 package com.ichi2.anki.instanteditor
 
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.doubleClick
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performTouchInput
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.instantnoteeditor.InstantEditorViewModel
@@ -28,6 +32,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
@@ -36,13 +41,16 @@ import kotlin.coroutines.CoroutineContext
 
 @RunWith(AndroidJUnit4::class)
 class InstantNoteEditorActivityTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Test
     fun `ignored Save does not overwrite the note being saved`() =
         runTest {
             val originalText = "{{c1::Hello}} world"
             val activity = startInstantNoteEditor(originalText)
             onView(withId(R.id.switch_edit_mode_button)).inRoot(isDialog()).perform(click())
-            val editor = ShadowDialog.getLatestDialog() as AlertDialog
+            val editor = requireNotNull(ShadowDialog.getLatestDialog())
             val viewModel = ViewModelProvider(activity)[InstantEditorViewModel::class.java]
             val notesBefore = col.noteCount()
             val pendingOperations = ArrayDeque<Runnable>()
@@ -84,14 +92,10 @@ class InstantNoteEditorActivityTest : RobolectricTest() {
             val notesBefore = col.noteCount()
             onView(withId(R.id.action_save_note)).inRoot(isDialog()).perform(click())
             advanceUntilIdle()
-            val warning = ShadowDialog.getLatestDialog() as AlertDialog
-            val save = warning.getButton(DialogInterface.BUTTON_POSITIVE)
-            assertTrue("warning is visible", warning.isShowing)
+            val save = compose.onNodeWithText(TR.actionsSave()).assertIsDisplayed()
 
             withCollectionAccessOn(StandardTestDispatcher(testScheduler)) {
-                // Queue both button callbacks before AlertDialog's posted dismissal runs.
-                save.performClick()
-                save.performClick()
+                save.performTouchInput { doubleClick() }
                 shadowOf(Looper.getMainLooper()).idle()
             }
             advanceUntilIdle()

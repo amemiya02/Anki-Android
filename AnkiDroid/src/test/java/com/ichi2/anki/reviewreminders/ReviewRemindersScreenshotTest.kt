@@ -25,7 +25,6 @@ import com.ichi2.anki.preferences.PreferencesFragment
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment.FragmentHost
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.windows.permissions.PermissionsBottomSheet
-import com.ichi2.anki.ui.windows.permissions.PermissionsFragment
 import com.ichi2.anki.withDeckPicker
 import com.ichi2.testutils.BackupManagerTestUtilities
 import com.ichi2.testutils.positiveButton
@@ -205,7 +204,7 @@ class ReviewRemindersScreenshotTest : ScreenshotTest() {
 
             fragment.addEditReminderDialog.positiveButton.performClick()
             advanceRobolectricLooperUntil {
-                fragment.permissionsBottomSheet?.permissionsFragment?.view != null &&
+                fragment.permissionsBottomSheet?.dialog?.isShowing == true &&
                     fragment.reminderCount == 1
             }
             captureScreen("notificationPermissionBottomSheet")
@@ -463,8 +462,4 @@ class ReviewRemindersScreenshotTest : ScreenshotTest() {
     /** The number of reminders in the list */
     private val ScheduleRemindersFragment.reminderCount: Int
         get() = binding.recyclerView.adapter!!.itemCount
-
-    /** The content the sheet hosts, once it has been committed */
-    private val PermissionsBottomSheet.permissionsFragment: PermissionsFragment?
-        get() = childFragmentManager.fragments.filterIsInstance<PermissionsFragment>().singleOrNull()
 }

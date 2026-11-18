@@ -3,12 +3,12 @@
 
 package com.ichi2.anki.utils
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commitNow
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -95,7 +95,7 @@ class MessageQueueObserverTest : RobolectricTest() {
         runTest {
             val waiting =
                 launch(start = CoroutineStart.UNDISPATCHED) {
-                    AlertDialog.Builder(ContextThemeWrapper(targetContext, CommonR.style.Theme_Light)).showAndAwaitDismissal {}
+                    Dialog(ContextThemeWrapper(targetContext, CommonR.style.Theme_Light)).showAndAwaitDismissal()
                 }
             val dialog = ShadowDialog.getLatestDialog()
 

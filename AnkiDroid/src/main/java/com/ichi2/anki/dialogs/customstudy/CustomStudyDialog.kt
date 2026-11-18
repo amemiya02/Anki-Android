@@ -130,7 +130,7 @@ import timber.log.Timber
  *    * Example: changing the number of new cards
  *
  * Note: when studying by tags the input dialog will also display a state selector and on user
- * action will show one extra dialog(for actual tag selection, see [TagLimitFragment])
+ * action will show one extra dialog(for actual tag selection, see [TagsDialog])
  *
  * ## Nomenclature
  * Filtered decks were previously known as 'dynamic' decks, and before that: 'cram' decks
@@ -144,7 +144,7 @@ import timber.log.Timber
  * * [https://github.com/ankitects/anki/blob/main/qt/aqt/customstudy.py](https://github.com/ankitects/anki/blob/main/qt/aqt/customstudy.py)
  * * [https://github.com/ankitects/anki/blob/main/qt/aqt/taglimit](https://github.com/ankitects/anki/blob/main/qt/aqt/taglimit.py)
  *
- * @see TagLimitFragment
+ * @see TagsDialog
  */
 class CustomStudyDialog : AnalyticsDialogFragment() {
     @VisibleForTesting(otherwise = PRIVATE)
@@ -697,8 +697,8 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
                         return@setOnClickListener
                     }
                 if (contextMenuOption == STUDY_TAGS) {
-                    // mark allowSubmit as true because, if the user cancels TagLimitFragment, when
-                    // we come back we wouldn't be able to trigger again TagLimitFragment
+                    // mark allowSubmit as true because, if the user cancels TagsDialog, when
+                    // we come back we wouldn't be able to trigger again TagsDialog
                     allowSubmit = true
                     chooseTags(contextMenuOption, n)
                     return@setOnClickListener

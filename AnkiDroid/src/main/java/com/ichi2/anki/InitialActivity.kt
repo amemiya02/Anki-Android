@@ -15,7 +15,6 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.edit
 import com.ichi2.anki.backend.DatabaseCorruption
 import com.ichi2.anki.common.crashreporting.CrashReportService
-import com.ichi2.anki.common.permissions.LEGACY_POST_NOTIFICATIONS
 import com.ichi2.anki.common.permissions.hasAllPermissions
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.storage.AnkiDroidFolder
@@ -32,8 +31,6 @@ import com.ichi2.anki.servicelayer.PreferenceUpgradeService.setPreferencesUpToDa
 import com.ichi2.anki.startup.StoragePolicy
 import com.ichi2.anki.startup.folderToPersist
 import com.ichi2.anki.startup.maybeSetDefaultCollectionPath
-import com.ichi2.anki.ui.windows.permissions.LegacyNotificationsPermissionFragment
-import com.ichi2.anki.ui.windows.permissions.NotificationsPermissionFragment
 import com.ichi2.anki.ui.windows.permissions.PermissionsBottomSheet
 import com.ichi2.anki.ui.windows.permissions.PermissionsFragment
 import com.ichi2.anki.ui.windows.permissions.PermissionsStartingAt30Fragment
@@ -284,23 +281,12 @@ enum class StoragePermissionSet(
  * Optional: requested on a [PermissionsBottomSheet].
  */
 @Parcelize
-enum class OptionalPermissionSet(
-    override val permissions: List<String>,
-    override val permissionsFragment: Class<out PermissionsFragment>,
-) : PermissionSet {
-    /**
-     * For devices with API >= 33.
-     * @see NotificationsPermissionFragment
-     */
+enum class OptionalPermissionSet : Parcelable {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    NOTIFICATIONS(listOf(Permissions.notificationsPermission), NotificationsPermissionFragment::class.java),
+    NOTIFICATIONS,
 
-    /**
-     * For devices with API < 33.
-     * There is no formal permission to request, but it is possible for the user to manually disable notifications in Settings.
-     * If they want notifications, we need to direct the user to the OS settings via the [LegacyNotificationsPermissionFragment] so they can re-enable them.
-     */
-    LEGACY_NOTIFICATIONS(listOf(LEGACY_POST_NOTIFICATIONS), LegacyNotificationsPermissionFragment::class.java),
+    /** Android releases without a permission prompt can enable notifications from system settings. */
+    LEGACY_NOTIFICATIONS,
 }
 
 /**

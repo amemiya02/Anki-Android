@@ -397,6 +397,7 @@ class AddEditReminderDialog : DialogFragment() {
             title = getString(CommonString.add_edit_reminder_delete_confirmation_title),
             message = getString(CommonString.add_edit_reminder_delete_confirmation_message),
             positiveButtonText = getString(CommonString.dialog_positive_delete),
+            destructive = true,
         )
         confirmationDialog.setConfirm {
             setFragmentResult(

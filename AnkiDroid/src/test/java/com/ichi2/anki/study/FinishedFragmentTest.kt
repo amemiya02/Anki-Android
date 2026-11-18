@@ -4,6 +4,10 @@ package com.ichi2.anki.study
 import android.app.Activity
 import android.os.Bundle
 import android.os.Looper
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -12,11 +16,8 @@ import androidx.fragment.app.commitNow
 import androidx.lifecycle.Lifecycle
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.scrollTo
-import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -32,6 +33,7 @@ import com.ichi2.anki.libanki.Consts
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.pages.DeckOptions
 import com.ichi2.anki.previewer.CardViewerActivity
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.testutils.AnkiFragmentScenario
 import com.ichi2.testutils.EmptyAnkiActivity
 import com.ichi2.testutils.launchFragmentInContainer
@@ -50,6 +52,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import androidx.compose.ui.test.isDialog as isPaperDialog
 import com.ichi2.anki.common.android.R as CommonR
 
 @RunWith(AndroidJUnit4::class)
@@ -104,9 +107,7 @@ class FinishedFragmentTest : RobolectricTest() {
                 shadowOf(Looper.getMainLooper()).idle()
                 advanceUntilIdle()
 
-                onView(withText(TR.customStudyIncreaseTodaysNewCardLimit()))
-                    .inRoot(isDialog())
-                    .check(matches(isDisplayed()))
+                composeRule.onNodeWithText(TR.customStudyIncreaseTodaysNewCardLimit()).assertIsDisplayed()
             }
         }
 
@@ -178,16 +179,14 @@ class FinishedFragmentTest : RobolectricTest() {
                 scenario.onFragment { it.onCustomStudy() }
                 shadowOf(Looper.getMainLooper()).idle()
                 advanceUntilIdle()
-                onView(withText(TR.customStudyIncreaseTodaysNewCardLimit()))
-                    .inRoot(isDialog())
-                    .perform(click())
+                clickText(TR.customStudyIncreaseTodaysNewCardLimit())
                 advanceUntilIdle()
 
                 scenario.recreate()
 
-                onView(withId(R.id.details_edit_text_2))
-                    .inRoot(isDialog())
-                    .check(matches(isDisplayed()))
+                composeRule
+                    .onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetText) and hasAnyAncestor(isPaperDialog()))
+                    .assertIsDisplayed()
             }
         }
 
@@ -266,10 +265,8 @@ class FinishedFragmentTest : RobolectricTest() {
                     activity.supportFragmentManager.commitNow { add(android.R.id.content, screen) }
                     screen.onCustomStudy()
                     shadowOf(Looper.getMainLooper()).idle()
-                    onView(withText(TR.customStudyStudyByCardStateOrTag()))
-                        .inRoot(isDialog())
-                        .perform(scrollTo(), click())
-                    clickDialogPositiveButton()
+                    clickText(TR.customStudyStudyByCardStateOrTag())
+                    clickText(with(activity) { TR.sentenceCase.chooseTags })
                     controller.saveState()
                 }
 

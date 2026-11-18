@@ -2,16 +2,16 @@
 
 package com.ichi2.anki.export
 
-import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsNotOn
+import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
@@ -55,7 +55,7 @@ class ExportDialogFragmentTest : RobolectricTest() {
     fun `collection export keeps its options and replacement warning`() =
         onExportDialog {
             option(TR.exportingIncludeMedia()).assertIsOn()
-            option(TR.exportingSupportOlderAnkiVersions()).assertIsNotOn()
+            option(TR.exportingSupportOlderAnkiVersions()).assertIsOff()
             option(str(CommonString.export_collection_replaces)).assertIsDisplayed()
             option(str(CommonString.export_deck_merges)).assertDoesNotExist()
         }
@@ -64,10 +64,10 @@ class ExportDialogFragmentTest : RobolectricTest() {
     fun `deck export keeps its options and merge warning`() =
         onDeckExportDialog {
             option(TR.exportingIncludeMedia()).assertIsOn()
-            option(TR.exportingIncludeDeckConfigs()).assertIsNotOn()
+            option(TR.exportingIncludeDeckConfigs()).assertIsOff()
             option(TR.exportingIncludeSchedulingInformation()).assertIsOn()
-            option(TR.exportingSupportOlderAnkiVersions()).assertIsNotOn()
-            option(str(CommonString.export_deck_merges)).assertIsDisplayed()
+            option(TR.exportingSupportOlderAnkiVersions()).assertIsOff()
+            option(str(CommonString.export_deck_merges)).performScrollTo().assertIsDisplayed()
             option(str(CommonString.export_collection_replaces)).assertDoesNotExist()
         }
 
@@ -75,20 +75,20 @@ class ExportDialogFragmentTest : RobolectricTest() {
     fun `legacy export is available for both package formats and absent for text formats`() =
         onExportDialog {
             val legacy = option(TR.exportingSupportOlderAnkiVersions())
-            legacy.assertIsNotOn()
+            legacy.assertIsOff()
             chooseFormat(
-                with(targetContext) { TR.sentenceCase.ankiCollectionPackage },
-                with(targetContext) { TR.sentenceCase.ankiDeckPackage },
+                "Anki collection package",
+                "Anki deck package",
             )
-            legacy.assertIsNotOn()
+            legacy.assertIsOff()
             chooseFormat(
-                with(targetContext) { TR.sentenceCase.ankiDeckPackage },
-                with(targetContext) { TR.sentenceCase.notesInPlainText },
+                "Anki deck package",
+                "Notes in plain text",
             )
             legacy.assertDoesNotExist()
             chooseFormat(
-                with(targetContext) { TR.sentenceCase.notesInPlainText },
-                with(targetContext) { TR.sentenceCase.cardsInPlainText },
+                "Notes in plain text",
+                "Cards in plain text",
             )
             legacy.assertDoesNotExist()
         }
@@ -126,7 +126,7 @@ class ExportDialogFragmentTest : RobolectricTest() {
             openDeckSelection()
             option(with(targetContext) { TR.sentenceCase.createDeck }).performClick()
             val name = "Created from export"
-            compose.onNode(SemanticsMatcher.keyIsDefined(androidx.compose.ui.semantics.SemanticsActions.SetText)).performTextInput(name)
+            compose.onNodeWithContentDescription(str(CommonString.paper_dialog_deck_name)).performTextInput(name)
             option(str(CommonString.dialog_positive_create)).performClick()
             advanceRobolectricLooperUntil { col.decks.idForName(name) != null }
             val createdId = assertNotNull(col.decks.idForName(name))
@@ -288,8 +288,15 @@ class ExportDialogFragmentTest : RobolectricTest() {
         current: String,
         desired: String,
     ) {
-        compose.onNode(hasText(current, substring = true) and hasClickAction() and hasAnyAncestor(isDialog())).performClick()
-        compose.onNode(hasText(desired, substring = true) and hasAnyAncestor(isDialog())).performScrollTo().performClick()
+        compose
+            .onNode(
+                hasText(current, substring = true, ignoreCase = true) and hasClickAction() and hasAnyAncestor(isDialog()),
+            ).performClick()
+        compose
+            .onNode(
+                hasText(desired, substring = true, ignoreCase = true) and hasAnyAncestor(isDialog()),
+            ).performScrollTo()
+            .performClick()
     }
 
     private fun holdingCollectionAccess(block: (TestCoroutineScheduler) -> Unit) {

@@ -4,6 +4,7 @@
 
 package com.ichi2.utils
 
+import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.DialogInterface.OnClickListener
@@ -510,8 +511,8 @@ fun AlertDialog.Builder.titleWithHelpIcon(
     return this
 }
 
-/** Calls [AlertDialog.dismiss], ignoring errors */
-fun AlertDialog.dismissSafely() {
+/** Calls [Dialog.dismiss], ignoring errors */
+fun Dialog.dismissSafely() {
     // The exception will be uncaught if not run on the main thread.
     executeOnMainThread {
         try {

@@ -10,28 +10,29 @@ import android.os.Bundle
 import android.os.Looper
 import android.webkit.CookieManager
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.fragment.app.commitNow
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.IntentHandler
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.crashreporting.CrashReporter
-import com.ichi2.anki.dialogs.utils.message
 import com.ichi2.anki.shareddeck.SharedDecksDownloadFragment.Companion.getDeckPageUri
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.workarounds.SafeWebViewLayout
 import com.ichi2.testutils.webView
 import com.ichi2.utils.openInputStreamSafe
-import com.ichi2.utils.positiveButton
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -364,7 +365,8 @@ class SharedDecksDownloadFragmentTest : RobolectricTest() {
         shadowOf(Looper.getMainLooper()).idle()
         assertEquals(getResourceString(R.string.shared_decks_url), shadowOf(webView).lastLoadedUrl)
 
-        clickAlertDialogButton { positiveButton }
+        composeRule.onNodeWithText(with(download.activity) { TR.sentenceCase.logIn }).performClick()
+        advanceRobolectricLooper()
 
         assertEquals(getResourceString(R.string.shared_decks_login_url), shadowOf(webView).lastLoadedUrl)
     }
@@ -408,8 +410,7 @@ class SharedDecksDownloadFragmentTest : RobolectricTest() {
     ) = composeRule.onNodeWithText(targetContext.getString(text))
 
     private fun assertLoginPromptShown() {
-        val dialog = assertNotNull(ShadowDialog.getLatestDialog() as? AlertDialog)
-        assertEquals(getResourceString(CommonString.shared_decks_ankiweb_login_limit), dialog.message)
+        composeRule.onNodeWithText(getResourceString(CommonString.shared_decks_ankiweb_login_limit)).assertIsDisplayed()
     }
 
     private fun completedDownload(): Download =

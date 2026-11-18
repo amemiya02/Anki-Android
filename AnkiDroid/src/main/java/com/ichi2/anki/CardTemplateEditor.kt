@@ -1494,6 +1494,7 @@ open class CardTemplateEditor : AnkiActivity(R.layout.activity_card_template_edi
                 title = getString(CommonString.delete_card_type),
                 message = msg,
                 positiveButtonText = getString(CommonString.dialog_positive_delete),
+                destructive = true,
             )
 
             val deleteCard = Runnable { deleteTemplate(tmpl, notetype) }

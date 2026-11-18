@@ -84,7 +84,7 @@ suspend fun AnkiActivity.userAcceptsSchemaChange(): Boolean {
     createPaperDialog(this) { dialog ->
         PaperConfirmationDialog(
             title = "",
-            message = TR.deckConfigWillRequireFullSync().replace("\s+".toRegex(), " "),
+            message = TR.deckConfigWillRequireFullSync().replace("\\s+".toRegex(), " "),
             confirm =
                 DialogAction(getString(CommonString.dialog_ok), {
                     hasAcceptedSchemaChange = true

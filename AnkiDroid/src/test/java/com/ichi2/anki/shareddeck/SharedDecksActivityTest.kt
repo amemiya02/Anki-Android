@@ -9,21 +9,25 @@ import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
-import androidx.appcompat.app.AlertDialog
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
-import com.ichi2.anki.dialogs.utils.message
-import com.ichi2.anki.dialogs.utils.title
 import com.ichi2.anki.shareddeck.SharedDecksActivity.Companion.HTTP_STATUS_TOO_MANY_REQUESTS
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.workarounds.SafeWebViewLayout
 import com.ichi2.testutils.webView
-import com.ichi2.utils.positiveButton
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -108,7 +112,8 @@ class SharedDecksActivityTest : RobolectricTest() {
         composeRule
             .onNodeWithText(getResourceString(CommonString.cancel_download))
             .performSemanticsAction(SemanticsActions.OnClick)
-        clickAlertDialogButton { positiveButton }
+        composeRule.onNodeWithText(getResourceString(CommonString.dialog_yes)).performClick()
+        advanceRobolectricLooper()
 
         verify(activity.downloadManager).remove(1L)
         verify(activity.downloadManager).enqueue(any())
@@ -129,9 +134,8 @@ class SharedDecksActivityTest : RobolectricTest() {
 
         activity.receiveTooManyRequests()
 
-        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-        assertEquals(getResourceString(CommonString.not_logged_in_title), dialog.title)
-        assertEquals(getResourceString(CommonString.shared_decks_ankiweb_login_limit), dialog.message)
+        composeRule.onNodeWithText(getResourceString(CommonString.not_logged_in_title)).assertIsDisplayed()
+        composeRule.onNodeWithText(getResourceString(CommonString.shared_decks_ankiweb_login_limit)).assertIsDisplayed()
         assertEquals(getResourceString(R.string.shared_decks_url), activity.lastLoadedUrl)
     }
 
@@ -140,7 +144,8 @@ class SharedDecksActivityTest : RobolectricTest() {
         val activity = startSharedDecks()
         activity.receiveTooManyRequests()
 
-        clickAlertDialogButton { positiveButton }
+        composeRule.onNodeWithText(with(activity) { TR.sentenceCase.logIn }).performClick()
+        advanceRobolectricLooper()
 
         assertEquals(getResourceString(R.string.shared_decks_login_url), activity.lastLoadedUrl)
     }
@@ -150,8 +155,9 @@ class SharedDecksActivityTest : RobolectricTest() {
         val activity = startSharedDecks()
         activity.receiveTooManyRequests()
 
-        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-        assertFalse(dialog.getButton(AlertDialog.BUTTON_NEUTRAL)?.isShown == true, "no sign up button")
+        composeRule.onNodeWithText(getResourceString(CommonString.dialog_cancel)).assertIsDisplayed()
+        composeRule.onNodeWithText(with(activity) { TR.sentenceCase.logIn }).assertIsDisplayed()
+        composeRule.onAllNodes(hasAnyAncestor(isDialog()) and hasClickAction()).assertCountEquals(2)
     }
 
     @Test
@@ -346,7 +352,8 @@ class SharedDecksActivityTest : RobolectricTest() {
 
     private fun SharedDecksActivity.openAnkiWebLogin() {
         receiveTooManyRequests()
-        clickAlertDialogButton { positiveButton }
+        composeRule.onNodeWithText(TR.sentenceCase.logIn).performClick()
+        advanceRobolectricLooper()
         visit(getResourceString(R.string.shared_decks_login_url))
     }
 

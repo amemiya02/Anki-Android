@@ -2,12 +2,14 @@
 
 package com.ichi2.anki.instanteditor
 
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -25,6 +27,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
@@ -32,6 +35,9 @@ import org.robolectric.shadows.ShadowDialog
 
 @RunWith(AndroidJUnit4::class)
 class InstantEditorNoClozeSnapshotReviewTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Test
     fun `confirmation saves the fields that produced the no-cloze warning`() =
         runTest {
@@ -46,7 +52,7 @@ class InstantEditorNoClozeSnapshotReviewTest : RobolectricTest() {
                     startRegularActivity<InstantNoteEditorActivity>(intent)
                 }
             onView(withId(R.id.switch_edit_mode_button)).inRoot(isDialog()).perform(click())
-            val editor = ShadowDialog.getLatestDialog() as AlertDialog
+            val editor = requireNotNull(ShadowDialog.getLatestDialog())
             val viewModel = ViewModelProvider(activity)[InstantEditorViewModel::class.java]
             val notesBefore = col.noteCount()
 
@@ -56,14 +62,10 @@ class InstantEditorNoClozeSnapshotReviewTest : RobolectricTest() {
                 editor.findViewById<EditText>(R.id.edit_field_text)!!.setText("")
             }
             advanceUntilIdle()
-            val warning = ShadowDialog.getLatestDialog() as AlertDialog
+            val warning = requireNotNull(ShadowDialog.getLatestDialog())
             assertTrue("no-cloze warning must be shown", warning !== editor && warning.isShowing)
-            assertEquals(
-                CollectionManager.TR.addingYouHaveAClozeDeletionNote(),
-                warning.findViewById<android.widget.TextView>(android.R.id.message)!!.text.toString(),
-            )
-
-            warning.getButton(DialogInterface.BUTTON_POSITIVE).performClick()
+            compose.onNodeWithText(CollectionManager.TR.addingYouHaveAClozeDeletionNote()).assertIsDisplayed()
+            compose.onNodeWithText(CollectionManager.TR.actionsSave()).performClick()
             shadowOf(Looper.getMainLooper()).idle()
             advanceUntilIdle()
 

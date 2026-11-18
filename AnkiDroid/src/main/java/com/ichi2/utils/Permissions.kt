@@ -109,7 +109,7 @@ object Permissions {
     }
 
     /**
-     * Shows the [com.ichi2.anki.ui.windows.permissions.NotificationsPermissionFragment] in the [PermissionsBottomSheet]
+     * Shows the optional notification permission [PermissionsBottomSheet]
      * if notification permissions have not been granted.
      *
      * Does nothing if the permission has already been granted.
