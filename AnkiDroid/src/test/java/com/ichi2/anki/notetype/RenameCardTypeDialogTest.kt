@@ -2,55 +2,58 @@
 
 package com.ichi2.anki.notetype
 
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.AnkiActivity
+import com.ichi2.anki.CommonString
 import com.ichi2.anki.RobolectricTest
-import com.ichi2.utils.getInputField
-import com.ichi2.utils.positiveButton
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.shadows.ShadowDialog
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class RenameCardTypeDialogTest : RobolectricTest() {
-    @Test
-    fun `whitespace-only name is rejected`() =
-        withRenameDialog {
-            getInputField().setText("   ")
-            assertFalse(positiveButton.isEnabled, "Rename should be disabled for a blank name")
-        }
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
+    private val input get() = compose.onNode(hasSetTextAction())
+    private val rename get() = compose.onNodeWithText(getResourceString(CommonString.rename))
 
     @Test
-    fun `quotes-only name is rejected`() =
-        withRenameDialog {
-            getInputField().setText("\"\"")
-            assertFalse(positiveButton.isEnabled, "Rename should be disabled for a quotes-only name")
+    fun `whitespace-only name is rejected`() {
+        openRenameDialog()
+        input.performTextReplacement("   ")
+        rename.assertIsNotEnabled()
+    }
 
-            getInputField().setText(" \" \" ")
-            assertFalse(positiveButton.isEnabled, "Rename should be disabled for quotes and whitespace")
-        }
+    @Test
+    fun `quotes-only name is rejected`() {
+        openRenameDialog()
+        input.performTextReplacement("\"\"")
+        rename.assertIsNotEnabled()
+
+        input.performTextReplacement(" \" \" ")
+        rename.assertIsNotEnabled()
+    }
 
     @Test
     fun `valid name is accepted`() {
         var renamedTo: CardTypeName? = null
-        withRenameDialog(onRename = { renamedTo = it }) {
-            getInputField().setText("  Reverse  ")
-            assertTrue(positiveButton.isEnabled, "Rename should be enabled for a valid name")
-
-            positiveButton.performClick()
-            assertThat(renamedTo?.value, equalTo("Reverse"))
-        }
+        openRenameDialog { renamedTo = it }
+        input.performTextReplacement("  Reverse  ")
+        rename.assertIsEnabled().performClick()
+        assertThat(renamedTo?.value, equalTo("Reverse"))
     }
 
-    private fun withRenameDialog(
-        onRename: (CardTypeName) -> Unit = {},
-        block: AlertDialog.() -> Unit,
-    ) {
+    private fun openRenameDialog(onRename: (CardTypeName) -> Unit = {}) {
         val currentName = CardTypeName.fromString("Card 1")
         RenameCardTypeDialog.showInstance(
             startRegularActivity<AnkiActivity>(),
@@ -59,6 +62,5 @@ class RenameCardTypeDialogTest : RobolectricTest() {
             existingNames = listOf(currentName),
             block = onRename,
         )
-        block(ShadowDialog.getLatestDialog() as AlertDialog)
     }
 }

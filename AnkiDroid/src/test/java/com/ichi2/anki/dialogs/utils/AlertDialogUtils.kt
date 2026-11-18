@@ -7,15 +7,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.test.platform.app.InstrumentationRegistry
 import com.ichi2.anki.common.utils.android.HandlerUtils.executeFunctionUsingHandler
-import com.ichi2.utils.getInputField
 import com.ichi2.utils.positiveButton
 import org.hamcrest.MatcherAssert.assertThat
-
-var AlertDialog.input
-    get() = getInputField().text.toString()
-    set(value) {
-        getInputField().setText(value)
-    }
 
 val AlertDialog.title
     get() =

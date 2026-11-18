@@ -10,9 +10,11 @@ import android.view.View.MeasureSpec
 import android.view.ViewGroup
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.view.menu.MenuBuilder
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -34,7 +36,6 @@ import com.ichi2.testutils.ext.menu
 import com.ichi2.testutils.ext.triggerDeckNotFoundInLimitsMap
 import com.ichi2.testutils.launchFragmentInContainer
 import com.ichi2.testutils.withFragment
-import com.ichi2.utils.neutralButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -43,6 +44,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -67,6 +69,9 @@ import kotlin.test.assertTrue
  */
 @RunWith(AndroidJUnit4::class)
 class StudyOptionsFragmentTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     /** Issue 22249: backend deletion can leave the tablet showing hidden Default. */
     @Test
     @Config(qualifiers = "xlarge")
@@ -300,10 +305,10 @@ class StudyOptionsFragmentTest : RobolectricTest() {
             throwOnShowError = false
 
             withStudyOptions {
-                val dialog = assertIs<AlertDialog>(ShadowDialog.getLatestDialog())
+                compose.onNodeWithText("deck not found in limits map").assertIsDisplayed()
+                compose.onNodeWithText(TR.sentenceCase.checkDatabase).assertIsDisplayed()
+                val dialog = ShadowDialog.getLatestDialog()
                 assertTrue(dialog.isShowing)
-                assertEquals("deck not found in limits map", getAlertDialogText(checkDismissed = true))
-                assertEquals(TR.sentenceCase.checkDatabase, dialog.neutralButton?.text)
 
                 dialog.dismiss()
                 col.fixIntegrity()

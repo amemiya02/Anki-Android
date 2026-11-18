@@ -7,11 +7,15 @@ import android.view.ViewGroup
 import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebView
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
+import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.browser.IdsFile
@@ -21,11 +25,10 @@ import com.ichi2.testutils.assertOpenedUrl
 import com.ichi2.testutils.createTransientDirectory
 import com.ichi2.testutils.mockWebResourceRequest
 import com.ichi2.testutils.registerWebBrowser
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.After
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
@@ -39,6 +42,9 @@ import org.robolectric.shadows.ShadowDialog
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O) // WebChromeClient
 @RunWith(AndroidJUnit4::class)
 class CardViewerFragmentTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Test
     fun `web links open with external app permission disabled`() {
         editPreferences { putBoolean(targetContext.getString(R.string.pref_allow_card_external_launch_key), false) }
@@ -98,7 +104,7 @@ class CardViewerFragmentTest : RobolectricTest() {
             chromeClient.onPermissionRequest(second)
 
             verify(second).deny()
-            clickAlertDialogButton { positiveButton }
+            compose.onNodeWithText(getResourceString(CommonString.dialog_allow)).performClick()
             verify(first).grant(arrayOf(PermissionRequest.RESOURCE_AUDIO_CAPTURE))
             verify(second, never()).grant(any())
         }
@@ -113,7 +119,7 @@ class CardViewerFragmentTest : RobolectricTest() {
 
         withCardViewerChromeClient { chromeClient ->
             chromeClient.onPermissionRequest(first)
-            clickAlertDialogButton { negativeButton }
+            compose.onNodeWithText(getResourceString(CommonString.dialog_cancel)).performClick()
             verify(first).deny()
 
             val dialogCount = ShadowDialog.getShownDialogs().size

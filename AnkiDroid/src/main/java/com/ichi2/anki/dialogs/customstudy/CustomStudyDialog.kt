@@ -86,7 +86,6 @@ import com.ichi2.compose.ui.dialogs.ProgressDialog
 import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
 import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.utils.coMeasureTime
-import com.ichi2.utils.title
 import kotlinx.coroutines.Deferred
 import kotlinx.parcelize.Parcelize
 import net.ankiweb.rsdroid.BackendException

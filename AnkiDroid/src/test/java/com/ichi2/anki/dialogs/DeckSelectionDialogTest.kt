@@ -159,19 +159,19 @@ class DeckSelectionDialogTest : RobolectricTest() {
 
     @Test
     fun `collapsing a search result keeps unrelated decks filtered out`() {
-        addDeck("Parent::Child")
+        addDeck("Parent::Parent Child")
         addDeck("Unrelated")
         launchDeckSelectionDialog(allDecks()).use {
             advanceRobolectricLooper()
             search.performTextReplacement("Parent")
-            compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasText("Parent::Child"))
-            deck("Parent::Child").assertIsDisplayed()
+            compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasText("Parent::Parent Child"))
+            deck("Parent::Parent Child").assertIsDisplayed()
 
             compose.onNodeWithContentDescription(getResourceString(CommonString.collapse)).performClick()
 
             search.assertTextContains("Parent")
             deck("Parent").assertIsDisplayed()
-            compose.onNodeWithText("Parent::Child").assertDoesNotExist()
+            compose.onNodeWithText("Parent::Parent Child").assertDoesNotExist()
             compose.onNodeWithText("Unrelated").assertDoesNotExist()
         }
     }
