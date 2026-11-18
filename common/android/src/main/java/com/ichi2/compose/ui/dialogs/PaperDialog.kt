@@ -44,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
@@ -187,13 +186,12 @@ private fun PaperDialogCard(
 ) {
     val foundation = MaterialTheme.foundation
     val colors = foundation.colors
-    val border = if (colors.background == Color.Black) colors.onBackgroundMuted else colors.outline
     Surface(
         modifier = Modifier.widthIn(min = 280.dp, max = 560.dp).fillMaxWidth(),
         color = colors.background,
         contentColor = colors.onBackground,
         shape = foundation.shapes.dialog,
-        border = BorderStroke(foundation.shapes.hairline, border),
+        border = BorderStroke(foundation.shapes.hairline, colors.dialogBorder),
     ) {
         Column(Modifier.padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 16.dp)) {
             val viewport = Modifier.weight(1f, fill = false)

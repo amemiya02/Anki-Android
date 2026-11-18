@@ -110,6 +110,7 @@ data class FoundationColors(
     val onBackgroundMuted: Color,
     /** Hairlines: decoration only, never the only cue */
     val outline: Color,
+    val dialogBorder: Color,
     /** The one primary action, as a fill */
     val primary: Color,
     val onPrimary: Color,
@@ -199,6 +200,7 @@ fun Context.toFoundation(): Foundation {
                 onBackground = color(R.styleable.Foundation_foundationOnBackground),
                 onBackgroundMuted = color(R.styleable.Foundation_foundationOnBackgroundMuted),
                 outline = color(R.styleable.Foundation_foundationOutline),
+                dialogBorder = color(R.styleable.Foundation_foundationDialogBorder),
                 primary = color(R.styleable.Foundation_foundationPrimary),
                 onPrimary = color(R.styleable.Foundation_foundationOnPrimary),
                 emphasis = color(R.styleable.Foundation_foundationEmphasis),

@@ -11,6 +11,7 @@
         <item name="foundationOnBackground">@color/foundation_dark_on_background</item>
         <item name="foundationOnBackgroundMuted">@color/foundation_dark_on_background_muted</item>
         <item name="foundationOutline">@color/foundation_dark_outline</item>
+        <item name="foundationDialogBorder">?attr/foundationOutline</item>
         <item name="foundationPrimary">@color/foundation_dark_primary</item>
         <item name="foundationOnPrimary">@color/foundation_dark_on_primary</item>
         <item name="foundationEmphasis">@color/foundation_dark_emphasis</item>

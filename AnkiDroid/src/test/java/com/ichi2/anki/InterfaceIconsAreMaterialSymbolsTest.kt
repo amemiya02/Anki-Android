@@ -222,7 +222,7 @@ class InterfaceIconsAreMaterialSymbolsTest {
         /** `symbol_flag_red`: a Flag's icon is drawn in the Flag's colour, which is what it shows */
         private val FLAG_COLOUR = Regex("symbol_flag_([a-z]+)")
 
-        private val PLATFORM_ICON = Regex("@android:drawable/\\w+|android\\.R\\.drawable\\.\\w+")
+        private val PLATFORM_ICON = Regex("@android:drawable/\\w+|(?<![\\w.])android\\.R\\.drawable\\.\\w+")
 
         /** Vector drawables that are not interface icons, and why */
         private val NOT_INTERFACE_ICONS =

@@ -8,6 +8,7 @@
     <style name="Base.Theme.Dark.Black" parent="Theme_Dark">
         <item name="foundationBackground">@color/foundation_black_background</item>
         <item name="foundationOutline">@color/foundation_black_outline</item>
+        <item name="foundationDialogBorder">?attr/foundationOnBackgroundMuted</item>
         <item name="foundationProgressTrack">@color/foundation_black_progress_track</item>
 
         <item name="android:colorBackground">@color/foundation_black_background</item>

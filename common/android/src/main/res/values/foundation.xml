@@ -17,6 +17,7 @@
     <attr name="foundationOnBackground" format="color" />
     <attr name="foundationOnBackgroundMuted" format="color" />
     <attr name="foundationOutline" format="color" />
+    <attr name="foundationDialogBorder" format="color" />
     <attr name="foundationPrimary" format="color" />
     <attr name="foundationOnPrimary" format="color" />
     <attr name="foundationEmphasis" format="color" />
@@ -43,6 +44,7 @@
         <attr name="foundationOnBackground" />
         <attr name="foundationOnBackgroundMuted" />
         <attr name="foundationOutline" />
+        <attr name="foundationDialogBorder" />
         <attr name="foundationPrimary" />
         <attr name="foundationOnPrimary" />
         <attr name="foundationEmphasis" />
