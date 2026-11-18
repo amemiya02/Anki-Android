@@ -12,3 +12,7 @@
 - [ ] The spec's open questions are closed or recorded as decisions.
 - [ ] The owner has signed off the Redesign.
 - [ ] Round trip with the Official App: a collection and a Deck exported from the Fork import into the current release of the Official App with Cards, scheduling, review history and media intact, and the same works in the other direction.
+
+## Comments
+
+On 2026-11-18 the owner asked development to continue across milestones while personal phone sign-off stays pending. Emulator checks and the package round trip still apply.
