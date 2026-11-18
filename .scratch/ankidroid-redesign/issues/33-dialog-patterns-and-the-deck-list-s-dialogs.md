@@ -20,3 +20,9 @@
 - `common/android/src/main/java/com/ichi2/compose/ui/dialogs` holds the seven reusable patterns and the shared window, title, mark and actions. Compose callers can present a dialog directly. Fragment routes can use `createPaperDialog` with their existing argument and result handling.
 - Deck list entry points use these pieces for deck creation, renaming, deletion confirmation, backup and recovery, sync, export, maintenance, custom study, deck descriptions and the initial import picker. Import processing and its remaining option dialogs are shared with other screens and are tracked in ticket 35.
 - Rendered fixtures cover the seven patterns in `DialogPatternsScreenshotTest` and deck creation through the activity in `DeckPickerDialogsScreenshotTest`.
+
+## Verification
+
+- The pre-change rendered test failed in all eight Light cases across English, Simplified Chinese, Japanese, Arabic and both font sizes. The Create action was missing from the Compose accessibility tree.
+- The Engine suite completed with 143 passes and 7 skips.
+- The Mockup contrast check passed every Foundation pairing in Light, Dark and Black.
