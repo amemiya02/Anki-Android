@@ -86,6 +86,9 @@ class SingleActivityNavigationTest : RobolectricTest() {
             "Text from another app",
             (host.currentScreenFragment as NoteEditorPaneFragment).launchIntent.getStringExtra(Intent.EXTRA_TEXT),
         )
+        host.onBackPressedDispatcher.onBackPressed()
+        composeRule.onNodeWithText(host.getString(CommonString.discard)).performClick()
+        composeRule.onAllNodesWithText("Decks").onFirst().assertIsDisplayed()
         assertNull(shadowOf(host).nextStartedActivity)
     }
 
@@ -108,6 +111,7 @@ class SingleActivityNavigationTest : RobolectricTest() {
         val noteEditor = deckPicker.currentScreenFragment as NoteEditorPaneFragment
         assertEquals("A second share", noteEditor.launchIntent.getStringExtra(Intent.EXTRA_TEXT))
         deckPicker.onBackPressedDispatcher.onBackPressed()
+        composeRule.onNodeWithText(deckPicker.getString(CommonString.discard)).performClick()
         composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment is MediaCheckFragment }
         assertNull(shadowOf(deckPicker).nextStartedActivity)
     }
