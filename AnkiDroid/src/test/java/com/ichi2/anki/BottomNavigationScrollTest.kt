@@ -20,6 +20,7 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.behavior.HideViewOnScrollBehavior
@@ -63,8 +64,7 @@ class BottomNavigationScrollTest : RobolectricTest() {
             deckPicker.scrollFrom(deckPicker.deckPickerBinding.deckList, 40)
             assertThat(behavior.isScrolledOut, equalTo(true))
 
-            nav.selectedItemId = NavigationItem.BROWSER.id
-            advanceRobolectricLooper()
+            deckPicker.selectTab(NavigationItem.BROWSER)
             assertThat(behavior.isScrolledIn, equalTo(true))
         }
 
@@ -73,8 +73,7 @@ class BottomNavigationScrollTest : RobolectricTest() {
         repeat(40) { addBasicNote("Browser result ${it.toString().padStart(2, '0')}") }
         withBottomNavigation { deckPicker ->
             val nav = deckPicker.bottomNav
-            nav.selectedItemId = NavigationItem.BROWSER.id
-            advanceRobolectricLooper()
+            deckPicker.selectTab(NavigationItem.BROWSER)
             val browserRows = hasScrollToIndexAction() and hasAnyDescendant(hasText("Browser result", substring = true))
             composeRule.waitUntil(10_000) { composeRule.onAllNodes(browserRows).fetchSemanticsNodes().isNotEmpty() }
             val rows = composeRule.onNode(browserRows)
@@ -91,8 +90,7 @@ class BottomNavigationScrollTest : RobolectricTest() {
     fun `scrolling More content hides the bar and scrolling back restores it`() =
         withBottomNavigation { deckPicker ->
             val nav = deckPicker.bottomNav
-            nav.selectedItemId = NavigationItem.MORE.id
-            advanceRobolectricLooper()
+            deckPicker.selectTab(NavigationItem.MORE)
             val scrollView = deckPicker.moreView
             val behavior = HideViewOnScrollBehavior.from(nav)
 
@@ -107,8 +105,7 @@ class BottomNavigationScrollTest : RobolectricTest() {
     fun `More stays at the bottom with the bar hidden after the content grows`() =
         withBottomNavigation { deckPicker ->
             val nav = deckPicker.bottomNav
-            nav.selectedItemId = NavigationItem.MORE.id
-            advanceRobolectricLooper()
+            deckPicker.selectTab(NavigationItem.MORE)
             val scrollView = deckPicker.moreView
             val behavior = HideViewOnScrollBehavior.from(nav)
             scrollMoreBy(10_000f)
@@ -127,8 +124,7 @@ class BottomNavigationScrollTest : RobolectricTest() {
     fun `dragging down restores the hidden bar when the content cannot scroll`() =
         withBottomNavigation { deckPicker ->
             val nav = deckPicker.bottomNav
-            nav.selectedItemId = NavigationItem.MORE.id
-            advanceRobolectricLooper()
+            deckPicker.selectTab(NavigationItem.MORE)
             val behavior = HideViewOnScrollBehavior.from(nav)
             behavior.slideOut(nav)
             assertThat(behavior.isScrolledOut, equalTo(true))
@@ -145,8 +141,7 @@ class BottomNavigationScrollTest : RobolectricTest() {
         RuntimeEnvironment.setQualifiers("w320dp-h320dp")
         withBottomNavigation { activity ->
             val nav = activity.bottomNav
-            nav.selectedItemId = NavigationItem.MORE.id
-            advanceRobolectricLooper()
+            activity.selectTab(NavigationItem.MORE)
             val scroll = activity.moreView
             assertThat("More must be scrolled away from the top", scrollMoreBy(200f) > 70, equalTo(true))
             val behavior = HideViewOnScrollBehavior.from(nav)
@@ -189,8 +184,7 @@ class BottomNavigationScrollTest : RobolectricTest() {
     fun `scrolling Statistics content hides the bar`() =
         withBottomNavigation { deckPicker ->
             val nav = deckPicker.bottomNav
-            nav.selectedItemId = NavigationItem.STATS.id
-            advanceRobolectricLooper()
+            deckPicker.selectTab(NavigationItem.STATS)
             val webView = deckPicker.statisticsWebView
 
             val behavior = HideViewOnScrollBehavior.from(nav)
@@ -204,8 +198,7 @@ class BottomNavigationScrollTest : RobolectricTest() {
     fun `first upward Statistics scroll after layout restores the bar`() =
         withBottomNavigation { deckPicker ->
             val nav = deckPicker.bottomNav
-            nav.selectedItemId = NavigationItem.STATS.id
-            advanceRobolectricLooper()
+            deckPicker.selectTab(NavigationItem.STATS)
             val webView = deckPicker.statisticsWebView
             val behavior = HideViewOnScrollBehavior.from(nav)
 
@@ -255,14 +248,23 @@ class BottomNavigationScrollTest : RobolectricTest() {
     private fun withBottomNavigation(test: (DeckPicker) -> Unit) =
         run {
             setIntroductionSlidesShown(true)
-            test(startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent()).get())
+            val deckPicker = startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent()).get()
+            composeRule.waitUntil(10_000) {
+                deckPicker.deckPickerBinding.deckList.isShown && deckPicker.bottomNav.isShown && deckPicker.bottomNav.height > 0
+            }
+            test(deckPicker)
         }
+
+    private fun DeckPicker.selectTab(tab: NavigationItem) {
+        bottomNav.selectedItemId = tab.id
+        composeRule.waitUntil(10_000) { currentScreenFragment?.isVisible == true }
+    }
 
     private fun DeckPicker.scrollFrom(
         source: View,
         dy: Int,
     ) {
-        val root = binding.root
+        val root = bottomNav.parent as CoordinatorLayout
         if (root.onStartNestedScroll(source, source, ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH)) {
             root.onNestedScroll(source, 0, dy, 0, 0, ViewCompat.TYPE_TOUCH)
             root.onStopNestedScroll(source, ViewCompat.TYPE_TOUCH)

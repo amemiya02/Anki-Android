@@ -124,6 +124,7 @@ internal class AppNavigation(
                 AndroidView(
                     factory = {
                         (home.parent as? ViewGroup)?.removeView(home)
+                        home.isNestedScrollingEnabled = true
                         home
                     },
                     modifier = Modifier.fillMaxSize(),
@@ -195,7 +196,11 @@ internal class AppNavigation(
         val containerId = rememberSaveable { allocateContainerId() }
         val container =
             remember(containerId) {
-                FragmentContainerView(deckPicker).apply { id = containerId }
+                FragmentContainerView(deckPicker).apply {
+                    id = containerId
+                    // AndroidView forwards nested scroll from its descendants when the hosted view opts in.
+                    isNestedScrollingEnabled = true
+                }
             }
         AndroidView(factory = { container }, modifier = modifier.fillMaxSize())
 
