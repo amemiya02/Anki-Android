@@ -445,7 +445,11 @@ class NoteEditorScreenshotTest : ScreenshotTest() {
             activity.simulateGestureNavigationBar()
             activity.simulateSideNavigationBar()
 
-            val toolbar = activity.noteEditorFragment.requireView().findViewById<Toolbar>(R.id.editor_toolbar).scrollView
+            val toolbar =
+                activity.noteEditorFragment
+                    .requireView()
+                    .findViewById<Toolbar>(R.id.editor_toolbar)
+                    .scrollView
             assertThat(toolbar.paddingLeft, equalTo(0))
             assertThat(toolbar.paddingRight, equalTo(0))
         }
