@@ -20,6 +20,7 @@ import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.common.android.AdaptionUtil
 import com.ichi2.utils.LanguageUtil
+import com.ichi2.utils.LanguageUtil.getStringByLocale
 import kotlin.reflect.KClass
 
 /** Localized and device-specific row metadata shared by the screens and the search index. */
@@ -43,7 +44,7 @@ internal fun PreferenceScreen.applySettingsMetadata(
         R.xml.preferences_general -> {
             val language = preference(R.string.pref_language_key) as ListPreference
             val languages = LanguageUtil.APP_LANGUAGES.toSortedMap(String.CASE_INSENSITIVE_ORDER)
-            val systemLanguage = LanguageUtil.getStringByLocale(CommonString.language_system, LanguageUtil.getSystemLocale())
+            val systemLanguage = context.getStringByLocale(CommonString.language_system, LanguageUtil.getSystemLocale())
             language.entries = arrayOf(systemLanguage, *languages.keys.toTypedArray())
             language.entryValues = arrayOf(LanguageUtil.SYSTEM_LANGUAGE_TAG, *languages.values.toTypedArray())
             preference(R.string.nav_drawer_gesture_key).isVisible = !context.resources.getBoolean(R.bool.bottom_navigation_available)
