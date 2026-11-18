@@ -4,59 +4,20 @@
 package com.ichi2.anki.notetype
 
 import android.view.WindowManager
-import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.dialogs.LoadingDialogFragment
-import com.ichi2.anki.progress.ViewModelProgress
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.equalTo
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.shadows.ShadowDialog
-import org.robolectric.shadows.ShadowLooper
-import com.ichi2.anki.common.android.R as CommonR
 
 @RunWith(AndroidJUnit4::class)
 class ManageNotetypesTest : RobolectricTest() {
-    @Test
-    fun `rename note type - whitespace only name keeps Rename button disabled`() =
-        runTest {
-            ensureCollectionLoadIsSynchronous()
-            addStandardNoteType(TEST_NOTE_TYPE_NAME, arrayOf("front", "back"), "", "")
-
-            val activity = startRegularActivity<ManageNotetypes>()
-            val firstNoteType =
-                activity.viewModel.state.value.noteTypes
-                    .first { it.name == TEST_NOTE_TYPE_NAME }
-            activity.renameNotetype(firstNoteType)
-
-            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-
-            val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-            val nameInput = dialog.findViewById<EditText>(CommonR.id.dialog_text_input)!!
-            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-
-            // whitespace-only should disable the Rename button
-            nameInput.setText("   ")
-            assertThat("Rename button disabled for whitespace-only name", positiveButton.isEnabled, equalTo(false))
-
-            // a valid new name should enable the button
-            nameInput.setText("Renamed Note Type")
-            assertThat("Rename button enabled for a valid name", positiveButton.isEnabled, equalTo(true))
-
-            // empty string should disable it again
-            nameInput.setText("")
-            assertThat("Rename button disabled for empty name", positiveButton.isEnabled, equalTo(false))
-        }
-
     @Test
     fun `deleting a note type blocks touches until it finishes`() =
         runTest {
@@ -79,25 +40,6 @@ class ManageNotetypesTest : RobolectricTest() {
                 activity.viewModel.state.value.noteTypes
                     .none { it.id == noteType.id },
             )
-        }
-
-    @Test
-    fun `the Add dialog loads its note types under the screen's progress`() =
-        runTest {
-            ensureCollectionLoadIsSynchronous()
-            val activity = startRegularActivity<ManageNotetypes>()
-
-            withQueuedCollectionAccess {
-                activity.binding.floatingActionButton.performClick()
-                assertTrue("loading the note types", activity.viewModel.progressManager.progress.value is ViewModelProgress.Active)
-            }
-            advanceUntilIdle()
-            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-
-            assertTrue("loaded", activity.viewModel.progressManager.progress.value is ViewModelProgress.Idle)
-            val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-            assertTrue("the Add dialog is shown", dialog.isShowing)
-            assertTrue("the Add dialog has note types", dialog.newNoteTypeBinding.notetypeNewType.count > 0)
         }
 
     @Test

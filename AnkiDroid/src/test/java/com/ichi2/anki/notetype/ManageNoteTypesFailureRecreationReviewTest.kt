@@ -4,8 +4,10 @@ package com.ichi2.anki.notetype
 
 import android.content.Intent
 import android.content.res.Configuration
-import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.lifecycleScope
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.backend.backendError
 import com.ichi2.anki.CollectionManager
@@ -20,15 +22,12 @@ import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.launch
 import net.ankiweb.rsdroid.BackendException.BackendDbException.BackendDbCorruptException
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.shadows.ShadowDialog
-import org.robolectric.shadows.ShadowLooper
 import java.util.ArrayDeque
 import kotlin.coroutines.CoroutineContext
-import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotSame
 import kotlin.test.assertNull
@@ -37,6 +36,9 @@ import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class ManageNoteTypesFailureRecreationReviewTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Test
     fun `invalid clone without recreation shows validation`() = checkFailure(corruption = false, recreate = false)
 
@@ -61,17 +63,9 @@ class ManageNoteTypesFailureRecreationReviewTest : RobolectricTest() {
         val controller = startActivityControllerNormallyOpenCollectionWithIntent(ManageNotetypes::class.java, Intent())
         val activity = controller.get()
         val viewModel = activity.viewModel
-        activity.lifecycleScope.launch { AddNewNotesType(activity).showAddNewNotetypeDialog() }
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-        if (!corruption) {
-            val selector = dialog.newNoteTypeBinding.notetypeNewType
-            val index = (0 until selector.count).single { selector.getItemAtPosition(it).toString().contains(sourceName) }
-            selector.setSelection(index)
-            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        }
-        dialog.newNoteTypeBinding.notetypeNewName.setText(newName)
-
+        compose.openAddType()
+        if (!corruption) compose.onNodeWithText(sourceName).performClick()
+        compose.fillName(newName)
         val queue = StepDispatcher()
         val previousQueue = CollectionManager.setTestDispatcher(queue, useReentrantLock = false)
         val previousCorruption = DatabaseCorruption.isDetected
@@ -85,7 +79,7 @@ class ManageNoteTypesFailureRecreationReviewTest : RobolectricTest() {
             }
         }
         try {
-            assertTrue(dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick())
+            compose.confirmAdd()
             advanceRobolectricLooper()
             assertTrue(queue.hasTasks, "creation is still waiting for collection access")
             assertIs<ViewModelProgress.Active<Nothing>>(viewModel.progressManager.progress.value)
@@ -126,11 +120,7 @@ class ManageNoteTypesFailureRecreationReviewTest : RobolectricTest() {
                     "the current activity must receive database recovery",
                 )
             } else {
-                val validationDialog = ShadowDialog.getLatestDialog()
-                assertIs<AlertDialog>(validationDialog, "the failed clone must open a validation dialog")
-                assertTrue(validationDialog.isShowing, "the failed clone must show validation on the current activity")
-                assertFalse(validationDialog === dialog, "the error must be delivered separately from the dismissed add dialog")
-                assertTrue(getAlertDialogText(true).orEmpty().contains("problem"), "the dialog must contain the template validation error")
+                compose.onNodeWithText("problem", substring = true).assertIsDisplayed()
             }
         } finally {
             CollectionManager.setTestDispatcher(previousQueue)

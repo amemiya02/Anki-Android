@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="note_types_title">笔记类型</string>
+    <string name="note_types_lead">笔记类型决定笔记有哪些字段，以及用哪些卡片模板将它们制成卡片。</string>
+    <string name="note_type_label">笔记类型</string>
+    <string name="note_type_add_title">添加笔记类型</string>
+    <string name="note_type_add_lead">从标准类型开始，或复制一个你自己的。</string>
+    <string name="note_type_standard">标准类型</string>
+    <string name="note_type_clone">复制你的类型</string>
+    <string name="note_type_fields">字段</string>
+    <string name="note_type_templates">卡片模板</string>
+    <plurals name="note_type_template_count"><item quantity="other">%s 个卡片模板</item></plurals>
+    <plurals name="note_type_note_count"><item quantity="other">%s 条笔记</item></plurals>
+    <string name="note_type_field_actions">%s的操作</string>
+    <string name="note_type_field_drag">拖动以调整顺序</string>
+    <string name="note_type_field_move">移到指定位置…</string>
+    <string name="note_type_field_sort_label">用于浏览器排序</string>
+    <string name="note_type_field_sort_action">按此字段对浏览器排序</string>
+    <string name="note_type_field_sort_description">浏览器的“排序字段”列会显示它</string>
+    <string name="note_type_field_keyboard_label">键盘：%s</string>
+    <string name="note_type_field_keyboard_action">键盘语言</string>
+    <string name="note_type_field_no_keyboard">未设置</string>
+    <string name="note_type_field_delete_description">此字段的内容会从所有笔记中移除</string>
+    <string name="note_type_field_delete_confirm">从此类型的所有笔记中删除“%s”？</string>
+    <string name="note_type_full_sync_title">这项更改需要单向同步</string>
+    <string name="note_type_full_sync_field_delete">删除字段会改变集合的结构。下次同步将上传此集合并替换服务器上的集合。其他设备自上次同步以来的复习记录将丢失。</string>
+</resources>

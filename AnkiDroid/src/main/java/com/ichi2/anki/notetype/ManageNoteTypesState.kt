@@ -2,17 +2,12 @@
 
 package com.ichi2.anki.notetype
 
-import android.content.Context
-import android.content.Intent
 import android.widget.Toast
 import anki.notetypes.Notetype
 import anki.notetypes.NotetypeNameIdUseCount
 import com.google.android.material.snackbar.Snackbar
-import com.ichi2.anki.CardTemplateEditor
-import com.ichi2.anki.NoteTypeFieldEditor
 import com.ichi2.anki.exception.ReportableException
 import com.ichi2.anki.libanki.NoteTypeId
-import com.ichi2.anki.utils.Destination
 
 /** Encapsulates the entire state for [ManageNotetypes] */
 data class ManageNoteTypesState(
@@ -28,7 +23,7 @@ data class ManageNoteTypesState(
      * If not null the user requested to go to this destination. Should to be handled immediately
      * and after marked as consumed.
      */
-    val destination: Destination? = null,
+    val destination: NoteTypeId? = null,
     /**
      * Flag to indicate if we are selecting multiple items. This being true implies that at least
      * one item in the list of [com.ichi2.anki.notetype.NoteTypeItemState] has its isSelected
@@ -40,23 +35,6 @@ data class ManageNoteTypesState(
     enum class UserMessage {
         /** Message to inform that the last [Notetype] can't be removed */
         DeletingLastModel,
-    }
-
-    data class CardEditor(
-        val ntid: NoteTypeId,
-    ) : Destination {
-        override fun toIntent(context: Context) = CardTemplateEditor.getIntent(context, noteTypeId = ntid)
-    }
-
-    data class FieldsEditor(
-        val ntid: NoteTypeId,
-        val name: String,
-    ) : Destination {
-        override fun toIntent(context: Context): Intent =
-            Intent(context, NoteTypeFieldEditor::class.java).apply {
-                putExtra(NoteTypeFieldEditor.EXTRA_NOTETYPE_NAME, name)
-                putExtra(NoteTypeFieldEditor.EXTRA_NOTETYPE_ID, ntid)
-            }
     }
 }
 
@@ -75,8 +53,12 @@ data class NoteTypeItemState(
      * want to hide entries but still holding on to them for their state.
      */
     val shouldBeDisplayed: Boolean = true,
+    val templateCount: Int = 0,
 ) {
     companion object {
-        fun asModel(source: NotetypeNameIdUseCount) = NoteTypeItemState(source.id, source.name, source.useCount)
+        fun asModel(
+            source: NotetypeNameIdUseCount,
+            templateCount: Int,
+        ) = NoteTypeItemState(source.id, source.name, source.useCount, templateCount = templateCount)
     }
 }

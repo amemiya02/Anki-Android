@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="note_types_title">ノートタイプ</string>
+    <string name="note_types_lead">ノートタイプは、ノートのフィールドと、そこからカードを作るためのカードテンプレートを定義します。</string>
+    <string name="note_type_label">ノートタイプ</string>
+    <string name="note_type_add_title">ノートタイプを追加</string>
+    <string name="note_type_add_lead">標準タイプを使うか、既存のノートタイプをコピーします。</string>
+    <string name="note_type_standard">標準タイプ</string>
+    <string name="note_type_clone">既存のタイプをコピー</string>
+    <string name="note_type_fields">フィールド</string>
+    <string name="note_type_templates">カードテンプレート</string>
+    <plurals name="note_type_template_count"><item quantity="other">カードテンプレート %s 件</item></plurals>
+    <plurals name="note_type_note_count"><item quantity="other">ノート %s 件</item></plurals>
+    <string name="note_type_field_actions">%s の操作</string>
+    <string name="note_type_field_drag">ドラッグして並べ替え</string>
+    <string name="note_type_field_move">位置を指定して移動…</string>
+    <string name="note_type_field_sort_label">ブラウザーの並べ替えに使用</string>
+    <string name="note_type_field_sort_action">このフィールドでブラウザーを並べ替える</string>
+    <string name="note_type_field_sort_description">ブラウザーの「並べ替えフィールド」列に表示されます</string>
+    <string name="note_type_field_keyboard_label">キーボード：%s</string>
+    <string name="note_type_field_keyboard_action">キーボードの言語</string>
+    <string name="note_type_field_no_keyboard">未設定</string>
+    <string name="note_type_field_delete_description">すべてのノートからこのフィールドの内容を削除します</string>
+    <string name="note_type_field_delete_confirm">このタイプのすべてのノートから「%s」を削除しますか？</string>
+    <string name="note_type_full_sync_title">この変更には一方向の同期が必要です</string>
+    <string name="note_type_full_sync_field_delete">フィールドを削除すると、コレクションの構造が変わります。次回の同期時に、このコレクションをアップロードしてサーバー上のコレクションを置き換えます。他の端末で前回の同期後に行った復習の記録は失われます。</string>
+</resources>

@@ -25,8 +25,6 @@ import com.ichi2.anki.libanki.getNotetypeNames
 import com.ichi2.anki.libanki.getStockNotetype
 import com.ichi2.anki.libanki.removeNotetype
 import com.ichi2.anki.libanki.updateNotetype
-import com.ichi2.anki.notetype.ManageNoteTypesState.CardEditor
-import com.ichi2.anki.notetype.ManageNoteTypesState.FieldsEditor
 import com.ichi2.anki.notetype.ManageNoteTypesState.UserMessage
 import com.ichi2.anki.notetype.NoteTypeItemState.Companion.asModel
 import com.ichi2.anki.observability.undoableOp
@@ -52,6 +50,41 @@ class ManageNoteTypesViewModel :
     /** An add or clone that is still running, so a recreated screen can still show its errors */
     var pendingAdd: Deferred<Unit>? = null
         private set
+
+    internal val detail: StateFlow<NoteTypeDetails?>
+        field = MutableStateFlow<NoteTypeDetails?>(null)
+
+    internal val fieldResult: StateFlow<FieldEditOutcome?>
+        field = MutableStateFlow<FieldEditOutcome?>(null)
+
+    internal var pendingFieldEdit: Deferred<Unit>? = null
+        private set
+
+    internal suspend fun refreshDetail(id: NoteTypeId) {
+        detail.value = withCol { noteTypeDetails(id) }
+    }
+
+    internal fun editField(
+        id: NoteTypeId,
+        change: FieldChange,
+        confirmed: Boolean,
+    ): Deferred<Unit> {
+        val edit =
+            viewModelScope.async {
+                progressManager.withProgress {
+                    val result = withCol { changeNoteField(id, change, confirmed) }
+                    if (result == FieldChangeResult.Changed) refreshDetail(id)
+                    fieldResult.value = FieldEditOutcome(id, change, result)
+                }
+            }
+        pendingFieldEdit = edit
+        edit.invokeOnCompletion { if (pendingFieldEdit === edit) pendingFieldEdit = null }
+        return edit
+    }
+
+    internal fun consumeFieldEditResult() {
+        fieldResult.value = null
+    }
 
     init {
         refreshNoteTypes()
@@ -135,7 +168,19 @@ class ManageNoteTypesViewModel :
                 }
             }.onSuccess {
                 state.update { oldState ->
-                    oldState.copy(noteTypes = it)
+                    val selectedIds =
+                        oldState.noteTypes
+                            .filter { type -> type.isSelected }
+                            .map { type -> type.id }
+                            .toSet()
+                    val updated =
+                        it.map { type ->
+                            type.copy(
+                                isSelected = type.id in selectedIds,
+                                shouldBeDisplayed = type.name.contains(oldState.searchQuery, ignoreCase = true),
+                            )
+                        }
+                    oldState.copy(noteTypes = updated, isInMultiSelectMode = updated.multiSelectModeStatus)
                 }
             }
     }
@@ -163,7 +208,9 @@ class ManageNoteTypesViewModel :
                         .onSuccess { changes ->
                             state.update { oldState ->
                                 val updatedNoteTypes =
-                                    oldState.noteTypes.withUpdatedItem(ntid) { old -> old.copy(name = name) }
+                                    oldState.noteTypes.withUpdatedItem(ntid) { old ->
+                                        old.copy(name = name, shouldBeDisplayed = name.contains(oldState.searchQuery, ignoreCase = true))
+                                    }
                                 oldState.copy(noteTypes = updatedNoteTypes)
                             }
                             return@undoableOp changes
@@ -185,7 +232,10 @@ class ManageNoteTypesViewModel :
     }
 
     /** Deletes the note type with [ntid] and also updates the multi select mode status if needed */
-    fun delete(ntid: NoteTypeId) {
+    fun delete(
+        ntid: NoteTypeId,
+        confirmSchema: Boolean = false,
+    ) {
         Timber.i("Deleting notetype with id $ntid")
         if (state.value.noteTypes.size <= 1) {
             state.update { oldState -> oldState.copy(message = UserMessage.DeletingLastModel) }
@@ -194,7 +244,7 @@ class ManageNoteTypesViewModel :
         viewModelScope.launch {
             progressManager.withProgress {
                 undoableOp<OpChanges> {
-                    safeRemoveNoteType(ntid)
+                    safeRemoveNoteType(ntid, confirmSchema)
                         .onSuccess { changes ->
                             state.update { oldState ->
                                 val updatedNoteTypes = oldState.noteTypes.filterNot { it.id == ntid }
@@ -232,7 +282,7 @@ class ManageNoteTypesViewModel :
         } else {
             Timber.i("onItemClick: not in multiple selection mode, sending show fields editor request")
             state.update { oldState ->
-                oldState.copy(destination = FieldsEditor(entry.id, entry.name))
+                oldState.copy(destination = entry.id)
             }
         }
     }
@@ -297,7 +347,7 @@ class ManageNoteTypesViewModel :
      * Deletes all the [NoteTypeItemState] which are currently selected. Any errors when deleting
      * the [Notetype]s will be combined into a single [CombinedException] to present to the user.
      */
-    fun deleteSelectedNoteTypes() {
+    fun deleteSelectedNoteTypes(confirmSchema: Boolean = false) {
         val noteTypesToDelete = selectedNoteTypes.toMutableList()
         Timber.i("Deleting currently selected notetypes: ${noteTypesToDelete.map { it.id }}")
         // show loading and clear selection
@@ -316,7 +366,7 @@ class ManageNoteTypesViewModel :
                 val errors = mutableMapOf<NoteTypeItemState, Throwable>()
                 noteTypesToDelete.forEach { noteType ->
                     undoableOp<OpChanges> {
-                        safeRemoveNoteType(noteType.id)
+                        safeRemoveNoteType(noteType.id, confirmSchema)
                             .onFailure { exception ->
                                 errors[noteType] = exception
                                 OpChanges.getDefaultInstance()
@@ -341,13 +391,6 @@ class ManageNoteTypesViewModel :
                     )
                 }
             }
-        }
-    }
-
-    fun onCardEditorRequested(entry: NoteTypeItemState) {
-        Timber.i("Sending open card editor request")
-        state.update { oldState ->
-            oldState.copy(destination = CardEditor(entry.id))
         }
     }
 
@@ -400,8 +443,12 @@ private fun Collection.safeRenameNoteType(
         Result.failure(exception)
     }
 
-private fun Collection.safeRemoveNoteType(ntid: NoteTypeId): Result<OpChanges> =
+private fun Collection.safeRemoveNoteType(
+    ntid: NoteTypeId,
+    confirmSchema: Boolean,
+): Result<OpChanges> =
     try {
+        if (confirmSchema && !schemaChanged()) modSchema(check = false)
         Result.success(removeNotetype(ntid))
     } catch (exception: Exception) {
         Result.failure(exception)
@@ -409,7 +456,13 @@ private fun Collection.safeRemoveNoteType(ntid: NoteTypeId): Result<OpChanges> =
 
 private fun Collection.safeGetNotetypeNameIdUseCount(): Result<List<NoteTypeItemState>> =
     try {
-        Result.success(getNotetypeNameIdUseCount().map(::asModel))
+        Result.success(getNotetypeNameIdUseCount().map { asModel(it, notetypes.get(it.id)?.templates?.count() ?: 0) })
     } catch (exception: Exception) {
         Result.failure(exception)
     }
+
+internal data class FieldEditOutcome(
+    val id: NoteTypeId,
+    val change: FieldChange,
+    val result: FieldChangeResult,
+)

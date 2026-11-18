@@ -160,7 +160,6 @@ class AllActivitiesRecreationTest : RobolectricTest() {
             listOf(
                 CardAnalysisWidgetConfig::class.java,
                 DeckPickerWidgetConfig::class.java,
-                NoteTypeFieldEditor::class.java,
                 PermissionsActivity::class.java,
             )
 

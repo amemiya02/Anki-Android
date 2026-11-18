@@ -311,11 +311,6 @@
             android:name=".ui.windows.permissions.PermissionsActivity"
             android:exported="false"
             />
-        <activity
-            android:name=".NoteTypeFieldEditor"
-            android:label="@string/model_editor_label"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            />
         <!-- Keep saved launcher shortcuts and external intents for the former component working. -->
         <activity-alias
             android:name="com.ichi2.anki.Reviewer"

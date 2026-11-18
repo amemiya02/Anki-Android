@@ -2,8 +2,10 @@
 
 package com.ichi2.anki.notetype
 
-import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.lifecycleScope
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.backend.backendError
 import com.ichi2.anki.CollectionManager
@@ -18,10 +20,10 @@ import com.ichi2.anki.throwOnShowError
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
-import kotlinx.coroutines.launch
 import net.ankiweb.rsdroid.BackendException.BackendDbException.BackendDbCorruptException
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
@@ -29,14 +31,14 @@ import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
-import org.robolectric.shadows.ShadowDialog
-import org.robolectric.shadows.ShadowLooper
-import kotlin.test.assertNotSame
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class ManageNoteTypesAddErrorHandlingTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     private lateinit var originalCrashReporter: CrashReporter
     private val crashReporter = mock<CrashReporter>()
 
@@ -55,16 +57,16 @@ class ManageNoteTypesAddErrorHandlingTest : RobolectricTest() {
     @Test
     fun `collection open failure while adding shows an error without escaping the coroutine`() =
         runTest {
-            val (_, dialog) = openAddDialog()
-            dialog.newNoteTypeBinding.notetypeNewName.setText("New note type")
+            openAddDialog()
+            compose.fillName("New note type")
 
             val previousFailure = CollectionManager.emulatedOpenFailure
             CollectionManager.emulatedOpenFailure = CollectionManager.CollectionOpenFailure.LOCKED
             try {
-                submit(dialog)
+                compose.confirmAdd()
+                advanceRobolectricLooper()
 
-                assertNotSame(dialog, latestDialog(), "Collection access failures must reach the error UI")
-                assertTrue(getAlertDialogText(true).orEmpty().contains("Advanced settings"))
+                compose.onNodeWithText("Advanced settings", substring = true).assertIsDisplayed()
             } finally {
                 CollectionManager.emulatedOpenFailure = previousFailure
             }
@@ -73,8 +75,8 @@ class ManageNoteTypesAddErrorHandlingTest : RobolectricTest() {
     @Test
     fun `corruption during add opens database recovery`() =
         runTest {
-            val (activity, dialog) = openAddDialog()
-            dialog.newNoteTypeBinding.notetypeNewName.setText("New note type")
+            val activity = openAddDialog()
+            compose.fillName("New note type")
 
             val previousCorruption = DatabaseCorruption.isDetected
             DatabaseCorruption.isDetected = false
@@ -82,7 +84,8 @@ class ManageNoteTypesAddErrorHandlingTest : RobolectricTest() {
             try {
                 every { any<Collection>().addNotetypeLegacy(any()) } throws BackendDbCorruptException(backendError {})
 
-                submit(dialog)
+                compose.confirmAdd()
+                advanceRobolectricLooper()
 
                 assertTrue(DatabaseCorruption.isDetected, "Corruption must be marked for recovery")
                 assertTrue(
@@ -102,37 +105,20 @@ class ManageNoteTypesAddErrorHandlingTest : RobolectricTest() {
             val cloneName = "Invalid template clone"
             // Legacy collections can contain templates that fail the current backend's validation.
             addStandardNoteType(sourceName, arrayOf("front", "back"), "", "")
-            val (_, dialog) = openAddDialog()
-            val selector = dialog.newNoteTypeBinding.notetypeNewType
-            val sourcePosition =
-                (0 until selector.count).single { selector.getItemAtPosition(it).toString().contains(sourceName) }
-            selector.setSelection(sourcePosition)
-            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-            dialog.newNoteTypeBinding.notetypeNewName.setText(cloneName)
-
-            submit(dialog)
-
-            val errorDialog = latestDialog()
-            assertNotSame(dialog, errorDialog, "The invalid template must produce a validation dialog")
+            openAddDialog()
+            compose.onNodeWithText(sourceName).performClick()
+            compose.fillName(cloneName)
+            compose.confirmAdd()
+            compose.onNodeWithText("problem", substring = true).assertIsDisplayed()
             assertNull(col.notetypes.byName(cloneName), "The invalid clone must not be created")
-            errorDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
-            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+            compose.onNodeWithText("Close", ignoreCase = true).performClick()
             verify(crashReporter, never()).sendExceptionReport(any<Throwable>(), anyOrNull(), anyOrNull(), any())
         }
 
-    private fun openAddDialog(): Pair<ManageNotetypes, AlertDialog> {
+    private fun openAddDialog(): ManageNotetypes {
+        ensureCollectionLoadIsSynchronous()
         val activity = startRegularActivity<ManageNotetypes>()
-        activity.lifecycleScope.launch { AddNewNotesType(activity).showAddNewNotetypeDialog() }
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        return activity to latestDialog()
+        compose.openAddType()
+        return activity
     }
-
-    private fun submit(dialog: AlertDialog) {
-        val addButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-        assertTrue(addButton.isEnabled, "The add action must be enabled before submitting")
-        assertTrue(addButton.performClick())
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-    }
-
-    private fun latestDialog(): AlertDialog = ShadowDialog.getLatestDialog() as AlertDialog
 }

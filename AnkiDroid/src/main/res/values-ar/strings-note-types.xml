@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="note_types_title">أنواع الملاحظات</string>
+    <string name="note_types_lead">يحدد كل نوع ملاحظة حقولها وقوالب البطاقات التي تحولها إلى بطاقات.</string>
+    <string name="note_type_label">نوع الملاحظة</string>
+    <string name="note_type_add_title">إضافة نوع ملاحظة</string>
+    <string name="note_type_add_lead">ابدأ بنوع قياسي أو انسخ أحد أنواعك.</string>
+    <string name="note_type_standard">الأنواع القياسية</string>
+    <string name="note_type_clone">انسخ أحد أنواعك</string>
+    <string name="note_type_fields">الحقول</string>
+    <string name="note_type_templates">قوالب البطاقات</string>
+    <plurals name="note_type_template_count"><item quantity="other">%s من قوالب البطاقات</item></plurals>
+    <plurals name="note_type_note_count"><item quantity="other">%s من الملاحظات</item></plurals>
+    <string name="note_type_field_actions">إجراءات %s</string>
+    <string name="note_type_field_drag">اسحب لتغيير الترتيب</string>
+    <string name="note_type_field_move">نقل إلى موضع…</string>
+    <string name="note_type_field_sort_label">يُستخدم للفرز في المتصفح</string>
+    <string name="note_type_field_sort_action">فرز المتصفح حسب هذا الحقل</string>
+    <string name="note_type_field_sort_description">يظهر في عمود حقل الفرز في المتصفح</string>
+    <string name="note_type_field_keyboard_label">لوحة المفاتيح: %s</string>
+    <string name="note_type_field_keyboard_action">لغة لوحة المفاتيح</string>
+    <string name="note_type_field_no_keyboard">غير محددة</string>
+    <string name="note_type_field_delete_description">يُحذف محتوى الحقل من كل ملاحظة</string>
+    <string name="note_type_field_delete_confirm">هل تريد حذف «%s» من جميع الملاحظات من هذا النوع؟</string>
+    <string name="note_type_full_sync_title">يتطلب هذا التغيير مزامنة أحادية الاتجاه</string>
+    <string name="note_type_full_sync_field_delete">يؤدي حذف حقل إلى تغيير بنية المجموعة. عند المزامنة التالية، ستُرفع هذه المجموعة وتحل محل المجموعة الموجودة على الخادم. ستُفقد المراجعات التي أجريتها على الأجهزة الأخرى منذ آخر مزامنة لها.</string>
+</resources>

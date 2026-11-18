@@ -6,8 +6,7 @@ import anki.notetypes.NotetypeNameId
 import com.ichi2.anki.libanki.NoteTypeId
 
 /**
- * Data holder class which contains the data to display a single note type in [AddNewNotesType]'s
- * list of notetypes.
+ * Data holder class which contains the data to display a single note type in [AddNoteTypeSheet].
  */
 internal data class AddNotetypeUiModel(
     val id: NoteTypeId,

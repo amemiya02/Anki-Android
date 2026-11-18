@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="note_types_title">Note Types</string>
+    <string name="note_types_lead">Each Note Type sets a Note’s fields and the Card Templates that turn them into Cards.</string>
+    <string name="note_type_label">Note Type</string>
+    <string name="note_type_add_title">Add Note Type</string>
+    <string name="note_type_add_lead">Start from a standard type, or copy one of yours.</string>
+    <string name="note_type_standard">Standard types</string>
+    <string name="note_type_clone">Copy one of yours</string>
+    <string name="note_type_fields">Fields</string>
+    <string name="note_type_templates">Card Templates</string>
+    <plurals name="note_type_template_count">
+        <item quantity="one">%s Card Template</item>
+        <item quantity="other">%s Card Templates</item>
+    </plurals>
+    <plurals name="note_type_note_count">
+        <item quantity="one">%s note</item>
+        <item quantity="other">%s notes</item>
+    </plurals>
+    <string name="note_type_field_actions">Actions for %s</string>
+    <string name="note_type_field_drag">Drag to reorder</string>
+    <string name="note_type_field_move">Move to position…</string>
+    <string name="note_type_field_sort_label">Sorts the browser</string>
+    <string name="note_type_field_sort_action">Sort the browser by this field</string>
+    <string name="note_type_field_sort_description">The browser’s Sort Field column shows it</string>
+    <string name="note_type_field_keyboard_label">Keyboard: %s</string>
+    <string name="note_type_field_keyboard_action">Keyboard language</string>
+    <string name="note_type_field_no_keyboard">Not set</string>
+    <string name="note_type_field_delete_description">Its content is removed from every Note</string>
+    <string name="note_type_field_delete_confirm">Delete “%s” from every Note of this type?</string>
+    <string name="note_type_full_sync_title">This change needs a one-way sync</string>
+    <string name="note_type_full_sync_field_delete">Deleting a field changes how the collection is built. The next sync will upload this collection and replace the one on your server. Reviews made on other devices since their last sync will be lost.</string>
+</resources>

@@ -122,7 +122,7 @@ class AllActivitiesScreenshotTest : ScreenshotTest() {
                     IntroductionActivity::class.java,
                     // StudyScreenScreenshotTest, PreviewerScreenshotTest and TemplatePreviewerScreenshotTest
                     CardViewerActivity::class.java,
-                    // ManageNotetypesScreenshotTest,
+                    // NoteTypesScreenshotTest
                     ManageNotetypes::class.java,
                     // MultimediaScreenshotTest
                     MultimediaActivity::class.java,
@@ -138,8 +138,6 @@ class AllActivitiesScreenshotTest : ScreenshotTest() {
                     Info::class.java,
                     // NoteEditorScreenshotTest
                     NoteEditorActivity::class.java,
-                    // NoteTypeFieldEditorScreenshotTest
-                    NoteTypeFieldEditor::class.java,
                 )
             return ActivityList
                 .allActivitiesAndIntents()

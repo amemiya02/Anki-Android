@@ -2,349 +2,423 @@
 
 package com.ichi2.anki.notetype
 
-import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
+import androidx.activity.SystemBarStyle
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.annotation.StringRes
-import androidx.annotation.VisibleForTesting
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.SearchView
-import androidx.appcompat.widget.Toolbar
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsCompat.Type.displayCutout
-import androidx.core.view.WindowInsetsCompat.Type.ime
-import androidx.core.view.WindowInsetsCompat.Type.systemBars
-import androidx.core.view.isVisible
-import androidx.core.view.marginBottom
-import androidx.core.view.updateMargins
-import androidx.core.view.updateMarginsRelative
-import androidx.core.view.updatePadding
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import anki.notetypes.StockNotetype
 import com.ichi2.anki.AnkiActivity
+import com.ichi2.anki.CardTemplateEditor
 import com.ichi2.anki.CollectionManager.TR
-import com.ichi2.anki.CommonPlurals
+import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.awaitCatchingTask
 import com.ichi2.anki.common.crashreporting.CrashReportService
-import com.ichi2.anki.common.utils.dp
-import com.ichi2.anki.databinding.ActivityManageNoteTypesBinding
 import com.ichi2.anki.launchCatchingTask
-import com.ichi2.anki.notetype.ManageNoteTypesState.UserMessage
+import com.ichi2.anki.libanki.NoteTypeId
+import com.ichi2.anki.progress.ViewModelProgress
 import com.ichi2.anki.progress.observeProgress
-import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.startup.ensureStorageIsReady
-import com.ichi2.anki.sync.userAcceptsSchemaChange
 import com.ichi2.anki.utils.Destination
-import com.ichi2.themes.setTransparentStatusBar
-import com.ichi2.ui.AccessibleSearchView
-import com.ichi2.utils.getInputField
-import com.ichi2.utils.getInputTextLayout
-import com.ichi2.utils.input
-import com.ichi2.utils.message
-import com.ichi2.utils.negativeButton
-import com.ichi2.utils.positiveButton
-import com.ichi2.utils.show
-import com.ichi2.utils.title
-import dev.androidbroadcast.vbpd.viewBinding
-import kotlinx.coroutines.launch
-import timber.log.Timber
-import com.ichi2.anki.common.android.R as CommonR
+import com.ichi2.compose.theme.AnkiDroidTheme
+import com.ichi2.compose.ui.dialogs.ConfirmationDialog
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.DialogActionStyle
+import com.ichi2.compose.ui.dialogs.ErrorDialog
+import com.ichi2.compose.ui.dialogs.TextInputDialog
+import com.ichi2.themes.Themes
 
-class ManageNotetypes : AnkiActivity(R.layout.activity_manage_note_types) {
-    @VisibleForTesting
-    val binding by viewBinding(ActivityManageNoteTypesBinding::bind)
+class ManageNotetypes : AnkiActivity() {
     val viewModel by viewModels<ManageNoteTypesViewModel>()
 
-    private val notetypesAdapter: NoteTypesAdapter by lazy {
-        NoteTypesAdapter(
-            this@ManageNotetypes,
-            onItemClick = viewModel::onItemClick,
-            onItemLongClick = viewModel::onItemLongClick,
-            onItemChecked = viewModel::onItemChecked,
-            onEditCards = viewModel::onCardEditorRequested,
-            onRename = ::renameNotetype,
-            onDelete = ::deleteNotetype,
-        )
-    }
-    private val outsideChangesLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-            if (result.resultCode == RESULT_OK) {
-                viewModel.refreshNoteTypes()
-            }
-        }
-
-    private val backCallback =
-        object : OnBackPressedCallback(enabled = false) {
-            override fun handleOnBackPressed() {
-                viewModel.clearSelection()
-            }
+    private var templateRevision by mutableIntStateOf(0)
+    private val templateEditor =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            viewModel.refreshNoteTypes()
+            templateRevision++
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (showedActivityFailedScreen(savedInstanceState)) {
-            return
-        }
+        if (showedActivityFailedScreen(savedInstanceState)) return
         super.onCreate(savedInstanceState)
-        if (!ensureStorageIsReady()) {
-            return
-        }
-        enableEdgeToEdge()
-        applyInsets()
-        setTransparentStatusBar()
-        enableToolbar()
-        binding.noteTypesList.adapter = notetypesAdapter
-        observeProgress(viewModel) { it }
-        viewModel.pendingAdd?.awaitCatchingTask()
-        binding.floatingActionButton.apply {
-            setOnClickListener {
-                val addNewNotesType = AddNewNotesType(this@ManageNotetypes)
-                launchCatchingTask { addNewNotesType.showAddNewNotetypeDialog() }
-            }
-        }
-        binding.btnClearSelection.setOnClickListener { viewModel.clearSelection() }
+        if (!ensureStorageIsReady()) return
 
-        binding.selectionToolbar.setOnClickListener {
-            // Consume touch events to prevent tap-through
-        }
-        binding.btnDeleteSelection.setOnClickListener {
-            launchCatchingTask {
-                val deleteMessage =
-                    if (userAcceptsSchemaChange()) {
-                        val selection =
-                            viewModel.selectedNoteTypes.joinToString { it.name }
-                        getString(CommonString.model_delete_multiple_warning, selection)
-                    } else {
-                        return@launchCatchingTask
-                    }
-                AlertDialog.Builder(this@ManageNotetypes).show {
-                    title(CommonString.dialog_positive_delete)
-                    message(text = deleteMessage)
-                    positiveButton(CommonString.dialog_positive_delete) {
-                        viewModel.deleteSelectedNoteTypes()
-                    }
-                    negativeButton(CommonString.dialog_cancel)
-                }
-            }
-        }
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.state.collect { state ->
-                    backCallback.isEnabled = viewModel.state.value.isInMultiSelectMode
-                    // as they are transient user messages take precedence and are immediately consumed
-                    if (state.message != null) {
-                        val snackbarMessage =
-                            when (state.message) {
-                                UserMessage.DeletingLastModel -> getString(CommonString.toast_last_model)
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme })
+        setContent {
+            AnkiDroidTheme {
+                NoteTypesRoute(
+                    viewModel = viewModel,
+                    templateRevision = templateRevision,
+                    onClose = ::finish,
+                    onTemplate = { id, row -> templateEditor.launch(CardTemplateEditor.getIntent(this, id, ord = row.ord)) },
+                    runTask = { block -> launchCatchingTask { block() } },
+                    onAdd = { item, name ->
+                        val added =
+                            if (item.isStandard) {
+                                viewModel.addStockNoteType(name, StockNotetype.Kind.forNumber(item.id.toInt()))
+                            } else {
+                                viewModel.cloneNoteType(name, item.id)
                             }
-                        showSnackbar(snackbarMessage)
-                        viewModel.clearMessage()
-                        return@collect
-                    }
-                    // after messages destinations are immediate targets for execution
-                    val currentDestination = state.destination
-                    if (currentDestination != null) {
-                        viewModel.clearDestination()
-                        outsideChangesLauncher.launch(currentDestination.toIntent(this@ManageNotetypes))
-                        return@collect
-                    }
-                    bindState(state)
-                }
-            }
-        }
-        onBackPressedDispatcher.addCallback(this, backCallback)
-    }
-
-    private fun applyInsets() {
-        // Material 3 supplies the FAB size before layout.
-        val fabSize = binding.floatingActionButton.customSize
-        val fabBottomMargin = binding.floatingActionButton.marginBottom
-        ViewCompat.setOnApplyWindowInsetsListener(binding.rootLayout) { _, insets ->
-            val constraints = insets.getInsets(systemBars() or displayCutout() or ime())
-            Timber.d("Applying insets: $constraints")
-            binding.appBarLayout.updatePadding(left = constraints.left, top = constraints.top, right = constraints.right)
-            binding.noteTypesList.updatePadding(
-                left = constraints.left,
-                right = constraints.right,
-                // FAB size + its layout margin + a 16dp gap.
-                bottom = constraints.bottom + fabSize + fabBottomMargin + 16.dp.toPx(this),
-            )
-            val fabLayoutParams = binding.floatingActionButton.layoutParams as ViewGroup.MarginLayoutParams
-            // also applies the 32dp bottom/end margin to not sit right on top of navigation bar
-            fabLayoutParams.updateMarginsRelative(
-                bottom = constraints.bottom + fabBottomMargin,
-                end = constraints.right + 32.dp.toPx(this),
-            )
-            // needed otherwise the updated relative margins are not seen
-            binding.floatingActionButton.layoutParams = fabLayoutParams
-            val selectionToolbarParams = binding.selectionToolbar.layoutParams as ViewGroup.MarginLayoutParams
-            // also applies the 32dp bottom margin to not sit right on top of navigation bar
-            selectionToolbarParams.updateMargins(bottom = constraints.bottom + 32.dp.toPx(this))
-            WindowInsetsCompat.CONSUMED
-        }
-    }
-
-    @VisibleForTesting
-    fun bindState(state: ManageNoteTypesState) {
-        if (state.error != null) {
-            if (state.error.isReportable) {
-                CrashReportService.sendExceptionReport(
-                    state.error.source,
-                    ManageNotetypes::class.java.simpleName,
+                        added.awaitCatchingTask()
+                    },
                 )
             }
-            AlertDialog.Builder(this).show {
-                message(text = state.error.source.message)
-                positiveButton(CommonString.close) { viewModel.refreshNoteTypes() }
-            }
-            viewModel.clearError()
-            return
         }
-        // send only the items that should be displayed
-        notetypesAdapter.submitList(state.noteTypes.filter { it.shouldBeDisplayed })
-        notetypesAdapter.isInMultiSelectMode = state.isInMultiSelectMode
-        if (state.searchQuery.isNotEmpty()) {
-            val searchMenuItem =
-                findViewById<Toolbar>(R.id.toolbar).menu?.findItem(R.id.search_item)
-            val searchView = searchMenuItem?.actionView as? AccessibleSearchView
-            // Avoid resetting cursor position if query hasn't changed
-            if (searchView?.query.toString() != state.searchQuery) {
-                searchView?.setQuery(state.searchQuery, false)
+        observeProgress(viewModel) { it }
+        viewModel.pendingAdd?.awaitCatchingTask()
+        viewModel.pendingFieldEdit?.awaitCatchingTask()
+    }
+}
+
+@Composable
+private fun NoteTypesRoute(
+    viewModel: ManageNoteTypesViewModel,
+    templateRevision: Int,
+    onClose: () -> Unit,
+    onTemplate: (NoteTypeId, NoteTemplateRow) -> Unit,
+    runTask: (suspend () -> Unit) -> Unit,
+    onAdd: (AddNotetypeUiModel, String) -> Unit,
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val progress by viewModel.progressManager.progress.collectAsStateWithLifecycle()
+    val detail by viewModel.detail.collectAsStateWithLifecycle()
+    val fieldResult by viewModel.fieldResult.collectAsStateWithLifecycle()
+    var openedId by rememberSaveable { mutableStateOf<NoteTypeId?>(null) }
+    var searching by rememberSaveable { mutableStateOf(false) }
+    var dialog by rememberSaveable { mutableStateOf<NoteTypeDialog?>(null) }
+    var field by rememberSaveable { mutableStateOf<NoteFieldRef?>(null) }
+    var pendingChange by rememberSaveable { mutableStateOf<FieldChange?>(null) }
+    var fieldMessage by rememberSaveable { mutableStateOf<Int?>(null) }
+    val opened = state.noteTypes.firstOrNull { it.id == openedId }
+    val openedDetail = detail?.takeIf { it.id == openedId }
+    val closeDialog = { dialog = null }
+    val busy = progress is ViewModelProgress.Active
+
+    fun goBack() {
+        if (busy) return
+        when {
+            openedId != null -> openedId = null
+            state.isInMultiSelectMode -> viewModel.clearSelection()
+            searching -> {
+                searching = false
+                viewModel.filter("")
             }
+            else -> onClose()
         }
-        binding.selectionToolbar.isVisible = state.isInMultiSelectMode
-        val selectedCount = state.noteTypes.count { it.isSelected }
-        binding.selectedLabel.text =
-            resources.getQuantityString(
-                CommonPlurals.note_types_selected,
-                selectedCount,
-                selectedCount,
+    }
+
+    fun edit(
+        id: NoteTypeId,
+        change: FieldChange,
+        confirmed: Boolean = false,
+    ) {
+        dialog = null
+        runTask { viewModel.editField(id, change, confirmed).await() }
+    }
+
+    BackHandler { goBack() }
+    LaunchedEffect(state.destination) {
+        state.destination?.let {
+            openedId = it
+            viewModel.clearDestination()
+        }
+    }
+    LaunchedEffect(openedId, templateRevision) {
+        openedId?.let { id -> runTask { viewModel.refreshDetail(id) } }
+    }
+    LaunchedEffect(opened, state.noteTypes) {
+        if (openedId != null && opened == null && state.noteTypes.isNotEmpty()) {
+            openedId = null
+            dialog = null
+        }
+    }
+    LaunchedEffect(fieldResult) {
+        val outcome = fieldResult ?: return@LaunchedEffect
+        viewModel.consumeFieldEditResult()
+        if (outcome.id != openedId) return@LaunchedEffect
+        when (outcome.result) {
+            FieldChangeResult.NeedsFullSync -> {
+                pendingChange = outcome.change
+                dialog = NoteTypeDialog.SyncField
+            }
+            FieldChangeResult.DuplicateName -> fieldMessage = CommonString.toast_duplicate_field
+            FieldChangeResult.LastField -> fieldMessage = CommonString.toast_last_field
+            else -> Unit
+        }
+    }
+
+    if (opened == null) {
+        NoteTypesScreen(
+            state = state,
+            searching = searching,
+            onBack = ::goBack,
+            onSearch = { searching = true },
+            onQuery = viewModel::filter,
+            onAdd = { dialog = NoteTypeDialog.AddType },
+            onNoteType = viewModel::onItemClick,
+            onSelect = viewModel::onItemLongClick,
+            onDeleteSelected = { dialog = NoteTypeDialog.DeleteTypes },
+        )
+    } else {
+        key(opened.id) {
+            NoteTypeDetailPage(
+                item = opened,
+                detail = openedDetail,
+                onBack = ::goBack,
+                onRename = { dialog = NoteTypeDialog.RenameType },
+                onDelete = { dialog = NoteTypeDialog.DeleteTypes },
+                onAddField = {
+                    field = null
+                    dialog = NoteTypeDialog.FieldName
+                },
+                onField = {
+                    field = it
+                    dialog = NoteTypeDialog.FieldActions
+                },
+                onMove = { ref, position -> edit(opened.id, FieldChange(FieldAction.Move, ref, position = position)) },
+                onTemplate = { onTemplate(opened.id, it) },
             )
-        binding.floatingActionButton.isVisible = !state.isInMultiSelectMode
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.search, menu)
-
-        val searchItem = menu.findItem(R.id.search_item)
-        val searchManager = getSystemService(SEARCH_SERVICE) as SearchManager
-        val searchView = searchItem?.actionView as? AccessibleSearchView
-        searchView?.maxWidth = Integer.MAX_VALUE
-        searchView?.setSearchableInfo(searchManager.getSearchableInfo(componentName))
-
-        // keep the same "lifted" background on the app bar while searching
-        searchItem.setOnActionExpandListener(
-            object : MenuItem.OnActionExpandListener {
-                override fun onMenuItemActionExpand(item: MenuItem): Boolean {
-                    binding.appBarLayout.isLiftOnScroll = false
-                    return true
-                }
-
-                override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
-                    binding.appBarLayout.isLiftOnScroll = true
-                    return true
-                }
-            },
-        )
-
-        searchView?.setOnQueryTextListener(
-            object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String): Boolean = true
-
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    if (newText != null && viewModel.state.value.searchQuery != newText) {
-                        viewModel.filter(newText)
-                    }
-                    return true
-                }
-            },
-        )
-        return true
-    }
-
-    @VisibleForTesting
-    internal fun renameNotetype(state: NoteTypeItemState) {
-        launchCatchingTask {
-            val allNotetypes = viewModel.state.value.noteTypes
-            val dialog =
-                AlertDialog
-                    .Builder(this@ManageNotetypes)
-                    .show {
-                        title(CommonString.rename_model)
-                        positiveButton(CommonString.rename) {
-                            val userInput =
-                                (it as AlertDialog)
-                                    .getInputField()
-                                    .text
-                                    .toString()
-                                    .trim()
-                            if (userInput.isEmpty()) return@positiveButton
-                            viewModel.rename(state.id, userInput)
-                        }
-                        negativeButton(CommonString.dialog_cancel)
-                        setView(CommonR.layout.dialog_generic_text_input)
-                    }.input(
-                        hint = TR.deckConfigNamePrompt(),
-                        prefill = state.name,
-                        waitForPositiveButton = false,
-                        displayKeyboard = true,
-                        callback = { dialog, text ->
-                            val inputStr = text.toString().trim()
-
-                            val isDuplicate =
-                                allNotetypes.any { it.id != state.id && it.name.equals(inputStr, ignoreCase = true) }
-
-                            val isUnchanged = inputStr == state.name
-
-                            if (inputStr.isBlank()) {
-                                dialog.getInputTextLayout().error = null
-                                dialog.positiveButton.isEnabled = false
-                                return@input
-                            } else if (isDuplicate && !isUnchanged) {
-                                dialog.getInputTextLayout().error = getString(CommonString.error_name_exists)
-                                dialog.positiveButton.isEnabled = false
-                                return@input
-                            }
-
-                            dialog.getInputTextLayout().error = null
-                            dialog.positiveButton.isEnabled = !isUnchanged
-                        },
-                    )
-            // start with the button disabled as dialog shows the initial name
-            dialog.positiveButton.isEnabled = false
         }
     }
 
-    @VisibleForTesting
-    internal fun deleteNotetype(state: NoteTypeItemState) {
-        launchCatchingTask {
-            @StringRes val messageResourceId: Int? =
-                if (userAcceptsSchemaChange()) {
-                    CommonString.model_delete_warning
-                } else {
-                    return@launchCatchingTask
-                }
-            AlertDialog.Builder(this@ManageNotetypes).show {
-                title(CommonString.model_browser_delete)
-                message(messageResourceId)
-                positiveButton(CommonString.dialog_positive_delete) {
-                    viewModel.delete(state.id)
-                }
-                negativeButton(CommonString.dialog_cancel)
+    val context = LocalContext.current
+    when (dialog) {
+        NoteTypeDialog.AddType -> {
+            var options by remember { mutableStateOf<Pair<List<AddNotetypeUiModel>, List<String>>?>(null) }
+            LaunchedEffect(Unit) { runTask { options = viewModel.loadAddNoteTypeOptions() } }
+            options?.let { (choices, names) ->
+                AddNoteTypeSheet(choices, names, onAdd = { item, name ->
+                    closeDialog()
+                    onAdd(item, name)
+                }, onDismiss = closeDialog)
             }
         }
+        NoteTypeDialog.RenameType ->
+            if (opened != null) {
+                TextInputDialog(
+                    title = stringResource(CommonString.rename_model),
+                    label = TR.deckConfigNamePrompt(),
+                    confirmText = stringResource(CommonString.rename),
+                    initialText = opened.name,
+                    onConfirm = {
+                        closeDialog()
+                        viewModel.rename(opened.id, it.trim())
+                    },
+                    onDismissRequest = closeDialog,
+                    errorMessageFor = { input -> renameError(context, opened, state.noteTypes, input.trim()) },
+                )
+            }
+        NoteTypeDialog.DeleteTypes -> {
+            val selected = if (opened == null) viewModel.selectedNoteTypes else listOf(opened)
+            DeleteNoteTypesDialog(
+                selected = selected,
+                onDismiss = closeDialog,
+                onConfirm = {
+                    closeDialog()
+                    if (state.noteTypes.size == 1) {
+                        viewModel.delete(state.noteTypes.single().id)
+                    } else {
+                        runTask {
+                            if (withCol { schemaChanged() }) {
+                                if (opened != null) viewModel.delete(opened.id) else viewModel.deleteSelectedNoteTypes()
+                            } else {
+                                dialog = NoteTypeDialog.SyncTypes
+                            }
+                        }
+                    }
+                },
+            )
+        }
+        NoteTypeDialog.SyncTypes ->
+            NoteTypeFullSyncDialog(onDismiss = closeDialog, onConfirm = {
+                closeDialog()
+                if (opened !=
+                    null
+                ) {
+                    viewModel.delete(opened.id, confirmSchema = true)
+                } else {
+                    viewModel.deleteSelectedNoteTypes(confirmSchema = true)
+                }
+            })
+        NoteTypeDialog.SyncField -> {
+            val change = pendingChange
+            val id = openedId
+            if (change != null && id != null) {
+                NoteTypeFullSyncDialog(
+                    onDismiss = {
+                        pendingChange = null
+                        closeDialog()
+                    },
+                    onConfirm = {
+                        pendingChange = null
+                        edit(id, change, confirmed = true)
+                    },
+                    deletingField = change.action == FieldAction.Delete,
+                )
+            }
+        }
+        null -> Unit
+        else ->
+            if (openedDetail != null) {
+                FieldDialogs(
+                    dialog = dialog,
+                    fields = openedDetail.fields,
+                    field = field,
+                    onDialog = { dialog = it },
+                    onEdit = { edit(openedDetail.id, it) },
+                )
+            }
+    }
+
+    val error = state.error
+    if (error != null) {
+        LaunchedEffect(error) {
+            if (error.isReportable) CrashReportService.sendExceptionReport(error.source, ManageNotetypes::class.java.simpleName)
+        }
+        ErrorDialog(
+            title = "",
+            message = error.source.localizedMessage.orEmpty(),
+            onDismissRequest = {
+                viewModel.clearError()
+                viewModel.refreshNoteTypes()
+            },
+        )
+    }
+    if (fieldMessage != null || state.message != null) {
+        ErrorDialog(
+            title = "",
+            message = stringResource(fieldMessage ?: CommonString.toast_last_model),
+            onDismissRequest = {
+                fieldMessage = null
+                viewModel.clearMessage()
+            },
+        )
+    }
+}
+
+private fun renameError(
+    context: Context,
+    opened: NoteTypeItemState,
+    types: List<NoteTypeItemState>,
+    input: String,
+): String? =
+    when {
+        input.isBlank() || input == opened.name -> ""
+        types.any { it.id != opened.id && it.name.equals(input, ignoreCase = true) } -> context.getString(CommonString.error_name_exists)
+        else -> null
+    }
+
+@Composable
+private fun DeleteNoteTypesDialog(
+    selected: List<NoteTypeItemState>,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    ConfirmationDialog(
+        title = stringResource(CommonString.model_browser_delete),
+        message =
+            if (selected.size == 1) {
+                stringResource(CommonString.model_delete_warning)
+            } else {
+                stringResource(CommonString.model_delete_multiple_warning, selected.joinToString { it.name })
+            },
+        confirm = DialogAction(stringResource(CommonString.dialog_positive_delete), onConfirm, DialogActionStyle.Destructive),
+        onDismissRequest = onDismiss,
+    )
+}
+
+private enum class NoteTypeDialog {
+    AddType,
+    RenameType,
+    DeleteTypes,
+    SyncTypes,
+    SyncField,
+    FieldActions,
+    FieldName,
+    MoveField,
+    Keyboard,
+    DeleteField,
+}
+
+@Composable
+private fun FieldDialogs(
+    dialog: NoteTypeDialog?,
+    fields: List<NoteFieldRow>,
+    field: NoteFieldRef?,
+    onDialog: (NoteTypeDialog?) -> Unit,
+    onEdit: (FieldChange) -> Unit,
+) {
+    val row = fields.firstOrNull { it.field == field } ?: fields.singleOrNull { field?.id != null && it.field.id == field.id }
+    val dismiss = { onDialog(null) }
+    if (field != null && row == null) {
+        LaunchedEffect(field, dialog) { dismiss() }
+        return
+    }
+    when (dialog) {
+        NoteTypeDialog.FieldActions ->
+            if (row != null) {
+                FieldActionsSheet(row, dismiss) { action ->
+                    when (action) {
+                        FieldAction.Rename -> onDialog(NoteTypeDialog.FieldName)
+                        FieldAction.Move -> onDialog(NoteTypeDialog.MoveField)
+                        FieldAction.Sort -> onEdit(FieldChange(action, row.field))
+                        FieldAction.Keyboard -> onDialog(NoteTypeDialog.Keyboard)
+                        FieldAction.Delete -> {
+                            if (fields.size == 1) onEdit(FieldChange(action, row.field)) else onDialog(NoteTypeDialog.DeleteField)
+                        }
+                        FieldAction.Add -> Unit
+                    }
+                }
+            }
+        NoteTypeDialog.FieldName ->
+            FieldNameDialog(row?.field, fields, dismiss) {
+                onEdit(FieldChange(if (row == null) FieldAction.Add else FieldAction.Rename, row?.field, value = it))
+            }
+        NoteTypeDialog.MoveField ->
+            if (row != null) {
+                FieldPositionDialog(row, fields, dismiss) { onEdit(FieldChange(FieldAction.Move, row.field, position = it)) }
+            }
+        NoteTypeDialog.Keyboard ->
+            if (row != null) {
+                FieldKeyboardDialog(
+                    row.keyboard,
+                    dismiss,
+                ) { onEdit(FieldChange(FieldAction.Keyboard, row.field, value = it?.toLanguageTag().orEmpty())) }
+            }
+        NoteTypeDialog.DeleteField ->
+            if (row != null) {
+                ConfirmationDialog(
+                    title = stringResource(CommonString.model_field_editor_delete),
+                    message = stringResource(R.string.note_type_field_delete_confirm, row.field.name),
+                    confirm =
+                        DialogAction(
+                            stringResource(CommonString.dialog_positive_delete),
+                            { onEdit(FieldChange(FieldAction.Delete, row.field)) },
+                            DialogActionStyle.Destructive,
+                        ),
+                    onDismissRequest = dismiss,
+                )
+            }
+        else -> Unit
     }
 }
 

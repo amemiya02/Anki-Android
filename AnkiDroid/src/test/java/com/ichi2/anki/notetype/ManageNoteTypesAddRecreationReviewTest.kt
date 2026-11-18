@@ -4,17 +4,16 @@ package com.ichi2.anki.notetype
 
 import android.content.Intent
 import android.content.res.Configuration
-import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.lifecycleScope
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.RobolectricTest
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.launch
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.shadows.ShadowDialog
-import org.robolectric.shadows.ShadowLooper
 import java.util.ArrayDeque
 import kotlin.coroutines.CoroutineContext
 import kotlin.test.assertNotNull
@@ -24,6 +23,9 @@ import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class ManageNoteTypesAddRecreationReviewTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @Test
     fun `night mode change after stock add preserves the pending list refresh`() = checkRecreation(clone = false)
 
@@ -38,21 +40,14 @@ class ManageNoteTypesAddRecreationReviewTest : RobolectricTest() {
             val controller = startActivityControllerNormallyOpenCollectionWithIntent(ManageNotetypes::class.java, Intent())
             val activity = controller.get()
             val viewModel = activity.viewModel
-            activity.lifecycleScope.launch { AddNewNotesType(activity).showAddNewNotetypeDialog() }
-            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-            val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-            if (clone) {
-                val selector = dialog.newNoteTypeBinding.notetypeNewType
-                val index = (0 until selector.count).single { selector.getItemAtPosition(it).toString().contains(sourceName) }
-                selector.setSelection(index)
-                ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-            }
+            compose.openAddType()
+            if (clone) compose.onNodeWithText(sourceName).performClick()
             val newName = if (clone) "Created clone" else "Created stock"
-            dialog.newNoteTypeBinding.notetypeNewName.setText(newName)
+            compose.fillName(newName)
             val queue = StepDispatcher()
             val previousQueue = CollectionManager.setTestDispatcher(queue, useReentrantLock = false)
             try {
-                assertTrue(dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick())
+                compose.confirmAdd()
                 advanceRobolectricLooper()
                 queue.runNext() // Persist the note type; leave the list read queued.
                 advanceRobolectricLooper()
