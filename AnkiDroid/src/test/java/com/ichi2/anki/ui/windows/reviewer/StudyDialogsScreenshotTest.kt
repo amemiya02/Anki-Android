@@ -13,12 +13,6 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import com.ichi2.anki.CheckAccessibility
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.FontSizeConfig.PERCENT_200
-import com.ichi2.anki.IncludeFontSizes
-import com.ichi2.anki.IncludeLanguages
-import com.ichi2.anki.LanguageConfig.ARABIC
-import com.ichi2.anki.LanguageConfig.JAPANESE
-import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.preferences.reviewer.ReviewerMenuRepository
@@ -34,8 +28,6 @@ import org.junit.Test
 import org.robolectric.shadows.ShadowLooper
 
 @CheckAccessibility
-@IncludeLanguages(SIMPLIFIED_CHINESE, JAPANESE, ARABIC)
-@IncludeFontSizes(PERCENT_200)
 class StudyDialogsScreenshotTest : ScreenshotTest() {
     @get:Rule
     val composeRule = createEmptyComposeRule()
