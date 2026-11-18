@@ -140,7 +140,7 @@ class LoginFragment : Fragment() {
                 label = { Text(stringResource(CommonString.paper_sync_username)) },
                 textStyle = foundation.type.body,
                 isError = usernameError != null,
-                supportingText = usernameError?.let { error -> { Text(error.toHumanReadableString(activity)) } },
+                supportingText = usernameError?.let { error -> { Text(error.toHumanReadableString(requireContext())) } },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 singleLine = true,
                 shape = foundation.shapes.button,
@@ -167,7 +167,7 @@ class LoginFragment : Fragment() {
                 isError = passwordError != null,
                 supportingText = {
                     Text(
-                        passwordError?.toHumanReadableString(activity) ?: stringResource(CommonString.paper_sync_password_note),
+                        passwordError?.toHumanReadableString(requireContext()) ?: stringResource(CommonString.paper_sync_password_note),
                     )
                 },
                 trailingIcon = {

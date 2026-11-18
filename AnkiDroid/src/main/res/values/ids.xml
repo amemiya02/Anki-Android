@@ -60,4 +60,5 @@
     <item type="id" name="web_view" />
     <item type="id" name="content" />
     <item name="multimedia_editor_container" type="id" />
+    <item name="app_bar" type="id" />
 </resources>
