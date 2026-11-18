@@ -50,10 +50,10 @@ class StudyDialogsScreenshotTest : ScreenshotTest() {
 
     @Test
     fun `cancel reset progress returns to the card being studied`() {
-        val deck = addDeck("Ginkgo", setAsSelected = true)
-        val card = addBasicNote("What does a ginkgo leaf look like?", "Fan-shaped").firstCard()
-        col.setDeck(listOf(card.id), deck)
         runBlocking { col.reopenWithLanguage(language.option) }
+        val deck = addDeck("Ginkgo", setAsSelected = true)
+        val card = addNoteUsingNoteTypeName(col.notetypes.current().name, "What does a ginkgo leaf look like?", "Fan-shaped").firstCard()
+        col.setDeck(listOf(card.id), deck)
         ReviewerMenuRepository(targetContext.sharedPrefs()).setDisplayTypeActions(
             alwaysShowActions = listOf(ViewerAction.RESET_PROGRESS),
             menuOnlyActions = emptyList(),
