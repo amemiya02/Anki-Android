@@ -8,6 +8,7 @@ import android.view.View
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -92,6 +93,8 @@ class SettingsSearchNavigationTest : RobolectricTest() {
 
             // Back clears a search in the left pane before changing the right pane.
             search("distinct search query")
+            compose.onNodeWithContentDescription(targetContext.getString(R.string.settings_search))
+                .assertTextContains("distinct search query")
             scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
             studying.assertIsSelected()
             compose.onNodeWithText(targetContext.getString(CommonString.use_timebox)).assertIsDisplayed()

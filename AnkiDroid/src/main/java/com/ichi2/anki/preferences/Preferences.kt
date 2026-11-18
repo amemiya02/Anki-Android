@@ -15,6 +15,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.LinearLayout
+import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.ViewGroupCompat
@@ -37,6 +41,7 @@ class PreferencesFragment : Fragment() {
     private val navigation = SubscreenNavigation(this)
 
     internal val currentPage: Fragment? get() = navigation.currentFragment
+    internal var onBackFromSearch by mutableStateOf<(() -> Unit)?>(null)
 
     private val header: HeaderFragment?
         get() = childFragmentManager.findFragmentById(R.id.lateral_nav_container) as? HeaderFragment
@@ -64,7 +69,11 @@ class PreferencesFragment : Fragment() {
                 id = R.id.settings_container
                 setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
                 val first = initialPage()
-                setContent { navigation.Content(first) }
+                setContent {
+                    navigation.Content(first)
+                    // In split Settings a sidebar search takes precedence over the detail stack.
+                    BackHandler(enabled = onBackFromSearch != null) { onBackFromSearch?.invoke() }
+                }
             }
         if (!settingsIsSplit) return detail
 

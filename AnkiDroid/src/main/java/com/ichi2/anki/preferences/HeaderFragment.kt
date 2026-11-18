@@ -6,9 +6,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
@@ -31,6 +32,7 @@ class HeaderFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         Analytics.sendAnalyticsScreenView("prefs.initialPage")
+        val settings = requireParentFragment() as PreferencesFragment
         return ComposeView(requireContext()).apply {
             id = R.id.settings_home
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
@@ -45,7 +47,12 @@ class HeaderFragment : Fragment() {
                         keyboard?.hide()
                         Unit
                     }
-                    BackHandler(query.isNotEmpty(), clearSearch)
+                    val currentClearSearch by rememberUpdatedState(clearSearch)
+                    val searching = query.isNotEmpty()
+                    DisposableEffect(searching) {
+                        if (searching) settings.onBackFromSearch = { currentClearSearch() }
+                        onDispose { if (searching) settings.onBackFromSearch = null }
+                    }
                     SettingsHomeScreen(
                         groups = groups,
                         selectedGroup = selectedGroup,
@@ -56,10 +63,10 @@ class HeaderFragment : Fragment() {
                             query = it
                         },
                         onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() },
-                        onGroup = { (parentFragment as PreferencesFragment).openGroup(it) },
+                        onGroup = { settings.openGroup(it) },
                         onResult = {
                             clearSearch()
-                            (parentFragment as PreferencesFragment).openSearchResult(it)
+                            settings.openSearchResult(it)
                         },
                     )
                 }

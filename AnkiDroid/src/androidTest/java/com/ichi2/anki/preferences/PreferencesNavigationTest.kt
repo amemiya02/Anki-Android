@@ -6,6 +6,8 @@ package com.ichi2.anki.preferences
 import android.content.Context
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -94,7 +96,9 @@ class PreferencesNavigationTest {
             assertEquals("Changing themes preserves the Add button clearance", originalClearance, addButtonClearance())
             composeRule.onNodeWithTag("deck-add").performClick()
             composeRule.onNodeWithText(with(context) { TR.sentenceCase.createDeck }).performClick()
-            composeRule.onNodeWithContentDescription(context.getString(CommonString.paper_dialog_deck_name)).assertIsDisplayed()
+            val label = context.getString(CommonString.paper_dialog_deck_name)
+            composeRule.onNodeWithTag("text_input_label").assertTextEquals(label).assertIsDisplayed()
+            composeRule.onNode(hasText(label) and hasSetTextAction()).assertIsDisplayed()
         }
     }
 
@@ -120,9 +124,16 @@ class PreferencesNavigationTest {
             val timeLimit = context.getString(CommonString.time_limit)
             search.performTextInput(timeLimit)
             composeRule.onNode(hasText(timeLimit) and hasClickAction() and !hasSetTextAction()).performClick()
-            composeRule.onNodeWithText(context.getString(CommonString.use_timebox)).assertIsDisplayed()
+            val timebox = composeRule.onNodeWithText(context.getString(CommonString.use_timebox))
+            timebox.assertIsDisplayed()
             search.assertIsDisplayed()
             val studying = composeRule.onNode(hasText(context.getString(R.string.settings_studying)) and hasClickAction())
+            studying.assertIsSelected()
+
+            search.performTextInput("distinct search query")
+            search.assertTextContains("distinct search query")
+            composeRule.runOnIdle { host.onBackPressedDispatcher.onBackPressed() }
+            timebox.assertIsDisplayed()
             studying.assertIsSelected()
 
             composeRule.runOnIdle { host.onBackPressedDispatcher.onBackPressed() }
