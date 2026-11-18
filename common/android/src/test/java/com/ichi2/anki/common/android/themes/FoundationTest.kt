@@ -87,6 +87,13 @@ class FoundationTest {
                         "answerEasy" to colors.answerEasy,
                         "progressTrack" to colors.progressTrack,
                         "progressFill" to colors.progressFill,
+                        "flagRed" to colors.flagRed,
+                        "flagOrange" to colors.flagOrange,
+                        "flagGreen" to colors.flagGreen,
+                        "flagBlue" to colors.flagBlue,
+                        "flagPink" to colors.flagPink,
+                        "flagTurquoise" to colors.flagTurquoise,
+                        "flagPurple" to colors.flagPurple,
                     ).mapValues { (_, color) -> "#%06X".format(color.toArgb() and 0xFFFFFF) }
                 val roles =
                     expected

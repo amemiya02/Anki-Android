@@ -110,6 +110,7 @@ class CardBrowserScreenTest : RobolectricTest() {
     }
 
     @Test
+    @Config(qualifiers = "w411dp-h891dp-port")
     fun `long pressing extends the selection and Select all includes the remaining results`() {
         listOf("Birch", "Ginkgo", "Lotus", "Maple").forEach { addBasicNote(it) }
         getBrowserWithNotes(noteCount = 0)
