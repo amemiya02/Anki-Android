@@ -3,6 +3,7 @@
 package com.ichi2.anki.dialogs
 
 import android.os.Looper
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.anki.ScreenshotTest.DeviceConfig.TABLET
@@ -14,6 +15,7 @@ import com.ichi2.anki.withDeckPicker
 import com.ichi2.testutils.BackupManagerTestUtilities
 import com.ichi2.testutils.ext.snackbarText
 import org.junit.After
+import org.junit.Rule
 import org.junit.Test
 import org.robolectric.Shadows.shadowOf
 import java.util.concurrent.TimeUnit
@@ -22,6 +24,8 @@ import kotlin.test.assertNull
 
 @ScreenshotTest.IncludeDevices(TABLET)
 class CustomStudyScreenshotTest : ScreenshotTest() {
+    @get:Rule val compose = createEmptyComposeRule()
+
     @After
     fun resetBackups() {
         BackupManagerTestUtilities.reset()
@@ -36,6 +40,7 @@ class CustomStudyScreenshotTest : ScreenshotTest() {
 
             withDeckPicker(deckCount = 0) { activity ->
                 activity.showDialogFragment(CustomStudyDialog.createInstance(DEFAULT_DECK_ID))
+                compose.waitForIdle()
                 // Complete the entrance animation without advancing through the snackbar timeout.
                 shadowOf(Looper.getMainLooper()).idleFor(300, TimeUnit.MILLISECONDS)
                 assertEquals(activity.getString(CommonString.empty_deck), activity.snackbarText)
