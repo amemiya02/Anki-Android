@@ -2,7 +2,6 @@
 
 package com.ichi2.themes
 
-import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.TypedValue
@@ -57,21 +56,18 @@ class ThemesTest : RobolectricTest() {
             appTheme = AppTheme.NIGHT
             nightTheme = NightTheme.DARK
         }
-        val activity =
-            startActivityNormallyOpenCollectionWithIntent(
-                StudyOptionsActivity::class.java,
-                Intent(),
+        Robolectric.buildActivity(StudyOptionsActivity::class.java).use { controller ->
+            val activity = controller.create().get()
+            val tv = TypedValue()
+            activity.theme.resolveAttribute(android.R.attr.windowBackground, tv, true)
+            assertThat(
+                "the theme's windowBackground is expected to be a plain color",
+                tv.type in TypedValue.TYPE_FIRST_COLOR_INT..TypedValue.TYPE_LAST_COLOR_INT,
+                equalTo(true),
             )
-
-        val tv = TypedValue()
-        activity.theme.resolveAttribute(android.R.attr.windowBackground, tv, true)
-        assertThat(
-            "the theme's windowBackground is expected to be a plain color",
-            tv.type in TypedValue.TYPE_FIRST_COLOR_INT..TypedValue.TYPE_LAST_COLOR_INT,
-            equalTo(true),
-        )
-        val decorBackground = activity.window.decorView.background
-        assertThat((decorBackground as ColorDrawable).color, equalTo(tv.data))
+            val decorBackground = activity.window.decorView.background
+            assertThat((decorBackground as ColorDrawable).color, equalTo(tv.data))
+        }
     }
 
     /**
