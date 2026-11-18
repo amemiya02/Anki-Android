@@ -141,12 +141,7 @@ class BottomNavigationRestoreTest : RobolectricTest() {
         val restored =
             Robolectric
                 .buildActivity(DeckPicker::class.java, Intent())
-                .create(savedState)
-                .start()
-                .restoreInstanceState(savedState)
-                .postCreate(savedState)
-                .resume()
-                .visible()
+                .setup(savedState)
         saveControllerForCleanup(restored)
         advanceRobolectricLooper()
         return restored.get()
