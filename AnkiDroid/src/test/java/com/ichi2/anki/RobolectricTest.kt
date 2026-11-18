@@ -12,10 +12,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.os.Looper
-import android.widget.Button
-import android.widget.TextView
 import androidx.annotation.CallSuper
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.Configuration
@@ -71,11 +68,8 @@ import org.robolectric.Robolectric
 import org.robolectric.Shadows
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.junit.rules.TimeoutRule
-import org.robolectric.shadows.ShadowDialog
 import org.robolectric.shadows.ShadowLog
-import org.robolectric.shadows.ShadowLooper
 import timber.log.Timber
-import kotlin.test.assertNotNull
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
@@ -248,45 +242,6 @@ open class RobolectricTest(
             pendingMethods.isEmpty(),
         )
         println("""-- completed test "${testName.methodName}"""")
-    }
-
-    /**
-     * Click [button] on the latest AlertDialog and process its click handler.
-     */
-    protected fun clickAlertDialogButton(
-        checkDismissed: Boolean = true,
-        button: AlertDialog.() -> Button,
-    ) {
-        val dialog = getLatestAlertDialog()
-
-        dialog.button().performClick()
-        // Need to run UI thread tasks to actually run the onClickHandler
-        ShadowLooper.runUiThreadTasks()
-
-        if (checkDismissed) {
-            Assert.assertTrue("Dialog not dismissed?", Shadows.shadowOf(dialog).hasBeenDismissed())
-        }
-    }
-
-    /**
-     * Get the current dialog text for AlertDialogs (which are replacing MaterialDialogs). Will return null if no dialog visible
-     * *or* if you check for dismissed and it has been dismissed
-     *
-     * @param checkDismissed true if you want to check for dismissed, will return null even if dialog exists but has been dismissed
-     * TODO: Rename to getDialogText when all MaterialDialogs are changed to AlertDialogs
-     */
-    protected fun getAlertDialogText(
-        @Suppress("SameParameterValue") checkDismissed: Boolean,
-    ): String? {
-        val dialog = getLatestAlertDialog()
-        if (checkDismissed && Shadows.shadowOf(dialog).hasBeenDismissed()) {
-            Timber.e("The latest dialog has already been dismissed.")
-            return null
-        }
-        val messageViewWithinDialog = dialog.findViewById<TextView>(android.R.id.message)
-        Assert.assertFalse(messageViewWithinDialog == null)
-
-        return messageViewWithinDialog?.text?.toString()
     }
 
     companion object {
@@ -500,6 +455,3 @@ open class RobolectricTest(
         block: () -> Unit,
     ) = withCollectionTestDispatcher(dispatcher, block)
 }
-
-private fun getLatestAlertDialog(): AlertDialog =
-    assertNotNull(ShadowDialog.getLatestDialog() as? AlertDialog, "A dialog should be displayed")
