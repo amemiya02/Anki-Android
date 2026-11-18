@@ -56,7 +56,7 @@ internal class ReviewerLayout(
     val timer =
         AnswerTimerView(context, null).apply {
             id = R.id.timer
-            setTextAppearance(R.style.TextAppearance_Foundation_Caption)
+            setTextAppearance(CommonR.style.TextAppearance_Foundation_Caption)
             fontFeatureSettings = "tnum"
             visibility = GONE
         }
@@ -92,7 +92,7 @@ internal class ReviewerLayout(
             id = R.id.type_answer_edit_text
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
             imeOptions = EditorInfo.IME_ACTION_DONE
-            setTextAppearance(R.style.TextAppearance_Foundation_Lead)
+            setTextAppearance(CommonR.style.TextAppearance_Foundation_Lead)
             setTextColor(color(CommonR.attr.foundationOnBackground))
         }
     val checkPronunciationContainer =
@@ -203,13 +203,13 @@ internal class ReviewerLayout(
                 setPadding(0, dp(4), 0, 0)
                 hint = context.getString(CommonString.type_answer_hint)
                 defaultHintTextColor = hintInk
-                setHintTextAppearance(R.style.TextAppearance_Foundation_Caption)
+                setHintTextAppearance(CommonR.style.TextAppearance_Foundation_Caption)
                 boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_FILLED
                 boxBackgroundColor = Color.TRANSPARENT
                 boxStrokeWidth = 0
                 boxStrokeWidthFocused = 0
                 endIconMode = TextInputLayout.END_ICON_CLEAR_TEXT
-                setEndIconDrawable(R.drawable.symbol_close)
+                setEndIconDrawable(CommonR.drawable.symbol_close)
                 setEndIconTintList(hintInk)
                 addView(typeAnswerEditText, MATCH_PARENT, WRAP_CONTENT)
             }
