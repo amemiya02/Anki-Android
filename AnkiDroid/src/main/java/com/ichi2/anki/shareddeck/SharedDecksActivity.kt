@@ -5,8 +5,10 @@ package com.ichi2.anki.shareddeck
 
 import android.app.Dialog
 import android.app.DownloadManager
-import android.graphics.Color
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.URLUtil
 import android.webkit.WebBackForwardList
@@ -15,18 +17,18 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
+import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.common.analytics.reportPotentiallyDeadCode
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.utils.ext.requireSystemService
@@ -38,7 +40,6 @@ import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.compose.ui.dialogs.ConfirmationDialog
 import com.ichi2.compose.ui.dialogs.DialogAction
 import com.ichi2.compose.ui.dialogs.createPaperDialog
-import com.ichi2.themes.Themes
 import com.ichi2.utils.FileNameAndExtension
 import timber.log.Timber
 import java.io.Serializable
@@ -49,8 +50,12 @@ import kotlin.random.Random
  *
  * @see SharedDecksDownloadFragment
  */
-class SharedDecksActivity :
-    AnkiActivity(),
+class SharedDecksActivity : SingleFragmentActivity() {
+    override fun createFragment(): Fragment = SharedDecksFragment()
+}
+
+class SharedDecksFragment :
+    Fragment(),
     OnWebViewRecreatedListener {
     private lateinit var webView: SafeWebViewLayout
     lateinit var downloadManager: DownloadManager
@@ -73,7 +78,7 @@ class SharedDecksActivity :
                 } else {
                     pagesBeforeLogin.removeLastOrNull()?.let { returnTo(it) } ?: run {
                         isEnabled = false
-                        onBackPressedDispatcher.onBackPressed()
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
                     }
                 }
             }
@@ -134,7 +139,7 @@ class SharedDecksActivity :
                 }
             }
 
-            request?.url?.let { super@SharedDecksActivity.openUrl(it) }
+            request?.url?.let { (requireActivity() as AnkiActivity).openUrl(it) }
 
             return true
         }
@@ -173,7 +178,7 @@ class SharedDecksActivity :
         if (loginRequiredDialog?.isShowing == true) return
         Timber.i("HTTP 429, asking the user to log in")
         loginRequiredDialog =
-            createPaperDialog(this) { dialog ->
+            createPaperDialog(requireContext()) { dialog ->
                 ConfirmationDialog(
                     title = getString(CommonString.not_logged_in_title),
                     message = getString(CommonString.shared_decks_ankiweb_login_limit),
@@ -231,56 +236,54 @@ class SharedDecksActivity :
     }
 
     // Show WebView with AnkiWeb shared decks with the functionality to capture downloads and import decks.
-    override fun onCreate(savedInstanceState: Bundle?) {
-        if (showedActivityFailedScreen(savedInstanceState)) {
-            return
-        }
-
-        super.onCreate(savedInstanceState)
-        // after super.onCreate: enableEdgeToEdge accesses window.decorView, which resolves
-        // the window background before Themes.setTheme has applied the user's theme,
-        // and the wrong background is visible behind the WebView while a page loads
-        //
-        // statusBarStyle matches the status bar theme of the rest of the app
-        enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme })
-        setTitle(CommonString.download_deck)
-        downloadManager = requireSystemService<DownloadManager>()
-        webView = SafeWebViewLayout(this).apply { id = R.id.web_view }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        val context = inflater.context
+        downloadManager = context.requireSystemService<DownloadManager>()
+        webView = SafeWebViewLayout(context).apply { id = R.id.web_view }
         setupWebView()
-        setContentView(
-            CoordinatorLayout(this).apply {
-                id = R.id.root_layout
-                addView(
-                    ComposeView(this@SharedDecksActivity).apply {
-                        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-                        setContent {
-                            AnkiDroidTheme {
-                                SharedDecksBrowserScreen(
-                                    webView = webView,
-                                    onUp = {
-                                        onBackPressedCallback.isEnabled = false
-                                        onBackPressedDispatcher.onBackPressed()
-                                    },
-                                    onHome = ::openSharedDecksHome,
-                                )
-                            }
+        return CoordinatorLayout(context).apply {
+            id = R.id.root_layout
+            addView(
+                ComposeView(context).apply {
+                    setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                    setContent {
+                        AnkiDroidTheme {
+                            SharedDecksBrowserScreen(
+                                webView = webView,
+                                onUp = {
+                                    onBackPressedCallback.isEnabled = false
+                                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                                },
+                                onHome = ::openSharedDecksHome,
+                            )
                         }
-                    },
-                    CoordinatorLayout.LayoutParams(
-                        CoordinatorLayout.LayoutParams.MATCH_PARENT,
-                        CoordinatorLayout.LayoutParams.MATCH_PARENT,
-                    ),
-                )
-                addView(
-                    FragmentContainerView(this@SharedDecksActivity).apply { id = R.id.shared_decks_fragment_container },
-                    CoordinatorLayout.LayoutParams(
-                        CoordinatorLayout.LayoutParams.MATCH_PARENT,
-                        CoordinatorLayout.LayoutParams.MATCH_PARENT,
-                    ),
-                )
-            },
-        )
-        onBackPressedDispatcher.addCallback(onBackPressedCallback)
+                    }
+                },
+                CoordinatorLayout.LayoutParams(
+                    CoordinatorLayout.LayoutParams.MATCH_PARENT,
+                    CoordinatorLayout.LayoutParams.MATCH_PARENT,
+                ),
+            )
+            addView(
+                FragmentContainerView(context).apply { id = R.id.shared_decks_fragment_container },
+                CoordinatorLayout.LayoutParams(
+                    CoordinatorLayout.LayoutParams.MATCH_PARENT,
+                    CoordinatorLayout.LayoutParams.MATCH_PARENT,
+                ),
+            )
+        }
+    }
+
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
+        super.onViewCreated(view, savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
     }
 
     /** Opens the AnkiWeb shared decks page, handing any download it starts to [SharedDecksDownloadFragment] */
@@ -290,10 +293,10 @@ class SharedDecksActivity :
         webView.setDownloadListener { url, userAgent, contentDisposition, mimetype, _ ->
             // If the activity/fragment lifecycle has already begun teardown process,
             // avoid handling the download, as FragmentManager.commit will throw
-            if (!supportFragmentManager.isStateSaved) {
+            if (!childFragmentManager.isStateSaved) {
                 // A previous callback may have queued a fragment addition or removal.
-                supportFragmentManager.executePendingTransactions()
-                if (supportFragmentManager.findFragmentByTag(SHARED_DECKS_DOWNLOAD_FRAGMENT) != null) {
+                childFragmentManager.executePendingTransactions()
+                if (childFragmentManager.findFragmentByTag(SHARED_DECKS_DOWNLOAD_FRAGMENT) != null) {
                     reportPotentiallyDeadCode("SharedDecksActivity.OverlappingDownload")
                     CrashReportService.sendExceptionReport(
                         IllegalStateException("Shared-deck download screen already open"),
@@ -307,7 +310,7 @@ class SharedDecksActivity :
                     Bundle().apply {
                         putSerializable(ARG_DOWNLOAD_FILE, DownloadFile(url, userAgent, contentDisposition, mimetype))
                     }
-                supportFragmentManager.commit {
+                childFragmentManager.commit {
                     add(
                         R.id.shared_decks_fragment_container,
                         sharedDecksDownloadFragment,
@@ -331,10 +334,10 @@ class SharedDecksActivity :
         webView.loadUrl(getString(R.string.shared_decks_url))
     }
 
-    override fun onDestroy() {
+    override fun onDestroyView() {
         loginRequiredDialog?.dismiss()
         if (::webView.isInitialized) webView.destroy()
-        super.onDestroy()
+        super.onDestroyView()
     }
 }
 

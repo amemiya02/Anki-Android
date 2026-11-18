@@ -25,7 +25,7 @@ import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
-import com.ichi2.anki.shareddeck.SharedDecksActivity.Companion.HTTP_STATUS_TOO_MANY_REQUESTS
+import com.ichi2.anki.shareddeck.SharedDecksFragment.Companion.HTTP_STATUS_TOO_MANY_REQUESTS
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.workarounds.SafeWebViewLayout
 import com.ichi2.testutils.webView
@@ -63,51 +63,65 @@ class SharedDecksActivityTest : RobolectricTest() {
 
         activity.receiveDownload()
         activity.receiveDownload("https://ankiweb.net/svc/shared/download-deck/5678?t=key")
-        activity.supportFragmentManager.executePendingTransactions()
+        activity.sharedPage.childFragmentManager.executePendingTransactions()
 
-        assertEquals(1, activity.supportFragmentManager.fragments.size)
-        assertEquals(1, activity.supportFragmentManager.backStackEntryCount)
-        verify(activity.downloadManager).enqueue(any())
+        assertEquals(1, activity.sharedPage.childFragmentManager.fragments.size)
+        assertEquals(1, activity.sharedPage.childFragmentManager.backStackEntryCount)
+        verify(activity.sharedPage.downloadManager).enqueue(any())
     }
 
     @Test
     fun `download callback keeps the existing download screen`() {
         val activity = startSharedDeckDownload()
         activity.receiveDownload()
-        activity.supportFragmentManager.executePendingTransactions()
-        val fragment = activity.supportFragmentManager.fragments.single()
+        activity.sharedPage.childFragmentManager.executePendingTransactions()
+        val fragment =
+            activity.sharedPage.childFragmentManager.fragments
+                .single()
 
         activity.receiveDownload()
-        activity.supportFragmentManager.executePendingTransactions()
+        activity.sharedPage.childFragmentManager.executePendingTransactions()
 
-        assertSame(fragment, activity.supportFragmentManager.fragments.single())
-        assertEquals(1, activity.supportFragmentManager.backStackEntryCount)
-        verify(activity.downloadManager).enqueue(any())
+        assertSame(
+            fragment,
+            activity.sharedPage.childFragmentManager.fragments
+                .single(),
+        )
+        assertEquals(1, activity.sharedPage.childFragmentManager.backStackEntryCount)
+        verify(activity.sharedPage.downloadManager).enqueue(any())
     }
 
     @Test
     fun `download can start while closing the previous download screen is pending`() {
         val activity = startSharedDeckDownload()
         activity.receiveDownload()
-        activity.supportFragmentManager.executePendingTransactions()
-        val fragment = activity.supportFragmentManager.fragments.single()
+        activity.sharedPage.childFragmentManager.executePendingTransactions()
+        val fragment =
+            activity.sharedPage.childFragmentManager.fragments
+                .single()
 
-        activity.supportFragmentManager.popBackStack()
+        activity.sharedPage.childFragmentManager.popBackStack()
         activity.receiveDownload()
-        activity.supportFragmentManager.executePendingTransactions()
+        activity.sharedPage.childFragmentManager.executePendingTransactions()
 
-        assertNotSame(fragment, activity.supportFragmentManager.fragments.single())
-        assertEquals(1, activity.supportFragmentManager.backStackEntryCount)
-        verify(activity.downloadManager, times(2)).enqueue(any())
+        assertNotSame(
+            fragment,
+            activity.sharedPage.childFragmentManager.fragments
+                .single(),
+        )
+        assertEquals(1, activity.sharedPage.childFragmentManager.backStackEntryCount)
+        verify(activity.sharedPage.downloadManager, times(2)).enqueue(any())
     }
 
     @Test
     fun `cancelling a download removes it before starting the next download`() {
         val activity = startSharedDeckDownload()
-        whenever(activity.downloadManager.enqueue(any())).thenReturn(1L, 2L)
+        whenever(activity.sharedPage.downloadManager.enqueue(any())).thenReturn(1L, 2L)
         activity.receiveDownload()
-        activity.supportFragmentManager.executePendingTransactions()
-        val fragment = activity.supportFragmentManager.fragments.single()
+        activity.sharedPage.childFragmentManager.executePendingTransactions()
+        val fragment =
+            activity.sharedPage.childFragmentManager.fragments
+                .single()
 
         composeRule
             .onNodeWithText(getResourceString(CommonString.cancel_download))
@@ -115,17 +129,24 @@ class SharedDecksActivityTest : RobolectricTest() {
         composeRule.onNodeWithText(getResourceString(CommonString.dialog_yes)).performClick()
         advanceRobolectricLooper()
 
-        verify(activity.downloadManager).remove(1L)
-        verify(activity.downloadManager).enqueue(any())
-        assertTrue(activity.supportFragmentManager.fragments.isEmpty())
-        assertEquals(0, activity.supportFragmentManager.backStackEntryCount)
+        verify(activity.sharedPage.downloadManager).remove(1L)
+        verify(activity.sharedPage.downloadManager).enqueue(any())
+        assertTrue(
+            activity.sharedPage.childFragmentManager.fragments
+                .isEmpty(),
+        )
+        assertEquals(0, activity.sharedPage.childFragmentManager.backStackEntryCount)
 
         activity.receiveDownload("https://ankiweb.net/svc/shared/download-deck/5678?t=key")
-        activity.supportFragmentManager.executePendingTransactions()
+        activity.sharedPage.childFragmentManager.executePendingTransactions()
 
-        assertNotSame(fragment, activity.supportFragmentManager.fragments.single())
-        assertEquals(1, activity.supportFragmentManager.backStackEntryCount)
-        verify(activity.downloadManager, times(2)).enqueue(any())
+        assertNotSame(
+            fragment,
+            activity.sharedPage.childFragmentManager.fragments
+                .single(),
+        )
+        assertEquals(1, activity.sharedPage.childFragmentManager.backStackEntryCount)
+        verify(activity.sharedPage.downloadManager, times(2)).enqueue(any())
     }
 
     @Test
@@ -367,8 +388,8 @@ class SharedDecksActivityTest : RobolectricTest() {
         if (webView.copyBackForwardList().currentItem?.url != url) {
             shadowOf(webView).pushEntryToHistory(url)
         }
-        webViewClient.doUpdateVisitedHistory(webView, url, false)
-        webViewClient.onPageFinished(webView, url)
+        sharedPage.webViewClient.doUpdateVisitedHistory(webView, url, false)
+        sharedPage.webViewClient.onPageFinished(webView, url)
         // Robolectric clears every history entry; real WebView keeps the current page.
         if (webView.copyBackForwardList().size == 0) {
             shadowOf(webView).pushEntryToHistory(url)
@@ -394,7 +415,7 @@ class SharedDecksActivityTest : RobolectricTest() {
 
     private fun startSharedDeckDownload(): SharedDecksActivity =
         startSharedDecks().apply {
-            downloadManager =
+            sharedPage.downloadManager =
                 mock {
                     on { enqueue(any()) } doReturn 1L
                     on { query(any()) } doAnswer { MatrixCursor(emptyArray<String>()) }
@@ -435,7 +456,7 @@ class SharedDecksActivityTest : RobolectricTest() {
 
     private fun SharedDecksActivity.receiveTooManyRequests() {
         val response = mock<WebResourceResponse> { on { statusCode } doReturn HTTP_STATUS_TOO_MANY_REQUESTS }
-        webViewClient.onReceivedHttpError(webView, mock(), response)
+        sharedPage.webViewClient.onReceivedHttpError(webView, mock(), response)
     }
 
     private val SharedDecksActivity.safeWebViewLayout: SafeWebViewLayout
@@ -453,3 +474,5 @@ class SharedDecksActivityTest : RobolectricTest() {
         private const val AFTER_LOGIN = "https://ankiweb.net/account/login?afterAuth=1"
     }
 }
+
+internal val SharedDecksActivity.sharedPage: SharedDecksFragment get() = fragment as SharedDecksFragment

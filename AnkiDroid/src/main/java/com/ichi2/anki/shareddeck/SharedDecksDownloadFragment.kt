@@ -46,7 +46,7 @@ import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
 import com.ichi2.anki.compat.CompatHelper.Companion.registerReceiverCompat
-import com.ichi2.anki.shareddeck.SharedDecksActivity.Companion.ARG_DOWNLOAD_FILE
+import com.ichi2.anki.shareddeck.SharedDecksFragment.Companion.ARG_DOWNLOAD_FILE
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.ext.collectInLifecycle
 import com.ichi2.anki.utils.openUrl
@@ -182,7 +182,7 @@ class SharedDecksDownloadFragment : Fragment() {
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-        downloadManager = (activity as SharedDecksActivity).downloadManager
+        downloadManager = (requireParentFragment() as SharedDecksFragment).downloadManager
         registerDownloadReceiver()
         observeLoginRequired()
         downloadFile(fileToBeDownloaded)
@@ -200,7 +200,7 @@ class SharedDecksDownloadFragment : Fragment() {
         viewModel.uiState.collectInLifecycle { state ->
             if (state.phase == DownloadPhase.LoginRequired) {
                 Timber.i("Download requires login, returning to shared decks")
-                (activity as SharedDecksActivity).showLoginRequiredDialog()
+                (requireParentFragment() as SharedDecksFragment).showLoginRequiredDialog()
                 parentFragmentManager.popBackStack()
             }
         }
@@ -386,7 +386,7 @@ class SharedDecksDownloadFragment : Fragment() {
                             // a logged-in user is rate limited too ('Daily limit exceeded'), but cannot
                             // fix that by logging in, so only a logged-out user is sent the login prompt
                             val isLoginRequired =
-                                reason == SharedDecksActivity.HTTP_STATUS_TOO_MANY_REQUESTS && !isLoggedInToAnkiWeb()
+                                reason == SharedDecksFragment.HTTP_STATUS_TOO_MANY_REQUESTS && !isLoggedInToAnkiWeb()
                             onDownloadFinished(
                                 if (isLoginRequired) DownloadOutcome.LoginRequired else DownloadOutcome.Failed,
                             )

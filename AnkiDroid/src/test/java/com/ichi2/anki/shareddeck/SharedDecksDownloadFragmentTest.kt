@@ -172,7 +172,10 @@ class SharedDecksDownloadFragmentTest : RobolectricTest() {
         download.complete(status = DownloadManager.STATUS_FAILED)
         assertNull(shadowOf(download.activity).nextStartedActivity)
 
-        whenever(download.activity.downloadManager.enqueue(any())).thenReturn(2L)
+        whenever(
+            download.activity.sharedPage.downloadManager
+                .enqueue(any()),
+        ).thenReturn(2L)
         retryButton.assertExists()
         retryButton.performSemanticsAction(SemanticsActions.OnClick)
         download.file.writeText("downloaded again")
@@ -192,7 +195,10 @@ class SharedDecksDownloadFragmentTest : RobolectricTest() {
         importButton.performSemanticsAction(SemanticsActions.OnClick)
         shadowOf(Looper.getMainLooper()).idle()
 
-        whenever(download.activity.downloadManager.enqueue(any())).thenReturn(2L)
+        whenever(
+            download.activity.sharedPage.downloadManager
+                .enqueue(any()),
+        ).thenReturn(2L)
         retryButton.assertExists()
         retryButton.performSemanticsAction(SemanticsActions.OnClick)
         val completedFile = File(download.file.parentFile, "blank-1.apkg").apply { writeText("new deck") }
@@ -220,7 +226,7 @@ class SharedDecksDownloadFragmentTest : RobolectricTest() {
         retryButton.assertExists()
 
         retryButton.performSemanticsAction(SemanticsActions.OnClick)
-        verify(download.activity.downloadManager).remove(1L)
+        verify(download.activity.sharedPage.downloadManager).remove(1L)
         download.file.writeText("downloaded again")
         download.complete()
 
@@ -244,7 +250,8 @@ class SharedDecksDownloadFragmentTest : RobolectricTest() {
     fun `removing the download fragment prevents late completion from starting an import`() {
         val download = startDownload()
         download.file.writeText("deck contents")
-        download.activity.supportFragmentManager.commitNow { remove(download.fragment) }
+        download.activity.sharedPage.childFragmentManager
+            .commitNow { remove(download.fragment) }
 
         download.complete()
 
@@ -255,7 +262,8 @@ class SharedDecksDownloadFragmentTest : RobolectricTest() {
     fun `destroying only the view prevents late completion from starting an import`() {
         val download = startDownload()
         download.file.writeText("deck contents")
-        download.activity.supportFragmentManager.commitNow { detach(download.fragment) }
+        download.activity.sharedPage.childFragmentManager
+            .commitNow { detach(download.fragment) }
         assertEquals(Lifecycle.State.CREATED, download.fragment.lifecycle.currentState)
         assertNull(download.fragment.view)
 
@@ -271,7 +279,8 @@ class SharedDecksDownloadFragmentTest : RobolectricTest() {
         val dialog = assertNotNull(ShadowDialog.getLatestDialog())
         assertTrue(dialog.isShowing)
 
-        download.activity.supportFragmentManager.commitNow { detach(download.fragment) }
+        download.activity.sharedPage.childFragmentManager
+            .commitNow { detach(download.fragment) }
 
         assertFalse(dialog.isShowing)
     }
@@ -301,7 +310,7 @@ class SharedDecksDownloadFragmentTest : RobolectricTest() {
         retryButton.assertExists()
         verify(crashReporter).sendExceptionReport(failure, "SharedDecksDownloadFragment::downloadFile", null, false)
 
-        doReturn(2L).whenever(download.activity.downloadManager).enqueue(any())
+        doReturn(2L).whenever(download.activity.sharedPage.downloadManager).enqueue(any())
         retryButton.performSemanticsAction(SemanticsActions.OnClick)
         download.file.writeText("deck contents")
         download.complete(downloadId = 2L)
@@ -321,7 +330,7 @@ class SharedDecksDownloadFragmentTest : RobolectricTest() {
         retryButton.assertDoesNotExist()
         assertNull(ShadowToast.getLatestToast())
         // nothing else removes the failed download on this path, so the fragment must
-        verify(download.activity.downloadManager).remove(1L)
+        verify(download.activity.sharedPage.downloadManager).remove(1L)
     }
 
     /** A logged-in user is also rate limited sometimes ('Daily limit exceeded'), and cannot log in to fix it */
@@ -432,7 +441,7 @@ class SharedDecksDownloadFragmentTest : RobolectricTest() {
         enqueueFailure: Exception? = null,
         rejectsAppStorage: Boolean = false,
     ): Download {
-        activity.downloadManager =
+        activity.sharedPage.downloadManager =
             mock {
                 when {
                     enqueueFailure != null -> on { enqueue(any()) } doThrow enqueueFailure
@@ -451,7 +460,7 @@ class SharedDecksDownloadFragmentTest : RobolectricTest() {
                 arguments =
                     Bundle().apply {
                         putSerializable(
-                            SharedDecksActivity.ARG_DOWNLOAD_FILE,
+                            SharedDecksFragment.ARG_DOWNLOAD_FILE,
                             DownloadFile(
                                 url = "https://ankiweb.net/svc/shared/download-deck/1",
                                 userAgent = "AnkiDroid",
@@ -461,12 +470,12 @@ class SharedDecksDownloadFragmentTest : RobolectricTest() {
                         )
                     }
             }
-        activity.supportFragmentManager.commitNow {
+        activity.sharedPage.childFragmentManager.commitNow {
             add(R.id.shared_decks_fragment_container, fragment)
         }
         shadowOf(Looper.getMainLooper()).idle()
         val request = argumentCaptor<DownloadManager.Request>()
-        verify(activity.downloadManager, atLeastOnce()).enqueue(request.capture())
+        verify(activity.sharedPage.downloadManager, atLeastOnce()).enqueue(request.capture())
         return Download(activity, fragment, File(shadowOf(request.firstValue).destination.path!!))
     }
 
@@ -491,7 +500,7 @@ class SharedDecksDownloadFragmentTest : RobolectricTest() {
             completedFile: File = file,
             localUri: Uri? = Uri.fromFile(completedFile),
         ) {
-            whenever(activity.downloadManager.query(any())).thenAnswer { downloadCursor(status, reason, localUri) }
+            whenever(activity.sharedPage.downloadManager.query(any())).thenAnswer { downloadCursor(status, reason, localUri) }
             withFileProvider {
                 activity.sendBroadcast(
                     Intent(DownloadManager.ACTION_DOWNLOAD_COMPLETE).putExtra(DownloadManager.EXTRA_DOWNLOAD_ID, downloadId),

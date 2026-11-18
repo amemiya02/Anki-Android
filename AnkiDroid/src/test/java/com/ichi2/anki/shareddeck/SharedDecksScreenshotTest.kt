@@ -34,7 +34,7 @@ import com.ichi2.anki.LanguageConfig.SIMPLIFIED_CHINESE
 import com.ichi2.anki.R
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.anki.common.utils.dp
-import com.ichi2.anki.shareddeck.SharedDecksActivity.Companion.HTTP_STATUS_TOO_MANY_REQUESTS
+import com.ichi2.anki.shareddeck.SharedDecksFragment.Companion.HTTP_STATUS_TOO_MANY_REQUESTS
 import com.ichi2.anki.workarounds.SafeWebViewLayout
 import com.ichi2.testutils.insetsOf
 import com.ichi2.testutils.webView
@@ -111,7 +111,11 @@ class SharedDecksScreenshotTest : ScreenshotTest() {
         withSharedDecks { activity ->
             activity.simulateNavigationBar()
             val response = mock<WebResourceResponse> { on { statusCode } doReturn HTTP_STATUS_TOO_MANY_REQUESTS }
-            activity.webViewClient.onReceivedHttpError(activity.findViewById<SafeWebViewLayout>(R.id.web_view).webView, mock(), response)
+            activity.sharedPage.webViewClient.onReceivedHttpError(
+                activity.findViewById<SafeWebViewLayout>(R.id.web_view).webView,
+                mock(),
+                response,
+            )
             advanceRobolectricLooper()
             captureScreen("login_required_dialog")
         }
@@ -138,7 +142,7 @@ class SharedDecksScreenshotTest : ScreenshotTest() {
             ShadowChoreographer.setPaused(true)
             ShadowChoreographer.setFrameDelay(Duration.ofMillis(16))
         }
-        downloadManager =
+        sharedPage.downloadManager =
             mock {
                 on { enqueue(any()) } doReturn 1L
                 on { query(any()) } doAnswer {
@@ -151,7 +155,7 @@ class SharedDecksScreenshotTest : ScreenshotTest() {
                 arguments =
                     Bundle().apply {
                         putSerializable(
-                            SharedDecksActivity.ARG_DOWNLOAD_FILE,
+                            SharedDecksFragment.ARG_DOWNLOAD_FILE,
                             DownloadFile(
                                 url = "https://ankiweb.net/svc/shared/download-deck/1104981491?t=token",
                                 userAgent = "Mozilla/5.0",
@@ -161,11 +165,11 @@ class SharedDecksScreenshotTest : ScreenshotTest() {
                         )
                     }
             }
-        supportFragmentManager.commit {
+        sharedPage.childFragmentManager.commit {
             add(
                 R.id.shared_decks_fragment_container,
                 fragment,
-                SharedDecksActivity.SHARED_DECKS_DOWNLOAD_FRAGMENT,
+                SharedDecksFragment.SHARED_DECKS_DOWNLOAD_FRAGMENT,
             )
         }
         if (animatesForever) {
