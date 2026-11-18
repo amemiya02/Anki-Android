@@ -1,6 +1,6 @@
 # Milestone 3 device evidence
 
-The 2026-11-18 walk and package exchange ran on a disposable Pixel 9 emulator with Android 15 AOSP. Both apps were installed side by side. Personal phone verification and owner sign-off are pending at the owner's request. [Milestone issue](../../../.scratch/ankidroid-redesign/issues/31-milestone-3-sign-off-finding-and-adding-on-a-device.md)
+The 2026-11-18 walk and package exchange ran on a disposable Pixel 9 emulator with Android 15 AOSP. Both apps were installed side by side. The owner signed off on 2026-11-19. [Milestone issue](../../../.scratch/ankidroid-redesign/issues/31-milestone-3-sign-off-finding-and-adding-on-a-device.md)
 
 | App | Package and version | APK SHA-256 |
 | --- | --- | --- |

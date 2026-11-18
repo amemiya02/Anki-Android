@@ -1,6 +1,6 @@
 # Milestone 2 device evidence
 
-The 2026-11-18 walk ran on a disposable Pixel 9 emulator with Android 16 and hardware graphics. The Fork was built from `5c4db1562078b878811ab8cec7ca8025de527cc1`, the commit that retired the old study screen. The Official App was installed alongside it. Phone sign-off remains pending at the owner's request. [Milestone issue](../../../.scratch/ankidroid-redesign/issues/24-milestone-2-sign-off-the-core-loop-on-a-device.md)
+The 2026-11-18 walk ran on a disposable Pixel 9 emulator with Android 16 and hardware graphics. The Fork was built from `5c4db1562078b878811ab8cec7ca8025de527cc1`, the commit that retired the old study screen. The Official App was installed alongside it. The owner signed off on 2026-11-19. [Milestone issue](../../../.scratch/ankidroid-redesign/issues/24-milestone-2-sign-off-the-core-loop-on-a-device.md)
 
 | App | Package and version | APK SHA-256 |
 | --- | --- | --- |

@@ -1,6 +1,6 @@
 # Milestone 4 device evidence
 
-The 2026-11-19 settings walk and package exchange ran on a disposable Pixel 9 emulator with Android 15 AOSP. Both apps were installed side by side. The owner deferred the personal phone walk and sign-off. [Milestone issue](../../../.scratch/ankidroid-redesign/issues/40-milestone-4-sign-off-settings-and-dialogs-on-a-device.md)
+The 2026-11-19 settings walk and package exchange ran on a disposable Pixel 9 emulator with Android 15 AOSP. Both apps were installed side by side. The owner signed off on 2026-11-19. [Milestone issue](../../../.scratch/ankidroid-redesign/issues/40-milestone-4-sign-off-settings-and-dialogs-on-a-device.md)
 
 | App | Package and version | APK SHA-256 |
 | --- | --- | --- |

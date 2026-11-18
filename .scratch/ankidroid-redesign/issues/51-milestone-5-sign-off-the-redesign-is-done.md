@@ -4,13 +4,13 @@
 
 **Blocked by:** 50 (Finish the single-activity structure and remove leftover XML)
 
-**Status:** ready-for-human
+**Status:** done
 
 - [x] On the emulator, every screen in the app is walked in English, Simplified Chinese and Japanese, in all three themes.
 - [x] The whole walk is set beside the "before" pictures.
 - [x] Baseline pictures are regenerated and committed.
 - [x] The spec's open questions are closed or recorded as decisions.
-- [ ] The owner has signed off the Redesign.
+- [x] The owner has signed off the Redesign.
 - [x] Round trip with the Official App: a collection and a Deck exported from the Fork import into the current release of the Official App with Cards, scheduling, review history and media intact, and the same works in the other direction.
 
 ## Comments
@@ -24,3 +24,5 @@ The decisions record links the confirmed design choices, the Foundation and the 
 The Android 15 emulator walk recorded 97 screen states per profile and 873 screenshot and accessibility-tree pairs across the nine profiles. The galleries use 60 genuine Official App before captures and earlier Upstream frames where available. The committed archives preserve the original frames. [Walkthrough evidence](../../../docs/redesign/milestone-5/README.md)
 
 The final review repeated 199 captures, including the single-activity navigation, account settings, incoming shares, imports, Change Note Type and widget flows. The baseline index identifies the source APK for each frame. [Emulator baselines](../../../docs/redesign/milestone-5/baselines/README.md)
+
+The owner confirmed acceptance on 2026-11-19 and requested closure.

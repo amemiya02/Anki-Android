@@ -1,6 +1,6 @@
 # Milestone 5 device evidence
 
-Hayaki and the Official App ran side by side on disposable Android emulators. Personal phone verification and the owner’s sign-off remain open at the owner’s request. [Milestone issue](../../../.scratch/ankidroid-redesign/issues/51-milestone-5-sign-off-the-redesign-is-done.md)
+Hayaki and the Official App ran side by side on disposable Android emulators. The owner signed off on 2026-11-19. [Milestone issue](../../../.scratch/ankidroid-redesign/issues/51-milestone-5-sign-off-the-redesign-is-done.md)
 
 ## Android walkthrough
 

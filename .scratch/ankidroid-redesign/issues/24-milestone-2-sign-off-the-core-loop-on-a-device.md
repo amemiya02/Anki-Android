@@ -4,13 +4,13 @@
 
 **Blocked by:** 16 (Native finished screen); 18 (Deck list: adding, Deck actions and sync); 23 (Remove the old study screen)
 
-**Status:** ready-for-human (owner phone sign-off)
+**Status:** done
 
 - [x] On the emulator, a full session is studied in English and in Simplified Chinese, ending on the finished screen.
 - [x] A shared Deck whose Cards use the AnkiDroid JavaScript API is studied without a warning.
 - [x] The walk is captured in all three themes and set beside the "before" pictures.
 - [x] Baseline pictures are regenerated under `AnkiDroid/build/` and verified, following the decision in ticket 13.
-- [ ] The owner has studied a session on their own phone and signed off the Milestone.
+- [x] The owner has studied a session on their own phone and signed off the Milestone.
 - [x] Round trip with the Official App: a collection and a Deck exported from the Fork import into the current release of the Official App with Cards, scheduling, review history and media intact, and the same works in the other direction.
 
 ## Comments
@@ -22,3 +22,5 @@ Six emulator sessions finished on the Pixel 9. The current API test studied all 
 The six Core Loop Roborazzi classes recorded 696 phone captures with no failures across the requested themes, languages and font sizes. Verification matched 691 of 696. Five deck-list captures raced the loading state. After waiting for the first deck row, fresh record and verification runs passed all 48 BottomBar cases. Together the verification runs cover all 696 captures.
 
 All four comparisons with AnkiDroid 2.25.3 matched, including scheduling, review history and media digests. The final Official collection was imported through the production importer on an Android 14 AOSP emulator. [Package comparison](../../../docs/redesign/milestone-2/README.md#round-trip-with-the-official-app)
+
+The owner confirmed acceptance on 2026-11-19 and requested closure.

@@ -4,12 +4,12 @@
 
 **Blocked by:** 39 (Remove the old dialog and settings machinery)
 
-**Status:** ready-for-human
+**Status:** done
 
 - [x] On the emulator, a setting is found by search and changed, the theme is switched through all three, and one dialog of each pattern is triggered.
 - [x] The walk is done in English and Simplified Chinese in Light, Dark and Black.
 - [x] Baseline pictures are regenerated under `AnkiDroid/build/` and verified, following the decision in ticket 13.
-- [ ] The owner has signed off the Milestone.
+- [x] The owner has signed off the Milestone.
 - [x] Round trip with the Official App: a collection and a Deck exported from the Fork import into the current release of the Official App with Cards, scheduling, review history and media intact, and the same works in the other direction.
 
 ## Comments
@@ -23,3 +23,5 @@ The emulator walk changed and restored Fetch media on sync through Settings sear
 The screenshot matrix recorded baselines for 2,136 cases in 21 suites, including the corrected localized Add profile captures. The broad comparison matched 2,112 cases. The 24 Advanced captures matched after the test fixture supplied a stable directory summary.
 
 Fixed the Add button overlap after changing themes from More. The Android replay preserved the normal gap above the bottom bar and reached Create deck by tapping Add. The focused Android instrumentation regression passed. [Device regression evidence](../../../docs/redesign/milestone-4/README.md#add-button-after-changing-theme)
+
+The owner confirmed acceptance on 2026-11-19 and requested closure.
