@@ -10,7 +10,7 @@ import androidx.core.content.edit
 import androidx.core.view.descendants
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.NoteEditorActivity
+import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.storage.CollectionHelper
@@ -24,7 +24,7 @@ import kotlin.test.assertTrue
 @RunWith(AndroidJUnit4::class)
 class AddNoteWidgetTest : RobolectricTest() {
     @Test
-    fun `add note button opens the note editor before storage is decided`() =
+    fun `add note widget enters the application navigation before storage is decided`() =
         runTest {
             targetContext.sharedPrefs().edit { remove(CollectionHelper.PREF_COLLECTION_PATH) }
             val widget = targetContext.renderWidget(AddNoteWidget(), width = 76, height = 76)
@@ -37,6 +37,6 @@ class AddNoteWidgetTest : RobolectricTest() {
             assertTrue(button.performClick())
 
             val opened = assertNotNull(shadowOf(targetContext as Application).nextStartedActivity, "button opened nothing")
-            assertEquals(NoteEditorActivity::class.java.name, opened.component?.className)
+            assertEquals(DeckPicker::class.java.name, opened.component?.className)
         }
 }
