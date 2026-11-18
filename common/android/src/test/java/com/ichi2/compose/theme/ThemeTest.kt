@@ -53,7 +53,7 @@ class ThemeTest {
     fun `light theme bridges the emphasis colour to scheme primary`() {
         val scheme = themed(R.style.Theme_Light).toMaterial3ColorScheme()
         assertEquals(0xFFA63D25.toInt(), scheme.primary.toArgb())
-        assertEquals(0xFFFFF9F2.toInt(), scheme.onPrimary.toArgb())
+        assertEquals(0xFFFFFFFF.toInt(), scheme.onPrimary.toArgb())
     }
 
     @Test
@@ -66,10 +66,10 @@ class ThemeTest {
     @Test
     fun `surfaces are the paper background`() {
         val scheme = themed(R.style.Theme_Light).toMaterial3ColorScheme()
-        assertEquals(0xFFF5F0E6.toInt(), scheme.background.toArgb())
-        assertEquals(0xFFF5F0E6.toInt(), scheme.surface.toArgb())
-        assertEquals(0xFFF5F0E6.toInt(), scheme.surfaceContainerHigh.toArgb())
-        assertEquals(0xFF211E19.toInt(), scheme.onSurface.toArgb())
+        assertEquals(0xFFFAFAF8.toInt(), scheme.background.toArgb())
+        assertEquals(0xFFFAFAF8.toInt(), scheme.surface.toArgb())
+        assertEquals(0xFFFAFAF8.toInt(), scheme.surfaceContainerHigh.toArgb())
+        assertEquals(0xFF1F1E1C.toInt(), scheme.onSurface.toArgb())
     }
 
     @Test
@@ -104,7 +104,7 @@ class ThemeTest {
     fun `the add button is the primary colour in every theme`() {
         val expected =
             mapOf(
-                R.style.Theme_Light to (0xFFA63D25.toInt() to 0xFFFFF9F2.toInt()),
+                R.style.Theme_Light to (0xFFA63D25.toInt() to 0xFFFFFFFF.toInt()),
                 R.style.Theme_Dark to (0xFFC0492A.toInt() to 0xFFFFF7EF.toInt()),
                 R.style.Theme_Dark_Black to (0xFFC0492A.toInt() to 0xFFFFF7EF.toInt()),
             )
@@ -120,7 +120,7 @@ class ThemeTest {
     fun `answer buttons are paper labelled in their answer colour`() {
         val context = themed(R.style.Theme_Light)
         val colors = context.toAnkiDroidColors(context.toMaterial3ColorScheme())
-        assertEquals(0xFFF5F0E6.toInt(), colors.goodButton.toArgb())
+        assertEquals(0xFFFAFAF8.toInt(), colors.goodButton.toArgb())
         assertEquals(0xFF3E5B34.toInt(), colors.onGoodButton.toArgb())
         assertEquals(0xFFA63D25.toInt(), colors.onAgainButton.toArgb())
         assertEquals(0xFFA63D25.toInt(), colors.showAnswerButton.toArgb())

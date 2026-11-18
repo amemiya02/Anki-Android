@@ -50,13 +50,13 @@
         <attr name="foundationProgressFill" />
     </declare-styleable>
 
-    <!-- Light -->
-    <color name="foundation_light_background">#F5F0E6</color>
-    <color name="foundation_light_on_background">#211E19</color>
-    <color name="foundation_light_on_background_muted">#675F53</color>
-    <color name="foundation_light_outline">#D8CFBE</color>
+    <!-- Light: 白纸 Plain paper, chosen by the owner on 2026-11-18 (it replaced the cream palette) -->
+    <color name="foundation_light_background">#FAFAF8</color>
+    <color name="foundation_light_on_background">#1F1E1C</color>
+    <color name="foundation_light_on_background_muted">#625F59</color>
+    <color name="foundation_light_outline">#E2E0DB</color>
     <color name="foundation_light_primary">#A63D25</color>
-    <color name="foundation_light_on_primary">#FFF9F2</color>
+    <color name="foundation_light_on_primary">#FFFFFF</color>
     <color name="foundation_light_emphasis">#A63D25</color>
     <color name="foundation_light_count_new">#2F4A6B</color>
     <color name="foundation_light_count_learning">#A63D25</color>
@@ -65,8 +65,8 @@
     <color name="foundation_light_answer_hard">#8A5E10</color>
     <color name="foundation_light_answer_good">#3E5B34</color>
     <color name="foundation_light_answer_easy">#2F4A6B</color>
-    <color name="foundation_light_progress_track">#DDD4C3</color>
-    <color name="foundation_light_progress_fill">#211E19</color>
+    <color name="foundation_light_progress_track">#E6E4DF</color>
+    <color name="foundation_light_progress_fill">#1F1E1C</color>
 
     <!-- Dark -->
     <color name="foundation_dark_background">#1C1A17</color>

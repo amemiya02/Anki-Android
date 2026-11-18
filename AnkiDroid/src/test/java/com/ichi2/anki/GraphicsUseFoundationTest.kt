@@ -16,7 +16,8 @@ import kotlin.test.assertEquals
  * - A drawable (other than an interface icon, which `InterfaceIconsAreMaterialSymbolsTest` checks)
  *   colours itself with theme attributes, as layouts do. Transparent is no colour. A hex value or a
  *   fixed `@color/` is allowed only where the graphic is drawn without the app's theme (the launcher
- *   and its shortcuts), and then only a Foundation colour.
+ *   and its shortcuts), and then only a Foundation colour or one of the launcher icon's own colours
+ *   (`docs/redesign/quiet-paper/launcher-icon.svg`).
  * - A white or black that only says where to paint is a mask, not a colour: a ripple's mask, a
  *   vector tinted by a theme attribute, or a graphic the system or its user tints ([MASKS]).
  * - No graphic is a bitmap: its colours could not follow the theme.
@@ -93,6 +94,17 @@ class GraphicsUseFoundationTest {
             }.toSet()
     }
 
+    /**
+     * The launcher icon's own colours. Its paper and ink were the Light theme's until the Light
+     * palette changed to Plain paper (2026-11-18); the icon keeps them.
+     */
+    private val launcherIconColours: Set<String> by lazy {
+        HEX_COLOUR
+            .findAll(File(ROOT, "docs/redesign/quiet-paper/launcher-icon.svg").readText())
+            .map { it.value.opaqueHex() }
+            .toSet()
+    }
+
     /** Colour state lists (`res/color/`) by name */
     private val colourStateLists: Map<String, File> by lazy {
         resourceDirs
@@ -127,6 +139,7 @@ class GraphicsUseFoundationTest {
                     name in MASKS -> null
                     tintedByTheme && value.isWhite() -> null
                     problem == FIXED_FOUNDATION_COLOUR && name in DRAWN_WITHOUT_THE_APP_THEME -> null
+                    name in DRAWN_WITHOUT_THE_APP_THEME && value.opaqueHex() in launcherIconColours -> null
                     else -> "${where(file)}: $attribute=\"$value\"$problem"
                 }
             }.distinct()
@@ -156,8 +169,7 @@ class GraphicsUseFoundationTest {
     ): String? {
         if (HEX_COLOUR.matches(value)) {
             if (value.length == 9 && value.startsWith("#00")) return null // fully transparent
-            val opaque = value.uppercase().let { if (it.length == 9 && it.startsWith("#FF")) "#" + it.substring(3) else it }
-            return if (opaque in foundationValues) FIXED_FOUNDATION_COLOUR else ""
+            return if (value.opaqueHex() in foundationValues) FIXED_FOUNDATION_COLOUR else ""
         }
         val match = COLOUR_RESOURCE.matchEntire(value) ?: return null
         val (namespace, colour) = match.destructured
@@ -176,6 +188,9 @@ class GraphicsUseFoundationTest {
                 .toList()
         return if (inner.isEmpty()) null else " (its colour state list holds ${inner.joinToString()})"
     }
+
+    /** An uppercase hex colour without a fully opaque alpha */
+    private fun String.opaqueHex() = uppercase().let { if (it.length == 9 && it.startsWith("#FF")) "#" + it.substring(3) else it }
 
     private fun String.isWhite() = uppercase() in setOf("#FFF", "#FFFFFF", "#FFFFFFFF", "@ANDROID:COLOR/WHITE", "@COLOR/WHITE")
 
@@ -231,7 +246,7 @@ class GraphicsUseFoundationTest {
 
         /**
          * Graphics drawn by the launcher, not inside the app, so a theme attribute cannot reach them.
-         * They use the Light theme's Foundation colours, as the launcher icon does.
+         * They use Foundation colours fixed in place, or the launcher icon's own colours.
          */
         private val DRAWN_WITHOUT_THE_APP_THEME =
             mapOf(

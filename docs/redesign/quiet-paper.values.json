@@ -165,12 +165,12 @@
 
     "colour": {
         "light": {
-            "background": "#F5F0E6",
-            "onBackground": "#211E19",
-            "onBackgroundMuted": "#675F53",
-            "outline": "#D8CFBE",
+            "background": "#FAFAF8",
+            "onBackground": "#1F1E1C",
+            "onBackgroundMuted": "#625F59",
+            "outline": "#E2E0DB",
             "primary": "#A63D25",
-            "onPrimary": "#FFF9F2",
+            "onPrimary": "#FFFFFF",
             "emphasis": "#A63D25",
             "countNew": "#2F4A6B",
             "countLearning": "#A63D25",
@@ -179,8 +179,8 @@
             "answerHard": "#8A5E10",
             "answerGood": "#3E5B34",
             "answerEasy": "#2F4A6B",
-            "progressTrack": "#DDD4C3",
-            "progressFill": "#211E19",
+            "progressTrack": "#E6E4DF",
+            "progressFill": "#1F1E1C",
             "cardSheet": "#FFFFFF",
             "onCardSheet": "#000000",
             "cardSheetRule": "#8B8B8B"
@@ -230,6 +230,7 @@
     },
 
     "colourNotes": {
+        "light": "The Light palette is 白纸 Plain paper: clean near-white paper with ink text, cinnabar the one accent. It replaced the earlier cream Light palette (background #F5F0E6) on the owner's choice on 2026-11-18 (docs/redesign/light-palette/). Dark and Black did not change.",
         "cardSheet": "The card sheet colours are not the Direction's. They stand for how the app draws Card Content today, which the Redesign does not touch, and are approximate.",
         "emphasis": "Cinnabar used on the background: as a mark (the current tab rule, the last-studied dot, the finished screen's mark) and as text (an outlined secondary button, the row the current state points to). In Dark and Black it is lighter than the button colour so that it stays visible, and it is checked as text."
     },
