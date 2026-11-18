@@ -6,7 +6,6 @@ package com.ichi2.anki.testutil
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
@@ -25,9 +24,8 @@ fun closeGetStartedScreenIfExists() {
 }
 
 fun closeBackupCollectionDialogIfExists() {
-    onView(withText(CommonString.button_backup_later))
-        .withFailureHandler { _, _ -> }
-        .perform(click())
+    val later = InstrumentationRegistry.getInstrumentation().targetContext.getString(CommonString.button_backup_later)
+    device.findObject(By.text(later))?.click()
 }
 
 /**

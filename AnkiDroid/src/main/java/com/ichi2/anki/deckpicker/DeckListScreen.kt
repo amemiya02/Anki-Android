@@ -53,8 +53,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -64,6 +66,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
@@ -120,10 +123,15 @@ fun DeckListScreen(
     listState: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(),
 ) {
+    val root = modifier.semantics { testTagsAsResourceId = true }
     if (state.isEmptyCollection) {
-        EmptyDeckList(actions = actions, contentPadding = contentPadding, modifier = modifier)
+        EmptyDeckList(
+            actions = actions,
+            contentPadding = contentPadding,
+            modifier = root.testTag("${LocalContext.current.packageName}:id/no_decks_placeholder"),
+        )
     } else {
-        Decks(state = state, actions = actions, listState = listState, contentPadding = contentPadding, modifier = modifier)
+        Decks(state = state, actions = actions, listState = listState, contentPadding = contentPadding, modifier = root)
     }
 }
 
@@ -256,6 +264,7 @@ private fun DeckRow(
             Modifier
                 .fillMaxWidth()
                 .heightIn(min = if (deck.depth == 0) foundation.spacing.deckRow else foundation.spacing.deckRowNested)
+                .testTag("${LocalContext.current.packageName}:id/deck_name")
                 .onGloballyPositioned { coordinates = it }
                 .pointerInput(deck.did) {
                     awaitPointerEventScope {

@@ -102,11 +102,13 @@ class BaselineProfileGenerator {
             val deckList = onElement { viewIdResourceName in setOf(id("deck_name"), id("no_decks_placeholder")) }
             if (deckList.resourceName == id("deck_name")) return@uiAutomator
 
+            val app = InstrumentationRegistry.getInstrumentation().context.createPackageContext(targetPackage, 0)
+            val create = app.getString(app.resources.getIdentifier("dialog_positive_create", "string", targetPackage))
             for (name in listOf("Japanese::Vocabulary", "Spanish")) {
                 onElement { viewIdResourceName == id("fab_main") }.click()
                 onElement { viewIdResourceName == id("add_deck_button") }.click()
-                onElement { viewIdResourceName == id("dialog_text_input") }.text = name
-                onElement { viewIdResourceName == "android:id/button1" && isEnabled }.click()
+                checkNotNull(device.wait(Until.findObject(By.clazz("android.widget.EditText")), 5_000)).text = name
+                checkNotNull(device.wait(Until.findObject(By.text(create).enabled(true)), 5_000)).click()
             }
             onElement { viewIdResourceName == id("deck_name") }
         }
