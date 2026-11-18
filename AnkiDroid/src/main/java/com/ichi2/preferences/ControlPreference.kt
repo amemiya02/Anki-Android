@@ -4,11 +4,9 @@ package com.ichi2.preferences
 
 import android.content.Context
 import android.util.AttributeSet
-import com.ichi2.anki.dialogs.GestureSelectionDialogUtils
 import com.ichi2.anki.reviewer.Binding
 import com.ichi2.anki.reviewer.MappableBinding
 import com.ichi2.anki.reviewer.MappableBinding.Companion.toPreferenceString
-import com.ichi2.ui.GesturePicker
 
 /**
  * Maps keyboard, gesture, and joystick bindings to the action identified by [key].
@@ -41,8 +39,6 @@ open class ControlPreference(
         }
 
     protected val relatedSettings get() = page?.allPreferences().orEmpty()
-
-    internal open fun createGesturePicker(): GesturePicker = GestureSelectionDialogUtils.getGesturePicker(context)
 
     internal fun removeBindingAt(index: Int) {
         val bindings = getMappableBindings().toMutableList()

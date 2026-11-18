@@ -31,7 +31,6 @@ class LayoutValidationTest : InstrumentedTest() {
     @Throws(Exception::class)
     fun ensureLayout() {
         // This should be fine to run on a device - but WebViews may be instantiated.
-        // TODO: GestureDisplay.kt - why was mSwipeView.drawable null
         val targetContext = testContext
         setTheme(targetContext)
         val li = LayoutInflater.from(targetContext)

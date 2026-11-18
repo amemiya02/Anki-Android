@@ -2,14 +2,23 @@
 
 package com.ichi2.anki.preferences
 
+import android.view.InputDevice
 import android.view.KeyEvent
+import android.view.MotionEvent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.ViewRootForTest
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
 import androidx.core.content.edit
 import androidx.test.core.app.ActivityScenario
@@ -18,8 +27,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
+import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.preferences.reviewer.WhiteboardAction
+import com.ichi2.anki.reviewer.Axis
 import com.ichi2.anki.reviewer.Binding
 import com.ichi2.anki.reviewer.CardSide
 import com.ichi2.anki.reviewer.MappableBinding.Companion.toPreferenceString
@@ -112,6 +123,76 @@ class ControlsSettingsFragmentTest : RobolectricTest() {
             inputKey()
             compose.onNodeWithText(targetContext.getString(CommonString.card_side_question)).performClick()
             assertThat(bindings(ViewerAction.UNDO), hasItem(equalTo(testBinding to CardSide.QUESTION)))
+        }
+    }
+
+    @Test
+    fun aGestureCanBeDemonstratedOnThePad() =
+        withUndoBindingEditor {
+            val gestureLabel = getResourceString(CommonString.binding_add_gesture)
+            compose.onNodeWithText(gestureLabel).performClick()
+            compose.onNodeWithContentDescription(gestureLabel).performTouchInput {
+                click(Offset(width * 0.12f, height * 0.12f))
+            }
+            advanceRobolectricLooper()
+            compose.onNodeWithText(Gesture.TAP_TOP_LEFT.toDisplayString(targetContext)).assertIsDisplayed()
+            compose.onNodeWithText(getResourceString(CommonString.dialog_ok)).performClick()
+            compose.onNodeWithText(getResourceString(CommonString.card_side_question)).performClick()
+            assertThat(bindings(ViewerAction.UNDO), hasItem(equalTo(Binding.GestureInput(Gesture.TAP_TOP_LEFT) to CardSide.QUESTION)))
+        }
+
+    @Test
+    fun aGamepadAxisCanOnlyBeAssignedAtAnObservedExtremity() =
+        withUndoBindingEditor {
+            val axisLabel = getResourceString(CommonString.binding_add_axis)
+            compose.onNodeWithText(axisLabel).performClick()
+            val viewRoot = compose.onNodeWithText(getResourceString(R.string.axis_picker_move_joystick)).fetchSemanticsNode().root
+            val window = (viewRoot as ViewRootForTest).view.rootView
+            val positive = Binding.AxisButtonBinding(Axis.X, 1f)
+            val negative = Binding.AxisButtonBinding(Axis.X, -1f)
+
+            fun moveJoystick(value: Float) {
+                val coords = MotionEvent.PointerCoords().apply { setAxisValue(MotionEvent.AXIS_X, value) }
+                val pointer = MotionEvent.PointerProperties().apply { id = 0 }
+                val event =
+                    MotionEvent.obtain(
+                        0,
+                        10,
+                        MotionEvent.ACTION_MOVE,
+                        1,
+                        arrayOf(pointer),
+                        arrayOf(coords),
+                        0,
+                        0,
+                        1f,
+                        1f,
+                        0,
+                        0,
+                        InputDevice.SOURCE_JOYSTICK,
+                        0,
+                    )
+                compose.runOnIdle { window.dispatchGenericMotionEvent(event) }
+                event.recycle()
+            }
+
+            val addPositive = compose.onNodeWithContentDescription("$axisLabel: ${positive.toDisplayString(targetContext)}")
+            val addNegative = compose.onNodeWithContentDescription("$axisLabel: ${negative.toDisplayString(targetContext)}")
+            moveJoystick(0.5f)
+            addPositive.assertIsNotEnabled()
+            addNegative.assertIsNotEnabled()
+            moveJoystick(1f)
+            moveJoystick(0f)
+            addNegative.assertIsNotEnabled()
+            addPositive.performClick()
+            compose.onNodeWithText(getResourceString(CommonString.card_side_question)).performClick()
+            assertThat(bindings(ViewerAction.UNDO), hasItem(equalTo(positive to CardSide.QUESTION)))
+        }
+
+    private fun withUndoBindingEditor(block: () -> Unit) {
+        val intent = PreferencesActivity.getIntent(targetContext, ControlsSettingsFragment::class)
+        ActivityScenario.launch<PreferencesActivity>(intent).use {
+            compose.onAllNodesWithText(getResourceString(CommonString.undo))[1].performScrollTo().performClick()
+            block()
         }
     }
 

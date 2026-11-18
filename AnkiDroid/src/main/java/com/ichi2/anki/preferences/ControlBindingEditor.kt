@@ -4,7 +4,6 @@ package com.ichi2.anki.preferences
 
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,12 +21,10 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
-import com.ichi2.anki.dialogs.GestureSelectionDialogUtils.onGestureChanged
+import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.dialogs.KeySelectionDialogUtils
-import com.ichi2.anki.dialogs.WarningDisplay
 import com.ichi2.anki.reviewer.Binding
 import com.ichi2.anki.reviewer.CardSide
 import com.ichi2.compose.theme.foundation
@@ -40,7 +37,7 @@ import com.ichi2.compose.ui.dialogs.PaperDialog
 import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
 import com.ichi2.preferences.ControlPreference
 import com.ichi2.preferences.ReviewerControlPreference
-import com.ichi2.ui.AxisPicker
+import com.ichi2.preferences.WhiteboardControlPreference
 
 private enum class BindingEditorStep { BINDINGS, GESTURE, KEY, AXIS, REPLACE_AXIS, SELECT_SIDE, ASSIGN_SHOW_ANSWER }
 
@@ -128,38 +125,16 @@ internal fun ControlBindingEditor(
                 }
             }
 
-        BindingEditorStep.GESTURE -> {
-            val picker = remember(action) { action.createGesturePicker() }
-            val save =
-                DialogAction(
-                    stringResource(CommonString.dialog_ok),
-                    { picker.getGesture()?.let { select(Binding.GestureInput(it)) } },
-                    DialogActionStyle.Filled,
-                )
-            PaperDialog(title, onDismiss, actions = listOf(cancel, save)) {
-                AndroidView(
-                    factory = { picker },
-                    modifier = Modifier.fillMaxWidth(),
-                    update = {
-                        it.onGestureChanged { gesture -> action.showBindingWarning(Binding.GestureInput(gesture), picker) }
-                    },
-                )
-            }
-        }
+        BindingEditorStep.GESTURE ->
+            GestureBindingPicker(title, action, cancel, onDismiss, ::select)
 
         BindingEditorStep.KEY ->
             KeyBindingPicker(title, action, cancel, onDismiss, ::select)
 
-        BindingEditorStep.AXIS -> {
-            val picker = remember(action) { AxisPicker(action.context) }
+        BindingEditorStep.AXIS ->
             PaperDialog(title, onDismiss, actions = listOf(cancel)) {
-                AndroidView(
-                    factory = { picker.binding.root },
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 180.dp, max = 320.dp),
-                    update = { picker.setBindingChangedListener(::select) },
-                )
+                AxisBindingPicker(::select)
             }
-        }
 
         BindingEditorStep.REPLACE_AXIS ->
             if (binding != null) {
@@ -276,14 +251,61 @@ private fun KeyBindingPicker(
     }
 }
 
-private fun ControlPreference.showBindingWarning(
-    binding: Binding,
-    warning: WarningDisplay,
+@Composable
+private fun GestureBindingPicker(
+    title: String,
+    action: ControlPreference,
+    cancel: DialogAction,
+    onDismiss: () -> Unit,
+    onSelect: (Binding) -> Unit,
 ) {
-    val other = otherActionTitleForBinding(binding)
-    if (other == null) {
-        warning.clearWarning()
+    val context = LocalContext.current
+    val mapper = rememberControlGestureMapper()
+    val whiteboard = action is WhiteboardControlPreference
+    val options = listOf(null) + if (whiteboard) whiteboardGestures else mapper.tapGestureMode.availableGestures()
+    var gesture by rememberSaveable { mutableStateOf<Gesture?>(null) }
+    var choosing by rememberSaveable { mutableStateOf(false) }
+    val selected = gesture?.let { Binding.GestureInput(it) }
+    val noGesture = stringResource(CommonString.gestures_none)
+    val pickerLabel = stringResource(CommonString.binding_add_gesture)
+
+    if (choosing) {
+        SingleChoiceDialog(
+            title = pickerLabel,
+            choices = options.map { DialogChoice(it?.toDisplayString(context) ?: noGesture) },
+            selectedIndex = options.indexOf(gesture).takeIf { it >= 0 },
+            onSelect = {
+                gesture = options[it]
+                choosing = false
+            },
+            onDismissRequest = { choosing = false },
+        )
     } else {
-        warning.setWarning(context.getString(CommonString.bindings_already_bound, other))
+        DetectShake { gesture = Gesture.SHAKE }
+        PaperDialog(
+            title,
+            onDismiss,
+            actions =
+                listOf(
+                    cancel,
+                    DialogAction(
+                        stringResource(CommonString.dialog_ok),
+                        { selected?.let(onSelect) },
+                        DialogActionStyle.Filled,
+                        enabled = selected != null,
+                    ),
+                ),
+        ) {
+            if (!whiteboard) GesturePad(mapper, gesture) { gesture = it }
+            SettingsRow(
+                title = pickerLabel,
+                value = gesture?.toDisplayString(context) ?: noGesture,
+                onClick = { choosing = true },
+                trailing = { SettingsChevron() },
+            )
+            selected?.let(action::otherActionTitleForBinding)?.let {
+                DialogDetail(stringResource(CommonString.bindings_already_bound, it))
+            }
+        }
     }
 }
