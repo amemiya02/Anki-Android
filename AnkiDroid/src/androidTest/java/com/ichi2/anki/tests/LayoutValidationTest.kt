@@ -2,7 +2,6 @@
 
 package com.ichi2.anki.tests
 
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
@@ -92,12 +91,7 @@ class LayoutValidationTest : InstrumentedTest() {
                     com.ichi2.anki.R.layout.fragment_reviewer,
                     com.ichi2.anki.R.layout.fragment_preferences,
                     com.ichi2.anki.R.layout.fragment_drawing,
-                ) +
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                        listOf(com.ichi2.anki.widgets.R.layout.widget_small_unthemed)
-                    } else {
-                        emptyList()
-                    }
+                )
 
             return layout::class.java.fields
                 .map { arrayOf<Any>(it.getInt(layout), it.name) }
