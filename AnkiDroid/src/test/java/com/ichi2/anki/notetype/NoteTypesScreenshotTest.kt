@@ -74,7 +74,6 @@ class NoteTypesScreenshotTest : ScreenshotTest() {
         compose.onNodeWithText(activity.getString(CommonString.model_field_editor_rename)).assertIsDisplayed()
         captureScreen("field_actions")
         compose.onNodeWithText(activity.getString(CommonString.model_field_editor_delete)).performClick()
-        compose.onNodeWithText(activity.getString(CommonString.dialog_positive_delete)).performClick()
         compose.onNodeWithText(activity.getString(R.string.note_type_full_sync_title)).assertIsDisplayed()
         captureScreen("full_sync")
     }

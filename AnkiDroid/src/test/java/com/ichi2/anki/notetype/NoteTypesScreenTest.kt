@@ -131,7 +131,6 @@ class NoteTypesScreenTest : RobolectricTest() {
         markSynced()
         compose.onNodeWithText("Back").performClick()
         compose.onNodeWithText("Delete field").performClick()
-        compose.onNodeWithText("Delete").performClick()
         compose.onNodeWithText("This change needs a one-way sync").assertIsDisplayed()
 
         val original = type().deepClone()

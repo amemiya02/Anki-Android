@@ -67,6 +67,7 @@ import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -117,6 +118,7 @@ internal fun NoteTypesScreen(
                 }
                 searching -> {
                     val focus = remember { FocusRequester() }
+                    val keyboard = LocalSoftwareKeyboardController.current
                     OutlinedTextField(
                         value = state.searchQuery,
                         onValueChange = onQuery,
@@ -124,8 +126,11 @@ internal fun NoteTypesScreen(
                         label = { Text(stringResource(AppCompatR.string.abc_search_hint)) },
                         singleLine = true,
                     )
-                    LaunchedEffect(Unit) { focus.requestFocus() }
-                    NoteTypeIconButton(CommonR.drawable.symbol_close, stringResource(CommonString.close)) { onQuery("") }
+                    LaunchedEffect(Unit) {
+                        focus.requestFocus()
+                        keyboard?.show()
+                    }
+                    NoteTypeIconButton(CommonR.drawable.symbol_close, stringResource(R.string.browse_clear)) { onQuery("") }
                 }
                 else -> {
                     Spacer(Modifier.weight(1f))
@@ -317,7 +322,7 @@ private fun NoteTypeFieldRow(
             title = row.field.name,
             subtitle = {
                 val sort = if (row.sortsBrowser) stringResource(R.string.note_type_field_sort_label) else null
-                val keyboard = row.keyboard?.let { stringResource(R.string.note_type_field_keyboard_label, it.getDisplayLanguage(it)) }
+                val keyboard = row.keyboard?.let { stringResource(R.string.note_type_field_keyboard_label, it.getDisplayName(it)) }
                 val subtitle = listOfNotNull(sort, keyboard).joinToString(" · ")
                 if (subtitle.isNotEmpty()) NoteTypeCaption(subtitle)
             },

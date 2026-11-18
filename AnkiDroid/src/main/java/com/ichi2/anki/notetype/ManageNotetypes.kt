@@ -285,6 +285,21 @@ private fun NoteTypesRoute(
                     field = field,
                     onDialog = { dialog = it },
                     onEdit = { edit(openedDetail.id, it) },
+                    onDelete = { selected ->
+                        val change = FieldChange(FieldAction.Delete, selected)
+                        if (openedDetail.fields.size == 1) {
+                            edit(openedDetail.id, change)
+                        } else {
+                            runTask {
+                                if (withCol { schemaChanged() }) {
+                                    dialog = NoteTypeDialog.DeleteField
+                                } else {
+                                    pendingChange = change
+                                    dialog = NoteTypeDialog.SyncField
+                                }
+                            }
+                        }
+                    },
                 )
             }
     }
@@ -366,6 +381,7 @@ private fun FieldDialogs(
     field: NoteFieldRef?,
     onDialog: (NoteTypeDialog?) -> Unit,
     onEdit: (FieldChange) -> Unit,
+    onDelete: (NoteFieldRef) -> Unit,
 ) {
     val row = fields.firstOrNull { it.field == field } ?: fields.singleOrNull { field?.id != null && it.field.id == field.id }
     val dismiss = { onDialog(null) }
@@ -382,9 +398,7 @@ private fun FieldDialogs(
                         FieldAction.Move -> onDialog(NoteTypeDialog.MoveField)
                         FieldAction.Sort -> onEdit(FieldChange(action, row.field))
                         FieldAction.Keyboard -> onDialog(NoteTypeDialog.Keyboard)
-                        FieldAction.Delete -> {
-                            if (fields.size == 1) onEdit(FieldChange(action, row.field)) else onDialog(NoteTypeDialog.DeleteField)
-                        }
+                        FieldAction.Delete -> onDelete(row.field)
                         FieldAction.Add -> Unit
                     }
                 }

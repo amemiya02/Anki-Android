@@ -177,7 +177,7 @@ internal fun FieldActionsSheet(
         FieldActionRow(
             keyboard,
             R.drawable.symbol_keyboard,
-            subtitle = row.keyboard?.getDisplayLanguage(row.keyboard) ?: stringResource(R.string.note_type_field_no_keyboard),
+            subtitle = row.keyboard?.getDisplayName(row.keyboard) ?: stringResource(R.string.note_type_field_no_keyboard),
             onClick = { onAction(FieldAction.Keyboard) },
         )
         FieldActionRow(
