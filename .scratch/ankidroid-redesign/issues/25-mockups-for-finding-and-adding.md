@@ -23,3 +23,5 @@ The Mockups are captured in `docs/redesign/finding-and-adding/`; its `README.md`
 3. Approve each Mockup, or say what to change.
 
 Tickets 26, 27, 28, 29 and 30 were re-sliced to the Mockups (criteria added under each; nothing removed).
+
+On 2026-11-18 the owner chose the recommended option for every decision in this ticket (and in tickets 25, 32 and 41 alike), and asked for a different Light colour scheme. The layouts and decisions are settled; approval waits only on the new Light palette, which is drawn separately and then applied to the Foundation.
