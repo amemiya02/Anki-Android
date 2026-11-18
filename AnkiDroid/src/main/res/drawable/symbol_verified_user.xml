@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!--
+  Material Symbols Outlined: verified_user
+  From google/material-design-icons (Apache-2.0), drawn by tools/material-symbols/symbol.py. Do not edit by hand.
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-    <path
-        android:fillColor="#000000"
-        android:fillType="evenOdd"
-        android:pathData="M12,2l8,3v6c0,5 -3.4,8.9 -8,11 -4.6,-2.1 -8,-6 -8,-11V5z M12,4.14L6,6.38V11c0,3.93 2.6,7.13 6,8.9 3.4,-1.77 6,-4.97 6,-8.9V6.38z M10.5,13.17l4.59,-4.59L16.5,10l-6,6 -3,-3 1.41,-1.41z" />
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:tint="?attr/colorControlNormal">
+    <group android:translateY="960">
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M438-351.85 650.15-564l-42.77-42.77L438-437.38l-84.77-84.77-42.77 42.77L438-351.85Zm42 251.08q-129.77-35.39-214.88-152.77Q180-370.92 180-516v-230.15l300-112.31 300 112.31V-516q0 145.08-85.12 262.46Q609.77-136.16 480-100.77Zm0-63.23q104-33 172-132t68-220v-189l-240-89.62L240-705v189q0 121 68 220t172 132Zm0-315.62Z" />
+    </group>
 </vector>

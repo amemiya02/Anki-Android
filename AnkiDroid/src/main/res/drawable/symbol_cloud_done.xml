@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!--
+  Material Symbols Outlined: cloud_done
+  From google/material-design-icons (Apache-2.0), drawn by tools/material-symbols/symbol.py. Do not edit by hand.
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-    <path
-        android:fillColor="#000000"
-        android:fillType="evenOdd"
-        android:pathData="M6.5,19a5.5,5.5 0,0 1,-0.64,-10.96A6.5,6.5 0,0 1,18.4 10a4.5,4.5 0,0 1,-0.9,9z M6.5,17h11a2.5,2.5 0,1 0,-0.73,-4.89L16.5,12A4.5,4.5 0,0 0,7.67 9.98H6.5a3.5,3.5 0,0 0,0 7z M9.41,12.59L11,14.17l3.59,-3.59L16,12l-5,5 -3,-3z" />
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:tint="?attr/colorControlNormal">
+    <group android:translateY="960">
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M414-293.85 626.15-506l-43.38-43.38L413.38-380l-84.76-84.77L285.85-422 414-293.85ZM260-180q-82.92 0-141.46-57.62Q60-295.23 60-378.15q0-73.39 47-130.54 47-57.16 119.92-67.62Q246.15-666 317.12-723q70.96-57 162.88-57 108.54 0 184.27 75.73T740-520v20h12.31q63.23 4.92 105.46 50.85Q900-403.23 900-340q0 66.92-46.54 113.46Q806.92-180 740-180H260Zm0-60h480q42 0 71-29t29-71q0-42-29-71t-71-29h-60v-80q0-83-58.5-141.5T480-720q-83 0-141.5 58.5T280-520h-20q-58 0-99 41t-41 99q0 58 41 99t99 41Zm220-240Z" />
+    </group>
 </vector>
