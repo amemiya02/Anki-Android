@@ -7,6 +7,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.core.content.edit
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.common.preferences.sharedPrefs
@@ -78,7 +79,12 @@ class DeckPickerNoExternalFilesDirTest : RobolectricTest() {
 
                 deckPicker {
                     compose.onNodeWithText("Inaccessible collection").assertIsDisplayed()
-                    compose.onNodeWithText(getString(CommonString.create_new_collection)).performClick()
+                    compose
+                        .onNodeWithText(
+                            getString(CommonString.create_new_collection),
+                        ).performScrollTo()
+                        .assertIsDisplayed()
+                        .performClick()
                     assertStorageError()
                 }
             }
