@@ -138,7 +138,6 @@ turbine = "1.2.1"
 [libraries]
 android-image-cropper = { module = "com.vanniktech:android-image-cropper", version.ref = "imageCropper" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "androidxConstraintlayout" }
-androidx-fragment-compose = { module = "androidx.fragment:fragment-compose", version.ref = "androidxFragmentKtx" }
 androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "androidxFragmentKtx" }
 androidx-exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "androidxExifinterface" }
 androidx-core = { module = "androidx.core:core", version.ref = "androidxCore" }

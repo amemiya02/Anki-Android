@@ -26,7 +26,6 @@ import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
 import androidx.fragment.app.commitNow
 import androidx.lifecycle.Lifecycle
-import androidx.fragment.compose.AndroidFragment
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -126,12 +125,12 @@ internal class AppNavigation(
                     modifier = Modifier.fillMaxSize(),
                 )
             }
-            composable(WELCOME) {
-                AndroidFragment<WelcomeFragment>(Modifier.fillMaxSize())
+            composable(WELCOME) { entry ->
+                HostedScreen(entry, WelcomeFragment::class.java)
             }
             tabFragments.forEach { (tab, fragmentClass) ->
                 composable(tab.tag) { entry ->
-                    if (tab == NavigationItem.BROWSER) deckPicker.ensureBrowserViewModel()
+                    if (tab == NavigationItem.BROWSER) remember(entry.id) { deckPicker.ensureBrowserViewModel() }
                     val bottomClearance = with(LocalDensity.current) { deckPicker.bottomNavContentClearance.intValue.toDp() }
                     val arguments = if (tab == NavigationItem.STATS) Bundle().apply { putBoolean(Statistics.ARG_HIDE_BACK_BUTTON, true) } else null
                     HostedScreen(entry, fragmentClass, Modifier.padding(bottom = bottomClearance), arguments)
@@ -233,6 +232,9 @@ internal class AppNavigation(
     fun selectTab(tab: NavigationItem) {
         navigateWhenReady { navigation ->
             if (navigation.currentDestination?.route == tab.tag) return@navigateWhenReady
+            (currentFragment as? CardBrowserFragment)?.let { browser ->
+                browser.searchViewModel.closeBrowserSearch(browser.activityViewModel.searchRequestFlow.value)
+            }
             if (tab == NavigationItem.HOME) {
                 navigation.popBackStack(HOME, inclusive = false)
             } else {

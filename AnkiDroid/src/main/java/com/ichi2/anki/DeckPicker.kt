@@ -13,6 +13,7 @@
 package com.ichi2.anki
 
 import android.content.ClipData
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -41,6 +42,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -743,6 +745,7 @@ open class DeckPicker :
         appNavigation = AppNavigation(this, home, showWelcome = awaitingWelcome)
         val host = ComposeView(this).apply {
             id = R.id.app_navigation
+            consumeWindowInsets = false
             setContent { AnkiDroidTheme { appNavigation.Content() } }
         }
         val params = home.layoutParams
@@ -2671,15 +2674,22 @@ open class DeckPicker :
             source: Intent? = null,
             resetTask: Boolean = false,
         ): Intent = getIntent(context).apply {
-            putExtra(EXTRA_ENTRY_SCREEN, screen)
+            val payload =
+                Intent(screen).apply {
+                    if (source != null && data == null && type == null) setDataAndType(source.data, source.type)
+                }
+            putExtra(EXTRA_ENTRY_SCREEN, payload)
             addFlags(
                 if (resetTask) Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 else Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP,
             )
             if (source != null) {
                 val uri = source.data ?: IntentCompat.getParcelableExtra(source, Intent.EXTRA_STREAM, Uri::class.java)
-                clipData = source.clipData ?: uri?.let { ClipData.newRawUri(null, it) }
-                addFlags(source.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
+                clipData = source.clipData ?: uri?.takeIf { it.scheme == ContentResolver.SCHEME_CONTENT }?.let { ClipData.newRawUri(null, it) }
+                val uriFlags =
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                        Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
+                addFlags(source.flags and uriFlags)
             }
         }
 
