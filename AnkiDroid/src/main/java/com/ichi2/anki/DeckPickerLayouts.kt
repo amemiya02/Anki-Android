@@ -114,13 +114,13 @@ internal class DeckListLayout(
     val pullToSyncWrapper = SwipeRefreshLayout(context).apply { id = R.id.pull_to_sync_wrapper }
     val deckList = ComposeView(context).apply { id = R.id.deck_list }
     val floatingActionButton = AddMenuLayout(context)
+    val deckPickerContent =
+        FrameLayout(context).apply {
+            id = R.id.deck_picker_content
+            addView(deckList, MATCH_PARENT, MATCH_PARENT)
+        }
 
     init {
-        val deckPickerContent =
-            FrameLayout(context).apply {
-                id = R.id.deck_picker_content
-                addView(deckList, MATCH_PARENT, MATCH_PARENT)
-            }
         pullToSyncWrapper.addView(deckPickerContent, MATCH_PARENT, MATCH_PARENT)
         deckpickerView.addView(pullToSyncWrapper, MATCH_PARENT, MATCH_PARENT)
         root.addView(background, MATCH_PARENT, MATCH_PARENT)
