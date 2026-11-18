@@ -20,7 +20,8 @@ import com.ichi2.anki.testutil.ThreadUtils.sleep
  */
 
 fun closeGetStartedScreenIfExists() {
-    onView(withId(R.id.get_started)).withFailureHandler { _, _ -> }.perform(click())
+    val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
+    device.findObject(By.res(packageName, "start_with_no_decks"))?.click()
 }
 
 fun closeBackupCollectionDialogIfExists() {
@@ -30,7 +31,7 @@ fun closeBackupCollectionDialogIfExists() {
 }
 
 /**
- * Discard the Get Started and the Backup Collection dialog if they exists
+ * Dismiss the welcome and backup reminder if present.
  */
 fun discardPreliminaryViews() {
     closeGetStartedScreenIfExists()

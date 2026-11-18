@@ -46,7 +46,7 @@ class ReleaseSmokeTest {
     fun opensDeckPicker() =
         uiAutomator {
             startApp(targetPackage)
-            onElement { viewIdResourceName == "$targetPackage:id/get_started" }.click()
+            onElement { viewIdResourceName == "$targetPackage:id/start_with_no_decks" }.click()
             onElement { viewIdResourceName == "$targetPackage:id/fab_main" }
         }
 

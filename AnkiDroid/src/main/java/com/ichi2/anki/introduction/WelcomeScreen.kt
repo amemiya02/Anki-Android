@@ -36,11 +36,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
@@ -69,6 +73,7 @@ internal fun Welcome(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun WelcomeScreen(
     modifier: Modifier,
@@ -78,6 +83,7 @@ private fun WelcomeScreen(
     onMigration: () -> Unit,
 ) {
     val foundation = MaterialTheme.foundation
+    val packageName = LocalContext.current.packageName
     Column(
         Modifier
             .fillMaxSize()
@@ -105,7 +111,10 @@ private fun WelcomeScreen(
             SyncPrimaryButton(
                 stringResource(CommonString.paper_welcome_start_empty),
                 onStartEmpty,
-                Modifier.heightIn(min = foundation.spacing.primaryButton),
+                Modifier
+                    .heightIn(min = foundation.spacing.primaryButton)
+                    .semantics { testTagsAsResourceId = true }
+                    .testTag("$packageName:id/start_with_no_decks"),
             )
             Column {
                 SettingsDivider()

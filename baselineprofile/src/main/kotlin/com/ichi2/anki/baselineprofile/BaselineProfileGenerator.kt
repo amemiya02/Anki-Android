@@ -30,8 +30,8 @@ import org.junit.runners.MethodSorters
  *    fully render before the trace window closes.
  *
  * On a fresh install, [com.ichi2.anki.IntroductionActivity] appears before
- * DeckPicker. The journey handles this by tapping the "Get Started" button
- * (resource id `get_started`) if it is present, so the profile captures the
+ * DeckPicker. The journey handles this by tapping the "Start with no Decks" button
+ * (resource id `start_with_no_decks`) if it is present, so the profile captures the
  * full path to DeckPicker regardless of device state.
  *
  * That first launch only goes into the baseline profile. [launchWithDecks] runs
@@ -66,9 +66,9 @@ class BaselineProfileGenerator {
             startActivityAndWait()
 
             // On a fresh install, IntroductionActivity appears before DeckPicker.
-            // Dismiss it by tapping "Get Started" so the profile always captures
+            // Dismiss it by tapping "Start with no Decks" so the profile always captures
             // the full path through to DeckPicker, regardless of device state.
-            device.findObject(By.res(targetPackage, "get_started"))?.click()
+            device.findObject(By.res(targetPackage, "start_with_no_decks"))?.click()
 
             // Wait for DeckPicker to fully render so all startup classes are captured.
             device.wait(Until.hasObject(By.pkg(targetPackage).depth(0)), 5_000)
@@ -96,8 +96,8 @@ class BaselineProfileGenerator {
             fun id(name: String) = "$targetPackage:id/$name"
 
             startApp(targetPackage)
-            val firstScreen = onElement { viewIdResourceName in setOf(id("get_started"), id("fab_main")) }
-            if (firstScreen.resourceName == id("get_started")) firstScreen.click()
+            val firstScreen = onElement { viewIdResourceName in setOf(id("start_with_no_decks"), id("fab_main")) }
+            if (firstScreen.resourceName == id("start_with_no_decks")) firstScreen.click()
 
             val deckList = onElement { viewIdResourceName in setOf(id("deck_name"), id("no_decks_placeholder")) }
             if (deckList.resourceName == id("deck_name")) return@uiAutomator
