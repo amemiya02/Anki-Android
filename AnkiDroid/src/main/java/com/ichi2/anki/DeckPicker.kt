@@ -448,6 +448,8 @@ open class DeckPicker :
             DeckPickerActivityResultCallback {
                 if (it.resultCode == RESULT_OK) {
                     syncOnResume = true
+                    // A hosted sign-in returns without resuming the activity.
+                    if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) refreshState()
                 }
             },
         )
@@ -1786,6 +1788,9 @@ open class DeckPicker :
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        val current = currentScreenFragment
+        if (current is DispatchKeyEventListener && current.dispatchKeyEvent(event)) return true
+        if (current != null) return super.dispatchKeyEvent(event)
         if (!bottomNavigationEnabled || event.action != KeyEvent.ACTION_DOWN || !event.isAltPressed) {
             return super.dispatchKeyEvent(event)
         }

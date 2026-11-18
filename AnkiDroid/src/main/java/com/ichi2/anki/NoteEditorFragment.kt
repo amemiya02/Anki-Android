@@ -137,6 +137,7 @@ import com.ichi2.anki.multimedia.MultimediaUtils.canTakePicture
 import com.ichi2.anki.multimedia.MultimediaUtils.createImageFile
 import com.ichi2.anki.multimedia.MultimediaViewModel
 import com.ichi2.anki.multimediacard.impl.MultimediaEditableNote
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.noteeditor.CustomToolbarButton
 import com.ichi2.anki.noteeditor.FieldState
 import com.ichi2.anki.noteeditor.FieldState.FieldChangeType
@@ -327,10 +328,13 @@ class NoteEditorFragment :
 
     private var delegate: NoteEditorFragmentDelegate? = null
     private val inNoteEditorActivity: Boolean
-        get() = requireActivity() is NoteEditorActivity
+        get() = noteEditorHost != null
 
-    private val noteEditorActivity
-        get() = requireActivity() as? NoteEditorActivity
+    private val noteEditorHost
+        get() = parentFragment as? NoteEditorPaneFragment
+
+    private val launchIntent: Intent
+        get() = noteEditorHost?.launchIntent ?: requireActivity().intent
 
     // List of affected cards (siblings) when editing notes.
     private val cardIdsFromArguments: LongArray?
@@ -556,7 +560,7 @@ class NoteEditorFragment :
         tagsDialogFactory = TagsDialogFactory(this).attachToFragmentManager<TagsDialogFactory>(parentFragmentManager)
         super.onCreate(savedInstanceState)
         fieldState.setInstanceState(savedInstanceState)
-        val intent = requireActivity().intent
+        val intent = launchIntent
         if (savedInstanceState != null) {
             caller = fromValue(savedInstanceState.getInt(STATE_CALLER))
             addNote = savedInstanceState.getBoolean("addNote")
@@ -695,7 +699,7 @@ class NoteEditorFragment :
                 }
             }
         }
-        noteEditorActivity?.let { activity ->
+        noteEditorHost?.let { activity ->
             activity.binding.editorAppBar.apply {
                 setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner))
                 setContent {
@@ -724,7 +728,7 @@ class NoteEditorFragment :
             add(appBarAction(CommonString.menu_font_size, R.id.action_font_size))
             add(appBarAction(CommonString.note_editor_capitalize, R.id.action_capitalize, checked = capitalizeSentences))
             add(appBarAction(CommonString.note_editor_toolbar_layout, R.id.action_toolbar_layout))
-            noteEditorActivity?.takeIf { it.hasPreviewerPane }?.let { activity ->
+            noteEditorHost?.takeIf { it.hasPreviewerPane }?.let { activity ->
                 val label =
                     if (activity.isPreviewerVisible) CommonString.note_editor_hide_previewer else CommonString.note_editor_show_previewer
                 add(appBarAction(label, R.id.action_toggle_previewer))
@@ -796,7 +800,7 @@ class NoteEditorFragment :
         col: Collection,
         savedInstanceState: Bundle?,
     ) {
-        val intent = requireActivity().intent
+        val intent = launchIntent
         Timber.d("NoteEditor() onCollectionLoaded: caller: %s", caller)
         requireAnkiActivity().registerReceiver()
         fieldsLayoutContainer = requireView().findViewById(R.id.CardEditorEditFieldsLayout)
@@ -811,7 +815,7 @@ class NoteEditorFragment :
         when (caller) {
             NoteEditorCaller.NO_CALLER -> {
                 Timber.e("no caller could be identified, closing")
-                requireActivity().finish()
+                finishScreen()
                 return
             }
             NoteEditorCaller.EDIT -> {
@@ -838,11 +842,11 @@ class NoteEditorFragment :
             -> {
                 fetchIntentInformation(intent)
                 if (sourceText == null) {
-                    requireActivity().finish()
+                    finishScreen()
                     return
                 }
                 if ("Aedict Notepad" == sourceText!![0] && addFromAedict(sourceText!![1])) {
-                    requireActivity().finish()
+                    finishScreen()
                     return
                 }
                 addNote = true
@@ -1593,8 +1597,8 @@ class NoteEditorFragment :
             menu.findItem(R.id.action_add_note_from_note_editor).isVisible = !inCardBrowserActivity
         }
         menu.findItem(R.id.action_toggle_previewer).apply {
-            isVisible = inNoteEditorActivity && noteEditorActivity?.hasPreviewerPane == true
-            isChecked = noteEditorActivity?.isPreviewerVisible == true
+            isVisible = inNoteEditorActivity && noteEditorHost?.hasPreviewerPane == true
+            isChecked = noteEditorHost?.isPreviewerVisible == true
             title =
                 if (isChecked) {
                     getString(CommonString.note_editor_hide_previewer)
@@ -1638,7 +1642,7 @@ class NoteEditorFragment :
     // TODO: Move this logic to a [NoteEditorActivity.kt]
     private fun allowPreviewAction(): Boolean =
         when {
-            inNoteEditorActivity && noteEditorActivity?.isPreviewerVisible == true -> false
+            inNoteEditorActivity && noteEditorHost?.isPreviewerVisible == true -> false
             addNote && currentNotetypeIsImageOcclusion() -> false
             else -> true
         }
@@ -1656,7 +1660,7 @@ class NoteEditorFragment :
             }
             R.id.action_toggle_previewer -> {
                 Timber.i("NoteEditor:: Toggle previewer pressed")
-                val editorActivity = noteEditorActivity
+                val editorActivity = noteEditorHost
                 if (editorActivity == null) {
                     Timber.w("NoteEditor:: Toggle previewer pressed outside of NoteEditorActivity")
                     return true
@@ -1859,35 +1863,23 @@ class NoteEditorFragment :
         result: Int,
         intent: Intent?,
     ) {
-        requireActivity().apply {
-            if (intent != null) {
-                setResult(result, intent)
-            } else {
-                setResult(result)
-            }
-            // ensure there are no orphans from possible edit previews
-            CardTemplateNotetype.clearTempNoteTypeFiles()
+        // Preview files are only needed while the editor is open.
+        CardTemplateNotetype.clearTempNoteTypeFiles()
+        if (inCardBrowserActivity) return
 
-            // Don't close this fragment if it is in fragmented activity
-            if (inCardBrowserActivity) {
-                Timber.i("not closing activity: fragmented")
-                return
-            }
-
-            Timber.i("Closing note editor")
-
-            // Set the finish animation if there is one on the intent which created the activity
-            val animation =
-                BundleCompat.getParcelable(
-                    requireArguments(),
-                    AnkiActivity.EXTRA_FINISH_ANIMATION,
-                    TransitionDirection::class.java,
-                )
-            if (animation != null) {
-                requireAnkiActivity().finishWithAnimation(animation)
-            } else {
-                finish()
-            }
+        Timber.i("Closing note editor")
+        val animation =
+            BundleCompat.getParcelable(
+                requireArguments(),
+                AnkiActivity.EXTRA_FINISH_ANIMATION,
+                TransitionDirection::class.java,
+            )
+        val host = requireAnkiActivity()
+        if (animation != null && host !is DeckPicker) {
+            host.setResult(result, intent)
+            host.finishWithAnimation(animation)
+        } else {
+            finishScreen(result, intent)
         }
     }
 
@@ -2361,7 +2353,7 @@ class NoteEditorFragment :
                 left
             }
         val end =
-            if (noteEditorActivity?.isPreviewerVisible == true) {
+            if (noteEditorHost?.isPreviewerVisible == true) {
                 0
             } else if (isRtl) {
                 left

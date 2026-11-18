@@ -12,12 +12,19 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
+import androidx.fragment.app.commit
+import androidx.fragment.app.commitNow
+import androidx.lifecycle.Lifecycle
 import androidx.fragment.compose.AndroidFragment
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
@@ -27,6 +34,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.get
 import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.DrawingFragment
+import com.ichi2.anki.NoteEditorActivity
+import com.ichi2.anki.NoteEditorPaneFragment
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.account.AccountActivity
 import com.ichi2.anki.account.AccountFlowFragment
@@ -91,12 +100,7 @@ internal class AppNavigation(
             }
             fragmentScreens.values.forEach { fragmentClass ->
                 composable(fragmentClass.name) { entry ->
-                    AndroidFragment(
-                        clazz = fragmentClass,
-                        modifier = Modifier.fillMaxSize(),
-                        arguments = entry.arguments?.getBundle(SCREEN_ARGUMENTS) ?: Bundle.EMPTY,
-                        onUpdate = { fragments[entry.id] = it },
-                    )
+                    HostedScreen(entry, fragmentClass)
                 }
             }
         }
@@ -114,8 +118,62 @@ internal class AppNavigation(
         }
     }
 
+    /**
+     * Preserve a covered Fragment's ViewModel and registered Activity Result keys.
+     * Its view and back callbacks are active only while its destination is presented.
+     */
+    @Composable
+    private fun HostedScreen(
+        entry: NavBackStackEntry,
+        fragmentClass: Class<out Fragment>,
+    ) {
+        val manager = deckPicker.supportFragmentManager
+        val tag = "navigation:${entry.id}"
+        val containerId = rememberSaveable { allocateContainerId() }
+        val container =
+            remember(containerId) {
+                FragmentContainerView(deckPicker).apply { id = containerId }
+            }
+        AndroidView(factory = { container }, modifier = Modifier.fillMaxSize())
+
+        DisposableEffect(container) {
+            val existing = manager.findFragmentByTag(tag)
+            val fragment =
+                existing ?: manager.fragmentFactory.instantiate(deckPicker.classLoader, fragmentClass.name).apply {
+                    arguments = entry.arguments?.getBundle(SCREEN_ARGUMENTS)
+                }
+            fragments[entry.id] = fragment
+            if (!manager.isStateSaved) {
+                manager.commitNow {
+                    setReorderingAllowed(true)
+                    if (existing == null) {
+                        add(container, fragment, tag)
+                    } else {
+                        manager.onContainerAvailable(container)
+                    }
+                    setMaxLifecycle(fragment, Lifecycle.State.RESUMED)
+                }
+            }
+            onDispose {
+                if (!manager.isStateSaved && !manager.isDestroyed && fragment.isAdded) {
+                    manager.commitNow { setMaxLifecycle(fragment, Lifecycle.State.CREATED) }
+                }
+            }
+        }
+    }
+
+    private fun allocateContainerId(): Int {
+        val manager = deckPicker.supportFragmentManager
+        var id = View.generateViewId()
+        while (manager.findFragmentById(id) != null) id = View.generateViewId()
+        return id
+    }
+
     private fun onEntryPopped(entry: NavBackStackEntry) {
-        fragments.remove(entry.id)
+        val fragment = fragments.remove(entry.id) ?: deckPicker.supportFragmentManager.findFragmentByTag("navigation:${entry.id}")
+        if (fragment != null && fragment.isAdded && !deckPicker.supportFragmentManager.isStateSaved) {
+            deckPicker.supportFragmentManager.commit { remove(fragment) }
+        }
         val result = completedResults.remove(entry.id) ?: ActivityResult(Activity.RESULT_CANCELED, null)
         val requestCode = entry.arguments?.getInt(RESULT_REQUEST_CODE, NO_RESULT) ?: NO_RESULT
         if (requestCode != NO_RESULT) deckPicker.activityResultRegistry.dispatchResult(requestCode, result.resultCode, result.data)
@@ -135,12 +193,16 @@ internal class AppNavigation(
     ): Boolean {
         if (intent.component?.packageName != deckPicker.packageName) return false
         if (intent.component?.className !in hostedComponents) return false
-        val fragment = fragmentScreens[intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME)] ?: return false
-        val arguments =
-            bundleOf(
-                SCREEN_ARGUMENTS to intent.getBundleExtra(SingleFragmentActivity.EXTRA_FRAGMENT_ARGS),
-                RESULT_REQUEST_CODE to requestCode,
-            )
+        val component = intent.component?.className
+        val fragment =
+            when (component) {
+                NoteEditorActivity::class.java.name -> NoteEditorPaneFragment::class.java
+                else -> fragmentScreens[intent.getStringExtra(SingleFragmentActivity.EXTRA_FRAGMENT_NAME)] ?: return false
+            }
+        val screenArguments =
+            if (component == NoteEditorActivity::class.java.name) NoteEditorPaneFragment.arguments(intent)
+            else intent.getBundleExtra(SingleFragmentActivity.EXTRA_FRAGMENT_ARGS)
+        val arguments = bundleOf(SCREEN_ARGUMENTS to screenArguments, RESULT_REQUEST_CODE to requestCode)
         navigateWhenReady { it.navigate(it.graph[fragment.name].id, arguments) }
         return true
     }
@@ -180,6 +242,7 @@ internal class AppNavigation(
         val hostedComponents =
             setOf(
                 AccountActivity::class.java.name,
+                NoteEditorActivity::class.java.name,
                 SingleFragmentActivity::class.java.name,
                 ConfigAwareSingleFragmentActivity::class.java.name,
                 PreferencesActivity::class.java.name,
@@ -199,6 +262,7 @@ internal class AppNavigation(
                 ImageCropper::class.java,
                 ImageOcclusion::class.java,
                 MediaCheckFragment::class.java,
+                NoteEditorPaneFragment::class.java,
                 PreferencesFragment::class.java,
                 PreviewerFragment::class.java,
                 ReviewerFragment::class.java,
