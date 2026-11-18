@@ -133,11 +133,12 @@ class SyncWorker(
         syncMedia: Boolean,
     ) {
         Timber.v("SyncWorker::syncCollection")
+        // Resolve the shared backend before the collection operation starts and holds its lease.
+        val backend = CollectionManager.getBackend()
         val syncAuth =
             coroutineScope {
                 val monitor =
                     launch(Dispatchers.IO) {
-                        val backend = CollectionManager.getBackend()
                         var syncProgress: Progress.NormalSync? = null
                         while (true) {
                             val progress = backend.latestProgress() // avoid sending repeated notifications
