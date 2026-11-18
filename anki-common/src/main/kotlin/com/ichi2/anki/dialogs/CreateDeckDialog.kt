@@ -25,6 +25,7 @@ import com.ichi2.anki.common.utils.ext.findActivity
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.Decks
+import com.ichi2.anki.runCatching
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.compose.ui.dialogs.TextInputDialog
 import com.ichi2.compose.ui.dialogs.createPaperDialog
@@ -145,7 +146,7 @@ class CreateDeckDialog(
                 var result by remember { mutableStateOf<Validation?>(null) }
                 LaunchedEffect(input) {
                     val requested = input
-                    val validationResult = checkDeckName(requested)
+                    val validationResult = activity.runCatching { checkDeckName(requested) }
                     if (input == requested) {
                         result = validationResult
                         validatedInput = requested

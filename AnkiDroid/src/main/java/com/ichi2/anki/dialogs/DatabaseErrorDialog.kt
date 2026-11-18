@@ -392,6 +392,7 @@ class DatabaseErrorDialog : AsyncDialogFragment() {
                 } catch (e: Throwable) {
                     Timber.w(e, "Failed to reset AnkiDroid directory to default")
                     showDatabaseErrorDialog(DIALOG_LOAD_FAILED)
+                    return
                 }
             }
             ErrorHandlingEntries.DEBUG_INFO ->
