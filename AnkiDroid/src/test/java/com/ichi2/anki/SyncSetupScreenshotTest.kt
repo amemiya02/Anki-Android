@@ -43,6 +43,14 @@ class SyncSetupScreenshotTest : ScreenshotTest() {
     }
 
     @Test
+    fun addressIsTheFirstStepWhenDecksRequestsSync() {
+        setSyncServer(null)
+        ActivityScenario.launch<android.app.Activity>(AccountActivity.getIntent(targetContext, forResult = true)).use {
+            compose.onNodeWithText("Step 1 of 2").assertIsDisplayed()
+        }
+    }
+
+    @Test
     fun withoutServerAddress() {
         setSyncServer(null)
         openSyncSetup().use { scenario ->

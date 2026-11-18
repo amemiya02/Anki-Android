@@ -57,6 +57,24 @@ class NoAnkiWebSyncTest : JvmTest() {
     }
 
     @Test
+    fun `AnkiWeb entered as the server cannot receive credentials`() {
+        Prefs.hkey = "test"
+        setSyncServer("https://sync9.ankiweb.net/")
+
+        assertNull(getEndpoint())
+        assertNull(syncAuth())
+        assertFalse(isLoggedIn())
+    }
+
+    @Test
+    fun `an AnkiWeb redirect is ignored when using a self-hosted server`() {
+        setSyncServer(TEST_SYNC_SERVER)
+        Prefs.currentSyncUri = "https://ANKIWEB.NET./"
+
+        assertEquals(TEST_SYNC_SERVER, getEndpoint())
+    }
+
+    @Test
     fun `sync credentials name the server address`() {
         Prefs.hkey = "test"
         setSyncServer(TEST_SYNC_SERVER)
