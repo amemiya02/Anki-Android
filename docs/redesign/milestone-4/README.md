@@ -22,9 +22,13 @@ AnkiDroid 2.25.3 was the current stable release at verification. The installed A
 4. Open the collection package with the Fork to see the destructive replacement action, then cancel. Open the `.pdf` fixture with the Fork to verify the unsupported-file error and dismiss it.
 5. Open More options, then Check and Check database. Capture the confirmation and accept it. The progress panels are frames from the real database check on a disposable 100,000-Card collection.
 
+## Add button after changing theme
+
+The initial build let the bottom bar cover part of the Add button after changing the theme from More. The regression replay searched for Theme, selected Black and Light, returned to More and opened Decks. On the original build the button ended at pixel 1483 while the bar started at 1420. With the fix, the button ended at pixel 1374 and kept the same 46-pixel gap as fresh Decks. Tapping Add and Create deck opened the input dialog. The patched APK SHA-256 was `c831c9be44f239af562e850e9651df481a59d9d569191063bb2b748b0d84d076`. [Before and after](add-button.png)
+
 ## Rendered baselines
 
-The Settings and dialog screenshot matrix generated baselines for 2,136 cases across 21 suites. The first record found 36 selector failures in localized Add profile tests. After the selectors took their labels from the active locale, all 48 cases in that suite passed recording. The full comparison is pending. The Milestone 1 decision keeps Roborazzi baselines under `AnkiDroid/build/outputs/roborazzi/`. [Milestone 1 decision](../../../.scratch/ankidroid-redesign/issues/13-milestone-1-sign-off-the-foundation-on-a-device.md)
+The Settings and dialog screenshot matrix generated baselines for 2,136 cases across 21 suites. The first record found 36 selector failures in localized Add profile tests. After the selectors took their labels from the active locale, all 96 cases in that suite passed recording. The full comparison is pending. The Milestone 1 decision keeps Roborazzi baselines under `AnkiDroid/build/outputs/roborazzi/`. [Milestone 1 decision](../../../.scratch/ankidroid-redesign/issues/13-milestone-1-sign-off-the-foundation-on-a-device.md)
 
 ## Round trip with the Official App
 

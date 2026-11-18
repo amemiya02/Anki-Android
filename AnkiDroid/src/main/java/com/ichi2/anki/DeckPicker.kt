@@ -66,6 +66,7 @@ import androidx.core.util.component2
 import androidx.core.view.MenuItemCompat
 import androidx.core.view.OnReceiveContentListener
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type.displayCutout
 import androidx.core.view.WindowInsetsCompat.Type.ime
 import androidx.core.view.WindowInsetsCompat.Type.navigationBars
@@ -329,6 +330,7 @@ open class DeckPicker :
     /** Space below the last Deck, so it scrolls clear of the add button, the bottom bar and the keyboard */
     @VisibleForTesting
     internal val deckListBottomPadding = mutableIntStateOf(0)
+    private var deckPickerInsets = WindowInsetsCompat.CONSUMED
 
     /** The add button's menu is open: the deck list is dimmed behind it and screen readers skip it */
     private val isDeckListBehindAddMenu = mutableStateOf(false)
@@ -805,8 +807,6 @@ open class DeckPicker :
         // Bottom padding is used. wrap_content meant margin wasn't viable
         ViewCompat.setOnApplyWindowInsetsListener(deckPickerBinding.root) { deckPickerInclude, insets ->
             val bars = insets.getInsets(systemBars() or displayCutout())
-            // edge-to-edge disables adjustResize: the keyboard is cleared via the ime inset
-            val withKeyboard = insets.getInsets(systemBars() or displayCutout() or ime())
             // Let the system draw its own scrim when the nav bar is on the side
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val nav = insets.getInsets(navigationBars())
@@ -818,19 +818,8 @@ open class DeckPicker :
                 right = if (!isRtl && fragmented) 0 else bars.right,
             )
 
-            // The bar's height without the navigation-bar inset (added here via bars.bottom). The hosted
-            // fragments' container uses the bar's measured height instead, which includes the inset.
-            val bottomNavOffset =
-                if (binding.bottomNavigation?.let { it.isVisible && HideViewOnScrollBehavior.from(it).isScrolledIn } == true) {
-                    resources.getDimensionPixelSize(R.dimen.bottom_bar_height)
-                } else {
-                    0
-                }
-            // the keyboard covers the bottom navigation: clear whichever is taller
-            floatingActionButtonBinding.root.updatePadding(
-                bottom = maxOf(bars.bottom + bottomNavOffset, withKeyboard.bottom),
-            )
-
+            deckPickerInsets = insets
+            updateAddButtonInsets()
             insets
         }
         // Insets move the FAB's ancestors without changing the FAB's bounds within its parent.
@@ -854,6 +843,20 @@ open class DeckPicker :
                 )
             }
         }
+    }
+
+    internal fun updateAddButtonInsets() {
+        val bars = deckPickerInsets.getInsets(systemBars() or displayCutout())
+        val withKeyboard = deckPickerInsets.getInsets(systemBars() or displayCutout() or ime())
+        // The bottom bar's height excludes the system navigation inset, which is included in bars.
+        val bottomNavOffset =
+            if (binding.bottomNavigation?.let { it.isVisible && HideViewOnScrollBehavior.from(it).isScrolledIn } == true) {
+                resources.getDimensionPixelSize(R.dimen.bottom_bar_height)
+            } else {
+                0
+            }
+        // The keyboard covers the bottom bar, so clear whichever reaches farther up the screen.
+        floatingActionButtonBinding.root.updatePadding(bottom = maxOf(bars.bottom + bottomNavOffset, withKeyboard.bottom))
     }
 
     private fun setupPullToSync() {

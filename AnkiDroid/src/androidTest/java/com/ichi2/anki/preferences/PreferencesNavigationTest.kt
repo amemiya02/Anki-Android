@@ -4,7 +4,9 @@
 package com.ichi2.anki.preferences
 
 import android.content.Context
+import android.view.View
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -21,13 +23,17 @@ import androidx.test.espresso.contrib.DrawerActions
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.IntentHandler
 import com.ichi2.anki.R
+import com.ichi2.anki.android.view.locationInWindow
 import com.ichi2.anki.testutil.GrantStoragePermission
 import com.ichi2.anki.testutil.awaitResumedActivity
 import com.ichi2.anki.testutil.closeGetStartedScreenIfExists
 import com.ichi2.anki.testutil.grantPermissions
 import com.ichi2.anki.utils.isWindowCompact
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -60,6 +66,47 @@ class PreferencesNavigationTest {
             composeRule.runOnIdle { settings.onBackPressedDispatcher.onBackPressed() }
             search.assertIsDisplayed()
         }
+    }
+
+    @Test
+    fun addButtonClearsTheBottomBarAfterChangingThemeFromMore() {
+        assumeTrue(context.resources.isWindowCompact())
+        ActivityScenario.launch(IntentHandler::class.java).use {
+            closeGetStartedScreenIfExists()
+            onView(withId(R.id.nav_home)).perform(click())
+            val originalClearance = addButtonClearance()
+            assertTrue("The Add button clears the bottom bar on opening Decks", originalClearance > 0)
+            onView(withId(R.id.nav_more)).perform(click())
+            composeRule.onNodeWithText(context.getString(CommonString.settings)).performClick()
+            composeRule.onNodeWithText(context.getString(R.string.settings_appearance)).performClick()
+
+            for (theme in listOf(R.string.settings_theme_light, R.string.settings_theme_dark)) {
+                val tile = composeRule.onAllNodes(hasText(context.getString(theme)) and hasClickAction())[0]
+                tile.performClick().assertIsSelected()
+            }
+
+            repeat(2) {
+                val settings = awaitResumedActivity<PreferencesActivity>()
+                composeRule.runOnIdle { settings.onBackPressedDispatcher.onBackPressed() }
+            }
+            awaitResumedActivity<DeckPicker>()
+            onView(withId(R.id.nav_home)).perform(click())
+            assertEquals("Changing themes preserves the Add button clearance", originalClearance, addButtonClearance())
+            onView(withId(R.id.fab_main)).perform(click())
+            onView(withId(R.id.add_deck_button)).perform(click())
+            composeRule.onNodeWithContentDescription(context.getString(CommonString.paper_dialog_deck_name)).assertIsDisplayed()
+        }
+    }
+
+    private fun addButtonClearance(): Int {
+        var clearance = 0
+        onView(withId(R.id.fab_main)).check { fab, noView ->
+            if (noView != null) throw noView
+            checkNotNull(fab)
+            val bottomBar = checkNotNull(fab.rootView.findViewById<View>(R.id.bottom_navigation))
+            clearance = bottomBar.locationInWindow().y - (fab.locationInWindow().y + fab.height)
+        }
+        return clearance
     }
 
     @Test

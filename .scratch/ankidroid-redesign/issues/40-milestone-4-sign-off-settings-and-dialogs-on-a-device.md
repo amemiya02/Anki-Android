@@ -21,3 +21,5 @@ On the Android 15 Pixel 9 emulator, both apps imported the reviewed English Deck
 The emulator walk changed and restored Fetch media on sync through Settings search, switched all three themes and reached all seven dialog patterns in both languages. A disposable 100,000-Card collection made the real database-check progress visible. [Settings and dialog gallery](../../../docs/redesign/milestone-4/README.md#settings-and-dialogs)
 
 The screenshot matrix recorded baselines for 2,136 cases in 21 suites, including the corrected localized Add profile captures. The full comparison is pending.
+
+Fixed the Add button overlap after changing themes from More. The Android replay preserved the normal gap above the bottom bar and reached Create deck by tapping Add. [Device regression evidence](../../../docs/redesign/milestone-4/README.md#add-button-after-changing-theme)

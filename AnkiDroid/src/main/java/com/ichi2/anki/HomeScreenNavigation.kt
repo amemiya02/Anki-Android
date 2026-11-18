@@ -159,6 +159,8 @@ private fun showTab(item: NavigationItem) {
             deckPicker.supportFragmentManager.commit { hideBottomNavFragments() }
             contentWrapper.isVisible = true
             deckPicker.floatingActionMenu.showFloatingActionButton()
+            // A hidden Decks pane can miss a bottom bar change when another tab is restored.
+            deckPicker.updateAddButtonInsets()
         }
         NavigationItem.BROWSER -> {
             ensureBrowserViewModel()
