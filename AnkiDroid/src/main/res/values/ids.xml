@@ -52,4 +52,5 @@
     <item type="id" name="edit_text" />
     <item type="id" name="whiteboard_view" />
     <item type="id" name="whiteboard_toolbar" />
+    <item type="id" name="welcome_content"/>
 </resources>
