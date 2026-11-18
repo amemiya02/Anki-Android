@@ -30,4 +30,6 @@
     <string name="widget_collection_unavailable">Collection unavailable</string>
     <string name="widget_tap_to_open">Tap to open</string>
     <string name="widget_choose_decks_hint_short">Tap to choose</string>
+    <string name="widget_due_today_compact">%d due today</string>
+    <string name="widget_add_note_compact">@string/menu_add_note</string>
 </resources>

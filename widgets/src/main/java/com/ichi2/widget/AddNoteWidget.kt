@@ -20,6 +20,8 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
+import androidx.glance.semantics.contentDescription
+import androidx.glance.semantics.semantics
 import androidx.glance.unit.ColorProvider
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.common.destinations.DeferredNavigation
@@ -60,6 +62,8 @@ private object AddNote : PaperWidget<Unit>(AddNoteWidget::class.java) {
             } else {
                 36.dp
             }
+        val strings = appearance.localizedContext.resources
+        val label = strings.getString(CommonString.menu_add_note)
         val intent = with(DeferredNavigation) { NoteEditorDestination.AddNote().toIntent() }
         WidgetSheet(appearance, actionStartActivity(intent)) {
             Column(
@@ -91,7 +95,7 @@ private object AddNote : PaperWidget<Unit>(AddNoteWidget::class.java) {
                 }
                 Spacer(GlanceModifier.height(if (compact) 1.dp else 4.dp))
                 WidgetText(
-                    appearance.localizedContext.getString(CommonString.menu_add_note),
+                    if (tiny) strings.getString(R.string.widget_add_note_compact) else label,
                     colors.onBackground,
                     appearance.textSize(
                         if (tiny) {
@@ -102,14 +106,14 @@ private object AddNote : PaperWidget<Unit>(AddNoteWidget::class.java) {
                             12
                         },
                         if (tiny) {
-                            9
+                            8
                         } else if (compact) {
                             11
                         } else {
                             18
                         },
                     ),
-                    maxLines = if (compact) 2 else 1,
+                    GlanceModifier.semantics { contentDescription = label },
                 )
             }
         }

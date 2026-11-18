@@ -66,20 +66,20 @@ private object DueCount : PaperWidget<SmallWidgetStatus>(AnkiDroidWidgetSmall::c
         val count = appearance.number(data.dueCardsCount)
         val countSize =
             when {
-                tiny -> 13
+                tiny -> 12
                 compact -> 20
                 else -> 28
             }
         val labelSize =
             appearance.textSize(
                 if (tiny) {
-                    8
+                    7
                 } else if (compact) {
                     9
                 } else {
                     12
                 },
-                if (tiny) 8 else 15,
+                if (tiny) 7 else 15,
             )
         val intent = with(DeferredNavigation) { LauncherDestination.toIntent() }
         WidgetSheet(appearance, actionStartActivity(intent)) {

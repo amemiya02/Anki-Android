@@ -20,6 +20,7 @@ import com.ichi2.widget.deckpicker.DeckPickerWidgetPreferences
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -45,6 +46,20 @@ class DeckWidgetUpdateTest : RobolectricTest() {
             assertEquals(IntentHandler::class.java.name, opened.component?.className)
             assertEquals(second, opened.getLongExtra(IntentHandler.EXTRA_DECK_ID, 0))
             assertEquals(IntentHandler.LaunchType.REVIEW, IntentHandler.getLaunchType(opened))
+        }
+
+    @Test
+    @Config(qualifiers = "ja")
+    fun `the narrow home-screen labels fit the Japanese layout`() =
+        runTest {
+            val deck = addDeck("日本語").also { addNoteToDeck(it, count = 2) }
+            DeckPickerWidgetPreferences(targetContext).saveSelectedDecks(WIDGET_ID, listOf(deck.toString()))
+
+            val addNote = targetContext.renderWidget(AddNoteWidget(), width = 40, height = 40)
+            val deckList = targetContext.renderWidget(DeckPickerWidget(), width = 120, height = 50, id = WIDGET_ID)
+
+            assertTrue("追加" in addNote.labels())
+            assertTrue("今日2枚" in deckList.labels())
         }
 
     @Test

@@ -29,4 +29,5 @@
     <string name="widget_collection_unavailable">集合不可用</string>
     <string name="widget_tap_to_open">轻点打开</string>
     <string name="widget_choose_decks_hint_short">轻点另选</string>
+    <string name="widget_due_today_compact">今天%d张</string>
 </resources>

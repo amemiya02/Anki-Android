@@ -122,8 +122,15 @@ private object DeckList : PaperWidget<DeckListDisplay>(DeckPickerWidget::class.j
                     )
                     Spacer(GlanceModifier.width(3.dp))
                     val due = snapshot.totalDue
+                    val strings = appearance.localizedContext.resources
+                    val summaryText =
+                        if (narrow) {
+                            strings.getString(R.string.widget_due_today_compact, due)
+                        } else {
+                            strings.getQuantityString(R.plurals.widget_due_today, due, due)
+                        }
                     WidgetText(
-                        appearance.localizedContext.resources.getQuantityString(R.plurals.widget_due_today, due, due),
+                        summaryText,
                         colors.onBackgroundMuted,
                         summary,
                     )

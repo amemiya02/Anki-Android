@@ -2,7 +2,7 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <resources>
     <string name="widget_due_label">要復習</string>
-    <string name="widget_minutes">%d 分</string>
+    <string name="widget_minutes">%d分</string>
     <string name="widget_brand">Hayaki</string>
     <plurals name="widget_due_today">
         <item quantity="other">今日の残り %d 枚</item>
@@ -29,4 +29,6 @@
     <string name="widget_collection_unavailable">コレクションを開けません</string>
     <string name="widget_tap_to_open">タップして開く</string>
     <string name="widget_choose_decks_hint_short">タップして選択</string>
+    <string name="widget_due_today_compact">今日%d枚</string>
+    <string name="widget_add_note_compact">追加</string>
 </resources>
