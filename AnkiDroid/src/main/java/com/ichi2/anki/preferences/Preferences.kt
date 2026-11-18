@@ -13,18 +13,14 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewGroupCompat
-import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
-import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.ichi2.anki.R
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.common.android.Animations
-import com.ichi2.anki.common.utils.android.getResFromAttr
 import com.ichi2.anki.utils.isWindowCompact
 import com.ichi2.utils.FragmentFactoryUtils
 import kotlin.reflect.KClass
@@ -51,20 +47,8 @@ class PreferencesFragment : Fragment(R.layout.fragment_preferences) {
                 savedInstanceState: Bundle?,
             ) {
                 if (fragment.id != R.id.settings_container) return
-                if (settingsIsSplit) {
-                    // Keep the straight toolbar in the tablet pane for screens still using the View host.
-                    view.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbarLayout)?.apply {
-                        updateLayoutParams<AppBarLayout.LayoutParams> {
-                            scrollFlags = 0
-                            val resId = getResFromAttr(requireContext(), android.R.attr.actionBarSize)
-                            height = resources.getDimensionPixelSize(resId)
-                        }
-                        isTitleEnabled = false
-                        setContentScrimResource(android.R.color.transparent)
-                    }
-                    if (fragment.arguments?.getBoolean(SETTINGS_IS_SUBPAGE) != true) {
-                        view.findViewById<MaterialToolbar>(R.id.toolbar)?.navigationIcon = null
-                    }
+                if (settingsIsSplit && fragment.arguments?.getBoolean(SETTINGS_IS_SUBPAGE) != true) {
+                    view.findViewById<MaterialToolbar>(R.id.toolbar)?.navigationIcon = null
                 }
                 updateActivePage()
             }
