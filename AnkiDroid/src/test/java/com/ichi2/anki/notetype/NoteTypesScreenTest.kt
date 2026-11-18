@@ -5,14 +5,19 @@ package com.ichi2.anki.notetype
 import android.content.Intent
 import android.content.res.Configuration
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
@@ -56,7 +61,7 @@ class NoteTypesScreenTest : RobolectricTest() {
         compose.onNodeWithText("Study prompts").assertIsDisplayed()
 
         compose.openAddType()
-        compose.onNodeWithText("Study prompts").performClick()
+        compose.chooseNoteType("Study prompts")
         compose.fillName("Practice prompts")
         compose.confirmAdd()
 
@@ -205,4 +210,10 @@ internal fun androidx.compose.ui.test.junit4.ComposeTestRule.openAddType() = onN
 internal fun androidx.compose.ui.test.junit4.ComposeTestRule.fillName(input: String) =
     onNode(hasSetTextAction()).performTextReplacement(input)
 
-internal fun androidx.compose.ui.test.junit4.ComposeTestRule.confirmAdd() = onNodeWithText("Add", substring = false).performClick()
+internal fun androidx.compose.ui.test.junit4.ComposeTestRule.confirmAdd() =
+    onNodeWithText("Add", substring = false).performScrollTo().performClick()
+
+internal fun androidx.compose.ui.test.junit4.ComposeTestRule.chooseNoteType(name: String) =
+    onNode(hasText(name) and hasAnyAncestor(SemanticsMatcher.keyIsDefined(SemanticsProperties.SelectableGroup)))
+        .performScrollTo()
+        .performClick()

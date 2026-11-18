@@ -7,6 +7,7 @@ import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.ichi2.anki.CheckAccessibility
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.FontSizeConfig.PERCENT_200
@@ -61,7 +62,7 @@ class NoteTypesScreenshotTest : ScreenshotTest() {
         compose.onNodeWithContentDescription(activity.getString(R.string.note_type_add_title)).performClick()
         compose.onNodeWithText(activity.getString(R.string.note_type_add_title)).assertIsDisplayed()
         captureScreen("add_note_type")
-        compose.onNodeWithText(activity.getString(CommonString.dialog_cancel)).performClick()
+        compose.onNodeWithText(activity.getString(CommonString.dialog_cancel)).performScrollTo().performClick()
         compose.waitForIdle()
 
         // At 200% the long stock type names can put the example below the initial viewport.
@@ -73,7 +74,7 @@ class NoteTypesScreenshotTest : ScreenshotTest() {
         compose.onNodeWithText("Expression").performClick()
         compose.onNodeWithText(activity.getString(CommonString.model_field_editor_rename)).assertIsDisplayed()
         captureScreen("field_actions")
-        compose.onNodeWithText(activity.getString(CommonString.model_field_editor_delete)).performClick()
+        compose.onNodeWithText(activity.getString(CommonString.model_field_editor_delete)).performScrollTo().performClick()
         compose.onNodeWithText(activity.getString(R.string.note_type_full_sync_title)).assertIsDisplayed()
         captureScreen("full_sync")
     }

@@ -106,7 +106,7 @@ class ManageNoteTypesAddErrorHandlingTest : RobolectricTest() {
             // Legacy collections can contain templates that fail the current backend's validation.
             addStandardNoteType(sourceName, arrayOf("front", "back"), "", "")
             openAddDialog()
-            compose.onNodeWithText(sourceName).performClick()
+            compose.chooseNoteType(sourceName)
             compose.fillName(cloneName)
             compose.confirmAdd()
             compose.onNodeWithText("problem", substring = true).assertIsDisplayed()

@@ -5,8 +5,6 @@ package com.ichi2.anki.notetype
 import android.content.Intent
 import android.content.res.Configuration
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.RobolectricTest
@@ -41,7 +39,7 @@ class ManageNoteTypesAddRecreationReviewTest : RobolectricTest() {
             val activity = controller.get()
             val viewModel = activity.viewModel
             compose.openAddType()
-            if (clone) compose.onNodeWithText(sourceName).performClick()
+            if (clone) compose.chooseNoteType(sourceName)
             val newName = if (clone) "Created clone" else "Created stock"
             compose.fillName(newName)
             val queue = StepDispatcher()

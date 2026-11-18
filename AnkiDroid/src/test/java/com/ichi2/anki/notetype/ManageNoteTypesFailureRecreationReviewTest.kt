@@ -7,7 +7,6 @@ import android.content.res.Configuration
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.backend.backendError
 import com.ichi2.anki.CollectionManager
@@ -64,7 +63,7 @@ class ManageNoteTypesFailureRecreationReviewTest : RobolectricTest() {
         val activity = controller.get()
         val viewModel = activity.viewModel
         compose.openAddType()
-        if (!corruption) compose.onNodeWithText(sourceName).performClick()
+        if (!corruption) compose.chooseNoteType(sourceName)
         compose.fillName(newName)
         val queue = StepDispatcher()
         val previousQueue = CollectionManager.setTestDispatcher(queue, useReentrantLock = false)
