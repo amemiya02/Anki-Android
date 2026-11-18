@@ -4,7 +4,6 @@
 package com.ichi2.anki.preferences
 
 import android.content.Context
-import android.view.View
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
@@ -19,20 +18,19 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.contrib.DrawerActions
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.IntentHandler
 import com.ichi2.anki.R
-import com.ichi2.anki.android.view.locationInWindow
 import com.ichi2.anki.testutil.GrantStoragePermission
 import com.ichi2.anki.testutil.awaitResumedActivity
 import com.ichi2.anki.testutil.closeGetStartedScreenIfExists
 import com.ichi2.anki.testutil.grantPermissions
-import com.ichi2.anki.testutil.waitUntil
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.isWindowCompact
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -94,29 +92,16 @@ class PreferencesNavigationTest {
             awaitResumedActivity<DeckPicker>()
             composeRule.onNodeWithTag("tab-home").performClick()
             assertEquals("Changing themes preserves the Add button clearance", originalClearance, addButtonClearance())
-            onView(withId(R.id.fab_main)).perform(click())
-            onView(withId(R.id.add_deck_button)).perform(click())
+            composeRule.onNodeWithContentDescription(context.getString(CommonString.menu_add)).performClick()
+            composeRule.onNodeWithText(with(context) { TR.sentenceCase.createDeck }).performClick()
             composeRule.onNodeWithContentDescription(context.getString(CommonString.paper_dialog_deck_name)).assertIsDisplayed()
         }
     }
 
     private fun addButtonClearance(): Int {
-        var clearance: Int? = null
-        // The Decks pane is revealed before it can finish its first layout after a theme change.
-        waitUntil(message = { "Add and the bottom bar must be visible and laid out" }) {
-            onView(withId(R.id.fab_main)).check { fab, noView ->
-                if (noView != null || fab == null || !fab.isShown || !fab.isLaidOut || fab.isLayoutRequested ||
-                    fab.height == 0
-                ) {
-                    return@check
-                }
-                val bottomBar = fab.rootView.findViewById<View>(R.id.bottom_navigation) ?: return@check
-                if (!bottomBar.isShown || !bottomBar.isLaidOut || bottomBar.height == 0) return@check
-                clearance = bottomBar.locationInWindow().y - (fab.locationInWindow().y + fab.height)
-            }
-            clearance != null
-        }
-        return checkNotNull(clearance)
+        val add = composeRule.onNodeWithContentDescription(context.getString(CommonString.menu_add)).assertIsDisplayed()
+        val tab = composeRule.onNodeWithTag("tab-home").assertIsDisplayed()
+        return (tab.fetchSemanticsNode().boundsInWindow.top - add.fetchSemanticsNode().boundsInWindow.bottom).toInt()
     }
 
     @Test

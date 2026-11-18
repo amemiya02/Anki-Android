@@ -3,16 +3,14 @@
 
 package com.ichi2.anki.testutil
 
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.R
 import com.ichi2.anki.testutil.ThreadUtils.sleep
+import com.ichi2.anki.ui.internationalization.sentenceCase
 
 /**
  * This file contains utility methods to interact with the DeckPicker.
@@ -43,8 +41,9 @@ fun discardPreliminaryViews() {
 fun createDeckWithUniqueName(): String {
     val testString = System.currentTimeMillis().toString()
     val deckName = "TestDeck$testString"
-    onView(withId(R.id.fab_main)).perform(click())
-    onView(withId(R.id.add_deck_button)).perform(click())
+    val context = InstrumentationRegistry.getInstrumentation().targetContext
+    checkNotNull(device.wait(Until.findObject(By.desc(context.getString(CommonString.menu_add))), DECK_TIMEOUT_MS)).click()
+    checkNotNull(device.wait(Until.findObject(By.text(with(context) { TR.sentenceCase.createDeck })), DECK_TIMEOUT_MS)).click()
     val name = checkNotNull(device.wait(Until.findObject(By.clazz("android.widget.EditText")), DECK_TIMEOUT_MS))
     name.text = deckName
     val create = InstrumentationRegistry.getInstrumentation().targetContext.getString(CommonString.dialog_positive_create)
