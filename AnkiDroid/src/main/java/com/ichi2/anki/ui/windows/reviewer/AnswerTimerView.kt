@@ -81,7 +81,7 @@ class AnswerTimerView(
     }
 
     private fun updateTextColor(isOverLimit: Boolean) {
-        val colorAttr = if (isOverLimit) CommonR.attr.maxTimerColor else android.R.attr.textColor
+        val colorAttr = if (isOverLimit) CommonR.attr.maxTimerColor else CommonR.attr.foundationOnBackgroundMuted
         setTextColor(ThemeUtils.getThemeAttrColor(context, colorAttr))
     }
 }

@@ -80,7 +80,7 @@
 
     </LinearLayout>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/layoutLock"
         style="@style/Widget.AnkiDroid.CardView.Recording"
         android:layout_width="48dp"
@@ -116,9 +116,9 @@
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/recordButton"
         style="@style/Widget.AnkiDroid.CardView.Recording"
         android:layout_width="48dp"
@@ -134,5 +134,5 @@
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/symbol_mic"/>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 </merge>

@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:minWidth="?minTouchTargetSize"
                 android:contentDescription="@string/eraser"
-                android:textColor="?attr/colorControlNormal"
+                android:textColor="?attr/foundationOnBackground"
                 android:textAppearance="@style/TextAppearance.Foundation.Label"
                 android:tooltipText="@string/eraser"
                 app:icon="@drawable/symbol_ink_eraser"

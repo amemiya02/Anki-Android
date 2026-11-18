@@ -9,7 +9,7 @@
     style="@style/Widget.Material3.Button.TextButton"
     app:icon="@drawable/brush_preview_background"
     app:iconGravity="top"
-    android:textColor="?attr/colorControlNormal"
+    android:textColor="?attr/foundationOnBackground"
     app:backgroundTint="@color/selector_tool_background"
     android:textAppearance="@style/TextAppearance.Foundation.Label"
     tools:text="12" />

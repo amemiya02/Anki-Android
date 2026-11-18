@@ -188,16 +188,20 @@
         <item name="android:alertDialogStyle">@style/AlertDialogStyle</item>
     </style>
 
-    <style name="Widget.AnkiDroid.CardView.Recording" parent="CardView">
+    <!-- The voice recorder's buttons: paper outlined by a hairline, like the answer buttons -->
+    <style name="Widget.AnkiDroid.CardView.Recording" parent="Widget.Material3.CardView.Outlined">
         <item name="cardElevation">?attr/studyScreenElevation</item>
         <item name="cardPreventCornerOverlap">false</item>
         <item name="contentPadding">0dp</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
         <item name="android:elevation">?attr/studyScreenElevation</item>
-        <item name="cardCornerRadius">16dp</item>
+        <item name="cardCornerRadius">@dimen/foundation_shape_button</item>
         <item name="cardUseCompatPadding">false</item>
         <item name="cardBackgroundColor">?popupBackgroundColor</item>
+        <item name="strokeWidth">@dimen/foundation_shape_hairline</item>
+        <item name="strokeColor">?attr/foundationOutline</item>
+        <item name="checkedIconTint">@null</item>
     </style>
 
     <style name="TimePickerStyle" parent="ThemeOverlay.Material3.MaterialTimePicker">
