@@ -6,22 +6,23 @@ package com.ichi2.anki
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.os.Looper
 import android.view.KeyEvent
-import android.view.View
 import android.widget.EditText
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.CardTemplateEditor.CardTemplateFragment
-import com.ichi2.anki.CardTemplateEditor.CardTemplateFragment.CardTemplate
+import com.ichi2.anki.CardTemplateEditor.CardTemplate
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.common.utils.ext.deepClonedInto
@@ -35,7 +36,6 @@ import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.notetype.ManageNoteTypesState.CardEditor
 import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.anki.previewer.TemplatePreviewerFragment
-import com.ichi2.anki.scheduling.selectTab
 import com.ichi2.testutils.assertFalse
 import com.ichi2.testutils.dispatchInsets
 import com.ichi2.testutils.withSplitPaneUi
@@ -44,13 +44,11 @@ import org.hamcrest.MatcherAssert
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers
 import org.json.JSONObject
-import org.junit.Assume.assumeThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
-import org.robolectric.shadows.ShadowActivity
 import timber.log.Timber
 import kotlin.test.junit5.JUnit5Asserter.assertEquals
 import kotlin.test.junit5.JUnit5Asserter.assertNotEquals
@@ -63,6 +61,10 @@ import kotlin.time.Duration
 class CardTemplateEditorTest : RobolectricTest() {
     @get:Rule
     val compose = createEmptyComposeRule()
+
+    private fun CardTemplateEditor.selectTab(index: Int) = compose.selectTemplate(this, index)
+
+    private val CardTemplateEditor.selectedTabPosition: Int get() = compose.selectedTemplate(this)
 
     private fun renderedDialogMessage(): String =
         compose
@@ -87,7 +89,7 @@ class CardTemplateEditorTest : RobolectricTest() {
 
         with(editor) {
             deleteSelectedCardType()
-            currentFragment!!.showInsertFieldDialog()
+            compose.clickTemplateEditorAction(EditorControl.INSERT_FIELD)
             advanceRobolectricLooper()
             val dialog = supportFragmentManager.fragments.filterIsInstance<InsertFieldDialog>().single()
             val metadata = ViewModelProvider(dialog)[InsertFieldDialogViewModel::class.java].metadata
@@ -112,7 +114,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             deleteSelectedCardType()
             selectTab(0)
             advanceRobolectricLooper()
-            assertTrue("Unable to delete the card type", shadowOf(this).clickMenuItem(R.id.action_delete))
+            assertTrue("Unable to delete the card type", compose.clickTemplateEditorAction(EditorControl.DELETE))
             advanceRobolectricLooper()
 
             assertEquals(
@@ -195,7 +197,6 @@ class CardTemplateEditorTest : RobolectricTest() {
                 .visible()
         saveControllerForCleanup(templateEditorController)
         testEditor = templateEditorController.get()
-        var shadowTestEditor = shadowOf(testEditor)
         assertTrue("note type change not preserved across activity lifecycle?", testEditor.noteTypeHasChanged())
         assertEquals(
             "Change already in database?",
@@ -204,7 +205,7 @@ class CardTemplateEditorTest : RobolectricTest() {
         )
 
         // Make sure we get a confirmation dialog if we hit the back button
-        assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(android.R.id.home))
+        assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.BACK))
         advanceRobolectricLooper()
         assertEquals("Wrong dialog shown?", renderedDialogMessage(), "Discard changes?")
         clickDialogAction("Keep editing")
@@ -212,7 +213,7 @@ class CardTemplateEditorTest : RobolectricTest() {
         assertTrue("note type change not preserved despite canceling back button?", testEditor.noteTypeHasChanged())
 
         // Make sure we things are cleared out after a cancel
-        assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(android.R.id.home))
+        assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.BACK))
         assertEquals("Wrong dialog shown?", renderedDialogMessage(), "Discard changes?")
         clickDialogAction(getResourceString(CommonString.discard))
         advanceRobolectricLooper()
@@ -228,16 +229,15 @@ class CardTemplateEditorTest : RobolectricTest() {
                 .visible()
         saveControllerForCleanup(templateEditorController)
         testEditor = templateEditorController.get()
-        shadowTestEditor = shadowOf(testEditor)
         templateFront = testEditor.editText
         templateFront.text.append(testNoteTypeQfmtEdit)
         advanceRobolectricLooper()
         assertTrue("Note type did not change after edit?", testEditor.noteTypeHasChanged())
 
         // Make sure we pass the edit to the Previewer
-        assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_preview))
+        assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.PREVIEW))
         advanceRobolectricLooper()
-        val startedIntent = shadowTestEditor.nextStartedActivity
+        val startedIntent = shadowOf(testEditor).nextStartedActivity
         val shadowIntent = shadowOf(startedIntent)
         advanceRobolectricLooper()
         assertEquals("Previewer not started?", CardViewerActivity::class.java.name, shadowIntent.intentClass.name)
@@ -246,12 +246,11 @@ class CardTemplateEditorTest : RobolectricTest() {
             collectionBasicNoteTypeOriginal.toString().trim(),
             getCurrentDatabaseNoteTypeCopy(noteTypeName).toString().trim(),
         )
-        shadowTestEditor.receiveResult(startedIntent, Activity.RESULT_OK, Intent())
 
         // Save the template then fetch it from the collection to see if it was saved correctly
         var testEditorNoteTypeEdited = testEditor.tempNoteType?.notetype
         advanceRobolectricLooper()
-        assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_confirm))
+        assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.SAVE))
         advanceRobolectricLooper()
         val collectionBasicNoteTypeCopyEdited = getCurrentDatabaseNoteTypeCopy(noteTypeName)
         testEditorNoteTypeEdited = col.notetypes.get(testEditorNoteTypeEdited!!.id)
@@ -285,8 +284,7 @@ class CardTemplateEditorTest : RobolectricTest() {
         assertEquals("Note type should have 2 templates now", 2, testEditor.tempNoteType?.templateCount)
 
         // Try to delete the template - click delete, click confirm for card delete, click confirm again for full sync
-        val shadowTestEditor = shadowOf(testEditor)
-        assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_delete))
+        assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.DELETE))
         advanceRobolectricLooper()
         assertEquals("Wrong dialog shown?", "Delete the “Card 1” card type, and its 0 cards?", renderedDialogMessage())
         clickDialogAction(getResourceString(CommonString.dialog_positive_delete))
@@ -295,7 +293,7 @@ class CardTemplateEditorTest : RobolectricTest() {
         assertEquals("Note type should have 1 template now", 1, testEditor.tempNoteType?.templateCount)
 
         // Try to delete the template again, but there's only one
-        assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_delete))
+        assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.DELETE))
         advanceRobolectricLooper()
         assertEquals(
             "Did not show dialog about deleting only card?",
@@ -310,7 +308,7 @@ class CardTemplateEditorTest : RobolectricTest() {
 
         // Save the change to the database and make sure there's only one template after
         var testEditorNoteTypeEdited = testEditor.tempNoteType?.notetype
-        assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_confirm))
+        assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.SAVE))
         advanceRobolectricLooper()
         val collectionBasicNoteTypeCopyEdited = getCurrentDatabaseNoteTypeCopy(noteTypeName)
         testEditorNoteTypeEdited = col.notetypes.get(testEditorNoteTypeEdited!!.id)
@@ -342,8 +340,7 @@ class CardTemplateEditorTest : RobolectricTest() {
         assertFalse("Ordinal pending add?", testEditor.tempNoteType.isOrdinalPendingAdd(0))
 
         // Try to add a template - click add, click confirm for card add, click confirm again for full sync
-        val shadowTestEditor = shadowOf(testEditor)
-        addCardType(testEditor, shadowTestEditor)
+        addCardType(testEditor)
         // if AnkiDroid moves to match AnkiDesktop it will pop a dialog to confirm card create
         // Assert.assertEquals("Wrong dialog shown?", "This will create NN cards. Proceed?", getDialogText());
         // clickDialogButton(WhichButton.POSITIVE);
@@ -354,8 +351,8 @@ class CardTemplateEditorTest : RobolectricTest() {
         assertEquals("Note type should have 2 templates now", 2, testEditor.tempNoteType!!.templateCount)
 
         // Make sure we pass the new template to the Previewer
-        assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_preview))
-        val startedIntent = shadowTestEditor.nextStartedActivity
+        assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.PREVIEW))
+        val startedIntent = shadowOf(testEditor).nextStartedActivity
         val shadowIntent = shadowOf(startedIntent)
         assertEquals("Previewer not started?", CardViewerActivity::class.java.name, shadowIntent.intentClass.name)
         assertEquals(
@@ -366,7 +363,7 @@ class CardTemplateEditorTest : RobolectricTest() {
 
         // Save the change to the database and make sure there are two templates after
         var testEditorNoteTypeEdited = col.notetypes.get(testEditor.tempNoteType!!.notetype.id)
-        assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_confirm))
+        assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.SAVE))
         advanceRobolectricLooper()
         val collectionBasicNoteTypeCopyEdited = getCurrentDatabaseNoteTypeCopy(noteTypeName)
         assertNotEquals("Note type is unchanged?", collectionBasicNoteTypeOriginal, collectionBasicNoteTypeCopyEdited)
@@ -423,8 +420,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertFalse("Ordinal pending add?", testEditor.tempNoteType.isOrdinalPendingAdd(1))
 
             // Try to delete Card 1 template - click delete, check confirm for card delete popup indicating it was possible, then dismiss it
-            val shadowTestEditor = shadowOf(testEditor)
-            assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_delete))
+            assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.DELETE))
             advanceRobolectricLooper()
             assertEquals("Wrong dialog shown?", "Delete the “Card 1” card type, and its 0 cards?", renderedDialogMessage())
             clickDialogAction(getResourceString(CommonString.dialog_cancel))
@@ -443,7 +439,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertEquals("selective generation should result in one card", 1, getNoteTypeCardCount(collectionBasicNoteTypeOriginal))
 
             // Try to delete the template again, but there's selective generation means it would orphan the note
-            assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_delete))
+            assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.DELETE))
             advanceRobolectricLooper()
             assertEquals(
                 "Did not show dialog about deleting only card?",
@@ -528,8 +524,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertEquals("card generation should result in two cards", 2, getNoteTypeCardCount(collectionBasicNoteTypeOriginal))
 
             // Test if we can delete the template - should be possible - but cancel the delete
-            var shadowTestEditor = shadowOf(testEditor)
-            assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_delete))
+            assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.DELETE))
             advanceRobolectricLooper()
             assertEquals(
                 "Did not show dialog about deleting template and it's card?",
@@ -549,7 +544,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertEquals("Note type should have 2 templates still", 2, testEditor.tempNoteType?.templateCount)
 
             // Add a template - click add, click confirm for card add, click confirm again for full sync
-            addCardType(testEditor, shadowTestEditor)
+            addCardType(testEditor)
             // the templates must be different
             testEditor.tempNoteType!!.getTemplate(2).qfmt += "different_template"
             assertTrue("Note type should have changed", testEditor.noteTypeHasChanged())
@@ -557,7 +552,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertFalse("Ordinal pending add?", testEditor.tempNoteType.isOrdinalPendingAdd(0))
             assertFalse("Ordinal pending add?", testEditor.tempNoteType.isOrdinalPendingAdd(1))
             assertTrue("Ordinal not pending add?", testEditor.tempNoteType.isOrdinalPendingAdd(2))
-            assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_confirm))
+            assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.SAVE))
             advanceRobolectricLooper()
             assertFalse("Note type should now be unchanged", testEditor.noteTypeHasChanged())
             assertEquals("card generation should result in three cards", 3, getNoteTypeCardCount(collectionBasicNoteTypeOriginal))
@@ -576,7 +571,6 @@ class CardTemplateEditorTest : RobolectricTest() {
                     .visible()
             saveControllerForCleanup(templateEditorController)
             testEditor = templateEditorController.get()
-            shadowTestEditor = shadowOf(testEditor)
             assertFalse("Note type should not have changed yet", testEditor.noteTypeHasChanged())
             assertFalse("Ordinal pending add?", testEditor.tempNoteType.isOrdinalPendingAdd(0))
             assertFalse("Ordinal pending add?", testEditor.tempNoteType.isOrdinalPendingAdd(1))
@@ -584,7 +578,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertEquals("Note type should have 3 templates now", 3, testEditor.tempNoteType?.templateCount)
 
             // Add another template - but we work in memory for a while before saving
-            addCardType(testEditor, shadowTestEditor)
+            addCardType(testEditor)
             assertNull("New templates have no database ordinal", testEditor.tempNoteType!!.getOriginalOrdinal(3))
             assertTrue("Note type should have changed", testEditor.noteTypeHasChanged())
             assertEquals("Note type should have 4 templates now", 4, testEditor.tempNoteType?.templateCount)
@@ -596,8 +590,8 @@ class CardTemplateEditorTest : RobolectricTest() {
 
             // Delete two pre-existing templates for real now - but still without saving it out, should work fine
             advanceRobolectricLooper()
-            testEditor.mainBinding.cardTemplateEditorPager.currentItem = 0
-            assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_delete))
+            testEditor.selectTab(0)
+            assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.DELETE))
             advanceRobolectricLooper()
             assertEquals(
                 "Did not show dialog about deleting template and it's card?",
@@ -607,8 +601,8 @@ class CardTemplateEditorTest : RobolectricTest() {
             clickDialogAction(getResourceString(CommonString.dialog_positive_delete))
             advanceRobolectricLooper()
             advanceRobolectricLooper()
-            testEditor.mainBinding.cardTemplateEditorPager.currentItem = 0
-            assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_delete))
+            testEditor.selectTab(0)
+            assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.DELETE))
             advanceRobolectricLooper()
             assertEquals(
                 "Did not show dialog about deleting template and it's card?",
@@ -634,7 +628,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertNull("New templates have no database ordinal", testEditor.tempNoteType!!.getOriginalOrdinal(1))
 
             // Now confirm everything to persist it to the database
-            assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_confirm))
+            assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.SAVE))
             advanceRobolectricLooper()
             advanceRobolectricLooper()
             assertNotEquals(
@@ -683,9 +677,8 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertEquals("card generation should result in two cards", 2, getNoteTypeCardCount(collectionBasicNoteTypeOriginal))
 
             // Delete ord 1 / 'Card 2' and check the message
-            val shadowTestEditor = shadowOf(testEditor)
-            testEditor.mainBinding.cardTemplateEditorPager.currentItem = 1
-            assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_delete))
+            testEditor.selectTab(1)
+            assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.DELETE))
             advanceRobolectricLooper()
             assertEquals(
                 "Did not show dialog about deleting template and it's card?",
@@ -706,7 +699,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertEquals("Note type should have 1 template", 1, testEditor.tempNoteType?.templateCount)
 
             // Add a template - click add, click confirm for card add, click confirm again for full sync
-            addCardType(testEditor, shadowTestEditor)
+            addCardType(testEditor)
             assertTrue("Note type should have changed", testEditor.noteTypeHasChanged())
             assertNull("New templates have no database ordinal", testEditor.tempNoteType!!.getOriginalOrdinal(1))
             assertFalse("Ordinal pending add?", testEditor.tempNoteType.isOrdinalPendingAdd(0))
@@ -714,8 +707,8 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertEquals("Note type should have 2 templates", 2, testEditor.tempNoteType?.templateCount)
 
             // Delete ord 1 / 'Card 2' again and check the message - it's in the same spot as the pre-existing template but there are no cards actually associated
-            testEditor.mainBinding.cardTemplateEditorPager.currentItem = 1
-            assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_delete))
+            testEditor.selectTab(1)
+            assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.DELETE))
             advanceRobolectricLooper()
             assertEquals(
                 "Did not show dialog about deleting template and it's card?",
@@ -736,7 +729,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertEquals("Note type should have 1 template", 1, testEditor.tempNoteType?.templateCount)
 
             // Save it out and make some assertions
-            assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_confirm))
+            assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.SAVE))
             advanceRobolectricLooper()
             assertFalse("Note type should now be unchanged", testEditor.noteTypeHasChanged())
             assertEquals("card generation should result in 1 card", 1, getNoteTypeCardCount(collectionBasicNoteTypeOriginal))
@@ -789,9 +782,8 @@ class CardTemplateEditorTest : RobolectricTest() {
 
     /**
      * Guards the fix for 21807: a physical keyboard reports a visible IME, but does not hide the
-     * tabs, and 'back' does not dismiss it.
+     * tabs and Back opens the discard confirmation.
      *
-     * @see CardTemplateEditorScreenshotTest.PhysicalKeyboardIme
      */
     @Test
     fun `back confirms discarding edits with a physical keyboard`() {
@@ -821,8 +813,7 @@ class CardTemplateEditorTest : RobolectricTest() {
     }
 
     /**
-     * 'back' is driven by the selected page's tabs, so it must still follow the keyboard once
-     * the pager moves to another card.
+     * Back follows the keyboard when the selected Card Template changes.
      */
     @Test
     fun `Back follows the keyboard after selecting another card - Issue 21807`() {
@@ -839,11 +830,10 @@ class CardTemplateEditorTest : RobolectricTest() {
         }
     }
 
-    /** Deleting a card type recreates the pages with new adapter IDs. */
     @Test
     fun `Back follows the keyboard after deleting a card type - Issue 21807`() {
         withCardTemplateEditor(col.notetypes.basicAndReversed) {
-            assertTrue("Unable to delete the card type", shadowOf(this).clickMenuItem(R.id.action_delete))
+            assertTrue("Unable to delete the card type", compose.clickTemplateEditorAction(EditorControl.DELETE))
             advanceRobolectricLooper()
             clickDialogAction(getResourceString(CommonString.dialog_positive_delete))
             advanceRobolectricLooper()
@@ -851,7 +841,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertTrue("The deletion is unsaved", noteTypeHasChanged())
 
             dispatchInsets(imeBottom = 240.dp)
-            assertEquals("The keyboard should hide the tabs", View.GONE, findViewById<View>(R.id.bottom_navigation).visibility)
+            compose.onNodeWithText(templateSectionLabel(this, EditorViewType.FRONT)).assertIsDisplayed()
             assertFalse("Back should dismiss the keyboard", onBackPressedDispatcher.hasEnabledCallbacks())
 
             dispatchInsets()
@@ -864,7 +854,7 @@ class CardTemplateEditorTest : RobolectricTest() {
     @Test
     fun `Ctrl+2 switches to the back template after deleting a card type`() {
         withCardTemplateEditor(col.notetypes.basicAndReversed) {
-            assertTrue("Unable to delete the card type", shadowOf(this).clickMenuItem(R.id.action_delete))
+            assertTrue("Unable to delete the card type", compose.clickTemplateEditorAction(EditorControl.DELETE))
             advanceRobolectricLooper()
             clickDialogAction(getResourceString(CommonString.dialog_positive_delete))
             advanceRobolectricLooper()
@@ -879,7 +869,6 @@ class CardTemplateEditorTest : RobolectricTest() {
         }
     }
 
-    /** The tabs live in the fragment, which is present in both layouts */
     @Test
     fun `editing with the keyboard open leaves Back to the IME - tablet ui - Issue 21807`() =
         withSplitPaneUi {
@@ -899,7 +888,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             dispatchInsets(imeBottom = 240.dp)
             editText.text.append("edited")
 
-            assertTrue("Unable to click?", shadowOf(this).clickMenuItem(android.R.id.home))
+            assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.BACK))
 
             assertEquals("The toolbar should confirm discarding edits", "Discard changes?", renderedDialogMessage())
             assertFalse("Edits must not be discarded without confirmation", isFinishing)
@@ -924,9 +913,9 @@ class CardTemplateEditorTest : RobolectricTest() {
 
     @Test
     fun `ensure 'Discard changes' dialog is enabled after note type changes - Issue 18518`() {
-        fun assertDiscardChangesDialogShown(shadowEditor: ShadowActivity) {
+        fun assertDiscardChangesDialogShown() {
             advanceRobolectricLooper()
-            assertTrue("Unable to click?", shadowEditor.clickMenuItem(android.R.id.home))
+            assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.BACK))
             advanceRobolectricLooper()
             assertEquals("Wrong dialog shown?", "Discard changes?", renderedDialogMessage())
             clickDialogAction(getResourceString(CommonString.discard))
@@ -934,9 +923,8 @@ class CardTemplateEditorTest : RobolectricTest() {
 
         // Case 1: Show dialog after deck override
         withCardTemplateEditor {
-            val shadowEditor = shadowOf(this)
             onDeckSelected(SelectableDeck.Deck(1, "hello"))
-            assertDiscardChangesDialogShown(shadowEditor)
+            assertDiscardChangesDialogShown()
         }
 
         // Case 2: Show dialog after changing card browser appearance
@@ -944,7 +932,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             val shadowEditor = shadowOf(this)
             assertTrue(
                 "Unable to click?",
-                shadowEditor.clickMenuItem(R.id.action_card_browser_appearance),
+                compose.clickTemplateEditorAction(EditorControl.BROWSER_APPEARANCE),
             )
             advanceRobolectricLooper()
             shadowEditor.receiveResult(
@@ -954,199 +942,52 @@ class CardTemplateEditorTest : RobolectricTest() {
                     .putExtra(CardTemplateBrowserAppearanceEditor.EXTRA_QUESTION_FORMAT, "q")
                     .putExtra(CardTemplateBrowserAppearanceEditor.EXTRA_ANSWER_FORMAT, "a"),
             )
-            assertDiscardChangesDialogShown(shadowEditor)
+            assertDiscardChangesDialogShown()
         }
 
         // Case 3: Show dialog after adding a card type
         withCardTemplateEditor {
-            val shadowEditor = shadowOf(this)
-            addCardType(this, shadowEditor)
-            assertDiscardChangesDialogShown(shadowEditor)
+            addCardType(this)
+            assertDiscardChangesDialogShown()
         }
     }
 
     @Test
-    fun testContentPreservedAfterChangingEditorView() {
-        val noteTypeName = "Basic"
-
-        // Start the CardTemplateEditor with a specific note type, and make sure the note type starts unchanged
-        val collectionBasicNoteTypeOriginal = getCurrentDatabaseNoteTypeCopy(noteTypeName)
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.putExtra("noteTypeId", collectionBasicNoteTypeOriginal.id)
-        val templateEditorController =
-            Robolectric
-                .buildActivity(CardTemplateEditor::class.java, intent)
-                .create()
-                .start()
-                .resume()
-                .visible()
-        saveControllerForCleanup(templateEditorController)
-        val testEditor = templateEditorController.get()
-
-        // Change the note type and make sure it registers as changed, but the database is unchanged
-        val templateEditText = testEditor.editText
-        val testNoteTypeQfmtEdit = "!@#$%^&*TEST*&^%$#@!"
-        val updatedFrontContent = templateEditText.text.append(testNoteTypeQfmtEdit).toString()
-        advanceRobolectricLooper()
-        val cardTemplateFragment = testEditor.currentFragment
-        val tempNoteType = testEditor.tempNoteType
-        val cardId = 0
-        // set Bottom Navigation View to Style
-        cardTemplateFragment!!.setCurrentEditorView(R.id.styling_edit, cardId, tempNoteType!!.css)
-
-        // set Bottom Navigation View to Front
-        cardTemplateFragment.setCurrentEditorView(R.id.front_edit, cardId, tempNoteType.getTemplate(0).qfmt)
-
-        // check if current content is updated or not
-        assumeThat(templateEditText.text.toString(), Matchers.equalTo(updatedFrontContent))
-    }
-
-    @Test
-    fun testSaveButtonEnabledAfterException() {
-        withCardTemplateEditor(noteType = col.notetypes.cloze) {
-            editText.setText("New Random Template Text")
-
-            // throw an exception to simulate failure
-            this.tempNoteType = null
-
-            confirmButton.performClick()
-
-            shadowOf(Looper.getMainLooper()).idle()
-
-            assertTrue("Button should be clickable after failure", confirmButton.isClickable)
-            assertTrue("Button should be enabled after failure", confirmButton.isEnabled)
+    fun `edits survive switching template sections`() =
+        withCardTemplateEditor {
+            val front = editText.text.toString() + " edited"
+            editText.setText(front)
+            compose.selectSection(this, EditorViewType.STYLING)
+            assertEquals("Styling should be displayed", tempNoteType!!.css, editText.text.toString())
+            compose.selectSection(this, EditorViewType.FRONT)
+            assertEquals("The front edit is preserved", front, editText.text.toString())
         }
-    }
 
     @Test
-    fun testBottomNavigationViewLayoutTransition() {
-        val noteTypeName = "Basic"
-
-        // Start the CardTemplateEditor with a specific note type, and make sure the note type starts unchanged
-        val collectionBasicNoteTypeOriginal = getCurrentDatabaseNoteTypeCopy(noteTypeName)
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.putExtra("noteTypeId", collectionBasicNoteTypeOriginal.id)
-        val templateEditorController =
-            Robolectric
-                .buildActivity(CardTemplateEditor::class.java, intent)
-                .create()
-                .start()
-                .resume()
-                .visible()
-        saveControllerForCleanup(templateEditorController)
-        val testEditor = templateEditorController.get()
-
-        // Change the note type and make sure it registers as changed, but the database is unchanged
-        val templateEditText = testEditor.editText
-        advanceRobolectricLooper()
-        val cardTemplateFragment = testEditor.currentFragment
-        val tempNoteType = testEditor.tempNoteType
-
-        // check if current view is front(default) view
-        assumeThat(templateEditText.text.toString(), Matchers.equalTo(tempNoteType!!.getTemplate(0).qfmt))
-        assumeThat(cardTemplateFragment!!.currentEditorViewId, Matchers.equalTo(R.id.front_edit))
-
-        val cardId = 0
-        // set Bottom Navigation View to Style
-        cardTemplateFragment.setCurrentEditorView(R.id.styling_edit, cardId, tempNoteType.css)
-
-        // check if current view is changed or not
-        assumeThat(templateEditText.text.toString(), Matchers.equalTo(tempNoteType.css))
-        assumeThat(cardTemplateFragment.currentEditorViewId, Matchers.equalTo(R.id.styling_edit))
-    }
+    fun `save remains available after rejected template`() =
+        withCardTemplateEditor {
+            editText.setText("{{UnknownField}}")
+            throwOnShowError = false
+            saveChanges()
+            compose.onNodeWithContentDescription(getString(CommonString.save)).assertIsEnabled()
+        }
 
     @Test
-    fun testInsertFieldInCorrectFragmentAfterNavigation() {
-        val noteTypeName = "Basic (and reversed card)"
+    fun `field insertion changes only the selected Card Template`() =
+        withCardTemplateEditor(col.notetypes.basicAndReversed) {
+            val first = editText.text.toString()
+            selectTab(1)
+            val second = editText.text.toString()
+            selectTab(0)
 
-        // Start the CardTemplateEditor with a note type that has multiple templates
-        val collectionBasicNoteTypeOriginal = getCurrentDatabaseNoteTypeCopy(noteTypeName)
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.putExtra("noteTypeId", collectionBasicNoteTypeOriginal.id)
-        val templateEditorController =
-            Robolectric
-                .buildActivity(CardTemplateEditor::class.java, intent)
-                .create()
-                .start()
-                .resume()
-                .visible()
-        saveControllerForCleanup(templateEditorController)
-        val testEditor = templateEditorController.get()
+            compose.clickTemplateEditorAction(EditorControl.INSERT_FIELD)
+            compose.onNode(hasText("Back") and hasClickAction() and hasAnyAncestor(isDialog())).performClick()
+            advanceRobolectricLooper()
 
-        assertEquals("Note type should have 2 templates", 2, testEditor.tempNoteType?.templateCount)
-
-        // Start on first fragment (Card 1)
-        assertEquals("Should start on first fragment", 0, testEditor.viewPager.currentItem)
-        advanceRobolectricLooper()
-
-        val firstFragment = testEditor.currentFragment
-        assertNotNull("First fragment should exist", firstFragment)
-        // Use fragment's view to get EditText (activity.findViewById may return wrong view with offscreenPageLimit)
-        val firstTemplateEditText = firstFragment!!.requireView().findViewById<EditText>(R.id.edit_text)
-        val originalFirstContent = firstTemplateEditText.text.toString()
-
-        // Navigate to second fragment (Card 2)
-        testEditor.viewPager.currentItem = 1
-        advanceRobolectricLooper()
-
-        val secondFragment = testEditor.currentFragment
-        assertNotNull("Second fragment should exist", secondFragment)
-        // Use fragment's view to get EditText (activity.findViewById may return wrong view with offscreenPageLimit)
-        val secondTemplateEditText = secondFragment!!.requireView().findViewById<EditText>(R.id.edit_text)
-        val originalSecondContent = secondTemplateEditText.text.toString()
-
-        // Navigate back to first fragment
-        testEditor.viewPager.currentItem = 0
-        advanceRobolectricLooper()
-
-        val firstFragmentAgain = testEditor.currentFragment
-        assertNotNull("First fragment should exist after navigation back", firstFragmentAgain)
-        assertEquals("Should be back on first fragment", 0, testEditor.viewPager.currentItem)
-
-        // Insert a field into the first fragment
-        val fieldToInsert = "Front"
-        val expectedFieldText = "{{$fieldToInsert}}"
-
-        // Simulate showing the insert field dialog and selecting a field
-        firstFragmentAgain!!.showInsertFieldDialog()
-        advanceRobolectricLooper()
-
-        val resultBundle = Bundle()
-        resultBundle.putString(InsertFieldDialog.RESULT_INSERTED_FIELD, expectedFieldText)
-        testEditor.supportFragmentManager.setFragmentResult(firstFragmentAgain.insertFieldRequestKey, resultBundle)
-        advanceRobolectricLooper()
-
-        // Verify the field was inserted into the first fragment
-        val updatedFirstContent = firstTemplateEditText.text.toString()
-        assertTrue(
-            "Field should be inserted into first fragment",
-            updatedFirstContent.contains(expectedFieldText),
-        )
-        assertTrue(
-            "First fragment content should have changed",
-            updatedFirstContent != originalFirstContent,
-        )
-
-        // Navigate to second fragment to verify it wasn't modified
-        testEditor.viewPager.currentItem = 1
-        advanceRobolectricLooper()
-
-        // Use currentFragment's view to get EditText
-        val secondFragmentAfter = testEditor.currentFragment
-        assertNotNull("Second fragment should exist after navigation", secondFragmentAfter)
-        val secondTemplateEditTextAfter = secondFragmentAfter!!.requireView().findViewById<EditText>(R.id.edit_text)
-        val secondContentAfter = secondTemplateEditTextAfter.text.toString()
-
-        assertEquals(
-            "Second fragment should not have been modified",
-            originalSecondContent,
-            secondContentAfter,
-        )
-        assertFalse(
-            "Field should NOT be in second fragment",
-            secondContentAfter.contains(expectedFieldText),
-        )
-    }
+            assertEquals("The field is inserted at the caret", "{{Back}}$first", editText.text.toString())
+            selectTab(1)
+            assertEquals("The other template is unchanged", second, editText.text.toString())
+        }
 
     @Test
     fun `tab changes succeed with tablet UI - Issue 19589`() =
@@ -1173,15 +1014,15 @@ class CardTemplateEditorTest : RobolectricTest() {
     fun `the current card is focused`() {
         withCardTemplateEditor(noteType = getCurrentDatabaseNoteTypeCopy("Basic (and reversed card)")) {
             advanceRobolectricLooper()
-            assertThat("card 1 is focused on open", window.decorView.findFocus(), equalTo(templateFragment(0).binding.editText))
+            assertThat("card 1 is focused on open", window.decorView.findFocus(), equalTo(editText))
 
             selectTab(1)
             advanceRobolectricLooper()
-            assertThat("card 2 is focused once selected", window.decorView.findFocus(), equalTo(templateFragment(1).binding.editText))
+            assertThat("card 2 is focused once selected", window.decorView.findFocus(), equalTo(editText))
 
             selectTab(0)
             advanceRobolectricLooper()
-            assertThat("card 1 is focused again", window.decorView.findFocus(), equalTo(templateFragment(0).binding.editText))
+            assertThat("card 1 is focused again", window.decorView.findFocus(), equalTo(editText))
         }
     }
 
@@ -1200,7 +1041,7 @@ class CardTemplateEditorTest : RobolectricTest() {
         val editor = controller.get()
 
         addCardType(editor, shadowOf(editor))
-        assertTrue("Unable to click?", shadowOf(editor).clickMenuItem(R.id.action_add))
+        assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.ADD))
         advanceRobolectricLooper()
         assertEquals(
             "Adding from a new card type should count the notes",
@@ -1224,7 +1065,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             advanceRobolectricLooper()
             assertEquals("The optional reverse template should be selected", 1, selectedTabPosition)
 
-            assertTrue("Unable to add a card type", shadowOf(this).clickMenuItem(R.id.action_add))
+            assertTrue("Unable to add a card type", compose.clickTemplateEditorAction(EditorControl.ADD))
             advanceRobolectricLooper()
             val confirmation = renderedDialogMessage()
             clickDialogAction(getResourceString(CommonString.menu_add))
@@ -1232,9 +1073,9 @@ class CardTemplateEditorTest : RobolectricTest() {
 
             // Saving rejects identical fronts. Keep the empty condition while making the new front distinct.
             advanceRobolectricLooper()
-            templateFragment(2).binding.editText.setText("{{#Add Reverse}}{{Front}} {{Back}}{{/Add Reverse}}")
+            editText.setText("{{#Add Reverse}}{{Front}} {{Back}}{{/Add Reverse}}")
 
-            assertTrue("Unable to save the templates", shadowOf(this).clickMenuItem(R.id.action_confirm))
+            assertTrue("Unable to save the templates", compose.clickTemplateEditorAction(EditorControl.SAVE))
             advanceRobolectricLooper()
             val savedNoteType = col.notetypes.get(noteType.id)!!
             assertEquals("The duplicate template should be saved", 3, savedNoteType.templates.length())
@@ -1269,16 +1110,16 @@ class CardTemplateEditorTest : RobolectricTest() {
             )
 
             // Keep the empty condition, but make each front distinct so saving succeeds.
-            templateFragment(2).binding.editText.setText("{{#Add Reverse}}{{Front}} {{Back}}{{/Add Reverse}}")
-            assertTrue("Unable to add a card type", shadowOf(this).clickMenuItem(R.id.action_add))
+            editText.setText("{{#Add Reverse}}{{Front}} {{Back}}{{/Add Reverse}}")
+            assertTrue("Unable to add a card type", compose.clickTemplateEditorAction(EditorControl.ADD))
             advanceRobolectricLooper()
             val confirmation = renderedDialogMessage()
             clickDialogAction(getResourceString(CommonString.menu_add))
             advanceRobolectricLooper()
             assertEquals("The second duplicate should be selected", 3, selectedTabPosition)
-            templateFragment(3).binding.editText.setText("{{#Add Reverse}}{{Back}} {{Front}}{{/Add Reverse}}")
+            editText.setText("{{#Add Reverse}}{{Back}} {{Front}}{{/Add Reverse}}")
 
-            assertTrue("Unable to save the templates", shadowOf(this).clickMenuItem(R.id.action_confirm))
+            assertTrue("Unable to save the templates", compose.clickTemplateEditorAction(EditorControl.SAVE))
             advanceRobolectricLooper()
             assertEquals(
                 "Both new templates should be saved",
@@ -1301,8 +1142,8 @@ class CardTemplateEditorTest : RobolectricTest() {
     fun `adding from a broken template does not crash`() {
         addBasicAndReversedNote()
         withCardTemplateEditor(col.notetypes.basicAndReversed) {
-            templateFragment(0).binding.editText.setText("{{#Front}}")
-            assertTrue("Unable to add a card type", shadowOf(this).clickMenuItem(R.id.action_add))
+            editText.setText("{{#Front}}")
+            assertTrue("Unable to add a card type", compose.clickTemplateEditorAction(EditorControl.ADD))
             advanceRobolectricLooper()
             assertEquals(
                 "A broken template should not create cards",
@@ -1321,8 +1162,8 @@ class CardTemplateEditorTest : RobolectricTest() {
 
         withCardTemplateEditor(noteType) {
             // Preview supplies c3 for the new template, but card generation does not.
-            templateFragment(0).binding.editText.setText("{{#c3}}{{Front}}{{/c3}}")
-            assertTrue("Unable to add a card type", shadowOf(this).clickMenuItem(R.id.action_add))
+            editText.setText("{{#c3}}{{Front}}{{/c3}}")
+            assertTrue("Unable to add a card type", compose.clickTemplateEditorAction(EditorControl.ADD))
             advanceRobolectricLooper()
             val confirmation = renderedDialogMessage()
             clickDialogAction(getResourceString(CommonString.menu_add))
@@ -1330,8 +1171,8 @@ class CardTemplateEditorTest : RobolectricTest() {
             assertEquals("The new template should be selected", 2, selectedTabPosition)
 
             // Avoid identical fronts without changing the condition or field requirements.
-            templateFragment(2).binding.editText.setText("{{#c3}}{{Front}} extra{{/c3}}")
-            assertTrue("Unable to save the templates", shadowOf(this).clickMenuItem(R.id.action_confirm))
+            editText.setText("{{#c3}}{{Front}} extra{{/c3}}")
+            assertTrue("Unable to save the templates", compose.clickTemplateEditorAction(EditorControl.SAVE))
             advanceRobolectricLooper()
             assertEquals(
                 "The new template should be saved",
@@ -1372,7 +1213,7 @@ class CardTemplateEditorTest : RobolectricTest() {
 
         withCardTemplateEditor(noteType) {
             repeat(2) {
-                assertTrue("Unable to add a card type", shadowOf(this).clickMenuItem(R.id.action_add))
+                assertTrue("Unable to add a card type", compose.clickTemplateEditorAction(EditorControl.ADD))
                 advanceRobolectricLooper()
                 clickDialogAction(getResourceString(CommonString.menu_add))
                 advanceRobolectricLooper()
@@ -1383,7 +1224,7 @@ class CardTemplateEditorTest : RobolectricTest() {
             saveChanges()
             assertEquals("A failed save must not add card types", savedNames, col.notetypes.get(noteType.id)!!.templatesNames)
 
-            templateFragment(2).binding.editText.setText("{{Back}} {{Front}}")
+            editText.setText("{{Back}} {{Front}}")
             val editedNames = tempNoteType!!.notetype.templatesNames
             saveChanges()
             assertEquals("Saving again should add each card type once", editedNames, col.notetypes.get(noteType.id)!!.templatesNames)
@@ -1419,26 +1260,21 @@ class CardTemplateEditorTest : RobolectricTest() {
     }
 
     private fun CardTemplateEditor.deleteSelectedCardType() {
-        assertTrue("Unable to delete the card type", shadowOf(this).clickMenuItem(R.id.action_delete))
+        assertTrue("Unable to delete the card type", compose.clickTemplateEditorAction(EditorControl.DELETE))
         advanceRobolectricLooper()
         clickDialogAction(getResourceString(CommonString.dialog_positive_delete))
         advanceRobolectricLooper()
     }
 
     private fun CardTemplateEditor.saveChanges() {
-        assertTrue("Unable to save", shadowOf(this).clickMenuItem(R.id.action_confirm))
+        assertTrue("Unable to save", compose.clickTemplateEditorAction(EditorControl.SAVE))
         advanceRobolectricLooper()
     }
 
-    private fun CardTemplateEditor.templateFragment(ord: Int) = supportFragmentManager.findFragmentByTag("f$ord") as CardTemplateFragment
-
-    private fun addCardType(
-        testEditor: CardTemplateEditor,
-        shadowTestEditor: ShadowActivity,
-    ) {
-        assertTrue("Unable to click?", shadowTestEditor.clickMenuItem(R.id.action_add))
+    private fun addCardType(testEditor: CardTemplateEditor) {
+        assertTrue("Unable to click?", compose.clickTemplateEditorAction(EditorControl.ADD))
         advanceRobolectricLooper()
-        val ordinal = testEditor.mainBinding.cardTemplateEditorPager.currentItem
+        val ordinal = testEditor.selectedTabPosition
         val numAffectedCards =
             if (!testEditor.tempNoteType.isOrdinalPendingAdd(ordinal)) {
                 col.notetypes.tmplUseCount(testEditor.tempNoteType!!.notetype, ordinal)
@@ -1505,11 +1341,8 @@ Hello World{{Front}}
     private suspend fun NotetypeJson.getCardIds(vararg ords: Int): List<Long>? = withCol { notetypes.getCardIdsForNoteType(id, ords) }
 }
 
-private val CardTemplateEditor.editText: EditText
+internal val CardTemplateEditor.editText: EditText
     get() = this.findViewById(R.id.edit_text)
-
-private val CardTemplateEditor.viewPager
-    get() = this.mainBinding.cardTemplateEditorPager
 
 fun RobolectricTest.withCardTemplateEditor(
     noteType: NotetypeJson = col.notetypes.basic,
@@ -1520,15 +1353,8 @@ fun RobolectricTest.withCardTemplateEditor(
     block(activity)
 }
 
-fun CardTemplateEditor.selectTab(index: Int) = topBinding.slidingTabs.selectTab(index)
-
-val CardTemplateEditor.selectedTabPosition: Int get() = topBinding.slidingTabs.selectedTabPosition
-
 val CardTemplateEditor.previewer: TemplatePreviewerFragment
     get() = this.supportFragmentManager.findFragmentById(R.id.fragment_container) as TemplatePreviewerFragment
 
 val TemplatePreviewerFragment.ord: CardOrdinal
     get() = this.viewModel.ordFlow.value
-
-val CardTemplateEditor.confirmButton: View
-    get() = findViewById(R.id.action_confirm)

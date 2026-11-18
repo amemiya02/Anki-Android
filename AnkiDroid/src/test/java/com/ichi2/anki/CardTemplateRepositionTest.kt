@@ -4,12 +4,14 @@ package com.ichi2.anki
 
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.ViewModelProvider
@@ -25,13 +27,16 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowDialog
 
 @RunWith(AndroidJUnit4::class)
 class CardTemplateRepositionTest : RobolectricTest() {
     @get:Rule
     val compose = createEmptyComposeRule()
+
+    private fun CardTemplateEditor.selectTab(index: Int) = compose.selectTemplate(this, index)
+
+    private val CardTemplateEditor.selectedTabPosition: Int get() = compose.selectedTemplate(this)
 
     private fun renderedDialogMessage(): String =
         compose
@@ -51,40 +56,32 @@ class CardTemplateRepositionTest : RobolectricTest() {
     fun `reposition keeps edits and editor selection with the moved template`() {
         withCardTemplateEditor(col.notetypes.basicAndReversed) {
             val expectedFront = tempNoteType!!.getTemplate(0).qfmt + " unsaved edit"
-            currentFragment!!.binding.editText.setText(expectedFront)
-            currentFragment!!.binding.bottomNavigation.selectedItemId = R.id.back_edit
+            editText.setText(expectedFront)
+            compose.selectSection(this, EditorViewType.BACK)
             val expectedBack =
-                currentFragment!!
-                    .binding.editText.text
+                editText.text
                     .toString()
-            currentFragment!!.binding.editText.setSelection(4)
+            editText.setSelection(4)
 
             moveSelectedTemplateTo(2)
 
             assertEquals(listOf("Card 2", "Card 1"), tempNoteType!!.notetype.templatesNames)
             assertEquals(1, selectedTabPosition)
-            assertEquals(
-                "Card 1",
-                topBinding.slidingTabs
-                    .getTabAt(1)!!
-                    .text
-                    .toString(),
-            )
-            assertEquals(R.id.back_edit, currentFragment!!.binding.bottomNavigation.selectedItemId)
+            compose.onNodeWithText("Card 1").assertIsSelected()
+            compose.onNodeWithText(templateSectionLabel(this, EditorViewType.BACK)).assertIsSelected()
             assertEquals(
                 expectedBack,
-                currentFragment!!
-                    .binding.editText.text
+                editText.text
                     .toString(),
             )
-            assertEquals(4, currentFragment!!.binding.editText.selectionStart)
+            assertEquals(4, editText.selectionStart)
             assertEquals(expectedFront, tempNoteType!!.getTemplate(1).qfmt)
             assertEquals(0, tempNoteType!!.getOriginalOrdinal(1))
             assertTrue(noteTypeHasChanged())
             assertTrue(displayDiscardChangesCallback.isEnabled)
 
             // Edits after the move must write to the new position, without changing the other template.
-            currentFragment!!.binding.editText.append(" moved back")
+            editText.append(" moved back")
             assertEquals(expectedBack + " moved back", tempNoteType!!.getTemplate(1).afmt)
             assertEquals(
                 col.notetypes.basicAndReversed.templates[1]
@@ -96,8 +93,7 @@ class CardTemplateRepositionTest : RobolectricTest() {
             assertEquals(0, selectedTabPosition)
             assertEquals(
                 expectedBack + " moved back",
-                currentFragment!!
-                    .binding.editText.text
+                editText.text
                     .toString(),
             )
         }
@@ -160,7 +156,7 @@ class CardTemplateRepositionTest : RobolectricTest() {
         val note = addBasicAndReversedNote()
         val originalIds = note.cids().toSet()
         withCardTemplateEditor(col.notetypes.basicAndReversed) {
-            assertTrue(shadowOf(this).clickMenuItem(R.id.action_add))
+            assertTrue(compose.clickTemplateEditorAction(EditorControl.ADD))
             advanceRobolectricLooper()
             clickDialogAction(getResourceString(CommonString.menu_add))
             advanceRobolectricLooper()
@@ -187,7 +183,7 @@ class CardTemplateRepositionTest : RobolectricTest() {
         )
         withCardTemplateEditor(noteType) {
             moveSelectedTemplateTo(2)
-            assertTrue(shadowOf(this).clickMenuItem(R.id.action_delete))
+            assertTrue(compose.clickTemplateEditorAction(EditorControl.DELETE))
             advanceRobolectricLooper()
             assertEquals(getResourceString(CommonString.orphan_note_message), renderedDialogMessage())
             clickDialogAction(getResourceString(android.R.string.ok))
@@ -211,7 +207,7 @@ class CardTemplateRepositionTest : RobolectricTest() {
             selectTab(1)
             advanceRobolectricLooper()
             moveSelectedTemplateTo(1)
-            assertTrue(shadowOf(this).clickMenuItem(R.id.action_delete))
+            assertTrue(compose.clickTemplateEditorAction(EditorControl.DELETE))
             advanceRobolectricLooper()
             assertEquals(
                 getQuantityString(CommonPlurals.card_template_editor_confirm_delete, 1, 1, "Card 2"),
@@ -228,7 +224,7 @@ class CardTemplateRepositionTest : RobolectricTest() {
         val editor = startActivityNormallyOpenCollectionWithIntent(CardTemplateEditor::class.java, intent)
         with(editor) {
             moveSelectedTemplateTo(2)
-            currentFragment!!.showInsertFieldDialog()
+            compose.clickTemplateEditorAction(EditorControl.INSERT_FIELD)
             advanceRobolectricLooper()
             val dialog = supportFragmentManager.fragments.filterIsInstance<InsertFieldDialog>().single()
             val metadata = ViewModelProvider(dialog)[InsertFieldDialogViewModel::class.java].metadata
@@ -249,7 +245,7 @@ class CardTemplateRepositionTest : RobolectricTest() {
     @Test
     fun `cancel and the current position leave the note type unchanged`() {
         withCardTemplateEditor(col.notetypes.basicAndReversed) {
-            assertTrue(shadowOf(this).clickMenuItem(R.id.action_reposition))
+            assertTrue(compose.clickTemplateEditorAction(EditorControl.REPOSITION))
             advanceRobolectricLooper()
             clickDialogAction(getResourceString(CommonString.dialog_cancel))
             assertFalse(noteTypeHasChanged())
@@ -304,16 +300,19 @@ class CardTemplateRepositionTest : RobolectricTest() {
     fun `reposition is available only for standard note types with multiple templates`() {
         for (noteType in listOf(col.notetypes.basic, col.notetypes.cloze, col.notetypes.byName("Image Occlusion")!!)) {
             withCardTemplateEditor(noteType) {
-                assertFalse(shadowOf(this).optionsMenu!!.findItem(R.id.action_reposition).isVisible)
+                compose.openTemplateActions()
+                compose.onNodeWithText(getString(CommonString.card_template_reposition_template)).assertDoesNotExist()
+                onBackPressedDispatcher.onBackPressed()
             }
         }
         withCardTemplateEditor(col.notetypes.basicAndReversed) {
-            assertTrue(shadowOf(this).optionsMenu!!.findItem(R.id.action_reposition).isVisible)
+            compose.openTemplateActions()
+            compose.onNodeWithText(getString(CommonString.card_template_reposition_template)).assertExists()
         }
     }
 
     private fun CardTemplateEditor.moveSelectedTemplateTo(position: Int) {
-        assertTrue(shadowOf(this).clickMenuItem(R.id.action_reposition))
+        assertTrue(compose.clickTemplateEditorAction(EditorControl.REPOSITION))
         advanceRobolectricLooper()
         compose.onNode(hasSetTextAction() and hasAnyAncestor(isDialog())).performTextInput(position.toString())
         clickDialogAction(getResourceString(CommonString.dialog_ok))
@@ -321,14 +320,14 @@ class CardTemplateRepositionTest : RobolectricTest() {
     }
 
     private fun CardTemplateEditor.deleteSelectedTemplate() {
-        assertTrue(shadowOf(this).clickMenuItem(R.id.action_delete))
+        assertTrue(compose.clickTemplateEditorAction(EditorControl.DELETE))
         advanceRobolectricLooper()
         clickDialogAction(getResourceString(CommonString.dialog_positive_delete))
         advanceRobolectricLooper()
     }
 
     private fun CardTemplateEditor.saveChanges() {
-        assertTrue(shadowOf(this).clickMenuItem(R.id.action_confirm))
+        assertTrue(compose.clickTemplateEditorAction(EditorControl.SAVE))
         advanceRobolectricLooper()
     }
 }

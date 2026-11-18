@@ -303,6 +303,8 @@ internal fun TemplatePreviewerScreen(
     onSelect: (Int) -> Unit,
     onToggleSide: () -> Unit,
     onBack: () -> Unit,
+    noteTypeName: String? = null,
+    noteSource: String? = null,
 ) {
     val foundation = MaterialTheme.foundation
     PreviewerLayout(
@@ -310,16 +312,25 @@ internal fun TemplatePreviewerScreen(
         fullBleed = fullBleed,
         standalone = standalone,
         sheetTopPadding = 14.dp,
+        supportingText = noteSource,
         header = {
             if (standalone) {
                 PreviewerBar {
                     PreviewerBack(onBack)
-                    Text(
-                        stringResource(CommonString.card_editor_preview_card),
-                        modifier = Modifier.padding(start = 6.dp),
-                        style = foundation.type.studyTitle,
-                        color = foundation.colors.onBackground,
-                    )
+                    Column(Modifier.weight(1f).padding(start = 6.dp, top = 4.dp, bottom = 4.dp)) {
+                        Text(
+                            stringResource(CommonString.card_editor_preview_card),
+                            style = foundation.type.studyTitle,
+                            color = foundation.colors.onBackground,
+                        )
+                        noteTypeName?.let {
+                            Text(
+                                it,
+                                style = foundation.type.caption,
+                                color = foundation.colors.onBackgroundMuted,
+                            )
+                        }
+                    }
                 }
             }
             if (selectedTab in titles.indices) {
@@ -327,18 +338,33 @@ internal fun TemplatePreviewerScreen(
             }
         },
     ) {
-        PreviewerPrimaryButton(
-            label = stringResource(if (showingAnswer) R.string.previewer_show_question else CommonString.show_answer),
-            modifier = Modifier.fillMaxWidth(),
-            minimumHeight = minimumButtonHeight,
-            onClick = onToggleSide,
-        )
+        if (noteSource != null) {
+            OutlinedButton(
+                onClick = onToggleSide,
+                modifier = Modifier.fillMaxWidth().heightIn(min = minimumButtonHeight),
+                border = BorderStroke(foundation.shapes.hairline, foundation.colors.outline),
+                shape = foundation.shapes.button,
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = foundation.colors.emphasis),
+            ) {
+                Text(
+                    stringResource(if (showingAnswer) CommonString.hide_answer else CommonString.show_answer),
+                    style = foundation.type.button,
+                )
+            }
+        } else {
+            PreviewerPrimaryButton(
+                label = stringResource(if (showingAnswer) R.string.previewer_show_question else CommonString.show_answer),
+                modifier = Modifier.fillMaxWidth(),
+                minimumHeight = minimumButtonHeight,
+                onClick = onToggleSide,
+            )
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PreviewerTabs(
+internal fun PreviewerTabs(
     titles: List<String>,
     selectedTab: Int,
     onSelect: (Int) -> Unit,
@@ -384,6 +410,7 @@ private fun PreviewerLayout(
     standalone: Boolean,
     sheetTopPadding: Dp,
     header: @Composable () -> Unit = {},
+    supportingText: String? = null,
     controls: @Composable RowScope.() -> Unit,
 ) {
     val foundation = MaterialTheme.foundation
@@ -413,6 +440,14 @@ private fun PreviewerLayout(
                     .padding(top = sheetTopPadding)
                     .then(frame),
         )
+        supportingText?.let {
+            Text(
+                it,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = foundation.spacing.studyMargin, vertical = 4.dp),
+                style = foundation.type.caption,
+                color = foundation.colors.onBackgroundMuted,
+            )
+        }
         Row(
             modifier =
                 Modifier

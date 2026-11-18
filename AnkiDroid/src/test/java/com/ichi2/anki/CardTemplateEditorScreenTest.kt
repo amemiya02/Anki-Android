@@ -11,6 +11,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.testutils.simulateKeyboard
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,5 +33,6 @@ class CardTemplateEditorScreenTest : RobolectricTest() {
                 .assertIsSelected()
             compose.onNodeWithText(TR.cardTemplatesTemplateStyling()).assertIsDisplayed()
             compose.onNodeWithText("Back").assertIsDisplayed().performClick()
+            assertTrue(editText.text.toString().startsWith("{{Back}}"))
         }
 }

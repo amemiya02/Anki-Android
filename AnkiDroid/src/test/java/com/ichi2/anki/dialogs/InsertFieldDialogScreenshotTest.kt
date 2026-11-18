@@ -11,8 +11,10 @@ import androidx.compose.ui.test.performScrollToIndex
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.EditorControl
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.anki.cardviewer.SingleCardSide
+import com.ichi2.anki.clickTemplateEditorAction
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.model.SpecialFields
 import com.ichi2.anki.withCardTemplateEditor
@@ -60,7 +62,7 @@ class InsertFieldDialogScreenshotTest : ScreenshotTest() {
         name: String,
         insets: WindowInsetsCompat,
     ) = withCardTemplateEditor {
-        currentFragment!!.showInsertFieldDialog()
+        compose.clickTemplateEditorAction(EditorControl.INSERT_FIELD, this)
         advanceRobolectricLooper()
         val dialog = supportFragmentManager.fragments.filterIsInstance<InsertFieldDialog>().single()
         try {

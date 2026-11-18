@@ -3,4 +3,7 @@
 <resources>
     <string name="previewer_show_back_only">Show the back side only</string>
     <string name="previewer_show_question">Show question</string>
+    <string name="template_previewer_sample_note">Using sample field values</string>
+    <string name="template_previewer_current_note">Using the current Note</string>
+    <string name="template_previewer_first_note">Using the first Note of this type</string>
 </resources>

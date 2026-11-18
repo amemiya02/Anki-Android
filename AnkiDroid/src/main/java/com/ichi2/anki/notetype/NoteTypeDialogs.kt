@@ -192,7 +192,7 @@ internal fun FieldActionsSheet(
 }
 
 @Composable
-private fun FieldActionRow(
+internal fun FieldActionRow(
     title: String,
     icon: Int,
     subtitle: String? = null,
@@ -211,7 +211,7 @@ private fun FieldActionRow(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun NoteTypeSheet(
+internal fun NoteTypeSheet(
     title: String,
     onDismiss: () -> Unit,
     content: @Composable ColumnScope.() -> Unit,

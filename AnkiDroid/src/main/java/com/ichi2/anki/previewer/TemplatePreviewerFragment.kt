@@ -10,11 +10,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.unit.dp
+import androidx.core.os.BundleCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.R
 import com.ichi2.anki.libanki.CardOrdinal
 import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.compose.theme.foundation
@@ -39,6 +40,15 @@ class TemplatePreviewerFragment : ComposeCardViewerFragment() {
 
         val standalone = parentFragment is TemplatePreviewerPage
         val inTemplateEditor = requireArguments().getBoolean(ARG_TEMPLATE_EDITOR)
+        val arguments = checkNotNull(BundleCompat.getParcelable(requireArguments(), ARG_KEY, TemplatePreviewerArguments::class.java))
+        val noteTypeName = if (arguments.fromTemplateEditor && standalone) arguments.notetype.name else null
+        val noteSource =
+            when {
+                !arguments.fromTemplateEditor -> null
+                arguments.usingFirstNote -> getString(R.string.template_previewer_first_note)
+                arguments.id != 0L -> getString(R.string.template_previewer_current_note)
+                else -> getString(R.string.template_previewer_sample_note)
+            }
         var titles by mutableStateOf(emptyList<String>())
         var selectedTab by mutableIntStateOf(-1)
         if (!inTemplateEditor) {
@@ -68,8 +78,9 @@ class TemplatePreviewerFragment : ComposeCardViewerFragment() {
                     showingAnswer = showingAnswer,
                     standalone = standalone,
                     fullBleed = fullBleed,
-                    // Line up the template editor's answer control with its bottom navigation.
-                    minimumButtonHeight = if (inTemplateEditor) 80.dp else MaterialTheme.foundation.spacing.primaryButton,
+                    minimumButtonHeight = MaterialTheme.foundation.spacing.primaryButton,
+                    noteTypeName = noteTypeName,
+                    noteSource = noteSource,
                     onSelect = viewModel::onTabSelected,
                     onToggleSide = viewModel::toggleShowAnswer,
                     onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() },

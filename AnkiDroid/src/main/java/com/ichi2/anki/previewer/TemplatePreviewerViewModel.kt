@@ -36,6 +36,7 @@ class TemplatePreviewerViewModel(
     private val notetype: NotetypeJson
     private val fillEmpty: Boolean
     private val isCloze: Boolean
+    private var showInitialAnswer: Boolean
 
     /**
      * Identifies which of the card templates or cloze deletions it corresponds to
@@ -60,6 +61,7 @@ class TemplatePreviewerViewModel(
         notetype = arguments.notetype
         fillEmpty = arguments.fillEmpty
         isCloze = notetype.isCloze
+        showInitialAnswer = arguments.initiallyShowingAnswer
         ordFlow = MutableStateFlow(arguments.ord)
 
         note =
@@ -171,8 +173,14 @@ class TemplatePreviewerViewModel(
                             )
                         }
                     }
-                showQuestion()
-                loadAndPlaySounds(CardSide.QUESTION)
+                if (showInitialAnswer) {
+                    showInitialAnswer = false
+                    showAnswer()
+                    loadAndPlaySounds(CardSide.ANSWER)
+                } else {
+                    showQuestion()
+                    loadAndPlaySounds(CardSide.QUESTION)
+                }
             }
         }
     }
@@ -293,8 +301,12 @@ data class TemplatePreviewerArguments(
     val ord: CardOrdinal = 0,
     val fillEmpty: Boolean = false,
     val deckId: DeckId = DEFAULT_DECK_ID,
+    val fromTemplateEditor: Boolean = false,
+    val usingFirstNote: Boolean = false,
+    val initiallyShowingAnswer: Boolean = false,
 ) : Parcelable {
     val notetype: NotetypeJson get() = notetypeFile.getNotetype()
+    internal val sourceFile get() = notetypeFile
 
     companion object {
         /**

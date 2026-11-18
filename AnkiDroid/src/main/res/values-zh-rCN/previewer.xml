@@ -3,4 +3,7 @@
 <resources>
     <string name="previewer_show_back_only">仅显示背面</string>
     <string name="previewer_show_question">显示问题</string>
+    <string name="template_previewer_sample_note">使用示例字段值</string>
+    <string name="template_previewer_current_note">使用当前笔记</string>
+    <string name="template_previewer_first_note">使用此类型的第一条笔记</string>
 </resources>

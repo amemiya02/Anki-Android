@@ -3,4 +3,7 @@
 <resources>
     <string name="previewer_show_back_only">عرض ظهر البطاقة فقط</string>
     <string name="previewer_show_question">إظهار السؤال</string>
+    <string name="template_previewer_sample_note">باستخدام قيم حقول نموذجية</string>
+    <string name="template_previewer_current_note">باستخدام الملاحظة الحالية</string>
+    <string name="template_previewer_first_note">باستخدام الملاحظة الأولى من هذا النوع</string>
 </resources>

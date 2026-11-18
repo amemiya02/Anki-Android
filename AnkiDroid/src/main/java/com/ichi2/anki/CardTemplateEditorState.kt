@@ -6,10 +6,7 @@ package com.ichi2.anki
 import com.ichi2.anki.exception.ReportableException
 import com.ichi2.anki.libanki.CardOrdinal
 
-/**
- * Which template editor view is currently displayed.
- * The View layer handles mapping to actual View IDs.
- */
+/** The selected source section for the current Card Template. */
 enum class EditorViewType {
     FRONT,
     BACK,

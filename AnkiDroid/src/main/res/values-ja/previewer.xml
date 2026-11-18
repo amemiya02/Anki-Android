@@ -3,4 +3,7 @@
 <resources>
     <string name="previewer_show_back_only">裏面のみ表示</string>
     <string name="previewer_show_question">問題を表示</string>
+    <string name="template_previewer_sample_note">サンプルのフィールド値を使用</string>
+    <string name="template_previewer_current_note">現在のノートを使用</string>
+    <string name="template_previewer_first_note">このタイプの最初のノートを使用</string>
 </resources>

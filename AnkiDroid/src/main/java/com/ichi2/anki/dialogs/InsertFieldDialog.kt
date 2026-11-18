@@ -67,7 +67,7 @@ import androidx.compose.material3.Tab as MaterialTab
  * Dialog fragment used to show the fields that the user can insert in the card editor. This
  * fragment can notify other fragments from the same activity about an inserted field.
  *
- * @see [CardTemplateEditor.CardTemplateFragment]
+ * @see [CardTemplateEditor]
  */
 class InsertFieldDialog : DialogFragment() {
     private val viewModel by viewModels<InsertFieldDialogViewModel>()
