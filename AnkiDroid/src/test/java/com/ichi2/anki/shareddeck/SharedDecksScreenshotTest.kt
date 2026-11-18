@@ -13,6 +13,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebResourceResponse
 import android.widget.FrameLayout
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type.displayCutout
@@ -21,6 +24,7 @@ import androidx.core.view.WindowInsetsCompat.Type.statusBars
 import androidx.fragment.app.commit
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.ichi2.anki.CheckAccessibility
+import com.ichi2.anki.CommonString
 import com.ichi2.anki.FontSizeConfig.PERCENT_200
 import com.ichi2.anki.IncludeFontSizes
 import com.ichi2.anki.IncludeLanguages
@@ -34,6 +38,7 @@ import com.ichi2.anki.shareddeck.SharedDecksActivity.Companion.HTTP_STATUS_TOO_M
 import com.ichi2.anki.workarounds.SafeWebViewLayout
 import com.ichi2.testutils.insetsOf
 import com.ichi2.testutils.webView
+import org.junit.Rule
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
@@ -53,6 +58,18 @@ import java.time.Duration
 @IncludeLanguages(SIMPLIFIED_CHINESE, JAPANESE, ARABIC)
 @IncludeFontSizes(PERCENT_200)
 class SharedDecksScreenshotTest : ScreenshotTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
+    @Test
+    fun downloadingSharedDeck() =
+        withSharedDecks { activity ->
+            activity.showDownloadFragment(30)
+            activity.simulateNavigationBar()
+            compose.onNodeWithText(getResourceString(CommonString.cancel_download)).assertIsDisplayed()
+            captureScreen("download")
+        }
+
     @Test
     fun sharedDecksPortrait() =
         withSharedDecks { activity ->
@@ -76,7 +93,7 @@ class SharedDecksScreenshotTest : ScreenshotTest() {
     /** [SharedDecksDownloadFragment]: a full-screen overlay above the WebView */
     @Test
     fun downloadFragment(
-        @TestParameter("-1", "0", "30", "100") percent: Int,
+        @TestParameter("-1", "0", "100") percent: Int,
     ) = withSharedDecks { activity ->
         // show the fragment first: insets are only received by attached views
         activity.showDownloadFragment(percent)
@@ -84,7 +101,6 @@ class SharedDecksScreenshotTest : ScreenshotTest() {
         val name =
             when (percent) {
                 -1 -> "download_indeterminate"
-                30 -> "download"
                 else -> "download_$percent"
             }
         captureScreen(name)

@@ -59,7 +59,9 @@ class FilteredDeckOptionsFragment : Fragment() {
                 onDelay = viewModel::onRescheduleDelayChange,
                 onAllowEmpty = viewModel::onAllowEmptyChange,
                 onExcludedCards = viewModel::onShowExcludedCards,
-                onBuild = viewModel::build,
+                onBuild = {
+                    if ((viewModel.state.value as? FilteredDeckOptions)?.isBuildingAllowed == true) viewModel.build()
+                },
                 onErrorClosed = viewModel::clearError,
                 onExit = { requireActivity().finish() },
             )
