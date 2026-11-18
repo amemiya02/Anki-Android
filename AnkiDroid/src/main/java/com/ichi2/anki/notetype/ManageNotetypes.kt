@@ -4,14 +4,12 @@ package com.ichi2.anki.notetype
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import androidx.activity.SystemBarStyle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,11 +19,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import anki.notetypes.StockNotetype
-import com.ichi2.anki.AnkiActivity
+import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
@@ -36,7 +38,7 @@ import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.NoteTypeId
 import com.ichi2.anki.progress.ViewModelProgress
 import com.ichi2.anki.progress.observeProgress
-import com.ichi2.anki.startup.ensureStorageIsReady
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.utils.Destination
 import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.compose.ui.dialogs.ConfirmationDialog
@@ -44,9 +46,12 @@ import com.ichi2.compose.ui.dialogs.DialogAction
 import com.ichi2.compose.ui.dialogs.DialogActionStyle
 import com.ichi2.compose.ui.dialogs.ErrorDialog
 import com.ichi2.compose.ui.dialogs.TextInputDialog
-import com.ichi2.themes.Themes
 
-class ManageNotetypes : AnkiActivity() {
+class ManageNotetypes : SingleFragmentActivity() {
+    override fun createFragment(): ManageNoteTypesFragment = ManageNoteTypesFragment()
+}
+
+class ManageNoteTypesFragment : Fragment() {
     val viewModel by viewModels<ManageNoteTypesViewModel>()
 
     private var templateRevision by mutableIntStateOf(0)
@@ -56,32 +61,40 @@ class ManageNotetypes : AnkiActivity() {
             templateRevision++
         }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        if (showedActivityFailedScreen(savedInstanceState)) return
-        super.onCreate(savedInstanceState)
-        if (!ensureStorageIsReady()) return
-
-        enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme })
-        setContent {
-            AnkiDroidTheme {
-                NoteTypesRoute(
-                    viewModel = viewModel,
-                    templateRevision = templateRevision,
-                    onClose = ::finish,
-                    onTemplate = { id, row -> templateEditor.launch(ManageNoteTypesState.CardEditor(id, row.ord).toIntent(this)) },
-                    runTask = { block -> launchCatchingTask { block() } },
-                    onAdd = { item, name ->
-                        val added =
-                            if (item.isStandard) {
-                                viewModel.addStockNoteType(name, StockNotetype.Kind.forNumber(item.id.toInt()))
-                            } else {
-                                viewModel.cloneNoteType(name, item.id)
-                            }
-                        added.awaitCatchingTask()
-                    },
-                )
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View =
+        ComposeView(inflater.context).apply {
+            id = R.id.note_types_screen
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                AnkiDroidTheme {
+                    NoteTypesRoute(
+                        viewModel = viewModel,
+                        templateRevision = templateRevision,
+                        onClose = { finishScreen() },
+                        onTemplate = { id, row ->
+                            templateEditor.launch(ManageNoteTypesState.CardEditor(id, row.ord).toIntent(requireContext()))
+                        },
+                        runTask = { block -> launchCatchingTask { block() } },
+                        onAdd = { item, name ->
+                            val added =
+                                if (item.isStandard) {
+                                    viewModel.addStockNoteType(name, StockNotetype.Kind.forNumber(item.id.toInt()))
+                                } else {
+                                    viewModel.cloneNoteType(name, item.id)
+                                }
+                            added.awaitCatchingTask()
+                        },
+                    )
+                }
             }
         }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         observeProgress(viewModel) { it }
         viewModel.pendingAdd?.awaitCatchingTask()
         viewModel.pendingFieldEdit?.awaitCatchingTask()

@@ -38,6 +38,8 @@ import androidx.navigation.get
 import androidx.navigation.navOptions
 import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.CardBrowser
+import com.ichi2.anki.BrowserAppearanceFragment
+import com.ichi2.anki.CardTemplateBrowserAppearanceEditor
 import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.Info
 import com.ichi2.anki.InfoFragment
@@ -58,6 +60,10 @@ import com.ichi2.anki.introduction.WelcomeFragment
 import com.ichi2.anki.mediacheck.MediaCheckFragment
 import com.ichi2.anki.multimedia.MultimediaActivity
 import com.ichi2.anki.multimedia.MultimediaFlowFragment
+import com.ichi2.anki.notetype.ManageNoteTypesFragment
+import com.ichi2.anki.notetype.ManageNotetypes
+import com.ichi2.anki.ui.windows.managespace.ManageSpaceActivity
+import com.ichi2.anki.ui.windows.managespace.ManageSpaceFragment
 import com.ichi2.anki.pages.AnkiPackageImporterFragment
 import com.ichi2.anki.pages.CardInfoFragment
 import com.ichi2.anki.pages.CsvImporter
@@ -249,6 +255,9 @@ internal class AppNavigation(
         val fragment =
             when (component) {
                 CardBrowser::class.java.name -> CardBrowserPaneFragment::class.java
+                CardTemplateBrowserAppearanceEditor::class.java.name -> BrowserAppearanceFragment::class.java
+                ManageNotetypes::class.java.name -> ManageNoteTypesFragment::class.java
+                ManageSpaceActivity::class.java.name -> ManageSpaceFragment::class.java
                 Info::class.java.name -> InfoFragment::class.java
                 StudyOptionsActivity::class.java.name -> StudyOptionsFlowFragment::class.java
                 MultimediaActivity::class.java.name -> MultimediaFlowFragment::class.java
@@ -259,7 +268,9 @@ internal class AppNavigation(
             when (component) {
                 CardBrowser::class.java.name -> CardBrowserPaneFragment.arguments(intent)
                 NoteEditorActivity::class.java.name -> NoteEditorPaneFragment.arguments(intent)
-                MultimediaActivity::class.java.name -> intent.extras
+                CardTemplateBrowserAppearanceEditor::class.java.name,
+                MultimediaActivity::class.java.name,
+                -> intent.extras
                 else -> intent.getBundleExtra(SingleFragmentActivity.EXTRA_FRAGMENT_ARGS)
             }
         val defaultResult = if (component == CardBrowser::class.java.name) Activity.RESULT_OK else Activity.RESULT_CANCELED
@@ -328,6 +339,9 @@ internal class AppNavigation(
             setOf(
                 AccountActivity::class.java.name,
                 CardBrowser::class.java.name,
+                CardTemplateBrowserAppearanceEditor::class.java.name,
+                ManageNotetypes::class.java.name,
+                ManageSpaceActivity::class.java.name,
                 Info::class.java.name,
                 StudyOptionsActivity::class.java.name,
                 MultimediaActivity::class.java.name,
@@ -342,6 +356,7 @@ internal class AppNavigation(
             listOf(
                 AccountFlowFragment::class.java,
                 AnkiPackageImporterFragment::class.java,
+                BrowserAppearanceFragment::class.java,
                 CardBrowserPaneFragment::class.java,
                 CardInfoFragment::class.java,
                 CsvImporter::class.java,
@@ -352,6 +367,8 @@ internal class AppNavigation(
                 ImageCropper::class.java,
                 ImageOcclusion::class.java,
                 InfoFragment::class.java,
+                ManageNoteTypesFragment::class.java,
+                ManageSpaceFragment::class.java,
                 MediaCheckFragment::class.java,
                 MultimediaFlowFragment::class.java,
                 NoteEditorPaneFragment::class.java,

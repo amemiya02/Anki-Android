@@ -4,12 +4,10 @@ package com.ichi2.anki
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import androidx.activity.SystemBarStyle
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.annotation.CheckResult
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -35,11 +33,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.Fragment
+import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.dialogs.DiscardChangesDialog
@@ -49,50 +51,15 @@ import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.compose.theme.foundation
 import com.ichi2.compose.ui.dialogs.ConfirmationDialog
 import com.ichi2.compose.ui.dialogs.DialogAction
-import com.ichi2.themes.Themes
 import org.jetbrains.annotations.Contract
 import timber.log.Timber
 import androidx.appcompat.R as AppCompatR
 import com.ichi2.anki.common.android.R as CommonR
 
 /** Edits the template formats used by the Card Browser's question and answer columns. */
-class CardTemplateBrowserAppearanceEditor : AnkiActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        if (showedActivityFailedScreen(savedInstanceState)) return
-        super.onCreate(savedInstanceState)
-        if (intent.extras == null) {
-            showThemedToast(this, getString(CommonString.something_wrong), true)
-            finish()
-            return
-        }
-        setResult(RESULT_CANCELED)
-        enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme })
-        setContent {
-            AnkiDroidTheme {
-                BrowserAppearance(
-                    initialQuestion = intent.getStringExtra(EXTRA_QUESTION_FORMAT).orEmpty(),
-                    initialAnswer = intent.getStringExtra(EXTRA_ANSWER_FORMAT).orEmpty(),
-                    onBack = { hasChanges ->
-                        if (hasChanges) DiscardChangesDialog.showDialog(this) { finish() } else finish()
-                    },
-                    onSave = ::saveAndExit,
-                )
-            }
-        }
-    }
-
-    private fun saveAndExit(
-        question: String,
-        answer: String,
-    ) {
-        val data =
-            Intent().apply {
-                putExtra(EXTRA_QUESTION_FORMAT, question)
-                putExtra(EXTRA_ANSWER_FORMAT, answer)
-            }
-        setResult(RESULT_OK, data)
-        finish()
-    }
+class CardTemplateBrowserAppearanceEditor : SingleFragmentActivity() {
+    override fun createFragment(): BrowserAppearanceFragment =
+        BrowserAppearanceFragment().apply { arguments = intent.extras }
 
     class Result private constructor(
         question: String?,
@@ -147,6 +114,47 @@ class CardTemplateBrowserAppearanceEditor : AnkiActivity() {
                 putExtra(EXTRA_QUESTION_FORMAT, questionFormat)
                 putExtra(EXTRA_ANSWER_FORMAT, answerFormat)
             }
+    }
+}
+
+class BrowserAppearanceFragment : Fragment() {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View =
+        ComposeView(inflater.context).apply {
+            id = R.id.browser_appearance_screen
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                AnkiDroidTheme {
+                    BrowserAppearance(
+                        initialQuestion = arguments?.getString(CardTemplateBrowserAppearanceEditor.EXTRA_QUESTION_FORMAT).orEmpty(),
+                        initialAnswer = arguments?.getString(CardTemplateBrowserAppearanceEditor.EXTRA_ANSWER_FORMAT).orEmpty(),
+                        onBack = { hasChanges ->
+                            if (hasChanges) DiscardChangesDialog.showDialog(requireContext()) { finishScreen() } else finishScreen()
+                        },
+                        onSave = ::saveAndExit,
+                    )
+                }
+            }
+        }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (arguments == null) {
+            showThemedToast(requireContext(), getString(CommonString.something_wrong), true)
+            finishScreen()
+        }
+    }
+
+    private fun saveAndExit(question: String, answer: String) {
+        val data =
+            Intent().apply {
+                putExtra(CardTemplateBrowserAppearanceEditor.EXTRA_QUESTION_FORMAT, question)
+                putExtra(CardTemplateBrowserAppearanceEditor.EXTRA_ANSWER_FORMAT, answer)
+            }
+        finishScreen(android.app.Activity.RESULT_OK, data)
     }
 }
 
