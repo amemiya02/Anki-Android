@@ -65,4 +65,5 @@
     <item name="fragment_container" type="id" />
     <item type="id" name="note_types_screen"/>
     <item type="id" name="browser_appearance_screen"/>
+    <item type="id" name="card_template_screen"/>
 </resources>

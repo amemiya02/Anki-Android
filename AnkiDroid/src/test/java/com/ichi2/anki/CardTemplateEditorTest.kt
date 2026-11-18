@@ -1353,7 +1353,7 @@ fun RobolectricTest.withCardTemplateEditor(
 }
 
 val CardTemplateEditor.previewer: TemplatePreviewerFragment
-    get() = this.supportFragmentManager.findFragmentById(R.id.fragment_container) as TemplatePreviewerFragment
+    get() = this.templateScreen!!.childFragmentManager.findFragmentById(R.id.fragment_container) as TemplatePreviewerFragment
 
 val TemplatePreviewerFragment.ord: CardOrdinal
     get() = this.viewModel.ordFlow.value

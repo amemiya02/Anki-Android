@@ -5,11 +5,14 @@ package com.ichi2.anki
 import android.content.Intent
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.mediacheck.MediaCheckFragment
-import com.ichi2.anki.ui.internationalization.trCase
+import com.ichi2.anki.CollectionManager.TR
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -27,7 +30,7 @@ class SingleActivityNavigationTest : RobolectricTest() {
     fun `media check opens in the existing activity and Back returns to Decks`() =
         withDeckPicker(deckCount = 1) { deckPicker ->
             val deck = composeRule.onNodeWithText("Test Deck 0")
-            val mediaCheck = composeRule.onNodeWithText(trCase().checkMediaTitle())
+            val mediaCheck = composeRule.onNodeWithText(with(deckPicker) { TR.sentenceCase.checkMediaTitle() })
             deck.assertIsDisplayed()
 
             deckPicker.startActivity(MediaCheckFragment.getIntent(deckPicker))
@@ -71,7 +74,7 @@ class SingleActivityNavigationTest : RobolectricTest() {
         composeRule.onNodeWithText(deckPicker.getString(CommonString.paper_welcome_start_empty)).performClick()
         advanceRobolectricLooper()
 
-        composeRule.onNodeWithText("Decks").assertIsDisplayed()
+        composeRule.onAllNodesWithText("Decks").onFirst().assertIsDisplayed()
         assertFalse(deckPicker.isFinishing)
         assertNull(shadowOf(deckPicker).nextStartedActivity)
     }

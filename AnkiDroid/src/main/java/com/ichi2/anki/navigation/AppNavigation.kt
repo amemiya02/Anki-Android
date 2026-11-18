@@ -40,6 +40,8 @@ import com.ichi2.anki.BottomNavController.NavigationItem
 import com.ichi2.anki.CardBrowser
 import com.ichi2.anki.BrowserAppearanceFragment
 import com.ichi2.anki.CardTemplateBrowserAppearanceEditor
+import com.ichi2.anki.CardTemplateEditor
+import com.ichi2.anki.CardTemplateEditorFragment
 import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.Info
 import com.ichi2.anki.InfoFragment
@@ -258,6 +260,7 @@ internal class AppNavigation(
             when (component) {
                 CardBrowser::class.java.name -> CardBrowserPaneFragment::class.java
                 CardTemplateBrowserAppearanceEditor::class.java.name -> BrowserAppearanceFragment::class.java
+                CardTemplateEditor::class.java.name -> CardTemplateEditorFragment::class.java
                 ManageNotetypes::class.java.name -> ManageNoteTypesFragment::class.java
                 ManageSpaceActivity::class.java.name -> ManageSpaceFragment::class.java
                 Info::class.java.name -> InfoFragment::class.java
@@ -272,6 +275,7 @@ internal class AppNavigation(
                 CardBrowser::class.java.name -> CardBrowserPaneFragment.arguments(intent)
                 NoteEditorActivity::class.java.name -> NoteEditorPaneFragment.arguments(intent)
                 CardTemplateBrowserAppearanceEditor::class.java.name,
+                CardTemplateEditor::class.java.name,
                 MultimediaActivity::class.java.name,
                 -> intent.extras
                 else -> intent.getBundleExtra(SingleFragmentActivity.EXTRA_FRAGMENT_ARGS)
@@ -343,6 +347,7 @@ internal class AppNavigation(
                 AccountActivity::class.java.name,
                 CardBrowser::class.java.name,
                 CardTemplateBrowserAppearanceEditor::class.java.name,
+                CardTemplateEditor::class.java.name,
                 ManageNotetypes::class.java.name,
                 ManageSpaceActivity::class.java.name,
                 Info::class.java.name,
@@ -363,6 +368,7 @@ internal class AppNavigation(
                 BrowserAppearanceFragment::class.java,
                 CardBrowserPaneFragment::class.java,
                 CardInfoFragment::class.java,
+                CardTemplateEditorFragment::class.java,
                 CsvImporter::class.java,
                 DeckOptions::class.java,
                 DrawingFragment::class.java,

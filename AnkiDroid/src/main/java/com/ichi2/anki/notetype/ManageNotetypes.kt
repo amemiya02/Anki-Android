@@ -88,7 +88,7 @@ class ManageNoteTypesFragment : Fragment() {
                                 } else {
                                     viewModel.cloneNoteType(name, item.id)
                                 }
-                            added.awaitCatchingTask()
+                            with(requireActivity()) { added.awaitCatchingTask() }
                         },
                     )
                 }
@@ -98,8 +98,10 @@ class ManageNoteTypesFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         observeProgress(viewModel) { it }
-        viewModel.pendingAdd?.awaitCatchingTask()
-        viewModel.pendingFieldEdit?.awaitCatchingTask()
+        with(requireActivity()) {
+            viewModel.pendingAdd?.awaitCatchingTask()
+            viewModel.pendingFieldEdit?.awaitCatchingTask()
+        }
     }
 }
 
