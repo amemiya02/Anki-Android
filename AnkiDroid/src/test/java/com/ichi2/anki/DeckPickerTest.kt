@@ -1109,7 +1109,6 @@ class DeckPickerTest : RobolectricTest() {
             val studyOptions = assertNotNull(fragment)
             for (selectAnotherDeck in listOf(false, true)) {
                 scrollStudyTo(200)
-                assertEquals(200, studyScrollPosition())
 
                 selectContextMenuOption(ContextMenuOption.SCHEDULE_REMINDERS, studyOptions.viewModel.selectedDeckId)
                 advanceRobolectricLooper()
@@ -1175,6 +1174,8 @@ class DeckPickerTest : RobolectricTest() {
     private fun scrollStudyTo(position: Int) {
         val distance = (position - studyScrollPosition()).toFloat()
         composeRule.onNodeWithTag("study_options_scroll").performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, distance) }
+        // The accessibility action schedules the scroll. Wait for its frame before saving the Fragment.
+        assertEquals(position, studyScrollPosition())
     }
 
     private fun withReminderPanel(test: suspend DeckPicker.(ScheduleRemindersFragment) -> Unit) {
