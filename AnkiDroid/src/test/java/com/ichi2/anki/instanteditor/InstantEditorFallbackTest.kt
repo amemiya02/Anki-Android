@@ -11,9 +11,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.NoteEditorActivity
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity
-import com.ichi2.anki.noteeditor.NoteEditorActivity
 import com.ichi2.testutils.withCollectionAccessOn
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import org.junit.Rule
