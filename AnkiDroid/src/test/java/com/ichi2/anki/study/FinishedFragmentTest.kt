@@ -9,6 +9,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -21,6 +22,7 @@ import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.StudyOptionsActivity
+import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyAction
 import com.ichi2.anki.ioDispatcher
@@ -29,8 +31,10 @@ import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.pages.DeckOptions
 import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.anki.ui.internationalization.sentenceCase
+import com.ichi2.anki.withDeckPicker
 import com.ichi2.testutils.AnkiFragmentScenario
 import com.ichi2.testutils.EmptyAnkiActivity
+import com.ichi2.testutils.dispatchInsets
 import com.ichi2.testutils.launchFragmentInContainer
 import com.ichi2.testutils.saveState
 import com.ichi2.testutils.uninitializeField
@@ -53,6 +57,20 @@ import com.ichi2.anki.common.android.R as CommonR
 class FinishedFragmentTest : RobolectricTest() {
     @get:Rule
     val composeRule = createEmptyComposeRule()
+
+    @Test
+    fun `finished screen back button clears the status bar and side cutout`() =
+        withDeckPicker(deckCount = 1) { host ->
+            host.startActivity(FinishedFragment.getIntent(host))
+            composeRule.waitUntil(10_000) { host.currentScreenFragment is FinishedFragment }
+            val back = composeRule.onNodeWithContentDescription(host.getString(androidx.appcompat.R.string.abc_action_bar_up_description))
+            back.assertIsDisplayed()
+            host.dispatchInsets(cutoutLeft = 32.dp, cutoutTop = 36.dp)
+            advanceRobolectricLooper()
+            val bounds = back.fetchSemanticsNode().boundsInWindow
+            assertTrue(bounds.top >= 36.dp.toPx(host), "Finished toolbar overlaps the status bar or top cutout: $bounds")
+            assertTrue(bounds.left >= 32.dp.toPx(host), "Finished back button overlaps the side cutout: $bounds")
+        }
 
     @Test
     fun `unburying returns to studying the Deck`() =

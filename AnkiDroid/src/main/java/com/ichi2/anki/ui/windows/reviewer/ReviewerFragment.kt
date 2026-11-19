@@ -16,7 +16,6 @@ import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.webkit.WebView
-import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.widget.ActionMenuView
@@ -73,6 +72,7 @@ import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.preferences.reviewer.WhiteboardAction
 import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.anki.previewer.CardViewerFragment
+import com.ichi2.anki.previewer.SystemBarState
 import com.ichi2.anki.previewer.TypeAnswer
 import com.ichi2.anki.previewer.cardImageZoomCss
 import com.ichi2.anki.previewer.setFrameStyle
@@ -144,6 +144,7 @@ class ReviewerFragment :
     private lateinit var bindingMap: BindingMap<ReviewerBinding, ViewerAction>
     private lateinit var reviewerWebViewClient: ReviewerWebViewClient
     private var shakeDetector: AnkiShakeDetector? = null
+    private var previousSystemBars: SystemBarState? = null
     private val whiteboardFragment get() = childFragmentManager.findFragmentByTag(WhiteboardFragment::class.jvmName) as? WhiteboardFragment
     private val isBigScreen: Boolean get() = resources.configuration.smallestScreenWidthDp >= 720
 
@@ -284,11 +285,15 @@ class ReviewerFragment :
 
     override fun onStart() {
         super.onStart()
+        previousSystemBars = SystemBarState(window)
+        applySystemBarVisibility()
         shakeDetector?.start()
     }
 
     override fun onStop() {
         super.onStop()
+        previousSystemBars?.restore()
+        previousSystemBars = null
         if (!requireActivity().isChangingConfigurations) {
             viewModel.stopAutoAdvance()
         }
@@ -314,7 +319,7 @@ class ReviewerFragment :
         }
 
         setupBindings()
-        setupImmersiveMode()
+        setupImmersiveInsets()
         setupTypeAnswer()
         setupAnswerButtons()
         setupStudyBar()
@@ -619,8 +624,7 @@ class ReviewerFragment :
         }
     }
 
-    private fun setupImmersiveMode() {
-        applySystemBarVisibility()
+    private fun setupImmersiveInsets() {
         if (Prefs.hideSystemBars == HideSystemBars.NONE && viewModel.cardTemplateFullscreenMode == null) return
         val minTopPadding =
             if (Prefs.frameStyle == FrameStyle.CARD && Prefs.toolbarPosition != ToolbarPosition.TOP) {
@@ -669,7 +673,10 @@ class ReviewerFragment :
         if (isBigScreen && Prefs.toolbarPosition == ToolbarPosition.BOTTOM) {
             placeTabletAnswerButtons(inToolbar = showToolbar && showAnswers)
         }
-        if (mode != null) setupImmersiveMode()
+        if (mode != null) {
+            setupImmersiveInsets()
+            applySystemBarVisibility()
+        }
     }
 
     private fun placeTabletAnswerButtons(inToolbar: Boolean) {
@@ -701,6 +708,7 @@ class ReviewerFragment :
     }
 
     private fun applySystemBarVisibility() {
+        if (previousSystemBars == null) return
         val barsToHide =
             when (viewModel.cardTemplateFullscreenMode) {
                 FullScreenMode.BUTTONS_ONLY, FullScreenMode.FULLSCREEN_ALL_GONE -> WindowInsetsCompat.Type.systemBars()
@@ -928,7 +936,7 @@ class ReviewerFragment :
     override fun onCreateWebViewClient(savedInstanceState: Bundle?): CardViewerWebViewClient =
         ReviewerWebViewClient(savedInstanceState).also { reviewerWebViewClient = it }
 
-    override fun onCreateWebChromeClient(): CardViewerWebChromeClient = ReviewerWebChromeClient()
+    override fun onFullscreenVideoHidden() = applySystemBarVisibility()
 
     private inner class ReviewerWebViewClient(
         savedInstanceState: Bundle?,
@@ -1030,13 +1038,6 @@ class ReviewerFragment :
                 val script = """document.body.style.zoom = `$scale`;"""
                 view?.evaluateJavascript(script, null)
             }
-        }
-    }
-
-    private inner class ReviewerWebChromeClient : CardViewerWebChromeClient() {
-        override fun onHideCustomView() {
-            (window.decorView as FrameLayout).removeView(paramView)
-            applySystemBarVisibility()
         }
     }
 

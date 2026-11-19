@@ -20,9 +20,6 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
@@ -43,6 +40,10 @@ class Statistics : PageFragment() {
     override val pagePath: String = "graphs"
     override val scrollToolbar = true
     override val showBack get() = arguments?.getBoolean(ARG_HIDE_BACK_BUTTON) != true
+
+    // The Statistics tab is already laid out above DeckPicker's bottom navigation.
+    override val bottomInsetHandledByHost get() = !showBack
+
     override val selectDeck: () -> Unit = { startDeckSelection(allowAll = false, allowFiltered = false, skipEmptyDefault = true) }
 
     @Composable
@@ -75,13 +76,6 @@ class Statistics : PageFragment() {
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-
-        ViewCompat.setOnApplyWindowInsetsListener(view) { root, insets ->
-            val safe = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
-            root.updatePadding(left = safe.left, top = safe.top, right = safe.right)
-            insets
-        }
-        ViewCompat.requestApplyInsets(view)
         registerDeckSelectedHandler(action = ::onDeckSelected)
         requireActivity().launchCatchingTask {
             withProgress {

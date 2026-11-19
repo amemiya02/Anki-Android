@@ -72,6 +72,8 @@ abstract class CardViewerFragment(
 
     private val appPermission by lazy { AppPermissions(requireContext()) { showSnackbar(it) } }
 
+    private var cardChromeClient: CardViewerWebChromeClient? = null
+
     /** The [PermissionRequest] being asked about via [optInDialog] or [microphonePermissionLauncher] */
     private var activeRequest: PermissionRequest? = null
 
@@ -186,6 +188,7 @@ abstract class CardViewerFragment(
     }
 
     override fun onStop() {
+        cardChromeClient?.onHideCustomView()
         super.onStop()
         // If the activity is finishing, the ViewModel will be cleared shortly,
         // releasing the CardMediaPlayer via its addCloseable hook
@@ -198,6 +201,8 @@ abstract class CardViewerFragment(
     }
 
     override fun onDestroyView() {
+        cardChromeClient?.onHideCustomView()
+        cardChromeClient = null
         super.onDestroyView()
         webViewLayout.destroy() // stops <audio> playbacks
     }
@@ -209,9 +214,10 @@ abstract class CardViewerFragment(
         )
 
     private fun setupWebView(savedInstanceState: Bundle?) {
+        cardChromeClient?.onHideCustomView()
         with(webViewLayout) {
             setWebViewClient(onCreateWebViewClient(savedInstanceState))
-            setWebChromeClient(onCreateWebChromeClient())
+            setWebChromeClient(CardViewerWebChromeClient().also { cardChromeClient = it })
             setBackgroundColor(ThemeUtils.getThemeAttrColor(requireContext(), android.R.attr.colorBackground))
             scrollBars = View.SCROLLBARS_OUTSIDE_OVERLAY
             setAcceptThirdPartyCookies(true)
@@ -267,7 +273,7 @@ abstract class CardViewerFragment(
     protected open fun onCreateWebViewClient(savedInstanceState: Bundle?): CardViewerWebViewClient =
         CardViewerWebViewClient(savedInstanceState)
 
-    protected open fun onCreateWebChromeClient() = CardViewerWebChromeClient()
+    protected open fun onFullscreenVideoHidden() = Unit
 
     /**
      * Reconfigures the [WebView] after a render process crash by calling [setupWebView].
@@ -435,8 +441,15 @@ abstract class CardViewerFragment(
         }
     }
 
-    open inner class CardViewerWebChromeClient : WebChromeClient() {
-        protected lateinit var paramView: View
+    private class FullscreenVideo(
+        val container: FrameLayout,
+        val view: View,
+        val bars: SystemBarState,
+        val callback: WebChromeClient.CustomViewCallback?,
+    )
+
+    private inner class CardViewerWebChromeClient : WebChromeClient() {
+        private var fullscreenVideo: FullscreenVideo? = null
 
         // used for displaying `<video>` in fullscreen.
         // This implementation requires configChanges="orientation" in the manifest
@@ -445,9 +458,19 @@ abstract class CardViewerFragment(
             paramView: View,
             paramCustomViewCallback: CustomViewCallback?,
         ) {
-            this@CardViewerWebChromeClient.paramView = paramView
-            val window = requireActivity().window
-            (window.decorView as FrameLayout).addView(
+            val window = activity?.window
+            val viewIsStarted =
+                viewLifecycleOwnerLiveData.value
+                    ?.lifecycle
+                    ?.currentState
+                    ?.isAtLeast(Lifecycle.State.STARTED) == true
+            if (window == null || cardChromeClient !== this || !viewIsStarted || fullscreenVideo != null) {
+                paramCustomViewCallback?.onCustomViewHidden()
+                return
+            }
+            val container = window.decorView as FrameLayout
+            fullscreenVideo = FullscreenVideo(container, paramView, SystemBarState(window), paramCustomViewCallback)
+            container.addView(
                 paramView,
                 FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.MATCH_PARENT,
@@ -462,13 +485,12 @@ abstract class CardViewerFragment(
         }
 
         override fun onHideCustomView() {
-            val window = requireActivity().window
-            (window.decorView as FrameLayout).removeView(paramView)
-            // show system bars back
-            with(WindowInsetsControllerCompat(window, window.decorView)) {
-                systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
-                show(WindowInsetsCompat.Type.systemBars())
-            }
+            val video = fullscreenVideo ?: return
+            fullscreenVideo = null
+            video.container.removeView(video.view)
+            video.bars.restore()
+            onFullscreenVideoHidden()
+            video.callback?.onCustomViewHidden()
         }
 
         override fun onPermissionRequest(request: PermissionRequest) {

@@ -23,6 +23,11 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.net.toUri
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat.Type.displayCutout
+import androidx.core.view.WindowInsetsCompat.Type.systemBars
+import androidx.core.view.doOnAttach
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
@@ -52,6 +57,7 @@ abstract class PageFragment :
     protected var pageLoading by mutableStateOf(false)
     protected open val scrollToolbar = false
     protected open val showBack = true
+    protected open val bottomInsetHandledByHost = false
     protected open val selectDeck: (() -> Unit)? = null
     protected open val save: (() -> Unit)? = null
 
@@ -113,6 +119,13 @@ abstract class PageFragment :
                 )
             }
         return CoordinatorLayout(context).apply {
+            ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
+                val safe = insets.getInsets(systemBars() or displayCutout())
+                val bottom = if (bottomInsetHandledByHost) 0 else safe.bottom
+                view.updatePadding(left = safe.left, top = safe.top, right = safe.right, bottom = bottom)
+                insets.inset(safe.left, safe.top, safe.right, bottom)
+            }
+            doOnAttach { ViewCompat.requestApplyInsets(it) }
             addView(appBar, CoordinatorLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
             addView(
                 body,

@@ -70,30 +70,24 @@ open class SingleFragmentActivity :
             return
         }
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { Themes.isNightTheme })
+        val container = FragmentContainerView(this).apply { id = R.id.fragment_container }
+        // Subclasses such as ManageSpaceActivity and PreferencesActivity inset their own content.
+        if (this::class.java == SingleFragmentActivity::class.java) {
+            ViewCompat.setOnApplyWindowInsetsListener(container) { view, insets ->
+                val safe = insets.getInsets(systemBars() or displayCutout())
+                view.updatePadding(left = safe.left, top = safe.top, right = safe.right, bottom = safe.bottom)
+                insets.inset(safe)
+            }
+        }
         val root =
             CoordinatorLayout(this).apply {
                 id = R.id.root_layout
                 addView(
-                    FragmentContainerView(context).apply { id = R.id.fragment_container },
+                    container,
                     CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT),
                 )
             }
         setContentView(root)
-        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
-            val constraints = insets.getInsets(systemBars() or displayCutout())
-            // apply the insets only for content/fragments defined by SingleFragmentActivity
-            // directly, subclasses(ex. ManageSpaceActivity, Preferences) should handle their
-            // content independently
-            if (this::class.java == SingleFragmentActivity::class.java) {
-                findViewById<FragmentContainerView>(R.id.fragment_container)?.updatePadding(
-                    left = constraints.left,
-                    right = constraints.right,
-                    top = constraints.top,
-                    bottom = constraints.bottom,
-                )
-            }
-            insets
-        }
 
         // avoid recreating the fragment on configuration changes
         // the fragment should handle state restoration

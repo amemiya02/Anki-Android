@@ -2,9 +2,12 @@
 
 package com.ichi2.anki
 
+import android.Manifest
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.os.Build
 import android.view.View
+import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasClickAction
@@ -20,6 +23,7 @@ import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.browser.CardBrowserPaneFragment
+import com.ichi2.anki.browser.IdsFile
 import com.ichi2.anki.browser.toIntent
 import com.ichi2.anki.common.destinations.BrowserDestination
 import com.ichi2.anki.common.destinations.NoteEditorDestination
@@ -28,8 +32,11 @@ import com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity
 import com.ichi2.anki.mediacheck.MediaCheckFragment
 import com.ichi2.anki.noteeditor.toIntent
 import com.ichi2.anki.pages.PageFragment
+import com.ichi2.anki.previewer.PreviewerFragment
 import com.ichi2.anki.ui.internationalization.sentenceCase
+import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
 import com.ichi2.testutils.BackupManagerTestUtilities
+import com.ichi2.testutils.createTransientDirectory
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -39,7 +46,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
 class SingleActivityNavigationTest : RobolectricTest() {
@@ -67,6 +76,80 @@ class SingleActivityNavigationTest : RobolectricTest() {
             mediaCheck.assertDoesNotExist()
             assertFalse(deckPicker.isFinishing)
         }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.Q])
+    fun `fullscreen reviewer restores system bars when covered or popped`() {
+        grantLegacyStorage()
+        withDeckPicker(deckCount = 0, withCards = true) { deckPicker ->
+            editPreferences {
+                putString(
+                    getResourceString(R.string.hide_system_bars_key),
+                    getResourceString(R.string.hide_system_bars_all_value),
+                )
+            }
+            val originalFlags = deckPicker.systemBarVisibilityFlags
+
+            deckPicker.startActivity(ReviewerFragment.getIntent(deckPicker))
+            composeRule.waitUntil(10_000) { (deckPicker.currentScreenFragment as? ReviewerFragment)?.view != null }
+            val reviewer = deckPicker.currentScreenFragment as ReviewerFragment
+            assertEquals(SYSTEM_BAR_VISIBILITY_FLAGS, deckPicker.systemBarVisibilityFlags)
+
+            deckPicker.startActivity(MediaCheckFragment.getIntent(deckPicker))
+            composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment is MediaCheckFragment && reviewer.view == null }
+            assertEquals("system bars on Media Check", originalFlags, deckPicker.systemBarVisibilityFlags)
+
+            deckPicker.onBackPressedDispatcher.onBackPressed()
+            composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment == reviewer && reviewer.view != null }
+            assertEquals(SYSTEM_BAR_VISIBILITY_FLAGS, deckPicker.systemBarVisibilityFlags)
+
+            deckPicker.onBackPressedDispatcher.onBackPressed()
+            composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment == null && reviewer.view == null }
+            assertEquals("system bars back on Decks", originalFlags, deckPicker.systemBarVisibilityFlags)
+        }
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.Q])
+    fun `leaving a fullscreen preview removes the video and restores system bars`() {
+        grantLegacyStorage()
+        withDeckPicker(deckCount = 0) { deckPicker ->
+            val note = addBasicNote()
+            val ids = IdsFile(createTransientDirectory(), note.cardIds(col), IdsFile.Purpose.PREVIEW)
+            val originalFlags = deckPicker.systemBarVisibilityFlags
+            deckPicker.startActivity(PreviewerFragment.getIntent(deckPicker, ids, currentIndex = 0))
+            composeRule.waitUntil(10_000) {
+                deckPicker.findViewById<ViewGroup>(R.id.web_view_layout)?.getChildAt(0) is WebView
+            }
+            val previewer = deckPicker.currentScreenFragment as PreviewerFragment
+            val webView = deckPicker.findViewById<ViewGroup>(R.id.web_view_layout).getChildAt(0) as WebView
+            val video = View(deckPicker)
+            checkNotNull(webView.webChromeClient).onShowCustomView(video, null)
+            assertEquals(deckPicker.window.decorView, video.parent)
+            assertEquals(SYSTEM_BAR_VISIBILITY_FLAGS, deckPicker.systemBarVisibilityFlags)
+
+            deckPicker.onBackPressedDispatcher.onBackPressed()
+            composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment == null && previewer.view == null }
+            assertNull("fullscreen video removed from the shared window", video.parent)
+            assertEquals(originalFlags, deckPicker.systemBarVisibilityFlags)
+        }
+    }
+
+    private fun grantLegacyStorage() {
+        shadowOf(RuntimeEnvironment.getApplication()).grantPermissions(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        )
+    }
+
+    @Suppress("DEPRECATION") // Before API 30 the insets controller writes these decor view flags.
+    private val DeckPicker.systemBarVisibilityFlags: Int
+        get() = window.decorView.systemUiVisibility and SYSTEM_BAR_VISIBILITY_FLAGS
+
+    private companion object {
+        @Suppress("DEPRECATION")
+        const val SYSTEM_BAR_VISIBILITY_FLAGS = View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+    }
 
     @Test
     fun `a hosted browser search retains a visible parent for feedback`() =
@@ -192,21 +275,22 @@ class SingleActivityNavigationTest : RobolectricTest() {
     }
 
     @Test
-    fun `saving shared text in the full editor returns to the sender`() = runTest {
-        val text = "A shared note saved in the full editor"
-        val host = openFullEditorFromInstantShare(text)
-        val notesBefore = col.noteCount()
-        val add = host.getString(CommonString.menu_add)
-        composeRule.onNode(hasText(add) and hasClickAction()).performClick()
+    fun `saving shared text in the full editor returns to the sender`() =
+        runTest {
+            val text = "A shared note saved in the full editor"
+            val host = openFullEditorFromInstantShare(text)
+            val notesBefore = col.noteCount()
+            val add = host.getString(CommonString.menu_add)
+            composeRule.onNode(hasText(add) and hasClickAction()).performClick()
 
-        advanceUntilIdle()
-        composeRule.waitUntil(10_000) {
-            advanceRobolectricLooper()
-            host.currentScreenFragment is MediaCheckFragment
+            advanceUntilIdle()
+            composeRule.waitUntil(10_000) {
+                advanceRobolectricLooper()
+                host.currentScreenFragment is MediaCheckFragment
+            }
+            assertEquals(notesBefore + 1, col.noteCount())
+            assertTrue(shadowOf(host).isTaskMovedToBack)
         }
-        assertEquals(notesBefore + 1, col.noteCount())
-        assertTrue(shadowOf(host).isTaskMovedToBack)
-    }
 
     private fun openFullEditorFromInstantShare(text: String): DeckPicker {
         ensureCollectionLoadIsSynchronous()
