@@ -75,7 +75,6 @@
     <string name="undo" maxLength="28" comment="When tapping on this text, the last action is undone.">تراجع</string>
     <string name="redo" maxLength="28" comment="Menu entry that allows to redo action that was just undone.">إعادة إجراء</string>
     <!-- flashcard_portrait.xml -->
-    <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">تراجع خط</string>
     <string name="move_all_to_deck">نقل الكل إلى الرزمة</string>
     <string name="create_shortcut">إنشاء اختصار</string>
     <string name="browse_cards">تصفح البطاقات</string>
@@ -83,14 +82,9 @@
     <string name="menu_add" comment="A generic add button. Please inform us if you need more specific strings" maxLength="28">إضافة</string>
     <string name="menu_add_note" maxLength="28">إضافة ملحوظة</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">مزامنة الحساب</string>
-    <string name="menu_dismiss_note" maxLength="41">إخفاء / حذف</string>
     <string name="rename_flag">تغيير أسماء الأعلام</string>
     <string name="menu_edit_tags" maxLength="28">تعديل الوسوم</string>
-    <string name="delete_note_message">هل تريد حقًا حذف هذه الملحوظة وكل بطاقاتها؟\n%s</string>
-    <string name="menu_search" maxLength="28">البحث في %1$s</string>
     <string name="menu_unmark_note">إلغاء تعليم الملحوظة</string>
-    <string name="menu_enable_voice_playback" maxLength="28">تفعيل مسجل الصوت</string>
-    <string name="menu_disable_voice_playback">تعطيل مسجل الصوت</string>
     <string name="menu_create_backup" maxLength="28">إنشاء نسخة احتياطية</string>
     <string name="new_dynamic_deck">إنشاء رِزمة مفروزة</string>
     <string name="directory_inaccessible">تعذر الوصول إلى مجلد Hayaki</string>
@@ -103,7 +97,6 @@
     <string name="empty_cram_label" maxLength="28">إفراغ</string>
     <string name="create_subdeck">إنشاء رِزمة فرعية</string>
     <string name="empty_filtered_deck">يتم إفراغ الرزمة المفروزة&#8230;</string>
-    <string name="search_deck" comment="Deck search for selecting it">بحث عن رِزمة</string>
     <string name="empty_deck">هذه الرزمة فارغة</string>
     <string name="invalid_deck_name">اسم رزمة غير صالح</string>
     <string name="studyoptions_congrats_finished">مبروك! لقد أتممت مهامَّك لهذا اليوم.</string>
@@ -115,7 +108,6 @@
     <string name="continue_sync" tools:ignore="UnusedResources">واصِل المزامنة</string>
     <string name="sync_cancelled" tools:ignore="UnusedResources">أُلغِيت المزامنة</string>
     <string name="sync_cancel_message" tools:ignore="UnusedResources">جار الإلغاء&#8230;\nقد يستغرق الأمر بعض الوقت.</string>
-    <string name="syncing_media">تتم مزامنة الوسائط</string>
     <string name="export_deck" maxLength="28">تصدير الرِزمة</string>
     <string name="export_collection">صدِّر المجموعة</string>
     <!-- Card template editor -->
@@ -149,12 +141,6 @@
     <string name="card_browser_context_menu" comment="The value which appears in the system context menu.">متصفح البطاقات</string>
     <string name="context_menu_anki_card_label">بطاقة آنكي</string>
     <!-- Sync conflict -->
-    <string name="sync_conflict_message_new">لا يمكن دمج المجموعات.\nما هي المجموعة التي تريد الاحتفاظ بها؟</string>
-    <string name="sync_conflict_keep_local_new" comment="Select AnkiDroid files to keep while syncing">Hayaki</string>
-    <string name="sync_conflict_keep_remote_new" comment="Select AnkiWeb files to keep while syncing">آنكي ويب</string>
-    <string name="sync_conflict_remote_confirm_new">أتستبدل مجموعتك في آنكي ويب بمجموعتك في Hayaki؟</string>
-    <string name="sync_conflict_local_confirm_new">أتستبدل مجموعتك في Hayaki بمجموعتك في آنكي ويب؟</string>
-    <string name="sync_conflict_title_new">حدد مجموعة لإبقائها</string>
     <string name="sync_conflict_replace_title">استبدال المجموعة</string>
     <!-- Generic errors -->
     <string name="error__etc__cannot_write_to_or_create_file">تعذر تعديل المِلَفّ %s أو إنشاؤه</string>

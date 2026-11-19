@@ -43,12 +43,12 @@ class AboutFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        developerClicks = savedInstanceState?.getInt(DEVELOPER_CLICKS) ?: 0
+        developerClicks = savedInstanceState?.getInt(STATE_DEVELOPER_CLICKS) ?: 0
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putInt(DEVELOPER_CLICKS, developerClicks)
+        outState.putInt(STATE_DEVELOPER_CLICKS, developerClicks)
     }
 
     override fun onCreateView(
@@ -110,7 +110,7 @@ class AboutFragment : Fragment() {
     }
 
     companion object {
-        private const val DEVELOPER_CLICKS = "developer_clicks"
+        private const val STATE_DEVELOPER_CLICKS = "developer_clicks"
         private const val CLICK_LIMIT = 6
     }
 }

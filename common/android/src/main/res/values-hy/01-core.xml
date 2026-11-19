@@ -63,7 +63,6 @@
     <string name="undo" maxLength="28" comment="When tapping on this text, the last action is undone.">Հետարկել</string>
     <string name="redo" maxLength="28" comment="Menu entry that allows to redo action that was just undone.">Կրկնել</string>
     <!-- flashcard_portrait.xml -->
-    <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Հետարկել գիծը</string>
     <string name="move_all_to_deck">Տեղափոխել բոլորը կապուկի մեջ</string>
     <string name="create_shortcut">Ստեղծել պիտակ</string>
     <string name="browse_cards">Քարտերի ցանկ</string>
@@ -71,14 +70,9 @@
     <string name="menu_add" comment="A generic add button. Please inform us if you need more specific strings" maxLength="28">Ավելացնել</string>
     <string name="menu_add_note" maxLength="28">Ավելացնել գրառում</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Համաժամեցնել հաշիվը</string>
-    <string name="menu_dismiss_note" maxLength="41">Թաքցնել / ջնջել</string>
     <string name="rename_flag">Վերանվանել դրոշները</string>
     <string name="menu_edit_tags" maxLength="28">Խմբագրել պիտակները</string>
-    <string name="delete_note_message">Ջնջե՞լ այս գրառումը և նրա բոլոր քարտերը:\n%s</string>
-    <string name="menu_search" maxLength="28">Որոնում %1$s-ում</string>
     <string name="menu_unmark_note">Ապանշել գրառումը</string>
-    <string name="menu_enable_voice_playback" maxLength="28">Միացնել ձայնի նվագարկումը</string>
-    <string name="menu_disable_voice_playback">Անջատել ձայնի նվագարկումը</string>
     <string name="menu_create_backup" maxLength="28">Ստեղծել պահեստային ֆայլ</string>
     <string name="new_dynamic_deck">Ստեղծել զտված կապուկ</string>
     <string name="directory_inaccessible">Hayaki-ի պանակը անհասանելի է</string>
@@ -91,7 +85,6 @@
     <string name="empty_cram_label" maxLength="28">Դատարկ</string>
     <string name="create_subdeck">Ստեղծել ենթակապուկ</string>
     <string name="empty_filtered_deck">Զտված կապուկը դատարկվում է&#8230;</string>
-    <string name="search_deck" comment="Deck search for selecting it">Կապուկ փնտրել</string>
     <string name="empty_deck">Այս կապուկը դատարկ է</string>
     <string name="invalid_deck_name">Կապուկի անվավեր անվանում</string>
     <string name="studyoptions_congrats_finished">Շնորհավո’ր, դու այսօրվա աշխատանքը վերջացրիր</string>
@@ -103,7 +96,6 @@
     <string name="continue_sync" tools:ignore="UnusedResources">Շարունակել համաժամեցումը</string>
     <string name="sync_cancelled" tools:ignore="UnusedResources">Համաժամեցումը չեղարկվեց</string>
     <string name="sync_cancel_message" tools:ignore="UnusedResources">Չեղարկվում է&#8230;\n Սա կարող է որոշ ժամանակ տևել:</string>
-    <string name="syncing_media">Համաժամեցում</string>
     <string name="export_deck" maxLength="28">Արտահանել կապուկը</string>
     <string name="export_collection">Արտահանել հավաքածուն</string>
     <!-- Card template editor -->
@@ -129,12 +121,6 @@
     <string name="card_browser_context_menu" comment="The value which appears in the system context menu.">Card browser</string>
     <string name="context_menu_anki_card_label">Anki card</string>
     <!-- Sync conflict -->
-    <string name="sync_conflict_message_new">Հավաքածուները չեն կարող իրար միանալ։ Ո՞ր հավաքածուն եք ուզում պահպանել։</string>
-    <string name="sync_conflict_keep_local_new" comment="Select AnkiDroid files to keep while syncing">Hayaki</string>
-    <string name="sync_conflict_keep_remote_new" comment="Select AnkiWeb files to keep while syncing">AnkiWeb</string>
-    <string name="sync_conflict_remote_confirm_new">Փոխարինե՞լ ձեր Hayaki-ի հավաքածուն ձեր AnkiWeb-ի հավաքածուով։</string>
-    <string name="sync_conflict_local_confirm_new">Փոխարինե՞լ ձեր AnkiWeb-ի հավաքածուն ձեր Hayaki-ի հավաքածուով։</string>
-    <string name="sync_conflict_title_new">Ընտրել պահպանվող հավաքածուն</string>
     <string name="sync_conflict_replace_title">Փոխարինել հավաքածուն</string>
     <!-- Generic errors -->
     <string name="error__etc__cannot_write_to_or_create_file">Չստացվեց խմբագրել կամ ստեղծել %s ֆայլը</string>

@@ -31,7 +31,6 @@
     <!-- theme labels -->
     <string name="theme_follow_system">پیروی از سیستم</string>
     <string name="theme_day" comment="Day/Light theme color scheme">روز</string>
-    <string name="theme_night" comment="Night/Dark theme color scheme">شب</string>
     <!-- day_theme_labels -->
     <string name="day_theme_light">روشن</string>
     <string name="day_theme_plain">ساده</string>

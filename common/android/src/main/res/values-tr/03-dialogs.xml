@@ -30,8 +30,6 @@
         <item quantity="other">%1$s destesindeki bütün kartlar silinsin mi? İçinde %2$d kart var</item>
     </plurals>
     <string name="delete_cram_deck_message">%s filtreli destesi silinip bütün kartlar orjinal destelerine gönderilsin mi?</string>
-    <string name="no_tts_available_message">Mevcut metin okuma dili yok</string>
-    <string name="tts_no_tts">Konuşma</string>
     <string name="reposition_card_not_new_error">Yalnızca yeni kartların yeri değiştirilebilir</string>
     <string name="reset_card_dialog_title">Kart ilerlemesini sıfırla</string>
     <plurals name="reset_cards_dialog_acknowledge">
@@ -75,13 +73,10 @@
     <string name="dialog_positive_delete" maxLength="28">Sil</string>
     <!-- Currently unsued, should be useful in the future -->
     <string name="dialog_positive_disable" tools:ignore="UnusedResources">Devredışı Bırak</string>
-    <string name="dialog_positive_overwrite">Üzerine Yaz</string>
     <string name="dialog_positive_repair">Onar</string>
     <string name="dialog_positive_replace">Değiştir</string>
-    <string name="sync_clock_off_with_current_time">%1$s\n\nTarih ve zamanı düzeltin, veya otomatik tarih ve zamanı açın, sonra tekrar senkronize edin.\n\nCihazınızın güncel zamanı: %2$s</string>
     <string name="dialog_collection_path_not_dir">Belirtilen konum geçerli bir dizin değildi.</string>
     <string name="dialog_invalid_custom_certificate">Verilen metin geçerli bir PEM-kodlanmış X509 sertifikasına çözümlenmiyor</string>
-    <string name="dialog_invalid_custom_certificate_title">Sertifika çözümlemesinde hata</string>
     <string name="dialog_updated_custom_certificate">Sertifika güncellendi</string>
     <!-- Media checking -->
     <string name="check_media_warning">Bu, büyük medya koleksiyonlarıyla uzun zaman alabilir. Devam edilsin mi?</string>
@@ -104,7 +99,6 @@
     <string name="multimedia_editor_audio_permission_refused">Mikrofon izni alınamadı.</string>
     <string name="multimedia_editor_failed">Multimedya Düzenleyiciyi açma başarısız oldu</string>
     <!-- Multimedia - Audio View -->
-    <string name="multimedia_editor_audio_permission_denied">Ses kayıt izni reddedildi</string>
     <string name="permission_denied">İzin reddedildi</string>
     <string name="microphone_permission_denied_message">Mikrofon izni reddedildi. Lütfen uygulama ayarlarından izin verin.</string>
     <!-- Database Integrity Check -->
@@ -137,8 +131,6 @@
     <string name="boot_service_failed_to_schedule_notifications">Hatırlatıcılar planlanamadı</string>
     <string name="boot_service_too_many_notifications">Çok fazla hatırlatıcı planlandı. Bazıları görünmeyecek</string>
     <!-- Locale Selection Dialog -->
-    <string name="locale_selection_dialog_title_new">Dili Ayarla</string>
-    <string name="locale_selection_dialog_summary">GBoard gibi bazı çok dilli klavyeler, metin düzenlerken dil değiştirmeyi destekler\n\nKlavyeniz dili değiştirmiyorsa lütfen klavye üreticinizden “setImeHintLocales” özelliğini isteyin.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">Bilinmeyen dil [%1$s]</string>
     <!-- Help Dialog -->
     <string name="help_title_using_ankidroid">Hayaki kullanımı</string>
@@ -172,7 +164,6 @@
         <item quantity="one" comment="Consider keeping the unbreakable space after the digit">Otomatik bir senkronizasyon %d saniye sonra tetiklenebilir</item>
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">Otomatik bir senkronizasyon %d saniye sonra tetiklenebilir</item>
     </plurals>
-    <string name="metered_sync_data_warning">İnternet sağlayıcınız veri kullanımı için ücret isteyebilir</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
@@ -208,7 +199,6 @@
         <item quantity="one">Şu anki aralık: %d gün</item>
         <item quantity="other">Şu anki aralık: %d gün</item>
     </plurals>
-    <string name="range_delimiter" comment="Placed between two input boxes to denote a range">–</string>
     <string name="set_due_date_range_start" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'minimum\' value of this range (inclusive)">En erken</string>
     <string name="set_due_date_range_end" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'maximum\' value of this range (inclusive)">En geç</string>
     <!-- Instant Note Editor -->
@@ -238,14 +228,9 @@
     <string name="import_error_resolution_copy_to_device">Dosyayı cihazınıza kopyalayıp yerel dosyayla yeniden deneyin</string>
     <string name="import_error_resolution_select_file">Dosyayı cihazınızın dosya gezgini uygulamasıyla açın</string>
     <!-- Post-login dialog -->
-    <string name="login_successful">Giriş başarılı</string>
-    <string name="sync_now">Şimdi senkronize edilsin mi?</string>
     <!--Change Note Type Dialog Fragment-->
-    <string name="card_numbers_unchanged">Kart numaraları sabit kalacak</string>
     <!-- Subset of TR.changeNotetypeToFromCloze -->
-    <string name="extra_cloze_deletions_removed">Normal bir not türüne geçilirse ve mevcut kart şablonlarından daha fazla cloze silme varsa, fazladan kartlar kaldırılacaktır.</string>
     <string name="different_note_types_selected">Lütfen sadece bir tür not seçin</string>
-    <string name="error_no_changes_to_save">Kaydedilecek değişiklik yok</string>
     <string name="choose_color">Renk seç</string>
     <!-- Special Fields -->
     <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">Alanlar</string>
@@ -260,8 +245,6 @@
     <string name="special_field_card_help" comment="%s: either blank or \' %s\'">Kart şablonunun adı%s</string>
     <string name="special_field_type_help" comment="%s: either blank or \' %s\'">Not türünün adı%s</string>
     <!-- Change Note Type Dialog -->
-    <string name="change_note_type_from" comment="Label indicating the original note type before changing it">Bundan</string>
-    <string name="change_note_type_to" comment="Label indicating the new note type to change to">Buna</string>
     <!-- Add and rename profile dialogs -->
     <string name="rename_profile" comment="Title of the dialog where the user renames a profile">Profilin adını değiştir</string>
     <string name="profile_name" comment="Label of the text field where the user types the name of a new profile">Profil adı</string>

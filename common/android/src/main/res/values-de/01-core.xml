@@ -63,7 +63,6 @@
     <string name="undo" maxLength="28" comment="When tapping on this text, the last action is undone.">Rückgängig</string>
     <string name="redo" maxLength="28" comment="Menu entry that allows to redo action that was just undone.">Wiederherstellen</string>
     <!-- flashcard_portrait.xml -->
-    <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Strich rückgängig machen</string>
     <string name="move_all_to_deck">Alle diesem Stapel hinzufügen</string>
     <string name="create_shortcut">Verknüpfung erstellen</string>
     <string name="browse_cards">Karten durchsuchen</string>
@@ -71,14 +70,9 @@
     <string name="menu_add" comment="A generic add button. Please inform us if you need more specific strings" maxLength="28">Hinzufügen</string>
     <string name="menu_add_note" maxLength="28">Notiz hinzufügen</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Synchronisierungskonto</string>
-    <string name="menu_dismiss_note" maxLength="41">Aussetzen / Löschen</string>
     <string name="rename_flag">Flaggen umbenennen</string>
     <string name="menu_edit_tags" maxLength="28">Schlagwörter bearbeiten</string>
-    <string name="delete_note_message">Diese Notiz und alle ihre Karten tatsächlich löschen?\n%s</string>
-    <string name="menu_search" maxLength="28">In %1$s nachschlagen</string>
     <string name="menu_unmark_note">Markierung entfernen</string>
-    <string name="menu_enable_voice_playback" maxLength="28">Sprachausgabe aktivieren</string>
-    <string name="menu_disable_voice_playback">Sprachausgabe deaktivieren</string>
     <string name="menu_create_backup" maxLength="28">Backup erstellen</string>
     <string name="new_dynamic_deck">Gefilterten Stapel erstellen</string>
     <string name="directory_inaccessible">Auf das Hayaki-Verzeichnis kann nicht zugegriffen werden</string>
@@ -91,7 +85,6 @@
     <string name="empty_cram_label" maxLength="28">Leeren</string>
     <string name="create_subdeck">Unterstapel erstellen</string>
     <string name="empty_filtered_deck">Gefilterter Stapel wird geleert &#8230;</string>
-    <string name="search_deck" comment="Deck search for selecting it">Stapel suchen</string>
     <string name="empty_deck">Dieser Stapel ist leer</string>
     <string name="invalid_deck_name">Ungültiger Stapelname</string>
     <string name="studyoptions_congrats_finished">Glückwunsch! Das war alles für heute.</string>
@@ -103,7 +96,6 @@
     <string name="continue_sync" tools:ignore="UnusedResources">Synchronisierung fortsetzen</string>
     <string name="sync_cancelled" tools:ignore="UnusedResources">Synchronisation abgebrochen</string>
     <string name="sync_cancel_message" tools:ignore="UnusedResources">Breche ab &#8230;\nDies kann einige Zeit dauern.</string>
-    <string name="syncing_media">Synchronisiere Medien</string>
     <string name="export_deck" maxLength="28">Stapel exportieren</string>
     <string name="export_collection">Sammlung exportieren</string>
     <!-- Card template editor -->
@@ -129,12 +121,6 @@
     <string name="card_browser_context_menu" comment="The value which appears in the system context menu.">Karteikarten suchen</string>
     <string name="context_menu_anki_card_label">Anki-Karteikarte</string>
     <!-- Sync conflict -->
-    <string name="sync_conflict_message_new">Die Sammlungen können nicht zusammengeführt werden.\nWelche Sammlung möchten Sie behalten?</string>
-    <string name="sync_conflict_keep_local_new" comment="Select AnkiDroid files to keep while syncing">Hayaki</string>
-    <string name="sync_conflict_keep_remote_new" comment="Select AnkiWeb files to keep while syncing">AnkiWeb</string>
-    <string name="sync_conflict_remote_confirm_new">Soll Ihre Sammlung auf Hayaki durch die Sammlung auf AnkiWeb ersetzt werden?</string>
-    <string name="sync_conflict_local_confirm_new">Soll Ihre Sammlung auf AnkiWeb durch die Sammlung auf Hayaki ersetzt werden?</string>
-    <string name="sync_conflict_title_new">Zu behaltende Sammlung auswählen</string>
     <string name="sync_conflict_replace_title">Sammlung ersetzen</string>
     <!-- Generic errors -->
     <string name="error__etc__cannot_write_to_or_create_file">Die Datei %s kann nicht erstellt oder überschrieben werden</string>

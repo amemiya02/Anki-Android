@@ -11,16 +11,16 @@ import com.ichi2.compose.theme.AnkiDroidTheme
 
 /** The preference key or subpage-specific identifier to bring into view after a search. */
 internal val Fragment.settingsSearchTarget: String?
-    get() = arguments?.getString(SETTINGS_SEARCH_TARGET)
+    get() = arguments?.getString(ARG_SETTINGS_SEARCH_TARGET)
 
-internal const val SETTINGS_SEARCH_TARGET = "settings_search_target"
-internal const val SETTINGS_IS_SUBPAGE = "settings_is_subpage"
+internal const val ARG_SETTINGS_SEARCH_TARGET = "settings_search_target"
+internal const val ARG_SETTINGS_IS_SUBPAGE = "settings_is_subpage"
 
 /** Primary tablet panes share the back button in their left-hand Settings screen. */
 internal val Fragment.settingsBackAction: (() -> Unit)?
     get() {
         val parent = parentFragment as? PreferencesFragment
-        if (parent?.settingsIsSplit == true && arguments?.getBoolean(SETTINGS_IS_SUBPAGE) != true) return null
+        if (parent?.settingsIsSplit == true && arguments?.getBoolean(ARG_SETTINGS_IS_SUBPAGE) != true) return null
         return { requireActivity().onBackPressedDispatcher.onBackPressed() }
     }
 

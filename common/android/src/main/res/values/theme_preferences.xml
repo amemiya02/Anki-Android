@@ -15,13 +15,4 @@
     <string name="theme_black_value">3</string>
     <string name="theme_dark_value">4</string>
 
-    <string-array name="app_theme_values">
-        <item>@string/theme_follow_system_value</item>
-        <item>@string/theme_day_scheme_value</item>
-        <item>@string/theme_night_scheme_value</item>
-    </string-array>
-    <string-array name="night_theme_values">
-        <item>@string/theme_black_value</item>
-        <item>@string/theme_dark_value</item>
-    </string-array>
 </resources>

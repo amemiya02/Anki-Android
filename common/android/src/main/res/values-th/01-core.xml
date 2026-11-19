@@ -60,7 +60,6 @@
     <string name="undo" maxLength="28" comment="When tapping on this text, the last action is undone.">เรียกคืน</string>
     <string name="redo" maxLength="28" comment="Menu entry that allows to redo action that was just undone.">ทำใหม่</string>
     <!-- flashcard_portrait.xml -->
-    <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">ย้อนกลับการขีดเส้น</string>
     <string name="move_all_to_deck">ย้ายทั้งหมดไปที่สำรับ</string>
     <string name="create_shortcut">สร้างทางลัด</string>
     <string name="browse_cards">ค้นหาการ์ด</string>
@@ -68,14 +67,9 @@
     <string name="menu_add" comment="A generic add button. Please inform us if you need more specific strings" maxLength="28">เพิ่ม</string>
     <string name="menu_add_note" maxLength="28">เพิ่มโน้ต</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">เชื่อมบัญชีผู้ใช้</string>
-    <string name="menu_dismiss_note" maxLength="41">ซ่อน / ลบ</string>
     <string name="rename_flag">ตั้งชื่อธง</string>
     <string name="menu_edit_tags" maxLength="28">แก้ไขแท็ก</string>
-    <string name="delete_note_message">คุณต้องการจะลบโน้ตนี้และการ์ดภายในทั้งหมดหรือไม่?\n%s</string>
-    <string name="menu_search" maxLength="28">ค้นหาใน %1$s</string>
     <string name="menu_unmark_note">ยกเลิกการทำเครื่องหมายโน้ต</string>
-    <string name="menu_enable_voice_playback" maxLength="28">เปิดใช้งานการเล่นเสียง</string>
-    <string name="menu_disable_voice_playback">ปิดการเล่นเสียง</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
     <string name="new_dynamic_deck">สร้าง สำรับแบบกรอง</string>
     <string name="directory_inaccessible">เข้าถึงที่เก็บข้อมูล Hayaki ไม่ได้</string>
@@ -88,7 +82,6 @@
     <string name="empty_cram_label" maxLength="28">ล้างสำรับ</string>
     <string name="create_subdeck">สร้างสำรับย่อย</string>
     <string name="empty_filtered_deck">กำลังทำให้สำรับแบบกรองว่าง&#8230;</string>
-    <string name="search_deck" comment="Deck search for selecting it">ค้นหาชุดการ์ด</string>
     <string name="empty_deck">สำรับนี้ว่างเปล่า</string>
     <string name="invalid_deck_name">ชื่อนี้ไม่สามารถตั้งให้สำรับได้</string>
     <string name="studyoptions_congrats_finished">ยินดีด้วย! วันนี้คุณทบทวนเสร็จแล้ว</string>
@@ -100,7 +93,6 @@
     <string name="continue_sync" tools:ignore="UnusedResources">ดำเนินการซิงค์ต่อไป</string>
     <string name="sync_cancelled" tools:ignore="UnusedResources">ยกเลิกการซิงค์เรียบร้อย</string>
     <string name="sync_cancel_message" tools:ignore="UnusedResources">กำลังยกเลิกการซิงค์&amp;&#8230;\nอาจจะต้องใช้เวลาสักนิดหน่อย</string>
-    <string name="syncing_media">กำลังซิงค์มีเดีย</string>
     <string name="export_deck" maxLength="28">ส่งออกสำรับ</string>
     <string name="export_collection">ส่งออกคอลเลกชัน</string>
     <!-- Card template editor -->
@@ -124,12 +116,6 @@
     <string name="card_browser_context_menu" comment="The value which appears in the system context menu.">Card browser</string>
     <string name="context_menu_anki_card_label">Anki card</string>
     <!-- Sync conflict -->
-    <string name="sync_conflict_message_new">ไม่สามารถรวมคอลเลกชันเข้าด้วยกันได้ \n คุณต้องการเก็บคอลเลกชันไหนไว้?</string>
-    <string name="sync_conflict_keep_local_new" comment="Select AnkiDroid files to keep while syncing">Hayaki</string>
-    <string name="sync_conflict_keep_remote_new" comment="Select AnkiWeb files to keep while syncing">AnkiWeb</string>
-    <string name="sync_conflict_remote_confirm_new">แทนที่คอลเลกชันใน Hayaki ด้วยคอลเลกชันจาก AnkiWeb หรือไม่?</string>
-    <string name="sync_conflict_local_confirm_new">แทนที่คอลเลกชันใน AnkiWeb ด้วยคอลเลกชันจาก Hayaki หรือไม่?</string>
-    <string name="sync_conflict_title_new">เลือกคอลเลกชันที่จะเก็บไว้</string>
     <string name="sync_conflict_replace_title">แทนที่คอลเลกชัน</string>
     <!-- Generic errors -->
     <string name="error__etc__cannot_write_to_or_create_file">ไม่สามารถเขียนหรือสร้างไฟล์ %s ได้</string>

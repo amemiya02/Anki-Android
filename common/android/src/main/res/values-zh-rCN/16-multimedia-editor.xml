@@ -45,7 +45,6 @@
     <!-- Message when recording fails -->
     <string name="multimedia_editor_audio_view_recording_failed">录音失败</string>
     <string name="multimedia_editor_audio_view_playing_failed">播放失败</string>
-    <string name="multimedia_editor_audio_view_create_failed">无法创建录音工具栏</string>
     <!-- Crop function-->
     <string name="crop_image">您想裁剪此图像吗？</string>
     <string name="crop_button" maxLength="28">裁切</string>
@@ -55,7 +54,4 @@
     <string name="audio_recording_field_list" comment="Displays a list of the field data in the note editor while audio recording is taking place">字段目录</string>
     <string name="crop_image_size_notice">图片太大，无法被裁剪编辑器处理。请调整大小并重试！</string>
     <string name="reselect" maxLength="28">重新选择</string>
-    <string name="waveform_button_description">显示音频波形</string>
-    <string name="field_content_description">显示字段内容</string>
-    <string name="delete_audio_button_description">删除录音</string>
 </resources>

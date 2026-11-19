@@ -294,7 +294,7 @@ class CardTemplateEditorFragment :
             updateDiscardChangesCallback()
             insets
         }
-        parentFragmentManager.setFragmentResultListener(INSERT_FIELD_REQUEST_KEY, viewLifecycleOwner) { _, result ->
+        parentFragmentManager.setFragmentResultListener(REQUEST_INSERT_FIELD, viewLifecycleOwner) { _, result ->
             result.getString(InsertFieldDialog.RESULT_INSERTED_FIELD)?.let(::insertField)
         }
         registerDeckSelectedHandler(action = ::onDeckSelected)
@@ -543,7 +543,7 @@ class CardTemplateEditorFragment :
                             cardTemplateName = template.name,
                             noteTypeName = noteTypeName,
                         ),
-                    requestKey = INSERT_FIELD_REQUEST_KEY,
+                    requestKey = REQUEST_INSERT_FIELD,
                 )
             showDialogFragment(dialog)
         }
@@ -1083,7 +1083,7 @@ class CardTemplateEditorFragment :
         private const val STATE_NOTE_TYPE_ID = "noteTypeId"
         private const val STATE_NOTE_ID = "noteId"
         private const val STATE_STARTING_TEMPLATE_ORDINAL = "ordId"
-        private const val INSERT_FIELD_REQUEST_KEY = "card_template_insert_field"
+        private const val REQUEST_INSERT_FIELD = "card_template_insert_field"
         private val REFRESH_PREVIEW_DELAY = 1.seconds
     }
 }

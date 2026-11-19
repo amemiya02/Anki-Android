@@ -2,13 +2,9 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <resources>
     <string name="sync_server_title" maxLength="41">同期サーバー</string>
-    <string name="sync_server_not_set">未設定</string>
     <string name="sync_server_required">先に同期サーバーのアドレスを入力してください</string>
-    <string name="sync_server_sign_in_to">%s にログイン</string>
     <string name="sync_server_not_logged_in_title">同期サーバーにログイン</string>
-    <string name="sync_server_login_message">コレクションを同期するには、同期サーバーにログインしてください。</string>
 
-    <string name="intro_import">コレクションまたはデッキをインポート</string>
 
     <string name="about_fork_title">クレジット</string>
     <string name="about_fork_description"><![CDATA[<a href="%1$s">AnkiDroid</a> · <a href="%2$s">貢献者</a>]]></string>

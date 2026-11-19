@@ -24,7 +24,6 @@
   -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- generic strings -->
-    <string name="enabled" comment="Generic label for something that is turned on">مفعل</string>
     <string name="disabled" comment="Generic label for something that is turned off">مُعَطَّل</string>
     <plurals name="pref_summ_minutes">
         <item quantity="zero">%d دقيقة</item>
@@ -36,17 +35,13 @@
     </plurals>
     <string name="pref_milliseconds">%s م ث</string>
     <!-- TODO: move to 20-search-preference so we can contribute upstream (searchpreference_no_results)-->
-    <string name="pref_search_no_results">لا نتيجة</string>
     <!-- preferences.xml categories-->
     <string name="pref_cat_general" comment="name of the general preference category" maxLength="41">عام</string>
     <string name="pref_cat_studying" maxLength="41">الدراسة</string>
     <string name="pref_cat_system_wide" maxLength="41">على مستوى النظام</string>
-    <string name="pref_cat_reviewing" maxLength="41">المراجعة</string>
     <string name="pref_cat_sync" comment="title of the sync preferences category" maxLength="41">المزامنة</string>
     <string name="pref_cat_scheduling" maxLength="41">جدولة</string>
     <string name="pref_cat_whiteboard" maxLength="41">السبورة</string>
-    <string name="pref_cat_themes" maxLength="41">السِمات</string>
-    <string name="pref_cat_gestures" maxLength="41">الإيماءات</string>
     <string name="pref_cat_controls" maxLength="41">عناصر التحكم</string>
     <string name="pref_cat_advanced" maxLength="41">خيارات متقدمة</string>
     <string name="pref_cat_workarounds" maxLength="41">حلول بديلة</string>
@@ -65,10 +60,6 @@
     <string name="whiteboard_stroke_width" maxLength="41">عرض الخط</string>
     <string name="use_input_tag" maxLength="41">إدخال الجواب في البطاقة</string>
     <string name="use_input_tag_summ">استخدام مربع إدخال نصي داخل البطاقة لكتابة الجواب</string>
-    <string name="reset_languages" maxLength="41">إعادة تعيين اللغات</string>
-    <string name="reset_languages_summ">إعادة ضبط إعدادات اللغة (من أجل تحويل النص إلى كلام والقواميس) لجميع الرزم</string>
-    <string name="reset_languages_question">إعادة تعيين كافة تعيينات اللغة؟</string>
-    <string name="reset_confirmation">تمت إعادة تعيين كل الإعدادات</string>
     <string name="card_zoom" maxLength="41">تكبير البطاقة</string>
     <string name="image_zoom" maxLength="41">تكبير الصور</string>
     <string name="button_size" maxLength="41">حجم زر الإجابة</string>
@@ -76,18 +67,6 @@
     <string name="card_browser_hide_media" maxLength="41">عرض أسماء الملفات في متصفح البطاقات</string>
     <string name="card_browser_hide_media_summary">عرض أسماء الملفات الصوتية في حقول السؤال والجواب في متصفح البطاقات</string>
     <string name="col_path" maxLength="41">مجلد Hayaki</string>
-    <string name="fullscreen_review" maxLength="41">وضع ملء الشاشة</string>
-    <string name="full_screen_off" comment="Value of the fullscreen mode preference meaning fullscreen is not used">غير مفعل</string>
-    <string name="full_screen_system">إخفاء أشرطة النظام</string>
-    <string name="full_screen_complete">إخفاء أشرطة النظام وأزرار الإجابة</string>
-    <string name="answer_buttons_position" maxLength="41">موضع أزرار الإجابة</string>
-    <string-array name="answer_buttons_position_labels">
-        <item>في الأعلى</item>
-        <item>في الأسفل</item>
-        <item>مخفية</item>
-    </string-array>
-    <string name="gestures" maxLength="41">تفعيل الإيماءات</string>
-    <string name="gestures_summ">تعيين إيماءات إلى إجراءات مثل إجابة البطاقات وتحريرها.</string>
     <string name="gestures_corner_touch" maxLength="41">٩ مواضع للنقر</string>
     <string name="gestures_corner_touch_summary">السماح بإيماءات النقر في زوايا الشاشة</string>
     <string name="show_keyboard_shortcuts" maxLength="41">إظهار اختصارات لوحة المفاتيح</string>
@@ -114,39 +93,18 @@
     <string name="gestures_shake" maxLength="41">رج الجهاز</string>
     <string name="card_browser_enable_external_context_menu" maxLength="41">قائمة «%s»</string>
     <string name="card_browser_enable_external_context_menu_summary">يفعل قائمة سياق «%s» في عموم الجهاز</string>
-    <string name="double_scrolling_gap" maxLength="41">مضاعفة فجوة التمرير</string>
-    <string name="double_scrolling_gap_summ">مضاعفة فجوة التمرير مع القارئ الإلكتروني</string>
     <string name="swipe_sensitivity" maxLength="41">حساسية السحب</string>
-    <string name="tts" maxLength="41">تحويل النص إلى كلام</string>
-    <string name="tts_summ">يقرأ السؤال والجواب إذا لم يكن هناك ملف صوتي</string>
     <!-- Sync -->
-    <string name="sync_fetch_missing_media" maxLength="41">اجلب الوسائط عند المزامنة</string>
     <string name="sync_account_summ_logged_out">لست مسجلًا الدخول</string>
-    <string name="automatic_sync_choice" maxLength="41">المزامنة التلقائية</string>
-    <string name="automatic_sync_choice_summ">زامِن تلقائيًا عند فتح أو إغلاق التطبيق إذا مضى على المزامنة الأخيرة
-        أكثر من ١٠ دقائق.</string>
     <string name="sync_media_always" comment="Option to always fetch media when syncing">دائمًا</string>
     <string name="sync_media_only_unmetered">فقط على الاتصالات غير المحدودة</string>
     <string name="sync_media_never">لا تجلب أبدًا</string>
-    <string name="sync_status_badge" maxLength="41">أُعرُض حالة المزامنة</string>
-    <string name="sync_status_badge_summ">يغير رمز المزامنة حين يكون رفع التغييرات ممكنًا</string>
-    <string name="metered_sync_title" maxLength="41">السماح بالمزامنة على الاتصالات المحدودة</string>
-    <string name="metered_sync_summary">إذا كان معطلًا، سيتم إنذارك إذا حاولت المزامنة باتصال محدود</string>
-    <string name="backup_limits_frequency">الوتيرة</string>
-    <string name="backup_limits_lifetime">مدة الحفظ</string>
     <string name="app_theme" maxLength="41">السمة</string>
     <string name="day_theme" maxLength="41">سمة النهار</string>
     <string name="night_theme" maxLength="41">سمة الليل</string>
     <string name="language" maxLength="41">اللغة</string>
     <string name="language_system">لغة النظام</string>
     <string name="notification_pref" maxLength="41">التنبيهات</string>
-    <string name="notification_pref_title" maxLength="41">نبّهني عند</string>
-    <string name="never_notify">لا تنبه مطلقًا</string>
-    <string name="notify_when_pending">توفُّر الرسائل المعلقة</string>
-    <string name="notification_minimum_cards_due" comment="Consider keeping the unbreakable space after the digit">أكثر من %d بطاقة مستحقة</string>
-    <string name="notification_minimum_cards_due_vibrate" maxLength="41">اهتزاز</string>
-    <string name="notification_minimum_cards_due_blink" maxLength="41">وميض الضوء</string>
-    <string name="select_locale_title">حدد اللغة</string>
     <string name="software_render" maxLength="41">عطِّل عارض البطاقات العَتادي</string>
     <string name="software_render_summ">عرض العتاد أسرع لكنه قد يسبب مشاكل، خصوصًا على أندرويد ٨ أو ٨٫١. إذا لم تكن ترى جزءًا من واجهة مراجعة البطاقة، جرب هذا الخيار.</string>
     <string name="disable_extended_text_ui" maxLength="41">تعطيل وضع تحرير الحقل الفردي</string>
@@ -158,18 +116,8 @@
     <string name="pref_double_tap_time_interval_summary">سيتم تجاهل نقرة ثانية على أزرار الإجابة إذا لم يمر الوقت. يمنع هذا النقر المزدوج غير المقصود</string>
     <string name="pref_show_answer_long_press_time" maxLength="41">مدة الضغط المطول لإظهار الجواب</string>
     <string name="pref_show_answer_long_press_time_summary">أدنى مدة تكفي ليسجل زر «أظهر الإجابة» النقر.</string>
-    <string name="show_estimates" maxLength="41">إظهار وقت الأزرار</string>
-    <string name="show_estimates_summ">إظهار وقت المراجعة التالية على أزرار الإجابة</string>
-    <string name="show_large_answer_buttons" maxLength="41">إظهار أزرار إجابة كبيرة</string>
-    <string name="show_large_answer_buttons_summ">أظهر أزرار الإجابة في صفين</string>
     <string name="remove_animations" maxLength="41">إزالة تأثيرات الحركة</string>
     <string name="remove_animations_summary">يُفعل هذا الخِيار أيضا إذا كانت تأثيرات الحركة مزالة من إعدادات النظام</string>
-    <string name="show_top_bar" maxLength="41">إظهار الشريط العلوي</string>
-    <string name="show_top_bar_summary">أظهر عدد البطاقات ومؤقت الإجابة والعَلم والعلامة في الشريط العلوي</string>
-    <string name="show_progress" maxLength="41">إظهار المتبقي</string>
-    <string name="show_progress_summ">إظهار عدد البطاقات المتبقية</string>
-    <string name="show_eta" maxLength="41">إظهار الوقت التقديري المتبقي</string>
-    <string name="show_eta_summ">إظهار الوقت المتبقي</string>
     <string name="use_current" maxLength="41">رزمة البطاقات الجديدة</string>
     <string name="learn_cutoff" maxLength="41">حد التعلم المبكر</string>
     <string name="time_limit" maxLength="41">مهلة مربع الوقت</string>
@@ -198,22 +146,14 @@
     <string name="pref_keep_screen_on_summ">تعطيل مهلة الشاشة</string>
     <string name="enable_api_title" maxLength="41">تفعيل واجهة برمجة آنكي درويد</string>
     <string name="enable_api_summary">يسمح للتطبيقات الأخرى بالاتصال بHayaki وقراءة أو كتابة البيانات دون تدخلك</string>
-    <string name="custom_buttons" maxLength="41">أزرار شريط التطبيق</string>
-    <string name="custom_buttons_summary">تخصيص الإجراءات التي تظهر في شريط التطبيق</string>
     <string name="custom_buttons_setting_always_show">إظهار دائمًا</string>
-    <string name="custom_buttons_setting_if_room">إظهار إذا كانت هناك مساحة</string>
     <string name="custom_buttons_setting_menu_only">القائمة فقط</string>
     <string name="reset_custom_buttons" maxLength="41">استعادة الافتراضيات</string>
-    <string name="reset_settings_to_default">إعادة تعيين الإعدادات إلى الافتراضي</string>
     <string name="reset">إعادة ضبط</string>
     <string name="thirdparty_apps_title" maxLength="41">تطبيقات الطرف الثالث التي تستخدم واجهة البرمجة</string>
     <string name="thirdparty_apps_summary">اطلع على قائمة لتطبيقات تستخدم واجهة برمجة آنكي درويد مثل القواميس والأدوات.</string>
-    <string name="pref_controls_reviews_tab" maxLength="41" comment="Name of the tab to configure controls for the reviews screen">المراجعات</string>
-    <string name="pref_controls_previews_tab" maxLength="41" comment="Name of the tab to configure controls for the previews screen">المعاينات</string>
     <string name="toggle_backside_only" maxLength="41" comment="Control setting that toggles \'Backside only\' in the previews screen">تفعيل أو تعطيل وضع الإجابة</string>
     <!-- Appearance settings -->
-    <string name="pref_cat_reviewer" maxLength="41">شاشة الدراسة</string>
-    <string name="show_deck_title" maxLength="41">إظهار عنوان المجموعة</string>
     <string name="accessibility" maxLength="41">إمكانية الوصول</string>
     <string name="exit_via_double_tap_back" maxLength="41">اضغط رجوع مرتين للعودة أو الخروج</string>
     <string name="exit_via_double_tap_back_summ">لتجنب الخروج من شاشة الدراسة أو التطبيق بالخطأ</string>
@@ -228,11 +168,8 @@
         إذا لم يتم ضبطه، سيتم استخدام خادم آنكي ويب بشكل افتراضي.
         <a href="%s">تعلم المزيد</a>
         ]]></string>
-    <string name="custom_sync_server_base_url_title" maxLength="41">رابط المزامنة</string>
     <string name="custom_sync_certificate_title" maxLength="41">شهادة جذر مخصصة (PEM)</string>
     <!-- Key Bindings -->
-    <string name="keyboard">لوحة المفاتيح</string>
-    <string name="bluetooth">بلوتوث</string>
     <string name="answer_buttons" maxLength="41">أزرار الإجابة</string>
     <string name="card" maxLength="41" comment="Generic term to refer to a card">بطاقة</string>
     <string name="note" maxLength="41">ملحوظة</string>
@@ -244,51 +181,25 @@
          ####################################################################################### -->
     <!-- Entry points -->
     <string name="review_reminders_title" maxLength="41" comment="Name of the review reminders feature. Used as a settings screen title, a toolbar title, and the name of the notification channel review reminders are posted to.">تذكيرات المراجعة</string>
-    <string name="review_reminders_summary_app_wide" comment="The descriptor for reminders that are attached to the whole app rather than a single deck.">عامٌّ للتطبيق</string>
-    <string name="review_reminders_summary_deck_specific" comment="The descriptor for reminders attached to one particular deck.">خاص برزمة</string>
     <string name="review_reminders_load_error" comment="Error dialog shown when stored review reminders could not be read back. Technical details follow this text.">حدث خلل أثناء تحميل تذكيرات المراجعة وتم حذف التذكيرات التالفة. التفاصيل:</string>
     <!-- Schedule reminders screen -->
     <string name="schedule_reminders_title" maxLength="28" comment="Name of the menu option for scheduling review reminders for a deck.">تعيين التذكيرات</string>
     <string name="add_reminder" comment="Label for the add reminder button in the screen for adding and editing review reminders">إضافة تنبيه</string>
     <string name="you_have_no_review_reminders" comment="Text that appears in the review reminder editing screen when there are no reminders set">ليس لديك تنبيهات للمراجعة</string>
-    <string name="schedule_reminders_troubleshoot_menu" maxLength="28" comment="Text in a menu button which opens a screen for diagnosing why review reminders may not be delivered.">فحص المشاكل</string>
     <string name="schedule_reminders_notification_settings_menu" maxLength="28" comment="Text in a menu button which opens the operating system notification settings for the app.">إعدادات التنبيهات</string>
-    <string name="schedule_reminders_list_content_description" comment="Accessibility description of the list showing scheduled review reminders.">قائمة تذكيرات المراجعة</string>
-    <string name="schedule_reminders_deck_not_found" comment="Shown in place of a deck name when the deck a review reminder points at no longer exists.">لم يتم العثور على الرزمة</string>
     <string name="schedule_reminders_unavailable" comment="Pop-up text shown when review reminders cannot be delivered at all, such as due to missing permissions.">التذكيرات غير متاحة</string>
-    <string name="schedule_reminders_fix" comment="Text for the button which, when pressed, opens the review reminder troubleshooting screen for fixing issues with review reminders.">حل</string>
-    <string name="schedule_reminders_added" comment="Pop-up text which confirms a new review reminder was created.">تم إضافة تذكير المراجعة بنجاح</string>
-    <string name="schedule_reminders_deleted" comment="Pop-up text which confirms a review reminder was deleted.">تم حذف تذكير المراجعة بنجاح</string>
-    <string name="schedule_reminders_edited" comment="Pop-up text which confirms an existing review reminder was changed.">تم تعديل تذكير المراجعة بنجاح</string>
     <!-- Add / edit reminder dialog -->
     <string name="add_review_reminder" comment="Title of the dialog for creating a new review reminder.">إضافة تنبيه للمراجعة</string>
     <string name="edit_review_reminder" comment="Title of the dialog for editing an existing review reminder.">تعديل تنبيه المراجعة</string>
-    <string name="add_edit_reminder_time_label" comment="Label of the field for choosing what time of day a review reminder fires.">الوقت:</string>
-    <string name="add_edit_reminder_deck_label" comment="Label of the field for choosing which deck a review reminder applies to.">الرزمة:</string>
-    <string name="add_edit_reminder_advanced_label" comment="Header of the collapsible section holding extra review reminder customization options.">خيارات متقدمة</string>
-    <string name="add_edit_reminder_card_threshold_label" comment="Label of the field setting the minimum number of due cards needed before a review reminder fires.">حد البطاقات</string>
-    <string name="add_edit_reminder_card_threshold_description" comment="Explanation shown under the card threshold field.">لا تذكرني إذا كان عدد البطاقات المستحقة أقل من هذا</string>
-    <string name="add_edit_reminder_only_notify_if_no_reviews_label" comment="Label of the switch suppressing a review reminder on days which have already had reviews.">ذكرني فقط إن لم أراجع شيئًا اليوم</string>
     <string name="add_edit_reminder_card_threshold_error_not_a_number" comment="Validation error shown when the review reminder card threshold field does not hold a whole number.">الرجاء إدخال عدد صحيح من البطاقات</string>
     <string name="add_edit_reminder_card_threshold_error_negative" comment="Validation error shown when the review reminder card threshold field holds a negative number.">يجب أن يكون الحد ٠ في الأقل</string>
-    <string name="add_edit_reminder_count_toward_threshold_heading" comment="Heading above the advanced review reminder options for choosing which kinds of cards (new / learning / to review) count toward the reminder\'s card threshold.">عد هذه البطاقات نحو الحد:</string>
     <string name="add_edit_reminder_delete_confirmation_title" comment="Title of the dialog confirming deletion of a review reminder.">أتود حذف هذا التذكير؟</string>
     <string name="add_edit_reminder_delete_confirmation_message" comment="Body of the dialog confirming deletion of a review reminder.">لا يمكن استرجاع التذكير بعد الحذف.</string>
     <!-- Reminder troubleshooting screen -->
     <string name="reminder_troubleshooting_summary_error" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when reminders cannot be delivered at all.">التذكيرات غير متاحة.</string>
-    <string name="reminder_troubleshooting_summary_warning" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when reminders may be delayed or suppressed.">قد لا تعمل التذكيرات بشكل صحيح.</string>
     <string name="reminder_troubleshooting_summary_ok" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when no issues are found.">تذكيراتك تعمل كما يجب.</string>
-    <string name="reminder_troubleshooting_footer" comment="Closing advice at the bottom of the review reminder troubleshooting screen.">لكل جهاز قيود مختلفة على التنبيهات. ابحث في إعدادات النظام أو على الأنترنت إذا استمرت المشاكل.</string>
     <!-- Troubleshooting check titles -->
-    <string name="reminder_troubleshooting_check_notification_permission" comment="Name of a review reminder troubleshooting check: whether the app may post notifications.">إذن الإشعارات</string>
-    <string name="reminder_troubleshooting_check_notification_channel" comment="Name of a review reminder troubleshooting check: whether the review reminders notification channel is turned on.">قناة الإشعارات</string>
-    <string name="reminder_troubleshooting_check_do_not_disturb" comment="Name of a review reminder troubleshooting check: whether the system Do Not Disturb mode is active.">عدم الإزعاج</string>
-    <string name="reminder_troubleshooting_check_battery_optimization" comment="Name of a review reminder troubleshooting check: whether the system restricts the app\'s background battery usage.">تحسين البطارية</string>
-    <string name="reminder_troubleshooting_check_power_saving_mode" comment="Name of a review reminder troubleshooting check: whether the system power saving mode is active.">وضع توفير الطاقة</string>
-    <string name="reminder_troubleshooting_check_exact_alarm_permission" comment="Name of a review reminder troubleshooting check: whether the app has permission to schedule alarms at exact times.">إذن التنبيهات</string>
     <!-- Troubleshooting check statuses -->
-    <string name="reminder_troubleshooting_status_granted" comment="Status of a review reminder troubleshooting check: the permission has been given.">تم المنح</string>
-    <string name="reminder_troubleshooting_status_denied" comment="Status of a review reminder troubleshooting check: the permission has not been given.">مرفوض</string>
     <string name="reminder_troubleshooting_status_on" comment="Status of a review reminder troubleshooting check: the system setting is active.">مفعل</string>
     <string name="reminder_troubleshooting_status_off" comment="Status of a review reminder troubleshooting check: the system setting is not active.">غير مفعل</string>
     <string name="reminder_troubleshooting_status_unrestricted" comment="Status of the review reminder battery optimization check: the app may run freely in the background.">غير مقيد</string>
@@ -297,31 +208,17 @@
     <!-- Troubleshooting check explanations -->
     <string name="reminder_troubleshooting_explanation_notification_channel" comment="Explains why review reminders need notification permissions to work correctly.">يجب تفعيل قناة تذكيرات المراجعة</string>
     <string name="reminder_troubleshooting_explanation_do_not_disturb" comment="Explains why review reminders may need Do Not Disturb to be disabled to work correctly.">وضع عدم الإزعاج قد يكتم التذكيرات</string>
-    <string name="reminder_troubleshooting_explanation_battery_optimized" comment="Explains to the user that AnkiDroid\'s battery usage is optimized, and that battery usage may need to be enabled for review reminders to work correctly.">تحسين البطارية قد يؤخر التذكيرات</string>
     <string name="reminder_troubleshooting_explanation_battery_restricted" comment="Explains to the user that AnkiDroid\'s battery usage is restricted, and that battery usage may need to be enabled for review reminders to work correctly.">العمل في الخلفية معطل. قد لا تصل التذكيرات.</string>
     <string name="reminder_troubleshooting_explanation_power_saving_mode" comment="Explains why review reminders may need power saving mode to be disabled to work correctly.">وضع توفير الطاقة قد يؤخر التذكيرات</string>
     <string name="reminder_troubleshooting_explanation_exact_alarm" comment="Explains that AnkiDroid cannot schedule alarms at exact times unless the exact-alarm permission is granted.">ضروري لتعيين التذكيرات في أوقات محددة</string>
     <!-- Troubleshooting check actions -->
     <string name="reminder_troubleshooting_action_grant_permission" comment="Button resolving a failing review reminder troubleshooting check by asking for a permission.">منح الإذن</string>
     <string name="reminder_troubleshooting_action_enable_notification_channel" comment="Button resolving a failing review reminder troubleshooting check by opening the operating system notification settings screen.">تفعيل قناة التذكيرات</string>
-    <string name="reminder_troubleshooting_action_disable_battery_optimization" comment="Button resolving a failing review reminder troubleshooting check by asking the user to exempt the app from battery optimization.">تعطيل تحسين البطارية</string>
     <string name="reminder_troubleshooting_action_open_battery_settings" comment="Button resolving a failing review reminder troubleshooting check by opening the operating system battery settings screen.">فتح إعدادات البطارية</string>
     <!-- Notification content -->
-    <string name="review_reminder_notification_title_all_decks" comment="Title of a review reminder notification which is attached to the whole app rather than a single deck.">حان وقت المراجعة</string>
-    <string name="review_reminder_notification_title_deck" comment="Title of a review reminder notification for one deck. The parameter is the deck name; the quotation marks are to clearly separate the user-chosen name from the app\'s own text.">حان وقت مراجعة «%s»</string>
-    <string name="review_reminder_notification_snooze_button" comment="Notification button postponing a review reminder by a certain amount of time. The parameter is a duration like \'1h\', \'5m\', etc.">تأجيل %s</string>
-    <plurals name="review_reminder_notification_cards_due" comment="Body of a review reminder notification. The parameter is the number of cards due.">
-        <item quantity="zero">%d بطاقة مستحقة</item>
-        <item quantity="one">%d بطاقة مستحقة</item>
-        <item quantity="two">%d بطاقة مستحقة</item>
-        <item quantity="few">%d بطاقات مستحقة</item>
-        <item quantity="many">%d بطاقة مستحقة</item>
-        <item quantity="other">%d بطاقة مستحقة</item>
-    </plurals>
     <!-- studyoptions -->
     <string name="studyoptions_limit_select_tags">اختيار وسوم</string>
     <!-- Deck configurations -->
-    <string name="deck_conf_general" maxLength="41" comment="Label of the submenu for the general options of new deck">عام</string>
     <string name="deck_conf_cram_search" maxLength="41" comment="Label of a text field that contains a search query.">البحث</string>
     <!-- analytics options -->
     <string name="analytics_dialog_title">ساعد في تحسين آنكي درويد!</string>
@@ -337,7 +234,6 @@
     <string name="license">الرخصة</string>
     <string name="license_description"><![CDATA[Hayaki مرخص تحت رخصتي <a href=\"%1$s\">GPL-3.0</a> و<a href=\"%2$s\">AGPL-3.0</a>، وتتوفر الشفرة المصدرية على <a href=\"%3$s\">GitHub</a>]]></string>
     <string name="other_licenses"><![CDATA[يستخدم Hayaki أيضًا مكتبات وأيقونات من طرف ثالث وهي مرخصة تحت <a href=\"%1$s\">رخص</a> متنوعة مفتوحة المصدر.]]></string>
-    <string name="donate_description"><![CDATA[تستطيع دعم تطوير آنكي درويد من خلال <a href=\"%1$s\">التبرع</a>. نُقَدِّر أي مبلغ.]]></string>
     <!-- Controls -->
     <string name="binding_add_gesture">إضافة إيماءة</string>
     <string name="binding_add_key">إضافة مفتاح</string>
@@ -372,7 +268,6 @@
     <string name="bindings_already_bound">مربوط بالفعل بـ %s</string>
     <!-- Advanced -->
     <string name="pref_cat_experimental" maxLength="41" tools:ignore="UnusedResources">تجريبي</string>
-    <string name="readtext_deprecation_warn">يوفر Hayaki الآن طريقة جديدة لتحويل النص إلى كلام متوافقة مع برامج آنكي الأخرى وتتضمن أصوات أكثر وتحسينات للتشغيل!\n\nيرجى التحديث بأسرع وقت ممكن لأن هذا الخيار سَيُزال قريبًا</string>
     <string name="readtext_reviewer_warn" tools:ignore="UnusedResources">يرجى التحديث إلى الصيغة الجديدة لتحويل النص إلى كلام</string>
     <string name="allow_templates_to_record_audio" maxLength="41">السماح للقوالب بتسجيل الصوت</string>
     <string name="template_is_trying_to_record_audio">يحاول هذا القالب تسجيل الصوت</string>
@@ -462,8 +357,6 @@
     <string name="toolbar" maxLength="41">شريط الأدوات</string>
     <string name="toolbar_actions" maxLength="41">إجراءات شريط الأدوات</string>
     <string name="toolbar_position" maxLength="28">مكان شريط الأدوات</string>
-    <string name="new_study_screen" maxLength="41">شاشة الدراسة الجديدة</string>
-    <string name="new_study_screen_summ"><![CDATA[شاشة الدراسة المحسنة التي ستُستبدل بالشاشة الحالية. تم تغيير أو حذف بعض ميزات الشاشة القديمة. نرجو أن تُبَلِّغنا <a href="%1$s">برأيك</a> أو عن أي <a href="%2$s">خلل</a> تجده.]]></string>
     <string name="show_answer_feedback" maxLength="41">إظهار توكيد الإجابة</string>
     <string name="screen" maxLength="41">شاشة</string>
     <string name="also_assign_binding_to_show_answer" comment="Question shown after assigning binding to an \'Answer\' command, asking whether it should also be assigned to the \'Show answer\'; %1$s is \'Show answer\'">أتريد الإضافة إلى «%1$s» أيضًا؟</string>

@@ -29,8 +29,6 @@
         <item quantity="other">%1$s의 모든 카드를 삭제할까요? 이곳에 %2$d개의 카드가 있습니다</item>
     </plurals>
     <string name="delete_cram_deck_message">필터링된 덱 %s을(를) 삭제하고 모든 카드를 원래 덱으로 돌려보낼까요?</string>
-    <string name="no_tts_available_message">문장 읽어주기 기능(TTS)을 사용할 수 없음</string>
-    <string name="tts_no_tts">무음</string>
     <string name="reposition_card_not_new_error">새 카드만 순서를 조정할 수 있습니다.</string>
     <string name="reset_card_dialog_title">카드 학습 진행 재설정</string>
     <plurals name="reset_cards_dialog_acknowledge">
@@ -73,13 +71,10 @@
     <string name="dialog_positive_delete" maxLength="28">삭제</string>
     <!-- Currently unsued, should be useful in the future -->
     <string name="dialog_positive_disable" tools:ignore="UnusedResources">사용 안 함</string>
-    <string name="dialog_positive_overwrite">덮어쓰기</string>
     <string name="dialog_positive_repair">복구</string>
     <string name="dialog_positive_replace">대체</string>
-    <string name="sync_clock_off_with_current_time">%1$s\n\n날짜 및 시간을 올바르게 설정하거나 자동 시간대를 활성화한 후 다시 동기화하세요. \n\n현재 기기 시간: %2$s</string>
     <string name="dialog_collection_path_not_dir">지정된 경로가 올바르지 않습니다.</string>
     <string name="dialog_invalid_custom_certificate">포함된 텍스트가 올바른 PEM 인코딩된 X509 인증서를 가지고 있지 않습니다</string>
-    <string name="dialog_invalid_custom_certificate_title">인증서 인식 오류</string>
     <string name="dialog_updated_custom_certificate">인증서 업데이트됨</string>
     <!-- Media checking -->
     <string name="check_media_warning">미디어가 클 경우 시간이 오래 걸릴 수 있습니다. 계속할까요?</string>
@@ -101,7 +96,6 @@
     <string name="multimedia_editor_audio_permission_refused">마이크 사용 권한을 얻을 수 없습니다.</string>
     <string name="multimedia_editor_failed">멀티미디어 편집기를 열기 실패</string>
     <!-- Multimedia - Audio View -->
-    <string name="multimedia_editor_audio_permission_denied">오디오 녹음 권한이 거부됨</string>
     <string name="permission_denied">권한이 거부되었습니다.</string>
     <string name="microphone_permission_denied_message">마이크 권한이 거부되었습니다. 설정 앱에서 권한을 허용해주세요.</string>
     <!-- Database Integrity Check -->
@@ -134,8 +128,6 @@
     <string name="boot_service_failed_to_schedule_notifications">Failed to schedule reminders</string>
     <string name="boot_service_too_many_notifications">Too many reminders scheduled. Some will not appear</string>
     <!-- Locale Selection Dialog -->
-    <string name="locale_selection_dialog_title_new">언어 설정</string>
-    <string name="locale_selection_dialog_summary">일부 다국어 키보드(예: Gboard)는 텍스트를 편집할 때 언어를 자동으로 변경할 수 있습니다.\n\n사용 중인 키보드에서 언어가 변경되지 않는다면, 키보드 제조사에 \"setImeHintLocales\" 기능 지원을 요청해 주세요.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">알 수 없는 언어 [%1$s]</string>
     <!-- Help Dialog -->
     <string name="help_title_using_ankidroid">Hayaki 사용법</string>
@@ -168,7 +160,6 @@
     <plurals name="sync_automatic_sync_needs_more_time">
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">자동 동기화는 매 %d초마다 실행됩니다.</item>
     </plurals>
-    <string name="metered_sync_data_warning">데이터 사용료가 부과될 수 있습니다.</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
@@ -200,7 +191,6 @@
     <plurals name="set_due_date_current_interval">
         <item quantity="other">현재 간격: %d일</item>
     </plurals>
-    <string name="range_delimiter" comment="Placed between two input boxes to denote a range">-</string>
     <string name="set_due_date_range_start" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'minimum\' value of this range (inclusive)">부터</string>
     <string name="set_due_date_range_end" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'maximum\' value of this range (inclusive)">까지</string>
     <!-- Instant Note Editor -->
@@ -230,14 +220,9 @@
     <string name="import_error_resolution_copy_to_device">파일을 기기로 복사한 다음 로컬에 저장된 파일로 다시 시도해주세요</string>
     <string name="import_error_resolution_select_file">기기의 내 파일 앱으로 파일을 여세요</string>
     <!-- Post-login dialog -->
-    <string name="login_successful">로그인 성공</string>
-    <string name="sync_now">지금 동기화할까요?</string>
     <!--Change Note Type Dialog Fragment-->
-    <string name="card_numbers_unchanged">카드 개수는 바뀌지 않습니다</string>
     <!-- Subset of TR.changeNotetypeToFromCloze -->
-    <string name="extra_cloze_deletions_removed">일반 노트 타입으로 변경할 경우, cloze 개수가 사용 가능한 카드 템플릿 수보다 많으면 초과된 카드는 삭제됩니다</string>
     <string name="different_note_types_selected">한 가지 노트 타입의 노트만 선택해 주세요</string>
-    <string name="error_no_changes_to_save">저장할 변경 사항이 없습니다</string>
     <string name="choose_color">색상 선택</string>
     <!-- Special Fields -->
     <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">필드</string>
@@ -252,8 +237,6 @@
     <string name="special_field_card_help" comment="%s: either blank or \' %s\'">카드 템플릿%s의 이름</string>
     <string name="special_field_type_help" comment="%s: either blank or \' %s\'">노트 타입%s의 이름</string>
     <!-- Change Note Type Dialog -->
-    <string name="change_note_type_from" comment="Label indicating the original note type before changing it">에서</string>
-    <string name="change_note_type_to" comment="Label indicating the new note type to change to">으로</string>
     <!-- Add and rename profile dialogs -->
     <string name="rename_profile" comment="Title of the dialog where the user renames a profile">Rename profile</string>
     <string name="profile_name" comment="Label of the text field where the user types the name of a new profile">프로필 이름</string>

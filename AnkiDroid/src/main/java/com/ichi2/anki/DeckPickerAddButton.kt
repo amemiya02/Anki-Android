@@ -36,6 +36,8 @@ class DeckPickerAddButton internal constructor(
     icon: Int,
     private val primary: Boolean,
 ) : AbstractComposeView(context) {
+    constructor(context: Context) : this(context, CommonR.drawable.symbol_add, primary = true)
+
     var icon by mutableIntStateOf(icon)
     var text by mutableStateOf<CharSequence?>(null)
     var isExtended by mutableStateOf(!primary)

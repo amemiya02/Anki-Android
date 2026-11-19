@@ -52,8 +52,12 @@ class MeteredSyncDialog : DialogFragment() {
     companion object {
         const val TAG = "meteredSyncConfirmation"
         const val REQUEST_METERED_SYNC = "request_metered_sync"
-        const val RESULT_SYNC_MEDIA = "sync_media"
-        const val MANUAL = "manual"
+        private const val ARG_SYNC_MEDIA = "sync_media"
+        private const val ARG_MANUAL = "manual"
+
+        // The dialog forwards its arguments as the result payload.
+        const val RESULT_SYNC_MEDIA = ARG_SYNC_MEDIA
+        const val RESULT_MANUAL = ARG_MANUAL
 
         fun newInstance(
             syncMedia: Boolean,
@@ -61,8 +65,8 @@ class MeteredSyncDialog : DialogFragment() {
         ) = MeteredSyncDialog().apply {
             arguments =
                 Bundle().apply {
-                    putBoolean(RESULT_SYNC_MEDIA, syncMedia)
-                    putBoolean(MANUAL, manual)
+                    putBoolean(ARG_SYNC_MEDIA, syncMedia)
+                    putBoolean(ARG_MANUAL, manual)
                 }
         }
     }
@@ -70,6 +74,6 @@ class MeteredSyncDialog : DialogFragment() {
 
 fun FragmentActivity.registerMeteredSyncHandler(action: (syncMedia: Boolean, manual: Boolean) -> Unit) {
     setFragmentResultListener(MeteredSyncDialog.REQUEST_METERED_SYNC) { _, result ->
-        action(result.getBoolean(MeteredSyncDialog.RESULT_SYNC_MEDIA), result.getBoolean(MeteredSyncDialog.MANUAL, true))
+        action(result.getBoolean(MeteredSyncDialog.RESULT_SYNC_MEDIA), result.getBoolean(MeteredSyncDialog.RESULT_MANUAL, true))
     }
 }

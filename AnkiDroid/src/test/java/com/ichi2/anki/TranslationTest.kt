@@ -189,7 +189,7 @@ class TranslationTest : JvmTest() {
             setOf(
                 // example usages:
                 // "Add",                        // CommonString.import_message_add, CommonString.menu_add
-                // "General",                    // CommonString.deck_conf_general, CommonString.pref_cat_general
+                // "General",                    // CommonString.pref_cat_general
                 //                               // TR.preferencesGeneral()
                 //                               // TR.schedulingGeneral()
                 "Add", // CommonString.import_message_add, CommonString.menu_add
@@ -204,7 +204,7 @@ class TranslationTest : JvmTest() {
                 // TR.preferencesAlways()
                 // TR.importingUpdateAlways()
                 "Answer", // CommonString.card_side_answer | TR.browsingAnswer()
-                "Back", // CommonString.back_field_name, CommonString.previewer_back
+                "Back", // CommonString.previewer_back
                 // TR.notetypesBackField()
                 "Cancel", // CommonString.dialog_cancel
                 // TR.actionsCancel()
@@ -253,7 +253,7 @@ class TranslationTest : JvmTest() {
                 // TR.changeNotetypeFields()
                 "Flags", // CommonString.filter_by_flags | TR.browsingSidebarFlags()
                 "Flip", // CommonString.image_cropper_action_flip | TR.cardTemplatesFlip()
-                "General", // CommonString.deck_conf_general, CommonString.pref_cat_general
+                "General", // CommonString.pref_cat_general
                 // TR.preferencesGeneral()
                 // TR.schedulingGeneral()
                 "Good", // CommonString.ease_button_good | TR.studyingGood()
@@ -293,12 +293,6 @@ class TranslationTest : JvmTest() {
                 "Rename", // CommonString.rename | TR.actionsRename()
                 "Reposition", // CommonString.card_editor_reposition_card, CommonString.card_template_reposition_template
                 // TR.actionsReposition()
-                "Reschedule", // CommonString.card_editor_reschedule_card | TR.browsingReschedule()
-                "Reviews", // CommonString.pref_controls_reviews_tab
-                // TR.schedulingReviews()
-                // TR.cardStatsReviewCount()
-                // TR.deckConfigFsrsSimulatorRadioCount()
-                // TR.statisticsReviewsTitle()
                 "Save", // CommonString.save
                 // TR.actionsSave()
                 // TR.deckConfigSaveButton()
@@ -311,7 +305,6 @@ class TranslationTest : JvmTest() {
                 // TR.actionsSelect()
                 // TR.customStudySelect()
                 // TR.editingImageOcclusionSelectTool()
-                "Show remaining card count", // CommonString.show_progress_summ | TR.preferencesShowRemainingCardCount()
                 "Study", // CommonString.studyoptions_start | TR.decksStudy()
                 "Sync", // CommonString.button_sync, CommonString.pref_cat_sync
                 // TR.qtMiscSync()
@@ -381,11 +374,8 @@ class TranslationTest : JvmTest() {
          */
         private val IGNORED_BACKEND_TRANSLATIONS =
             setOf(
-                "launcherOff", // "Off" - unrelated to CommonString.full_screen_off
+                "launcherOff", // "Off" - unrelated to CommonString.reminder_troubleshooting_status_off
                 "launcherOn", // "On" - unrelated to CommonString.reminder_troubleshooting_status_on
-                // "Advanced Settings" - this upstream string is Title Case; CommonString.add_edit_reminder_advanced_label
-                // is both unrelated and sentence case (per AnkiDroid convention)
-                "deckConfigAdvancedSettings",
                 // Keep theme labels in XML: migrating adds maintenance complexity, loses XML previews
                 // and translations for languages absent from Anki; the apps' themes also differ.
                 // https://github.com/ankidroid/Anki-Android/pull/21325#pullrequestreview-5483017226

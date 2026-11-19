@@ -38,8 +38,8 @@ class LoggedInViewModel : ViewModel() {
         val wasAuthenticated = !Prefs.hkey.isNullOrEmpty()
         cancelQueuedSync(context)
         Prefs.sharedPrefs.edit {
-            putString(SyncPreferences.CUSTOM_SYNC_URI, address)
-            putBoolean(SyncPreferences.CUSTOM_SYNC_ENABLED, address != null)
+            putString(SyncPreferences.PREF_CUSTOM_SYNC_URI, address)
+            putBoolean(SyncPreferences.PREF_CUSTOM_SYNC_ENABLED, address != null)
             putString(certificateKey, certificate)
             replaceSyncAccount()
         }

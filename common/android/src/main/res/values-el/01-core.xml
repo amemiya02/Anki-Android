@@ -63,7 +63,6 @@
     <string name="undo" maxLength="28" comment="When tapping on this text, the last action is undone.">Αναίρεση</string>
     <string name="redo" maxLength="28" comment="Menu entry that allows to redo action that was just undone.">Επανεκτέλεση</string>
     <!-- flashcard_portrait.xml -->
-    <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Αναίρεση γραμμής</string>
     <string name="move_all_to_deck">Μετακίνηση όλων στην τράπουλα</string>
     <string name="create_shortcut">Δημιουργία συντόμευσης</string>
     <string name="browse_cards">Περιήγηση καρτών</string>
@@ -71,14 +70,9 @@
     <string name="menu_add" comment="A generic add button. Please inform us if you need more specific strings" maxLength="28">Προσθήκη</string>
     <string name="menu_add_note" maxLength="28">Προσθήκη σημείωσης</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Συγχρονισμός λογαριασμού</string>
-    <string name="menu_dismiss_note" maxLength="41">Απόκρυψη / διαγραφή</string>
     <string name="rename_flag">Μετονομασία σημαιών</string>
     <string name="menu_edit_tags" maxLength="28">Επεξεργασία ετικετών</string>
-    <string name="delete_note_message">Πραγματικά να διαγραφεί αυτή η σημείωση και όλες οι κάρτες της;\n%s</string>
-    <string name="menu_search" maxLength="28">Αναζήτηση στο %1$s</string>
     <string name="menu_unmark_note">Ξεμαρκάρισμα σημείωσης</string>
-    <string name="menu_enable_voice_playback" maxLength="28">Ενεργοποίηση αναπαραγωγής φωνής</string>
-    <string name="menu_disable_voice_playback">Απενεργοποίηση αναπαραγωγής φωνής</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
     <string name="new_dynamic_deck">Δημιουργία φιλτραρισμένης τράπουλας</string>
     <string name="directory_inaccessible">Δεν είναι δυνατή η πρόσβαση στον κατάλογο του Hayaki</string>
@@ -91,7 +85,6 @@
     <string name="empty_cram_label" maxLength="28">Άδειασμα</string>
     <string name="create_subdeck">Δημιουργία υποτράπουλας</string>
     <string name="empty_filtered_deck">Άδειασμα φιλτραρισμένης τράπουλας&#8230;</string>
-    <string name="search_deck" comment="Deck search for selecting it">Deck search</string>
     <string name="empty_deck">Αυτή η τράπουλα είναι κενή</string>
     <string name="invalid_deck_name">Μη έγκυρο όνομα</string>
     <string name="studyoptions_congrats_finished">Συγχαρητήρια! Τελειώσατε για σήμερα.</string>
@@ -103,7 +96,6 @@
     <string name="continue_sync" tools:ignore="UnusedResources">Συνέχεια συγχρονισμού</string>
     <string name="sync_cancelled" tools:ignore="UnusedResources">Ο συγχρονισμός ακυρώθηκε</string>
     <string name="sync_cancel_message" tools:ignore="UnusedResources">Ακύρωση&#8230;\nΑυτό μπορεί να διαρκέσει κάποιο χρόνο.</string>
-    <string name="syncing_media">Συγχρονισμός πολυμέσων</string>
     <string name="export_deck" maxLength="28">Εξαγωγή τράπουλας</string>
     <string name="export_collection">Εξαγωγή συλλογής</string>
     <!-- Card template editor -->
@@ -129,12 +121,6 @@
     <string name="card_browser_context_menu" comment="The value which appears in the system context menu.">Card browser</string>
     <string name="context_menu_anki_card_label">Anki card</string>
     <!-- Sync conflict -->
-    <string name="sync_conflict_message_new">Οι συλλογές δεν μπορούν να συνδυαστούν.\nΠοια συλλογή θέλετε να κρατήσετε;</string>
-    <string name="sync_conflict_keep_local_new" comment="Select AnkiDroid files to keep while syncing">Hayaki</string>
-    <string name="sync_conflict_keep_remote_new" comment="Select AnkiWeb files to keep while syncing">AnkiWeb</string>
-    <string name="sync_conflict_remote_confirm_new">Αντικατάσταση της συλλογής σας στο Hayaki με τη συλλογή σας από το AnkiWeb;</string>
-    <string name="sync_conflict_local_confirm_new">Αντικατάσταση της συλλογής σας στο AnkiWeb με τη συλλογή σας από το Hayaki;</string>
-    <string name="sync_conflict_title_new">Επιλέξτε ποια συλλογή θα κρατήσετε</string>
     <string name="sync_conflict_replace_title">Αντικατάσταση συλλογής</string>
     <!-- Generic errors -->
     <string name="error__etc__cannot_write_to_or_create_file">Αδυναμία γραφής σε ή δημιουργίας αρχείου %s</string>

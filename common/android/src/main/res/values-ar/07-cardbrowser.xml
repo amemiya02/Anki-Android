@@ -63,10 +63,7 @@
     <string name="no_note_to_edit">لا توجد ملحوظات لتُعَدَّل</string>
     <string name="card_browser_list_my_searches_remove_content">هل تريد حذف «%1$s»؟</string>
     <string name="card_browser_cram_search" maxLength="28" comment="Menu entry to start a search.">بحث</string>
-    <string name="card_browser_change_display_order_title">اختيار ترتيب العرض</string>
     <string name="card_details_tags">وسوم</string>
-    <string name="manage_browser_column">إدارة العمود</string>
-    <string name="no_columns_available">لا يوجد عمود متوفر</string>
     <string name="card_browser_select_all" maxLength="28">تحديد الكل</string>
     <string name="card_browser_select_none" maxLength="28">إلغاء التحديد</string>
     <string name="card_browser_no_cards_in_deck">لا توجد بطاقات في الرزمة «%s»</string>
@@ -103,18 +100,13 @@
     <!-- Manage columns dialog -->
     <string name="browse_manage_columns_main_heading">الأعمدة</string>
     <string name="browse_manage_columns">إدارة الأعمدة</string>
-    <string name="user_active_columns">مُفَعَّل</string>
     <string name="user_potential_columns">متوفر</string>
-    <string name="include_column">إضافة العمود</string>
-    <string name="exclude_column">إخفاء العمود</string>
     <string name="save_changes_message">رجاءًا احفظ تعديلاتك أولًا</string>
-    <string name="browser_find_replace_loading_fields">يتم استرجاع أسماء الحقول&#8230;</string>
     <!-- Search history -->
     <string name="card_browser_see_more">عرض المزيد</string>
     <string name="card_browser_see_less">عرض القليل</string>
     <!-- Sort Order -->
     <string name="card_browser_order_no_sorting_title" comment="Title of the \'no sorting\' row in the Choose Display Order bottom sheet">لا ترتيب</string>
-    <string name="card_browser_order_no_sorting_subtitle" comment="Subtitle for the \'no sorting\' row noting that no-sort is faster than sorted queries">اسرع</string>
     <string name="card_browser_order_subtitle_text_ascending" comment="Sort direction subtitle for text columns when ascending (A before Z)">أ–ي</string>
     <string name="card_browser_order_subtitle_text_descending" comment="Sort direction subtitle for text columns when descending (Z before A)">ي–أ</string>
     <string name="card_browser_order_subtitle_numeric_ascending" comment="Sort direction subtitle for numeric columns when ascending (smallest value first)">أصغر إلى أكبر</string>
@@ -123,16 +115,8 @@
     <string name="card_browser_order_subtitle_date_descending" comment="Sort direction subtitle for date columns when descending (newest entry first)">الأحدث أولًا</string>
     <!-- SortPill labels: a single character on each half hinting at the direction.
          Translators: pick the first/last character of your locale\'s sort order. -->
-    <string name="sort_pill_label_text_ascending" comment="SortPill standard half marker for text columns. Use a 1-char glyph that suggests the start of the alphabet.">أ</string>
-    <string name="sort_pill_label_text_descending" comment="SortPill reverse half marker for text columns. Use a 1-char glyph that suggests the end of the alphabet.">ي</string>
-    <string name="sort_pill_label_numeric_ascending" comment="SortPill standard half marker for numeric columns. Use a 1-char glyph that suggests the smallest value.">١</string>
-    <string name="sort_pill_label_numeric_descending" comment="SortPill reverse half marker for numeric columns. Use a 1-char glyph that suggests the largest value.">٩</string>
     <!-- SortPill accessibility descriptions, used by TalkBack. The host should prepend the
          column name (e.g. "Front, ascending"); these strings are the direction half. -->
     <string name="sort_pill_a11y_ascending" comment="SortPill accessibility: ascending half">تصاعدي</string>
     <string name="sort_pill_a11y_descending" comment="SortPill accessibility: descending half">تنازلي</string>
-    <string name="sort_pill_a11y_selected" comment="SortPill accessibility: state announcement when this half is the active sort direction">مُحدد</string>
-    <string name="card_browser_order_section_unavailable" comment="Header: browser columns that cannot be sorted (e.g. Question)">غير متاح</string>
-    <string name="card_browser_order_subtitle_use_sort_field" comment="Fix for when the \'Question/Answer\' column is not sortable.">لا يمكن ترتيب محتوى البطاقة. استخدم حقل الترتيب</string>
-    <string name="card_browser_order_subtitle_cards_mode_only" comment="Fix for trying to sort on FSRS columns in Notes mode">متاح فقط في وضع البطاقات</string>
 </resources>

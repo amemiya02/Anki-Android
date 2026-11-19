@@ -60,7 +60,6 @@
     <string name="undo" maxLength="28" comment="When tapping on this text, the last action is undone.">元に戻す</string>
     <string name="redo" maxLength="28" comment="Menu entry that allows to redo action that was just undone.">やり直す</string>
     <!-- flashcard_portrait.xml -->
-    <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">描線を一つ取り消す</string>
     <string name="move_all_to_deck">移動先デッキを選択</string>
     <string name="create_shortcut">ショートカットを作成</string>
     <string name="browse_cards">カードをブラウザで表示</string>
@@ -68,14 +67,9 @@
     <string name="menu_add" comment="A generic add button. Please inform us if you need more specific strings" maxLength="28">追加</string>
     <string name="menu_add_note" maxLength="28">ノートを追加</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">アカウントの設定と同期</string>
-    <string name="menu_dismiss_note" maxLength="41">非表示 / 削除</string>
     <string name="rename_flag">フラグの名前を変更</string>
     <string name="menu_edit_tags" maxLength="28">タグを編集</string>
-    <string name="delete_note_message">このカードの元となるノートを削除してもよろしいですか？　同じノートから作られたカード（例：裏表反転カード）があれば、それらもすべて削除されます。\n%s</string>
-    <string name="menu_search" maxLength="28">%1$s で検索</string>
     <string name="menu_unmark_note">ノートのマークをはずす</string>
-    <string name="menu_enable_voice_playback" maxLength="28">発音チェック機能をオン</string>
-    <string name="menu_disable_voice_playback">発音チェック機能をオフ</string>
     <string name="menu_create_backup" maxLength="28">バックアップを作成</string>
     <string name="new_dynamic_deck">フィルターデッキを作成</string>
     <string name="directory_inaccessible">Hayakiディレクトリにアクセスできません</string>
@@ -88,7 +82,6 @@
     <string name="empty_cram_label" maxLength="28">空にする</string>
     <string name="create_subdeck">サブデッキを作成</string>
     <string name="empty_filtered_deck">フィルターデッキを空にしています&#8230;</string>
-    <string name="search_deck" comment="Deck search for selecting it">デッキを検索</string>
     <string name="empty_deck">このデッキにはカードがありません</string>
     <string name="invalid_deck_name">無効なデッキ名です</string>
     <string name="studyoptions_congrats_finished">おめでとうございます！ このデッキの今日の課題をすべて達成しました！</string>
@@ -100,7 +93,6 @@
     <string name="continue_sync" tools:ignore="UnusedResources">同期を続行</string>
     <string name="sync_cancelled" tools:ignore="UnusedResources">同期がキャンセルされました</string>
     <string name="sync_cancel_message" tools:ignore="UnusedResources">キャンセルしています&#8230;\nやや時間がかかることがあります</string>
-    <string name="syncing_media">メディアを同期中</string>
     <string name="export_deck" maxLength="28">デッキをエクスポート</string>
     <string name="export_collection">コレクションをエクスポート</string>
     <!-- Card template editor -->
@@ -124,12 +116,6 @@
     <string name="card_browser_context_menu" comment="The value which appears in the system context menu.">Hayaki検索</string>
     <string name="context_menu_anki_card_label">Ankiカード</string>
     <!-- Sync conflict -->
-    <string name="sync_conflict_message_new">コレクションを統合できません。\nどちらのコレクションを保持しますか？</string>
-    <string name="sync_conflict_keep_local_new" comment="Select AnkiDroid files to keep while syncing">Hayaki</string>
-    <string name="sync_conflict_keep_remote_new" comment="Select AnkiWeb files to keep while syncing">AnkiWeb</string>
-    <string name="sync_conflict_remote_confirm_new">Hayaki内のコレクションを、AnkiWeb上のコレクションと同じ内容に置換（上書き）します。よろしいですか？</string>
-    <string name="sync_conflict_local_confirm_new">AnkiWeb上のコレクションを、Hayaki内のコレクションと同じ内容に置換（上書き）します。よろしいですか？</string>
-    <string name="sync_conflict_title_new">保持するコレクションを選択</string>
     <string name="sync_conflict_replace_title">コレクションを置換（上書き）</string>
     <!-- Generic errors -->
     <string name="error__etc__cannot_write_to_or_create_file">ファイル %s への書き込みまたは同ファイルの作成ができません</string>

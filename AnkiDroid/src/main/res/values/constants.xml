@@ -15,10 +15,6 @@
         <item>@string/add_to_deck_use_current_deck</item>
         <item>@string/add_to_deck_decide_by_note_type</item>
     </string-array>
-    <string-array name="night_theme_labels">
-        <item>@string/night_theme_black</item>
-        <item>@string/night_theme_dark</item>
-    </string-array>
     <string-array name="html_size_code_labels">
         <item>@string/html_size_code_xx_small</item>
         <item>@string/html_size_code_x_small</item>
@@ -31,7 +27,6 @@
 
     <string name="link_anki_manual">https://docs.ankiweb.net/#/</string>
     <string name="link_anki_forum">https://forums.ankiweb.net/</string>
-    <string name="link_anki_forum_ankidroid">https://forums.ankiweb.net/c/ankidroid/22</string>
     <string name="link_forum">http://groups.google.com/group/anki-android</string>
     <string name="licence_wiki">http://www.gnu.org/licenses/gpl.html</string>
     <string name="dependency_license_wiki">https://github.com/ankidroid/Anki-Android/wiki/Licences</string>
@@ -45,7 +40,6 @@
     <string name="link_contribution">https://github.com/ankidroid/Anki-Android/wiki/Contributing</string>
     <string name="link_contributors">https://github.com/ankidroid/Anki-Android#credits</string>
     <string name="link_help">https://docs.ankidroid.org/help.html</string>
-    <string name="link_tts">https://docs.ankiweb.net/templates/fields.html#text-to-speech-for-individual-fields</string>
     <string name="link_manual">https://docs.ankidroid.org/manual.html</string>
     <string name="link_help_ja">https://docs.ankidroid.org/help-ja.html</string>
     <string name="link_manual_ja">https://docs.ankidroid.org/manual-ja.html</string>
@@ -55,7 +49,6 @@
     <string name="link_manual_ar">https://docs.ankidroid.org/manual-ar.html</string>
     <string name="link_manual_note_format_toolbar">https://docs.ankidroid.org/manual.html#noteFormattingToolbar</string>
     <string name="link_manual_browser_find_replace">https://docs.ankiweb.net/browsing.html#find-and-replace</string>
-    <string name="link_sync_conflict_help">https://docs.ankidroid.org/#AnkiWebConflicts</string>
     <string name="link_user_actions_help">https://docs.ankidroid.org/#userActions</string>
     <string name="link_faq_tts">https://github.com/ankidroid/Anki-Android/wiki/FAQ#tts--text-to-speech-is-not-speaking</string>
     <string name="link_faq_tts_no_engine">https://github.com/ankidroid/Anki-Android/wiki/FAQ#no-text-to-speech-engine-installed</string>
@@ -85,30 +78,14 @@
     <string name="link_full_storage_access">https://github.com/ankidroid/Anki-Android/wiki/Full-Storage-Access</string>
     <string name="link_help_forget_cards">https://docs.ankiweb.net/studying.html#editing-and-more</string>
     <string name="link_scheduler_upgrade_faq">https://faqs.ankiweb.net/the-anki-2.1-scheduler.html#updating-to-v2-from-v1</string>
-    <string name="link_help_searching">https://docs.ankiweb.net/searching.html#simple-searches</string>
     <string name="link_filtered_decks_help">https://docs.ankiweb.net/filtered-decks.html</string>
 
     <string-array name="add_to_cur_values">
         <item>0</item>
         <item>1</item>
     </string-array>
-    <string-array name="full_screen_mode_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-    </string-array>
-    <string-array name="full_screen_mode_labels">
-        <item>@string/full_screen_off</item>
-        <item>@string/full_screen_system</item>
-        <item>@string/full_screen_complete</item>
-    </string-array>
 
     <!-- Themes -->
-    <string-array name="app_theme_labels">
-        <item>@string/theme_follow_system</item>
-        <item>@string/day_theme_light</item>
-        <item>@string/theme_night</item>
-    </string-array>
 
     <string-array name="sync_media_entries">
         <item>@string/sync_media_always</item>
@@ -177,17 +154,7 @@
 
     <!-- Preferences headers summaries -->
     <!-- Related settings -->
-    <string name="fragment_controls_preferences" tools:ignore="TranslationTypo">com.ichi2.anki.preferences.ControlsSettingsFragment</string>
-    <string name="fragment_accessibility_preferences" tools:ignore="TranslationTypo">com.ichi2.anki.preferences.AccessibilitySettingsFragment</string>
 
-    <string-array name="study_screen_related_titles">
-        <item>@string/pref_cat_controls</item>
-        <item>@string/accessibility</item>
-    </string-array>
-    <string-array name="study_screen_related_fragments">
-        <item>@string/fragment_controls_preferences</item>
-        <item>@string/fragment_accessibility_preferences</item>
-    </string-array>
 
     <string-array name="html_size_codes">
         <item>xx-small</item>
@@ -200,7 +167,6 @@
     </string-array>
 
     <!-- See LEGACY_POST_NOTIFICATIONS. -->
-    <string name="legacy_post_notification_permission">NOTIFICATIONS_BEFORE_API_33_DUMMY_SENTINEL</string>
 
     <string-array name="import_cache_error_resolutions">
         <item>@string/import_error_resolution_try_again</item>

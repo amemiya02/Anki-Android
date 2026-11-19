@@ -72,7 +72,7 @@ class DialogPatternsScreenshotTest : ComposeScreenshotTest() {
             beforeCapture = { composeRule.onNode(hasSetTextAction()).performTextReplacement("日本語 · N3 語彙") },
         ) {
             TextInputDialog(
-                title = stringResource(CommonString.paper_dialog_create_deck),
+                title = stringResource(CommonString.deck_list_create_deck),
                 label = stringResource(CommonString.paper_dialog_deck_name),
                 confirmText = stringResource(CommonString.dialog_positive_create),
                 onConfirm = {},
@@ -159,12 +159,12 @@ class DialogPatternsScreenshotTest : ComposeScreenshotTest() {
             beforeCapture = { composeRule.onNodeWithText("Host unreachable").assertDoesNotExist() },
         ) {
             ErrorDialog(
-                title = stringResource(CommonString.paper_dialog_sync_unreachable),
-                message = stringResource(CommonString.connection_error_message),
+                title = stringResource(CommonString.paper_sync_unreachable_title),
+                message = stringResource(CommonString.paper_sync_unreachable_body, stringResource(CommonString.sync_server_title)),
                 details = "Host unreachable",
                 markIcon = R.drawable.symbol_cloud_off,
                 onDismissRequest = {},
-                primaryAction = DialogAction(stringResource(CommonString.retry), {}),
+                primaryAction = DialogAction(stringResource(CommonString.try_again), {}),
             )
         }
         val showDetails = RuntimeEnvironment.getApplication().getString(CommonString.paper_dialog_show_details)

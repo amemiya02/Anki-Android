@@ -49,7 +49,6 @@ fun hasAllPermissions(
 /**
  * Dummy sentinel "permission" string which represents the permission to send notifications on API <33.
  * On API <33, there is no explicit manifest permission for notifications, but they can be toggled off by the user in system settings.
- * See `legacy_post_notification_permission`
  */
 const val LEGACY_POST_NOTIFICATIONS: String = "NOTIFICATIONS_BEFORE_API_33_DUMMY_SENTINEL"
 

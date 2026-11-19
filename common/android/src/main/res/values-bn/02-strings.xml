@@ -40,8 +40,6 @@
     <string name="updated_version">%s সংস্করণে আপডেট করা হয়েছে</string>
     <!-- Reviewer.kt (Study Screen) -->
     <string name="save_whiteboard" maxLength="28">হোয়াইটবোর্ড সংরক্ষণ করুন</string>
-    <string name="enable_stylus" maxLength="28">স্টাইলাস মোড অন করুন</string>
-    <string name="disable_stylus">স্টাইলাস মোড অফ করুন</string>
     <string name="eraser" maxLength="28">Eraser</string>
     <string name="add_brush" maxLength="28">Add brush</string>
     <string name="whiteboard_align_left" comment="Option to align the whiteboard toolbar on the left" maxLength="28">Left</string>
@@ -56,22 +54,11 @@
     <string name="enable_whiteboard" maxLength="28">হোয়াইটবোর্ড সক্রিয় করুন</string>
     <string name="disable_whiteboard">হোয়াইটবোর্ড নিষ্ক্রিয় করুন</string>
     <string name="show_whiteboard">হোয়াইটবোর্ড প্রদর্শন করুন</string>
-    <string name="enable_eraser" maxLength="28">Enable eraser</string>
-    <string name="disable_eraser" maxLength="28">Disable eraser</string>
     <string name="hide_whiteboard" maxLength="28">হোয়াইটবোর্ড আড়াল করুন</string>
     <string name="clear_whiteboard" maxLength="28">হোয়াইটবোর্ড পরিষ্কার করুন</string>
     <string name="hide_toolbar" maxLength="28">Hide toolbar</string>
     <string name="replay_media" maxLength="28">Replay media</string>
-    <string name="leech_suspend_notification">কার্ডটি লীচ হিসেবে চিহ্নিত হয়েছে এবং স্থগিত  হয়েছে</string>
-    <string name="leech_notification">কার্ডটি লীচ হিসেবে চিহ্নিত হয়েছে</string>
     <string name="webview_crash_unknown">অজানা সমস্যা</string>
-    <string name="webview_crash_unknwon_detailed">ওয়েবভিউ-এর কোনো অভ্যন্তরীণ ত্রুটির কারণে এমনটি হচ্ছে</string>
-    <string name="webview_crash_oom">Out of memory</string>
-    <string name="webview_crash_oom_details">ওয়েবভিউ সিস্টেম কর্তৃক থামিয়ে দেয়া হয়েছে। সাধারণত যখন অ্যাপ মেমরি সংকটে পড়ে কিংবা বড় ফন্ট, বড় মিডিয়া ইত্যাদি কারণে এমনটি হয়।</string>
-    <string name="webview_crash_nonfatal">ওযেবভিউ রেন্ডারার ক্র্যাশ করেছে। কারণ: %s</string>
-    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
-    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
-    <string name="webview_crash_loop_dialog_content">সিস্টেম ওয়েব-ভিউ \'%1$s\'.\n %2$s কার্ড রেন্ডার করতে ব্যর্থ হয়েছে</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Slide to cancel</string>
     <string name="filter_by_flags" maxLength="41">নিশান</string>
     <!-- filtered deck options -->
@@ -79,7 +66,6 @@
     <string name="filtered_option_delay_hard">Delay for hard</string>
     <string name="filtered_option_delay_good">Delay for good</string>
     <!-- Custom study options -->
-    <string name="custom_study_loading_tags">Building list of tags&#8230;</string>
     <!-- Study options -->
     <plurals name="studyoptions_buried_count">
         <item quantity="one">+%d সমাহিত করা হয়েছে</item>
@@ -108,26 +94,16 @@
     <string name="image_cropper_action_flip_vertically" maxLength="28" comment="Submenu action in image cropper screen">Flip vertically</string>
     <!-- Timebox -->
     <string name="timebox_reached_title">সময়সীমা অতিক্রান্ত হয়েছে</string>
-    <plurals name="timebox_reached">
-        <item quantity="one">%1$d টি কার্ড অধ্যয়িত হয়েছে %2$s মিনিটে</item>
-        <item quantity="other">%1$d টি কার্ড অধ্যয়িত হয়েছে %2$s এ</item>
-    </plurals>
     <!-- minutes used in \'[studied in] x minutes\' context, causing inflexion in some languages -->
-    <plurals name="in_minutes">
-        <item quantity="one">%1$d মিনিট</item>
-        <item quantity="other">%1$d মিনিট</item>
-    </plurals>
     <string name="fact_adder_intent_title" comment="Label of the \'Add Note\' window. This title can\'t be seen in AnkiDroid directly.">Hayaki</string>
     <string name="note_editor_copy_note" maxLength="28">নোট কপি কর</string>
     <string name="card_editor_reposition_card" comment="reposition a card in the new queue" maxLength="28">পুনঃস্থাপন</string>
     <string name="card_editor_reset_card" maxLength="28">অগ্রগতি পুনঃস্থাপন কর</string>
-    <string name="card_editor_reschedule_card" comment="Action to reschedule a card" maxLength="28">সময় পুনঃনির্ধারণ</string>
     <string name="card_editor_preview_card" comment="Button offering to preview some card(s)" maxLength="28">একটু দেখাও</string>
     <string name="copy_as_markdown" comment="Copies text to the clipboard as Markdown" maxLength="28">মার্কডাউন হিসাবে অনুলিপি করুন</string>
     <string name="preview_progress_bar_text" comment="What card we are on out of how many in card previewer progress bar">%2$d -র মধ্যে %1$d</string>
     <string name="rename" comment="Confirm that the renaming action should be processed." maxLength="28">পুনঃনামকরণ</string>
     <string name="checks_action" maxLength="28">চেক করুন</string>
-    <string name="unknown_type_field_warning">উত্তর টাইপ করুন: অজানা ফিল্ড %s</string>
     <string name="delete_deck" comment="Message on a progress bar starting a deck is being deleted.">ডেক মুছছি&#8230;</string>
     <string name="info_rate">আনকি-ড্রয়েডকে রেটিং দিন</string>
     <string name="import_title">আমদানি হচ্ছে</string>
@@ -162,13 +138,11 @@
     <string name="export_choice_save_to">সংরক্ষণ</string>
     <string name="export_saving_exported_collection">রপ্তানি করা ফাইল সংরক্ষণ করা হচ্ছে</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">অধ্যয়নের বিকল্প</string>
-    <string name="select_tts" maxLength="28">TTS ভাষা সেট করুন</string>
     <string name="dyn_deck_desc">স্বাভাবিক সময়সূচীর বাইরে অধ্যয়ন করার জন্য এটি একটি বিশেষ ডেক। রিভিউয়ের পর কার্ডসমূহকে স্বয়ংক্রিয়ভাবে তাদের আসল ডেকসমূহে ফিরিয়ে দেয়া হবে। এই ডেকটি মুছে ফেলা হলে বাকি থাকা কার্ডগুলিকে তাদের আসল ডেকে ফিরিয়ে দেয়া হবে।</string>
     <string name="tag_editor_add_feedback">Touch “%2$s” to confirm adding “%1$s”</string>
     <string name="tag_editor_add_feedback_existing">Existing tag “%1$s” selected</string>
     <string name="tag_already_exists">Tag already exists</string>
     <string name="error_name_exists">Name already exists</string>
-    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">Error sharing apkg file</string>
@@ -179,14 +153,10 @@
     <string name="web_page_error">পৃষ্ঠা লোড করার সময় ত্রুটি: %s</string>
     <!-- The name of the deck which corrupt cards will be moved to -->
     <!-- Deckpicker Background -->
-    <string name="background_image_title" maxLength="41">পটভূমি</string>
-    <string name="remove_wallpaper_image" maxLength="41">Remove background</string>
     <string name="remove_background_image">Are you sure you wish to remove the background?</string>
     <!-- Card Template Browser Appearance -->
     <string name="restore_default" maxLength="28">Restore default</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
-    <string name="white_board_eraser_enabled">Eraser mode activated</string>
-    <string name="white_board_eraser_disabled">Eraser mode deactivated</string>
     <string comment="Progress amount e.g. \'28 MB/141 MB\'. %1$s is the current amount, %2$s is the max." name="progress_amount_bytes">%1$s/%2$s</string>
     <string name="media_file_size_warning_title">Media too large</string>
     <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">The file \"%1$s\" (%2$s) exceeds the AnkiWeb limit of %3$s and cannot be synced. Add anyway?</string>
@@ -194,7 +164,6 @@
     <!-- Whiteboard save image message in the Study Screen -->
     <string name="white_board_image_save_failed">হোয়াইটবোর্ড ছবি সংরক্ষণ করতে ব্যর্থ হয়েছে. %s</string>
     <string name="white_board_image_saved">হোয়াইটবোর্ড ছবি %s-এ সংরক্ষিত হয়েছে</string>
-    <string name="title_whiteboard_editor" maxLength="28">হোয়াইটবোর্ড সম্পাদক</string>
     <string name="user_is_a_robot">স্বয়ংক্রিয় পরীক্ষা সনাক্ত করা হয়েছে. আপনি যদি একজন মানুষ হন তবে AnkiDroid সহায়তার সাথে যোগাযোগ করুন</string>
     <!-- JS api -->
     <string name="api_version_developer_contact">এই কার্ডটি অসমর্থিত AnkiDroid বৈশিষ্ট্য ব্যবহার করে। বিকাশকারী %1$s এর সাথে যোগাযোগ করুন বা উইকি %2$s দেখুন৷</string>
@@ -247,7 +216,6 @@
     <string name="create_shortcut_error">শর্টকাট যোগ করার সময় ত্রুটি: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">Capitalize sentences</string>
     <!-- Dialog hints -->
-    <string name="dialog_hint_url">URL</string>
     <string name="dialog_hint_certificate">Certificate</string>
     <!-- IncrementNumberRangePreference -->
     <string name="plus_sign" comment="Label for increment button in IncrementerNumberRangePreference">+</string>
@@ -256,7 +224,6 @@
     <string name="maximum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the maximum allowed value">Maximum value is %d</string>
     <string name="minimum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the minimum allowed value">Minimum value is %d</string>
     <!-- Used for credential empty warning message -->
-    <string name="invalid_email">একটি বৈধ ইমেল লিখুন</string>
     <string name="password_empty">পাসওয়ার্ড প্রয়োজন</string>
     <string name="back_pressed_once">Go back again to exit</string>
     <!-- %% is required to display % symbol. Reference: https://stackoverflow.com/a/16834358 -->
@@ -281,11 +248,6 @@
     <string name="home" maxLength="28">বাড়ি</string>
     <!-- Study Screen actions
     Each of these strings ends with a period, following the notation of Anki Desktop -->
-    <string name="card_buried">কার্ড কবর দেওয়া হয়</string>
-    <plurals name="note_suspended">
-        <item quantity="one">%d কার্ড সাসপেন্ড করা হয়েছে।</item>
-        <item quantity="other">%d কার্ড সাসপেন্ড করা হয়েছে</item>
-    </plurals>
     <!--  Note Editor Toggle Sticky  -->
     <string name="note_editor_toggle_sticky">ক্ষেত্র %s স্টিকি করুন</string>
     <string name="scoped_storage_learn_more">আরও জানুন</string>
@@ -299,20 +261,13 @@
     <!--  Hierarchical Tags  -->
     <string name="expand_tag">\'%s\' ট্যাগ প্রসারিত করুন</string>
     <!-- Manage note types -->
-    <string name="field_editor_model_not_available">সংগ্রহ অ্যাক্সেস করতে ব্যর্থ হয়েছে. আবার চেষ্টা করুন!</string>
-    <string name="cd_manage_notetypes_add">একটি নতুন নোট টাইপ যোগ করুন</string>
     <plurals name="note_types_selected">
         <item quantity="one">%d note type selected</item>
         <item quantity="other">%d note types selected</item>
     </plurals>
     <!-- App Intro -->
-    <string name="intro_ankidroid_tagline_one">কম পড়াশুনা করুন</string>
-    <string name="intro_ankidroid_tagline_two">আরও মনে রাখবেন</string>
-    <string name="intro_short_ankidroid_explanation">আঙ্কির কার্ড শিডিউলার আপনার দুর্বলতম স্মৃতিগুলিকে শক্তিশালী করে এবং আপনার সবচেয়ে শক্তিশালী সংরক্ষণ করে সময় বাঁচায়</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">AnkiWeb থেকে সিঙ্ক</string>
     <!-- IntentHandler -->
-    <string name="app_not_initialized_new">Hayaki এখনও চালু হয়নি। অনুগ্রহ করে Hayaki খুলুন এবং আবার চেষ্টা করুন</string>
     <!-- Deck Creation -->
     <string name="deck_created">ডেক নির্মিত হয়</string>
     <string name="deck_renamed">ডেকের নাম পরিবর্তন করা হয়েছে</string>
@@ -345,14 +300,11 @@
     <string name="card_template_reposition_template" comment="move a card template to a new position" maxLength="28">রিপজিশন</string>
     <string name="previewer_next" comment="Name of the next button in the previewer" maxLength="28">Next</string>
     <string name="previewer_back" comment="Name of the back button in the previewer" maxLength="28">Back</string>
-    <string name="start_recording">রেকর্ড</string>
     <string name="stop_recording">রেকর্ড</string>
     <string name="play_recording">Play</string>
-    <string name="next_recording" comment="Description of a button to go to the next recording">পরবর্তী</string>
     <!--  AlertDialog in the deleteCardTemplate  -->
     <string name="orphan_note_title">Cannot delete card type</string>
     <string name="orphan_note_message">এই কার্ডের ধরন মুছে ফেলার ফলে কোনো কার্ড ছাড়াই কিছু নোট চলে যাবে।</string>
-    <string name="voice_not_supported">ভয়েস সমর্থিত নয়। অন্য একটি চেষ্টা করুন বা একটি ভয়েস ইঞ্জিন ইনস্টল করুন৷</string>
     <!--Keyboard shortcuts dialog-->
     <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">নিশ্চিতকরণ ছাড়াই ডেক মুছুন</string>

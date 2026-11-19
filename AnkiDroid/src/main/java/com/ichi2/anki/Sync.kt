@@ -57,8 +57,8 @@ import timber.log.Timber
 
 object SyncPreferences {
     const val PREF_CURRENT_SYNC_URI = "currentSyncUri"
-    const val CUSTOM_SYNC_URI = "syncBaseUrl"
-    const val CUSTOM_SYNC_ENABLED = CUSTOM_SYNC_URI + VersatileTextWithASwitchPreference.SWITCH_SUFFIX
+    const val PREF_CUSTOM_SYNC_URI = "syncBaseUrl"
+    const val PREF_CUSTOM_SYNC_ENABLED = PREF_CUSTOM_SYNC_URI + VersatileTextWithASwitchPreference.SWITCH_SUFFIX
 }
 
 class NoSyncServerException : Exception("Invalid self-hosted sync server address")

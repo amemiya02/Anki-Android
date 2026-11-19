@@ -30,8 +30,6 @@
         <item quantity="other">𐌰𐌻𐌻𐌰𐌹𐌼 𐌺𐌰𐍂𐍄𐍉𐌼 𐌹𐌽 %1$s 𐌿𐍃𐌵𐌹𐍃𐍄𐌾𐌰𐌽? 𐌷𐌰𐌱𐌰𐌹𐌸 %2$d 𐌺𐌰𐍂𐍄𐍉𐍃</item>
     </plurals>
     <string name="delete_cram_deck_message">Delete filtered deck %s and send all cards back to their original decks?</string>
-    <string name="no_tts_available_message">𐌱𐍉𐌺𐍉-𐌳𐌿-𐍃𐍄𐌹𐌱𐌽𐌰𐌹 𐍂𐌰𐌶𐌳𐌰 𐌽𐌹𐍃𐍄</string>
-    <string name="tts_no_tts">𐌽𐌹 𐌵𐌹𐌸</string>
     <string name="reposition_card_not_new_error">𐌸𐌰𐍄𐌰𐌹𐌽𐌴𐌹 𐌺𐌰𐍂𐍄𐍉𐍃 𐌽𐌹𐌿𐌾𐍉𐍃 𐌼𐌰𐌲𐍄 𐌻𐌰𐌲𐌾𐌰𐌽 𐌹𐌽 𐍃𐍄𐌰𐌸 𐌰𐌽𐌸𐌰𐍂𐌰𐌽𐌰</string>
     <string name="reset_card_dialog_title">𐌺𐌰𐍂𐍄𐍉 𐍆𐍂𐌰𐌼𐌲𐌰𐌷𐍄 𐌰𐍆𐍄𐍂𐌰𐌻𐌰𐌲𐌾𐌰𐌽</string>
     <plurals name="reset_cards_dialog_acknowledge">
@@ -75,13 +73,10 @@
     <string name="dialog_positive_delete" maxLength="28">𐌿𐍃𐌵𐌹𐍃𐍄𐌾𐌰𐌽</string>
     <!-- Currently unsued, should be useful in the future -->
     <string name="dialog_positive_disable" tools:ignore="UnusedResources">𐌿𐌽𐌲𐌰𐍄𐌰𐌿𐌾𐌰𐌽</string>
-    <string name="dialog_positive_overwrite">𐌿𐍆𐌰𐍂𐌼𐌴𐌻𐌾𐌰𐌽</string>
     <string name="dialog_positive_repair">𐌲𐌰𐌱𐍉𐍄𐌾𐌰𐌽</string>
     <string name="dialog_positive_replace">𐌼𐌹𐌸𐍃𐌰𐍄𐌾𐌰𐌽</string>
-    <string name="sync_clock_off_with_current_time">%1$s\n\nCorrect the date and time, or enable automatic date and time, then sync again.\n\nYour device’s current time is: %2$s</string>
     <string name="dialog_collection_path_not_dir">𐌻𐌰𐌹𐌳𐌰 𐍃𐌴𐌹 𐌲𐌰𐍂𐌰𐌹𐌷𐍄𐌹𐌳𐌰 𐌽𐌹 𐍅𐌰𐍃 𐌳𐌹𐍂𐌰𐌹𐌺𐍄𐌰𐌿𐍂𐌹 𐍂𐌰𐌹𐌷𐍄</string>
     <string name="dialog_invalid_custom_certificate">The provided text does not resolve to a valid PEM-encoded X509 certificate</string>
-    <string name="dialog_invalid_custom_certificate_title">Error parsing certificate</string>
     <string name="dialog_updated_custom_certificate">Certificate updated</string>
     <!-- Media checking -->
     <string name="check_media_warning">This may take a long time with large media collections. Proceed?</string>
@@ -104,7 +99,6 @@
     <string name="multimedia_editor_audio_permission_refused">𐌰𐍄𐌲𐌰𐌲𐌲 𐌳𐌿 𐌼𐌴𐌹𐌺𐍂𐍉𐍆𐍉𐌽 𐌽𐌹 𐍅𐌰𐍃 𐌼𐌰𐌷𐍄𐌴𐌹𐌲.</string>
     <string name="multimedia_editor_failed">𐌽𐌹 𐌼𐌰𐌷𐍄𐌰 𐌹𐌽𐌼𐌰𐌹𐌳𐌾𐍉 𐌼𐌰𐌽𐌰𐌲𐌼𐌰𐌹𐌳𐌾𐌴 𐌿𐍃𐌻𐌿𐌺𐌰𐌽</string>
     <!-- Multimedia - Audio View -->
-    <string name="multimedia_editor_audio_permission_denied">𐌰𐌽𐌳𐌻𐌴𐍄 𐌲𐌰𐌼𐌰𐌿𐌳𐌴𐌹𐌽𐌰𐌹𐍃 𐌰𐍅𐌳𐌾𐍉𐌽𐍃 𐌲𐌹𐌱𐌰𐌽 𐌽𐌹𐍃𐍄</string>
     <string name="permission_denied">𐌰𐌽𐌳𐌻𐌴𐍄 𐌲𐌹𐌱𐌰𐌽 𐌽𐌹𐍃𐍄</string>
     <string name="microphone_permission_denied_message">Microphone permission denied. Please grant it in the app settings.</string>
     <!-- Database Integrity Check -->
@@ -137,8 +131,6 @@
     <string name="boot_service_failed_to_schedule_notifications">Failed to schedule reminders</string>
     <string name="boot_service_too_many_notifications">𐌿𐍆𐌰𐍂𐍆𐌹𐌻𐌿 𐌲𐌰𐌼𐌰𐌿𐌳𐌾𐌰𐌽𐌳𐌰𐌽𐍃 𐌹𐌽 𐌲𐌰𐍂𐌴𐌷𐍃𐌽𐌰𐌹. 𐍃𐌿𐌼𐌰𐌹 𐌽𐌹 𐌲𐌰𐌱𐌰𐌹𐍂𐌷𐍄𐌾𐌰𐌽𐌳 𐍃𐌹𐌺</string>
     <!-- Locale Selection Dialog -->
-    <string name="locale_selection_dialog_title_new">𐍂𐌰𐌶𐌳𐌰 𐌻𐌰𐌲𐌾𐌰𐌽</string>
-    <string name="locale_selection_dialog_summary">Some multilingual keyboards, such as GBoard support changing language when editing text\n\nPlease request the “setImeHintLocales” feature from your keyboard manufacturer if your keyboard does not change language.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">Unknown language [%1$s]</string>
     <!-- Help Dialog -->
     <string name="help_title_using_ankidroid">Hayaki𐍃 𐌱𐍂𐌿𐌺𐌴𐌹𐌸</string>
@@ -171,7 +163,6 @@
         <item quantity="one" comment="Consider keeping the unbreakable space after the digit">An automatic sync may be triggered in %d second</item>
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">An automatic sync may be triggered in %d seconds</item>
     </plurals>
-    <string name="metered_sync_data_warning">𐌼𐌰𐌷𐍄𐌴𐌹𐌲 𐌹𐍃𐍄 𐌸𐌰𐍄𐌴𐌹 𐌲𐌹𐌱𐌰𐌽𐌳𐍃 𐌲𐌰𐌽𐌰𐍄𐌾𐌹𐍃 𐌸𐌴𐌹𐌽𐍃 𐌽𐌹𐌼𐌹𐌸 𐌰𐍆 𐌸𐌿𐍃 𐍃𐌺𐌰𐍄𐍄𐌰𐌽𐍃 𐌱𐍂𐌿𐌺𐌴𐌹𐌽𐌰𐌹 𐌳𐌰𐍄𐍉𐍃</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
@@ -207,7 +198,6 @@
         <item quantity="one">Current interval: %d day</item>
         <item quantity="other">Current interval: %d days</item>
     </plurals>
-    <string name="range_delimiter" comment="Placed between two input boxes to denote a range">–</string>
     <string name="set_due_date_range_start" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'minimum\' value of this range (inclusive)">𐍆𐍂𐌰𐌼</string>
     <string name="set_due_date_range_end" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'maximum\' value of this range (inclusive)">𐌳𐌿</string>
     <!-- Instant Note Editor -->
@@ -237,14 +227,9 @@
     <string name="import_error_resolution_copy_to_device">Copy the file to your device and try again with the local file</string>
     <string name="import_error_resolution_select_file">Open the file using your device’s file browser app</string>
     <!-- Post-login dialog -->
-    <string name="login_successful">𐌰𐍄𐌲𐌰𐌲𐌲𐌰𐌽 𐌼𐌰𐌷𐍄𐌰</string>
-    <string name="sync_now">Sync now?</string>
     <!--Change Note Type Dialog Fragment-->
-    <string name="card_numbers_unchanged">Card numbers will remain unchanged</string>
     <!-- Subset of TR.changeNotetypeToFromCloze -->
-    <string name="extra_cloze_deletions_removed">If changing to a regular note type, and there are more cloze deletions than available card templates, any extra cards will be removed.</string>
     <string name="different_note_types_selected">Please select notes from only one notetype.</string>
-    <string name="error_no_changes_to_save">𐌽𐌹 𐌹𐌽𐌼𐌰𐌹𐌳𐌴𐌹𐌽𐍉𐍃 𐌲𐌰𐍆𐌰𐍃𐍄𐌰𐌹𐌽𐌰𐌹𐍃</string>
     <string name="choose_color">Choose color</string>
     <!-- Special Fields -->
     <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">Fields</string>
@@ -259,8 +244,6 @@
     <string name="special_field_card_help" comment="%s: either blank or \' %s\'">The name of the card template%s</string>
     <string name="special_field_type_help" comment="%s: either blank or \' %s\'">The name of the note type%s</string>
     <!-- Change Note Type Dialog -->
-    <string name="change_note_type_from" comment="Label indicating the original note type before changing it">From</string>
-    <string name="change_note_type_to" comment="Label indicating the new note type to change to">To</string>
     <!-- Add and rename profile dialogs -->
     <string name="rename_profile" comment="Title of the dialog where the user renames a profile">Rename profile</string>
     <string name="profile_name" comment="Label of the text field where the user types the name of a new profile">Profile name</string>

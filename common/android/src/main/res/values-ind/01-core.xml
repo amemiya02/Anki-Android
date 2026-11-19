@@ -60,7 +60,6 @@
     <string name="undo" maxLength="28" comment="When tapping on this text, the last action is undone.">Urungkan</string>
     <string name="redo" maxLength="28" comment="Menu entry that allows to redo action that was just undone.">Ulangi</string>
     <!-- flashcard_portrait.xml -->
-    <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Batalkan Coretan</string>
     <string name="move_all_to_deck">Pindahkan semua ke dek</string>
     <string name="create_shortcut">Buat shortcut</string>
     <string name="browse_cards">Telusuri kartu</string>
@@ -68,14 +67,9 @@
     <string name="menu_add" comment="A generic add button. Please inform us if you need more specific strings" maxLength="28">Tambah</string>
     <string name="menu_add_note" maxLength="28">Tambah catatan</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Sinkronisasi akun</string>
-    <string name="menu_dismiss_note" maxLength="41">Sembunyikan / hapus</string>
     <string name="rename_flag">Ubah nama panji</string>
     <string name="menu_edit_tags" maxLength="28">Edit tag</string>
-    <string name="delete_note_message">Yakin akan menghapus catatan ini dan semua kartunya?\n%s</string>
-    <string name="menu_search" maxLength="28">Pencarian di %1$s</string>
     <string name="menu_unmark_note">Batal tandai catatan</string>
-    <string name="menu_enable_voice_playback" maxLength="28">Mengaktifkan pemutaran suara</string>
-    <string name="menu_disable_voice_playback">Menonaktifkan pemutaran suara</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
     <string name="new_dynamic_deck">Buat dek terfilter</string>
     <string name="directory_inaccessible">Direktori Hayaki tidak dapat diakses</string>
@@ -88,7 +82,6 @@
     <string name="empty_cram_label" maxLength="28">Kosong</string>
     <string name="create_subdeck">Buat subdek</string>
     <string name="empty_filtered_deck">Mengosongkan dek yang telah difilter</string>
-    <string name="search_deck" comment="Deck search for selecting it">Deck search</string>
     <string name="empty_deck">Dek ini kosong</string>
     <string name="invalid_deck_name">Nama dek tidak valid</string>
     <string name="studyoptions_congrats_finished">Selamat! Anda telah selesai untuk hari ini.</string>
@@ -100,7 +93,6 @@
     <string name="continue_sync" tools:ignore="UnusedResources">Lanjutkan sinkronisasi</string>
     <string name="sync_cancelled" tools:ignore="UnusedResources">Sinkronisasi dibatalkan</string>
     <string name="sync_cancel_message" tools:ignore="UnusedResources">Membatalkan&#8230;\nIni dapat memakan waktu lama.</string>
-    <string name="syncing_media">Sinkronisasi media</string>
     <string name="export_deck" maxLength="28">Ekspor dek</string>
     <string name="export_collection">Ekspor koleksi</string>
     <!-- Card template editor -->
@@ -124,12 +116,6 @@
     <string name="card_browser_context_menu" comment="The value which appears in the system context menu.">Card browser</string>
     <string name="context_menu_anki_card_label">Anki card</string>
     <!-- Sync conflict -->
-    <string name="sync_conflict_message_new">Koleksi tidak dapat digabungkan. \nBagian mana yang ingin Anda pertahankan?</string>
-    <string name="sync_conflict_keep_local_new" comment="Select AnkiDroid files to keep while syncing">Hayaki</string>
-    <string name="sync_conflict_keep_remote_new" comment="Select AnkiWeb files to keep while syncing">AnkiWeb</string>
-    <string name="sync_conflict_remote_confirm_new">Ganti koleksi Anda di Hayaki dengan koleksi yang berasal dari AnkiWeb?</string>
-    <string name="sync_conflict_local_confirm_new">Ganti koleksi Anda yang ada di AnkiWeb dengan koleksi Anda dari Hayaki?</string>
-    <string name="sync_conflict_title_new">Pilih koleksi untuk dipertahankan</string>
     <string name="sync_conflict_replace_title">Ganti koleksi</string>
     <!-- Generic errors -->
     <string name="error__etc__cannot_write_to_or_create_file">Tidak dapat menulis atau membuat file %s</string>

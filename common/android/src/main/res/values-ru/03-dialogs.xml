@@ -32,8 +32,6 @@
         <item quantity="other">Удалить все карточки в %1$s? В ней %2$d карточек</item>
     </plurals>
     <string name="delete_cram_deck_message">Удалить отфильтрованную колоду %s и отправить все карточки обратно в оригинальные колоды?</string>
-    <string name="no_tts_available_message">Синтез речи недоступен</string>
-    <string name="tts_no_tts">Не произносить</string>
     <string name="reposition_card_not_new_error">Можно переместить только новые карточки</string>
     <string name="reset_card_dialog_title">Сбросить состояние карточек</string>
     <plurals name="reset_cards_dialog_acknowledge">
@@ -79,13 +77,10 @@
     <string name="dialog_positive_delete" maxLength="28">Удалить</string>
     <!-- Currently unsued, should be useful in the future -->
     <string name="dialog_positive_disable" tools:ignore="UnusedResources">Отключить</string>
-    <string name="dialog_positive_overwrite">Перезаписать</string>
     <string name="dialog_positive_repair">Исправить</string>
     <string name="dialog_positive_replace">Заменить</string>
-    <string name="sync_clock_off_with_current_time">%1$s\n\nCorrect the date and time, or enable automatic date and time, then sync again.\n\nYour device’s current time is: %2$s</string>
     <string name="dialog_collection_path_not_dir">Указанный путь не является допустимой папкой</string>
     <string name="dialog_invalid_custom_certificate">Предоставленный текст не преобразуется в допустимый X509 сертификат PEM</string>
-    <string name="dialog_invalid_custom_certificate_title">Ошибка при обработке сертификата</string>
     <string name="dialog_updated_custom_certificate">Сертификат обновлён</string>
     <!-- Media checking -->
     <string name="check_media_warning">Это может занять много времени с большими коллекциями медиа. Продолжить?</string>
@@ -111,7 +106,6 @@
     <string name="multimedia_editor_audio_permission_refused">Не удалось получить разрешение на микрофон.</string>
     <string name="multimedia_editor_failed">Не удалось открыть редактор мультимедиа</string>
     <!-- Multimedia - Audio View -->
-    <string name="multimedia_editor_audio_permission_denied">Не удалось получить разрешение на запись звука</string>
     <string name="permission_denied">Доступ запрещен</string>
     <string name="microphone_permission_denied_message">Microphone permission denied. Please grant it in the app settings.</string>
     <!-- Database Integrity Check -->
@@ -144,8 +138,6 @@
     <string name="boot_service_failed_to_schedule_notifications">Не удалось установить напоминания</string>
     <string name="boot_service_too_many_notifications">Запланировано слишком много напоминаний. Некоторые из них не будут показаны</string>
     <!-- Locale Selection Dialog -->
-    <string name="locale_selection_dialog_title_new">Установить язык</string>
-    <string name="locale_selection_dialog_summary">Некоторые многоязычные клавиатуры, например GBoard, могут переключать язык при редактировании текста\n\nПожалуйста, запросите функцию «setImeHintLocales» у разработчика клавиатуры, если клавиатура не переключает язык.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">Unknown language [%1$s]</string>
     <!-- Help Dialog -->
     <string name="help_title_using_ankidroid">Использование Hayaki</string>
@@ -181,7 +173,6 @@
         <item quantity="many">Автоматическая синхронизация может быть запущена через %d секунд</item>
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">Автоматическая синхронизация может быть запущена через %d секунд</item>
     </plurals>
-    <string name="metered_sync_data_warning">Ваш интернет провайдер может взимать плату за использование данных</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
@@ -225,7 +216,6 @@
         <item quantity="many">Текущий интервал: %d дней</item>
         <item quantity="other">Текущий интервал: %d дней</item>
     </plurals>
-    <string name="range_delimiter" comment="Placed between two input boxes to denote a range">–</string>
     <string name="set_due_date_range_start" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'minimum\' value of this range (inclusive)">От</string>
     <string name="set_due_date_range_end" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'maximum\' value of this range (inclusive)">До</string>
     <!-- Instant Note Editor -->
@@ -255,14 +245,9 @@
     <string name="import_error_resolution_copy_to_device">Скопируйте файл на ваше устройство и повторите попытку с локальным файлом</string>
     <string name="import_error_resolution_select_file">Открыть файл с помощью файлового менеджера вашего устройства</string>
     <!-- Post-login dialog -->
-    <string name="login_successful">Вход выполнен успешно</string>
-    <string name="sync_now">Синхронизировать сейчас?</string>
     <!--Change Note Type Dialog Fragment-->
-    <string name="card_numbers_unchanged">Номера карт останутся без изменений</string>
     <!-- Subset of TR.changeNotetypeToFromCloze -->
-    <string name="extra_cloze_deletions_removed">Если при смене на обычный тип записи есть больше пропусков, чем шаблонов карточек, то лишние карточки будут удалены.</string>
     <string name="different_note_types_selected">Пожалуйста, выберите записи только одного типа.</string>
-    <string name="error_no_changes_to_save">Нет изменений для сохранения</string>
     <string name="choose_color">Выберите цвет</string>
     <!-- Special Fields -->
     <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">Поля</string>
@@ -277,8 +262,6 @@
     <string name="special_field_card_help" comment="%s: either blank or \' %s\'">Название шаблона карточки%s</string>
     <string name="special_field_type_help" comment="%s: either blank or \' %s\'">Название типа записи%s</string>
     <!-- Change Note Type Dialog -->
-    <string name="change_note_type_from" comment="Label indicating the original note type before changing it">From</string>
-    <string name="change_note_type_to" comment="Label indicating the new note type to change to">To</string>
     <!-- Add and rename profile dialogs -->
     <string name="rename_profile" comment="Title of the dialog where the user renames a profile">Rename profile</string>
     <string name="profile_name" comment="Label of the text field where the user types the name of a new profile">Profile name</string>

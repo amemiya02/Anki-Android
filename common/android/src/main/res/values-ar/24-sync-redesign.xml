@@ -21,7 +21,6 @@
     <string name="paper_sync_sign_in_failed">لم يكتمل تسجيل الدخول. تحقّق من إعدادات الخادم وحاول مجددًا.</string>
     <string name="paper_sync_server_title_action">إعداد المزامنة</string>
     <string name="paper_sync_change_server">تغيير الخادم</string>
-    <string name="paper_sync_remove_server">إزالة الخادم</string>
     <string name="paper_sync_signed_in_as">مسجّل الدخول باسم</string>
     <string name="paper_sync_last_clean">آخر مزامنة في %1$s. لا توجد تغييرات تنتظر الرفع.</string>
     <string name="paper_sync_last_pending">آخر مزامنة في %1$s. توجد تغييرات تنتظر المزامنة.</string>
@@ -38,7 +37,6 @@
     <string name="paper_sync_one_way_hint">اختر المجموعة التي تريد الاحتفاظ بها عند المزامنة التالية.</string>
     <string name="paper_sync_unreachable_title">تعذّر الوصول إلى خادم المزامنة</string>
     <string name="paper_sync_unreachable_body">لم يستجب %1$s. تحقّق من تشغيل الخادم ومن إمكانية الوصول إليه عبر هذا الهاتف، ثم حاول مجددًا.</string>
-    <string name="paper_sync_retry">حاول مجددًا</string>
     <string name="paper_sync_not_now">ليس الآن</string>
     <string name="paper_sync_not_signed_in">لم تسجّل الدخول إلى %1$s. سجّل الدخول للمزامنة.</string>
     <string name="paper_sync_conflict_title">أي مجموعة تريد الاحتفاظ بها؟</string>

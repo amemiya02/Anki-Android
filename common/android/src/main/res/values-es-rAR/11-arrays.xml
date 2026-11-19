@@ -31,7 +31,6 @@
     <!-- theme labels -->
     <string name="theme_follow_system">Seguir sistema</string>
     <string name="theme_day" comment="Day/Light theme color scheme">Día</string>
-    <string name="theme_night" comment="Night/Dark theme color scheme">Noche</string>
     <!-- day_theme_labels -->
     <string name="day_theme_light">Claro</string>
     <string name="day_theme_plain">Plano</string>

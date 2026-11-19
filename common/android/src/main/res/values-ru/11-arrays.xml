@@ -31,7 +31,6 @@
     <!-- theme labels -->
     <string name="theme_follow_system">Как в системе</string>
     <string name="theme_day" comment="Day/Light theme color scheme">Дневная</string>
-    <string name="theme_night" comment="Night/Dark theme color scheme">Ночная</string>
     <!-- day_theme_labels -->
     <string name="day_theme_light">Светлая</string>
     <string name="day_theme_plain">Простая</string>

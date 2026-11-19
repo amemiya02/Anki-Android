@@ -18,7 +18,6 @@ import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import com.ichi2.anki.OptionalPermissionSet
-import com.ichi2.anki.R
 import com.ichi2.anki.common.permissions.LEGACY_POST_NOTIFICATIONS
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.windows.permissions.PermissionsBottomSheet
@@ -257,14 +256,6 @@ class PermissionsTest {
     fun `openAppSettingsScreenForPermission for the legacy notifications sentinel before API 26 opens the generic app settings screen`() {
         fragment.openAppSettingsScreenForPermission(LEGACY_POST_NOTIFICATIONS)
         verifyOSSettingsWasOpened()
-    }
-
-    @Test
-    fun `legacy_post_notification_permission resource matches the LEGACY_POST_NOTIFICATIONS constant`() {
-        assertThat(
-            context.getString(R.string.legacy_post_notification_permission),
-            equalTo(LEGACY_POST_NOTIFICATIONS),
-        )
     }
 
     private fun setPermissionsGranted(granted: Boolean) {

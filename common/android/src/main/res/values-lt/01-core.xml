@@ -69,7 +69,6 @@
     <string name="undo" maxLength="28" comment="When tapping on this text, the last action is undone.">Atšaukti</string>
     <string name="redo" maxLength="28" comment="Menu entry that allows to redo action that was just undone.">Atkurti</string>
     <!-- flashcard_portrait.xml -->
-    <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Naikinti užrašymą</string>
     <string name="move_all_to_deck">Viską perkelti į rinkinį</string>
     <string name="create_shortcut">Sukurti trumpinį</string>
     <string name="browse_cards">Naršyti korteles</string>
@@ -77,14 +76,9 @@
     <string name="menu_add" comment="A generic add button. Please inform us if you need more specific strings" maxLength="28">Pridėti</string>
     <string name="menu_add_note" maxLength="28">Pridėti užrašą</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Sinchronizuoti paskyrą</string>
-    <string name="menu_dismiss_note" maxLength="41">Paslėpti / ištrinti</string>
     <string name="rename_flag">Pervardinti žymeklį</string>
     <string name="menu_edit_tags" maxLength="28">Redaguoti žymes</string>
-    <string name="delete_note_message">Ar tikrai norite ištrinti šį užrašą ir visas su juo susijusias korteles?\n%s</string>
-    <string name="menu_search" maxLength="28">Ieškoti: %1$s</string>
     <string name="menu_unmark_note">Atžymėti užrašą</string>
-    <string name="menu_enable_voice_playback" maxLength="28">Leisti balso atkartojimą</string>
-    <string name="menu_disable_voice_playback">Neleisti garso atkartojimo</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
     <string name="new_dynamic_deck">Kurti rinktinį rinkinį</string>
     <string name="directory_inaccessible">„Hayaki“ katalogas yra nepasiekiamas</string>
@@ -97,7 +91,6 @@
     <string name="empty_cram_label" maxLength="28">Išvalyti</string>
     <string name="create_subdeck">Kurkite vidinį rinkinį</string>
     <string name="empty_filtered_deck">Išvalomas filtruotas rinkinys&#8230;</string>
-    <string name="search_deck" comment="Deck search for selecting it">Deck search</string>
     <string name="empty_deck">Šis rinkinys yra tuščias</string>
     <string name="invalid_deck_name">Blogas rinkinio vardas</string>
     <string name="studyoptions_congrats_finished">Sveikiname! Jūs šiandienai jau baigėte.</string>
@@ -109,7 +102,6 @@
     <string name="continue_sync" tools:ignore="UnusedResources">Tęsti sinchronizavimą</string>
     <string name="sync_cancelled" tools:ignore="UnusedResources">Sinchronizavimas atšauktas</string>
     <string name="sync_cancel_message" tools:ignore="UnusedResources">Atšaukiama&#8230;\nTai gali šiek tiek užtrukti.</string>
-    <string name="syncing_media">Įrašai sinchronizuojami</string>
     <string name="export_deck" maxLength="28">Eksportuoti rinkinį</string>
     <string name="export_collection">Eksportuoti kolekciją</string>
     <!-- Card template editor -->
@@ -139,12 +131,6 @@
     <string name="card_browser_context_menu" comment="The value which appears in the system context menu.">Card browser</string>
     <string name="context_menu_anki_card_label">Anki card</string>
     <!-- Sync conflict -->
-    <string name="sync_conflict_message_new">Kolekcijų negalima sujungti.\nKurią kolekciją norite pasilikti?</string>
-    <string name="sync_conflict_keep_local_new" comment="Select AnkiDroid files to keep while syncing">Hayaki</string>
-    <string name="sync_conflict_keep_remote_new" comment="Select AnkiWeb files to keep while syncing">AnkiWeb</string>
-    <string name="sync_conflict_remote_confirm_new">Pakeisti \"Hayaki\" kolekciją į kolekciją iš \"AnkiWeb\"?</string>
-    <string name="sync_conflict_local_confirm_new">Pakeisti savo kolekciją į AnkiWeb į kolekciją iš Hayaki kolekcijos?</string>
-    <string name="sync_conflict_title_new">Pasirinkite kolekciją, kurią norite išsaugoti</string>
     <string name="sync_conflict_replace_title">Pakeisti kolekciją</string>
     <!-- Generic errors -->
     <string name="error__etc__cannot_write_to_or_create_file">Negalima įrašyti arba sukurti failo %s</string>

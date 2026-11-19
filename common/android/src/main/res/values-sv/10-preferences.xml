@@ -24,7 +24,6 @@
   -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- generic strings -->
-    <string name="enabled" comment="Generic label for something that is turned on">Aktiverad</string>
     <string name="disabled" comment="Generic label for something that is turned off">Inaktiverad</string>
     <plurals name="pref_summ_minutes">
         <item quantity="one">%d min</item>
@@ -32,17 +31,13 @@
     </plurals>
     <string name="pref_milliseconds">%s ms</string>
     <!-- TODO: move to 20-search-preference so we can contribute upstream (searchpreference_no_results)-->
-    <string name="pref_search_no_results">Inga resultat</string>
     <!-- preferences.xml categories-->
     <string name="pref_cat_general" comment="name of the general preference category" maxLength="41">Allmänt</string>
     <string name="pref_cat_studying" maxLength="41">Studerande</string>
     <string name="pref_cat_system_wide" maxLength="41">Systemövergripande</string>
-    <string name="pref_cat_reviewing" maxLength="41">Repetition</string>
     <string name="pref_cat_sync" comment="title of the sync preferences category" maxLength="41">Synkronisering</string>
     <string name="pref_cat_scheduling" maxLength="41">Schemaläggning</string>
     <string name="pref_cat_whiteboard" maxLength="41">Whiteboard</string>
-    <string name="pref_cat_themes" maxLength="41">Teman</string>
-    <string name="pref_cat_gestures" maxLength="41">Gester</string>
     <string name="pref_cat_controls" maxLength="41">Kontroller</string>
     <string name="pref_cat_advanced" maxLength="41">Avancerat</string>
     <string name="pref_cat_workarounds" maxLength="41">Specialfunktioner</string>
@@ -61,10 +56,6 @@
     <string name="whiteboard_stroke_width" maxLength="41">Streckbredd</string>
     <string name="use_input_tag" maxLength="41">Skriv svar i kortet</string>
     <string name="use_input_tag_summ">Använd en textinmatningsruta i kortet för att skriva in svaret</string>
-    <string name="reset_languages" maxLength="41">Nollställ språk</string>
-    <string name="reset_languages_summ">Återställ språk inställningar (för text till tal och orböcker) för alla kortlekar</string>
-    <string name="reset_languages_question">Återställ alla språktilldelningar?</string>
-    <string name="reset_confirmation">Alla lägen nollställda</string>
     <string name="card_zoom" maxLength="41">Kort-zoom</string>
     <string name="image_zoom" maxLength="41">Bild-zoom</string>
     <string name="button_size" maxLength="41">Storlek på svarsknapp</string>
@@ -72,18 +63,6 @@
     <string name="card_browser_hide_media" maxLength="41">Visa filnamn i kortbläddraren</string>
     <string name="card_browser_hide_media_summary">Visa mediefilnamn i kortbläddrarens fråga/svarsfält</string>
     <string name="col_path" maxLength="41">Hayaki sökväg</string>
-    <string name="fullscreen_review" maxLength="41">Fullskärmsläge</string>
-    <string name="full_screen_off" comment="Value of the fullscreen mode preference meaning fullscreen is not used">Av</string>
-    <string name="full_screen_system">Dölj systemets statusfält</string>
-    <string name="full_screen_complete">Dölj systemets statusfält och svarsknapparna</string>
-    <string name="answer_buttons_position" maxLength="41">Svarsknapparnas placering</string>
-    <string-array name="answer_buttons_position_labels">
-        <item>Högst upp</item>
-        <item>Längst ned</item>
-        <item>Ingen</item>
-    </string-array>
-    <string name="gestures" maxLength="41">Aktivera gester</string>
-    <string name="gestures_summ">Koppla gester till handlingar, som t ex att svara på eller redigera kort.</string>
     <string name="gestures_corner_touch" maxLength="41">9-punkters pekning</string>
     <string name="gestures_corner_touch_summary">Tillåt tryckgester i skärmhörnen</string>
     <string name="show_keyboard_shortcuts" maxLength="41">Visa kortkommandon</string>
@@ -110,38 +89,18 @@
     <string name="gestures_shake" maxLength="41">Skaka enhet</string>
     <string name="card_browser_enable_external_context_menu" maxLength="41">\'%s\'-meny</string>
     <string name="card_browser_enable_external_context_menu_summary">Aktiverar sammanhangsmenyn ‘%s’ globalt</string>
-    <string name="double_scrolling_gap" maxLength="41">Dubbelrullning</string>
-    <string name="double_scrolling_gap_summ">Aktivera detta om du vill dubbla scroll gap med eReader</string>
     <string name="swipe_sensitivity" maxLength="41">Svepkänslighet</string>
-    <string name="tts" maxLength="41">Text till tal</string>
-    <string name="tts_summ">Läser upp fråga och svar om ingen ljudfil ingår</string>
     <!-- Sync -->
-    <string name="sync_fetch_missing_media" maxLength="41">Hämta media vid synkronisering</string>
     <string name="sync_account_summ_logged_out">Ej inloggad</string>
-    <string name="automatic_sync_choice" maxLength="41">Automatisk synkronering</string>
-    <string name="automatic_sync_choice_summ">Synka automatiskt på app start/avstängning om den senaste synkningen var mer än 10        minuter sedan.</string>
     <string name="sync_media_always" comment="Option to always fetch media when syncing">Alltid</string>
     <string name="sync_media_only_unmetered">Endast på anslutningar utan datagräns</string>
     <string name="sync_media_never">Aldrig</string>
-    <string name="sync_status_badge" maxLength="41">Visa synkroniseringsstatus</string>
-    <string name="sync_status_badge_summ">Ändra synkroniseringsikon när ändringar kan laddas upp</string>
-    <string name="metered_sync_title" maxLength="41">Tillåt synk på anslutningar med datagräns</string>
-    <string name="metered_sync_summary">Om inaktiverad kommer du bli varnad om du försöker synkronisera på en anslutning med datagräns</string>
-    <string name="backup_limits_frequency">Frekvens</string>
-    <string name="backup_limits_lifetime">Livslängd</string>
     <string name="app_theme" maxLength="41">Tema</string>
     <string name="day_theme" maxLength="41">Dags-tema</string>
     <string name="night_theme" maxLength="41">Natt-tema</string>
     <string name="language" maxLength="41">Språk</string>
     <string name="language_system">Systemspråk</string>
     <string name="notification_pref" maxLength="41">Meddelanden</string>
-    <string name="notification_pref_title" maxLength="41">Meddela när</string>
-    <string name="never_notify">Meddela aldrig</string>
-    <string name="notify_when_pending">Det finns olästa meddelanden</string>
-    <string name="notification_minimum_cards_due" comment="Consider keeping the unbreakable space after the digit">Fler än %d kort förfaller</string>
-    <string name="notification_minimum_cards_due_vibrate" maxLength="41">Vibrera</string>
-    <string name="notification_minimum_cards_due_blink" maxLength="41">Blinka</string>
-    <string name="select_locale_title">Välj språk</string>
     <string name="software_render" maxLength="41">Inaktivera kort hårdvarurendering</string>
     <string name="software_render_summ">Hårdvarurendering är snabbare men kan få problem, särskilt på Android 8/8.1. Om du inte kan se delar av kortgranskningsgränssnittet, prova den här inställningen.</string>
     <string name="disable_extended_text_ui" maxLength="41">Inaktivera redigeringsläge för enstaka fält</string>
@@ -153,18 +112,8 @@
     <string name="pref_double_tap_time_interval_summary">En andra knapptryckning av svarsknappar kommer att ignoreras om den här tiden inte har förflutit. Detta förhindrar oavsiktliga dubbeltryck</string>
     <string name="pref_show_answer_long_press_time" maxLength="41">Visa svar lång trycktid</string>
     <string name="pref_show_answer_long_press_time_summary">Minimum trycktid före svarsknappen registrerar en knapptryckning</string>
-    <string name="show_estimates" maxLength="41">Visa tid på knappar</string>
-    <string name="show_estimates_summ">Visa nästa repetitionstid på svarsknapparna</string>
-    <string name="show_large_answer_buttons" maxLength="41">Visa stora svarsknappar</string>
-    <string name="show_large_answer_buttons_summ">Visa svarsknappen i 2 rader</string>
     <string name="remove_animations" maxLength="41">Ta bort animationer</string>
     <string name="remove_animations_summary">Aktiveras även om animationerna har tagits bort i systeminställningarna</string>
-    <string name="show_top_bar" maxLength="41">Visa översta verktygsfältet</string>
-    <string name="show_top_bar_summary">Visa korträknare, svarstimer, flagga och markering i översta raden</string>
-    <string name="show_progress" maxLength="41">Visa återstående</string>
-    <string name="show_progress_summ">Visa antal återstående kort</string>
-    <string name="show_eta" maxLength="41">Visa ETA</string>
-    <string name="show_eta_summ">Visa återstående tid</string>
     <string name="use_current" maxLength="41">Kortlek för nya kort</string>
     <string name="learn_cutoff" maxLength="41">Gräns för att lära i förväg</string>
     <string name="time_limit" maxLength="41">Tidsgräns</string>
@@ -185,22 +134,14 @@
     <string name="pref_keep_screen_on_summ">Inaktivera skärmtimeout</string>
     <string name="enable_api_title" maxLength="41">Aktivera AnkiDroid API</string>
     <string name="enable_api_summary">Låt andra appar ansluta till Hayaki och läsa / skriva data utan din medverkan</string>
-    <string name="custom_buttons" maxLength="41">Appfältets knappar</string>
-    <string name="custom_buttons_summary">Anpassa vilka funktioner som syns i appfältet</string>
     <string name="custom_buttons_setting_always_show">Visa alltid</string>
-    <string name="custom_buttons_setting_if_room">Visa om möjligt</string>
     <string name="custom_buttons_setting_menu_only">Endast meny</string>
     <string name="reset_custom_buttons" maxLength="41">Nollställ</string>
-    <string name="reset_settings_to_default">Återställ standardinställningar</string>
     <string name="reset">Nollställ</string>
     <string name="thirdparty_apps_title" maxLength="41">Tredjeparts API-appar</string>
     <string name="thirdparty_apps_summary">Se en lista över alla applikationer som använder AnkiDroids API, exempelvis ordböcker och händiga verktyg.</string>
-    <string name="pref_controls_reviews_tab" maxLength="41" comment="Name of the tab to configure controls for the reviews screen">Recensioner</string>
-    <string name="pref_controls_previews_tab" maxLength="41" comment="Name of the tab to configure controls for the previews screen">Förhandsvisningar</string>
     <string name="toggle_backside_only" maxLength="41" comment="Control setting that toggles \'Backside only\' in the previews screen">Aktivera endast baksidan</string>
     <!-- Appearance settings -->
-    <string name="pref_cat_reviewer" maxLength="41">Studeringsskärm</string>
-    <string name="show_deck_title" maxLength="41">Visa kortlekens titel</string>
     <string name="accessibility" maxLength="41">Tillgänglighet</string>
     <string name="exit_via_double_tap_back" maxLength="41">Tryck bakåt 2 ggr för att gå bakåt/sluta</string>
     <string name="exit_via_double_tap_back_summ">För att undvika att lämna studeringsskärmen eller appen av misstag</string>
@@ -216,11 +157,8 @@
         Om den inte är angiven kommer standardservern, AnkiWeb, att användas istället.
         <a href="%s">Lär dig mer</a>
         ]]></string>
-    <string name="custom_sync_server_base_url_title" maxLength="41">URL för synkronisering</string>
     <string name="custom_sync_certificate_title" maxLength="41">Anpassat rotcertifikat (PEM)</string>
     <!-- Key Bindings -->
-    <string name="keyboard">Tangentbord</string>
-    <string name="bluetooth">Bluetooth</string>
     <string name="answer_buttons" maxLength="41">Svarsknappar</string>
     <string name="card" maxLength="41" comment="Generic term to refer to a card">Kort</string>
     <string name="note" maxLength="41">Anteckning</string>
@@ -232,51 +170,25 @@
          ####################################################################################### -->
     <!-- Entry points -->
     <string name="review_reminders_title" maxLength="41" comment="Name of the review reminders feature. Used as a settings screen title, a toolbar title, and the name of the notification channel review reminders are posted to.">Granska påminnelser</string>
-    <string name="review_reminders_summary_app_wide" comment="The descriptor for reminders that are attached to the whole app rather than a single deck.">Gäller hela appen</string>
-    <string name="review_reminders_summary_deck_specific" comment="The descriptor for reminders attached to one particular deck.">Kortleksspecifika</string>
     <string name="review_reminders_load_error" comment="Error dialog shown when stored review reminders could not be read back. Technical details follow this text.">Ett fel uppstod när dina granskningspåminnelser laddades, skadade påminnelser har tagits bort. Detaljer:</string>
     <!-- Schedule reminders screen -->
     <string name="schedule_reminders_title" maxLength="28" comment="Name of the menu option for scheduling review reminders for a deck.">Schemalägg påminnelser</string>
     <string name="add_reminder" comment="Label for the add reminder button in the screen for adding and editing review reminders">Lägg till påminnelse</string>
     <string name="you_have_no_review_reminders" comment="Text that appears in the review reminder editing screen when there are no reminders set">Du har inga granskningspåminnelser</string>
-    <string name="schedule_reminders_troubleshoot_menu" maxLength="28" comment="Text in a menu button which opens a screen for diagnosing why review reminders may not be delivered.">Felsök</string>
     <string name="schedule_reminders_notification_settings_menu" maxLength="28" comment="Text in a menu button which opens the operating system notification settings for the app.">Aviseringsinställningar</string>
-    <string name="schedule_reminders_list_content_description" comment="Accessibility description of the list showing scheduled review reminders.">Lista över schemalagda granskningspåminnelser</string>
-    <string name="schedule_reminders_deck_not_found" comment="Shown in place of a deck name when the deck a review reminder points at no longer exists.">Kortleken hittades inte</string>
     <string name="schedule_reminders_unavailable" comment="Pop-up text shown when review reminders cannot be delivered at all, such as due to missing permissions.">Påminnelser är inte tillgängliga</string>
-    <string name="schedule_reminders_fix" comment="Text for the button which, when pressed, opens the review reminder troubleshooting screen for fixing issues with review reminders.">Åtgärda</string>
-    <string name="schedule_reminders_added" comment="Pop-up text which confirms a new review reminder was created.">Ny granskningspåminnelse har lagts till</string>
-    <string name="schedule_reminders_deleted" comment="Pop-up text which confirms a review reminder was deleted.">Granskningspåminnelsen har tagits bort</string>
-    <string name="schedule_reminders_edited" comment="Pop-up text which confirms an existing review reminder was changed.">Granskningspåminnelsen har redigerats</string>
     <!-- Add / edit reminder dialog -->
     <string name="add_review_reminder" comment="Title of the dialog for creating a new review reminder.">Lägg till granskningspåminnelse</string>
     <string name="edit_review_reminder" comment="Title of the dialog for editing an existing review reminder.">Redigera granskningspåminnelse</string>
-    <string name="add_edit_reminder_time_label" comment="Label of the field for choosing what time of day a review reminder fires.">Tid:</string>
-    <string name="add_edit_reminder_deck_label" comment="Label of the field for choosing which deck a review reminder applies to.">Kortlek:</string>
-    <string name="add_edit_reminder_advanced_label" comment="Header of the collapsible section holding extra review reminder customization options.">Avancerade inställningar:</string>
-    <string name="add_edit_reminder_card_threshold_label" comment="Label of the field setting the minimum number of due cards needed before a review reminder fires.">Kortets tröskel:</string>
-    <string name="add_edit_reminder_card_threshold_description" comment="Explanation shown under the card threshold field.">Skicka inte aviseringar om färre än så här många kort förfaller</string>
-    <string name="add_edit_reminder_only_notify_if_no_reviews_label" comment="Label of the switch suppressing a review reminder on days which have already had reviews.">Avisera mig endast om inga granskningar har gjorts idag</string>
     <string name="add_edit_reminder_card_threshold_error_not_a_number" comment="Validation error shown when the review reminder card threshold field does not hold a whole number.">Ange ett helt antal kort</string>
     <string name="add_edit_reminder_card_threshold_error_negative" comment="Validation error shown when the review reminder card threshold field holds a negative number.">Tröskeln måste vara minst 0</string>
-    <string name="add_edit_reminder_count_toward_threshold_heading" comment="Heading above the advanced review reminder options for choosing which kinds of cards (new / learning / to review) count toward the reminder\'s card threshold.">Count these cards toward the threshold:</string>
     <string name="add_edit_reminder_delete_confirmation_title" comment="Title of the dialog confirming deletion of a review reminder.">Ta bort denna påminnelse?</string>
     <string name="add_edit_reminder_delete_confirmation_message" comment="Body of the dialog confirming deletion of a review reminder.">Denna åtgärd kan inte ångras.</string>
     <!-- Reminder troubleshooting screen -->
     <string name="reminder_troubleshooting_summary_error" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when reminders cannot be delivered at all.">Påminnelser är inte tillgängliga.</string>
-    <string name="reminder_troubleshooting_summary_warning" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when reminders may be delayed or suppressed.">Påminnelser kanske inte fungerar korrekt.</string>
     <string name="reminder_troubleshooting_summary_ok" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when no issues are found.">Dina påminnelser borde fungera som förväntat.</string>
-    <string name="reminder_troubleshooting_footer" comment="Closing advice at the bottom of the review reminder troubleshooting screen.">Olika enheter har olika begränsningar för aviseringar. Kontrollera dina systeminställningar eller sök online om problem kvarstår.</string>
     <!-- Troubleshooting check titles -->
-    <string name="reminder_troubleshooting_check_notification_permission" comment="Name of a review reminder troubleshooting check: whether the app may post notifications.">Åtkomst för aviseringar</string>
-    <string name="reminder_troubleshooting_check_notification_channel" comment="Name of a review reminder troubleshooting check: whether the review reminders notification channel is turned on.">Aviseringskanal</string>
-    <string name="reminder_troubleshooting_check_do_not_disturb" comment="Name of a review reminder troubleshooting check: whether the system Do Not Disturb mode is active.">Stör ej</string>
-    <string name="reminder_troubleshooting_check_battery_optimization" comment="Name of a review reminder troubleshooting check: whether the system restricts the app\'s background battery usage.">Batterioptimering</string>
-    <string name="reminder_troubleshooting_check_power_saving_mode" comment="Name of a review reminder troubleshooting check: whether the system power saving mode is active.">Energisparläge</string>
-    <string name="reminder_troubleshooting_check_exact_alarm_permission" comment="Name of a review reminder troubleshooting check: whether the app has permission to schedule alarms at exact times.">Behörighet för alarm &amp; påminnelser</string>
     <!-- Troubleshooting check statuses -->
-    <string name="reminder_troubleshooting_status_granted" comment="Status of a review reminder troubleshooting check: the permission has been given.">Beviljad</string>
-    <string name="reminder_troubleshooting_status_denied" comment="Status of a review reminder troubleshooting check: the permission has not been given.">Nekad</string>
     <string name="reminder_troubleshooting_status_on" comment="Status of a review reminder troubleshooting check: the system setting is active.">På</string>
     <string name="reminder_troubleshooting_status_off" comment="Status of a review reminder troubleshooting check: the system setting is not active.">Av</string>
     <string name="reminder_troubleshooting_status_unrestricted" comment="Status of the review reminder battery optimization check: the app may run freely in the background.">Obegränsad</string>
@@ -285,27 +197,17 @@
     <!-- Troubleshooting check explanations -->
     <string name="reminder_troubleshooting_explanation_notification_channel" comment="Explains why review reminders need notification permissions to work correctly.">Aviseringskanalen för granskningspåminnelser måste vara aktiverad</string>
     <string name="reminder_troubleshooting_explanation_do_not_disturb" comment="Explains why review reminders may need Do Not Disturb to be disabled to work correctly.">Stör ej kan tysta påminnelser</string>
-    <string name="reminder_troubleshooting_explanation_battery_optimized" comment="Explains to the user that AnkiDroid\'s battery usage is optimized, and that battery usage may need to be enabled for review reminders to work correctly.">Batterioptimering kan fördröja påminnelser</string>
     <string name="reminder_troubleshooting_explanation_battery_restricted" comment="Explains to the user that AnkiDroid\'s battery usage is restricted, and that battery usage may need to be enabled for review reminders to work correctly.">Bakgrundsanvändning är inaktiverad. Påminnelser kanske inte levereras</string>
     <string name="reminder_troubleshooting_explanation_power_saving_mode" comment="Explains why review reminders may need power saving mode to be disabled to work correctly.">Energisparläge kan förhindra tidsenlig leverans av påminnelser</string>
     <string name="reminder_troubleshooting_explanation_exact_alarm" comment="Explains that AnkiDroid cannot schedule alarms at exact times unless the exact-alarm permission is granted.">Krävs för att schemalägga påminnelser vid exakta tider</string>
     <!-- Troubleshooting check actions -->
     <string name="reminder_troubleshooting_action_grant_permission" comment="Button resolving a failing review reminder troubleshooting check by asking for a permission.">Bevilja åtkomst</string>
     <string name="reminder_troubleshooting_action_enable_notification_channel" comment="Button resolving a failing review reminder troubleshooting check by opening the operating system notification settings screen.">Aktivera aviseringskanal</string>
-    <string name="reminder_troubleshooting_action_disable_battery_optimization" comment="Button resolving a failing review reminder troubleshooting check by asking the user to exempt the app from battery optimization.">Inaktivera batterioptimering</string>
     <string name="reminder_troubleshooting_action_open_battery_settings" comment="Button resolving a failing review reminder troubleshooting check by opening the operating system battery settings screen.">Öppna batteriinställningar</string>
     <!-- Notification content -->
-    <string name="review_reminder_notification_title_all_decks" comment="Title of a review reminder notification which is attached to the whole app rather than a single deck.">Det är dags att studera dina kort</string>
-    <string name="review_reminder_notification_title_deck" comment="Title of a review reminder notification for one deck. The parameter is the deck name; the quotation marks are to clearly separate the user-chosen name from the app\'s own text.">Det är dags att studera \"%s\"</string>
-    <string name="review_reminder_notification_snooze_button" comment="Notification button postponing a review reminder by a certain amount of time. The parameter is a duration like \'1h\', \'5m\', etc.">Snooza %s</string>
-    <plurals name="review_reminder_notification_cards_due" comment="Body of a review reminder notification. The parameter is the number of cards due.">
-        <item quantity="one">%d kort förfaller</item>
-        <item quantity="other">%d kort förfaller</item>
-    </plurals>
     <!-- studyoptions -->
     <string name="studyoptions_limit_select_tags">Välj etiketter</string>
     <!-- Deck configurations -->
-    <string name="deck_conf_general" maxLength="41" comment="Label of the submenu for the general options of new deck">Allmänt</string>
     <string name="deck_conf_cram_search" maxLength="41" comment="Label of a text field that contains a search query.">Sök</string>
     <!-- analytics options -->
     <string name="analytics_dialog_title">Hjälp till att förbättra AnkiDroid!</string>
@@ -321,7 +223,6 @@
     <string name="license">Programvarulicens</string>
     <string name="license_description"><![CDATA[Hayaki släpps under licenserna <a href=\"%1$s\">GPL-3.0</a> och <a href=\"%2$s\">AGPL-3.0</a>, med källkoden tillgänglig <a href=\"%3$s\">på GitHub</a>]]></string>
     <string name="other_licenses"><![CDATA[Hayaki använder också tredjepartsbibliotek och ikoner, som licensieras under olika open source <a href=\"%1$s\">licenser</a>.]]></string>
-    <string name="donate_description"><![CDATA[Du kan stödja AnkiDroids utveckling genom att <a href=\"%1$s\">donera</a>. Alla donationer uppskattas enormt!]]></string>
     <!-- Controls -->
     <string name="binding_add_gesture">Lägg till gest</string>
     <string name="binding_add_key">Lägg till knapp</string>
@@ -356,7 +257,6 @@
     <string name="bindings_already_bound">Redan bunden till %s</string>
     <!-- Advanced -->
     <string name="pref_cat_experimental" maxLength="41" tools:ignore="UnusedResources">Experimentellt</string>
-    <string name="readtext_deprecation_warn">Hayaki har infört en bättre TTS-funktion som är kompatibel med andra Anki-klienter och innehåller fler röster och förbättringar av språkuppspelning!\n\nVänligen uppgradera så snart som möjligt, eftersom denna inställning snart kommer att tas bort</string>
     <string name="readtext_reviewer_warn" tools:ignore="UnusedResources">Vänligen uppgradera till det nya text-till-tal-formatet</string>
     <string name="allow_templates_to_record_audio" maxLength="41">Tillåt mallar att spela in ljud</string>
     <string name="template_is_trying_to_record_audio">Denna mall försöker spela in ljud</string>
@@ -443,8 +343,6 @@
     <string name="toolbar" maxLength="41">Verktygsfält</string>
     <string name="toolbar_actions" maxLength="41">Åtgärder i verktygsfältet</string>
     <string name="toolbar_position" maxLength="28">Verktygsfältets position</string>
-    <string name="new_study_screen" maxLength="41">Ny studieskärm</string>
-    <string name="new_study_screen_summ"><![CDATA[Förbättrad studieskärm som kommer att ersätta den nuvarande. Vissa funktioner från den gamla skärmen har ändrats eller tagits bort. Rapportera all <a href="%1$s">feedback</a> eller <a href="%2$s">buggar</a>.]]></string>
     <string name="show_answer_feedback" maxLength="41">Visa svarsfeedback</string>
     <string name="screen" maxLength="41">Skärm</string>
     <string name="also_assign_binding_to_show_answer" comment="Question shown after assigning binding to an \'Answer\' command, asking whether it should also be assigned to the \'Show answer\'; %1$s is \'Show answer\'">Tilldela även till \'%1$s\'?</string>

@@ -34,8 +34,6 @@
         <item quantity="other">إحذف كل البطاقات من %1$s؟ إنها تحتوي على %2$d بطاقة</item>
     </plurals>
     <string name="delete_cram_deck_message">إحذف الرزمة المستخلصة %s وأعد جميع البطاقات إلا رزمها الأصلية؟</string>
-    <string name="no_tts_available_message">لا يتوفر دعم تحويل النص إلى كلام لأي لغة</string>
-    <string name="tts_no_tts">لا تتكلم</string>
     <string name="reposition_card_not_new_error">يمكن تغيير موضع البطاقات الجديدة فقط</string>
     <string name="reset_card_dialog_title">تصفير تقدم البطاقة</string>
     <plurals name="reset_cards_dialog_acknowledge">
@@ -83,13 +81,10 @@
     <string name="dialog_positive_delete" maxLength="28">حذف</string>
     <!-- Currently unsued, should be useful in the future -->
     <string name="dialog_positive_disable" tools:ignore="UnusedResources">تعطيل</string>
-    <string name="dialog_positive_overwrite">استبدال</string>
     <string name="dialog_positive_repair">إصلاح</string>
     <string name="dialog_positive_replace">استبدال</string>
-    <string name="sync_clock_off_with_current_time">%1$s\n\nصحح التاريخ والوقت أو فعل التوقيت التلقائي ثم زامن مجددًا.\n\nالتوقيت الحالي لجهازك هو: %2$s</string>
     <string name="dialog_collection_path_not_dir">المسار المحدد ليس مجلدًا صالحًا</string>
     <string name="dialog_invalid_custom_certificate">لا يُحال النص المُدخل إلى شهادة «X509» مشفرة ب«PEM» صالحة.</string>
-    <string name="dialog_invalid_custom_certificate_title">حدث خطأ في تحليل الشهادة</string>
     <string name="dialog_updated_custom_certificate">تم تحديث الشهادة</string>
     <!-- Media checking -->
     <string name="check_media_warning">قد يستغرق هذا وقتًا طويلًا مع مجموعات الوسائط الكبيرة. أتود الاستمرار؟</string>
@@ -116,7 +111,6 @@
     <string name="multimedia_editor_audio_permission_refused">تعذر الحصول على إذن الميكروفون.</string>
     <string name="multimedia_editor_failed">تعذر فتح محرر الوسائط المتعددة</string>
     <!-- Multimedia - Audio View -->
-    <string name="multimedia_editor_audio_permission_denied">رُفِض إذن تسجيل الصوت</string>
     <string name="permission_denied">رُفِضَ الإذن</string>
     <string name="microphone_permission_denied_message">رُفض إذن الميكروفون. رجاءًا امنحه من إعدادات التطبيق.</string>
     <!-- Database Integrity Check -->
@@ -149,8 +143,6 @@
     <string name="boot_service_failed_to_schedule_notifications">تعذرت جدولة التنبيهات</string>
     <string name="boot_service_too_many_notifications">تمت جدولة كثير من التنبيهات. لن يظهر بعضها</string>
     <!-- Locale Selection Dialog -->
-    <string name="locale_selection_dialog_title_new">ضبط اللغة</string>
-    <string name="locale_selection_dialog_summary">بعض لوحات المفاتيح متعددة اللغات مثل «GBoard» تدعم تغيير اللغة عند تحرير النص\n\nيرجى طلب ميزة «setImeHintLocales» من مُصنّع لوحة المفاتيح الخاصة بك إذا كانت لوحة المفاتيح لا تغيّر اللغة.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">لغة مجهولة [%1$s]</string>
     <!-- Help Dialog -->
     <string name="help_title_using_ankidroid">استخدام Hayaki</string>
@@ -188,7 +180,6 @@
         <item quantity="many">قد تتم مزامنة تلقائية في %d ثانية</item>
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">قد تتم مزامنة تلقائية في %d ثانية</item>
     </plurals>
-    <string name="metered_sync_data_warning">مقدم خدمة الإنترنت الخاص بك قد يدفّعك مالًا بدل استخدامك للبيانات</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
@@ -240,7 +231,6 @@
         <item quantity="many">الفاصل الحالي: %d يومًا</item>
         <item quantity="other">الفاصل الحالي: %d أيام</item>
     </plurals>
-    <string name="range_delimiter" comment="Placed between two input boxes to denote a range">–</string>
     <string name="set_due_date_range_start" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'minimum\' value of this range (inclusive)">من</string>
     <string name="set_due_date_range_end" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'maximum\' value of this range (inclusive)">إلى</string>
     <!-- Instant Note Editor -->
@@ -271,14 +261,9 @@
     <string name="import_error_resolution_copy_to_device">انسخ الملف إلى جهازك وحاول مجدداً باستخدام الملف الذي في جهازك</string>
     <string name="import_error_resolution_select_file">افتح الملف باستخدام تطبيق متصفح الملفات الخاص بجهازك</string>
     <!-- Post-login dialog -->
-    <string name="login_successful">تم تسجيل الدخول</string>
-    <string name="sync_now">أتود المزامنة الآن؟</string>
     <!--Change Note Type Dialog Fragment-->
-    <string name="card_numbers_unchanged">ستبقى أعداد البطاقات كما هي</string>
     <!-- Subset of TR.changeNotetypeToFromCloze -->
-    <string name="extra_cloze_deletions_removed">عند التغيير إلى نوع ملحوظات عادي، إذا كان عدد الفراغات أكبر من عدد القوالب، فإن بطاقات ملء الفراغات الإضافية ستُحذف.</string>
     <string name="different_note_types_selected">رجاءًا اختر ملحوظات ذات نوع واحد.</string>
-    <string name="error_no_changes_to_save">ما من تغييرات لتُحفظ</string>
     <string name="choose_color">اختيار لون</string>
     <!-- Special Fields -->
     <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">الحقول</string>
@@ -293,8 +278,6 @@
     <string name="special_field_card_help" comment="%s: either blank or \' %s\'">اسم قالب البطاقة%s</string>
     <string name="special_field_type_help" comment="%s: either blank or \' %s\'">اسم نوع الملحوظة%s</string>
     <!-- Change Note Type Dialog -->
-    <string name="change_note_type_from" comment="Label indicating the original note type before changing it">مِن</string>
-    <string name="change_note_type_to" comment="Label indicating the new note type to change to">إلى</string>
     <!-- Add and rename profile dialogs -->
     <string name="rename_profile" comment="Title of the dialog where the user renames a profile">تغيير اسم الملف</string>
     <string name="profile_name" comment="Label of the text field where the user types the name of a new profile">اسم الملف</string>

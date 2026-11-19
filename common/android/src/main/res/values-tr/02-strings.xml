@@ -40,8 +40,6 @@
     <string name="updated_version">%s versiyonuna güncellendi</string>
     <!-- Reviewer.kt (Study Screen) -->
     <string name="save_whiteboard" maxLength="28">Yazı tahtasını kaydet</string>
-    <string name="enable_stylus" maxLength="28">Kalem modunu aç</string>
-    <string name="disable_stylus">Kalem kodunu kapat</string>
     <string name="eraser" maxLength="28">Silgi</string>
     <string name="add_brush" maxLength="28">Fırça ekle</string>
     <string name="whiteboard_align_left" comment="Option to align the whiteboard toolbar on the left" maxLength="28">Sol</string>
@@ -56,22 +54,11 @@
     <string name="enable_whiteboard" maxLength="28">Yazı tahtasını etkinleştir</string>
     <string name="disable_whiteboard">Yazı tahtasını devre dışı bırak</string>
     <string name="show_whiteboard">Yazı tahtasını göster</string>
-    <string name="enable_eraser" maxLength="28">Silgiyi etkinleştir</string>
-    <string name="disable_eraser" maxLength="28">Silgiyi devre dışı bırak</string>
     <string name="hide_whiteboard" maxLength="28">Yazı tahtasını gizle</string>
     <string name="clear_whiteboard" maxLength="28">Yazı tahtasını temizle</string>
     <string name="hide_toolbar" maxLength="28">Araç çubuğunu gizle</string>
     <string name="replay_media" maxLength="28">Medyayı yeniden oynat</string>
-    <string name="leech_suspend_notification">Kart asalak olarak işaretlenip askıya alınmış</string>
-    <string name="leech_notification">Kart asalak olarak işaretlenmiş</string>
     <string name="webview_crash_unknown">Bilinmeyen hata</string>
-    <string name="webview_crash_unknwon_detailed">Bu, Web Görünümü\'ndeki dahili bir hatadan kaynaklandı</string>
-    <string name="webview_crash_oom">Bellek doldu</string>
-    <string name="webview_crash_oom_details">Web Görünümü sistem tarafından sonlandırıldı. Bu, genellikle büyük yazı tipleri veya ortamlar nedeniyle uygulamanın belleği bittiğinde meydana gelir.</string>
-    <string name="webview_crash_nonfatal">WebView oluşturucusu çöktü. Neden: %s</string>
-    <string name="webview_crash_fatal">Kritik hata: WebView rendererı çöktü. Sebep: %s</string>
-    <string name="webview_crash_loop_dialog_title">Sistem WebView render arızası</string>
-    <string name="webview_crash_loop_dialog_content">Sistem WebView bu kartı işleyemedi: \'%1$s\'.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">İptal etmek için kaydır</string>
     <string name="filter_by_flags" maxLength="41">Bayraklar</string>
     <!-- filtered deck options -->
@@ -79,7 +66,6 @@
     <string name="filtered_option_delay_hard">Zor için ertele</string>
     <string name="filtered_option_delay_good">İyi için ertele</string>
     <!-- Custom study options -->
-    <string name="custom_study_loading_tags">Etiket listesi oluşturuluyor&#8230;</string>
     <!-- Study options -->
     <plurals name="studyoptions_buried_count">
         <item quantity="one">+%d gömülü</item>
@@ -108,26 +94,16 @@
     <string name="image_cropper_action_flip_vertically" maxLength="28" comment="Submenu action in image cropper screen">Dikey ters çevir</string>
     <!-- Timebox -->
     <string name="timebox_reached_title">Zaman sınırına ulaşıldı</string>
-    <plurals name="timebox_reached">
-        <item quantity="one">%2$s dakikada %1$d kart çalışıldı</item>
-        <item quantity="other">%2$s dakikada %1$d kart çalışıldı</item>
-    </plurals>
     <!-- minutes used in \'[studied in] x minutes\' context, causing inflexion in some languages -->
-    <plurals name="in_minutes">
-        <item quantity="one">%1$d dakika</item>
-        <item quantity="other">%1$d dakika</item>
-    </plurals>
     <string name="fact_adder_intent_title" comment="Label of the \'Add Note\' window. This title can\'t be seen in AnkiDroid directly.">Hayaki kartı</string>
     <string name="note_editor_copy_note" maxLength="28">Notu kopyala</string>
     <string name="card_editor_reposition_card" comment="reposition a card in the new queue" maxLength="28">Yerini değiştir</string>
     <string name="card_editor_reset_card" maxLength="28">İlerlemeyi sıfırla</string>
-    <string name="card_editor_reschedule_card" comment="Action to reschedule a card" maxLength="28">Yeniden planla</string>
     <string name="card_editor_preview_card" comment="Button offering to preview some card(s)" maxLength="28">Önizle</string>
     <string name="copy_as_markdown" comment="Copies text to the clipboard as Markdown" maxLength="28">Markdown olarak kopyala</string>
     <string name="preview_progress_bar_text" comment="What card we are on out of how many in card previewer progress bar">%2$d içinden %1$d tanesi</string>
     <string name="rename" comment="Confirm that the renaming action should be processed." maxLength="28">Yeniden adlandır</string>
     <string name="checks_action" maxLength="28">Kontrol et</string>
-    <string name="unknown_type_field_warning">Cevabı yaz: bilinmeyen alan %s</string>
     <string name="delete_deck" comment="Message on a progress bar starting a deck is being deleted.">Deste siliniyor&#8230;</string>
     <string name="info_rate">AnkiDroid\'e oy ver</string>
     <string name="import_title">İçeri Aktarılıyor</string>
@@ -162,13 +138,11 @@
     <string name="export_choice_save_to">Kaydet</string>
     <string name="export_saving_exported_collection">Dışarı aktarılan dosya kaydediliyor&#8230;</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Çalışma seçenekleri</string>
-    <string name="select_tts" maxLength="28">Metin okuma dilini ayarla</string>
     <string name="dyn_deck_desc">Bu normal programın dışında çalışmak için özel bir deste. Kartlar çalışıldıktan sonra otomatik olarak kendi destelerine geri dönecekler. Bu desteyi deste listesinden silmek kalan bütün kartları kendi destelerine geri döndürecek.</string>
     <string name="tag_editor_add_feedback">\"%1$s\" eklemek için buna dokunun: \"%2$s\"</string>
     <string name="tag_editor_add_feedback_existing">Varolan bir etiketi seçtiniz: \"%1$s\"</string>
     <string name="tag_already_exists">Etiket hâlihazırda var</string>
     <string name="error_name_exists">İsim zaten var</string>
-    <string name="warning_find_and_replace">Bu seçeneği kullanmadan önce Deste Seçiciden koleksiyonunuzu yedeklemeyi düşünün!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">Apkg dosyasını paylaşırken hata</string>
@@ -179,14 +153,10 @@
     <string name="web_page_error">Sayfa yüklenirken hata: %s</string>
     <!-- The name of the deck which corrupt cards will be moved to -->
     <!-- Deckpicker Background -->
-    <string name="background_image_title" maxLength="41">Arkaplan</string>
-    <string name="remove_wallpaper_image" maxLength="41">Arkaplanı kaldır</string>
     <string name="remove_background_image">Arkaplanı kaldırmak istediğinize emin misiniz?</string>
     <!-- Card Template Browser Appearance -->
     <string name="restore_default" maxLength="28">Varsayılana döndür</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
-    <string name="white_board_eraser_enabled">Silgi modu etkinleştirildi</string>
-    <string name="white_board_eraser_disabled">Silgi modu devre dışı bırakıldı</string>
     <string comment="Progress amount e.g. \'28 MB/141 MB\'. %1$s is the current amount, %2$s is the max." name="progress_amount_bytes">%1$s /%2$s</string>
     <string name="media_file_size_warning_title">Dosya çok büyük</string>
     <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">Dosya \"%1$s\" (%2$s) AnkiWeb\'in limitini %3$s  aşıyor ve senkronize olamıyor. Yine de ekle?</string>
@@ -194,7 +164,6 @@
     <!-- Whiteboard save image message in the Study Screen -->
     <string name="white_board_image_save_failed">Yazı tahtası resmi kaydedilemedi. %s</string>
     <string name="white_board_image_saved">Yazı tahtası resmi bu adrese kaydedildi: %s</string>
-    <string name="title_whiteboard_editor" maxLength="28">Yazı tahtası düzenleyici</string>
     <string name="user_is_a_robot">Otomatik test saptandı. Eğer insansanız, AnkiDroid desteğiyle iletişime geçin</string>
     <!-- JS api -->
     <string name="api_version_developer_contact">Bu kart desteklenmeyen AnkiDroid özellikleri kullanıyor. Geliştiriciyle iletişime geçin (%1$s), veya vikiye bakın. %2$s</string>
@@ -247,7 +216,6 @@
     <string name="create_shortcut_error">Kısayolu eklerken hata: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">Cümlelerin baş harflerini büyült</string>
     <!-- Dialog hints -->
-    <string name="dialog_hint_url">URL</string>
     <string name="dialog_hint_certificate">Sertifika</string>
     <!-- IncrementNumberRangePreference -->
     <string name="plus_sign" comment="Label for increment button in IncrementerNumberRangePreference">+</string>
@@ -256,7 +224,6 @@
     <string name="maximum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the maximum allowed value">Maksimum değer %d</string>
     <string name="minimum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the minimum allowed value">Minimum değer %d</string>
     <!-- Used for credential empty warning message -->
-    <string name="invalid_email">Geçerli bir e-posta girin</string>
     <string name="password_empty">Parola gereklidir</string>
     <string name="back_pressed_once">Çıkmak için tekrar geri gidin</string>
     <!-- %% is required to display % symbol. Reference: https://stackoverflow.com/a/16834358 -->
@@ -281,11 +248,6 @@
     <string name="home" maxLength="28">Ana sayfa</string>
     <!-- Study Screen actions
     Each of these strings ends with a period, following the notation of Anki Desktop -->
-    <string name="card_buried">Kart gizlendi.</string>
-    <plurals name="note_suspended">
-        <item quantity="one">%d kart askıya alındı.</item>
-        <item quantity="other">%d kart askıya alındı.</item>
-    </plurals>
     <!--  Note Editor Toggle Sticky  -->
     <string name="note_editor_toggle_sticky">%s alanını yapışkan yap</string>
     <string name="scoped_storage_learn_more">Daha fazlasını öğren</string>
@@ -299,20 +261,13 @@
     <!--  Hierarchical Tags  -->
     <string name="expand_tag">\"%s\" etiketini genişlet</string>
     <!-- Manage note types -->
-    <string name="field_editor_model_not_available">Koleksiyona erişilemedi. Lütfen tekrar deneyin!</string>
-    <string name="cd_manage_notetypes_add">Yeni bir not türü ekle</string>
     <plurals name="note_types_selected">
         <item quantity="one">%d not türü seçili</item>
         <item quantity="other">%d not türü seçili</item>
     </plurals>
     <!-- App Intro -->
-    <string name="intro_ankidroid_tagline_one">Daha az ders çalış</string>
-    <string name="intro_ankidroid_tagline_two">Daha çok hatırla</string>
-    <string name="intro_short_ankidroid_explanation">Anki\'nin kart zamanlayıcısı en zayıf anılarınızı güçlendirip en güçlülerinizi muhafaza ederek zaman kazandırır</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Hemen başla</string>
     <string name="intro_sync_from_ankiweb">AnkiWeb\'den senkronize et</string>
     <!-- IntentHandler -->
-    <string name="app_not_initialized_new">Hayaki henüz açılmadı. Lütfen Hayaki\'i açıp tekrar deneyin</string>
     <!-- Deck Creation -->
     <string name="deck_created">Deste oluşturuldu</string>
     <string name="deck_renamed">Deste yeniden adlandırıldı</string>
@@ -345,14 +300,11 @@
     <string name="card_template_reposition_template" comment="move a card template to a new position" maxLength="28">Yerini değiştir</string>
     <string name="previewer_next" comment="Name of the next button in the previewer" maxLength="28">Sonraki</string>
     <string name="previewer_back" comment="Name of the back button in the previewer" maxLength="28">Önceki</string>
-    <string name="start_recording">Kayda başla</string>
     <string name="stop_recording">Durdur</string>
     <string name="play_recording">Oynat</string>
-    <string name="next_recording" comment="Description of a button to go to the next recording">Sonraki</string>
     <!--  AlertDialog in the deleteCardTemplate  -->
     <string name="orphan_note_title">Kart türü silinemiyor</string>
     <string name="orphan_note_message">Bu kart türünü silmek bazı notları kartsız bırakacak.</string>
-    <string name="voice_not_supported">Seslendirme desteklenmiyor. Başka bir seslendirme motoru deneyin ya da bir tane yükleyin.</string>
     <!--Keyboard shortcuts dialog-->
     <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deste seçici</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Desteyi onay sormadan sil</string>

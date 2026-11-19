@@ -31,7 +31,6 @@
     <!-- theme labels -->
     <string name="theme_follow_system">Tizimga rioya qiliş</string>
     <string name="theme_day" comment="Day/Light theme color scheme">Kun</string>
-    <string name="theme_night" comment="Night/Dark theme color scheme">Tun</string>
     <!-- day_theme_labels -->
     <string name="day_theme_light">Yoruğ</string>
     <string name="day_theme_plain">Oddiy</string>

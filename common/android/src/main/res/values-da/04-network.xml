@@ -26,18 +26,14 @@
     <string name="youre_offline">Du er offline</string>
     <string name="sync_error">Synkroniseringsfejl</string>
     <string name="vague_error" comment="Network error dialog title">Fejl</string>
-    <string name="retry">Prøv igen</string>
     <string name="menu_get_shared_decks">Få delte kortsæt</string>
-    <string name="connection_error_message">Der opstod en netværksfejl</string>
     <string name="not_logged_in_title">Log ind på AnkiWeb</string>
     <string name="login_create_account_message">For at synkronisere skal du logge ind på en tredjepartskonto. Du kan oprette en i næste trin.</string>
     <!-- MyAccount.kt -->
-    <string name="username">E-mailadresse</string>
     <string name="password">Adgangskode</string>
     <string name="sign_up_description">Har du endnu ikke en AnkiWeb-konto? Det er gratis!</string>
     <string name="sign_up_not_affiliated">Bemærk: AnkiWeb er ikke forbundet med AnkiDroid</string>
     <string name="sign_up">Tilmeld dig</string>
-    <string name="logged_as">Logget på som</string>
     <string name="reset_password">Nulstil adgangskode</string>
     <string name="lost_mail_instructions">Glemt e-mail?</string>
     <string name="sign_in">Logger på</string>
@@ -46,10 +42,7 @@
     <string name="sync_log_uploading_message">Fuld synkronisering fra lokalt lager</string>
     <string name="sync_database_acknowledge">Samling synkroniseret</string>
     <string name="col_synced_media_in_background">Samling synkroniseret. Medier synkroniseres i baggrunden.</string>
-    <string name="sync_corrupt_database">Din database er beskadiget. Ret den, før du igen forsøger at synkronisere.\n\nSe %s for oplysninger om reparation af din database.</string>
     <!-- Please run ‘Check database’ before syncing -->
-    <string name="sync_sanity_local">Lokal</string>
-    <string name="sync_sanity_remote">Ekstern</string>
     <string name="one_way_sync_title" maxLength="41">Envejs-synkronisering</string>
     <string name="one_way_sync_confirmation">Envejs-synkronisering anmodet</string>
     <string name="full_sync_confirmation">Den ønskede ændring vil kræve en fuld upload af databasen, næste gang du synkroniserer din samling. Hvis du har anmeldelser eller andre ændringer, der venter på en anden enhed, der ikke er synkroniseret her endnu, vil de gå tabt. Fortsæt?</string>

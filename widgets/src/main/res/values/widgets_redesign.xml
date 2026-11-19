@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <resources>
-    <string name="widget_due_label">due</string>
+    <string name="widget_due_label" comment="Label below the total due card count in the small home screen widget. The English label uses lowercase.">due</string>
     <string name="widget_minutes">%d min</string>
     <string name="widget_brand">Hayaki</string>
     <plurals name="widget_due_today">
@@ -10,7 +10,7 @@
     </plurals>
     <string name="widget_count_new">New</string>
     <string name="widget_count_learning">Learning</string>
-    <string name="widget_count_due">Due</string>
+    <string name="widget_count_due" comment="Category name read aloud by screen readers before the due review count for a deck in the deck list widget">Due</string>
     <string name="widget_deck_missing">This Deck is gone</string>
     <string name="widget_choose_decks_hint">Tap to choose another</string>
     <string name="widget_choose_decks">Choose Decks</string>

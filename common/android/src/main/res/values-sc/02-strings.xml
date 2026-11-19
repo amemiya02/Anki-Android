@@ -40,8 +40,6 @@
     <string name="updated_version">Atualizadu a sa versione %s</string>
     <!-- Reviewer.kt (Study Screen) -->
     <string name="save_whiteboard" maxLength="28">Sarva sa lavagna</string>
-    <string name="enable_stylus" maxLength="28">Abìlita sa modalidade penninu</string>
-    <string name="disable_stylus">Disabìlita sa modalidade penninu</string>
     <string name="eraser" maxLength="28">Eraser</string>
     <string name="add_brush" maxLength="28">Add brush</string>
     <string name="whiteboard_align_left" comment="Option to align the whiteboard toolbar on the left" maxLength="28">Left</string>
@@ -56,23 +54,11 @@
     <string name="enable_whiteboard" maxLength="28">Abìlita sa lavagna</string>
     <string name="disable_whiteboard">Disabìlita sa lavagna</string>
     <string name="show_whiteboard">Ammustra sa lavagna</string>
-    <string name="enable_eraser" maxLength="28">Enable eraser</string>
-    <string name="disable_eraser" maxLength="28">Disable eraser</string>
     <string name="hide_whiteboard" maxLength="28">Cua sa lavagna</string>
     <string name="clear_whiteboard" maxLength="28">Isbòida sa lavagna</string>
     <string name="hide_toolbar" maxLength="28">Hide toolbar</string>
     <string name="replay_media" maxLength="28">Replay media</string>
-    <string name="leech_suspend_notification">Carta marcada comente sambisua e suspèndida</string>
-    <string name="leech_notification">Carta marcada comente sambisua</string>
     <string name="webview_crash_unknown">Faddina disconnota</string>
-    <string name="webview_crash_unknwon_detailed">Custu est istadu causadu dae una faddina interna de su renderizadore WebView</string>
-    <string name="webview_crash_oom">Out of memory</string>
-    <string name="webview_crash_oom_details">Su renderizadore WebView est istadu blocadu dae su sistema. Custu de sòlitu acontessit cando s\'aplicatzione non tenet prus memòria lìbera, fatu-fatu pro neghe de caràteres o documentos multimediales mannos.</string>
-    <string name="webview_crash_nonfatal">Su renderizadore WebView s\'est blocadu. Càusa: %s</string>
-    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
-    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
-    <string name="webview_crash_loop_dialog_content">Su renderizadore WebView de sistema no est resèssidu a renderizare sa carta \'%1$s\'.\n
-   %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Slide to cancel</string>
     <string name="filter_by_flags" maxLength="41">Banderas</string>
     <!-- filtered deck options -->
@@ -80,7 +66,6 @@
     <string name="filtered_option_delay_hard">Delay for hard</string>
     <string name="filtered_option_delay_good">Delay for good</string>
     <!-- Custom study options -->
-    <string name="custom_study_loading_tags">Building list of tags&#8230;</string>
     <!-- Study options -->
     <plurals name="studyoptions_buried_count">
         <item quantity="one">+%d interrada</item>
@@ -110,26 +95,16 @@
     <string name="image_cropper_action_flip_vertically" maxLength="28" comment="Submenu action in image cropper screen">Flip vertically</string>
     <!-- Timebox -->
     <string name="timebox_reached_title">Lìmite de tempus barigadu</string>
-    <plurals name="timebox_reached">
-        <item quantity="one">%1$d carta istudiada in %2$s</item>
-        <item quantity="other">%1$d cartas istudiadas in %2$s</item>
-    </plurals>
     <!-- minutes used in \'[studied in] x minutes\' context, causing inflexion in some languages -->
-    <plurals name="in_minutes">
-        <item quantity="one">%1$d minutu</item>
-        <item quantity="other">%1$d minutos</item>
-    </plurals>
     <string name="fact_adder_intent_title" comment="Label of the \'Add Note\' window. This title can\'t be seen in AnkiDroid directly.">Carta de Hayaki</string>
     <string name="note_editor_copy_note" maxLength="28">Còpia sa nota</string>
     <string name="card_editor_reposition_card" comment="reposition a card in the new queue" maxLength="28">Muda de positzione</string>
     <string name="card_editor_reset_card" maxLength="28">Reseta su progressu</string>
-    <string name="card_editor_reschedule_card" comment="Action to reschedule a card" maxLength="28">Torra a pranificare</string>
     <string name="card_editor_preview_card" comment="Button offering to preview some card(s)" maxLength="28">Antiprima</string>
     <string name="copy_as_markdown" comment="Copies text to the clipboard as Markdown" maxLength="28">Còpia comente Markdown</string>
     <string name="preview_progress_bar_text" comment="What card we are on out of how many in card previewer progress bar">%1$d de %2$d</string>
     <string name="rename" comment="Confirm that the renaming action should be processed." maxLength="28">Muda de nùmene</string>
     <string name="checks_action" maxLength="28">Verìfica</string>
-    <string name="unknown_type_field_warning">Iscrie sa risposta: campu disconnotu %s</string>
     <string name="delete_deck" comment="Message on a progress bar starting a deck is being deleted.">Iscantzellende su matzu&#8230;</string>
     <string name="info_rate">Dae unu votu a AnkiDroid</string>
     <string name="import_title">Importende</string>
@@ -164,13 +139,11 @@
     <string name="export_choice_save_to">Sarva in</string>
     <string name="export_saving_exported_collection">Sarvende su documentu esportadu&#8230;</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Optziones de istùdiu</string>
-    <string name="select_tts" maxLength="28">Imposta sa limba de su sintetizadore de boghe</string>
     <string name="dyn_deck_desc">Custu est unu matzu ispetziale pro istudiare in foras de sa pranificatzione normale. Sas cartas ant a torrare in manera automàtica a sos matzos originales issoro a pustis chi las as a revisionare. Iscantzellende custu matzu dae sa lista de matzos at a fàghere torrare totu sas cartas chi abarrant a sos matzos originales issoro.</string>
     <string name="tag_editor_add_feedback">Toca “%2$s” pro cunfirmare s\'annanta de “%1$s”</string>
     <string name="tag_editor_add_feedback_existing">Eticheta chi esistit “%1$s” seletzionada</string>
     <string name="tag_already_exists">Tag already exists</string>
     <string name="error_name_exists">Name already exists</string>
-    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">Faddina cumpartzende su documentu apkg</string>
@@ -181,14 +154,10 @@
     <string name="web_page_error">Faddina de carrigamentu de sa pàgina: %s</string>
     <!-- The name of the deck which corrupt cards will be moved to -->
     <!-- Deckpicker Background -->
-    <string name="background_image_title" maxLength="41">Isfundu</string>
-    <string name="remove_wallpaper_image" maxLength="41">Remove background</string>
     <string name="remove_background_image">Are you sure you wish to remove the background?</string>
     <!-- Card Template Browser Appearance -->
     <string name="restore_default" maxLength="28">Restore default</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
-    <string name="white_board_eraser_enabled">Eraser mode activated</string>
-    <string name="white_board_eraser_disabled">Eraser mode deactivated</string>
     <string comment="Progress amount e.g. \'28 MB/141 MB\'. %1$s is the current amount, %2$s is the max." name="progress_amount_bytes">%1$s/%2$s</string>
     <string name="media_file_size_warning_title">Media too large</string>
     <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">The file \"%1$s\" (%2$s) exceeds the AnkiWeb limit of %3$s and cannot be synced. Add anyway?</string>
@@ -196,7 +165,6 @@
     <!-- Whiteboard save image message in the Study Screen -->
     <string name="white_board_image_save_failed">Sarvamentu de s\'immàgine de sa lavagna fallidu. %s</string>
     <string name="white_board_image_saved">Immàgine de sa lavagna sarvada in %s</string>
-    <string name="title_whiteboard_editor" maxLength="28">Editore de sa lavagna</string>
     <string name="user_is_a_robot">Test automàticu agatadu. Si ses un\'umanu cuntata su suportu de AnkiDroid</string>
     <!-- JS api -->
     <string name="api_version_developer_contact">Custa carta impreat funtzionalidades de AnkiDroid non suportadas. Cuntata s\'isvilupadore %1$s o pòmpia·ti sa wiki. %2$s</string>
@@ -249,7 +217,6 @@
     <string name="create_shortcut_error">Errore annanghende s\'incurtzada: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">Pone in majùsculu sas fràsias</string>
     <!-- Dialog hints -->
-    <string name="dialog_hint_url">URL</string>
     <string name="dialog_hint_certificate">Certificate</string>
     <!-- IncrementNumberRangePreference -->
     <string name="plus_sign" comment="Label for increment button in IncrementerNumberRangePreference">+</string>
@@ -258,7 +225,6 @@
     <string name="maximum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the maximum allowed value">Maximum value is %d</string>
     <string name="minimum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the minimum allowed value">Minimum value is %d</string>
     <!-- Used for credential empty warning message -->
-    <string name="invalid_email">Inserta un\'indiritzu de posta vàlidu</string>
     <string name="password_empty">Sa crae est netzessària</string>
     <string name="back_pressed_once">Go back again to exit</string>
     <!-- %% is required to display % symbol. Reference: https://stackoverflow.com/a/16834358 -->
@@ -283,11 +249,6 @@
     <string name="home" maxLength="28">Pàgina printzipale</string>
     <!-- Study Screen actions
     Each of these strings ends with a period, following the notation of Anki Desktop -->
-    <string name="card_buried">Carta interrada.</string>
-    <plurals name="note_suspended">
-        <item quantity="one">%d carta suspèndida.</item>
-        <item quantity="other">%d cartas suspèndidas.</item>
-    </plurals>
     <!--  Note Editor Toggle Sticky  -->
     <string name="note_editor_toggle_sticky">Fissa su campu %s</string>
     <string name="scoped_storage_learn_more">Àteras informatziones</string>
@@ -301,20 +262,13 @@
     <!--  Hierarchical Tags  -->
     <string name="expand_tag">Ismànnia s\'eticheta \'%s\'</string>
     <!-- Manage note types -->
-    <string name="field_editor_model_not_available">Atzessu a sa colletzione fallidu. Torra a proare!</string>
-    <string name="cd_manage_notetypes_add">Annanghe una casta de documentu noa</string>
     <plurals name="note_types_selected">
         <item quantity="one">%d note type selected</item>
         <item quantity="other">%d note types selected</item>
     </plurals>
     <!-- App Intro -->
-    <string name="intro_ankidroid_tagline_one">Istùdia de mancu</string>
-    <string name="intro_ankidroid_tagline_two">Ammenta de prus</string>
-    <string name="intro_short_ankidroid_explanation">Su pranificadore de cartas de Anki rispàrmiat tempus afortiende sos ammentos prus dèbiles tuos e preservende sos prus fortes</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">Sincroniza dae AnkiWeb</string>
     <!-- IntentHandler -->
-    <string name="app_not_initialized_new">Hayaki no est galu aviadu. Torra a abèrrere Hayaki e a proare</string>
     <!-- Deck Creation -->
     <string name="deck_created">Matzu creadu</string>
     <string name="deck_renamed">Matzu mudadu de nùmene</string>
@@ -347,14 +301,11 @@
     <string name="card_template_reposition_template" comment="move a card template to a new position" maxLength="28">Muda de positzione</string>
     <string name="previewer_next" comment="Name of the next button in the previewer" maxLength="28">Next</string>
     <string name="previewer_back" comment="Name of the back button in the previewer" maxLength="28">Back</string>
-    <string name="start_recording">Registra</string>
     <string name="stop_recording">Firma</string>
     <string name="play_recording">Riprodui</string>
-    <string name="next_recording" comment="Description of a button to go to the next recording">Imbeniente</string>
     <!--  AlertDialog in the deleteCardTemplate  -->
     <string name="orphan_note_title">Cannot delete card type</string>
     <string name="orphan_note_message">S\'iscantzelladura de custa casta de carta at a lassare unas cantas notas chene carta peruna.</string>
-    <string name="voice_not_supported">Boghe non suportada. Proa·nde un\'àtera o installa unu motore vocale.</string>
     <!--Keyboard shortcuts dialog-->
     <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Iscantzella su matzu chene cunfirma</string>

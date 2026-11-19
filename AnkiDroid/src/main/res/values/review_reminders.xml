@@ -10,17 +10,17 @@
     <string name="review_reminders_condition_unstudied">Only if not studied today</string>
     <string name="review_reminder_switch">Reminder at %1$s</string>
     <string name="review_reminder_time">Time</string>
-    <string name="review_reminder_deck">Deck</string>
+    <string name="review_reminder_deck" comment="Label for choosing the deck a review reminder applies to">Deck</string>
     <string name="review_reminder_threshold">Only when enough Cards are due</string>
     <string name="review_reminder_at_least">At least</string>
-    <string name="review_reminder_cards">Cards</string>
+    <string name="review_reminder_cards" comment="Unit displayed after the minimum card count in a review reminder. Use the form that follows a number.">Cards</string>
     <string name="review_reminder_card_count">Minimum number of Cards</string>
     <string name="review_reminder_increase">Increase minimum</string>
     <string name="review_reminder_decrease">Decrease minimum</string>
     <string name="review_reminder_count_these">Count these</string>
     <string name="review_reminder_new">New</string>
     <string name="review_reminder_learning">Learning</string>
-    <string name="review_reminder_due">Due</string>
+    <string name="review_reminder_due" comment="Chip for including due review cards in the reminder threshold count">Due</string>
     <string name="review_reminder_only_if_unstudied">Only if I haven’t studied today</string>
     <string name="review_reminder_select_time">Select time</string>
     <string name="review_reminder_clock_input">Use clock dial</string>

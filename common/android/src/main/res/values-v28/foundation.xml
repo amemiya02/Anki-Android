@@ -92,8 +92,4 @@
         <item name="android:lineHeight">16sp</item>
     </style>
 
-    <style name="TextAppearance.Foundation.Label.Current" parent="Base.TextAppearance.Foundation.Label.Current">
-        <item name="android:textFontWeight">700</item>
-        <item name="android:lineHeight">16sp</item>
-    </style>
 </resources>

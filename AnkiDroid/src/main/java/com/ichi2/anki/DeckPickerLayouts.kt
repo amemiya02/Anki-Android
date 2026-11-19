@@ -154,7 +154,7 @@ class AddMenuLayout internal constructor(
         addOption(context, R.id.add_filtered_deck_button, R.drawable.symbol_filter_alt, CommonString.new_dynamic_deck)
     val addDeckButton = addOption(context, R.id.add_deck_button, R.drawable.symbol_create_new_folder)
     val fabMain =
-        DeckPickerAddButton(context, CommonR.drawable.symbol_add, primary = true).apply {
+        DeckPickerAddButton(context).apply {
             id = R.id.fab_main
         }
 

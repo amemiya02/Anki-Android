@@ -69,7 +69,6 @@
     <string name="undo" maxLength="28" comment="When tapping on this text, the last action is undone.">Cofnij</string>
     <string name="redo" maxLength="28" comment="Menu entry that allows to redo action that was just undone.">Ponów</string>
     <!-- flashcard_portrait.xml -->
-    <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Cofnij pociągnięcie pędzlem</string>
     <string name="move_all_to_deck">Przenieś wszystkie do talii</string>
     <string name="create_shortcut">Utwórz skrót</string>
     <string name="browse_cards">Przeglądaj karty</string>
@@ -77,14 +76,9 @@
     <string name="menu_add" comment="A generic add button. Please inform us if you need more specific strings" maxLength="28">Dodaj</string>
     <string name="menu_add_note" maxLength="28">Dodaj notatkę</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Synchronizacja konta</string>
-    <string name="menu_dismiss_note" maxLength="41">Ukryj / Usuń</string>
     <string name="rename_flag">Zmień flagi</string>
     <string name="menu_edit_tags" maxLength="28">Edytuj tagi</string>
-    <string name="delete_note_message">Jesteś pewny, że chcesz usunąć tę notatkę i wszystkie jej karty?\n%s</string>
-    <string name="menu_search" maxLength="28">Wyszukiwanie w %1$s</string>
     <string name="menu_unmark_note">Cofnij wyróżnienie notatki</string>
-    <string name="menu_enable_voice_playback" maxLength="28">Włącz odtwarzanie głosu</string>
-    <string name="menu_disable_voice_playback">Wyłącz odtwarzanie dźwięku</string>
     <string name="menu_create_backup" maxLength="28">Utwórz kopię zapasową</string>
     <string name="new_dynamic_deck">Stwórz talię filtrowaną</string>
     <string name="directory_inaccessible">Katalog Hayaki jest niedostępny</string>
@@ -97,7 +91,6 @@
     <string name="empty_cram_label" maxLength="28">Wyczyść</string>
     <string name="create_subdeck">Utwórz talię podrzedną</string>
     <string name="empty_filtered_deck">Opróżnienie talii filtrowanej&#8230;</string>
-    <string name="search_deck" comment="Deck search for selecting it">Wyszukiwanie talii</string>
     <string name="empty_deck">Ta talia jest pusta</string>
     <string name="invalid_deck_name">Nieprawidłowa nazwa talii</string>
     <string name="studyoptions_congrats_finished">Gratulacje! Zakończono powtórki na dziś.</string>
@@ -109,7 +102,6 @@
     <string name="continue_sync" tools:ignore="UnusedResources">Kontynuuj synchronizację</string>
     <string name="sync_cancelled" tools:ignore="UnusedResources">Synchronizacja przerwana</string>
     <string name="sync_cancel_message" tools:ignore="UnusedResources">Anulowanie&#8230;\nTo może chwilę zająć.</string>
-    <string name="syncing_media">Synchronizowanie mediów</string>
     <string name="export_deck" maxLength="28">Eksportuj talię</string>
     <string name="export_collection">Eksportuj kolekcję</string>
     <!-- Card template editor -->
@@ -139,12 +131,6 @@
     <string name="card_browser_context_menu" comment="The value which appears in the system context menu.">Przeglądarka kart</string>
     <string name="context_menu_anki_card_label">Karta Anki</string>
     <!-- Sync conflict -->
-    <string name="sync_conflict_message_new">Kolekcje nie mogą zostać połączone.\nKtórą kolekcję chcesz zachować?</string>
-    <string name="sync_conflict_keep_local_new" comment="Select AnkiDroid files to keep while syncing">Hayaki</string>
-    <string name="sync_conflict_keep_remote_new" comment="Select AnkiWeb files to keep while syncing">AnkiWeb</string>
-    <string name="sync_conflict_remote_confirm_new">Czy zastąpić twoją kolekcję Hayaki kolekcją z AnkiWeb?</string>
-    <string name="sync_conflict_local_confirm_new">Czy zastąpić twoją kolekcję AnkiWeb kolekcją z Hayaki?</string>
-    <string name="sync_conflict_title_new">Wybierz kolekcję, którą chcesz zachować</string>
     <string name="sync_conflict_replace_title">Zastąp kolekcję</string>
     <!-- Generic errors -->
     <string name="error__etc__cannot_write_to_or_create_file">Nie można zapisać do lub utworzyć pliku %s</string>

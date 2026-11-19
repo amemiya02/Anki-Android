@@ -24,7 +24,6 @@
   -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- generic strings -->
-    <string name="enabled" comment="Generic label for something that is turned on">فعال شده</string>
     <string name="disabled" comment="Generic label for something that is turned off">غیر فعال شده</string>
     <plurals name="pref_summ_minutes">
         <item quantity="one">%d دقیقه</item>
@@ -32,17 +31,13 @@
     </plurals>
     <string name="pref_milliseconds">%s هزارم‌ثانیه</string>
     <!-- TODO: move to 20-search-preference so we can contribute upstream (searchpreference_no_results)-->
-    <string name="pref_search_no_results">بدون نتیجه</string>
     <!-- preferences.xml categories-->
     <string name="pref_cat_general" comment="name of the general preference category" maxLength="41">عمومی</string>
     <string name="pref_cat_studying" maxLength="41">مطالعه کردن</string>
     <string name="pref_cat_system_wide" maxLength="41">در کل سیستم</string>
-    <string name="pref_cat_reviewing" maxLength="41">مرور</string>
     <string name="pref_cat_sync" comment="title of the sync preferences category" maxLength="41">همگام سازی</string>
     <string name="pref_cat_scheduling" maxLength="41">زمان‌بندی</string>
     <string name="pref_cat_whiteboard" maxLength="41">وایت بورد</string>
-    <string name="pref_cat_themes" maxLength="41">تِم ها</string>
-    <string name="pref_cat_gestures" maxLength="41">حرکات دست</string>
     <string name="pref_cat_controls" maxLength="41">کنترل ها</string>
     <string name="pref_cat_advanced" maxLength="41">پیشرفته</string>
     <string name="pref_cat_workarounds" maxLength="41">راه‌حل‌ها</string>
@@ -61,10 +56,6 @@
     <string name="whiteboard_stroke_width" maxLength="41">کلفتی خط</string>
     <string name="use_input_tag" maxLength="41">پاسخ را در کارت بنویسید</string>
     <string name="use_input_tag_summ">از یک کادر نوشتن متن درون کارت برای نوشتن پاسخ استفاده کنید</string>
-    <string name="reset_languages" maxLength="41">بازنشانی زبان‌ها</string>
-    <string name="reset_languages_summ">تنظیم مجدد زبان ( برای تبدیل متن به گفتار و فرهنگ لغت ها) برای تمامی دسته ها</string>
-    <string name="reset_languages_question">کل زبان فعلی را دوباره تنظیم می کنید؟</string>
-    <string name="reset_confirmation">تنظیم مجدد تمام وضعیت ها</string>
     <string name="card_zoom" maxLength="41">بزرگ نمایی کارت</string>
     <string name="image_zoom" maxLength="41">بزرگ نمایی عکس</string>
     <string name="button_size" maxLength="41">اندازه دکمه پاسخ</string>
@@ -72,18 +63,6 @@
     <string name="card_browser_hide_media" maxLength="41">نمایش نام فایل‌ها در مرورگر کارت</string>
     <string name="card_browser_hide_media_summary">نمایش نام فایل‌های صوتی در کادر‌های پرسش/پاسخ مرورگر کارت</string>
     <string name="col_path" maxLength="41">مسیر قرارگیری Hayaki</string>
-    <string name="fullscreen_review" maxLength="41">حالت تمام‌صفحه</string>
-    <string name="full_screen_off" comment="Value of the fullscreen mode preference meaning fullscreen is not used">خاموش</string>
-    <string name="full_screen_system">پنهان کردن نوار سیستم</string>
-    <string name="full_screen_complete">پنهان کردن نوارهای سیستم و دکمه های پاسخ</string>
-    <string name="answer_buttons_position" maxLength="41">موقعیت دکمه های پاسخ</string>
-    <string-array name="answer_buttons_position_labels">
-        <item>بالا</item>
-        <item>پایین</item>
-        <item>هیچ کدام</item>
-    </string-array>
-    <string name="gestures" maxLength="41">فعالسازی حرکات لمسی</string>
-    <string name="gestures_summ">استفاده از حرکات و ضربات لمسی برای انجام کارهایی مثل پاسخ دادن و ویرایش کارت‌ها.</string>
     <string name="gestures_corner_touch" maxLength="41">لمس صفحه 9 قسمت</string>
     <string name="gestures_corner_touch_summary">اجازه بده برای حرکات لمس در گوشه های صفحه</string>
     <string name="show_keyboard_shortcuts" maxLength="41">نمایش میانبر های صفحه کلید</string>
@@ -110,38 +89,18 @@
     <string name="gestures_shake" maxLength="41">لرزش دستگاه</string>
     <string name="card_browser_enable_external_context_menu" maxLength="41">منوی «%s»</string>
     <string name="card_browser_enable_external_context_menu_summary">\'%s\' را در لیست به صورت عمومی فعال می‌کند</string>
-    <string name="double_scrolling_gap" maxLength="41">پیمایش دو برابری</string>
-    <string name="double_scrolling_gap_summ">فعال کنید اگر می‌خواهید فاصله پیمایش را در کتابخوان دیجیتالی دو برابر کنید</string>
     <string name="swipe_sensitivity" maxLength="41">حساسیت حرکت لمسی</string>
-    <string name="tts" maxLength="41">متن به گفتار</string>
-    <string name="tts_summ">اگر هیچ فایل صدایی نبود پرسش و پاسخ را بخوان</string>
     <!-- Sync -->
-    <string name="sync_fetch_missing_media" maxLength="41">آوردن رسانه ها در همگام سازی</string>
     <string name="sync_account_summ_logged_out">هنوز وارد سایت نشده</string>
-    <string name="automatic_sync_choice" maxLength="41">همگام سازی خودکار</string>
-    <string name="automatic_sync_choice_summ">همگام سازی خودکار موقع ورود و خروج از برنامه اگر از آخرین همگام سازی بیشتر از 10 دقیقه گذشته باشد.</string>
     <string name="sync_media_always" comment="Option to always fetch media when syncing">همیشه</string>
     <string name="sync_media_only_unmetered">فقط بر روی اتصال‌های بدون محدودیت</string>
     <string name="sync_media_never">هرگز</string>
-    <string name="sync_status_badge" maxLength="41">وضعیت همگام سازی را نشان بده</string>
-    <string name="sync_status_badge_summ">علامت همگام سازی را تغییر بده وقتی تغییرات در حال آپلود شدن هستند</string>
-    <string name="metered_sync_title" maxLength="41">همگام سازی اجازه دارد بر روی اتصال‌های اندازه‌گیری شده انجام شود</string>
-    <string name="metered_sync_summary">اگر غیرفعال شود، چنانچه شبکه شما دارای اتصال‌های اندازه گیری شده باشد، هنگام همگام کردن پیغام هشدار دریافت می‌کنید</string>
-    <string name="backup_limits_frequency">فرکانس</string>
-    <string name="backup_limits_lifetime">برای همیشه</string>
     <string name="app_theme" maxLength="41">تِم</string>
     <string name="day_theme" maxLength="41">پس زمینه روز</string>
     <string name="night_theme" maxLength="41">پس زمینه شب</string>
     <string name="language" maxLength="41">زبان</string>
     <string name="language_system">زبان دستگاه</string>
     <string name="notification_pref" maxLength="41">اعلان‌ها</string>
-    <string name="notification_pref_title" maxLength="41">اطلاع بده موقعی که</string>
-    <string name="never_notify">هرگز اطلاع نده</string>
-    <string name="notify_when_pending">هشدارهای مشاهده نشده</string>
-    <string name="notification_minimum_cards_due" comment="Consider keeping the unbreakable space after the digit">بیش از %d کارت در نوبت مرور</string>
-    <string name="notification_minimum_cards_due_vibrate" maxLength="41">لرزش</string>
-    <string name="notification_minimum_cards_due_blink" maxLength="41">چشمک زدن نور</string>
-    <string name="select_locale_title">انتخاب زبان</string>
     <string name="software_render" maxLength="41">غیر فعال کردن رندر سخت‌افزار کارت</string>
     <string name="software_render_summ">رندر سخت افزاری سریع تر است ولی ممکن است مشکل داشته باشد، مخصوصا روی اندروید 8 یا 8.1. اگر بعضی از دکمه های مرور کارت ها را نمیبینید، این تنظیمات را امتحان کنید.</string>
     <string name="disable_extended_text_ui" maxLength="41">غیرفعال کردن حالت ویرایش تک‌فیلدی</string>
@@ -153,18 +112,8 @@
     <string name="pref_double_tap_time_interval_summary">ضربه دوم به دکمه های پاسخ صرف نظر می شود اگر این مدت زمان سپری نشده باشد. این عمل از دوبار ضربه های تصادفی جلوگیری میکند</string>
     <string name="pref_show_answer_long_press_time" maxLength="41">زمان نگه‌داشتن طولانی برای نمایش پاسخ</string>
     <string name="pref_show_answer_long_press_time_summary">حداقل زمان فشردن قبل از ثبت لمس دکمه نمایش پاسخ.</string>
-    <string name="show_estimates" maxLength="41">نمایش  دکمه زمان</string>
-    <string name="show_estimates_summ">نمایش زمان مرور بعدی در بالای دکمه پاسخ</string>
-    <string name="show_large_answer_buttons" maxLength="41">دکمه های بزرگ جواب نشان بده</string>
-    <string name="show_large_answer_buttons_summ">نمایش دکمه پاسخ در ۲ ردیف</string>
     <string name="remove_animations" maxLength="41">غیرفعال‌سازی انیمیشن‌ها</string>
     <string name="remove_animations_summary">در صورت حذف انیمیشن‌ها در تنظیمات سیستم، این گزینه همچنین فعال می‌شود.</string>
-    <string name="show_top_bar" maxLength="41">نمایش نوار بالا</string>
-    <string name="show_top_bar_summary">نمایش تعداد کارت ها، ساعت شمار پاسخ، پرچم و علامت در نوار بالا</string>
-    <string name="show_progress" maxLength="41">نمایش باقیمانده</string>
-    <string name="show_progress_summ">نمایش تعداد کارت‌های باقیمانده</string>
-    <string name="show_eta" maxLength="41">نمایش زمان تخمینی</string>
-    <string name="show_eta_summ">نمایش زمان باقیمانده</string>
     <string name="use_current" maxLength="41">دسته برای کارتهای جدید</string>
     <string name="learn_cutoff" maxLength="41">محدودیت های پیش رو را یاد بگیرید</string>
     <string name="time_limit" maxLength="41">محدوده زمانی جعبه زمان</string>
@@ -185,22 +134,14 @@
     <string name="pref_keep_screen_on_summ">غیرفعال کردن زمان خاموش شدن صفحه نمایش</string>
     <string name="enable_api_title" maxLength="41">فعال کردن API این برنامه</string>
     <string name="enable_api_summary">به دیگر برنامه ها اجازه دهید تا با Hayaki ارتباط داشته و اطلاعات را بدون دخالت شما بخوانند و بنویسند</string>
-    <string name="custom_buttons" maxLength="41">دکمه های نوار برنامه</string>
-    <string name="custom_buttons_summary">اینکه چه عملى در نوار برنامه ظاهر شود را شخصی سازی کنید</string>
     <string name="custom_buttons_setting_always_show">همیشه نمایش بده</string>
-    <string name="custom_buttons_setting_if_room">نشان بده اگر جا باشد</string>
     <string name="custom_buttons_setting_menu_only">فقط در فهرست</string>
     <string name="reset_custom_buttons" maxLength="41">بازگشت به حالت پیش فرض</string>
-    <string name="reset_settings_to_default">بازگشت تنظیمات به پیشفرض</string>
     <string name="reset">تنظیم مجدد</string>
     <string name="thirdparty_apps_title" maxLength="41">ای پی آی سایر نرم‌افزارها</string>
     <string name="thirdparty_apps_summary">لیستی از برنامه‌هایی که از API انکی‌دروید استفاده می‌کنند، مانند دیکشنری‌ها و ابزارها را ببینید.</string>
-    <string name="pref_controls_reviews_tab" maxLength="41" comment="Name of the tab to configure controls for the reviews screen">نظرات</string>
-    <string name="pref_controls_previews_tab" maxLength="41" comment="Name of the tab to configure controls for the previews screen">پیش نمایش</string>
     <string name="toggle_backside_only" maxLength="41" comment="Control setting that toggles \'Backside only\' in the previews screen">فقط پشت کارت را تغییر بده</string>
     <!-- Appearance settings -->
-    <string name="pref_cat_reviewer" maxLength="41">صفحه مطالعه</string>
-    <string name="show_deck_title" maxLength="41">نمایش عنوان دسته کارت</string>
     <string name="accessibility" maxLength="41">قابلیت دسترسی</string>
     <string name="exit_via_double_tap_back" maxLength="41">دوبار عقب را بزنید که به عقب/خروج بروید</string>
     <string name="exit_via_double_tap_back_summ">جلوگیری از لمس اشتباهی دکمهٔ ترک صفحهٔ درسی یا اپ</string>
@@ -215,11 +156,8 @@
         اگر سرور شما تعریف نشده باشد سرور پیشفرض انکی‌وب، استفاده خواهد شد.
         <a href="%s">مطالعه بیشتر</a>
         ]]></string>
-    <string name="custom_sync_server_base_url_title" maxLength="41">آدرس همگام‌سازی</string>
     <string name="custom_sync_certificate_title" maxLength="41">گواهی ریشه سفارشی (PEM)</string>
     <!-- Key Bindings -->
-    <string name="keyboard">کیبورد</string>
-    <string name="bluetooth">بلوتوث</string>
     <string name="answer_buttons" maxLength="41">دکمه های پاسخ</string>
     <string name="card" maxLength="41" comment="Generic term to refer to a card">کارت</string>
     <string name="note" maxLength="41">یادداشت</string>
@@ -231,51 +169,25 @@
          ####################################################################################### -->
     <!-- Entry points -->
     <string name="review_reminders_title" maxLength="41" comment="Name of the review reminders feature. Used as a settings screen title, a toolbar title, and the name of the notification channel review reminders are posted to.">یادآوری‌های مرور</string>
-    <string name="review_reminders_summary_app_wide" comment="The descriptor for reminders that are attached to the whole app rather than a single deck.">درسطح برنامه</string>
-    <string name="review_reminders_summary_deck_specific" comment="The descriptor for reminders attached to one particular deck.">مخصوص دسته</string>
     <string name="review_reminders_load_error" comment="Error dialog shown when stored review reminders could not be read back. Technical details follow this text.">خطایی در بارگیری یادآوری‌های مرور شما رخ داد، یادآوری‌های خراب حذف شدند. جزئیات:</string>
     <!-- Schedule reminders screen -->
     <string name="schedule_reminders_title" maxLength="28" comment="Name of the menu option for scheduling review reminders for a deck.">زمان‌بندی یادآوری‌ها</string>
     <string name="add_reminder" comment="Label for the add reminder button in the screen for adding and editing review reminders">افزودن یادآوری</string>
     <string name="you_have_no_review_reminders" comment="Text that appears in the review reminder editing screen when there are no reminders set">شما هیچ یادآوری برای مرور ندارید</string>
-    <string name="schedule_reminders_troubleshoot_menu" maxLength="28" comment="Text in a menu button which opens a screen for diagnosing why review reminders may not be delivered.">عیب‌یابی</string>
     <string name="schedule_reminders_notification_settings_menu" maxLength="28" comment="Text in a menu button which opens the operating system notification settings for the app.">تنظیمات اعلان</string>
-    <string name="schedule_reminders_list_content_description" comment="Accessibility description of the list showing scheduled review reminders.">فهرست یادآوری‌های مرور زمان‌بندی‌شده</string>
-    <string name="schedule_reminders_deck_not_found" comment="Shown in place of a deck name when the deck a review reminder points at no longer exists.">دسته پیدا نشد</string>
     <string name="schedule_reminders_unavailable" comment="Pop-up text shown when review reminders cannot be delivered at all, such as due to missing permissions.">یادآوری‌ها در دسترس نیستند</string>
-    <string name="schedule_reminders_fix" comment="Text for the button which, when pressed, opens the review reminder troubleshooting screen for fixing issues with review reminders.">تعمیر</string>
-    <string name="schedule_reminders_added" comment="Pop-up text which confirms a new review reminder was created.">یادآوری مرور جدید با موفقیت اضافه شد</string>
-    <string name="schedule_reminders_deleted" comment="Pop-up text which confirms a review reminder was deleted.">یادآوری مرور با موفقیت حذف شد</string>
-    <string name="schedule_reminders_edited" comment="Pop-up text which confirms an existing review reminder was changed.">یادآوری مرور با موفقیت ویرایش شد</string>
     <!-- Add / edit reminder dialog -->
     <string name="add_review_reminder" comment="Title of the dialog for creating a new review reminder.">ایجاد یادآوری برای مرور</string>
     <string name="edit_review_reminder" comment="Title of the dialog for editing an existing review reminder.">ویرایش یادآور مرور</string>
-    <string name="add_edit_reminder_time_label" comment="Label of the field for choosing what time of day a review reminder fires.">زمان:</string>
-    <string name="add_edit_reminder_deck_label" comment="Label of the field for choosing which deck a review reminder applies to.">دسته:</string>
-    <string name="add_edit_reminder_advanced_label" comment="Header of the collapsible section holding extra review reminder customization options.">تنظیمات پیشرفته</string>
-    <string name="add_edit_reminder_card_threshold_label" comment="Label of the field setting the minimum number of due cards needed before a review reminder fires.">آستانه کارت:</string>
-    <string name="add_edit_reminder_card_threshold_description" comment="Explanation shown under the card threshold field.">اگر تعداد کارت‌های موعددار کمتر از این مقدار است، به من اعلان ارسال نکن</string>
-    <string name="add_edit_reminder_only_notify_if_no_reviews_label" comment="Label of the switch suppressing a review reminder on days which have already had reviews.">فقط در صورتی به من اطلاع بده که امروز هیچ مروری انجام نشده است</string>
     <string name="add_edit_reminder_card_threshold_error_not_a_number" comment="Validation error shown when the review reminder card threshold field does not hold a whole number.">لطفاً یک عدد صحیح برای کارت‌ها وارد کنید</string>
     <string name="add_edit_reminder_card_threshold_error_negative" comment="Validation error shown when the review reminder card threshold field holds a negative number.">آستانه باید حداقل ۰ باشد</string>
-    <string name="add_edit_reminder_count_toward_threshold_heading" comment="Heading above the advanced review reminder options for choosing which kinds of cards (new / learning / to review) count toward the reminder\'s card threshold.">شمارش این کارت‌ها در آستانه:</string>
     <string name="add_edit_reminder_delete_confirmation_title" comment="Title of the dialog confirming deletion of a review reminder.">این یادآوری حذف شود؟</string>
     <string name="add_edit_reminder_delete_confirmation_message" comment="Body of the dialog confirming deletion of a review reminder.">این عمل برگشت‌پذیر نیست.</string>
     <!-- Reminder troubleshooting screen -->
     <string name="reminder_troubleshooting_summary_error" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when reminders cannot be delivered at all.">یادآوری‌ها در دسترس نیستند.</string>
-    <string name="reminder_troubleshooting_summary_warning" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when reminders may be delayed or suppressed.">ممکن است یادآوری‌ها به درستی کار نکنند.</string>
     <string name="reminder_troubleshooting_summary_ok" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when no issues are found.">یادآوری‌های شما باید مطابق انتظار کار کنند.</string>
-    <string name="reminder_troubleshooting_footer" comment="Closing advice at the bottom of the review reminder troubleshooting screen.">دستگاه‌های مختلف تنظیمات محدودیت اعلان متفاوتی دارند. اگر مشکلات همچنان ادامه داشت، تنظیمات سیستم خود را بررسی کنید یا در اینترنت جستجو کنید.</string>
     <!-- Troubleshooting check titles -->
-    <string name="reminder_troubleshooting_check_notification_permission" comment="Name of a review reminder troubleshooting check: whether the app may post notifications.">مجوز اعلان‌ها</string>
-    <string name="reminder_troubleshooting_check_notification_channel" comment="Name of a review reminder troubleshooting check: whether the review reminders notification channel is turned on.">کانال اعلان</string>
-    <string name="reminder_troubleshooting_check_do_not_disturb" comment="Name of a review reminder troubleshooting check: whether the system Do Not Disturb mode is active.">مزاحم نشوید</string>
-    <string name="reminder_troubleshooting_check_battery_optimization" comment="Name of a review reminder troubleshooting check: whether the system restricts the app\'s background battery usage.">بهینه‌سازی باتری</string>
-    <string name="reminder_troubleshooting_check_power_saving_mode" comment="Name of a review reminder troubleshooting check: whether the system power saving mode is active.">حالت ذخیره نیرو</string>
-    <string name="reminder_troubleshooting_check_exact_alarm_permission" comment="Name of a review reminder troubleshooting check: whether the app has permission to schedule alarms at exact times.">مجوز هشدارها و یادآوری‌ها</string>
     <!-- Troubleshooting check statuses -->
-    <string name="reminder_troubleshooting_status_granted" comment="Status of a review reminder troubleshooting check: the permission has been given.">اعطا شده</string>
-    <string name="reminder_troubleshooting_status_denied" comment="Status of a review reminder troubleshooting check: the permission has not been given.">رد شده</string>
     <string name="reminder_troubleshooting_status_on" comment="Status of a review reminder troubleshooting check: the system setting is active.">روشن</string>
     <string name="reminder_troubleshooting_status_off" comment="Status of a review reminder troubleshooting check: the system setting is not active.">خاموش</string>
     <string name="reminder_troubleshooting_status_unrestricted" comment="Status of the review reminder battery optimization check: the app may run freely in the background.">بدون محدودیت</string>
@@ -284,27 +196,17 @@
     <!-- Troubleshooting check explanations -->
     <string name="reminder_troubleshooting_explanation_notification_channel" comment="Explains why review reminders need notification permissions to work correctly.">کانال اعلان یادآوری مرور باید فعال باشد</string>
     <string name="reminder_troubleshooting_explanation_do_not_disturb" comment="Explains why review reminders may need Do Not Disturb to be disabled to work correctly.">حالت مزاحم نشوید ممکن است اعلان‌های یادآوری را بی‌صدا کند</string>
-    <string name="reminder_troubleshooting_explanation_battery_optimized" comment="Explains to the user that AnkiDroid\'s battery usage is optimized, and that battery usage may need to be enabled for review reminders to work correctly.">بهینه‌سازی باتری ممکن است یادآوری‌ها را به تأخیر بیندازد</string>
     <string name="reminder_troubleshooting_explanation_battery_restricted" comment="Explains to the user that AnkiDroid\'s battery usage is restricted, and that battery usage may need to be enabled for review reminders to work correctly.">استفاده در پس‌زمینه غیرفعال است. ممکن است یادآوری‌ها تحویل داده نشوند</string>
     <string name="reminder_troubleshooting_explanation_power_saving_mode" comment="Explains why review reminders may need power saving mode to be disabled to work correctly.">حالت ذخیره نیرو ممکن است مانع از تحویل به‌موقع یادآوری‌ها شود</string>
     <string name="reminder_troubleshooting_explanation_exact_alarm" comment="Explains that AnkiDroid cannot schedule alarms at exact times unless the exact-alarm permission is granted.">برای زمان‌بندی یادآوری‌ها در زمان‌های دقیق لازم است</string>
     <!-- Troubleshooting check actions -->
     <string name="reminder_troubleshooting_action_grant_permission" comment="Button resolving a failing review reminder troubleshooting check by asking for a permission.">اعطای مجوز</string>
     <string name="reminder_troubleshooting_action_enable_notification_channel" comment="Button resolving a failing review reminder troubleshooting check by opening the operating system notification settings screen.">فعال کردن کانال اعلان</string>
-    <string name="reminder_troubleshooting_action_disable_battery_optimization" comment="Button resolving a failing review reminder troubleshooting check by asking the user to exempt the app from battery optimization.">غیرفعال کردن بهینه‌سازی باتری</string>
     <string name="reminder_troubleshooting_action_open_battery_settings" comment="Button resolving a failing review reminder troubleshooting check by opening the operating system battery settings screen.">باز کردن تنظیمات باتری</string>
     <!-- Notification content -->
-    <string name="review_reminder_notification_title_all_decks" comment="Title of a review reminder notification which is attached to the whole app rather than a single deck.">وقت مطالعه کارت‌هایتان است</string>
-    <string name="review_reminder_notification_title_deck" comment="Title of a review reminder notification for one deck. The parameter is the deck name; the quotation marks are to clearly separate the user-chosen name from the app\'s own text.">وقت مطالعه «%s» است</string>
-    <string name="review_reminder_notification_snooze_button" comment="Notification button postponing a review reminder by a certain amount of time. The parameter is a duration like \'1h\', \'5m\', etc.">به تعویق انداختن %s</string>
-    <plurals name="review_reminder_notification_cards_due" comment="Body of a review reminder notification. The parameter is the number of cards due.">
-        <item quantity="one">%d کارت موعددار</item>
-        <item quantity="other">%d کارت موعددار</item>
-    </plurals>
     <!-- studyoptions -->
     <string name="studyoptions_limit_select_tags">انتخاب برچسبها</string>
     <!-- Deck configurations -->
-    <string name="deck_conf_general" maxLength="41" comment="Label of the submenu for the general options of new deck">عمومی</string>
     <string name="deck_conf_cram_search" maxLength="41" comment="Label of a text field that contains a search query.">جستجو</string>
     <!-- analytics options -->
     <string name="analytics_dialog_title">کمک به بهتر شدن AnkiDroid!</string>
@@ -320,7 +222,6 @@
     <string name="license">مجوّز</string>
     <string name="license_description"><![CDATA[Hayaki زیر مجوز های <a href=\"%1$s\">GPL-3.0</a> و <a href=\"%2$s\">AGPL-3.0</a> منتشر شده است و منبع کد های آن در <a href=\"%3$s\">GitHub</a> قابل دسترسی است]]></string>
     <string name="other_licenses"><![CDATA[Hayaki همچنین از کتابخانه‌ها و آیکون‌های شخص ثالث استفاده می‌کند که تحت <a href=\"%1$s\">مجوزهای</a> متن‌باز متنوعی منتشر شده‌اند.]]></string>
-    <string name="donate_description"><![CDATA[شما میتوانید توسعه AnkiDroid را همایت کنید با <a href=\"%1$s\">اهدای پول</a>. هر مقداری ما را بی نهایت خوشحال میکند.]]></string>
     <!-- Controls -->
     <string name="binding_add_gesture">حرکت لمس اضافه کن</string>
     <string name="binding_add_key">کلید اضافه کن</string>
@@ -355,7 +256,6 @@
     <string name="bindings_already_bound">قبلا به ‘%s’ وابسته بود</string>
     <!-- Advanced -->
     <string name="pref_cat_experimental" maxLength="41" tools:ignore="UnusedResources">آزمایشی</string>
-    <string name="readtext_deprecation_warn">Hayaki مکانیزم TTS بهتری را معرفی کرده که با سایر کلاینت‌های انکی سازگار است و شامل صداهای بیشتر و بهبودهای پخش زبان می‌باشد! \n\nلطفاً هر چه سریع‌تر ارتقا دهید، زیرا این تنظیم به زودی حذف خواهد شد</string>
     <string name="readtext_reviewer_warn" tools:ignore="UnusedResources">لطفاً به فرمت جدید تبدیل متن به گفتار ارتقا دهید</string>
     <string name="allow_templates_to_record_audio" maxLength="41">اجازه دادن به قالب‌ها برای ضبط صدا</string>
     <string name="template_is_trying_to_record_audio">این قالب در حال تلاش برای ضبط صدا است</string>
@@ -440,8 +340,6 @@
     <string name="toolbar" maxLength="41">نوار ابزار</string>
     <string name="toolbar_actions" maxLength="41">فعالیت‌های نوار ابزار</string>
     <string name="toolbar_position" maxLength="28">جایگاه مکان ابزار</string>
-    <string name="new_study_screen" maxLength="41">صفحهٔ جدید مطالعهٔ</string>
-    <string name="new_study_screen_summ"><![CDATA[صفحهٔ مطالعهٔ ارتقایافته که جانشین نسخهٔ کنونی می‌شود. برخی از ویژگی‌های صفحهٔ قدیمی تغییر کرده یا حذف شده‌اند. لطفاً هرگونه <a href="%1$s">بازخورد</a> یا <a href="%2$s">مشکل فنی</a> را گزارش دهید.]]></string>
     <string name="show_answer_feedback" maxLength="41">نشان دادن پاسخ برای بازخورد</string>
     <string name="screen" maxLength="41">صفحه‌نمایش</string>
     <string name="also_assign_binding_to_show_answer" comment="Question shown after assigning binding to an \'Answer\' command, asking whether it should also be assigned to the \'Show answer\'; %1$s is \'Show answer\'">به %1$s هم اختصاص یابد؟</string>

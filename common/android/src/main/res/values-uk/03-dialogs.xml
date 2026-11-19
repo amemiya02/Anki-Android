@@ -32,8 +32,6 @@
         <item quantity="other">Видалити всі картки в %1$s? Вона містить %2$d карток</item>
     </plurals>
     <string name="delete_cram_deck_message">Видалити фільтровану колоду %s і повернути всі картки до оригінальних колод?</string>
-    <string name="no_tts_available_message">Відсутні мови для синтезу мовлення</string>
-    <string name="tts_no_tts">Не говорити</string>
     <string name="reposition_card_not_new_error">Можна перемістити тільки нові картки</string>
     <string name="reset_card_dialog_title">Скинути прогрес картки</string>
     <plurals name="reset_cards_dialog_acknowledge">
@@ -79,13 +77,10 @@
     <string name="dialog_positive_delete" maxLength="28">Видалити</string>
     <!-- Currently unsued, should be useful in the future -->
     <string name="dialog_positive_disable" tools:ignore="UnusedResources">Вимкнути</string>
-    <string name="dialog_positive_overwrite">Перезаписати</string>
     <string name="dialog_positive_repair">Виправити</string>
     <string name="dialog_positive_replace">Замінити</string>
-    <string name="sync_clock_off_with_current_time">%1$s\n\nВиправте дату та час або ввімкніть їхнє автоматичне визначення і тоді синхронізуйтеся знову.\n\nПоточний час на вашому пристрої: %2$s</string>
     <string name="dialog_collection_path_not_dir">Вказаний шлях не є дійсним</string>
     <string name="dialog_invalid_custom_certificate">Наданий текст не перетворюється на дійсний сертифікат X509 з PEM-кодуванням</string>
-    <string name="dialog_invalid_custom_certificate_title">Помилка парсингу сертифікату</string>
     <string name="dialog_updated_custom_certificate">Сертифікат оновлено</string>
     <!-- Media checking -->
     <string name="check_media_warning">У випадку великих медіа-колекцій це може забрати багато часу. Продовжити?</string>
@@ -110,7 +105,6 @@
     <string name="multimedia_editor_audio_permission_refused">Не вдалося отримати дозвіл на використання мікрофона.</string>
     <string name="multimedia_editor_failed">Не вдалося відкрити мультимедійний редактор</string>
     <!-- Multimedia - Audio View -->
-    <string name="multimedia_editor_audio_permission_denied">Відхилено доступ до запису звуку</string>
     <string name="permission_denied">Відмовлено у доступі</string>
     <string name="microphone_permission_denied_message">Відмовлено в доступі до мікрофону. Надайте дозвіл у налаштуваннях додатку.</string>
     <!-- Database Integrity Check -->
@@ -143,8 +137,6 @@
     <string name="boot_service_failed_to_schedule_notifications">Не вдалося запланувати нагадування</string>
     <string name="boot_service_too_many_notifications">Забагато нагадувань заплановано. Деякі з них не з’являться</string>
     <!-- Locale Selection Dialog -->
-    <string name="locale_selection_dialog_title_new">Вибрати мову</string>
-    <string name="locale_selection_dialog_summary">Деякі багатомовні клавіатури, такі як GBoard, підтримують зміну мови під час редагування тексту\n\nБудь ласка, попросіть функцію \"setImeHintLocals\" від виробника клавіатури, якщо ваша клавіатура не змінює мову.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">Невідома мова [%1$s]</string>
     <!-- Help Dialog -->
     <string name="help_title_using_ankidroid">Використання Hayaki</string>
@@ -180,7 +172,6 @@
         <item quantity="many">Автоматична синхронізація може запуститися через %d секунд.</item>
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">Автоматична синхронізація може запуститися через %d секунд.</item>
     </plurals>
-    <string name="metered_sync_data_warning">Ваш інтернет-провайдер може стягувати гроші за використання даних</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
@@ -224,7 +215,6 @@
         <item quantity="many">Поточний інтервал: %d днів.</item>
         <item quantity="other">Поточний інтервал: %d днів.</item>
     </plurals>
-    <string name="range_delimiter" comment="Placed between two input boxes to denote a range">–</string>
     <string name="set_due_date_range_start" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'minimum\' value of this range (inclusive)">Від</string>
     <string name="set_due_date_range_end" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'maximum\' value of this range (inclusive)">До</string>
     <!-- Instant Note Editor -->
@@ -254,14 +244,9 @@
     <string name="import_error_resolution_copy_to_device">Скопіюйте файл на пристрій і спробуйте ще раз з локальним файлом</string>
     <string name="import_error_resolution_select_file">Відкрити файл в переглядачі файлів пристрою</string>
     <!-- Post-login dialog -->
-    <string name="login_successful">Вдалося ввійти</string>
-    <string name="sync_now">Синхронізувати зараз?</string>
     <!--Change Note Type Dialog Fragment-->
-    <string name="card_numbers_unchanged">Номери карток залишаться без змін</string>
     <!-- Subset of TR.changeNotetypeToFromCloze -->
-    <string name="extra_cloze_deletions_removed">Якщо ви змінюєте тип запису на звичайний, а кількість пропусків Cloze більша, ніж кількість доступних шаблонів карток, то надлишкові картки будуть видалені.</string>
     <string name="different_note_types_selected">Будь ласка, виберіть записи лише одного типу.</string>
-    <string name="error_no_changes_to_save">Немає змін для збереження</string>
     <string name="choose_color">Виберіть колір</string>
     <!-- Special Fields -->
     <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">Поля</string>
@@ -276,8 +261,6 @@
     <string name="special_field_card_help" comment="%s: either blank or \' %s\'">Назва шаблону картки%s</string>
     <string name="special_field_type_help" comment="%s: either blank or \' %s\'">Назва типу запису%s</string>
     <!-- Change Note Type Dialog -->
-    <string name="change_note_type_from" comment="Label indicating the original note type before changing it">З</string>
-    <string name="change_note_type_to" comment="Label indicating the new note type to change to">На</string>
     <!-- Add and rename profile dialogs -->
     <string name="rename_profile" comment="Title of the dialog where the user renames a profile">Перейменувати профіль</string>
     <string name="profile_name" comment="Label of the text field where the user types the name of a new profile">Назва профілю</string>

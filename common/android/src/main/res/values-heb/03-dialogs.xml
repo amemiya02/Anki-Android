@@ -31,8 +31,6 @@
         <item quantity="other">למחוק את כל הכרטיסים ב-%1$s? הוא מכיל %2$d כרטיסים</item>
     </plurals>
     <string name="delete_cram_deck_message">למחוק את החפיסה %s המסוננת ולשלוח את כל הקלפים בחזרה לחפיסות המקוריות שלהם?</string>
-    <string name="no_tts_available_message">אין שום שפת לכתוב-אל-דיבור זמין</string>
-    <string name="tts_no_tts">אל תדבר.‏</string>
     <string name="reposition_card_not_new_error">ניתן לשנות מיקום לכרטיסים חדשים בלבד</string>
     <string name="reset_card_dialog_title">איפוס התקדמות הכרטיס</string>
     <plurals name="reset_cards_dialog_acknowledge">
@@ -78,13 +76,10 @@
     <string name="dialog_positive_delete" maxLength="28">מחיקה</string>
     <!-- Currently unsued, should be useful in the future -->
     <string name="dialog_positive_disable" tools:ignore="UnusedResources">השבתה</string>
-    <string name="dialog_positive_overwrite">שכתוב</string>
     <string name="dialog_positive_repair">תיקון</string>
     <string name="dialog_positive_replace">החלפה</string>
-    <string name="sync_clock_off_with_current_time">%1$s\n\nCorrect the date and time, or enable automatic date and time, then sync again.\n\nYour device’s current time is: %2$s</string>
     <string name="dialog_collection_path_not_dir">הנתיב שצוין אינו תיקייה תקנית</string>
     <string name="dialog_invalid_custom_certificate">הטקסט שסופק אינו מתאים לאישור X509 תקין מקודד ב-PEM</string>
-    <string name="dialog_invalid_custom_certificate_title">שגיאה בניתוח האישור</string>
     <string name="dialog_updated_custom_certificate">התעודה עודכנה</string>
     <!-- Media checking -->
     <string name="check_media_warning">This may take a long time with large media collections. Proceed?</string>
@@ -108,7 +103,6 @@
     <string name="multimedia_editor_audio_permission_refused">לא מצליח לקבל הרשאת מיקרופון</string>
     <string name="multimedia_editor_failed">נכשל בפתיחת עורך מדיה.</string>
     <!-- Multimedia - Audio View -->
-    <string name="multimedia_editor_audio_permission_denied">הרשאת הקלטת שמע נדחתה</string>
     <string name="permission_denied">הרשאה נדחתה</string>
     <string name="microphone_permission_denied_message">Microphone permission denied. Please grant it in the app settings.</string>
     <!-- Database Integrity Check -->
@@ -141,8 +135,6 @@
     <string name="boot_service_failed_to_schedule_notifications">לא ניתן היה לתזמן תזכורות</string>
     <string name="boot_service_too_many_notifications">תזמנו יותר מדי תזכורות. חלקם לא יופיעו</string>
     <!-- Locale Selection Dialog -->
-    <string name="locale_selection_dialog_title_new">הגדרת שפה</string>
-    <string name="locale_selection_dialog_summary">חלק מהמקלדות הרב-לשוניות, כגון GBoard תומכות בשינוי שפה בעת עריכת טקסט\n\nאנא בקש את התכונה \"setImeHintLocales\" מיצרן המקלדת שלך אם המקלדת שלך לא משנה שפה.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">Unknown language [%1$s]</string>
     <!-- Help Dialog -->
     <string name="help_title_using_ankidroid">שימוש ב־Hayaki</string>
@@ -177,7 +169,6 @@
         <item quantity="two">ייתכן שסנכרון אוטומטי יופעל בעוד %d שניות</item>
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">ייתכן שסנכרון אוטומטי יופעל בעוד %d שניות</item>
     </plurals>
-    <string name="metered_sync_data_warning">ספק האינטרנט שלך עשוי לגבות כסף עבור שימוש בנתונים</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
@@ -217,7 +208,6 @@
         <item quantity="two">מרווח נוכחי: %d ימים</item>
         <item quantity="other">מרווח נוכחי: %d ימים</item>
     </plurals>
-    <string name="range_delimiter" comment="Placed between two input boxes to denote a range">-</string>
     <string name="set_due_date_range_start" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'minimum\' value of this range (inclusive)">מ</string>
     <string name="set_due_date_range_end" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'maximum\' value of this range (inclusive)">אל</string>
     <!-- Instant Note Editor -->
@@ -247,14 +237,9 @@
     <string name="import_error_resolution_copy_to_device">העתק את הקובץ למכשירך ונסה שוב עם הקובץ המקומי</string>
     <string name="import_error_resolution_select_file">פתח את הקובץ עם אפליקצית דפדפן הקבצים של מכשירך</string>
     <!-- Post-login dialog -->
-    <string name="login_successful">Login successful</string>
-    <string name="sync_now">סנכרן עכשיו?</string>
     <!--Change Note Type Dialog Fragment-->
-    <string name="card_numbers_unchanged">מספרי קלפים ישארו ללא שינויים</string>
     <!-- Subset of TR.changeNotetypeToFromCloze -->
-    <string name="extra_cloze_deletions_removed">If changing to a regular note type, and there are more cloze deletions than available card templates, any extra cards will be removed.</string>
     <string name="different_note_types_selected">Please select notes from only one notetype.</string>
-    <string name="error_no_changes_to_save">No changes to save</string>
     <string name="choose_color">Choose color</string>
     <!-- Special Fields -->
     <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">Fields</string>
@@ -269,8 +254,6 @@
     <string name="special_field_card_help" comment="%s: either blank or \' %s\'">השם של תבנית הקלף%s</string>
     <string name="special_field_type_help" comment="%s: either blank or \' %s\'">The name of the note type%s</string>
     <!-- Change Note Type Dialog -->
-    <string name="change_note_type_from" comment="Label indicating the original note type before changing it">From</string>
-    <string name="change_note_type_to" comment="Label indicating the new note type to change to">To</string>
     <!-- Add and rename profile dialogs -->
     <string name="rename_profile" comment="Title of the dialog where the user renames a profile">Rename profile</string>
     <string name="profile_name" comment="Label of the text field where the user types the name of a new profile">Profile name</string>

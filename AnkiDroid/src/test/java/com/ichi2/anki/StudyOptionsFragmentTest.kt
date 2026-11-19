@@ -2,12 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 package com.ichi2.anki
 
-import android.content.Context
-import android.graphics.Rect
-import android.graphics.drawable.LayerDrawable
-import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -23,7 +18,6 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.commitNow
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.libanki.Consts.DEFAULT_DECK_ID
@@ -358,25 +352,25 @@ class StudyOptionsFragmentTest : RobolectricTest() {
         }
 
     @Test
-    fun `the pane's hairline sits on the start edge, also in RTL`() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-
-        fun hairlineBounds(layoutDirection: Int): Rect {
-            val drawable = AppCompatResources.getDrawable(context, R.drawable.hairline_start) as LayerDrawable
-            drawable.layoutDirection = layoutDirection
-            drawable.setBounds(0, 0, 100, 10)
-            return drawable.getDrawable(0).bounds
+    fun `the pane's hairline sits on the left in LTR`() =
+        runTest {
+            addBasicNote()
+            withStudyOptions {
+                val rule = compose.onNodeWithTag("study_pane_rule", useUnmergedTree = true).fetchSemanticsNode()
+                assertEquals(assertNotNull(rule.parent).boundsInRoot.left, rule.boundsInRoot.left)
+            }
         }
 
-        val ltr = hairlineBounds(View.LAYOUT_DIRECTION_LTR)
-        assertEquals(0, ltr.left)
-        assertTrue(ltr.width() in 1..10, "a hairline, not a band: ${ltr.width()}px")
-        assertEquals(10, ltr.height())
-
-        val rtl = hairlineBounds(View.LAYOUT_DIRECTION_RTL)
-        assertEquals(100, rtl.right)
-        assertEquals(ltr.width(), rtl.width())
-    }
+    @Test
+    @Config(qualifiers = "ar-ldrtl")
+    fun `the pane's hairline sits on the right in RTL`() =
+        runTest {
+            addNoteUsingNoteTypeName(col.notetypes.current().name, "Front", "Back")
+            withStudyOptions {
+                val rule = compose.onNodeWithTag("study_pane_rule", useUnmergedTree = true).fetchSemanticsNode()
+                assertEquals(assertNotNull(rule.parent).boundsInRoot.right, rule.boundsInRoot.right)
+            }
+        }
 
     @Test
     @Config(qualifiers = "xlarge")

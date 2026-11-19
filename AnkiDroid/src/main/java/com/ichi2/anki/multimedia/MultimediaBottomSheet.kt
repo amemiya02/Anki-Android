@@ -61,14 +61,14 @@ import com.ichi2.anki.common.android.R as CommonR
 class MultimediaBottomSheet : BottomSheetDialogFragment() {
     private val viewModel: MultimediaViewModel by activityViewModels()
 
-    val fieldIndex get() = requireArguments().getInt(FIELD_INDEX)
+    val fieldIndex get() = requireArguments().getInt(ARG_FIELD_INDEX)
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        val field = requireArguments().getString(FIELD_NAME).orEmpty()
+        val field = requireArguments().getString(ARG_FIELD_NAME).orEmpty()
         val hasCamera = requireContext().canTakePicture()
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
@@ -101,8 +101,8 @@ class MultimediaBottomSheet : BottomSheetDialogFragment() {
 
     companion object {
         const val TAG = "MultimediaBottomSheet"
-        private const val FIELD_INDEX = "fieldIndex"
-        private const val FIELD_NAME = "fieldName"
+        private const val ARG_FIELD_INDEX = "fieldIndex"
+        private const val ARG_FIELD_NAME = "fieldName"
 
         fun forField(
             index: Int,
@@ -110,8 +110,8 @@ class MultimediaBottomSheet : BottomSheetDialogFragment() {
         ) = MultimediaBottomSheet().apply {
             arguments =
                 Bundle().apply {
-                    putInt(FIELD_INDEX, index)
-                    putString(FIELD_NAME, name)
+                    putInt(ARG_FIELD_INDEX, index)
+                    putString(ARG_FIELD_NAME, name)
                 }
         }
     }

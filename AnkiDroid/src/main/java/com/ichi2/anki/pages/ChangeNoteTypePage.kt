@@ -27,8 +27,8 @@ import kotlinx.coroutines.sync.withLock
 
 /** The bundled Anki Page maps fields and templates. Android owns the selected notes and applies the result. */
 class ChangeNoteTypePage : PageFragment() {
-    private val noteIds by lazy { requireNotNull(requireArguments().getLongArray(NOTE_IDS)).toList() }
-    private val sourceType by lazy { requireArguments().getLong(NOTE_TYPE_ID) }
+    private val noteIds by lazy { requireNotNull(requireArguments().getLongArray(ARG_NOTE_IDS)).toList() }
+    private val sourceType by lazy { requireArguments().getLong(ARG_NOTE_TYPE_ID) }
     private val saveLock = Mutex()
     private var saved = false
 
@@ -53,7 +53,12 @@ class ChangeNoteTypePage : PageFragment() {
             require(request.oldNotetypeId == sourceType)
             if (!confirmSchemaChange() || view == null) return@withLock byteArrayOf()
 
-            val input = request.toBuilder().clearNoteIds().addAllNoteIds(noteIds).build()
+            val input =
+                request
+                    .toBuilder()
+                    .clearNoteIds()
+                    .addAllNoteIds(noteIds)
+                    .build()
             val changes: OpChanges = undoableOp { notetypes.changeNotetypeOfNotes(input) }
             saved = true
             view?.post {
@@ -87,8 +92,8 @@ class ChangeNoteTypePage : PageFragment() {
     }
 
     companion object {
-        private const val NOTE_IDS = "noteIds"
-        private const val NOTE_TYPE_ID = "sourceNoteType"
+        private const val ARG_NOTE_IDS = "noteIds"
+        private const val ARG_NOTE_TYPE_ID = "sourceNoteType"
 
         fun getIntent(
             context: Context,
@@ -98,8 +103,8 @@ class ChangeNoteTypePage : PageFragment() {
             context,
             ChangeNoteTypePage::class,
             Bundle().apply {
-                putLongArray(NOTE_IDS, noteIds.distinct().toLongArray())
-                putLong(NOTE_TYPE_ID, sourceType)
+                putLongArray(ARG_NOTE_IDS, noteIds.distinct().toLongArray())
+                putLong(ARG_NOTE_TYPE_ID, sourceType)
             },
         )
     }

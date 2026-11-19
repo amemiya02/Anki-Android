@@ -29,8 +29,6 @@
         <item quantity="other">「%1$s」内のすべてのカードを削除しますか？　%2$d枚のカードが含まれています</item>
     </plurals>
     <string name="delete_cram_deck_message">フィルターデッキ「%s」を削除し、すべてのカードを元のデッキに戻しますか？</string>
-    <string name="no_tts_available_message">テキスト読み上げ可能な言語がありません</string>
-    <string name="tts_no_tts">発声なし</string>
     <string name="reposition_card_not_new_error">位置（新規カード番号）の変更は、新規カード以外には行えません。</string>
     <string name="reset_card_dialog_title">カードの学習進度をリセット</string>
     <plurals name="reset_cards_dialog_acknowledge">
@@ -73,13 +71,10 @@
     <string name="dialog_positive_delete" maxLength="28">削除</string>
     <!-- Currently unsued, should be useful in the future -->
     <string name="dialog_positive_disable" tools:ignore="UnusedResources">無効化</string>
-    <string name="dialog_positive_overwrite">上書きする</string>
     <string name="dialog_positive_repair">修復</string>
     <string name="dialog_positive_replace">置換</string>
-    <string name="sync_clock_off_with_current_time">%1$s\n\nCorrect the date and time, or enable automatic date and time, then sync again.\n\nYour device’s current time is: %2$s</string>
     <string name="dialog_collection_path_not_dir">指定されたパスは有効なディレクトリではありませんでした</string>
     <string name="dialog_invalid_custom_certificate">提供されたテキストをPEMエンコードしても有効な X.509証明書になりません</string>
-    <string name="dialog_invalid_custom_certificate_title">証明書の解析エラー</string>
     <string name="dialog_updated_custom_certificate">証明書が更新されました</string>
     <!-- Media checking -->
     <string name="check_media_warning">メディア（画像・音声・動画）ファイルが多いと、チェックに長い時間がかかる場合があります。続行しますか？</string>
@@ -101,7 +96,6 @@
     <string name="multimedia_editor_audio_permission_refused">マイクの権限を取得できませんでした。</string>
     <string name="multimedia_editor_failed">マルチメディアエディタを開けませんでした</string>
     <!-- Multimedia - Audio View -->
-    <string name="multimedia_editor_audio_permission_denied">音声録音の権限が付与されませんでした</string>
     <string name="permission_denied">権限が許可されていません</string>
     <string name="microphone_permission_denied_message">マイクへのアクセスが拒否されました。システムのアプリ設定でマイクを許可してください。</string>
     <!-- Database Integrity Check -->
@@ -134,8 +128,6 @@
     <string name="boot_service_failed_to_schedule_notifications">リマインダーのスケジュールに失敗しました</string>
     <string name="boot_service_too_many_notifications">スケジュールされたリマインダーが多すぎます。一部のリマインダーは表示されません</string>
     <!-- Locale Selection Dialog -->
-    <string name="locale_selection_dialog_title_new">言語を設定</string>
-    <string name="locale_selection_dialog_summary">Gboardなどの多言語入力対応キーボードでは、文字編集のために各フィールドを選択した際にキーボードの言語を自動的に切り替えることができます\n\n使用しているキーボードで言語の変更ができない場合は、キーボードアプリの開発者に「setImeHintLocales」機能をリクエストしてください</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">不明な言語 [%1$s]</string>
     <!-- Help Dialog -->
     <string name="help_title_using_ankidroid">使い方</string>
@@ -168,7 +160,6 @@
     <plurals name="sync_automatic_sync_needs_more_time">
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">%d秒後に自動同期が開始される可能性があります</item>
     </plurals>
-    <string name="metered_sync_data_warning">データ通信の使用によって、通信事業者（携帯電話会社など）への支払い料金が増える場合があります。</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
@@ -200,7 +191,6 @@
     <plurals name="set_due_date_current_interval">
         <item quantity="other">現在の復習間隔: %d日</item>
     </plurals>
-    <string name="range_delimiter" comment="Placed between two input boxes to denote a range">～</string>
     <string name="set_due_date_range_start" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'minimum\' value of this range (inclusive)">最短</string>
     <string name="set_due_date_range_end" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'maximum\' value of this range (inclusive)">最長</string>
     <!-- Instant Note Editor -->
@@ -230,14 +220,9 @@
     <string name="import_error_resolution_copy_to_device">ファイルをデバイスに保存して、そのファイルでもう一度試す</string>
     <string name="import_error_resolution_select_file">デバイスのファイル管理用アプリでファイルを開く</string>
     <!-- Post-login dialog -->
-    <string name="login_successful">ログインに成功しました</string>
-    <string name="sync_now">今すぐ同期しますか？</string>
     <!--Change Note Type Dialog Fragment-->
-    <string name="card_numbers_unchanged">カード番号は変更されません</string>
     <!-- Subset of TR.changeNotetypeToFromCloze -->
-    <string name="extra_cloze_deletions_removed">通常のノートタイプへ変更する際、穴埋め番号の数がカードテンプレートの数を上回ると、対応するテンプレートがないカードは削除されます。</string>
     <string name="different_note_types_selected">ノートタイプが共通するノートを選択してください</string>
-    <string name="error_no_changes_to_save">保存する変更がありません</string>
     <string name="choose_color">色を選択</string>
     <!-- Special Fields -->
     <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">フィールド</string>
@@ -252,8 +237,6 @@
     <string name="special_field_card_help" comment="%s: either blank or \' %s\'">カードタイプの名前%s</string>
     <string name="special_field_type_help" comment="%s: either blank or \' %s\'">ノートタイプの名前%s</string>
     <!-- Change Note Type Dialog -->
-    <string name="change_note_type_from" comment="Label indicating the original note type before changing it">変更前</string>
-    <string name="change_note_type_to" comment="Label indicating the new note type to change to">変更後</string>
     <!-- Add and rename profile dialogs -->
     <string name="rename_profile" comment="Title of the dialog where the user renames a profile">Rename profile</string>
     <string name="profile_name" comment="Label of the text field where the user types the name of a new profile">プロファイル名</string>

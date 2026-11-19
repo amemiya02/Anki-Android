@@ -40,8 +40,6 @@
     <string name="updated_version">Actualizado á versión %s</string>
     <!-- Reviewer.kt (Study Screen) -->
     <string name="save_whiteboard" maxLength="28">Gardar encerado</string>
-    <string name="enable_stylus" maxLength="28">Activar escritura con lapis</string>
-    <string name="disable_stylus">Desactivar escritura con lapis</string>
     <string name="eraser" maxLength="28">Borrador</string>
     <string name="add_brush" maxLength="28">Engadir pincel</string>
     <string name="whiteboard_align_left" comment="Option to align the whiteboard toolbar on the left" maxLength="28">Esquerda</string>
@@ -56,22 +54,11 @@
     <string name="enable_whiteboard" maxLength="28">Activar encerado</string>
     <string name="disable_whiteboard">Desactivar encerado</string>
     <string name="show_whiteboard">Amosar encerado</string>
-    <string name="enable_eraser" maxLength="28">Activar borrador</string>
-    <string name="disable_eraser" maxLength="28">Desactivar borrador</string>
     <string name="hide_whiteboard" maxLength="28">Ocultar encerado</string>
     <string name="clear_whiteboard" maxLength="28">Limpar encerado</string>
     <string name="hide_toolbar" maxLength="28">Ocultar a barra de ferramentas</string>
     <string name="replay_media" maxLength="28">Reproducir multimedia</string>
-    <string name="leech_suspend_notification">Tarxeta marcada como sambesuga e suspendida</string>
-    <string name="leech_notification">Tarxeta marcada como sambesuga</string>
     <string name="webview_crash_unknown">Erro descoñecido</string>
-    <string name="webview_crash_unknwon_detailed">Isto foi causado por un erro interno no WebView</string>
-    <string name="webview_crash_oom">Memoria insuficiente</string>
-    <string name="webview_crash_oom_details">O sistema terminou o WebView. Isto adoita ocorrer cando a aplicación queda sen memoria, moitas veces debido ao tipo de letra ou ficheiros multimedia grandes.</string>
-    <string name="webview_crash_nonfatal">O renderizador do WebView quebrou. Causa: %s</string>
-    <string name="webview_crash_fatal">Erro fatal: o renderizador do WebView quebrou. Causa: %s</string>
-    <string name="webview_crash_loop_dialog_title">Produciuse un erro ao representar o WebView</string>
-    <string name="webview_crash_loop_dialog_content">O WebView do sistema fallou ao representar a tarxeta \'%1$s\'.\n%2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Esvara para cancelar</string>
     <string name="filter_by_flags" maxLength="41">Bandeiras</string>
     <!-- filtered deck options -->
@@ -79,7 +66,6 @@
     <string name="filtered_option_delay_hard">Retardo para difícil</string>
     <string name="filtered_option_delay_good">Retardo para ben</string>
     <!-- Custom study options -->
-    <string name="custom_study_loading_tags">Creando lista de etiquetas&#8230;</string>
     <!-- Study options -->
     <plurals name="studyoptions_buried_count">
         <item quantity="one">+%d agochada</item>
@@ -108,26 +94,16 @@
     <string name="image_cropper_action_flip_vertically" maxLength="28" comment="Submenu action in image cropper screen">Reflectir verticalmente</string>
     <!-- Timebox -->
     <string name="timebox_reached_title">Límite de tempo acadado</string>
-    <plurals name="timebox_reached">
-        <item quantity="one">%1$d tarxeta estudada en %2$s</item>
-        <item quantity="other">%1$d cartóns estudados en %2$s</item>
-    </plurals>
     <!-- minutes used in \'[studied in] x minutes\' context, causing inflexion in some languages -->
-    <plurals name="in_minutes">
-        <item quantity="one">%1$d minuto</item>
-        <item quantity="other">%1$d minutos</item>
-    </plurals>
     <string name="fact_adder_intent_title" comment="Label of the \'Add Note\' window. This title can\'t be seen in AnkiDroid directly.">Tarxeta Hayaki</string>
     <string name="note_editor_copy_note" maxLength="28">Copiar nota</string>
     <string name="card_editor_reposition_card" comment="reposition a card in the new queue" maxLength="28">Reposicionar</string>
     <string name="card_editor_reset_card" maxLength="28">Esquecer progreso</string>
-    <string name="card_editor_reschedule_card" comment="Action to reschedule a card" maxLength="28">Reprogramar</string>
     <string name="card_editor_preview_card" comment="Button offering to preview some card(s)" maxLength="28">Vista previa</string>
     <string name="copy_as_markdown" comment="Copies text to the clipboard as Markdown" maxLength="28">Copiar como Markdown</string>
     <string name="preview_progress_bar_text" comment="What card we are on out of how many in card previewer progress bar">%1$d de %2$d</string>
     <string name="rename" comment="Confirm that the renaming action should be processed." maxLength="28">Renomear</string>
     <string name="checks_action" maxLength="28">Comprobar</string>
-    <string name="unknown_type_field_warning">Escribe a resposta: campo descoñecido %s</string>
     <string name="delete_deck" comment="Message on a progress bar starting a deck is being deleted.">Eliminando a baralla&#8230;</string>
     <string name="info_rate">Valora AnkiDroid</string>
     <string name="import_title">Importando</string>
@@ -162,13 +138,11 @@
     <string name="export_choice_save_to">Gardar en</string>
     <string name="export_saving_exported_collection">Gardando ficheiro exportado&#8230;</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Opcións de estudo</string>
-    <string name="select_tts" maxLength="28">Definir idioma TTS</string>
     <string name="dyn_deck_desc">Esta é unha baralla especial para estudar fóra da programación normal. As tarxetas devolveranse ás súas barallas despois de revisalas. Eliminando esta baralla da listaxe devólvense as tarxetas restantes á súa baralla orixinal.</string>
     <string name="tag_editor_add_feedback">Toca sobre \"%2$s\" para confirmar a adición de \"%1$s\"</string>
     <string name="tag_editor_add_feedback_existing">Etiqueta existente \"%1$s\" seleccionada</string>
     <string name="tag_already_exists">Esta etiqueta xa existe</string>
     <string name="error_name_exists">O nome xa existe</string>
-    <string name="warning_find_and_replace">Considera crear unha copia de seguranza dende o Selector de barallas antes de usar esta opción.</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">Produciuse un erro ao compartir o ficheiro apkg</string>
@@ -179,14 +153,10 @@
     <string name="web_page_error">Erro ao cargar a páxina: %s</string>
     <!-- The name of the deck which corrupt cards will be moved to -->
     <!-- Deckpicker Background -->
-    <string name="background_image_title" maxLength="41">Fondo</string>
-    <string name="remove_wallpaper_image" maxLength="41">Retirar fondo</string>
     <string name="remove_background_image">Seguro que queres eliminar o fondo?</string>
     <!-- Card Template Browser Appearance -->
     <string name="restore_default" maxLength="28">Restaurar valores predefinidos</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
-    <string name="white_board_eraser_enabled">Modo borrador activado</string>
-    <string name="white_board_eraser_disabled">Modo borrador desactivado</string>
     <string comment="Progress amount e.g. \'28 MB/141 MB\'. %1$s is the current amount, %2$s is the max." name="progress_amount_bytes">%1$s/%2$s</string>
     <string name="media_file_size_warning_title">O ficheiro multimedia é demasiado grande</string>
     <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">O ficheiro «%1$s» (%2$s) supera o límite de %3$s de AnkiWeb e non pode ser sincronizado. Queres engadilo de todos xeitos?</string>
@@ -194,7 +164,6 @@
     <!-- Whiteboard save image message in the Study Screen -->
     <string name="white_board_image_save_failed">Fallo ao gardar a imaxe do encerado. %s</string>
     <string name="white_board_image_saved">Imaxe do encerado gardada en %s</string>
-    <string name="title_whiteboard_editor" maxLength="28">Editor do encerado</string>
     <string name="user_is_a_robot">Detectouse un test automático. Se es humano, contacta co soporte do AnkiDroid</string>
     <!-- JS api -->
     <string name="api_version_developer_contact">Esta tarxeta emprega funcionalidades non compatíbeis co AnkiDroid. Contacta co desenvolvedor %1$s, ou consulta a wiki. %2$s</string>
@@ -247,7 +216,6 @@
     <string name="create_shortcut_error">Erro ao engadir atallo: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">Comezar frases con maiúscula</string>
     <!-- Dialog hints -->
-    <string name="dialog_hint_url">URL</string>
     <string name="dialog_hint_certificate">Certificado</string>
     <!-- IncrementNumberRangePreference -->
     <string name="plus_sign" comment="Label for increment button in IncrementerNumberRangePreference">+</string>
@@ -256,7 +224,6 @@
     <string name="maximum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the maximum allowed value">O valor máximo é %d</string>
     <string name="minimum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the minimum allowed value">O valor mínimo é %d</string>
     <!-- Used for credential empty warning message -->
-    <string name="invalid_email">Insire un correo electrónico válido</string>
     <string name="password_empty">O contrasinal é obrigatorio</string>
     <string name="back_pressed_once">Volve atrás de novo para saír</string>
     <!-- %% is required to display % symbol. Reference: https://stackoverflow.com/a/16834358 -->
@@ -281,11 +248,6 @@
     <string name="home" maxLength="28">Inicio</string>
     <!-- Study Screen actions
     Each of these strings ends with a period, following the notation of Anki Desktop -->
-    <string name="card_buried">Tarxeta agochada.</string>
-    <plurals name="note_suspended">
-        <item quantity="one">%d tarxeta suspendida.</item>
-        <item quantity="other">%d tarxetas suspendidas.</item>
-    </plurals>
     <!--  Note Editor Toggle Sticky  -->
     <string name="note_editor_toggle_sticky">Fixar o campo %s</string>
     <string name="scoped_storage_learn_more">Máis información</string>
@@ -299,20 +261,13 @@
     <!--  Hierarchical Tags  -->
     <string name="expand_tag">Expandir etiqueta \'%s\'</string>
     <!-- Manage note types -->
-    <string name="field_editor_model_not_available">Non se puido cargar a colección. Por favor, téntao de novo!</string>
-    <string name="cd_manage_notetypes_add">Engadir novo tipo de nota</string>
     <plurals name="note_types_selected">
         <item quantity="one">Seleccionaches %d tipo de nota</item>
         <item quantity="other">Seleccionaches %d tipos de notas</item>
     </plurals>
     <!-- App Intro -->
-    <string name="intro_ankidroid_tagline_one">Estuda menos</string>
-    <string name="intro_ankidroid_tagline_two">Lembra máis</string>
-    <string name="intro_short_ankidroid_explanation">O planificador de tarxetas Anki aforra tempo reforzando os teus recordos máis febles e preservando os máis fortes</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Comeza agora</string>
     <string name="intro_sync_from_ankiweb">Sincronizar desde AnkiWeb</string>
     <!-- IntentHandler -->
-    <string name="app_not_initialized_new">Hayaki aínda non está inicializado. Abre Hayaki e téntao de novo</string>
     <!-- Deck Creation -->
     <string name="deck_created">Baralla creada</string>
     <string name="deck_renamed">Renomeouse a baralla</string>
@@ -345,14 +300,11 @@
     <string name="card_template_reposition_template" comment="move a card template to a new position" maxLength="28">Reposicionar</string>
     <string name="previewer_next" comment="Name of the next button in the previewer" maxLength="28">Seguinte</string>
     <string name="previewer_back" comment="Name of the back button in the previewer" maxLength="28">Reverso</string>
-    <string name="start_recording">Gravar</string>
     <string name="stop_recording">Deter</string>
     <string name="play_recording">Reproducir</string>
-    <string name="next_recording" comment="Description of a button to go to the next recording">Seguinte</string>
     <!--  AlertDialog in the deleteCardTemplate  -->
     <string name="orphan_note_title">Non se puido eliminar o tipo de tarxeta</string>
     <string name="orphan_note_message">Eliminando este tipo de tarxeta deixarás algunhas notas sen tarxetas</string>
-    <string name="voice_not_supported">A voz non é compatíbel. Proba outra ou instala un motor de voz.</string>
     <!--Keyboard shortcuts dialog-->
     <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Selector de barallas</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Eliminar baralla sen confirmación</string>

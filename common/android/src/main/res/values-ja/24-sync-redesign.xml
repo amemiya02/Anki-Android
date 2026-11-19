@@ -21,7 +21,6 @@
     <string name="paper_sync_sign_in_failed">ログインが完了しませんでした。サーバー設定を確認して再試行してください。</string>
     <string name="paper_sync_server_title_action">同期を設定</string>
     <string name="paper_sync_change_server">サーバーを変更</string>
-    <string name="paper_sync_remove_server">サーバーを削除</string>
     <string name="paper_sync_signed_in_as">ログイン中のユーザー</string>
     <string name="paper_sync_last_clean">最終同期 %1$s。アップロード待ちの変更はありません。</string>
     <string name="paper_sync_last_pending">最終同期 %1$s。同期を待っている変更があります。</string>
@@ -38,7 +37,6 @@
     <string name="paper_sync_one_way_hint">次の同期時に、保持するコレクションを選びます。</string>
     <string name="paper_sync_unreachable_title">同期サーバーに接続できません</string>
     <string name="paper_sync_unreachable_body">%1$s から応答がありませんでした。サーバーが稼働し、この端末から接続できることを確認してから再試行してください。</string>
-    <string name="paper_sync_retry">再試行</string>
     <string name="paper_sync_not_now">後で</string>
     <string name="paper_sync_not_signed_in">%1$s にログインしていません。同期するにはログインしてください。</string>
     <string name="paper_sync_conflict_title">どちらのコレクションを保持しますか？</string>

@@ -13,7 +13,6 @@
     <plurals name="note_type_template_count"><item quantity="other">カードテンプレート %s 件</item></plurals>
     <plurals name="note_type_note_count"><item quantity="other">ノート %s 件</item></plurals>
     <string name="note_type_field_actions">%s の操作</string>
-    <string name="note_type_field_drag">ドラッグして並べ替え</string>
     <string name="note_type_field_move">位置を指定して移動…</string>
     <string name="note_type_field_sort_label">ブラウザーの並べ替えに使用</string>
     <string name="note_type_field_sort_action">このフィールドでブラウザーを並べ替える</string>

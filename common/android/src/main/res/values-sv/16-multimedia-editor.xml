@@ -45,7 +45,6 @@
     <!-- Message when recording fails -->
     <string name="multimedia_editor_audio_view_recording_failed">Inspelning misslyckades</string>
     <string name="multimedia_editor_audio_view_playing_failed">Uppspelning misslyckades</string>
-    <string name="multimedia_editor_audio_view_create_failed">Kan inte skapa verktygsfältet för inspelaren</string>
     <!-- Crop function-->
     <string name="crop_image">Vill du beskära den här bilden?</string>
     <string name="crop_button" maxLength="28">Beskär</string>
@@ -55,7 +54,4 @@
     <string name="audio_recording_field_list" comment="Displays a list of the field data in the note editor while audio recording is taking place">Fältinnehåll</string>
     <string name="crop_image_size_notice">Bilden är för stor för att hanteras av beskärningsredigeraren. Vänligen ändra storlek och försök igen!</string>
     <string name="reselect" maxLength="28">Välja om</string>
-    <string name="waveform_button_description">Visa ljudvågform</string>
-    <string name="field_content_description">Visa fältets innehåll</string>
-    <string name="delete_audio_button_description">Ta bort inspelning</string>
 </resources>

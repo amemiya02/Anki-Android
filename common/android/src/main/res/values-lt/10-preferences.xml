@@ -24,7 +24,6 @@
   -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- generic strings -->
-    <string name="enabled" comment="Generic label for something that is turned on">Enabled</string>
     <string name="disabled" comment="Generic label for something that is turned off">Išjungta</string>
     <plurals name="pref_summ_minutes">
         <item quantity="one">%d min</item>
@@ -34,17 +33,13 @@
     </plurals>
     <string name="pref_milliseconds">%s ms</string>
     <!-- TODO: move to 20-search-preference so we can contribute upstream (searchpreference_no_results)-->
-    <string name="pref_search_no_results">Rezultatų nėra</string>
     <!-- preferences.xml categories-->
     <string name="pref_cat_general" comment="name of the general preference category" maxLength="41">Bendrosios nuostatos</string>
     <string name="pref_cat_studying" maxLength="41">Mokymasis</string>
     <string name="pref_cat_system_wide" maxLength="41">Visos sistemos mastu</string>
-    <string name="pref_cat_reviewing" maxLength="41">Peržiūra</string>
     <string name="pref_cat_sync" comment="title of the sync preferences category" maxLength="41">Sinchronizacija</string>
     <string name="pref_cat_scheduling" maxLength="41">Planavimas</string>
     <string name="pref_cat_whiteboard" maxLength="41">Lenta</string>
-    <string name="pref_cat_themes" maxLength="41">Apipavidalinimas</string>
-    <string name="pref_cat_gestures" maxLength="41">Gestai</string>
     <string name="pref_cat_controls" maxLength="41">Valdymas</string>
     <string name="pref_cat_advanced" maxLength="41">Sudėtingiau</string>
     <string name="pref_cat_workarounds" maxLength="41">Alternatyvūs būdai</string>
@@ -63,10 +58,6 @@
     <string name="whiteboard_stroke_width" maxLength="41">Linijos plotis</string>
     <string name="use_input_tag" maxLength="41">Įvesti atsakymą į kortelę</string>
     <string name="use_input_tag_summ">Norėdami įvesti atsakymą į kortelę naudokite teksto įvesties laukelį</string>
-    <string name="reset_languages" maxLength="41">Iš naujo nustatyti kalbas</string>
-    <string name="reset_languages_summ">Atkurti kalbų nustatymus (teksto vertimui kalba ir žodynams) visuose rinkiniuose</string>
-    <string name="reset_languages_question">Ar norite atkurti visus kalbų nustatymus?</string>
-    <string name="reset_confirmation">Visos būsenos atkurtos</string>
     <string name="card_zoom" maxLength="41">Kortelės mastelis</string>
     <string name="image_zoom" maxLength="41">Vaizdo priartinimas</string>
     <string name="button_size" maxLength="41">Atsakymo mygtuko dydis</string>
@@ -74,18 +65,6 @@
     <string name="card_browser_hide_media" maxLength="41">Rodyti failų pavadinimus kortelių naršyklėje</string>
     <string name="card_browser_hide_media_summary">Display audio filenames in the card browser question/answer fields</string>
     <string name="col_path" maxLength="41">„Hayaki“ katalogas</string>
-    <string name="fullscreen_review" maxLength="41">Viso ekrano režimas</string>
-    <string name="full_screen_off" comment="Value of the fullscreen mode preference meaning fullscreen is not used">Išjungta</string>
-    <string name="full_screen_system">Slėpti sistemines juostas</string>
-    <string name="full_screen_complete">Slėpti sistemos juostas ir atsakymų mygtukus</string>
-    <string name="answer_buttons_position" maxLength="41">Atsakymų mygtukų vieta</string>
-    <string-array name="answer_buttons_position_labels">
-        <item>Viršuje</item>
-        <item>Apačioje</item>
-        <item>Nieko</item>
-    </string-array>
-    <string name="gestures" maxLength="41">Įjungti gestus</string>
-    <string name="gestures_summ">Nustatykite kokiais gestais atsakinėsite į klausimus ir redaguosite korteles.</string>
     <string name="gestures_corner_touch" maxLength="41">9 taškų jutiklinis valdymas</string>
     <string name="gestures_corner_touch_summary">Leidimas naudoti jutiklinius gestus ekrano kampuose</string>
     <string name="show_keyboard_shortcuts" maxLength="41">Leidimas naudoti jutiklinius gestus ekrano kampuose</string>
@@ -112,39 +91,18 @@
     <string name="gestures_shake" maxLength="41">Pakratykite prietaisą</string>
     <string name="card_browser_enable_external_context_menu" maxLength="41">‘%s’ menu</string>
     <string name="card_browser_enable_external_context_menu_summary">Visuotinai įjungiamas kontekstinis meniu \'%s\'</string>
-    <string name="double_scrolling_gap" maxLength="41">Dvigubas slinkimas</string>
-    <string name="double_scrolling_gap_summ">Padvigubinkite slinkimo tarpą naudodami el. knygų skaityklę</string>
     <string name="swipe_sensitivity" maxLength="41">Braukimo jautrumas</string>
-    <string name="tts" maxLength="41">Tekstas į šneką</string>
-    <string name="tts_summ">Perskaitomas klausimas ir atsakymas, jei nėra įkeltas joks garso failas</string>
     <!-- Sync -->
-    <string name="sync_fetch_missing_media" maxLength="41">Sinchronizuojant parsiųsti laikmenas</string>
     <string name="sync_account_summ_logged_out">Esate neprisijungę</string>
-    <string name="automatic_sync_choice" maxLength="41">Automatinis sinchronizavimas</string>
-    <string name="automatic_sync_choice_summ">Sinchronizuoti automatiškai įjungiant/išjungiant programą, jei paskutinis sinchronizavimas vyko prieš daugiau nei 10
-        minučių.</string>
     <string name="sync_media_always" comment="Option to always fetch media when syncing">Visada</string>
     <string name="sync_media_only_unmetered">Tik nematuojamose jungtyse</string>
     <string name="sync_media_never">Niekada</string>
-    <string name="sync_status_badge" maxLength="41">Rodoma sinchronizavimo būsena</string>
-    <string name="sync_status_badge_summ">Pakeisti sinchronizavimo piktogramą, kai galima įkelti pakeitimus</string>
-    <string name="metered_sync_title" maxLength="41">Leisti sinchronizaciją matuojamose jungtyse</string>
-    <string name="metered_sync_summary">Leisti sinchronizaciją matuojamose jungtyse</string>
-    <string name="backup_limits_frequency">Dažnis</string>
-    <string name="backup_limits_lifetime">Visą gyvenimą</string>
     <string name="app_theme" maxLength="41">Tema</string>
     <string name="day_theme" maxLength="41">Dieninis apipavidalinimas</string>
     <string name="night_theme" maxLength="41">Naktinis apipavidalinimas</string>
     <string name="language" maxLength="41">Kalba</string>
     <string name="language_system">Sistemos kalba</string>
     <string name="notification_pref" maxLength="41">Pranešimai</string>
-    <string name="notification_pref_title" maxLength="41">Pranešti, kai</string>
-    <string name="never_notify">Niekada nepranešti</string>
-    <string name="notify_when_pending">Yra laukiančių žinučių</string>
-    <string name="notification_minimum_cards_due" comment="Consider keeping the unbreakable space after the digit">Daugiau nei %d mokėtinų kortelių</string>
-    <string name="notification_minimum_cards_due_vibrate" maxLength="41">Vibruoti</string>
-    <string name="notification_minimum_cards_due_blink" maxLength="41">Mirksėti švieselę</string>
-    <string name="select_locale_title">Pasirinkite kalbą</string>
     <string name="software_render" maxLength="41">Išjungti kortelės techninės įrangos atvaizdavimą</string>
     <string name="software_render_summ">Techninė įranga atvaizduoja greičiau, tačiau gali kilti problemų, ypač naudojant \"Android 8/8.1\". Jei nematote kortelių peržiūros naudotojo sąsajos dalių, išbandykite šį nustatymą.</string>
     <string name="disable_extended_text_ui" maxLength="41">Disable single-field edit mode</string>
@@ -156,18 +114,8 @@
     <string name="pref_double_tap_time_interval_summary">Antrasis atsakymų mygtukų bakstelėjimas bus ignoruojamas, jei šis laikas dar nepraėjo. Taip išvengiama atsitiktinių dvigubų bakstelėjimų</string>
     <string name="pref_show_answer_long_press_time" maxLength="41">Rodyti atsakymo ilgą paspaudimo laiką</string>
     <string name="pref_show_answer_long_press_time_summary">Minimalus paspaudimo laikas, per kurį rodomas atsakymo mygtukas fiksuoja prisilietimą.</string>
-    <string name="show_estimates" maxLength="41">Rodyti laiko mygtuką</string>
-    <string name="show_estimates_summ">Ant atsakymo mygtukų rodyti kiek liko laiko iki sekančios peržiūros</string>
-    <string name="show_large_answer_buttons" maxLength="41">Show large answer buttons</string>
-    <string name="show_large_answer_buttons_summ">Rodyti atsakymo mygtuką 2 eilutėse</string>
     <string name="remove_animations" maxLength="41">Remove animations</string>
     <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
-    <string name="show_top_bar" maxLength="41">Rodyti viršutinę juostą</string>
-    <string name="show_top_bar_summary">Viršutinėje juostoje rodyti kortelių skaičių, atsakymų laikmatį, vėliavėlę ir ženklą</string>
-    <string name="show_progress" maxLength="41">Likusių kortelių rodymas</string>
-    <string name="show_progress_summ">Rodyti kiek liko kortelių</string>
-    <string name="show_eta" maxLength="41">Rodyti ETA</string>
-    <string name="show_eta_summ">Rodyti likusį laiką</string>
     <string name="use_current" maxLength="41">Rinkinys naujoms kortelėms</string>
     <string name="learn_cutoff" maxLength="41">Mokymosi į priekį apribojimas</string>
     <string name="time_limit" maxLength="41">Mokymuisi numatyto laiko apribojimas</string>
@@ -192,22 +140,14 @@
     <string name="pref_keep_screen_on_summ">Išjungti ekrano užgesimui skirtą laiką</string>
     <string name="enable_api_title" maxLength="41">Įjungti „AnkiDroid“ programų sąsają</string>
     <string name="enable_api_summary">Leisti kitoms programoms jungtis prie „Hayaki“ ir nuskaityti/įrašyti duomenis be jūsų leidimo</string>
-    <string name="custom_buttons" maxLength="41">Programos juostos mygtukai</string>
-    <string name="custom_buttons_summary">Nurodykite, kokius veiksmus bus leidžiama atlikti programos juostoje</string>
     <string name="custom_buttons_setting_always_show">Visada rodyti</string>
-    <string name="custom_buttons_setting_if_room">Rodyti, jei galioja</string>
     <string name="custom_buttons_setting_menu_only">Tik meniu</string>
     <string name="reset_custom_buttons" maxLength="41">Atkurti numatytuosius parametrus</string>
-    <string name="reset_settings_to_default">Iš naujo nustatyti numatytuosius nustatymus</string>
     <string name="reset">Atstatyti</string>
     <string name="thirdparty_apps_title" maxLength="41">Trečiųjų šalių API programos</string>
     <string name="thirdparty_apps_summary">Peržiūrėkite programų, kurios naudoja \"AnkiDroid\" API, pvz., žodynus, pagalbines programas, sąrašą.</string>
-    <string name="pref_controls_reviews_tab" maxLength="41" comment="Name of the tab to configure controls for the reviews screen">Apžvalga</string>
-    <string name="pref_controls_previews_tab" maxLength="41" comment="Name of the tab to configure controls for the previews screen">Peržiūrėti</string>
     <string name="toggle_backside_only" maxLength="41" comment="Control setting that toggles \'Backside only\' in the previews screen">Perjungti tik galinę pusę</string>
     <!-- Appearance settings -->
-    <string name="pref_cat_reviewer" maxLength="41">Study Screen</string>
-    <string name="show_deck_title" maxLength="41">Rodyti rinkinio pavadinimą</string>
     <string name="accessibility" maxLength="41">Prieinamumas</string>
     <string name="exit_via_double_tap_back" maxLength="41">Du kartus paspauskite atgal, kad grįžtumėte atgal / išeitumėte</string>
     <string name="exit_via_double_tap_back_summ">To avoid accidentally leaving the study screen or the app</string>
@@ -223,11 +163,8 @@
         Jei nenustatyta, bus naudojamas numatytasis "AnkiWeb" serveris.
         <a href="%s">Sužinokite daugiau</a>
         ]]></string>
-    <string name="custom_sync_server_base_url_title" maxLength="41">Sync URL</string>
     <string name="custom_sync_certificate_title" maxLength="41">Pasirinktinis šakninis sertifikatas (PEM)</string>
     <!-- Key Bindings -->
-    <string name="keyboard">Klaviatūra</string>
-    <string name="bluetooth">\"Bluetooth\"</string>
     <string name="answer_buttons" maxLength="41">Atsakymų mygtukai</string>
     <string name="card" maxLength="41" comment="Generic term to refer to a card">Kortelė</string>
     <string name="note" maxLength="41">Užrašas</string>
@@ -239,51 +176,25 @@
          ####################################################################################### -->
     <!-- Entry points -->
     <string name="review_reminders_title" maxLength="41" comment="Name of the review reminders feature. Used as a settings screen title, a toolbar title, and the name of the notification channel review reminders are posted to.">Review reminders</string>
-    <string name="review_reminders_summary_app_wide" comment="The descriptor for reminders that are attached to the whole app rather than a single deck.">App-wide</string>
-    <string name="review_reminders_summary_deck_specific" comment="The descriptor for reminders attached to one particular deck.">Deck-specific</string>
     <string name="review_reminders_load_error" comment="Error dialog shown when stored review reminders could not be read back. Technical details follow this text.">An error occurred while loading your review reminders, corrupted reminders have been deleted. Details:</string>
     <!-- Schedule reminders screen -->
     <string name="schedule_reminders_title" maxLength="28" comment="Name of the menu option for scheduling review reminders for a deck.">Schedule reminders</string>
     <string name="add_reminder" comment="Label for the add reminder button in the screen for adding and editing review reminders">Add reminder</string>
     <string name="you_have_no_review_reminders" comment="Text that appears in the review reminder editing screen when there are no reminders set">You have no review reminders</string>
-    <string name="schedule_reminders_troubleshoot_menu" maxLength="28" comment="Text in a menu button which opens a screen for diagnosing why review reminders may not be delivered.">Troubleshoot</string>
     <string name="schedule_reminders_notification_settings_menu" maxLength="28" comment="Text in a menu button which opens the operating system notification settings for the app.">Notification settings</string>
-    <string name="schedule_reminders_list_content_description" comment="Accessibility description of the list showing scheduled review reminders.">List of scheduled review reminders</string>
-    <string name="schedule_reminders_deck_not_found" comment="Shown in place of a deck name when the deck a review reminder points at no longer exists.">Deck not found</string>
     <string name="schedule_reminders_unavailable" comment="Pop-up text shown when review reminders cannot be delivered at all, such as due to missing permissions.">Reminders are unavailable</string>
-    <string name="schedule_reminders_fix" comment="Text for the button which, when pressed, opens the review reminder troubleshooting screen for fixing issues with review reminders.">Fix</string>
-    <string name="schedule_reminders_added" comment="Pop-up text which confirms a new review reminder was created.">Successfully added new review reminder</string>
-    <string name="schedule_reminders_deleted" comment="Pop-up text which confirms a review reminder was deleted.">Successfully deleted review reminder</string>
-    <string name="schedule_reminders_edited" comment="Pop-up text which confirms an existing review reminder was changed.">Successfully edited review reminder</string>
     <!-- Add / edit reminder dialog -->
     <string name="add_review_reminder" comment="Title of the dialog for creating a new review reminder.">Add review reminder</string>
     <string name="edit_review_reminder" comment="Title of the dialog for editing an existing review reminder.">Edit review reminder</string>
-    <string name="add_edit_reminder_time_label" comment="Label of the field for choosing what time of day a review reminder fires.">Time:</string>
-    <string name="add_edit_reminder_deck_label" comment="Label of the field for choosing which deck a review reminder applies to.">Deck:</string>
-    <string name="add_edit_reminder_advanced_label" comment="Header of the collapsible section holding extra review reminder customization options.">Advanced settings</string>
-    <string name="add_edit_reminder_card_threshold_label" comment="Label of the field setting the minimum number of due cards needed before a review reminder fires.">Card threshold:</string>
-    <string name="add_edit_reminder_card_threshold_description" comment="Explanation shown under the card threshold field.">Do not send me notifications if there are less than this many cards due</string>
-    <string name="add_edit_reminder_only_notify_if_no_reviews_label" comment="Label of the switch suppressing a review reminder on days which have already had reviews.">Only notify me if no reviews have been done today</string>
     <string name="add_edit_reminder_card_threshold_error_not_a_number" comment="Validation error shown when the review reminder card threshold field does not hold a whole number.">Please enter a whole number of cards</string>
     <string name="add_edit_reminder_card_threshold_error_negative" comment="Validation error shown when the review reminder card threshold field holds a negative number.">The threshold must be at least 0</string>
-    <string name="add_edit_reminder_count_toward_threshold_heading" comment="Heading above the advanced review reminder options for choosing which kinds of cards (new / learning / to review) count toward the reminder\'s card threshold.">Count these cards toward the threshold:</string>
     <string name="add_edit_reminder_delete_confirmation_title" comment="Title of the dialog confirming deletion of a review reminder.">Delete this reminder?</string>
     <string name="add_edit_reminder_delete_confirmation_message" comment="Body of the dialog confirming deletion of a review reminder.">This action cannot be undone.</string>
     <!-- Reminder troubleshooting screen -->
     <string name="reminder_troubleshooting_summary_error" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when reminders cannot be delivered at all.">Reminders are unavailable.</string>
-    <string name="reminder_troubleshooting_summary_warning" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when reminders may be delayed or suppressed.">Reminders may not work correctly.</string>
     <string name="reminder_troubleshooting_summary_ok" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when no issues are found.">Your reminders should work as expected.</string>
-    <string name="reminder_troubleshooting_footer" comment="Closing advice at the bottom of the review reminder troubleshooting screen.">Different devices have different notification restriction settings. Check your system settings or search online if issues persist.</string>
     <!-- Troubleshooting check titles -->
-    <string name="reminder_troubleshooting_check_notification_permission" comment="Name of a review reminder troubleshooting check: whether the app may post notifications.">Notification permission</string>
-    <string name="reminder_troubleshooting_check_notification_channel" comment="Name of a review reminder troubleshooting check: whether the review reminders notification channel is turned on.">Notification channel</string>
-    <string name="reminder_troubleshooting_check_do_not_disturb" comment="Name of a review reminder troubleshooting check: whether the system Do Not Disturb mode is active.">Do not disturb</string>
-    <string name="reminder_troubleshooting_check_battery_optimization" comment="Name of a review reminder troubleshooting check: whether the system restricts the app\'s background battery usage.">Battery optimization</string>
-    <string name="reminder_troubleshooting_check_power_saving_mode" comment="Name of a review reminder troubleshooting check: whether the system power saving mode is active.">Power saving mode</string>
-    <string name="reminder_troubleshooting_check_exact_alarm_permission" comment="Name of a review reminder troubleshooting check: whether the app has permission to schedule alarms at exact times.">Alarms &amp; reminders permission</string>
     <!-- Troubleshooting check statuses -->
-    <string name="reminder_troubleshooting_status_granted" comment="Status of a review reminder troubleshooting check: the permission has been given.">Granted</string>
-    <string name="reminder_troubleshooting_status_denied" comment="Status of a review reminder troubleshooting check: the permission has not been given.">Denied</string>
     <string name="reminder_troubleshooting_status_on" comment="Status of a review reminder troubleshooting check: the system setting is active.">On</string>
     <string name="reminder_troubleshooting_status_off" comment="Status of a review reminder troubleshooting check: the system setting is not active.">Off</string>
     <string name="reminder_troubleshooting_status_unrestricted" comment="Status of the review reminder battery optimization check: the app may run freely in the background.">Unrestricted</string>
@@ -292,29 +203,17 @@
     <!-- Troubleshooting check explanations -->
     <string name="reminder_troubleshooting_explanation_notification_channel" comment="Explains why review reminders need notification permissions to work correctly.">The review reminder notification channel must be enabled</string>
     <string name="reminder_troubleshooting_explanation_do_not_disturb" comment="Explains why review reminders may need Do Not Disturb to be disabled to work correctly.">Do Not Disturb may mute reminder notifications</string>
-    <string name="reminder_troubleshooting_explanation_battery_optimized" comment="Explains to the user that AnkiDroid\'s battery usage is optimized, and that battery usage may need to be enabled for review reminders to work correctly.">Battery optimization may delay reminders</string>
     <string name="reminder_troubleshooting_explanation_battery_restricted" comment="Explains to the user that AnkiDroid\'s battery usage is restricted, and that battery usage may need to be enabled for review reminders to work correctly.">Background usage is disabled. Reminders may not be delivered</string>
     <string name="reminder_troubleshooting_explanation_power_saving_mode" comment="Explains why review reminders may need power saving mode to be disabled to work correctly.">Power saving mode may prevent timely delivery of reminders</string>
     <string name="reminder_troubleshooting_explanation_exact_alarm" comment="Explains that AnkiDroid cannot schedule alarms at exact times unless the exact-alarm permission is granted.">Required to schedule reminders at exact times</string>
     <!-- Troubleshooting check actions -->
     <string name="reminder_troubleshooting_action_grant_permission" comment="Button resolving a failing review reminder troubleshooting check by asking for a permission.">Grant permission</string>
     <string name="reminder_troubleshooting_action_enable_notification_channel" comment="Button resolving a failing review reminder troubleshooting check by opening the operating system notification settings screen.">Enable notification channel</string>
-    <string name="reminder_troubleshooting_action_disable_battery_optimization" comment="Button resolving a failing review reminder troubleshooting check by asking the user to exempt the app from battery optimization.">Disable battery optimization</string>
     <string name="reminder_troubleshooting_action_open_battery_settings" comment="Button resolving a failing review reminder troubleshooting check by opening the operating system battery settings screen.">Open battery settings</string>
     <!-- Notification content -->
-    <string name="review_reminder_notification_title_all_decks" comment="Title of a review reminder notification which is attached to the whole app rather than a single deck.">It\'s time to study your cards</string>
-    <string name="review_reminder_notification_title_deck" comment="Title of a review reminder notification for one deck. The parameter is the deck name; the quotation marks are to clearly separate the user-chosen name from the app\'s own text.">It\'s time to study \"%s\"</string>
-    <string name="review_reminder_notification_snooze_button" comment="Notification button postponing a review reminder by a certain amount of time. The parameter is a duration like \'1h\', \'5m\', etc.">Snooze %s</string>
-    <plurals name="review_reminder_notification_cards_due" comment="Body of a review reminder notification. The parameter is the number of cards due.">
-        <item quantity="one">%d card due</item>
-        <item quantity="few">%d cards due</item>
-        <item quantity="many">%d cards due</item>
-        <item quantity="other">%d cards due</item>
-    </plurals>
     <!-- studyoptions -->
     <string name="studyoptions_limit_select_tags">Pasirinkite žymes</string>
     <!-- Deck configurations -->
-    <string name="deck_conf_general" maxLength="41" comment="Label of the submenu for the general options of new deck">Bendra</string>
     <string name="deck_conf_cram_search" maxLength="41" comment="Label of a text field that contains a search query.">Ieškoti</string>
     <!-- analytics options -->
     <string name="analytics_dialog_title">Padėkite tobulinti „AnkiDroid“!</string>
@@ -330,7 +229,6 @@
     <string name="license">Licencija</string>
     <string name="license_description"><![CDATA[Hayaki is released under the <a href=\"%1$s\">GPL-3.0</a> and <a href=\"%2$s\">AGPL-3.0</a> licenses, with the source code available <a href=\"%3$s\">on GitHub</a>]]></string>
     <string name="other_licenses"><![CDATA["Hayaki" taip pat naudoja trečiųjų šalių bibliotekas ir piktogramas, kurios licencijuojamos pagal įvairias atvirojo kodo <a href=\"%1$s\">licencijas</a>.]]></string>
-    <string name="donate_description"><![CDATA[Galite paremti AnkiDroid plėtrą <a href=\"%1$s\">aukodami</a>. Bet kokia suma yra labai vertinama.]]></string>
     <!-- Controls -->
     <string name="binding_add_gesture">Pridėti gestą</string>
     <string name="binding_add_key">Pridėti raktą</string>
@@ -365,7 +263,6 @@
     <string name="bindings_already_bound">Already bound to ‘%s’</string>
     <!-- Advanced -->
     <string name="pref_cat_experimental" maxLength="41" tools:ignore="UnusedResources">Eksperimentinis</string>
-    <string name="readtext_deprecation_warn">\"Hayaki\" įdiegtas geresnis TTS mechanizmas, suderinamas su kitais \"Anki\" klientais, jame yra daugiau balsų ir patobulintas kalbų atkūrimas!\n\nPrašome kuo greičiau atnaujinti, nes šis nustatymas netrukus bus pašalintas.</string>
     <string name="readtext_reviewer_warn" tools:ignore="UnusedResources">Atnaujinkite naują teksto į kalbą formatą</string>
     <string name="allow_templates_to_record_audio" maxLength="41">Allow templates to record audio</string>
     <string name="template_is_trying_to_record_audio">This template is trying to record audio</string>
@@ -452,8 +349,6 @@
     <string name="toolbar" maxLength="41">Toolbar</string>
     <string name="toolbar_actions" maxLength="41">Toolbar actions</string>
     <string name="toolbar_position" maxLength="28">Toolbar position</string>
-    <string name="new_study_screen" maxLength="41">New study screen</string>
-    <string name="new_study_screen_summ"><![CDATA[Improved study screen that will succeed the current one. Some features of the old screen have been changed or removed. Please report any <a href="%1$s">feedback</a> or <a href="%2$s">bugs</a>.]]></string>
     <string name="show_answer_feedback" maxLength="41">Show answer feedback</string>
     <string name="screen" maxLength="41">Screen</string>
     <string name="also_assign_binding_to_show_answer" comment="Question shown after assigning binding to an \'Answer\' command, asking whether it should also be assigned to the \'Show answer\'; %1$s is \'Show answer\'">Also assign to ‘%1$s’?</string>

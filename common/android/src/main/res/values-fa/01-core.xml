@@ -63,7 +63,6 @@
     <string name="undo" maxLength="28" comment="When tapping on this text, the last action is undone.">بازگردانی</string>
     <string name="redo" maxLength="28" comment="Menu entry that allows to redo action that was just undone.">انجام مجدد</string>
     <!-- flashcard_portrait.xml -->
-    <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">پاک‌کردن خط</string>
     <string name="move_all_to_deck">انتقال همه به دسته</string>
     <string name="create_shortcut">ایجاد میان‌بر</string>
     <string name="browse_cards">مشاهده کارت‌ها</string>
@@ -71,14 +70,9 @@
     <string name="menu_add" comment="A generic add button. Please inform us if you need more specific strings" maxLength="28">افزودن</string>
     <string name="menu_add_note" maxLength="28">افزودن یادداشت</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">همگام‌سازی حساب</string>
-    <string name="menu_dismiss_note" maxLength="41">پنهان‌کردن / حذف‌کردن</string>
     <string name="rename_flag">تغییر نام نشانه‌ها</string>
     <string name="menu_edit_tags" maxLength="28">ویرایش برچسب‌ها</string>
-    <string name="delete_note_message">مطمئنید می خواهید این یادداشت و همه کارتهایش را پاک کنید؟\n%s</string>
-    <string name="menu_search" maxLength="28">جستجو در %1$s</string>
     <string name="menu_unmark_note">برداشتن علامت یادداشت</string>
-    <string name="menu_enable_voice_playback" maxLength="28">فعال کردن پخش صدا</string>
-    <string name="menu_disable_voice_playback">غیرفعال کردن پخش صدا</string>
     <string name="menu_create_backup" maxLength="28">ایجاد پشتیبان</string>
     <string name="new_dynamic_deck">ایجاد دسته فیلتر شده</string>
     <string name="directory_inaccessible">فهرست Hayaki غیرقابل دسترس است</string>
@@ -91,7 +85,6 @@
     <string name="empty_cram_label" maxLength="28">تخلیه</string>
     <string name="create_subdeck">ایجاد زیردسته</string>
     <string name="empty_filtered_deck">درحال تخلیه دسته‌ی کارت فیلتر شده&#8230;</string>
-    <string name="search_deck" comment="Deck search for selecting it">جستجوی دسته کارت</string>
     <string name="empty_deck">این دسته خالی است</string>
     <string name="invalid_deck_name">نام دسته نامعتبر است</string>
     <string name="studyoptions_congrats_finished">تبریک! امروز کارتان تمام شد.</string>
@@ -103,7 +96,6 @@
     <string name="continue_sync" tools:ignore="UnusedResources">ادامه همگام‌سازی</string>
     <string name="sync_cancelled" tools:ignore="UnusedResources">همگام‌سازی لغو شد</string>
     <string name="sync_cancel_message" tools:ignore="UnusedResources">در حال لغو کردن&#8230;\nممکن است کمی زمان بر باشد.</string>
-    <string name="syncing_media">در حال همگام‌سازی رسانه‌ها</string>
     <string name="export_deck" maxLength="28">صدور دسته</string>
     <string name="export_collection">صدور مجموعه</string>
     <!-- Card template editor -->
@@ -129,12 +121,6 @@
     <string name="card_browser_context_menu" comment="The value which appears in the system context menu.">مرورگر کارت</string>
     <string name="context_menu_anki_card_label">کارت Anki</string>
     <!-- Sync conflict -->
-    <string name="sync_conflict_message_new">مجموعه‌ها نمی‌توانند ترکیب شوند.\nکدام مجموعه را می‌خواهید نگه دارید؟</string>
-    <string name="sync_conflict_keep_local_new" comment="Select AnkiDroid files to keep while syncing">Hayaki</string>
-    <string name="sync_conflict_keep_remote_new" comment="Select AnkiWeb files to keep while syncing">AnkiWeb</string>
-    <string name="sync_conflict_remote_confirm_new">آیا می‌خواهید مجموعه موجود در AnkiWeb را به جای مجموعه موجود در Hayaki قراردهید؟</string>
-    <string name="sync_conflict_local_confirm_new">آیا می‌خواهید مجموعه موجود در Hayaki را به جای مجموعه موجود در AnkiWeb قراردهید؟</string>
-    <string name="sync_conflict_title_new">مجموعه‌ای که می‌خواهید نگه دارید را انتخاب کنید</string>
     <string name="sync_conflict_replace_title">جایگزین کردن مجموعه</string>
     <!-- Generic errors -->
     <string name="error__etc__cannot_write_to_or_create_file">نمیتوان فایلی نوشت یا ساخت %s</string>

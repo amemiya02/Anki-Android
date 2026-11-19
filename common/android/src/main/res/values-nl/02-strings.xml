@@ -40,8 +40,6 @@
     <string name="updated_version">Geüpdatet naar versie %s</string>
     <!-- Reviewer.kt (Study Screen) -->
     <string name="save_whiteboard" maxLength="28">Schrijfbord opslaan</string>
-    <string name="enable_stylus" maxLength="28">Stylus schrijven inschakelen</string>
-    <string name="disable_stylus">Stylus schrijven uitschakelen</string>
     <string name="eraser" maxLength="28">Gom</string>
     <string name="add_brush" maxLength="28">Borstel toevoegen</string>
     <string name="whiteboard_align_left" comment="Option to align the whiteboard toolbar on the left" maxLength="28">Links</string>
@@ -56,22 +54,11 @@
     <string name="enable_whiteboard" maxLength="28">Whiteboard inschakelen</string>
     <string name="disable_whiteboard">Whiteboard uitschakelen</string>
     <string name="show_whiteboard">Toon het schrijfbord</string>
-    <string name="enable_eraser" maxLength="28">Schakel gom in</string>
-    <string name="disable_eraser" maxLength="28">Schakel gom uit</string>
     <string name="hide_whiteboard" maxLength="28">Verberg het schrijfbord</string>
     <string name="clear_whiteboard" maxLength="28">Schrijfbord schoonvegen</string>
     <string name="hide_toolbar" maxLength="28">Verberg werkbalk</string>
     <string name="replay_media" maxLength="28">Media opnieuw afspelen</string>
-    <string name="leech_suspend_notification">Kaart gemarkeerd als moeilijk en uitgesteld</string>
-    <string name="leech_notification">Kaart gemarkeerd als moeilijk</string>
     <string name="webview_crash_unknown">Onbekende fout</string>
-    <string name="webview_crash_unknwon_detailed">Dit was veroorzaakt door een interne fout in de WebView</string>
-    <string name="webview_crash_oom">Te weinig geheugen</string>
-    <string name="webview_crash_oom_details">De WebView is beëindigt door het systeem. Dit gebeurt gewoonlijk wanneer de applicatie onvoldoende geheugen heeft, vaak door grote lettertypen of media.</string>
-    <string name="webview_crash_nonfatal">WebView renderer is gecrasht. Oorzaak: %s</string>
-    <string name="webview_crash_fatal">Fatale fout: de WebView renderer is gecrashed. Reden: %s</string>
-    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
-    <string name="webview_crash_loop_dialog_content">Systeem WebView kon de kaart \'%1$s\' niet renderen.\n%2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Veeg om te annuleren</string>
     <string name="filter_by_flags" maxLength="41">Vlaggen</string>
     <!-- filtered deck options -->
@@ -79,7 +66,6 @@
     <string name="filtered_option_delay_hard">Delay for hard</string>
     <string name="filtered_option_delay_good">Delay for good</string>
     <!-- Custom study options -->
-    <string name="custom_study_loading_tags">Lijst aanmaken van tags&#8230;</string>
     <!-- Study options -->
     <plurals name="studyoptions_buried_count">
         <item quantity="one">+%d verborgen</item>
@@ -108,26 +94,16 @@
     <string name="image_cropper_action_flip_vertically" maxLength="28" comment="Submenu action in image cropper screen">Verticaal kantelen</string>
     <!-- Timebox -->
     <string name="timebox_reached_title">Timebox bereikt</string>
-    <plurals name="timebox_reached">
-        <item quantity="one">%1$d kaart geoefend in %2$s</item>
-        <item quantity="other">%1$d kaarten geoefend in %2$s</item>
-    </plurals>
     <!-- minutes used in \'[studied in] x minutes\' context, causing inflexion in some languages -->
-    <plurals name="in_minutes">
-        <item quantity="one">%1$d minuut</item>
-        <item quantity="other">%1$d minuten</item>
-    </plurals>
     <string name="fact_adder_intent_title" comment="Label of the \'Add Note\' window. This title can\'t be seen in AnkiDroid directly.">Hayaki kaart</string>
     <string name="note_editor_copy_note" maxLength="28">Memo kopiëren</string>
     <string name="card_editor_reposition_card" comment="reposition a card in the new queue" maxLength="28">Verplaatsen</string>
     <string name="card_editor_reset_card" maxLength="28">Vooruitgang resetten</string>
-    <string name="card_editor_reschedule_card" comment="Action to reschedule a card" maxLength="28">Opnieuw inplannen</string>
     <string name="card_editor_preview_card" comment="Button offering to preview some card(s)" maxLength="28">Voorbeeld</string>
     <string name="copy_as_markdown" comment="Copies text to the clipboard as Markdown" maxLength="28">Kopiëren als Markdown</string>
     <string name="preview_progress_bar_text" comment="What card we are on out of how many in card previewer progress bar">%1$d van %2$d</string>
     <string name="rename" comment="Confirm that the renaming action should be processed." maxLength="28">Naam wijzigen</string>
     <string name="checks_action" maxLength="28">Controleren</string>
-    <string name="unknown_type_field_warning">Type antwoord: onbekend veld %s</string>
     <string name="delete_deck" comment="Message on a progress bar starting a deck is being deleted.">Leerset verwijderen&#8230;\nEven wachten.</string>
     <string name="info_rate">Beoordeel AnkiDroid</string>
     <string name="import_title">Importeren</string>
@@ -162,13 +138,11 @@
     <string name="export_choice_save_to">Opslaan in</string>
     <string name="export_saving_exported_collection">Geëxporteerd bestand opslaan&#8230;</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Studieopties</string>
-    <string name="select_tts" maxLength="28">TTS-taal instellen</string>
     <string name="dyn_deck_desc">Dit is een speciale set bedoeld om buiten het normale schema te studeren. Kaarten keren onmiddellijk terug naar hun oorspronkelijke set nadat u hen overhoord heeft. Als u deze set verwijdert, keren alle overgebleven kaarten onmiddellijk terug naar hun oorspronkelijke set.</string>
     <string name="tag_editor_add_feedback">Druk op  “%2$s” om het toevoegen van “%1$s” te bevestigen</string>
     <string name="tag_editor_add_feedback_existing">Bestaand label “%1$s” geselecteerd</string>
     <string name="tag_already_exists">De tag bestaat al</string>
     <string name="error_name_exists">Naam bestaat al</string>
-    <string name="warning_find_and_replace">Het is aangeraden om je collectie van DeckPicker te backuppen voor je deze optie gebruikt!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">Fout met het delen van de apkg bestand</string>
@@ -179,14 +153,10 @@
     <string name="web_page_error">Fout bij het laden van de pagina: %s</string>
     <!-- The name of the deck which corrupt cards will be moved to -->
     <!-- Deckpicker Background -->
-    <string name="background_image_title" maxLength="41">Achtergrond</string>
-    <string name="remove_wallpaper_image" maxLength="41">Verwijder achtergrond</string>
     <string name="remove_background_image">Weet je zeker dat je de achtergrond wilt verwijderen?</string>
     <!-- Card Template Browser Appearance -->
     <string name="restore_default" maxLength="28">Standaardinstellingen herstellen</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
-    <string name="white_board_eraser_enabled">Wis-modus geactiveerd</string>
-    <string name="white_board_eraser_disabled">Wis-modus gedeactiveerd</string>
     <string comment="Progress amount e.g. \'28 MB/141 MB\'. %1$s is the current amount, %2$s is the max." name="progress_amount_bytes">%1$s/%2$s</string>
     <string name="media_file_size_warning_title">Media te groot</string>
     <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">Het bestand \"%1$s\" (%2$s) overschrijdt de AnkiWeb limiet van %3$s en kan niet worden gesynchroniseerd. Toch toevoegen?</string>
@@ -194,7 +164,6 @@
     <!-- Whiteboard save image message in the Study Screen -->
     <string name="white_board_image_save_failed">Opslaan van schrijfbordafbeelding is mislukt. %s</string>
     <string name="white_board_image_saved">schrijfbordafbeelding opgeslagen in %s</string>
-    <string name="title_whiteboard_editor" maxLength="28">Whiteboard bewerker</string>
     <string name="user_is_a_robot">Geautomatiseerde test gedetecteerd. Als u een mens bent, neem dan contact op met de AnkiDroid-ondersteuning</string>
     <!-- JS api -->
     <string name="api_version_developer_contact">Deze kaart maakt gebruik van niet-ondersteunde AnkiDroid-functies. Neem contact op met de ontwikkelaar %1$s of raadpleeg de wiki. %2$s</string>
@@ -247,7 +216,6 @@
     <string name="create_shortcut_error">Fout bij het toevoegen van de snelkoppeling: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">Zinnen in hoofdletters</string>
     <!-- Dialog hints -->
-    <string name="dialog_hint_url">URL</string>
     <string name="dialog_hint_certificate">Certificaat</string>
     <!-- IncrementNumberRangePreference -->
     <string name="plus_sign" comment="Label for increment button in IncrementerNumberRangePreference">+</string>
@@ -256,7 +224,6 @@
     <string name="maximum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the maximum allowed value">Maximale waarde is %d</string>
     <string name="minimum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the minimum allowed value">Minimale waarde is %d</string>
     <!-- Used for credential empty warning message -->
-    <string name="invalid_email">Voer een geldig e-mailadres in</string>
     <string name="password_empty">Wachtwoord is vereist</string>
     <string name="back_pressed_once">Go back again to exit</string>
     <!-- %% is required to display % symbol. Reference: https://stackoverflow.com/a/16834358 -->
@@ -281,11 +248,6 @@
     <string name="home" maxLength="28">Startpagina</string>
     <!-- Study Screen actions
     Each of these strings ends with a period, following the notation of Anki Desktop -->
-    <string name="card_buried">Kaart begraven.</string>
-    <plurals name="note_suspended">
-        <item quantity="one">%d kaart opgeschort.</item>
-        <item quantity="other">%d kaarten opgeschort.</item>
-    </plurals>
     <!--  Note Editor Toggle Sticky  -->
     <string name="note_editor_toggle_sticky">Pin veld %s</string>
     <string name="scoped_storage_learn_more">Meer leren</string>
@@ -299,20 +261,13 @@
     <!--  Hierarchical Tags  -->
     <string name="expand_tag">Label \'%s \' uitklappen</string>
     <!-- Manage note types -->
-    <string name="field_editor_model_not_available">Toegang tot verzameling mislukt. Probeer het opnieuw!</string>
-    <string name="cd_manage_notetypes_add">Nieuw notitietype toevoegen</string>
     <plurals name="note_types_selected">
         <item quantity="one">%d notitietype geselecteerd</item>
         <item quantity="other">%d notitietypes geselecteerd</item>
     </plurals>
     <!-- App Intro -->
-    <string name="intro_ankidroid_tagline_one">Studeer minder</string>
-    <string name="intro_ankidroid_tagline_two">Meer onthouden</string>
-    <string name="intro_short_ankidroid_explanation">De kaartplanner van Anki\'s bespaart tijd door je zwakste herinneringen te versterken en je sterkste te bewaren</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Aan de slag</string>
     <string name="intro_sync_from_ankiweb">Synchronizeren vanaf AnkiWeb</string>
     <!-- IntentHandler -->
-    <string name="app_not_initialized_new">Hayaki is nog niet geïnitialiseerd. Open Hayaki en probeer het opnieuw</string>
     <!-- Deck Creation -->
     <string name="deck_created">Leerset aanmaken</string>
     <string name="deck_renamed">Setnaam wijzigen</string>
@@ -345,14 +300,11 @@
     <string name="card_template_reposition_template" comment="move a card template to a new position" maxLength="28">Verplaatsen</string>
     <string name="previewer_next" comment="Name of the next button in the previewer" maxLength="28">Volgende</string>
     <string name="previewer_back" comment="Name of the back button in the previewer" maxLength="28">Terug</string>
-    <string name="start_recording">Opnemen</string>
     <string name="stop_recording">Stoppen</string>
     <string name="play_recording">Afspelen</string>
-    <string name="next_recording" comment="Description of a button to go to the next recording">Volgende</string>
     <!--  AlertDialog in the deleteCardTemplate  -->
     <string name="orphan_note_title">Kan kaarttype niet verwijderen</string>
     <string name="orphan_note_message">Als je dit kaarttype verwijdert, zullen sommige notities geen kaarten meer hebben.</string>
-    <string name="voice_not_supported">Stem niet ondersteund. Kies een andere of installeer een stempakket.</string>
     <!--Keyboard shortcuts dialog-->
     <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Set kiezer</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Set verwijderen zonder bevestiging</string>

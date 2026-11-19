@@ -63,7 +63,6 @@
     <string name="undo" maxLength="28" comment="When tapping on this text, the last action is undone.">کالعدم کریں</string>
     <string name="redo" maxLength="28" comment="Menu entry that allows to redo action that was just undone.">دوبارہ کریں</string>
     <!-- flashcard_portrait.xml -->
-    <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">اسٹروک کو کالعدم کریں۔</string>
     <string name="move_all_to_deck">سب کو ڈیک پر منتقل کریں۔</string>
     <string name="create_shortcut">شارٹ کٹ بنائیں</string>
     <string name="browse_cards">کارڈز کو براؤز کریں۔</string>
@@ -71,14 +70,9 @@
     <string name="menu_add" comment="A generic add button. Please inform us if you need more specific strings" maxLength="28">شامل کریں</string>
     <string name="menu_add_note" maxLength="28">نوٹ شامل کریں</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">اکاؤنٹس کی مطابقت پذیری</string>
-    <string name="menu_dismiss_note" maxLength="41">چھپائیں / حذف کریں</string>
     <string name="rename_flag">جھنڈوں کا نام تبدیل کریں</string>
     <string name="menu_edit_tags" maxLength="28">کارڈز میں ترمیم کریں</string>
-    <string name="delete_note_message">واقعی یہ نوٹ اور اس کے تمام کارڈز حذف کریں؟ \n%s</string>
-    <string name="menu_search" maxLength="28">%1$s میں تلاش کریں</string>
     <string name="menu_unmark_note">نوٹ بے نشان کریں</string>
-    <string name="menu_enable_voice_playback" maxLength="28">صوتی پلے بیک کو فعال کریں</string>
-    <string name="menu_disable_voice_playback">صوتی پلے بیک کو غیر فعال کریں</string>
     <string name="menu_create_backup" maxLength="28">بیک اپ بنائیں</string>
     <string name="new_dynamic_deck">فلٹر شدہ ڈیک بنائیں</string>
     <string name="directory_inaccessible">Hayaki ڈائریکٹری ناقابل رسائی ہے</string>
@@ -91,7 +85,6 @@
     <string name="empty_cram_label" maxLength="28">خالى</string>
     <string name="create_subdeck">سب ڈیک بنائیں</string>
     <string name="empty_filtered_deck">فلٹر شدہ ڈیک کو خالی کیا جا رہا ہے&#8230;</string>
-    <string name="search_deck" comment="Deck search for selecting it">ڈیک تلاش</string>
     <string name="empty_deck">یہ ڈیک خالی ہے</string>
     <string name="invalid_deck_name">ڈیک کا نام غلط ہے</string>
     <string name="studyoptions_congrats_finished">مبارک ہو! آپ نے آج کے لیے کام مکمل کر لیا ہے۔</string>
@@ -103,7 +96,6 @@
     <string name="continue_sync" tools:ignore="UnusedResources">مطابقت پذیری جاری رکھیں</string>
     <string name="sync_cancelled" tools:ignore="UnusedResources">مطابقت پذیری منسوخ کر دی گئی</string>
     <string name="sync_cancel_message" tools:ignore="UnusedResources">منسوخ ہو رہا ہے&#8230;\nاس میں کچھ وقت لگ سکتا ہے۔</string>
-    <string name="syncing_media">میڈیا کی مطابقت پذیری</string>
     <string name="export_deck" maxLength="28">ڈیک برآمد کریں</string>
     <string name="export_collection">ایکسپورٹ کلیکشن</string>
     <!-- Card template editor -->
@@ -129,12 +121,6 @@
     <string name="card_browser_context_menu" comment="The value which appears in the system context menu.">کارڈ براؤزر</string>
     <string name="context_menu_anki_card_label">انکی کارڈ</string>
     <!-- Sync conflict -->
-    <string name="sync_conflict_message_new">مجموعوں کو یکجا نہیں کیا جا سکتا۔\nآپ کون سا مجموعہ رکھنا چاہتے ہیں؟</string>
-    <string name="sync_conflict_keep_local_new" comment="Select AnkiDroid files to keep while syncing">Hayaki</string>
-    <string name="sync_conflict_keep_remote_new" comment="Select AnkiWeb files to keep while syncing">انکی ویب</string>
-    <string name="sync_conflict_remote_confirm_new">Hayaki پر اپنے کلیکشن کو AnkiWeb کے اپنے کلیکشن سے بدلیں؟</string>
-    <string name="sync_conflict_local_confirm_new">AnkiWeb پر اپنے کلیکشن کو Hayaki کے اپنے کلیکشن سے بدلیں؟</string>
-    <string name="sync_conflict_title_new">رکھنے کے لیے مجموعہ منتخب کریں۔</string>
     <string name="sync_conflict_replace_title">مجموعہ کو تبدیل کریں۔</string>
     <!-- Generic errors -->
     <string name="error__etc__cannot_write_to_or_create_file">فائل %s پر نہیں لکھ سکتا اور نہ ہی بنا سکتا ہے۔</string>

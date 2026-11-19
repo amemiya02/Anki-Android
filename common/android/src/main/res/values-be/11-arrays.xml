@@ -31,7 +31,6 @@
     <!-- theme labels -->
     <string name="theme_follow_system">Прытрымлівацца сістэмы</string>
     <string name="theme_day" comment="Day/Light theme color scheme">Дзень</string>
-    <string name="theme_night" comment="Night/Dark theme color scheme">Ноч</string>
     <!-- day_theme_labels -->
     <string name="day_theme_light">Светлая</string>
     <string name="day_theme_plain">Звычайная</string>

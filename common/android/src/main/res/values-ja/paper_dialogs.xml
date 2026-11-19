@@ -5,8 +5,6 @@
     <string name="paper_dialog_hide_details">詳細を非表示</string>
     <string name="paper_dialog_copy_details">詳細をコピー</string>
     <string name="paper_dialog_replace_collection">コレクションを置き換える</string>
-    <string name="paper_dialog_create_deck">デッキを作成</string>
     <string name="paper_dialog_deck_name">デッキ名</string>
-    <string name="paper_dialog_sync_unreachable">同期サーバーに接続できませんでした</string>
     <string name="paper_dialog_export_deck_title">「%1$s」をエクスポート</string>
 </resources>

@@ -6,7 +6,7 @@
     <string name="paper_sync_address_hint">Include the port, if it has one.</string>
     <string name="paper_sync_invalid_address">Enter the HTTP or HTTPS address of your own sync server.</string>
     <string name="paper_sync_certificate_hint">Only for a server with a self-signed certificate</string>
-    <string name="paper_sync_optional">Optional</string>
+    <string name="paper_sync_optional" comment="Status of the optional custom TLS certificate in sync settings when none is configured">Optional</string>
     <string name="paper_sync_configured">Configured</string>
     <string name="paper_sync_server_help">How to run a sync server</string>
     <string name="paper_sync_from_ankiweb">Transfer with a file</string>
@@ -21,7 +21,6 @@
     <string name="paper_sync_sign_in_failed">Sign-in did not finish. Check your server settings and try again.</string>
     <string name="paper_sync_server_title_action">Set up sync</string>
     <string name="paper_sync_change_server">Change server</string>
-    <string name="paper_sync_remove_server">Remove server</string>
     <string name="paper_sync_signed_in_as">Signed in as</string>
     <string name="paper_sync_last_clean">Last synced %1$s. Nothing waiting to upload.</string>
     <string name="paper_sync_last_pending">Last synced %1$s. Changes are waiting to sync.</string>
@@ -38,7 +37,6 @@
     <string name="paper_sync_one_way_hint">On the next sync, choose which collection to keep.</string>
     <string name="paper_sync_unreachable_title">Couldn’t reach your sync server</string>
     <string name="paper_sync_unreachable_body">%1$s did not answer. Check that the server is running and that this phone can reach it, then try again.</string>
-    <string name="paper_sync_retry">Try again</string>
     <string name="paper_sync_not_now">Not now</string>
     <string name="paper_sync_not_signed_in">You’re not signed in to %1$s. Sign in to sync.</string>
     <string name="paper_sync_conflict_title">Keep which collection?</string>

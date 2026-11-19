@@ -7,14 +7,10 @@
 <resources>
     <!-- Sync setup: the Fork syncs only with the owner's own server, never with AnkiWeb (ADR-0001) -->
     <string name="sync_server_title" maxLength="41">Sync server</string>
-    <string name="sync_server_not_set" comment="Shown in place of the sync server's address while none is set">Not set up</string>
     <string name="sync_server_required">Enter a sync server address first</string>
-    <string name="sync_server_sign_in_to">Sign in to %s</string>
     <string name="sync_server_not_logged_in_title">Sign in to your sync server</string>
-    <string name="sync_server_login_message">Sign in to your sync server to sync your collection.</string>
 
     <!-- First-run screen -->
-    <string name="intro_import" comment="First-run action which imports a collection or deck package from a file">Import a collection or deck</string>
 
     <!-- About screen: the Fork is not the Official App (ADR-0001) -->
     <string name="about_fork_title">Credits</string>

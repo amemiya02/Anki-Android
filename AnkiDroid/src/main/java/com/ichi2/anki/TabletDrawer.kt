@@ -46,8 +46,9 @@ import com.ichi2.compose.theme.foundation
 /** The existing tablet DrawerLayout hosts its navigation controls in Compose. */
 internal class TabletDrawer(
     context: Context,
-    private val activate: (MenuItem) -> Boolean,
 ) : AbstractComposeView(context) {
+    var onItemSelected: ((MenuItem) -> Boolean)? = null
+
     private val menu =
         MenuBuilder(context).apply {
             SupportMenuInflater(context).inflate(R.menu.navigation_drawer, this)
@@ -85,9 +86,9 @@ internal class TabletDrawer(
                     val active = selectedId == item.itemId
                     val action =
                         if (item.isCheckable) {
-                            Modifier.selectable(active, role = Role.Tab) { activate(item) }
+                            Modifier.selectable(active, role = Role.Tab) { onItemSelected?.invoke(item) }
                         } else {
-                            Modifier.clickable(role = Role.Button) { activate(item) }
+                            Modifier.clickable(role = Role.Button) { onItemSelected?.invoke(item) }
                         }
                     Row(
                         Modifier

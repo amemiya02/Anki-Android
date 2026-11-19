@@ -30,8 +30,6 @@
         <item quantity="other">Excluir todos os cartões em %1$s? Ele contém %2$d cartões</item>
     </plurals>
     <string name="delete_cram_deck_message">Excluir baralho filtrado %s e enviar todos os cartões de volta para seus baralhos originais?</string>
-    <string name="no_tts_available_message">Nenhum idioma de texto para fala disponível</string>
-    <string name="tts_no_tts">Não fale</string>
     <string name="reposition_card_not_new_error">Apenas novos cartões podem ser reposicionados</string>
     <string name="reset_card_dialog_title">Redefinir progresso do cartão</string>
     <plurals name="reset_cards_dialog_acknowledge">
@@ -75,13 +73,10 @@
     <string name="dialog_positive_delete" maxLength="28">Excluir</string>
     <!-- Currently unsued, should be useful in the future -->
     <string name="dialog_positive_disable" tools:ignore="UnusedResources">Desativar</string>
-    <string name="dialog_positive_overwrite">Sobrescrever</string>
     <string name="dialog_positive_repair">Reparar</string>
     <string name="dialog_positive_replace">Substituir</string>
-    <string name="sync_clock_off_with_current_time">%1$s\n\nCorrect the date and time, or enable automatic date and time, then sync again.\n\nYour device’s current time is: %2$s</string>
     <string name="dialog_collection_path_not_dir">O caminho especificado não era um diretório válido</string>
     <string name="dialog_invalid_custom_certificate">O texto fornecido não corresponde a um certificado X509 codificado em PEM</string>
-    <string name="dialog_invalid_custom_certificate_title">Erro na análise do certificado.</string>
     <string name="dialog_updated_custom_certificate">Certificado atualizado</string>
     <!-- Media checking -->
     <string name="check_media_warning">Coleções de mídias grandes podem levar muito tempo. Prosseguir?</string>
@@ -104,7 +99,6 @@
     <string name="multimedia_editor_audio_permission_refused">Não foi possível obter permissão de microfone.</string>
     <string name="multimedia_editor_failed">Falha ao abrir o Editor de Multimídia</string>
     <!-- Multimedia - Audio View -->
-    <string name="multimedia_editor_audio_permission_denied">Permissão de gravação de áudio negada</string>
     <string name="permission_denied">Permissão negada</string>
     <string name="microphone_permission_denied_message">Microphone permission denied. Please grant it in the app settings.</string>
     <!-- Database Integrity Check -->
@@ -137,8 +131,6 @@
     <string name="boot_service_failed_to_schedule_notifications">Falha ao agendar lembretes</string>
     <string name="boot_service_too_many_notifications">Muitos lembretes programados. Alguns não aparecerão</string>
     <!-- Locale Selection Dialog -->
-    <string name="locale_selection_dialog_title_new">Definir Idioma</string>
-    <string name="locale_selection_dialog_summary">Alguns teclados multilíngues, como GBoard suportam alterar o idioma ao editar o texto\n\nPor favor, solicite o recurso \"setImeHintLocales\" do seu fabricante de teclado se o seu teclado não alterar o idioma.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">Unknown language [%1$s]</string>
     <!-- Help Dialog -->
     <string name="help_title_using_ankidroid">Usando o Hayaki</string>
@@ -172,7 +164,6 @@
         <item quantity="one" comment="Consider keeping the unbreakable space after the digit">Uma sincronização automática será ativada em %d segundo</item>
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">Uma sincronização automática será ativada em %d segundos</item>
     </plurals>
-    <string name="metered_sync_data_warning">Seu provedor de internet pode cobrar pelo uso de dados</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
@@ -208,7 +199,6 @@
         <item quantity="one">Intervalo atual: %d dia</item>
         <item quantity="other">Intervalo atual: %d dias</item>
     </plurals>
-    <string name="range_delimiter" comment="Placed between two input boxes to denote a range">–</string>
     <string name="set_due_date_range_start" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'minimum\' value of this range (inclusive)">De</string>
     <string name="set_due_date_range_end" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'maximum\' value of this range (inclusive)">Para</string>
     <!-- Instant Note Editor -->
@@ -238,14 +228,9 @@
     <string name="import_error_resolution_copy_to_device">Copie o arquivo para o seu dispositivo e tente novamente com o arquivo local</string>
     <string name="import_error_resolution_select_file">Abra o arquivo usando o navegador de arquivos do seu dispositivo</string>
     <!-- Post-login dialog -->
-    <string name="login_successful">Login bem-sucedido</string>
-    <string name="sync_now">Sincronizar agora?</string>
     <!--Change Note Type Dialog Fragment-->
-    <string name="card_numbers_unchanged">Números do cartão permanecerão inalterados</string>
     <!-- Subset of TR.changeNotetypeToFromCloze -->
-    <string name="extra_cloze_deletions_removed">If changing to a regular note type, and there are more cloze deletions than available card templates, any extra cards will be removed.</string>
     <string name="different_note_types_selected">Selecione notas de apenas um tipo de nota</string>
-    <string name="error_no_changes_to_save">Nenhuma alteração para salvar</string>
     <string name="choose_color">Escolher Cor</string>
     <!-- Special Fields -->
     <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">Campos</string>
@@ -260,8 +245,6 @@
     <string name="special_field_card_help" comment="%s: either blank or \' %s\'">The name of the card template%s</string>
     <string name="special_field_type_help" comment="%s: either blank or \' %s\'">The name of the note type%s</string>
     <!-- Change Note Type Dialog -->
-    <string name="change_note_type_from" comment="Label indicating the original note type before changing it">De</string>
-    <string name="change_note_type_to" comment="Label indicating the new note type to change to">Para</string>
     <!-- Add and rename profile dialogs -->
     <string name="rename_profile" comment="Title of the dialog where the user renames a profile">Rename profile</string>
     <string name="profile_name" comment="Label of the text field where the user types the name of a new profile">Nome do perfil</string>

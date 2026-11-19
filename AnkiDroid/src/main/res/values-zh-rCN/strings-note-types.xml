@@ -13,7 +13,6 @@
     <plurals name="note_type_template_count"><item quantity="other">%s 个卡片模板</item></plurals>
     <plurals name="note_type_note_count"><item quantity="other">%s 条笔记</item></plurals>
     <string name="note_type_field_actions">%s的操作</string>
-    <string name="note_type_field_drag">拖动以调整顺序</string>
     <string name="note_type_field_move">移到指定位置…</string>
     <string name="note_type_field_sort_label">用于浏览器排序</string>
     <string name="note_type_field_sort_action">按此字段对浏览器排序</string>

@@ -26,18 +26,14 @@
     <string name="youre_offline">Ti je offline</string>
     <string name="sync_error">Gabim në sinkronizim</string>
     <string name="vague_error" comment="Network error dialog title">Gabim</string>
-    <string name="retry">Riprovo</string>
     <string name="menu_get_shared_decks">Get shared decks</string>
-    <string name="connection_error_message">Ndodhi një gabim në rrjet</string>
     <string name="not_logged_in_title">Logohu në AnkiWeb</string>
     <string name="login_create_account_message">You must log in to a third party account to use the cloud sync service. You can create one in the next step.</string>
     <!-- MyAccount.kt -->
-    <string name="username">Adresa e E-Mailit</string>
     <string name="password">Fjalkalimi</string>
     <string name="sign_up_description">Nuk ke ende një llogari AnkiWeb? Është falas!</string>
     <string name="sign_up_not_affiliated">Shënim: AnkiWeb nuk është e lidhur me AnkiDroid</string>
     <string name="sign_up">Rregjistrohu</string>
-    <string name="logged_as">Loguar si</string>
     <string name="reset_password">Ndrysho fjalëkalimin</string>
     <string name="lost_mail_instructions">Ke harruar Email-in?</string>
     <string name="sign_in">Duke u loguar</string>
@@ -46,10 +42,7 @@
     <string name="sync_log_uploading_message">Full sync from local</string>
     <string name="sync_database_acknowledge">Koleksioni u sinkronizua</string>
     <string name="col_synced_media_in_background">Collection synced. Media is being synced in the background.</string>
-    <string name="sync_corrupt_database">Databaza jote është korruptuar. Ju lutem riparojeni atë para se të sinkronizoni përsëri. \n\nShiko %s për info rreth riparimit të databazës.</string>
     <!-- Please run ‘Check database’ before syncing -->
-    <string name="sync_sanity_local">Lokale</string>
-    <string name="sync_sanity_remote">Remote</string>
     <string name="one_way_sync_title" maxLength="41">Sinkronizim One-Way</string>
     <string name="one_way_sync_confirmation">U këkrua sinkronizim \'One Way\'</string>
     <string name="full_sync_confirmation">The requested change will require a full upload of the database when you next synchronize your collection. If you have reviews or other changes waiting on another device that haven’t been synchronized here yet, they will be lost. Continue?</string>

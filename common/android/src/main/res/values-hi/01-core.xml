@@ -63,7 +63,6 @@
     <string name="undo" maxLength="28" comment="When tapping on this text, the last action is undone.">पूर्ववत् करें</string>
     <string name="redo" maxLength="28" comment="Menu entry that allows to redo action that was just undone.">रीडू</string>
     <!-- flashcard_portrait.xml -->
-    <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">आघात पूर्ववत करें</string>
     <string name="move_all_to_deck">सभी को डेक में ले जाएं</string>
     <string name="create_shortcut">क्षुद्र मार्ग बनाएँ</string>
     <string name="browse_cards">कार्ड ढुंढे</string>
@@ -71,14 +70,9 @@
     <string name="menu_add" comment="A generic add button. Please inform us if you need more specific strings" maxLength="28">जोड़ें</string>
     <string name="menu_add_note" maxLength="28">नोट जोड़ें</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">खाते को सिंक करें</string>
-    <string name="menu_dismiss_note" maxLength="41">छुपाएं/हटाएं</string>
     <string name="rename_flag">झंडों का नाम बदलें</string>
     <string name="menu_edit_tags" maxLength="28">टैग संपादित करें</string>
-    <string name="delete_note_message">वास्तव में इस नोट और उसके सभी cards?\n%s को हटाना</string>
-    <string name="menu_search" maxLength="28">लुकअप में %1$s</string>
     <string name="menu_unmark_note">नोट अचिह्नित करें</string>
-    <string name="menu_enable_voice_playback" maxLength="28">ध्वनि प्लेबैक सक्षम करें</string>
-    <string name="menu_disable_voice_playback">ध्वनि प्लेबैक अक्षम करें</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
     <string name="new_dynamic_deck">फ़िल्टर्ड डेक बनाएं</string>
     <string name="directory_inaccessible">Hayaki निर्देशिका पहुंच योग्य नहीं है</string>
@@ -91,7 +85,6 @@
     <string name="empty_cram_label" maxLength="28">खाली</string>
     <string name="create_subdeck">सबडेक बनाऐं</string>
     <string name="empty_filtered_deck">फ़िल्टर किए गए डेक को खाली करना &#8230;</string>
-    <string name="search_deck" comment="Deck search for selecting it">Deck search</string>
     <string name="empty_deck">इस डेक खाली है</string>
     <string name="invalid_deck_name">अमान्य डेक नाम</string>
     <string name="studyoptions_congrats_finished">मुबारक! आपने आज का काम पूरा कर दिया है.</string>
@@ -103,7 +96,6 @@
     <string name="continue_sync" tools:ignore="UnusedResources">सिंक जारी रखें</string>
     <string name="sync_cancelled" tools:ignore="UnusedResources">सिंक्रनाइज़ेशन रद्द किया गया</string>
     <string name="sync_cancel_message" tools:ignore="UnusedResources">रद्द कर रहा है&#8230;\n कुछ समय लग सकता है ।</string>
-    <string name="syncing_media">सिंकिंग मीडिया</string>
     <string name="export_deck" maxLength="28">निर्यात डेक</string>
     <string name="export_collection">निर्यात संग्रह</string>
     <!-- Card template editor -->
@@ -131,12 +123,6 @@ Back - बैक</string>
     <string name="card_browser_context_menu" comment="The value which appears in the system context menu.">Card browser</string>
     <string name="context_menu_anki_card_label">Anki card</string>
     <!-- Sync conflict -->
-    <string name="sync_conflict_message_new">संग्रहों को जोड़ा नहीं जा सकता.\nआप कौन सा संग्रह रखना चाहते हैं?</string>
-    <string name="sync_conflict_keep_local_new" comment="Select AnkiDroid files to keep while syncing">Hayaki</string>
-    <string name="sync_conflict_keep_remote_new" comment="Select AnkiWeb files to keep while syncing">AnkiWeb</string>
-    <string name="sync_conflict_remote_confirm_new">Hayaki पर अपने संग्रह को AnkiWeb के अपने संग्रह से बदलें?</string>
-    <string name="sync_conflict_local_confirm_new">Hayaki पर अपने संग्रह को AnkiWeb के अपने संग्रह से बदलें?</string>
-    <string name="sync_conflict_title_new">रखने के लिए संग्रह का चयन करें</string>
     <string name="sync_conflict_replace_title">संग्रह बदलें</string>
     <!-- Generic errors -->
     <string name="error__etc__cannot_write_to_or_create_file">फ़ाइल को लिख या बना नहीं सकता %s</string>

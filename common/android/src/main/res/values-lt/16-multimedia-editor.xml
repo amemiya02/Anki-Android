@@ -45,7 +45,6 @@
     <!-- Message when recording fails -->
     <string name="multimedia_editor_audio_view_recording_failed">Įrašyti nepavyko</string>
     <string name="multimedia_editor_audio_view_playing_failed">Pagroti nepavyko</string>
-    <string name="multimedia_editor_audio_view_create_failed">Nepavyksta sukurti diktofono įrankių juostos</string>
     <!-- Crop function-->
     <string name="crop_image">Ar norite apkarpyti šį paveikslėlį?</string>
     <string name="crop_button" maxLength="28">Crop</string>
@@ -55,7 +54,4 @@
     <string name="audio_recording_field_list" comment="Displays a list of the field data in the note editor while audio recording is taking place">Laukelio turinys</string>
     <string name="crop_image_size_notice">The image is too big to be handled by the crop editor. Please resize it and try again!</string>
     <string name="reselect" maxLength="28">Iš naujo pasirinkite</string>
-    <string name="waveform_button_description">Show audio waveform</string>
-    <string name="field_content_description">Show field content</string>
-    <string name="delete_audio_button_description">Delete recording</string>
 </resources>

@@ -159,7 +159,7 @@ class SyncSetupTest : RobolectricTest() {
         assertEquals(AccountFlowFragment::class.jvmName, intent.getStringExtra(EXTRA_FRAGMENT_NAME))
         assertEquals(
             startWithAddress,
-            intent.getBundleExtra(SingleFragmentActivity.EXTRA_FRAGMENT_ARGS)?.getBoolean(AccountFlowFragment.START_WITH_ADDRESS),
+            intent.getBundleExtra(SingleFragmentActivity.EXTRA_FRAGMENT_ARGS)?.getBoolean(AccountFlowFragment.ARG_START_WITH_ADDRESS),
         )
     }
 }

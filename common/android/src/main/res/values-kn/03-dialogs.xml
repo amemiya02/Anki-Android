@@ -30,8 +30,6 @@
         <item quantity="other">%1$s ನಲ್ಲಿ ಎಲ್ಲಾ ಕಾರ್ಡ್‌ಗಳನ್ನು ಅಳಿಸುವುದೇ? ಇದು %2$d ಕಾರ್ಡ್‌ಗಳನ್ನು ಒಳಗೊಂಡಿದೆ</item>
     </plurals>
     <string name="delete_cram_deck_message">ಫಿಲ್ಟರ್ ಮಾಡಿದ ಡೆಕ್ %s ಅನ್ನು ಅಳಿಸಿ ಮತ್ತು ಎಲ್ಲಾ ಕಾರ್ಡ್‌ಗಳನ್ನು ಅವುಗಳ ಮೂಲ ಡೆಕ್‌ಗಳಿಗೆ ಹಿಂತಿರುಗಿಸುವುದೇ?</string>
-    <string name="no_tts_available_message">ಯಾವುದೇ ಪಠ್ಯದಿಂದ ಭಾಷಣಕ್ಕೆ ಭಾಷೆ ಲಭ್ಯವಿಲ್ಲ</string>
-    <string name="tts_no_tts">ಮಾತನಾಡಬೇಡ</string>
     <string name="reposition_card_not_new_error">ಹೊಸ ಕಾರ್ಡ್‌ಗಳನ್ನು ಮಾತ್ರ ಮರುಸ್ಥಾಪಿಸಬಹುದು</string>
     <string name="reset_card_dialog_title">ಕಾರ್ಡ್ ಪ್ರಗತಿಯನ್ನು ಮರುಹೊಂದಿಸಿ</string>
     <plurals name="reset_cards_dialog_acknowledge">
@@ -75,13 +73,10 @@
     <string name="dialog_positive_delete" maxLength="28">ಅಳಿಸಿ</string>
     <!-- Currently unsued, should be useful in the future -->
     <string name="dialog_positive_disable" tools:ignore="UnusedResources">ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ</string>
-    <string name="dialog_positive_overwrite">ತಿದ್ದಿ ಬರೆಯಿರಿ</string>
     <string name="dialog_positive_repair">ದುರಸ್ತಿ</string>
     <string name="dialog_positive_replace">ಬದಲಾವಣೆ</string>
-    <string name="sync_clock_off_with_current_time">%1$s\n\nCorrect the date and time, or enable automatic date and time, then sync again.\n\nYour device’s current time is: %2$s</string>
     <string name="dialog_collection_path_not_dir">ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಮಾರ್ಗವು ಮಾನ್ಯವಾದ ಡೈರೆಕ್ಟರಿಯಾಗಿರಲಿಲ್ಲ</string>
     <string name="dialog_invalid_custom_certificate">ಒದಗಿಸಿದ ಪಠ್ಯವು ಮಾನ್ಯವಾದ PEM-ಎನ್‌ಕೋಡ್ ಮಾಡಿದ X509 ಪ್ರಮಾಣಪತ್ರವನ್ನು ಪರಿಹರಿಸುವುದಿಲ್ಲ</string>
-    <string name="dialog_invalid_custom_certificate_title">ಪ್ರಮಾಣಪತ್ರವನ್ನು ಪಾರ್ಸಿಂಗ್ ಮಾಡುವಲ್ಲಿ ದೋಷ</string>
     <string name="dialog_updated_custom_certificate">Certificate updated</string>
     <!-- Media checking -->
     <string name="check_media_warning">This may take a long time with large media collections. Proceed?</string>
@@ -104,7 +99,6 @@
     <string name="multimedia_editor_audio_permission_refused">ಮೈಕ್ರೊಫೋನ್ ಅನುಮತಿಯನ್ನು ಪಡೆಯಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.</string>
     <string name="multimedia_editor_failed">ಮಲ್ಟಿಮೀಡಿಯಾ ಸಂಪಾದಕವನ್ನು ತೆರೆಯಲು ವಿಫಲವಾಗಿದೆ</string>
     <!-- Multimedia - Audio View -->
-    <string name="multimedia_editor_audio_permission_denied">ಆಡಿಯೋ ರೆಕಾರ್ಡಿಂಗ್ ಅನುಮತಿಯನ್ನು ನಿರಾಕರಿಸಲಾಗಿದೆ</string>
     <string name="permission_denied">Permission denied</string>
     <string name="microphone_permission_denied_message">Microphone permission denied. Please grant it in the app settings.</string>
     <!-- Database Integrity Check -->
@@ -137,8 +131,6 @@
     <string name="boot_service_failed_to_schedule_notifications">ಜ್ಞಾಪನೆಗಳನ್ನು ನಿಗದಿಪಡಿಸಲು ವಿಫಲವಾಗಿದೆ</string>
     <string name="boot_service_too_many_notifications">ಹಲವಾರು ಜ್ಞಾಪನೆಗಳನ್ನು ನಿಗದಿಪಡಿಸಲಾಗಿದೆ. ಕೆಲವು ಕಾಣಿಸುವುದಿಲ್ಲ</string>
     <!-- Locale Selection Dialog -->
-    <string name="locale_selection_dialog_title_new">ಭಾಷೆಯನ್ನು ಹೊಂದಿಸಿ</string>
-    <string name="locale_selection_dialog_summary">GBoard ನಂತಹ ಕೆಲವು ಬಹುಭಾಷಾ ಕೀಬೋರ್ಡ್‌ಗಳು ಪಠ್ಯವನ್ನು ಸಂಪಾದಿಸುವಾಗ ಭಾಷೆಯನ್ನು ಬದಲಾಯಿಸುವುದನ್ನು ಬೆಂಬಲಿಸುತ್ತದೆ\n\nನಿಮ್ಮ ಕೀಬೋರ್ಡ್ ಭಾಷೆಯನ್ನು ಬದಲಾಯಿಸದಿದ್ದರೆ ದಯವಿಟ್ಟು ನಿಮ್ಮ ಕೀಬೋರ್ಡ್ ತಯಾರಕರಿಂದ \"setImeHintLocales\" ವೈಶಿಷ್ಟ್ಯವನ್ನು ವಿನಂತಿಸಿ.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">Unknown language [%1$s]</string>
     <!-- Help Dialog -->
     <string name="help_title_using_ankidroid">Hayaki ಬಳಸುವುದು</string>
@@ -172,7 +164,6 @@
         <item quantity="one" comment="Consider keeping the unbreakable space after the digit">An automatic sync may be triggered in %d second</item>
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">An automatic sync may be triggered in %d seconds</item>
     </plurals>
-    <string name="metered_sync_data_warning">ಡೇಟಾ ಬಳಕೆಗಾಗಿ ನಿಮ್ಮ ಇಂಟರ್ನೆಟ್ ಪೂರೈಕೆದಾರರು ನಿಮಗೆ ಶುಲ್ಕ ವಿಧಿಸಬಹುದು</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
@@ -208,7 +199,6 @@
         <item quantity="one">Current interval: %d day</item>
         <item quantity="other">Current interval: %d days</item>
     </plurals>
-    <string name="range_delimiter" comment="Placed between two input boxes to denote a range">–</string>
     <string name="set_due_date_range_start" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'minimum\' value of this range (inclusive)">ನಿಂದ</string>
     <string name="set_due_date_range_end" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'maximum\' value of this range (inclusive)">ಗೆ</string>
     <!-- Instant Note Editor -->
@@ -238,14 +228,9 @@
     <string name="import_error_resolution_copy_to_device">Copy the file to your device and try again with the local file</string>
     <string name="import_error_resolution_select_file">Open the file using your device’s file browser app</string>
     <!-- Post-login dialog -->
-    <string name="login_successful">Login successful</string>
-    <string name="sync_now">Sync now?</string>
     <!--Change Note Type Dialog Fragment-->
-    <string name="card_numbers_unchanged">Card numbers will remain unchanged</string>
     <!-- Subset of TR.changeNotetypeToFromCloze -->
-    <string name="extra_cloze_deletions_removed">If changing to a regular note type, and there are more cloze deletions than available card templates, any extra cards will be removed.</string>
     <string name="different_note_types_selected">Please select notes from only one notetype.</string>
-    <string name="error_no_changes_to_save">No changes to save</string>
     <string name="choose_color">Choose color</string>
     <!-- Special Fields -->
     <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">Fields</string>
@@ -260,8 +245,6 @@
     <string name="special_field_card_help" comment="%s: either blank or \' %s\'">The name of the card template%s</string>
     <string name="special_field_type_help" comment="%s: either blank or \' %s\'">The name of the note type%s</string>
     <!-- Change Note Type Dialog -->
-    <string name="change_note_type_from" comment="Label indicating the original note type before changing it">From</string>
-    <string name="change_note_type_to" comment="Label indicating the new note type to change to">To</string>
     <!-- Add and rename profile dialogs -->
     <string name="rename_profile" comment="Title of the dialog where the user renames a profile">Rename profile</string>
     <string name="profile_name" comment="Label of the text field where the user types the name of a new profile">Profile name</string>

@@ -32,8 +32,6 @@
         <item quantity="other">Vymazat všechny karty v %1$s? Obsahuje %2$d karet</item>
     </plurals>
     <string name="delete_cram_deck_message">Vymazat filtrovaný balíček %s a poslat všechny karty zpět do jejich původních balíčků?</string>
-    <string name="no_tts_available_message">Není dostupný žádný jazyk převodu textu na řeč</string>
-    <string name="tts_no_tts">Nemluv</string>
     <string name="reposition_card_not_new_error">Změnit pořadí lze pouze u nových karet</string>
     <string name="reset_card_dialog_title">Obnovit proces učení karty</string>
     <plurals name="reset_cards_dialog_acknowledge">
@@ -79,13 +77,10 @@
     <string name="dialog_positive_delete" maxLength="28">Odstranit</string>
     <!-- Currently unsued, should be useful in the future -->
     <string name="dialog_positive_disable" tools:ignore="UnusedResources">Zakázat</string>
-    <string name="dialog_positive_overwrite">Přepsat</string>
     <string name="dialog_positive_repair">Opravit</string>
     <string name="dialog_positive_replace">Nahradit</string>
-    <string name="sync_clock_off_with_current_time">%1$s\n\nOpravte datum a čas, nebo zapněte automatický datum a čas, a poté znovu synchronizujte.\n\nAktuální čas vašeho zařízení je: %2$s</string>
     <string name="dialog_collection_path_not_dir">Zadaná cesta není platný adresář</string>
     <string name="dialog_invalid_custom_certificate">Zadaný text neposkytuje platný certifikát X509 v kódování PEM.</string>
-    <string name="dialog_invalid_custom_certificate_title">Chyba zpracování certifikátu</string>
     <string name="dialog_updated_custom_certificate">Certifikát aktualizován</string>
     <!-- Media checking -->
     <string name="check_media_warning">Toto může trvat dlouhou dobu u velké sbírky multimédií? Pokračovat?</string>
@@ -110,7 +105,6 @@
     <string name="multimedia_editor_audio_permission_refused">Nelze získat oprávnění k mikrofonu.</string>
     <string name="multimedia_editor_failed">Nepodařilo se otevřít multimediální editor</string>
     <!-- Multimedia - Audio View -->
-    <string name="multimedia_editor_audio_permission_denied">Oprávnění k nahrávání zvuku bylo odepřeno</string>
     <string name="permission_denied">Oprávnění zamítnuto</string>
     <string name="microphone_permission_denied_message">Oprávnění k mikrofonu bylo odepřeno. Prosím, povolte jej v nastavení aplikace.</string>
     <!-- Database Integrity Check -->
@@ -143,8 +137,6 @@
     <string name="boot_service_failed_to_schedule_notifications">Nepodařilo se naplánovat upomínky</string>
     <string name="boot_service_too_many_notifications">Naplánováno příliš mnoho upomínek. Některé se nezobrazí</string>
     <!-- Locale Selection Dialog -->
-    <string name="locale_selection_dialog_title_new">Nastavit jazyk</string>
-    <string name="locale_selection_dialog_summary">Některé vícejazyčné klávesnice, např. GBoard podporují změnu jazyka při úpravách textu\n\nProsím požádejte výrobce klávesnice o funkci „setImeHintLocales“, pokud vaše klávesnice nepřepíná mezi jazyky.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">Neznámý jazyk [%1$s]</string>
     <!-- Help Dialog -->
     <string name="help_title_using_ankidroid">Používání Hayaki</string>
@@ -180,7 +172,6 @@
         <item quantity="many">Automatická synchronizace může být spuštěna za %d sekund</item>
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">Automatická synchronizace může být spuštěna za %d sekund</item>
     </plurals>
-    <string name="metered_sync_data_warning">Váš poskytovatel internetu si může účtovat poplatky za používání dat</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
@@ -224,7 +215,6 @@
         <item quantity="many">Současný interval: %d dní</item>
         <item quantity="other">Současný interval: %d dní</item>
     </plurals>
-    <string name="range_delimiter" comment="Placed between two input boxes to denote a range">–</string>
     <string name="set_due_date_range_start" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'minimum\' value of this range (inclusive)">Od</string>
     <string name="set_due_date_range_end" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'maximum\' value of this range (inclusive)">Do</string>
     <!-- Instant Note Editor -->
@@ -254,14 +244,9 @@
     <string name="import_error_resolution_copy_to_device">Zkopírujte soubor do vašeho zařízení a zkuste to znovu s tímto místním souborem</string>
     <string name="import_error_resolution_select_file">Otevřete soubor pomocí aplikace prohlížeč souborů ve vašem zařízení</string>
     <!-- Post-login dialog -->
-    <string name="login_successful">Přihlášení bylo úspěšné</string>
-    <string name="sync_now">Sync now?</string>
     <!--Change Note Type Dialog Fragment-->
-    <string name="card_numbers_unchanged">Čísla karet zůstanou nezměněna</string>
     <!-- Subset of TR.changeNotetypeToFromCloze -->
-    <string name="extra_cloze_deletions_removed">Pokud se změní na běžný typ poznámky a je zde více doplňovaček než dostupných šablon karet, všechny další karty budou odstraněny.</string>
     <string name="different_note_types_selected">Vyberte prosím poznámky pouze jednoho typu poznámky.</string>
-    <string name="error_no_changes_to_save">Žádné změny k uložení</string>
     <string name="choose_color">Choose color</string>
     <!-- Special Fields -->
     <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">Pole</string>
@@ -276,8 +261,6 @@
     <string name="special_field_card_help" comment="%s: either blank or \' %s\'">Název šablony karty%s</string>
     <string name="special_field_type_help" comment="%s: either blank or \' %s\'">Název typu poznámky%s</string>
     <!-- Change Note Type Dialog -->
-    <string name="change_note_type_from" comment="Label indicating the original note type before changing it">Z</string>
-    <string name="change_note_type_to" comment="Label indicating the new note type to change to">Na</string>
     <!-- Add and rename profile dialogs -->
     <string name="rename_profile" comment="Title of the dialog where the user renames a profile">Přejmenovat profil</string>
     <string name="profile_name" comment="Label of the text field where the user types the name of a new profile">Název profilu</string>

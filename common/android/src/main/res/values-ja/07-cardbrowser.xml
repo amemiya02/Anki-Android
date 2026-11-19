@@ -48,10 +48,7 @@
     <string name="no_note_to_edit">編集するノートがありません</string>
     <string name="card_browser_list_my_searches_remove_content">「%1$s」を削除しますか？</string>
     <string name="card_browser_cram_search" maxLength="28" comment="Menu entry to start a search.">検索</string>
-    <string name="card_browser_change_display_order_title">表示順を選択</string>
     <string name="card_details_tags">タグ</string>
-    <string name="manage_browser_column">リストの列を管理</string>
-    <string name="no_columns_available">利用可能な列がありません</string>
     <string name="card_browser_select_all" maxLength="28">すべて選択</string>
     <string name="card_browser_select_none" maxLength="28">選択をすべて解除</string>
     <string name="card_browser_no_cards_in_deck">%s のデッキにカードが見つかりませんでした</string>
@@ -73,18 +70,13 @@
     <!-- Manage columns dialog -->
     <string name="browse_manage_columns_main_heading">列</string>
     <string name="browse_manage_columns">リストの列を管理</string>
-    <string name="user_active_columns">使用中</string>
     <string name="user_potential_columns">使用可能</string>
-    <string name="include_column">この列をブラウザのリストで使用</string>
-    <string name="exclude_column">この列をブラウザのリストから除外</string>
     <string name="save_changes_message">先に変更を保存してください</string>
-    <string name="browser_find_replace_loading_fields">フィールド名を取得しています&#8230;</string>
     <!-- Search history -->
     <string name="card_browser_see_more">さらに表示</string>
     <string name="card_browser_see_less">表示を減らす</string>
     <!-- Sort Order -->
     <string name="card_browser_order_no_sorting_title" comment="Title of the \'no sorting\' row in the Choose Display Order bottom sheet">ソート（並び替え）しない</string>
-    <string name="card_browser_order_no_sorting_subtitle" comment="Subtitle for the \'no sorting\' row noting that no-sort is faster than sorted queries">並べ替え処理をしない分、表示されるまでの時間が短くなります</string>
     <string name="card_browser_order_subtitle_text_ascending" comment="Sort direction subtitle for text columns when ascending (A before Z)">昇順</string>
     <string name="card_browser_order_subtitle_text_descending" comment="Sort direction subtitle for text columns when descending (Z before A)">降順</string>
     <string name="card_browser_order_subtitle_numeric_ascending" comment="Sort direction subtitle for numeric columns when ascending (smallest value first)">低い順</string>
@@ -93,16 +85,8 @@
     <string name="card_browser_order_subtitle_date_descending" comment="Sort direction subtitle for date columns when descending (newest entry first)">新しい順</string>
     <!-- SortPill labels: a single character on each half hinting at the direction.
          Translators: pick the first/last character of your locale\'s sort order. -->
-    <string name="sort_pill_label_text_ascending" comment="SortPill standard half marker for text columns. Use a 1-char glyph that suggests the start of the alphabet.">A</string>
-    <string name="sort_pill_label_text_descending" comment="SortPill reverse half marker for text columns. Use a 1-char glyph that suggests the end of the alphabet.">Z</string>
-    <string name="sort_pill_label_numeric_ascending" comment="SortPill standard half marker for numeric columns. Use a 1-char glyph that suggests the smallest value.">1</string>
-    <string name="sort_pill_label_numeric_descending" comment="SortPill reverse half marker for numeric columns. Use a 1-char glyph that suggests the largest value.">9</string>
     <!-- SortPill accessibility descriptions, used by TalkBack. The host should prepend the
          column name (e.g. "Front, ascending"); these strings are the direction half. -->
     <string name="sort_pill_a11y_ascending" comment="SortPill accessibility: ascending half">昇順</string>
     <string name="sort_pill_a11y_descending" comment="SortPill accessibility: descending half">降順</string>
-    <string name="sort_pill_a11y_selected" comment="SortPill accessibility: state announcement when this half is the active sort direction">選択済み</string>
-    <string name="card_browser_order_section_unavailable" comment="Header: browser columns that cannot be sorted (e.g. Question)">使用不可</string>
-    <string name="card_browser_order_subtitle_use_sort_field" comment="Fix for when the \'Question/Answer\' column is not sortable.">問題または解答の表示内容全体では並べ替えできません。並べ替えフィールドを使用してください</string>
-    <string name="card_browser_order_subtitle_cards_mode_only" comment="Fix for trying to sort on FSRS columns in Notes mode">カードモードでのみ使用可能です</string>
 </resources>

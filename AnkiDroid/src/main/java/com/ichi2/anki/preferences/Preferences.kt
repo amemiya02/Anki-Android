@@ -129,7 +129,7 @@ class PreferencesFragment : Fragment() {
 
     internal fun openSearchResult(result: SettingsSearchEntry) {
         val fragment = FragmentFactoryUtils.instantiate<Fragment>(requireActivity(), result.destination.jvmName)
-        fragment.arguments = Bundle().apply { putString(SETTINGS_SEARCH_TARGET, result.key) }
+        fragment.arguments = Bundle().apply { putString(ARG_SETTINGS_SEARCH_TARGET, result.key) }
         val group = SettingsGroup.forFragment(fragment)
         if (settingsIsSplit && group != null && group.destination != result.destination) {
             openGroup(group)
@@ -140,7 +140,7 @@ class PreferencesFragment : Fragment() {
     }
 
     internal fun openSubpage(fragment: Fragment) {
-        fragment.arguments = Bundle(fragment.arguments ?: Bundle.EMPTY).apply { putBoolean(SETTINGS_IS_SUBPAGE, true) }
+        fragment.arguments = Bundle(fragment.arguments ?: Bundle.EMPTY).apply { putBoolean(ARG_SETTINGS_IS_SUBPAGE, true) }
         navigation.open(fragment)
     }
 

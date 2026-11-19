@@ -16,7 +16,6 @@
 
     <!-- theme labels -->
     <string name="theme_follow_system">Follow system</string>
-    <string name="theme_night" comment="Night/Dark theme color scheme">Night</string>
 
     <!-- day_theme_labels -->
     <string name="day_theme_light">Light</string>

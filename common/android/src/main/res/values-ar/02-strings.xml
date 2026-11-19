@@ -40,8 +40,6 @@
     <string name="updated_version">تم التحديث إلى الإصدار: %s</string>
     <!-- Reviewer.kt (Study Screen) -->
     <string name="save_whiteboard" maxLength="28">حفظ السبورة</string>
-    <string name="enable_stylus" maxLength="28">تفعيل وضع القلم</string>
-    <string name="disable_stylus">تعطيل وضع القلم</string>
     <string name="eraser" maxLength="28">ممحاة</string>
     <string name="add_brush" maxLength="28">إضافة فرشة</string>
     <string name="whiteboard_align_left" comment="Option to align the whiteboard toolbar on the left" maxLength="28">شمال</string>
@@ -56,22 +54,11 @@
     <string name="enable_whiteboard" maxLength="28">تفعيل السبورة</string>
     <string name="disable_whiteboard">تعطيل السبورة</string>
     <string name="show_whiteboard">إظهار السبورة</string>
-    <string name="enable_eraser" maxLength="28">تفعيل الممحاة</string>
-    <string name="disable_eraser" maxLength="28">تعطيل الممحاة</string>
     <string name="hide_whiteboard" maxLength="28">إخفاء السبورة</string>
     <string name="clear_whiteboard" maxLength="28">محو السَّبورة</string>
     <string name="hide_toolbar" maxLength="28">إخفاء شريط الأدوات</string>
     <string name="replay_media" maxLength="28">إعادة تشغيل الوسائط</string>
-    <string name="leech_suspend_notification">عُلِّمت البطاقة كمستعصية وعُلِّقت</string>
-    <string name="leech_notification">عُلِّمت البطاقة كمستعصية</string>
     <string name="webview_crash_unknown">‏‏خلل مجهول</string>
-    <string name="webview_crash_unknwon_detailed">حدث هذا بسبب خلل داخلي في الويب فيو</string>
-    <string name="webview_crash_oom">الذاكرة ممتلئة</string>
-    <string name="webview_crash_oom_details">تم إنهاء الويب فيو من قبل النظام. يحدث هذا عادةً عند نفاد ذاكرة التطبيق والذي غالبًا ما يكون نتيجة خطوطٍ أو وسائطٍ كبيرة.</string>
-    <string name="webview_crash_nonfatal">تَعطَّل معالج الويب فيو. السبب: %s</string>
-    <string name="webview_crash_fatal">خلل فادح: عارض الـ WebView تعطل. السبب: %s</string>
-    <string name="webview_crash_loop_dialog_title">فشل متعلق بعرض WebView النظام</string>
-    <string name="webview_crash_loop_dialog_content">فَشِلَ ويب فيو الخاص بالنظام في عرض البطاقة %1$s.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">اسحب للإلغاء</string>
     <string name="filter_by_flags" maxLength="41">الأعلام</string>
     <!-- filtered deck options -->
@@ -79,7 +66,6 @@
     <string name="filtered_option_delay_hard">فاصل صعب</string>
     <string name="filtered_option_delay_good">فاصل جيد</string>
     <!-- Custom study options -->
-    <string name="custom_study_loading_tags">يتم بناء مجموعة الوسوم&#8230;</string>
     <!-- Study options -->
     <plurals name="studyoptions_buried_count">
         <item quantity="zero">+%d مدفونة</item>
@@ -112,34 +98,16 @@
     <string name="image_cropper_action_flip_vertically" maxLength="28" comment="Submenu action in image cropper screen">عكس عمودي</string>
     <!-- Timebox -->
     <string name="timebox_reached_title">انتهت مهلة التأطير الزمني</string>
-    <plurals name="timebox_reached">
-        <item quantity="zero">درست %1$d بطاقة خلال %2$s</item>
-        <item quantity="one">درست %1$d بطاقة خلال %2$s</item>
-        <item quantity="two">درست %1$d بطاقة خلال %2$s</item>
-        <item quantity="few">درست %1$d بطاقات خلال %2$s</item>
-        <item quantity="many">درست %1$d بطاقة خلال %2$s</item>
-        <item quantity="other">درست %1$d بطاقة خلال %2$s</item>
-    </plurals>
     <!-- minutes used in \'[studied in] x minutes\' context, causing inflexion in some languages -->
-    <plurals name="in_minutes">
-        <item quantity="zero">%1$d دقيقة</item>
-        <item quantity="one">%1$d دقيقة</item>
-        <item quantity="two">%1$d دقيقة</item>
-        <item quantity="few">%1$d دقائق</item>
-        <item quantity="many">%1$d دقيقة</item>
-        <item quantity="other">%1$d دقيقة</item>
-    </plurals>
     <string name="fact_adder_intent_title" comment="Label of the \'Add Note\' window. This title can\'t be seen in AnkiDroid directly.">بطاقة Hayaki</string>
     <string name="note_editor_copy_note" maxLength="28">نسخ الملحوظة</string>
     <string name="card_editor_reposition_card" comment="reposition a card in the new queue" maxLength="28">تغيير الموضع</string>
     <string name="card_editor_reset_card" maxLength="28">إعادة ضبط التقدم</string>
-    <string name="card_editor_reschedule_card" comment="Action to reschedule a card" maxLength="28">إعادة الجدولة</string>
     <string name="card_editor_preview_card" comment="Button offering to preview some card(s)" maxLength="28">معاينة</string>
     <string name="copy_as_markdown" comment="Copies text to the clipboard as Markdown" maxLength="28">نسخ كـ«Markdown»</string>
     <string name="preview_progress_bar_text" comment="What card we are on out of how many in card previewer progress bar">%1$d من %2$d</string>
     <string name="rename" comment="Confirm that the renaming action should be processed." maxLength="28">إعادة تسمية</string>
     <string name="checks_action" maxLength="28">تحقق</string>
-    <string name="unknown_type_field_warning">إدخال الجواب: حقل مجهول %s</string>
     <string name="delete_deck" comment="Message on a progress bar starting a deck is being deleted.">جارٍ حذف الرزمة&#8230;</string>
     <string name="info_rate">قيِّم آنكي درويد</string>
     <string name="import_title">الاستيراد</string>
@@ -174,13 +142,11 @@
     <string name="export_choice_save_to">حفظ في</string>
     <string name="export_saving_exported_collection">يتم حفظ الملف المُصَدَّر&#8230;</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">خيارات الدراسة</string>
-    <string name="select_tts" maxLength="28">تعيين لغة تحويل النص إلى كلام</string>
     <string name="dyn_deck_desc">هذه رزمة خاصة للدراسة خارج الجدول المعتاد. ستعود البطاقات إلى رزمها الأصلية تلقائيًا بعد مراجعتها. يؤدي حذف هذه الرزمة من قائمة الرزم إلى إعادة كل البطاقات المتبقية إلى رزمها الأصلية.</string>
     <string name="tag_editor_add_feedback">انقر «%2$s» لتُأكِّد إضافة «%1$s»</string>
     <string name="tag_editor_add_feedback_existing">تم تحديد الوسم الموجود «%1$s»</string>
     <string name="tag_already_exists">الوسم موجود</string>
     <string name="error_name_exists">الاِسم موجود</string>
-    <string name="warning_find_and_replace">فكر في إنشاء نسخة احتياطية من الشاشة الرئيسة قبل استخدام هذا الخِيار!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">حدث خطأ أثناء مشاركة ملف «apkg»</string>
@@ -191,14 +157,10 @@
     <string name="web_page_error">خطأ في تحميل الصفحة: %s</string>
     <!-- The name of the deck which corrupt cards will be moved to -->
     <!-- Deckpicker Background -->
-    <string name="background_image_title" maxLength="41">الخلفية</string>
-    <string name="remove_wallpaper_image" maxLength="41">إزالة الخلفية</string>
     <string name="remove_background_image">ءأنت واثق من إزالة الخلفية؟</string>
     <!-- Card Template Browser Appearance -->
     <string name="restore_default" maxLength="28">استعادة الافتراضي</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
-    <string name="white_board_eraser_enabled">تم تفعيل وضع الممحاة</string>
-    <string name="white_board_eraser_disabled">تم تعطيل وضع الممحاة</string>
     <string comment="Progress amount e.g. \'28 MB/141 MB\'. %1$s is the current amount, %2$s is the max." name="progress_amount_bytes">%1$s/%2$s</string>
     <string name="media_file_size_warning_title">مِلف الوسائط كبير جدًا</string>
     <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">المِلف «%1$s» (%2$s) يفوق حد آنكي ويب الذي هو %3$s ولا يمكن مزامنته. أتريد إضافته مع ذلك؟</string>
@@ -206,7 +168,6 @@
     <!-- Whiteboard save image message in the Study Screen -->
     <string name="white_board_image_save_failed">فشل حفظ صورة السبورة. %s</string>
     <string name="white_board_image_saved">تم حفظ صورة السبورة في %s</string>
-    <string name="title_whiteboard_editor" maxLength="28">محرر السبورة</string>
     <string name="user_is_a_robot">تم الكشف عن اختبار تلقائي. إن كنت بشرًا، اتصل بدعم آنكي درويد</string>
     <!-- JS api -->
     <string name="api_version_developer_contact">تستخدم هذه البطاقة ميزات آنكي درويد غير مدعومة. اتصل بالمطور %1$s أو اطلع على الويكي. %2$s</string>
@@ -259,7 +220,6 @@
     <string name="create_shortcut_error">خلل في إضافة الاختصار: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">ضع الجمل في حروف كبيرة</string>
     <!-- Dialog hints -->
-    <string name="dialog_hint_url">الرابط</string>
     <string name="dialog_hint_certificate">الرخصة</string>
     <!-- IncrementNumberRangePreference -->
     <string name="plus_sign" comment="Label for increment button in IncrementerNumberRangePreference">+</string>
@@ -268,7 +228,6 @@
     <string name="maximum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the maximum allowed value">الحد الأعلى هو %d</string>
     <string name="minimum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the minimum allowed value">الحد الأسفل هو %d</string>
     <!-- Used for credential empty warning message -->
-    <string name="invalid_email">أدخل بريدًا إلكترونيًا صالحًا</string>
     <string name="password_empty">تلزمك كلمة مرور</string>
     <string name="back_pressed_once">عُد للوراء مجددًا لتخرج</string>
     <!-- %% is required to display % symbol. Reference: https://stackoverflow.com/a/16834358 -->
@@ -293,15 +252,6 @@
     <string name="home" maxLength="28">الصفحة الرئيسية</string>
     <!-- Study Screen actions
     Each of these strings ends with a period, following the notation of Anki Desktop -->
-    <string name="card_buried">تم دفن البطاقة</string>
-    <plurals name="note_suspended">
-        <item quantity="zero">تم تعليق بطاقة %d.</item>
-        <item quantity="one">تم تعليق بطاقة %d.</item>
-        <item quantity="two">تم تعليق بطاقة %d.</item>
-        <item quantity="few">تم تعليق %d بطاقات.</item>
-        <item quantity="many">تم تعليق %d بطاقات.</item>
-        <item quantity="other">تم تعليق %d بطاقة.</item>
-    </plurals>
     <!--  Note Editor Toggle Sticky  -->
     <string name="note_editor_toggle_sticky">تفعيل ثبات النص لـ %s</string>
     <string name="scoped_storage_learn_more">تعلم المزيد</string>
@@ -315,8 +265,6 @@
     <!--  Hierarchical Tags  -->
     <string name="expand_tag">إسدال الوسم \"%s\"</string>
     <!-- Manage note types -->
-    <string name="field_editor_model_not_available">فشل الوصول إلى المجموعة. يرجى المحاولة مجددًا!</string>
-    <string name="cd_manage_notetypes_add">إضافة نوع جديد من الملاحظات</string>
     <plurals name="note_types_selected">
         <item quantity="zero">تم اختيار %d نوع ملحوظة</item>
         <item quantity="one">تم اختيار %d نوع ملحوظة</item>
@@ -326,13 +274,8 @@
         <item quantity="other">تم اختيار %d نوع ملحوظة</item>
     </plurals>
     <!-- App Intro -->
-    <string name="intro_ankidroid_tagline_one">ادرس أقل</string>
-    <string name="intro_ankidroid_tagline_two">تذكر أكثر</string>
-    <string name="intro_short_ankidroid_explanation">يوفر مجدول بطاقات آنكي وقتك عن طريق تقويم أضعف ذكرياتك والمحفاظة على أقواها</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">ابدأ</string>
     <string name="intro_sync_from_ankiweb">مزامنة مع آنكي ويب</string>
     <!-- IntentHandler -->
-    <string name="app_not_initialized_new">لم يتم تمهيد Hayaki بعد. من فضلك إفتح Hayaki وحاول مجددًا</string>
     <!-- Deck Creation -->
     <string name="deck_created">تم إنشاء الرِزمة</string>
     <string name="deck_renamed">أُعيدت تسمية الرِزمة</string>
@@ -369,14 +312,11 @@
     <string name="card_template_reposition_template" comment="move a card template to a new position" maxLength="28">تغيير الموضع</string>
     <string name="previewer_next" comment="Name of the next button in the previewer" maxLength="28">التالي</string>
     <string name="previewer_back" comment="Name of the back button in the previewer" maxLength="28">السابق</string>
-    <string name="start_recording">تسجيل</string>
     <string name="stop_recording">إيقاف</string>
     <string name="play_recording">تشغيل</string>
-    <string name="next_recording" comment="Description of a button to go to the next recording">التالي</string>
     <!--  AlertDialog in the deleteCardTemplate  -->
     <string name="orphan_note_title">لا يمكنك حذف البطاقات من هذا النوع</string>
     <string name="orphan_note_message">حذف هذا النوع من البطاقات سيترك بعض الملحوظات بدون أي بطاقة.</string>
-    <string name="voice_not_supported">الصوت غير مدعوم. جرب صوتًا آخر أو نصب محركًا صوتيًا.</string>
     <!--Keyboard shortcuts dialog-->
     <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">مُخيِّر الرِزم</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">إحذف الرزم بلا تأكيد</string>

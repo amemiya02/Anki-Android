@@ -21,7 +21,6 @@
     <string name="paper_sync_sign_in_failed">登录未完成。请检查服务器设置后重试。</string>
     <string name="paper_sync_server_title_action">设置同步</string>
     <string name="paper_sync_change_server">更改服务器</string>
-    <string name="paper_sync_remove_server">移除服务器</string>
     <string name="paper_sync_signed_in_as">已登录为</string>
     <string name="paper_sync_last_clean">上次同步于 %1$s。没有待上传的更改。</string>
     <string name="paper_sync_last_pending">上次同步于 %1$s。有更改等待同步。</string>
@@ -38,7 +37,6 @@
     <string name="paper_sync_one_way_hint">下次同步时，选择要保留的集合。</string>
     <string name="paper_sync_unreachable_title">无法连接到同步服务器</string>
     <string name="paper_sync_unreachable_body">%1$s 没有响应。请确认服务器正在运行，并且此手机能连接到它，然后重试。</string>
-    <string name="paper_sync_retry">重试</string>
     <string name="paper_sync_not_now">暂不</string>
     <string name="paper_sync_not_signed_in">你尚未登录 %1$s。请登录后同步。</string>
     <string name="paper_sync_conflict_title">要保留哪个集合？</string>

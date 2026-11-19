@@ -40,8 +40,6 @@
     <string name="updated_version">Aktualizované na verziu %s</string>
     <!-- Reviewer.kt (Study Screen) -->
     <string name="save_whiteboard" maxLength="28">Uložiť tabuľu</string>
-    <string name="enable_stylus" maxLength="28">Zapnúť režim stylus</string>
-    <string name="disable_stylus">Vypnúť režim stylus</string>
     <string name="eraser" maxLength="28">Guma</string>
     <string name="add_brush" maxLength="28">Pridať štetec</string>
     <string name="whiteboard_align_left" comment="Option to align the whiteboard toolbar on the left" maxLength="28">Vľavo</string>
@@ -56,22 +54,11 @@
     <string name="enable_whiteboard" maxLength="28">Povoliť tabuľu</string>
     <string name="disable_whiteboard">Zakázať tabuľu</string>
     <string name="show_whiteboard">Zobraziť tabuľu</string>
-    <string name="enable_eraser" maxLength="28">Zapnúť gumu</string>
-    <string name="disable_eraser" maxLength="28">Vypnúť gumu</string>
     <string name="hide_whiteboard" maxLength="28">Skryť tabuľu</string>
     <string name="clear_whiteboard" maxLength="28">Vyčistiť tabuľu</string>
     <string name="hide_toolbar" maxLength="28">Skryť lištu nástrojov</string>
     <string name="replay_media" maxLength="28">Prehrať multimédiá</string>
-    <string name="leech_suspend_notification">Kartička označená ako pijavica a pozastavená</string>
-    <string name="leech_notification">Kartička označená ako pijavica</string>
     <string name="webview_crash_unknown">Neznáma chyba</string>
-    <string name="webview_crash_unknwon_detailed">Toto bolo spôsobené internou chybou vo WebView</string>
-    <string name="webview_crash_oom">Out of memory</string>
-    <string name="webview_crash_oom_details">WebView bol ukončený systémom. Toto sa zvyčajne stáva, keď dôjde k nedostaku pamäte, často kvôli veľkým fontom alebo médiám.</string>
-    <string name="webview_crash_nonfatal">WebView renderovanie zlyhalo. Príčina: %s</string>
-    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
-    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
-    <string name="webview_crash_loop_dialog_content">Zobrazenie kartičky systémom WebView zlyhalo \'%1$s\'.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Slide to cancel</string>
     <string name="filter_by_flags" maxLength="41">Príznaky</string>
     <!-- filtered deck options -->
@@ -79,7 +66,6 @@
     <string name="filtered_option_delay_hard">Delay for hard</string>
     <string name="filtered_option_delay_good">Delay for good</string>
     <!-- Custom study options -->
-    <string name="custom_study_loading_tags">Building list of tags&#8230;</string>
     <!-- Study options -->
     <plurals name="studyoptions_buried_count">
         <item quantity="one">+%d buried</item>
@@ -110,30 +96,16 @@
     <string name="image_cropper_action_flip_vertically" maxLength="28" comment="Submenu action in image cropper screen">Flip vertically</string>
     <!-- Timebox -->
     <string name="timebox_reached_title">Dosiahol sa limit pre časový box</string>
-    <plurals name="timebox_reached">
-        <item quantity="one">%1$d preštudovaná kartička za %2$s</item>
-        <item quantity="few">%1$d preštudované kartičky za %2$s</item>
-        <item quantity="many">%1$d preštudovaných kartičiek za %2$s</item>
-        <item quantity="other">%1$d preštudovaných kartičiek za %2$s</item>
-    </plurals>
     <!-- minutes used in \'[studied in] x minutes\' context, causing inflexion in some languages -->
-    <plurals name="in_minutes">
-        <item quantity="one">%1$d minúta</item>
-        <item quantity="few">%1$d minúty</item>
-        <item quantity="many">%1$d minút</item>
-        <item quantity="other">%1$d minút</item>
-    </plurals>
     <string name="fact_adder_intent_title" comment="Label of the \'Add Note\' window. This title can\'t be seen in AnkiDroid directly.">Hayaki kartička</string>
     <string name="note_editor_copy_note" maxLength="28">Kopírovať poznámku</string>
     <string name="card_editor_reposition_card" comment="reposition a card in the new queue" maxLength="28">Premiestniť</string>
     <string name="card_editor_reset_card" maxLength="28">Vynulovať pokrok</string>
-    <string name="card_editor_reschedule_card" comment="Action to reschedule a card" maxLength="28">Preplánovať</string>
     <string name="card_editor_preview_card" comment="Button offering to preview some card(s)" maxLength="28">Náhľad</string>
     <string name="copy_as_markdown" comment="Copies text to the clipboard as Markdown" maxLength="28">Kopírovať ako markdown</string>
     <string name="preview_progress_bar_text" comment="What card we are on out of how many in card previewer progress bar">%1$d z %2$d</string>
     <string name="rename" comment="Confirm that the renaming action should be processed." maxLength="28">Premenovať</string>
     <string name="checks_action" maxLength="28">Overiť</string>
-    <string name="unknown_type_field_warning">Typ odpovede: neznáme pole %s</string>
     <string name="delete_deck" comment="Message on a progress bar starting a deck is being deleted.">Balíček sa odstraňuje&#8230;</string>
     <string name="info_rate">Ohodnotiť AnkiDroid</string>
     <string name="import_title">Importuje sa</string>
@@ -168,13 +140,11 @@
     <string name="export_choice_save_to">Uložiť</string>
     <string name="export_saving_exported_collection">Saving exported file&#8230;</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Možnosti štúdia</string>
-    <string name="select_tts" maxLength="28">Nastaviť jazyk TTS (text na reč)</string>
     <string name="dyn_deck_desc">Toto je špeciálny balíček na štúdium mimo bežného plánu. Kartičky sa automaticky vrátia do svojich pôvodných balíčkov po tom, čo si ich zopakujete. Odstránením tohto balíčku zo zoznamu balíčkov sa všetky zostávajúce kartičky vrátia do svojich pôvodných balíčkov.</string>
     <string name="tag_editor_add_feedback">Ťuknite “%2$s” pre potvrdenie pridania “%1$s”</string>
     <string name="tag_editor_add_feedback_existing">Existujúci štítok “%1$s” zvolený</string>
     <string name="tag_already_exists">Tag already exists</string>
     <string name="error_name_exists">Name already exists</string>
-    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">Chyba pri zdieľaní apkg súboru</string>
@@ -185,14 +155,10 @@
     <string name="web_page_error">Chyba pri načítavaní %s</string>
     <!-- The name of the deck which corrupt cards will be moved to -->
     <!-- Deckpicker Background -->
-    <string name="background_image_title" maxLength="41">Pozadie</string>
-    <string name="remove_wallpaper_image" maxLength="41">Odstrániť obrázok pozadia</string>
     <string name="remove_background_image">Ste si istý, že chcete odstrániť obrázok pozadia?</string>
     <!-- Card Template Browser Appearance -->
     <string name="restore_default" maxLength="28">Restore default</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
-    <string name="white_board_eraser_enabled">Režim gumovania zapnutý</string>
-    <string name="white_board_eraser_disabled">Režim gumovania vypnutý</string>
     <string comment="Progress amount e.g. \'28 MB/141 MB\'. %1$s is the current amount, %2$s is the max." name="progress_amount_bytes">%1$s/%2$s</string>
     <string name="media_file_size_warning_title">Media too large</string>
     <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">The file \"%1$s\" (%2$s) exceeds the AnkiWeb limit of %3$s and cannot be synced. Add anyway?</string>
@@ -200,7 +166,6 @@
     <!-- Whiteboard save image message in the Study Screen -->
     <string name="white_board_image_save_failed">Nepodarilo sa uložiť obrázok tabule. %s</string>
     <string name="white_board_image_saved">Obrázok tabule sa uložil do %s</string>
-    <string name="title_whiteboard_editor" maxLength="28">Editor tabule</string>
     <string name="user_is_a_robot">Bol zachytený automatizovaný test. Ak ste človek, kontaktuje AnkiDroid podporu</string>
     <!-- JS api -->
     <string name="api_version_developer_contact">Táto kartička používa nepodporované prvky AnkiDroidu. Kontaktujte vývojára %1$s, alebo si pozrite wiki. %2$s</string>
@@ -253,7 +218,6 @@
     <string name="create_shortcut_error">Chyba pri pridávaní odkazu: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">Písať vety s veľkým začiatočným písmenom</string>
     <!-- Dialog hints -->
-    <string name="dialog_hint_url">URL</string>
     <string name="dialog_hint_certificate">Certifikát</string>
     <!-- IncrementNumberRangePreference -->
     <string name="plus_sign" comment="Label for increment button in IncrementerNumberRangePreference">+</string>
@@ -262,7 +226,6 @@
     <string name="maximum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the maximum allowed value">Maximum value is %d</string>
     <string name="minimum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the minimum allowed value">Minimum value is %d</string>
     <!-- Used for credential empty warning message -->
-    <string name="invalid_email">Zadajte platný e-mail</string>
     <string name="password_empty">Vyžaduje sa heslo</string>
     <string name="back_pressed_once">Go back again to exit</string>
     <!-- %% is required to display % symbol. Reference: https://stackoverflow.com/a/16834358 -->
@@ -287,13 +250,6 @@
     <string name="home" maxLength="28">Domov</string>
     <!-- Study Screen actions
     Each of these strings ends with a period, following the notation of Anki Desktop -->
-    <string name="card_buried">Kartička zahrabaná.</string>
-    <plurals name="note_suspended">
-        <item quantity="one">%d card suspended.</item>
-        <item quantity="few">%d cards suspended.</item>
-        <item quantity="many">%d cards suspended.</item>
-        <item quantity="other">%d cards suspended.</item>
-    </plurals>
     <!--  Note Editor Toggle Sticky  -->
     <string name="note_editor_toggle_sticky">Pripnúť pole %s</string>
     <string name="scoped_storage_learn_more">Dozvedieť sa viac</string>
@@ -307,8 +263,6 @@
     <!--  Hierarchical Tags  -->
     <string name="expand_tag">Expand tag \'%s\'</string>
     <!-- Manage note types -->
-    <string name="field_editor_model_not_available">Failed to access collection. Please try again!</string>
-    <string name="cd_manage_notetypes_add">Add a new note type</string>
     <plurals name="note_types_selected">
         <item quantity="one">%d note type selected</item>
         <item quantity="few">%d note types selected</item>
@@ -316,13 +270,8 @@
         <item quantity="other">%d note types selected</item>
     </plurals>
     <!-- App Intro -->
-    <string name="intro_ankidroid_tagline_one">Uč sa menej</string>
-    <string name="intro_ankidroid_tagline_two">Pamätaj si viacej</string>
-    <string name="intro_short_ankidroid_explanation">Plánovač kartičiek Anki šetrí čas posilňovaním vašich najslabších spomienok a udržiavaním tých najsilnejších.</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Začni</string>
     <string name="intro_sync_from_ankiweb">Synchronizovať s AnkiWeb</string>
     <!-- IntentHandler -->
-    <string name="app_not_initialized_new">Hayaki ešte nie je inicializovaný. Prosím otvorte Hayaki a skúste to znovu.</string>
     <!-- Deck Creation -->
     <string name="deck_created">Balíček bol vytvorený</string>
     <string name="deck_renamed">Balíček bol premenovaný</string>
@@ -357,14 +306,11 @@
     <string name="card_template_reposition_template" comment="move a card template to a new position" maxLength="28">Zmeniť poradie</string>
     <string name="previewer_next" comment="Name of the next button in the previewer" maxLength="28">Ďalší</string>
     <string name="previewer_back" comment="Name of the back button in the previewer" maxLength="28">Späť</string>
-    <string name="start_recording">Nahrávať</string>
     <string name="stop_recording">Zastaviť</string>
     <string name="play_recording">Prehrať</string>
-    <string name="next_recording" comment="Description of a button to go to the next recording">Ďalej</string>
     <!--  AlertDialog in the deleteCardTemplate  -->
     <string name="orphan_note_title">Cannot delete card type</string>
     <string name="orphan_note_message">Deleting this card type will leave some notes without any cards.</string>
-    <string name="voice_not_supported">Voice not supported. Try another or install a voice engine.</string>
     <!--Keyboard shortcuts dialog-->
     <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Delete deck without confirmation</string>

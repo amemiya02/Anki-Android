@@ -29,8 +29,6 @@
         <item quantity="other">Xoá tất cả thẻ trong %1$s? Bộ thẻ này đang chứa %2$d thẻ</item>
     </plurals>
     <string name="delete_cram_deck_message">Xoá bộ thẻ lọc %s và chuyển tất cả thẻ về các bộ thẻ gốc?</string>
-    <string name="no_tts_available_message">Không có ngôn ngữ chuyển-văn-bản-thành-lời</string>
-    <string name="tts_no_tts">Đừng phát âm</string>
     <string name="reposition_card_not_new_error">Chỉ thẻ mới có thể được định vị lại</string>
     <string name="reset_card_dialog_title">Đặt lại tiến trình thẻ</string>
     <plurals name="reset_cards_dialog_acknowledge">
@@ -73,13 +71,10 @@
     <string name="dialog_positive_delete" maxLength="28">Xoá</string>
     <!-- Currently unsued, should be useful in the future -->
     <string name="dialog_positive_disable" tools:ignore="UnusedResources">Tắt</string>
-    <string name="dialog_positive_overwrite">Ghi đè</string>
     <string name="dialog_positive_repair">Sửa chữa</string>
     <string name="dialog_positive_replace">Thay thế</string>
-    <string name="sync_clock_off_with_current_time">%1$s\n\nCorrect the date and time, or enable automatic date and time, then sync again.\n\nYour device’s current time is: %2$s</string>
     <string name="dialog_collection_path_not_dir">Đường dẫn đã chỉ định không phải thư mục hợp lệ</string>
     <string name="dialog_invalid_custom_certificate">Dòng văn bản được cung cấp không phải là chứng chỉ X509 được mã hóa PEM hợp lệ</string>
-    <string name="dialog_invalid_custom_certificate_title">Lỗi phân tích chứng chỉ</string>
     <string name="dialog_updated_custom_certificate">Chứng chỉ đã được cập nhật</string>
     <!-- Media checking -->
     <string name="check_media_warning">This may take a long time with large media collections. Proceed?</string>
@@ -101,7 +96,6 @@
     <string name="multimedia_editor_audio_permission_refused">Không thể quyền micrô.</string>
     <string name="multimedia_editor_failed">Không mở được Trình chỉnh sửa Đa phương tiện</string>
     <!-- Multimedia - Audio View -->
-    <string name="multimedia_editor_audio_permission_denied">Quyền ghi âm bị từ chối</string>
     <string name="permission_denied">Đã từ chối</string>
     <string name="microphone_permission_denied_message">Microphone permission denied. Please grant it in the app settings.</string>
     <!-- Database Integrity Check -->
@@ -134,8 +128,6 @@
     <string name="boot_service_failed_to_schedule_notifications">Không thể lên lịch lời nhắc</string>
     <string name="boot_service_too_many_notifications">Có quá nhiều lời nhắc được lên lịch. Một số sẽ không xuất hiện</string>
     <!-- Locale Selection Dialog -->
-    <string name="locale_selection_dialog_title_new">Cài ngôn ngữ</string>
-    <string name="locale_selection_dialog_summary">Một số bàn phím đa ngôn ngữ, chẳng hạn như GBoard hỗ trợ thay đổi ngôn ngữ khi soạn thảo văn bản\n\nVui lòng yêu cầu tính năng “setImeHintLocales” từ nhà sản xuất bàn phím nếu bàn phím của bạn không thay đổi ngôn ngữ.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">Unknown language [%1$s]</string>
     <!-- Help Dialog -->
     <string name="help_title_using_ankidroid">Sử dụng Hayaki</string>
@@ -168,7 +160,6 @@
     <plurals name="sync_automatic_sync_needs_more_time">
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">Đồng bộ tự động có thể được kích hoạt sau %d giây</item>
     </plurals>
-    <string name="metered_sync_data_warning">Nhà cung cấp dịch vụ internet của bạn có thể tính phí cho việc sử dụng dữ liệu.</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
@@ -200,7 +191,6 @@
     <plurals name="set_due_date_current_interval">
         <item quantity="other">Chu kỳ hiện tại: %d ngày</item>
     </plurals>
-    <string name="range_delimiter" comment="Placed between two input boxes to denote a range">–</string>
     <string name="set_due_date_range_start" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'minimum\' value of this range (inclusive)">Từ</string>
     <string name="set_due_date_range_end" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'maximum\' value of this range (inclusive)">Đến</string>
     <!-- Instant Note Editor -->
@@ -230,14 +220,9 @@
     <string name="import_error_resolution_copy_to_device">Copy the file to your device and try again with the local file</string>
     <string name="import_error_resolution_select_file">Open the file using your device’s file browser app</string>
     <!-- Post-login dialog -->
-    <string name="login_successful">Login successful</string>
-    <string name="sync_now">Sync now?</string>
     <!--Change Note Type Dialog Fragment-->
-    <string name="card_numbers_unchanged">Card numbers will remain unchanged</string>
     <!-- Subset of TR.changeNotetypeToFromCloze -->
-    <string name="extra_cloze_deletions_removed">If changing to a regular note type, and there are more cloze deletions than available card templates, any extra cards will be removed.</string>
     <string name="different_note_types_selected">Please select notes from only one notetype.</string>
-    <string name="error_no_changes_to_save">No changes to save</string>
     <string name="choose_color">Choose color</string>
     <!-- Special Fields -->
     <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">Fields</string>
@@ -252,8 +237,6 @@
     <string name="special_field_card_help" comment="%s: either blank or \' %s\'">The name of the card template%s</string>
     <string name="special_field_type_help" comment="%s: either blank or \' %s\'">The name of the note type%s</string>
     <!-- Change Note Type Dialog -->
-    <string name="change_note_type_from" comment="Label indicating the original note type before changing it">From</string>
-    <string name="change_note_type_to" comment="Label indicating the new note type to change to">To</string>
     <!-- Add and rename profile dialogs -->
     <string name="rename_profile" comment="Title of the dialog where the user renames a profile">Rename profile</string>
     <string name="profile_name" comment="Label of the text field where the user types the name of a new profile">Profile name</string>

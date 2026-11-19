@@ -24,24 +24,19 @@
   -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- generic strings -->
-    <string name="enabled" comment="Generic label for something that is turned on">Enabled</string>
     <string name="disabled" comment="Generic label for something that is turned off">已停用</string>
     <plurals name="pref_summ_minutes">
         <item quantity="other">%d分鐘</item>
     </plurals>
     <string name="pref_milliseconds">%s 毫秒</string>
     <!-- TODO: move to 20-search-preference so we can contribute upstream (searchpreference_no_results)-->
-    <string name="pref_search_no_results">無結果</string>
     <!-- preferences.xml categories-->
     <string name="pref_cat_general" comment="name of the general preference category" maxLength="41">一般</string>
     <string name="pref_cat_studying" maxLength="41">學習中</string>
     <string name="pref_cat_system_wide" maxLength="41">系統範圍</string>
-    <string name="pref_cat_reviewing" maxLength="41">複習</string>
     <string name="pref_cat_sync" comment="title of the sync preferences category" maxLength="41">同步</string>
     <string name="pref_cat_scheduling" maxLength="41">計畫任務</string>
     <string name="pref_cat_whiteboard" maxLength="41">白板</string>
-    <string name="pref_cat_themes" maxLength="41">佈景</string>
-    <string name="pref_cat_gestures" maxLength="41">手勢</string>
     <string name="pref_cat_controls" maxLength="41">控制</string>
     <string name="pref_cat_advanced" maxLength="41">進階設定</string>
     <string name="pref_cat_workarounds" maxLength="41">解決方案</string>
@@ -60,10 +55,6 @@
     <string name="whiteboard_stroke_width" maxLength="41">筆跡寬度</string>
     <string name="use_input_tag" maxLength="41">在卡片中輸入答案</string>
     <string name="use_input_tag_summ">在卡片中使用一個文本框裡輸入答案</string>
-    <string name="reset_languages" maxLength="41">重設語言</string>
-    <string name="reset_languages_summ">重置指定牌組語言 (TTS 和字典)</string>
-    <string name="reset_languages_question">重設所有的語言？</string>
-    <string name="reset_confirmation">重設所有狀態</string>
     <string name="card_zoom" maxLength="41">卡片縮放</string>
     <string name="image_zoom" maxLength="41">圖像縮放</string>
     <string name="button_size" maxLength="41">答案按鈕尺寸</string>
@@ -71,18 +62,6 @@
     <string name="card_browser_hide_media" maxLength="41">在卡片瀏覽器展示檔案名</string>
     <string name="card_browser_hide_media_summary">Display audio filenames in the card browser question/answer fields</string>
     <string name="col_path" maxLength="41">Hayaki 路徑</string>
-    <string name="fullscreen_review" maxLength="41">全螢幕模式</string>
-    <string name="full_screen_off" comment="Value of the fullscreen mode preference meaning fullscreen is not used">關閉</string>
-    <string name="full_screen_system">隱藏系統狀態欄</string>
-    <string name="full_screen_complete">隱藏系統狀態欄和回答按鈕</string>
-    <string name="answer_buttons_position" maxLength="41">顯示答案按鈕位置</string>
-    <string-array name="answer_buttons_position_labels">
-        <item>頂部</item>
-        <item>底部</item>
-        <item>無</item>
-    </string-array>
-    <string name="gestures" maxLength="41">開啟手勢</string>
-    <string name="gestures_summ">替動作設定手勢，像是回答問題和編輯卡片。</string>
     <string name="gestures_corner_touch" maxLength="41">九點邊角觸控</string>
     <string name="gestures_corner_touch_summary">允許在螢幕角落進行觸控</string>
     <string name="show_keyboard_shortcuts" maxLength="41">顯示鍵盤捷徑</string>
@@ -109,38 +88,18 @@
     <string name="gestures_shake" maxLength="41">搖晃裝置</string>
     <string name="card_browser_enable_external_context_menu" maxLength="41">‘%s’ menu</string>
     <string name="card_browser_enable_external_context_menu_summary">啟用全域性‘%s’內容選單</string>
-    <string name="double_scrolling_gap" maxLength="41">加速捲動</string>
-    <string name="double_scrolling_gap_summ">加倍 eReader 的滾動間距</string>
     <string name="swipe_sensitivity" maxLength="41">滑動靈敏度</string>
-    <string name="tts" maxLength="41">文字轉語音</string>
-    <string name="tts_summ">如果沒有內含音訊檔案，則讀出問題和答案</string>
     <!-- Sync -->
-    <string name="sync_fetch_missing_media" maxLength="41">同步時取得媒體檔案</string>
     <string name="sync_account_summ_logged_out">未登入</string>
-    <string name="automatic_sync_choice" maxLength="41">自動同步</string>
-    <string name="automatic_sync_choice_summ">如果距離上次同步超過 10 分鐘，則在開啟/關閉程式時自動同步。</string>
     <string name="sync_media_always" comment="Option to always fetch media when syncing">總是</string>
     <string name="sync_media_only_unmetered">只在非計費連線時</string>
     <string name="sync_media_never">從不</string>
-    <string name="sync_status_badge" maxLength="41">顯示同步狀態</string>
-    <string name="sync_status_badge_summ">可上傳變更時，變更同步圖標</string>
-    <string name="metered_sync_title" maxLength="41">允許按流量計費的連接同步</string>
-    <string name="metered_sync_summary">禁用後，如果嘗試在按流量計費的連接上同步，將收到警告</string>
-    <string name="backup_limits_frequency">頻率</string>
-    <string name="backup_limits_lifetime">若時</string>
     <string name="app_theme" maxLength="41">主題</string>
     <string name="day_theme" maxLength="41">白天主題</string>
     <string name="night_theme" maxLength="41">夜間主題</string>
     <string name="language" maxLength="41">語言</string>
     <string name="language_system">系統語言</string>
     <string name="notification_pref" maxLength="41">通知</string>
-    <string name="notification_pref_title" maxLength="41">何時通知</string>
-    <string name="never_notify">永不通知</string>
-    <string name="notify_when_pending">有未讀的訊息時</string>
-    <string name="notification_minimum_cards_due" comment="Consider keeping the unbreakable space after the digit">More than %d cards due</string>
-    <string name="notification_minimum_cards_due_vibrate" maxLength="41">震動</string>
-    <string name="notification_minimum_cards_due_blink" maxLength="41">提示燈</string>
-    <string name="select_locale_title">選擇語言</string>
     <string name="software_render" maxLength="41">禁用卡片硬體渲染</string>
     <string name="software_render_summ">硬體渲染速度較快，但可能存在問題，特別是位於 Android 8/8.1 中。如果您看不到部分卡片復習使用者頁面，請嘗試此設定。</string>
     <string name="disable_extended_text_ui" maxLength="41">Disable single-field edit mode</string>
@@ -152,18 +111,8 @@
     <string name="pref_double_tap_time_interval_summary">如果時間不到，按二次答案按鍵是無效的，這樣可以避免不小心雙擊按鍵。</string>
     <string name="pref_show_answer_long_press_time" maxLength="41">顯示答案長按時間</string>
     <string name="pref_show_answer_long_press_time_summary">顯示答案按鈕生效前的最短按壓時間</string>
-    <string name="show_estimates" maxLength="41">顯示按鈕的時間</string>
-    <string name="show_estimates_summ">在答案按鈕上顯示下一次複習的時間</string>
-    <string name="show_large_answer_buttons" maxLength="41">顯示大的答案按鍵</string>
-    <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
     <string name="remove_animations" maxLength="41">Remove animations</string>
     <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
-    <string name="show_top_bar" maxLength="41">顯示頂部列</string>
-    <string name="show_top_bar_summary">在頂部列顯示卡片計數、回答計時器、旗標和標記</string>
-    <string name="show_progress" maxLength="41">顯示剩餘數量</string>
-    <string name="show_progress_summ">顯示剩餘卡片數量</string>
-    <string name="show_eta" maxLength="41">顯示預計完成時間</string>
-    <string name="show_eta_summ">顯示剩餘時間</string>
     <string name="use_current" maxLength="41">存放新卡片的牌組</string>
     <string name="learn_cutoff" maxLength="41">提早學習上限</string>
     <string name="time_limit" maxLength="41">時間盒的時間上限</string>
@@ -182,22 +131,14 @@
     <string name="pref_keep_screen_on_summ">關閉螢幕逾時</string>
     <string name="enable_api_title" maxLength="41">開啟 AnkiDroid API</string>
     <string name="enable_api_summary">讓其他應用程式不需經過你同意，即可連結到 Hayaki 且讀寫檔案</string>
-    <string name="custom_buttons" maxLength="41">頂欄按鈕</string>
-    <string name="custom_buttons_summary">自訂頂部列按鈕</string>
     <string name="custom_buttons_setting_always_show">總是顯示</string>
-    <string name="custom_buttons_setting_if_room">有空間時顯示</string>
     <string name="custom_buttons_setting_menu_only">僅限菜單</string>
     <string name="reset_custom_buttons" maxLength="41">重置為預設</string>
-    <string name="reset_settings_to_default">將設定重設為預設值</string>
     <string name="reset">重置</string>
     <string name="thirdparty_apps_title" maxLength="41">第三方 API 應用程式</string>
     <string name="thirdparty_apps_summary">查看一系列使用 AnkiDroid API 的應用程式，如字典，實用工具。</string>
-    <string name="pref_controls_reviews_tab" maxLength="41" comment="Name of the tab to configure controls for the reviews screen">回顧</string>
-    <string name="pref_controls_previews_tab" maxLength="41" comment="Name of the tab to configure controls for the previews screen">預覽</string>
     <string name="toggle_backside_only" maxLength="41" comment="Control setting that toggles \'Backside only\' in the previews screen">Toggle backside only</string>
     <!-- Appearance settings -->
-    <string name="pref_cat_reviewer" maxLength="41">Study Screen</string>
-    <string name="show_deck_title" maxLength="41">顯示牌組標題</string>
     <string name="accessibility" maxLength="41">無障礙功能</string>
     <string name="exit_via_double_tap_back" maxLength="41">按二次返回鍵返回或者退出</string>
     <string name="exit_via_double_tap_back_summ">To avoid accidentally leaving the study screen or the app</string>
@@ -213,11 +154,8 @@
         如果未設定，預設的 AnkiWeb 伺服器將被使用。
         <a href="%s">了解更多</a>
         ]]></string>
-    <string name="custom_sync_server_base_url_title" maxLength="41">Sync URL</string>
     <string name="custom_sync_certificate_title" maxLength="41">自訂根憑證 (PEM)</string>
     <!-- Key Bindings -->
-    <string name="keyboard">鍵盤</string>
-    <string name="bluetooth">藍芽</string>
     <string name="answer_buttons" maxLength="41">回答按鈕</string>
     <string name="card" maxLength="41" comment="Generic term to refer to a card">卡</string>
     <string name="note" maxLength="41">筆記</string>
@@ -229,51 +167,25 @@
          ####################################################################################### -->
     <!-- Entry points -->
     <string name="review_reminders_title" maxLength="41" comment="Name of the review reminders feature. Used as a settings screen title, a toolbar title, and the name of the notification channel review reminders are posted to.">Review reminders</string>
-    <string name="review_reminders_summary_app_wide" comment="The descriptor for reminders that are attached to the whole app rather than a single deck.">App-wide</string>
-    <string name="review_reminders_summary_deck_specific" comment="The descriptor for reminders attached to one particular deck.">Deck-specific</string>
     <string name="review_reminders_load_error" comment="Error dialog shown when stored review reminders could not be read back. Technical details follow this text.">An error occurred while loading your review reminders, corrupted reminders have been deleted. Details:</string>
     <!-- Schedule reminders screen -->
     <string name="schedule_reminders_title" maxLength="28" comment="Name of the menu option for scheduling review reminders for a deck.">Schedule reminders</string>
     <string name="add_reminder" comment="Label for the add reminder button in the screen for adding and editing review reminders">Add reminder</string>
     <string name="you_have_no_review_reminders" comment="Text that appears in the review reminder editing screen when there are no reminders set">You have no review reminders</string>
-    <string name="schedule_reminders_troubleshoot_menu" maxLength="28" comment="Text in a menu button which opens a screen for diagnosing why review reminders may not be delivered.">Troubleshoot</string>
     <string name="schedule_reminders_notification_settings_menu" maxLength="28" comment="Text in a menu button which opens the operating system notification settings for the app.">Notification settings</string>
-    <string name="schedule_reminders_list_content_description" comment="Accessibility description of the list showing scheduled review reminders.">List of scheduled review reminders</string>
-    <string name="schedule_reminders_deck_not_found" comment="Shown in place of a deck name when the deck a review reminder points at no longer exists.">Deck not found</string>
     <string name="schedule_reminders_unavailable" comment="Pop-up text shown when review reminders cannot be delivered at all, such as due to missing permissions.">Reminders are unavailable</string>
-    <string name="schedule_reminders_fix" comment="Text for the button which, when pressed, opens the review reminder troubleshooting screen for fixing issues with review reminders.">Fix</string>
-    <string name="schedule_reminders_added" comment="Pop-up text which confirms a new review reminder was created.">Successfully added new review reminder</string>
-    <string name="schedule_reminders_deleted" comment="Pop-up text which confirms a review reminder was deleted.">Successfully deleted review reminder</string>
-    <string name="schedule_reminders_edited" comment="Pop-up text which confirms an existing review reminder was changed.">Successfully edited review reminder</string>
     <!-- Add / edit reminder dialog -->
     <string name="add_review_reminder" comment="Title of the dialog for creating a new review reminder.">Add review reminder</string>
     <string name="edit_review_reminder" comment="Title of the dialog for editing an existing review reminder.">Edit review reminder</string>
-    <string name="add_edit_reminder_time_label" comment="Label of the field for choosing what time of day a review reminder fires.">Time:</string>
-    <string name="add_edit_reminder_deck_label" comment="Label of the field for choosing which deck a review reminder applies to.">Deck:</string>
-    <string name="add_edit_reminder_advanced_label" comment="Header of the collapsible section holding extra review reminder customization options.">Advanced settings</string>
-    <string name="add_edit_reminder_card_threshold_label" comment="Label of the field setting the minimum number of due cards needed before a review reminder fires.">Card threshold:</string>
-    <string name="add_edit_reminder_card_threshold_description" comment="Explanation shown under the card threshold field.">Do not send me notifications if there are less than this many cards due</string>
-    <string name="add_edit_reminder_only_notify_if_no_reviews_label" comment="Label of the switch suppressing a review reminder on days which have already had reviews.">Only notify me if no reviews have been done today</string>
     <string name="add_edit_reminder_card_threshold_error_not_a_number" comment="Validation error shown when the review reminder card threshold field does not hold a whole number.">Please enter a whole number of cards</string>
     <string name="add_edit_reminder_card_threshold_error_negative" comment="Validation error shown when the review reminder card threshold field holds a negative number.">The threshold must be at least 0</string>
-    <string name="add_edit_reminder_count_toward_threshold_heading" comment="Heading above the advanced review reminder options for choosing which kinds of cards (new / learning / to review) count toward the reminder\'s card threshold.">Count these cards toward the threshold:</string>
     <string name="add_edit_reminder_delete_confirmation_title" comment="Title of the dialog confirming deletion of a review reminder.">Delete this reminder?</string>
     <string name="add_edit_reminder_delete_confirmation_message" comment="Body of the dialog confirming deletion of a review reminder.">This action cannot be undone.</string>
     <!-- Reminder troubleshooting screen -->
     <string name="reminder_troubleshooting_summary_error" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when reminders cannot be delivered at all.">Reminders are unavailable.</string>
-    <string name="reminder_troubleshooting_summary_warning" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when reminders may be delayed or suppressed.">Reminders may not work correctly.</string>
     <string name="reminder_troubleshooting_summary_ok" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when no issues are found.">Your reminders should work as expected.</string>
-    <string name="reminder_troubleshooting_footer" comment="Closing advice at the bottom of the review reminder troubleshooting screen.">Different devices have different notification restriction settings. Check your system settings or search online if issues persist.</string>
     <!-- Troubleshooting check titles -->
-    <string name="reminder_troubleshooting_check_notification_permission" comment="Name of a review reminder troubleshooting check: whether the app may post notifications.">Notification permission</string>
-    <string name="reminder_troubleshooting_check_notification_channel" comment="Name of a review reminder troubleshooting check: whether the review reminders notification channel is turned on.">Notification channel</string>
-    <string name="reminder_troubleshooting_check_do_not_disturb" comment="Name of a review reminder troubleshooting check: whether the system Do Not Disturb mode is active.">Do not disturb</string>
-    <string name="reminder_troubleshooting_check_battery_optimization" comment="Name of a review reminder troubleshooting check: whether the system restricts the app\'s background battery usage.">Battery optimization</string>
-    <string name="reminder_troubleshooting_check_power_saving_mode" comment="Name of a review reminder troubleshooting check: whether the system power saving mode is active.">Power saving mode</string>
-    <string name="reminder_troubleshooting_check_exact_alarm_permission" comment="Name of a review reminder troubleshooting check: whether the app has permission to schedule alarms at exact times.">Alarms &amp; reminders permission</string>
     <!-- Troubleshooting check statuses -->
-    <string name="reminder_troubleshooting_status_granted" comment="Status of a review reminder troubleshooting check: the permission has been given.">Granted</string>
-    <string name="reminder_troubleshooting_status_denied" comment="Status of a review reminder troubleshooting check: the permission has not been given.">Denied</string>
     <string name="reminder_troubleshooting_status_on" comment="Status of a review reminder troubleshooting check: the system setting is active.">On</string>
     <string name="reminder_troubleshooting_status_off" comment="Status of a review reminder troubleshooting check: the system setting is not active.">Off</string>
     <string name="reminder_troubleshooting_status_unrestricted" comment="Status of the review reminder battery optimization check: the app may run freely in the background.">Unrestricted</string>
@@ -282,26 +194,17 @@
     <!-- Troubleshooting check explanations -->
     <string name="reminder_troubleshooting_explanation_notification_channel" comment="Explains why review reminders need notification permissions to work correctly.">The review reminder notification channel must be enabled</string>
     <string name="reminder_troubleshooting_explanation_do_not_disturb" comment="Explains why review reminders may need Do Not Disturb to be disabled to work correctly.">Do Not Disturb may mute reminder notifications</string>
-    <string name="reminder_troubleshooting_explanation_battery_optimized" comment="Explains to the user that AnkiDroid\'s battery usage is optimized, and that battery usage may need to be enabled for review reminders to work correctly.">Battery optimization may delay reminders</string>
     <string name="reminder_troubleshooting_explanation_battery_restricted" comment="Explains to the user that AnkiDroid\'s battery usage is restricted, and that battery usage may need to be enabled for review reminders to work correctly.">Background usage is disabled. Reminders may not be delivered</string>
     <string name="reminder_troubleshooting_explanation_power_saving_mode" comment="Explains why review reminders may need power saving mode to be disabled to work correctly.">Power saving mode may prevent timely delivery of reminders</string>
     <string name="reminder_troubleshooting_explanation_exact_alarm" comment="Explains that AnkiDroid cannot schedule alarms at exact times unless the exact-alarm permission is granted.">Required to schedule reminders at exact times</string>
     <!-- Troubleshooting check actions -->
     <string name="reminder_troubleshooting_action_grant_permission" comment="Button resolving a failing review reminder troubleshooting check by asking for a permission.">Grant permission</string>
     <string name="reminder_troubleshooting_action_enable_notification_channel" comment="Button resolving a failing review reminder troubleshooting check by opening the operating system notification settings screen.">Enable notification channel</string>
-    <string name="reminder_troubleshooting_action_disable_battery_optimization" comment="Button resolving a failing review reminder troubleshooting check by asking the user to exempt the app from battery optimization.">Disable battery optimization</string>
     <string name="reminder_troubleshooting_action_open_battery_settings" comment="Button resolving a failing review reminder troubleshooting check by opening the operating system battery settings screen.">Open battery settings</string>
     <!-- Notification content -->
-    <string name="review_reminder_notification_title_all_decks" comment="Title of a review reminder notification which is attached to the whole app rather than a single deck.">It\'s time to study your cards</string>
-    <string name="review_reminder_notification_title_deck" comment="Title of a review reminder notification for one deck. The parameter is the deck name; the quotation marks are to clearly separate the user-chosen name from the app\'s own text.">It\'s time to study \"%s\"</string>
-    <string name="review_reminder_notification_snooze_button" comment="Notification button postponing a review reminder by a certain amount of time. The parameter is a duration like \'1h\', \'5m\', etc.">Snooze %s</string>
-    <plurals name="review_reminder_notification_cards_due" comment="Body of a review reminder notification. The parameter is the number of cards due.">
-        <item quantity="other">%d cards due</item>
-    </plurals>
     <!-- studyoptions -->
     <string name="studyoptions_limit_select_tags">選擇標籤</string>
     <!-- Deck configurations -->
-    <string name="deck_conf_general" maxLength="41" comment="Label of the submenu for the general options of new deck">一般</string>
     <string name="deck_conf_cram_search" maxLength="41" comment="Label of a text field that contains a search query.">搜尋</string>
     <!-- analytics options -->
     <string name="analytics_dialog_title">幫助 AnkiDroid 做得更好！</string>
@@ -317,7 +220,6 @@
     <string name="license">許可證</string>
     <string name="license_description"><![CDATA[Hayaki 在<a href=\"%1$s\">GPL-3.0</a>和<a href=\"%2$s\">AGPL-3.0</a>許可證下發佈，原始程式碼位於<a href=\"%3$s\">Github上</a>]]></string>
     <string name="other_licenses"><![CDATA[Hayaki also uses third-party libraries and icons, which are licensed under various open source <a href=\"%1$s\">licenses</a>]]></string>
-    <string name="donate_description"><![CDATA[您可以通過<a href=\"%1$s\">捐贈</a>支持AnkiDroid的開發。 我們感謝任何數額的捐贈。]]></string>
     <!-- Controls -->
     <string name="binding_add_gesture">新增手勢</string>
     <string name="binding_add_key">新增按鍵</string>
@@ -352,7 +254,6 @@
     <string name="bindings_already_bound">已經和%s關聯</string>
     <!-- Advanced -->
     <string name="pref_cat_experimental" maxLength="41" tools:ignore="UnusedResources">實驗性功能</string>
-    <string name="readtext_deprecation_warn">Hayaki 引入了更好的 TTS 機制，與其他 Anki 客戶端相容，並包含更多的語音和語言播放的改進！\n\n請儘快升級，因為此設定將很快移除。</string>
     <string name="readtext_reviewer_warn" tools:ignore="UnusedResources">請升級至新的文字轉語音格式</string>
     <string name="allow_templates_to_record_audio" maxLength="41">Allow templates to record audio</string>
     <string name="template_is_trying_to_record_audio">This template is trying to record audio</string>
@@ -438,8 +339,6 @@
     <string name="toolbar" maxLength="41">Toolbar</string>
     <string name="toolbar_actions" maxLength="41">Toolbar actions</string>
     <string name="toolbar_position" maxLength="28">Toolbar position</string>
-    <string name="new_study_screen" maxLength="41">New study screen</string>
-    <string name="new_study_screen_summ"><![CDATA[Improved study screen that will succeed the current one. Some features of the old screen have been changed or removed. Please report any <a href="%1$s">feedback</a> or <a href="%2$s">bugs</a>.]]></string>
     <string name="show_answer_feedback" maxLength="41">Show answer feedback</string>
     <string name="screen" maxLength="41">Screen</string>
     <string name="also_assign_binding_to_show_answer" comment="Question shown after assigning binding to an \'Answer\' command, asking whether it should also be assigned to the \'Show answer\'; %1$s is \'Show answer\'">Also assign to ‘%1$s’?</string>

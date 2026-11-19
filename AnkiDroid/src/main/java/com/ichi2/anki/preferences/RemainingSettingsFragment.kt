@@ -56,7 +56,7 @@ abstract class RemainingSettingsFragment(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Analytics.sendAnalyticsScreenView(analyticsScreenNameConstant)
-        activePreferenceKey = savedInstanceState?.getString(ACTIVE_PREFERENCE)
+        activePreferenceKey = savedInstanceState?.getString(STATE_ACTIVE_PREFERENCE)
         screen = requireContext().loadSettings(preferenceResource)
         screen.onSettingTapped = { Analytics.send(AnalyticsEvent.SettingTapped(it.key)) }
         screen.openEditor = { activePreferenceKey = it.key }
@@ -81,7 +81,7 @@ abstract class RemainingSettingsFragment(
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString(ACTIVE_PREFERENCE, activePreferenceKey)
+        outState.putString(STATE_ACTIVE_PREFERENCE, activePreferenceKey)
     }
 
     fun <T : Preference> findPreference(key: String): T? = screen.findPreference(key)
@@ -182,7 +182,7 @@ abstract class RemainingSettingsFragment(
     }
 }
 
-private const val ACTIVE_PREFERENCE = "active_preference"
+private const val STATE_ACTIVE_PREFERENCE = "active_preference"
 
 interface PreferenceXmlSource {
     @get:XmlRes

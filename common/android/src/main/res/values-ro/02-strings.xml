@@ -40,8 +40,6 @@
     <string name="updated_version">Actualizat la versiunea %s</string>
     <!-- Reviewer.kt (Study Screen) -->
     <string name="save_whiteboard" maxLength="28">Salvează tablă</string>
-    <string name="enable_stylus" maxLength="28">Activează scrierea cu creion</string>
-    <string name="disable_stylus">Dezactivează scrierea cu creion</string>
     <string name="eraser" maxLength="28">Radieră</string>
     <string name="add_brush" maxLength="28">Adaugă pensulă</string>
     <string name="whiteboard_align_left" comment="Option to align the whiteboard toolbar on the left" maxLength="28">Stânga</string>
@@ -56,22 +54,11 @@
     <string name="enable_whiteboard" maxLength="28">Activează tabla</string>
     <string name="disable_whiteboard">Dezactivează tabla</string>
     <string name="show_whiteboard">Arată tablă</string>
-    <string name="enable_eraser" maxLength="28">Activează radiera</string>
-    <string name="disable_eraser" maxLength="28">Dezactivează radiera</string>
     <string name="hide_whiteboard" maxLength="28">Ascunde tabla</string>
     <string name="clear_whiteboard" maxLength="28">Curăță tabla</string>
     <string name="hide_toolbar" maxLength="28">Ascunde bara de instrumente</string>
     <string name="replay_media" maxLength="28">Arată media de la început</string>
-    <string name="leech_suspend_notification">Card marcat ca lipitoare și suspendat</string>
-    <string name="leech_notification">Card marcat ca lipitoare</string>
     <string name="webview_crash_unknown">Eroare necunoscută</string>
-    <string name="webview_crash_unknwon_detailed">Acest lucru a fost cauzat de o eroare internă în WebView</string>
-    <string name="webview_crash_oom">Fără stocare</string>
-    <string name="webview_crash_oom_details">WebView a fost oprit de sistem. De obicei, asta se întâmplă atunci când aplicația rămâne fără memorie, adesea din cauza fonturilor mari sau a fișierelor media.</string>
-    <string name="webview_crash_nonfatal">WebView renderer crashed. Cause: %s</string>
-    <string name="webview_crash_fatal">Eroare fatală: WebView render a eșuat. Motivul: %s</string>
-    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
-    <string name="webview_crash_loop_dialog_content">System WebView failed to render card \'%1$s\'.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Glisează pentru a anula</string>
     <string name="filter_by_flags" maxLength="41">Steaguri</string>
     <!-- filtered deck options -->
@@ -79,7 +66,6 @@
     <string name="filtered_option_delay_hard">Amână pentru „greu”</string>
     <string name="filtered_option_delay_good">Amână pentru „bine”</string>
     <!-- Custom study options -->
-    <string name="custom_study_loading_tags">Se construiește lista de etichete&#8230;</string>
     <!-- Study options -->
     <plurals name="studyoptions_buried_count">
         <item quantity="one">%d îngropată</item>
@@ -109,28 +95,16 @@
     <string name="image_cropper_action_flip_vertically" maxLength="28" comment="Submenu action in image cropper screen">Întoarce pe verticală</string>
     <!-- Timebox -->
     <string name="timebox_reached_title">Timpul limită a fost atins</string>
-    <plurals name="timebox_reached">
-        <item quantity="one">%1$d cartonaș studiat în %2$s</item>
-        <item quantity="few">%1$d cards studied in %2$s</item>
-        <item quantity="other">%1$d cartonașe studiate în %2$s</item>
-    </plurals>
     <!-- minutes used in \'[studied in] x minutes\' context, causing inflexion in some languages -->
-    <plurals name="in_minutes">
-        <item quantity="one">%1$d minut</item>
-        <item quantity="few">%1$d minutes</item>
-        <item quantity="other">%1$d minute</item>
-    </plurals>
     <string name="fact_adder_intent_title" comment="Label of the \'Add Note\' window. This title can\'t be seen in AnkiDroid directly.">Cartonaș Hayaki</string>
     <string name="note_editor_copy_note" maxLength="28">Copie nota</string>
     <string name="card_editor_reposition_card" comment="reposition a card in the new queue" maxLength="28">Repoziționare</string>
     <string name="card_editor_reset_card" maxLength="28">Resetare progres</string>
-    <string name="card_editor_reschedule_card" comment="Action to reschedule a card" maxLength="28">Reprogramare</string>
     <string name="card_editor_preview_card" comment="Button offering to preview some card(s)" maxLength="28">Previzualizare</string>
     <string name="copy_as_markdown" comment="Copies text to the clipboard as Markdown" maxLength="28">Copiază ca Markdown</string>
     <string name="preview_progress_bar_text" comment="What card we are on out of how many in card previewer progress bar">%1$d din %2$d</string>
     <string name="rename" comment="Confirm that the renaming action should be processed." maxLength="28">Redenumire</string>
     <string name="checks_action" maxLength="28">Verifică</string>
-    <string name="unknown_type_field_warning">Tip de răspuns: câmp necunoscut %s</string>
     <string name="delete_deck" comment="Message on a progress bar starting a deck is being deleted.">Se șterge folderul&#8230;</string>
     <string name="info_rate">Oferă o notă AnkiDroid</string>
     <string name="import_title">Importare</string>
@@ -165,13 +139,11 @@
     <string name="export_choice_save_to">Salvează în</string>
     <string name="export_saving_exported_collection">Se salvează fișierul exportat&#8230;</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Opțiuni de studiu</string>
-    <string name="select_tts" maxLength="28">Setare limbă TTS</string>
     <string name="dyn_deck_desc">Acesta este un folder special pentru a studia în afara programului normal. Cardurile vor fi returnate automat la folderele lor originale după ce le revizuiești. Ștergerea acestui folder din lista de foldere va returna toate cărțile rămase în folderele lor originale.</string>
     <string name="tag_editor_add_feedback">Atingeți „%2$s” pentru a confirma adăugarea „%1$s”</string>
     <string name="tag_editor_add_feedback_existing">Etichetă existentă „%1$s” selectată</string>
     <string name="tag_already_exists">Eticheta există deja</string>
     <string name="error_name_exists">Numele există deja</string>
-    <string name="warning_find_and_replace">Ar fi bine să faci o copie de rezervă a colecției din DeckPicker înainte să folosești această opțiune!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">Eroare la partajarea fișierului apkg</string>
@@ -182,14 +154,10 @@
     <string name="web_page_error">Eroare la încărcarea paginii: %s</string>
     <!-- The name of the deck which corrupt cards will be moved to -->
     <!-- Deckpicker Background -->
-    <string name="background_image_title" maxLength="41">Fundal</string>
-    <string name="remove_wallpaper_image" maxLength="41">Șterge fundalul</string>
     <string name="remove_background_image">Sigur dorești să ștergi fundalul?</string>
     <!-- Card Template Browser Appearance -->
     <string name="restore_default" maxLength="28">Revenire la implicit</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
-    <string name="white_board_eraser_enabled">S-a activat ștergerea</string>
-    <string name="white_board_eraser_disabled">S-a dezactivat ștergerea</string>
     <string comment="Progress amount e.g. \'28 MB/141 MB\'. %1$s is the current amount, %2$s is the max." name="progress_amount_bytes">%1$s/%2$s</string>
     <string name="media_file_size_warning_title">Fișier media prea mare</string>
     <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">Fișierul „%1$s” (%2$s) este mai mare decât limita AnkiWeb %3$s și nu se poate sincroniza. Adaugi oricum?</string>
@@ -197,7 +165,6 @@
     <!-- Whiteboard save image message in the Study Screen -->
     <string name="white_board_image_save_failed">Nu s-a putut salva tabla. %s</string>
     <string name="white_board_image_saved">Tabla s-a salvat la %s</string>
-    <string name="title_whiteboard_editor" maxLength="28">Editare tablă</string>
     <string name="user_is_a_robot">S-a detectat test automat. Dacă ești om, ia legătura cu asistența AnkiDroid</string>
     <!-- JS api -->
     <string name="api_version_developer_contact">This card uses unsupported AnkiDroid features. Contact developer %1$s, or view the wiki. %2$s</string>
@@ -250,7 +217,6 @@
     <string name="create_shortcut_error">Error adding shortcut: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">Propoziții cu literă mare</string>
     <!-- Dialog hints -->
-    <string name="dialog_hint_url">URL</string>
     <string name="dialog_hint_certificate">Certificate</string>
     <!-- IncrementNumberRangePreference -->
     <string name="plus_sign" comment="Label for increment button in IncrementerNumberRangePreference">+</string>
@@ -259,7 +225,6 @@
     <string name="maximum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the maximum allowed value">Valoarea maximă este %d</string>
     <string name="minimum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the minimum allowed value">Valoarea minimă este %d</string>
     <!-- Used for credential empty warning message -->
-    <string name="invalid_email">Scrie un email valid</string>
     <string name="password_empty">Parola este necesară</string>
     <string name="back_pressed_once">Apasă din nou pentru a ieși</string>
     <!-- %% is required to display % symbol. Reference: https://stackoverflow.com/a/16834358 -->
@@ -284,12 +249,6 @@
     <string name="home" maxLength="28">Acasă</string>
     <!-- Study Screen actions
     Each of these strings ends with a period, following the notation of Anki Desktop -->
-    <string name="card_buried">Card îngropat</string>
-    <plurals name="note_suspended">
-        <item quantity="one">%d card suspendat.</item>
-        <item quantity="few">%d cards suspended.</item>
-        <item quantity="other">%d carduri suspendate.</item>
-    </plurals>
     <!--  Note Editor Toggle Sticky  -->
     <string name="note_editor_toggle_sticky">Câmpul %s va fi lipit</string>
     <string name="scoped_storage_learn_more">Află mai mult</string>
@@ -303,21 +262,14 @@
     <!--  Hierarchical Tags  -->
     <string name="expand_tag">Expand tag \'%s\'</string>
     <!-- Manage note types -->
-    <string name="field_editor_model_not_available">Nu s-a putut accesa colecția. Încearcă din nou!</string>
-    <string name="cd_manage_notetypes_add">Adaugă tip nou de notă</string>
     <plurals name="note_types_selected">
         <item quantity="one">%d tip de notă selectat</item>
         <item quantity="few">%d note types selected</item>
         <item quantity="other">%d tipuri de notă selectate</item>
     </plurals>
     <!-- App Intro -->
-    <string name="intro_ankidroid_tagline_one">Învață mai puțin timp.</string>
-    <string name="intro_ankidroid_tagline_two">Ține minte mai mult.</string>
-    <string name="intro_short_ankidroid_explanation">Cu Anki economisești timp prin îmbunătățirea memoriei și prezervarea punctelor tari datorită modului în care programează</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Începe</string>
     <string name="intro_sync_from_ankiweb">Sincronizează din AnkiWeb</string>
     <!-- IntentHandler -->
-    <string name="app_not_initialized_new">Hayaki nu s-a inițializat încă. Deschide Hayaki iar și încearcă din nou</string>
     <!-- Deck Creation -->
     <string name="deck_created">Folder creat</string>
     <string name="deck_renamed">Folderul a fost redenumit</string>
@@ -351,14 +303,11 @@
     <string name="card_template_reposition_template" comment="move a card template to a new position" maxLength="28">Repoziționează</string>
     <string name="previewer_next" comment="Name of the next button in the previewer" maxLength="28">Următorul</string>
     <string name="previewer_back" comment="Name of the back button in the previewer" maxLength="28">Înapoi</string>
-    <string name="start_recording">Înregistrează</string>
     <string name="stop_recording">Oprește</string>
     <string name="play_recording">Pornește</string>
-    <string name="next_recording" comment="Description of a button to go to the next recording">Următorul</string>
     <!--  AlertDialog in the deleteCardTemplate  -->
     <string name="orphan_note_title">Nu se poate șterge tipul de card</string>
     <string name="orphan_note_message">Dacă ștergi acest tip de card, unele note vor rămâne fără card.</string>
-    <string name="voice_not_supported">Nu se suportă vocea. Încearcă alta sau instalează un motor de voci.</string>
     <!--Keyboard shortcuts dialog-->
     <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Alege folderul</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Șterge folderul fără confirmare</string>

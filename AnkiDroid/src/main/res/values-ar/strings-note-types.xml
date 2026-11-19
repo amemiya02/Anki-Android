@@ -13,7 +13,6 @@
     <plurals name="note_type_template_count"><item quantity="other">%s من قوالب البطاقات</item></plurals>
     <plurals name="note_type_note_count"><item quantity="other">%s من الملاحظات</item></plurals>
     <string name="note_type_field_actions">إجراءات %s</string>
-    <string name="note_type_field_drag">اسحب لتغيير الترتيب</string>
     <string name="note_type_field_move">نقل إلى موضع…</string>
     <string name="note_type_field_sort_label">يُستخدم للفرز في المتصفح</string>
     <string name="note_type_field_sort_action">فرز المتصفح حسب هذا الحقل</string>

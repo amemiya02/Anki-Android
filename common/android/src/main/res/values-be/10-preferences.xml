@@ -24,7 +24,6 @@
   -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- generic strings -->
-    <string name="enabled" comment="Generic label for something that is turned on">Уключана</string>
     <string name="disabled" comment="Generic label for something that is turned off">Адключана</string>
     <plurals name="pref_summ_minutes">
         <item quantity="one">%d хв</item>
@@ -34,17 +33,13 @@
     </plurals>
     <string name="pref_milliseconds">%s мс</string>
     <!-- TODO: move to 20-search-preference so we can contribute upstream (searchpreference_no_results)-->
-    <string name="pref_search_no_results">Вынікі адсутнічаюць</string>
     <!-- preferences.xml categories-->
     <string name="pref_cat_general" comment="name of the general preference category" maxLength="41">Агульныя</string>
     <string name="pref_cat_studying" maxLength="41">Навучанне</string>
     <string name="pref_cat_system_wide" maxLength="41">Згодна сістэме</string>
-    <string name="pref_cat_reviewing" maxLength="41">Паўтарэнне</string>
     <string name="pref_cat_sync" comment="title of the sync preferences category" maxLength="41">Сінхранізацыя</string>
     <string name="pref_cat_scheduling" maxLength="41">Расклад</string>
     <string name="pref_cat_whiteboard" maxLength="41">Дошка</string>
-    <string name="pref_cat_themes" maxLength="41">Тэмы</string>
-    <string name="pref_cat_gestures" maxLength="41">Жэсты</string>
     <string name="pref_cat_controls" maxLength="41">Кіраванне</string>
     <string name="pref_cat_advanced" maxLength="41">Дадаткова</string>
     <string name="pref_cat_workarounds" maxLength="41">Абходныя шляхі</string>
@@ -63,10 +58,6 @@
     <string name="whiteboard_stroke_width" maxLength="41">Шырыня штрыха</string>
     <string name="use_input_tag" maxLength="41">Уводзіць адказ на картцы</string>
     <string name="use_input_tag_summ">Дадае на картку поле ўводу для адказу</string>
-    <string name="reset_languages" maxLength="41">Скінуць мовы</string>
-    <string name="reset_languages_summ">Скінуць прызначэнне моў (для агучвання тэкстаў і слоўнікаў) для ўсіх калод</string>
-    <string name="reset_languages_question">Скінуць усе моўныя прызначэнні?</string>
-    <string name="reset_confirmation">Усе налады скінутыя</string>
     <string name="card_zoom" maxLength="41">Маштаб картак</string>
     <string name="image_zoom" maxLength="41">Маштаб ваяваў</string>
     <string name="button_size" maxLength="41">Памер кнопкі адказу</string>
@@ -74,18 +65,6 @@
     <string name="card_browser_hide_media" maxLength="41">Адлюстроўваць назвы файлаў</string>
     <string name="card_browser_hide_media_summary">Адлюстроўваць назвы аўдыяфайлаў у аглядальніку картак у палях пытанні/адказы</string>
     <string name="col_path" maxLength="41">Каталог Hayaki</string>
-    <string name="fullscreen_review" maxLength="41">Поўнаэкранны рэжым</string>
-    <string name="full_screen_off" comment="Value of the fullscreen mode preference meaning fullscreen is not used">Выключаны</string>
-    <string name="full_screen_system">Схаваць сістэмную панэль</string>
-    <string name="full_screen_complete">Схаваць сістэмную панэль і панэль кнопак адказу</string>
-    <string name="answer_buttons_position" maxLength="41">Становішча кнопак адказу</string>
-    <string-array name="answer_buttons_position_labels">
-        <item>Зверху</item>
-        <item>Знізу</item>
-        <item>Няма</item>
-    </string-array>
-    <string name="gestures" maxLength="41">Уключыць жэсты</string>
-    <string name="gestures_summ">Прызначыць жэсты для такіх дзеянняў, як адказ і рэдагаванне картак.</string>
     <string name="gestures_corner_touch" maxLength="41">9-пунктавы дотык</string>
     <string name="gestures_corner_touch_summary">Дазволіць сэнсарныя жэсты ў вуглах экрана</string>
     <string name="show_keyboard_shortcuts" maxLength="41">Паказаць спалучэнні клавіш</string>
@@ -112,39 +91,18 @@
     <string name="gestures_shake" maxLength="41">Патрасіце прыладу</string>
     <string name="card_browser_enable_external_context_menu" maxLength="41">Меню «%s»</string>
     <string name="card_browser_enable_external_context_menu_summary">Уключыць кантэкстнае меню «%s» у сістэме</string>
-    <string name="double_scrolling_gap" maxLength="41">Падвоеная прагортка</string>
-    <string name="double_scrolling_gap_summ">Падвоены разрыў прагорткі ў eReader</string>
     <string name="swipe_sensitivity" maxLength="41">Адчувальнасць правядзення</string>
-    <string name="tts" maxLength="41">Сінтэз маўлення</string>
-    <string name="tts_summ">Чытае пытанні і адказы, калі аўдыяфайл адсутнічае</string>
     <!-- Sync -->
-    <string name="sync_fetch_missing_media" maxLength="41">Спампоўваць медыяфайлы</string>
     <string name="sync_account_summ_logged_out">Вы не ўвайшлі ў сістэму</string>
-    <string name="automatic_sync_choice" maxLength="41">Аўтаматычная сінхранізацыя</string>
-    <string name="automatic_sync_choice_summ">Аўтаматычна сінхранізаваць, калі адбываецца адкрыццё/закрыццё праграмы,
-        калі з часу апошняй сінхранізацыі мінула больш чым 10 хвілін.</string>
     <string name="sync_media_always" comment="Option to always fetch media when syncing">Заўсёды</string>
     <string name="sync_media_only_unmetered">Толькі на злучэннях без уліку трафіку</string>
     <string name="sync_media_never">Ніколі</string>
-    <string name="sync_status_badge" maxLength="41">Адлюстроўваць статус сінхранізацыі</string>
-    <string name="sync_status_badge_summ">Значок сінхранізацыі зменіцца, калі можна будзе загрузіць змены</string>
-    <string name="metered_sync_title" maxLength="41">Дазволіць сінхранізацыю пры тарыфікацыі злучэння</string>
-    <string name="metered_sync_summary">Калі адключана, то вы атрымаеце папярэджанне, што адбудзецца сінхранізацыя праз тарыфікаванае злучэнне.</string>
-    <string name="backup_limits_frequency">Частата</string>
-    <string name="backup_limits_lifetime">Працягласць</string>
     <string name="app_theme" maxLength="41">Тэма</string>
     <string name="day_theme" maxLength="41">Дзённая тэма</string>
     <string name="night_theme" maxLength="41">Начная тэма</string>
     <string name="language" maxLength="41">Мова</string>
     <string name="language_system">Сістэмная мова</string>
     <string name="notification_pref" maxLength="41">Апавяшчэнні</string>
-    <string name="notification_pref_title" maxLength="41">Апавяшчаць калі</string>
-    <string name="never_notify">Ніколі не апавяшчаць</string>
-    <string name="notify_when_pending">Толькі сістэмныя паведамленні</string>
-    <string name="notification_minimum_cards_due" comment="Consider keeping the unbreakable space after the digit">У чарзе наступная колькасць картак: %d</string>
-    <string name="notification_minimum_cards_due_vibrate" maxLength="41">Вібрацыя</string>
-    <string name="notification_minimum_cards_due_blink" maxLength="41">Мігаценне святлодыёда</string>
-    <string name="select_locale_title">Выберыце мову</string>
     <string name="software_render" maxLength="41">Адключыць апаратны апрацоўшчык картак</string>
     <string name="software_render_summ">Апаратны апрацоўшчык працуе хутчэй, але можа выклікаць праблемы (асабліва ў АС Android 8/8.1). Паспрабуйце гэтыя налады, калі ў вас праблемы з адлюстраваннем картак у рэжыме паўтарэння.</string>
     <string name="disable_extended_text_ui" maxLength="41">Адключыць рэжым рэдагавання аднаго поля</string>
@@ -156,18 +114,8 @@
     <string name="pref_double_tap_time_interval_summary">Другі націск на кнопку адказу будзе праігнараваны, калі час яшчэ не мінуў. Гэта прадухіляе выпадковы двайны націск</string>
     <string name="pref_show_answer_long_press_time" maxLength="41">Працягласць націску для адказу</string>
     <string name="pref_show_answer_long_press_time_summary">Мінімальны час націску да таго, як кнопка дотыку пакажа адказ.</string>
-    <string name="show_estimates" maxLength="41">Паказваць кнопку часу</string>
-    <string name="show_estimates_summ">Паказваць наступны час паўтарэння над кнопкай адказу</string>
-    <string name="show_large_answer_buttons" maxLength="41">Паказваць вялікія кнопкі адказу</string>
-    <string name="show_large_answer_buttons_summ">Паказваць кнопкі адказу ў 2 радкі</string>
     <string name="remove_animations" maxLength="41">Выдаліць анімацыю</string>
     <string name="remove_animations_summary">Таксама ўключана, калі анімацыя выдалена ў сістэмных наладах</string>
-    <string name="show_top_bar" maxLength="41">Паказваць верхнюю панэль</string>
-    <string name="show_top_bar_summary">Паказваць лічыльнік картак, таймер адказу і пазнакі на верхняй панэлі</string>
-    <string name="show_progress" maxLength="41">Паказваць тое, што засталося</string>
-    <string name="show_progress_summ">Паказваць лічыльнік картак, якія засталіся</string>
-    <string name="show_eta" maxLength="41">Паказваць прыблізны час</string>
-    <string name="show_eta_summ">Паказваць колькі часу засталося</string>
     <string name="use_current" maxLength="41">Калода для новых картак</string>
     <string name="learn_cutoff" maxLength="41">Вучыць наперад</string>
     <string name="time_limit" maxLength="41">Абмежаванне навучальнага блока</string>
@@ -192,22 +140,14 @@
     <string name="pref_keep_screen_on_summ">Адключыць час чакання экрана</string>
     <string name="enable_api_title" maxLength="41">Уключыць AnkiDroid API</string>
     <string name="enable_api_summary">Дазваляе іншым праграмам падключацца да Hayaki для чытання / запісу даных без вашага ўдзелу</string>
-    <string name="custom_buttons" maxLength="41">Панэль кнопак праграмы</string>
-    <string name="custom_buttons_summary">Налада кнопак на панэлі праграмы</string>
     <string name="custom_buttons_setting_always_show">Заўсёды паказваць</string>
-    <string name="custom_buttons_setting_if_room">Паказваць, калі ёсць месца</string>
     <string name="custom_buttons_setting_menu_only">Толькі меню</string>
     <string name="reset_custom_buttons" maxLength="41">Скінуць да прадвызначаных</string>
-    <string name="reset_settings_to_default">Скінуць налады да прадвызначаных</string>
     <string name="reset">Скінуць</string>
     <string name="thirdparty_apps_title" maxLength="41">Праграмныя API іншых распрацоўшчыкаў</string>
     <string name="thirdparty_apps_summary">Паглядзець спіс праграм, якія выкарыстоўваць API AnkiDroid (слоўнікі, службовыя праграмы і г.д.).</string>
-    <string name="pref_controls_reviews_tab" maxLength="41" comment="Name of the tab to configure controls for the reviews screen">Перагляды</string>
-    <string name="pref_controls_previews_tab" maxLength="41" comment="Name of the tab to configure controls for the previews screen">Перадпрагляды</string>
     <string name="toggle_backside_only" maxLength="41" comment="Control setting that toggles \'Backside only\' in the previews screen">Пераключаць толькі задні бок</string>
     <!-- Appearance settings -->
-    <string name="pref_cat_reviewer" maxLength="41">Экран навучання</string>
-    <string name="show_deck_title" maxLength="41">Паказваць назву калоды</string>
     <string name="accessibility" maxLength="41">Спецыяльныя магчымасці</string>
     <string name="exit_via_double_tap_back" maxLength="41">Націсніце \"Назад\" двойчы для выхаду</string>
     <string name="exit_via_double_tap_back_summ">Для прадухілення выпадковага выхаду з экрана навучання або праграмы</string>
@@ -223,11 +163,8 @@
         Калі не зададзена, то прадвызначана выкарыстоўваецца сервер AnkiWeb.
         <a href="%s">Даведацца больш</a>
         ]]></string>
-    <string name="custom_sync_server_base_url_title" maxLength="41">Сінхранізацыя URL-адраса</string>
     <string name="custom_sync_certificate_title" maxLength="41">Карыстальніцкі каранёвы сертыфікат (PEM)</string>
     <!-- Key Bindings -->
-    <string name="keyboard">Клавіятура</string>
-    <string name="bluetooth">Bluetooth</string>
     <string name="answer_buttons" maxLength="41">Кнопкі адказу</string>
     <string name="card" maxLength="41" comment="Generic term to refer to a card">Картка</string>
     <string name="note" maxLength="41">Нататка</string>
@@ -239,51 +176,25 @@
          ####################################################################################### -->
     <!-- Entry points -->
     <string name="review_reminders_title" maxLength="41" comment="Name of the review reminders feature. Used as a settings screen title, a toolbar title, and the name of the notification channel review reminders are posted to.">Напаміны паўтораў</string>
-    <string name="review_reminders_summary_app_wide" comment="The descriptor for reminders that are attached to the whole app rather than a single deck.">App-wide</string>
-    <string name="review_reminders_summary_deck_specific" comment="The descriptor for reminders attached to one particular deck.">Deck-specific</string>
     <string name="review_reminders_load_error" comment="Error dialog shown when stored review reminders could not be read back. Technical details follow this text.">Адбылася памылка пры загрузцы вашых напамінаў аб паўтарэннях. Пашкоджаныя напаміны былі выдалены. Падрабязнасці:</string>
     <!-- Schedule reminders screen -->
     <string name="schedule_reminders_title" maxLength="28" comment="Name of the menu option for scheduling review reminders for a deck.">Расклад напамінаў</string>
     <string name="add_reminder" comment="Label for the add reminder button in the screen for adding and editing review reminders">Дадаць напамін</string>
     <string name="you_have_no_review_reminders" comment="Text that appears in the review reminder editing screen when there are no reminders set">У вас адсутнічаюць напаміны аб паўтарэннях</string>
-    <string name="schedule_reminders_troubleshoot_menu" maxLength="28" comment="Text in a menu button which opens a screen for diagnosing why review reminders may not be delivered.">Выпраўленне непаладак</string>
     <string name="schedule_reminders_notification_settings_menu" maxLength="28" comment="Text in a menu button which opens the operating system notification settings for the app.">Налады апавшячэнняў</string>
-    <string name="schedule_reminders_list_content_description" comment="Accessibility description of the list showing scheduled review reminders.">Спіс раскладу напамінаў аб паўтарэннях</string>
-    <string name="schedule_reminders_deck_not_found" comment="Shown in place of a deck name when the deck a review reminder points at no longer exists.">Калода не знойдзена</string>
     <string name="schedule_reminders_unavailable" comment="Pop-up text shown when review reminders cannot be delivered at all, such as due to missing permissions.">Напаміны недаступныя</string>
-    <string name="schedule_reminders_fix" comment="Text for the button which, when pressed, opens the review reminder troubleshooting screen for fixing issues with review reminders.">Выправіць</string>
-    <string name="schedule_reminders_added" comment="Pop-up text which confirms a new review reminder was created.">Паспяхова дададзены новы напаміну аб паўтарэнні</string>
-    <string name="schedule_reminders_deleted" comment="Pop-up text which confirms a review reminder was deleted.">Паспяхова выдалены напамін аб паўтарэнні</string>
-    <string name="schedule_reminders_edited" comment="Pop-up text which confirms an existing review reminder was changed.">Паспяхова адрэдагаваны напамін аб паўтарэнні</string>
     <!-- Add / edit reminder dialog -->
     <string name="add_review_reminder" comment="Title of the dialog for creating a new review reminder.">Дадаць напамін аб паўтарэнні</string>
     <string name="edit_review_reminder" comment="Title of the dialog for editing an existing review reminder.">Рэдагаваць напамін аб паўтарэнні</string>
-    <string name="add_edit_reminder_time_label" comment="Label of the field for choosing what time of day a review reminder fires.">Час:</string>
-    <string name="add_edit_reminder_deck_label" comment="Label of the field for choosing which deck a review reminder applies to.">Калода:</string>
-    <string name="add_edit_reminder_advanced_label" comment="Header of the collapsible section holding extra review reminder customization options.">Пашыраныя налады</string>
-    <string name="add_edit_reminder_card_threshold_label" comment="Label of the field setting the minimum number of due cards needed before a review reminder fires.">Парог карткі:</string>
-    <string name="add_edit_reminder_card_threshold_description" comment="Explanation shown under the card threshold field.">Не адпраўляць мне апавяшчэнні, калі засталося менш за гэту колькасць картак</string>
-    <string name="add_edit_reminder_only_notify_if_no_reviews_label" comment="Label of the switch suppressing a review reminder on days which have already had reviews.">Апавяшчаць мяне толькі ў тым выпадку, калі сёння не было зроблена ніякіх паўтарэнняў</string>
     <string name="add_edit_reminder_card_threshold_error_not_a_number" comment="Validation error shown when the review reminder card threshold field does not hold a whole number.">Увядзіце цэлы лік картак</string>
     <string name="add_edit_reminder_card_threshold_error_negative" comment="Validation error shown when the review reminder card threshold field holds a negative number.">Парог павінен быць прынамсі 0</string>
-    <string name="add_edit_reminder_count_toward_threshold_heading" comment="Heading above the advanced review reminder options for choosing which kinds of cards (new / learning / to review) count toward the reminder\'s card threshold.">Палічыць гэтыя карткі ў напрамку парога:</string>
     <string name="add_edit_reminder_delete_confirmation_title" comment="Title of the dialog confirming deletion of a review reminder.">Выдаліць гэты напамін?</string>
     <string name="add_edit_reminder_delete_confirmation_message" comment="Body of the dialog confirming deletion of a review reminder.">Гэта дзеянне немагчыма адрабіць.</string>
     <!-- Reminder troubleshooting screen -->
     <string name="reminder_troubleshooting_summary_error" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when reminders cannot be delivered at all.">Напаміны недаступныя.</string>
-    <string name="reminder_troubleshooting_summary_warning" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when reminders may be delayed or suppressed.">Напаміны могуць працаваць некарэктна.</string>
     <string name="reminder_troubleshooting_summary_ok" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when no issues are found.">Вашы напаміны павінны працаваць як чакалася.</string>
-    <string name="reminder_troubleshooting_footer" comment="Closing advice at the bottom of the review reminder troubleshooting screen.">Разнастайныя прылады маюць разнастайныя налады забароны апавяшчэнняў. Праверце вашы сістэмныя налады або паспрабуйце знайсці адпаведную інфармацыю ў інтэрнэце, калі праблема захаваецца.</string>
     <!-- Troubleshooting check titles -->
-    <string name="reminder_troubleshooting_check_notification_permission" comment="Name of a review reminder troubleshooting check: whether the app may post notifications.">Дазволы апавяшчэнняў</string>
-    <string name="reminder_troubleshooting_check_notification_channel" comment="Name of a review reminder troubleshooting check: whether the review reminders notification channel is turned on.">Канал апавяшчэнняў</string>
-    <string name="reminder_troubleshooting_check_do_not_disturb" comment="Name of a review reminder troubleshooting check: whether the system Do Not Disturb mode is active.">Не турбаваць</string>
-    <string name="reminder_troubleshooting_check_battery_optimization" comment="Name of a review reminder troubleshooting check: whether the system restricts the app\'s background battery usage.">Аптымізацыя акумулятара</string>
-    <string name="reminder_troubleshooting_check_power_saving_mode" comment="Name of a review reminder troubleshooting check: whether the system power saving mode is active.">Рэжым энергазберажэння</string>
-    <string name="reminder_troubleshooting_check_exact_alarm_permission" comment="Name of a review reminder troubleshooting check: whether the app has permission to schedule alarms at exact times.">Будзільнікі і дазволы напамінаў</string>
     <!-- Troubleshooting check statuses -->
-    <string name="reminder_troubleshooting_status_granted" comment="Status of a review reminder troubleshooting check: the permission has been given.">Дазволена</string>
-    <string name="reminder_troubleshooting_status_denied" comment="Status of a review reminder troubleshooting check: the permission has not been given.">Забаронена</string>
     <string name="reminder_troubleshooting_status_on" comment="Status of a review reminder troubleshooting check: the system setting is active.">Уключана</string>
     <string name="reminder_troubleshooting_status_off" comment="Status of a review reminder troubleshooting check: the system setting is not active.">Выключана</string>
     <string name="reminder_troubleshooting_status_unrestricted" comment="Status of the review reminder battery optimization check: the app may run freely in the background.">Без абмежаванняў</string>
@@ -292,29 +203,17 @@
     <!-- Troubleshooting check explanations -->
     <string name="reminder_troubleshooting_explanation_notification_channel" comment="Explains why review reminders need notification permissions to work correctly.">Канал апавяшчэнняў напаміну аб паўтарэнні павінен быць уключаны</string>
     <string name="reminder_troubleshooting_explanation_do_not_disturb" comment="Explains why review reminders may need Do Not Disturb to be disabled to work correctly.">Рэжым «Не турбаваць» можа зрабіць напамін аб паўтарэнні бязгучным</string>
-    <string name="reminder_troubleshooting_explanation_battery_optimized" comment="Explains to the user that AnkiDroid\'s battery usage is optimized, and that battery usage may need to be enabled for review reminders to work correctly.">Аптымізацыя акумулятара можа адтэрмінаваць напаміны</string>
     <string name="reminder_troubleshooting_explanation_battery_restricted" comment="Explains to the user that AnkiDroid\'s battery usage is restricted, and that battery usage may need to be enabled for review reminders to work correctly.">Фонавае выкарыстанне адключана. Напаміны могуць не дастаўляцца</string>
     <string name="reminder_troubleshooting_explanation_power_saving_mode" comment="Explains why review reminders may need power saving mode to be disabled to work correctly.">Рэжым энергазберажэння можа прадухіляць своечасовую дастаўку напамінаў</string>
     <string name="reminder_troubleshooting_explanation_exact_alarm" comment="Explains that AnkiDroid cannot schedule alarms at exact times unless the exact-alarm permission is granted.">Патрабуецца планаванне напамінаў на дакладны час</string>
     <!-- Troubleshooting check actions -->
     <string name="reminder_troubleshooting_action_grant_permission" comment="Button resolving a failing review reminder troubleshooting check by asking for a permission.">Даць дазвол</string>
     <string name="reminder_troubleshooting_action_enable_notification_channel" comment="Button resolving a failing review reminder troubleshooting check by opening the operating system notification settings screen.">Уключыць канал апавяшчэнняў</string>
-    <string name="reminder_troubleshooting_action_disable_battery_optimization" comment="Button resolving a failing review reminder troubleshooting check by asking the user to exempt the app from battery optimization.">Адключыць аптымізацыю акумулятара</string>
     <string name="reminder_troubleshooting_action_open_battery_settings" comment="Button resolving a failing review reminder troubleshooting check by opening the operating system battery settings screen.">Адкрыць налады акумулятара</string>
     <!-- Notification content -->
-    <string name="review_reminder_notification_title_all_decks" comment="Title of a review reminder notification which is attached to the whole app rather than a single deck.">Надышоў час вучыць карткі</string>
-    <string name="review_reminder_notification_title_deck" comment="Title of a review reminder notification for one deck. The parameter is the deck name; the quotation marks are to clearly separate the user-chosen name from the app\'s own text.">Надышоў час вучыць «%s»</string>
-    <string name="review_reminder_notification_snooze_button" comment="Notification button postponing a review reminder by a certain amount of time. The parameter is a duration like \'1h\', \'5m\', etc.">Адкласці %s</string>
-    <plurals name="review_reminder_notification_cards_due" comment="Body of a review reminder notification. The parameter is the number of cards due.">
-        <item quantity="one">%d картка для прагляду</item>
-        <item quantity="few">%d карткі для прагляду</item>
-        <item quantity="many">%d картак для прагляду</item>
-        <item quantity="other">%d картак для прагляду</item>
-    </plurals>
     <!-- studyoptions -->
     <string name="studyoptions_limit_select_tags">Выберыце меткі</string>
     <!-- Deck configurations -->
-    <string name="deck_conf_general" maxLength="41" comment="Label of the submenu for the general options of new deck">Агульныя</string>
     <string name="deck_conf_cram_search" maxLength="41" comment="Label of a text field that contains a search query.">Пошук</string>
     <!-- analytics options -->
     <string name="analytics_dialog_title">Дапамажыце зрабіць AnkiDroid яшчэ лепш!</string>
@@ -330,7 +229,6 @@
     <string name="license">Ліцэнзія</string>
     <string name="license_description"><![CDATA[Hayaki выпушчаны на ўмовах ліцэнзій <a href=\"%1$s\">GPL-3.0</a> і <a href=\"%2$s\">AGPL-3.0</a>, а таксама зыходным кодам, які даступны <a href=\"%3$s\">на GitHub</a>]]></string>
     <string name="other_licenses"><![CDATA[Hayaki таксама выкарыстоўвае староннія бібліятэкі і значкі, якія ліцэнзуюцца пад рознымі <a href=\"%1$s\">ліцэнзіямі</a> з адкрытым зыходным кодам]]></string>
-    <string name="donate_description"><![CDATA[Вы можаце падтрымаць распрацоўку AnkiDroid <a href=\"%1$s\">ахвяраваннем</a>. Мы будзем удзячныя за любую суму.]]></string>
     <!-- Controls -->
     <string name="binding_add_gesture">Дадаць жэст</string>
     <string name="binding_add_key">Дадаць кнопку</string>
@@ -365,7 +263,6 @@
     <string name="bindings_already_bound">Ужо прызначана «%s»</string>
     <!-- Advanced -->
     <string name="pref_cat_experimental" maxLength="41" tools:ignore="UnusedResources">Эксперыментальныя</string>
-    <string name="readtext_deprecation_warn">У Hayaki з\'явіўся палепшаны механізм сінтэзу маўлення (TTS), які сумяшчальны з іншымі кліентамі Anki і ўключае больш галасоў і паляпшэнні пры ўзнаўленні мовы!\n\nЗнайдзіце час для абнаўлення праграмы, бо гэта налада будзе неўзабаве выдалена.</string>
     <string name="readtext_reviewer_warn" tools:ignore="UnusedResources">Абнавіце праграму да новага сінтэзу маўлення</string>
     <string name="allow_templates_to_record_audio" maxLength="41">Дазволіць шаблонам запісваць аўдыя</string>
     <string name="template_is_trying_to_record_audio">Гэты шаблон спрабуе запісаць аўдыя</string>
@@ -455,8 +352,6 @@
     <string name="toolbar" maxLength="41">Панэль інструментаў</string>
     <string name="toolbar_actions" maxLength="41">Дзеянні панэлі інструментаў</string>
     <string name="toolbar_position" maxLength="28">Пазіцыя панэлі інструментаў</string>
-    <string name="new_study_screen" maxLength="41">Новы экран навучання</string>
-    <string name="new_study_screen_summ"><![CDATA[Палепшыць экран навучання, які заменіць бягучы. Некаторыя функцыі старога экрана былі зменены або выдалены. Адпраўляйце нам любыя <a href="%1$s">водгукі</a> або <a href="%2$s">памылкі</a>.]]></string>
     <string name="show_answer_feedback" maxLength="41">Паказваць зваротную сувязь адказу</string>
     <string name="screen" maxLength="41">Экран</string>
     <string name="also_assign_binding_to_show_answer" comment="Question shown after assigning binding to an \'Answer\' command, asking whether it should also be assigned to the \'Show answer\'; %1$s is \'Show answer\'">Таксама прызначыць «%1$s»</string>

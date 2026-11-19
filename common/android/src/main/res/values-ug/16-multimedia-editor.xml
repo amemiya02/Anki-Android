@@ -45,7 +45,6 @@
     <!-- Message when recording fails -->
     <string name="multimedia_editor_audio_view_recording_failed">خاتىرىلىيەلمىدى</string>
     <string name="multimedia_editor_audio_view_playing_failed">قويالمىدى</string>
-    <string name="multimedia_editor_audio_view_create_failed">خاتىرىلىگۈچ قورال بالداقنى قۇرالمايدۇ</string>
     <!-- Crop function-->
     <string name="crop_image">بۇ سۈرەتنى قايچىلامسىز؟</string>
     <string name="crop_button" maxLength="28">كەس</string>
@@ -55,7 +54,4 @@
     <string name="audio_recording_field_list" comment="Displays a list of the field data in the note editor while audio recording is taking place">بۆلەك مەزمۇنى</string>
     <string name="crop_image_size_notice">سۈرەت بەك چوڭ بولغانلىقتىن قايچىلاش تەھرىرلىگۈچ بىر تەرەپ قىلالمايدۇ. ئۇنىڭ چوڭلۇقىنى تەڭشەپ ئاندىن قايتا سىناڭ!</string>
     <string name="reselect" maxLength="28">قايتا تاللاش</string>
-    <string name="waveform_button_description">ئاۋاز دولقۇنىنى كۆرسەت</string>
-    <string name="field_content_description">بۆلەك مەزمۇنىنى كۆرسەت</string>
-    <string name="delete_audio_button_description">خاتىرىنى ئۆچۈر</string>
 </resources>

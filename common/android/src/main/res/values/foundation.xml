@@ -289,9 +289,4 @@
     <style name="TextAppearance.Foundation.Label" parent="Base.TextAppearance.Foundation.Label" />
 
     <!-- The current destination's label in the navigation bar: Label at weight 700 -->
-    <style name="Base.TextAppearance.Foundation.Label.Current" parent="TextAppearance.Foundation.Label">
-        <item name="foundationTextWeight">700</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-    <style name="TextAppearance.Foundation.Label.Current" parent="Base.TextAppearance.Foundation.Label.Current" />
 </resources>

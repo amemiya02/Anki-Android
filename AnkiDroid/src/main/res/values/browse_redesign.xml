@@ -12,17 +12,17 @@
     <string name="browse_no_cards">No cards match</string>
     <string name="browse_no_notes">No notes match</string>
     <string name="browse_clear">Clear</string>
-    <string name="browse_mode_cards">Cards</string>
+    <string name="browse_mode_cards" comment="Card Browser tab for displaying individual cards">Cards</string>
     <string name="browse_mode_notes">Notes</string>
     <string name="browse_state_marked">Marked</string>
-    <string name="browse_state_due">Due</string>
+    <string name="browse_state_due" comment="Card Browser search filter for cards that are due for study">Due</string>
     <string name="browse_sort">Sort</string>
     <string name="browse_done">Done</string>
     <string name="browse_history_edit">Edit search</string>
     <string name="browse_sort_direction">Direction</string>
     <string name="browse_more_actions">More actions</string>
     <string name="browse_hide_keyboard">Submit search</string>
-    <string name="browse_action_deck">Deck</string>
+    <string name="browse_action_deck" comment="Card Browser shortcut for moving selected cards to another deck">Deck</string>
     <string name="browse_action_flag">Flag</string>
     <string name="browse_action_tags">Tags</string>
     <string name="browse_action_suspend">Suspend</string>

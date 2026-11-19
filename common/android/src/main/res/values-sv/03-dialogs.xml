@@ -30,8 +30,6 @@
         <item quantity="other">Ta bort alla kort i %1$s? Den innehåller %2$d kort</item>
     </plurals>
     <string name="delete_cram_deck_message">Ta bort filtrerad kortlek %s och skicka alla kort tillbaks till deras ursprungliga kortlek?</string>
-    <string name="no_tts_available_message">Det finns inget språk för text-till-tal</string>
-    <string name="tts_no_tts">Tala inte</string>
     <string name="reposition_card_not_new_error">Endast nya kort kan ompositioneras</string>
     <string name="reset_card_dialog_title">Återställ kortets framsteg</string>
     <plurals name="reset_cards_dialog_acknowledge">
@@ -75,13 +73,10 @@
     <string name="dialog_positive_delete" maxLength="28">Radera</string>
     <!-- Currently unsued, should be useful in the future -->
     <string name="dialog_positive_disable" tools:ignore="UnusedResources">Inaktivera</string>
-    <string name="dialog_positive_overwrite">Skriv över</string>
     <string name="dialog_positive_repair">Reparera</string>
     <string name="dialog_positive_replace">Ersätt</string>
-    <string name="sync_clock_off_with_current_time">%1$s\n\nKorrigera datum och tid, eller slå på automatisk datum och tid, och synkronisera sedan igen.\n\nDin enhets nuvarande tid är:%2$s</string>
     <string name="dialog_collection_path_not_dir">Den valda sökvägen är ogiltig</string>
     <string name="dialog_invalid_custom_certificate">Den angivna texten kan inte omvandlas till ett giltigt PEM-kodat X509-certifikat</string>
-    <string name="dialog_invalid_custom_certificate_title">Kunde inte tolka certifikatet</string>
     <string name="dialog_updated_custom_certificate">Certifikat uppdaterat</string>
     <!-- Media checking -->
     <string name="check_media_warning">Detta kan ta lång tid med stora mediasamlingar. Fortsätt?</string>
@@ -104,7 +99,6 @@
     <string name="multimedia_editor_audio_permission_refused">Kunde inte få mikrofonbehörighet.</string>
     <string name="multimedia_editor_failed">Det gick inte att öppna Multimedia Editor</string>
     <!-- Multimedia - Audio View -->
-    <string name="multimedia_editor_audio_permission_denied">Behörighet för ljudinspelning nekad</string>
     <string name="permission_denied">Åtkomst nekad</string>
     <string name="microphone_permission_denied_message">Åtkomst till mikrofonen ej tillåten. Bevilja åtkomst i appens inställningar.</string>
     <!-- Database Integrity Check -->
@@ -137,8 +131,6 @@
     <string name="boot_service_failed_to_schedule_notifications">Det gick inte att schemalägga påminnelser</string>
     <string name="boot_service_too_many_notifications">För många påminnelser schemalagda. Vissa kommer inte att visas</string>
     <!-- Locale Selection Dialog -->
-    <string name="locale_selection_dialog_title_new">Ställ in språk</string>
-    <string name="locale_selection_dialog_summary">Vissa flerspråkiga tangentbord, till exempel GBoard har stöd för att ändra språk vid redigering av text\n\nVänligen begär funktionen ”setImeHintLocales” från din tangentbordstillverkare om ditt tangentbord inte ändrar språk.</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">Okänt språk [%1$s]</string>
     <!-- Help Dialog -->
     <string name="help_title_using_ankidroid">Hur man använder Hayaki</string>
@@ -172,7 +164,6 @@
         <item quantity="one" comment="Consider keeping the unbreakable space after the digit">En automatisk synkronisering kan utlösas om %d sekund</item>
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">En automatisk synkronisering kan utlösas om %d sekunder</item>
     </plurals>
-    <string name="metered_sync_data_warning">Din internetleverantör kan ta ut pengar för dataanvändning</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
@@ -208,7 +199,6 @@
         <item quantity="one">Nuvarande intervall: %d dag</item>
         <item quantity="other">Nuvarande intervall: %d dagar</item>
     </plurals>
-    <string name="range_delimiter" comment="Placed between two input boxes to denote a range">–</string>
     <string name="set_due_date_range_start" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'minimum\' value of this range (inclusive)">Från</string>
     <string name="set_due_date_range_end" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'maximum\' value of this range (inclusive)">Till</string>
     <!-- Instant Note Editor -->
@@ -238,14 +228,9 @@
     <string name="import_error_resolution_copy_to_device">Kopiera filen till din enhet och försök igen med den lokala filen</string>
     <string name="import_error_resolution_select_file">Öppna filen med enhetens filhanterare.</string>
     <!-- Post-login dialog -->
-    <string name="login_successful">Inloggning lyckades</string>
-    <string name="sync_now">Synkronisera nu?</string>
     <!--Change Note Type Dialog Fragment-->
-    <string name="card_numbers_unchanged">Kortnumren kommer att bli oförändrade</string>
     <!-- Subset of TR.changeNotetypeToFromCloze -->
-    <string name="extra_cloze_deletions_removed">Om du byter till en vanlig anteckningstyp och det finns fler textluckor än tillgängliga kortmallar, kommer eventuella återstående kort att tas bort.</string>
     <string name="different_note_types_selected">Välj endast anteckningar från en anteckningstyp.</string>
-    <string name="error_no_changes_to_save">Inga ändringar att spara</string>
     <string name="choose_color">Välj färg</string>
     <!-- Special Fields -->
     <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">Fält</string>
@@ -260,8 +245,6 @@
     <string name="special_field_card_help" comment="%s: either blank or \' %s\'">Kortmallens namn%s</string>
     <string name="special_field_type_help" comment="%s: either blank or \' %s\'">Anteckningstypens namn%s</string>
     <!-- Change Note Type Dialog -->
-    <string name="change_note_type_from" comment="Label indicating the original note type before changing it">Från</string>
-    <string name="change_note_type_to" comment="Label indicating the new note type to change to">Till</string>
     <!-- Add and rename profile dialogs -->
     <string name="rename_profile" comment="Title of the dialog where the user renames a profile">Rename profile</string>
     <string name="profile_name" comment="Label of the text field where the user types the name of a new profile">Profilnamn</string>

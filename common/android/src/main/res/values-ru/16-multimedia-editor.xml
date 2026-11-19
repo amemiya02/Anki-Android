@@ -45,7 +45,6 @@
     <!-- Message when recording fails -->
     <string name="multimedia_editor_audio_view_recording_failed">Запись не удалась</string>
     <string name="multimedia_editor_audio_view_playing_failed">Не удалось воспроизвести</string>
-    <string name="multimedia_editor_audio_view_create_failed">Не удаётся создать панель диктофона</string>
     <!-- Crop function-->
     <string name="crop_image">Обрезать это изображение?</string>
     <string name="crop_button" maxLength="28">Crop</string>
@@ -55,7 +54,4 @@
     <string name="audio_recording_field_list" comment="Displays a list of the field data in the note editor while audio recording is taking place">Содержимое поля</string>
     <string name="crop_image_size_notice">Изображение слишком большое для редактора. Измените его размер и попробуйте заново!</string>
     <string name="reselect" maxLength="28">Выбрать заново</string>
-    <string name="waveform_button_description">Показывать форму волны</string>
-    <string name="field_content_description">Показывать содержимое поля</string>
-    <string name="delete_audio_button_description">Удалить запись</string>
 </resources>

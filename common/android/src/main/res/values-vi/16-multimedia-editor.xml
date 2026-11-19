@@ -45,7 +45,6 @@
     <!-- Message when recording fails -->
     <string name="multimedia_editor_audio_view_recording_failed">Ghi âm không thành công</string>
     <string name="multimedia_editor_audio_view_playing_failed">Phát không thành công</string>
-    <string name="multimedia_editor_audio_view_create_failed">Không thể tạo thanh công cụ ghi</string>
     <!-- Crop function-->
     <string name="crop_image">Bạn có muốn cắt hình ảnh này không?</string>
     <string name="crop_button" maxLength="28">Crop</string>
@@ -55,7 +54,4 @@
     <string name="audio_recording_field_list" comment="Displays a list of the field data in the note editor while audio recording is taking place">Nội dung đoạn</string>
     <string name="crop_image_size_notice">Hình ảnh quá lớn để công cụ cắt có thể xử lý. Vui lòng thay đổi kích thước và thử lại!</string>
     <string name="reselect" maxLength="28">Chọn lại</string>
-    <string name="waveform_button_description">Show audio waveform</string>
-    <string name="field_content_description">Show field content</string>
-    <string name="delete_audio_button_description">Delete recording</string>
 </resources>

@@ -79,10 +79,10 @@ class InstantNoteEditorFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) { onBack() }
         if (viewModel.actualClozeFieldText.value == null) {
-            viewModel.setClozeFieldText(savedInstanceState?.getString(UPDATED_TEXT) ?: sharedText)
+            viewModel.setClozeFieldText(savedInstanceState?.getString(STATE_UPDATED_TEXT) ?: sharedText)
         }
-        initialExtraValues = savedInstanceState?.getStringArrayList(EXTRA_VALUES) ?: extraValues.toList()
-        val restoredDeck = savedInstanceState?.getLong(SELECTED_DECK)?.takeIf { it != 0L }
+        initialExtraValues = savedInstanceState?.getStringArrayList(STATE_EXTRA_VALUES) ?: extraValues.toList()
+        val restoredDeck = savedInstanceState?.getLong(STATE_SELECTED_DECK)?.takeIf { it != 0L }
         setupErrorListeners()
         observeProgress(viewModel) { progress -> getString(progress.messageRes) }
         registerDeckSelectedHandler(action = ::onDeckSelected)
@@ -108,9 +108,9 @@ class InstantNoteEditorFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString(UPDATED_TEXT, viewModel.actualClozeFieldText.value)
-        outState.putStringArrayList(EXTRA_VALUES, ArrayList(extraValues))
-        viewModel.deckId?.let { outState.putLong(SELECTED_DECK, it) }
+        outState.putString(STATE_UPDATED_TEXT, viewModel.actualClozeFieldText.value)
+        outState.putStringArrayList(STATE_EXTRA_VALUES, ArrayList(extraValues))
+        viewModel.deckId?.let { outState.putLong(STATE_SELECTED_DECK, it) }
     }
 
     private fun showEditorDialog() {
@@ -389,9 +389,9 @@ class InstantNoteEditorFragment : Fragment() {
     }
 
     companion object {
-        private const val UPDATED_TEXT = "updatedText"
-        private const val EXTRA_VALUES = "instant_extra_values"
-        private const val SELECTED_DECK = "instant_selected_deck"
+        private const val STATE_UPDATED_TEXT = "updatedText"
+        private const val STATE_EXTRA_VALUES = "instant_extra_values"
+        private const val STATE_SELECTED_DECK = "instant_selected_deck"
     }
 
     private fun showDiscardChangesDialog() {

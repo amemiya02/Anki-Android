@@ -19,7 +19,6 @@
         <item quantity="other">%s notes</item>
     </plurals>
     <string name="note_type_field_actions">Actions for %s</string>
-    <string name="note_type_field_drag">Drag to reorder</string>
     <string name="note_type_field_move">Move to position…</string>
     <string name="note_type_field_sort_label">Sorts the browser</string>
     <string name="note_type_field_sort_action">Sort the browser by this field</string>

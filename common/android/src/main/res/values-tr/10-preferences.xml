@@ -24,7 +24,6 @@
   -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- generic strings -->
-    <string name="enabled" comment="Generic label for something that is turned on">Etkin</string>
     <string name="disabled" comment="Generic label for something that is turned off">Devredışı</string>
     <plurals name="pref_summ_minutes">
         <item quantity="one">%d dk</item>
@@ -32,17 +31,13 @@
     </plurals>
     <string name="pref_milliseconds">%s ms</string>
     <!-- TODO: move to 20-search-preference so we can contribute upstream (searchpreference_no_results)-->
-    <string name="pref_search_no_results">Sonuç yok</string>
     <!-- preferences.xml categories-->
     <string name="pref_cat_general" comment="name of the general preference category" maxLength="41">Genel</string>
     <string name="pref_cat_studying" maxLength="41">Çalışma</string>
     <string name="pref_cat_system_wide" maxLength="41">Sistem geneli</string>
-    <string name="pref_cat_reviewing" maxLength="41">Çalışma</string>
     <string name="pref_cat_sync" comment="title of the sync preferences category" maxLength="41">Senkronizasyon</string>
     <string name="pref_cat_scheduling" maxLength="41">Zamanlama</string>
     <string name="pref_cat_whiteboard" maxLength="41">Yazı tahtası</string>
-    <string name="pref_cat_themes" maxLength="41">Temalar</string>
-    <string name="pref_cat_gestures" maxLength="41">Jestler</string>
     <string name="pref_cat_controls" maxLength="41">Kontroller</string>
     <string name="pref_cat_advanced" maxLength="41">İleri Düzey</string>
     <string name="pref_cat_workarounds" maxLength="41">Geçici çözümler</string>
@@ -61,10 +56,6 @@
     <string name="whiteboard_stroke_width" maxLength="41">Kontur genişliği</string>
     <string name="use_input_tag" maxLength="41">Cevabı karta yaz</string>
     <string name="use_input_tag_summ">Cevabı yazmak için kartın içinde bir metin giriş kutusu kullan</string>
-    <string name="reset_languages" maxLength="41">Dilleri sıfırla</string>
-    <string name="reset_languages_summ">Bütün desteler için dil atamalarını sıfırla (metin okuma ve sözlükler için)</string>
-    <string name="reset_languages_question">Tüm dil atamaları sıfırlansın mı?</string>
-    <string name="reset_confirmation">Bütün durumlar sıfırlandı</string>
     <string name="card_zoom" maxLength="41">Kart yakınlaştırma</string>
     <string name="image_zoom" maxLength="41">Resim yakınlaştırma</string>
     <string name="button_size" maxLength="41">Cevap düğmesi büyüklüğü</string>
@@ -72,18 +63,6 @@
     <string name="card_browser_hide_media" maxLength="41">Kart gözatıcısında dosya isimlerini göster</string>
     <string name="card_browser_hide_media_summary">Kart gözatıcısı soru/cevap alanlarında ses dosyası isimlerini göster</string>
     <string name="col_path" maxLength="41">Hayaki dizini</string>
-    <string name="fullscreen_review" maxLength="41">Tam ekran modu</string>
-    <string name="full_screen_off" comment="Value of the fullscreen mode preference meaning fullscreen is not used">Kapalı</string>
-    <string name="full_screen_system">Sistem çubuklarını gizle</string>
-    <string name="full_screen_complete">Sistem çubuklarını ve cevap butonlarını gizle</string>
-    <string name="answer_buttons_position" maxLength="41">Cevap düğmelerinin yeri</string>
-    <string-array name="answer_buttons_position_labels">
-        <item>Yukarıda</item>
-        <item>Aşağıda</item>
-        <item>Hiçbiri</item>
-    </string-array>
-    <string name="gestures" maxLength="41">El hareketlerini etkinleştir</string>
-    <string name="gestures_summ">Cevap verme ve kart düzenleme gibi eylemlere el hareketleri ata.</string>
     <string name="gestures_corner_touch" maxLength="41">9 noktadan dokunma</string>
     <string name="gestures_corner_touch_summary">Ekran köşelerinde dokunma hareketlerine izin ver</string>
     <string name="show_keyboard_shortcuts" maxLength="41">Klavye kısayollarını göster</string>
@@ -110,38 +89,18 @@
     <string name="gestures_shake" maxLength="41">Cihazı salla</string>
     <string name="card_browser_enable_external_context_menu" maxLength="41">‘%s’ menüsü</string>
     <string name="card_browser_enable_external_context_menu_summary">\"%s\" durum menüsünü uygulama çapında etkinleştirir</string>
-    <string name="double_scrolling_gap" maxLength="41">Hızlı kaydırma</string>
-    <string name="double_scrolling_gap_summ">eOkuyucu\'yla kaydırma mesafesini iki katına çıkarmak istiyorsanız bunu etkinleştirin</string>
     <string name="swipe_sensitivity" maxLength="41">Kaydırma duyarlılığı</string>
-    <string name="tts" maxLength="41">Metin seslendirme</string>
-    <string name="tts_summ">Ses dosyası bulunmuyorsa soruyu ve cevabı sesli okur</string>
     <!-- Sync -->
-    <string name="sync_fetch_missing_media" maxLength="41">Eşitlemede medyayı aktar</string>
     <string name="sync_account_summ_logged_out">Giriş yapılmamış</string>
-    <string name="automatic_sync_choice" maxLength="41">Otomatik eşleme</string>
-    <string name="automatic_sync_choice_summ">Uygulama açılış/kapanışında son eşleme 10 dakikadan daha önce idiyse otomatik olarak eşle.</string>
     <string name="sync_media_always" comment="Option to always fetch media when syncing">Her zaman</string>
     <string name="sync_media_only_unmetered">Sadece ölçüsüz bağlantılarda</string>
     <string name="sync_media_never">Hiçbir zaman</string>
-    <string name="sync_status_badge" maxLength="41">Senkronizasyon durumunu göster</string>
-    <string name="sync_status_badge_summ">Değişiklikler yüklenebildiğinde senkronizasyon simgesini değiştir</string>
-    <string name="metered_sync_title" maxLength="41">Ölçülü bağlantılarda senkron. izin ver</string>
-    <string name="metered_sync_summary">Kapatılırsa, ölçülü bir bağlantıda senkronizasyon yapmaya çalışırsanız uyarılırsınız</string>
-    <string name="backup_limits_frequency">Sıklık</string>
-    <string name="backup_limits_lifetime">Saklama süresi</string>
     <string name="app_theme" maxLength="41">Tema</string>
     <string name="day_theme" maxLength="41">Gündüz teması</string>
     <string name="night_theme" maxLength="41">Gece teması</string>
     <string name="language" maxLength="41">Dil</string>
     <string name="language_system">Sistem Dili</string>
     <string name="notification_pref" maxLength="41">Bildirimler</string>
-    <string name="notification_pref_title" maxLength="41">Şu durumda bildir:</string>
-    <string name="never_notify">Hiç bildirme</string>
-    <string name="notify_when_pending">Bekleyen mesajlar olduğunda</string>
-    <string name="notification_minimum_cards_due" comment="Consider keeping the unbreakable space after the digit">En az %d kartın sırası geldiğinde</string>
-    <string name="notification_minimum_cards_due_vibrate" maxLength="41">Titreş</string>
-    <string name="notification_minimum_cards_due_blink" maxLength="41">Işığı yanıp söndür</string>
-    <string name="select_locale_title">Dil Seç</string>
     <string name="software_render" maxLength="41">Kart donanım renderını devredışı bırak</string>
     <string name="software_render_summ">Donanım renderı daha hızlıdır ama sorunları olabilir, özellikle de Android 8/8.1\'de. Kart çalışma kullanıcı arayüzünün bazı kısımlarını göremiyorsanız, bunu ayarı deneyin.</string>
     <string name="disable_extended_text_ui" maxLength="41">Tek alan düzenleme modunu devredışı bırak</string>
@@ -153,18 +112,8 @@
     <string name="pref_double_tap_time_interval_summary">Cevaplama düğmelerine ikinci bir tıklama, bu süre geçmediyse, göz ardı edilecektir. Bu, yanlışlıkla çift tıklamayı önler</string>
     <string name="pref_show_answer_long_press_time" maxLength="41">Cevabı göster basılı tutma süresi</string>
     <string name="pref_show_answer_long_press_time_summary">Cevabı göster düğmesi dokunmayı algılayana kadar minimum basma süresi</string>
-    <string name="show_estimates" maxLength="41">Düğmede zaman göster</string>
-    <string name="show_estimates_summ">Cevap düğmelerinin üzerinde sonraki çıkma zamanını göster</string>
-    <string name="show_large_answer_buttons" maxLength="41">Büyük cevap düğmelerini göster</string>
-    <string name="show_large_answer_buttons_summ">Cevap düğmesini 2 satırda göster</string>
     <string name="remove_animations" maxLength="41">Animasyonları kaldır</string>
     <string name="remove_animations_summary">Sistem ayarlarında animasyonlar kaldırılırsa da etkinleştirilir</string>
-    <string name="show_top_bar" maxLength="41">Üst Çubuğu Göster</string>
-    <string name="show_top_bar_summary">Kart sayılarını, cevap kronometresini, bayrağı ve işareti üst çubukta göster</string>
-    <string name="show_progress" maxLength="41">Kalanı göster</string>
-    <string name="show_progress_summ">Kalan kart sayısını göster</string>
-    <string name="show_eta" maxLength="41">Kalan zamanı göster</string>
-    <string name="show_eta_summ">Beklenen kalan zamanı göster</string>
     <string name="use_current" maxLength="41">Yeni kartlar için deste</string>
     <string name="learn_cutoff" maxLength="41">Önceden öğrenme sınırı</string>
     <string name="time_limit" maxLength="41">Zaman sınırı</string>
@@ -185,22 +134,14 @@
     <string name="pref_keep_screen_on_summ">Ekran zaman aşımını devredışı bırak</string>
     <string name="enable_api_title" maxLength="41">AnkiDroid API etkinleştir</string>
     <string name="enable_api_summary">Diğer uygulamaların Hayaki\'e bağlanmasına ve müdahaleniz olmadan veriyi okuyup / yazmasına izin verir</string>
-    <string name="custom_buttons" maxLength="41">Uygulama çubuğundaki düğmeler</string>
-    <string name="custom_buttons_summary">Hangi eylemlerin uygulama çubuğunda gözüktüğünü seç</string>
     <string name="custom_buttons_setting_always_show">Hep göster</string>
-    <string name="custom_buttons_setting_if_room">Yer varsa göster</string>
     <string name="custom_buttons_setting_menu_only">Sadece menüde</string>
     <string name="reset_custom_buttons" maxLength="41">Varsayılana döndür</string>
-    <string name="reset_settings_to_default">Ayarları varsayılana sıfırla</string>
     <string name="reset">Sıfırla</string>
     <string name="thirdparty_apps_title" maxLength="41">Üçüncü parti API uygulamaları</string>
     <string name="thirdparty_apps_summary">AnkiDroid API\'ından faydalanan sözlük, araç gibi uygulamaların bir listesine bakın.</string>
-    <string name="pref_controls_reviews_tab" maxLength="41" comment="Name of the tab to configure controls for the reviews screen">Çalışmalar</string>
-    <string name="pref_controls_previews_tab" maxLength="41" comment="Name of the tab to configure controls for the previews screen">Önçalışmalar</string>
     <string name="toggle_backside_only" maxLength="41" comment="Control setting that toggles \'Backside only\' in the previews screen">Sadece arka tarafı göster</string>
     <!-- Appearance settings -->
-    <string name="pref_cat_reviewer" maxLength="41">Çalışma Ekranı</string>
-    <string name="show_deck_title" maxLength="41">Deste başlığını göster</string>
     <string name="accessibility" maxLength="41">Erişilebilirlik</string>
     <string name="exit_via_double_tap_back" maxLength="41">Geri gitmek/çıkmak için iki kez basın</string>
     <string name="exit_via_double_tap_back_summ">Çalışma ekranından ya da uygulamadan yanlışlıkla çıkmayı önlemek için</string>
@@ -215,11 +156,8 @@
         Ayarlanmazsa yerine varsayılan AnkiWeb sunucusu kullanılır.
         <a href="%s">Daha fazlasını öğren</a>
         ]]></string>
-    <string name="custom_sync_server_base_url_title" maxLength="41">URL Senkronize et</string>
     <string name="custom_sync_certificate_title" maxLength="41">Özel root sertifikası (PEM)</string>
     <!-- Key Bindings -->
-    <string name="keyboard">Klavye</string>
-    <string name="bluetooth">Bluetooth</string>
     <string name="answer_buttons" maxLength="41">Cevap düğmeleri</string>
     <string name="card" maxLength="41" comment="Generic term to refer to a card">Kart</string>
     <string name="note" maxLength="41">Not</string>
@@ -231,51 +169,25 @@
          ####################################################################################### -->
     <!-- Entry points -->
     <string name="review_reminders_title" maxLength="41" comment="Name of the review reminders feature. Used as a settings screen title, a toolbar title, and the name of the notification channel review reminders are posted to.">Çalışma hatırlatıcıları</string>
-    <string name="review_reminders_summary_app_wide" comment="The descriptor for reminders that are attached to the whole app rather than a single deck.">Uygulama geneli</string>
-    <string name="review_reminders_summary_deck_specific" comment="The descriptor for reminders attached to one particular deck.">Desteye özel</string>
     <string name="review_reminders_load_error" comment="Error dialog shown when stored review reminders could not be read back. Technical details follow this text.">Çalışma hatırlatıcılarınızı yüklerken bir hata oldu, bozuk hatırlatıcılar silindi. Detaylar:</string>
     <!-- Schedule reminders screen -->
     <string name="schedule_reminders_title" maxLength="28" comment="Name of the menu option for scheduling review reminders for a deck.">Hatırlatıcı kur</string>
     <string name="add_reminder" comment="Label for the add reminder button in the screen for adding and editing review reminders">Hatırlatıcı ekle</string>
     <string name="you_have_no_review_reminders" comment="Text that appears in the review reminder editing screen when there are no reminders set">Çalışma hatırlatıcınız yok</string>
-    <string name="schedule_reminders_troubleshoot_menu" maxLength="28" comment="Text in a menu button which opens a screen for diagnosing why review reminders may not be delivered.">Sorun gider</string>
     <string name="schedule_reminders_notification_settings_menu" maxLength="28" comment="Text in a menu button which opens the operating system notification settings for the app.">Bildirim ayarları</string>
-    <string name="schedule_reminders_list_content_description" comment="Accessibility description of the list showing scheduled review reminders.">Kurulmuş çalışma hatırlatıcılarının listesi</string>
-    <string name="schedule_reminders_deck_not_found" comment="Shown in place of a deck name when the deck a review reminder points at no longer exists.">Deste bulunamadı</string>
     <string name="schedule_reminders_unavailable" comment="Pop-up text shown when review reminders cannot be delivered at all, such as due to missing permissions.">Hatırlatıcılar kullanılamıyor</string>
-    <string name="schedule_reminders_fix" comment="Text for the button which, when pressed, opens the review reminder troubleshooting screen for fixing issues with review reminders.">Düzelt</string>
-    <string name="schedule_reminders_added" comment="Pop-up text which confirms a new review reminder was created.">Başarılı bir şekilde yeni çalışma hatırlatıcısı eklendi</string>
-    <string name="schedule_reminders_deleted" comment="Pop-up text which confirms a review reminder was deleted.">Başarılı bir şekilde çalışma hatırlatıcısı silindi</string>
-    <string name="schedule_reminders_edited" comment="Pop-up text which confirms an existing review reminder was changed.">Başarılı bir şekilde çalışma hatırlatıcısı düzenlendi</string>
     <!-- Add / edit reminder dialog -->
     <string name="add_review_reminder" comment="Title of the dialog for creating a new review reminder.">Çalışma hatırlatıcısı ekle</string>
     <string name="edit_review_reminder" comment="Title of the dialog for editing an existing review reminder.">Çalışma hatırlatıcısını değiştir</string>
-    <string name="add_edit_reminder_time_label" comment="Label of the field for choosing what time of day a review reminder fires.">Saat:</string>
-    <string name="add_edit_reminder_deck_label" comment="Label of the field for choosing which deck a review reminder applies to.">Deste:</string>
-    <string name="add_edit_reminder_advanced_label" comment="Header of the collapsible section holding extra review reminder customization options.">İleri düzey ayarlar</string>
-    <string name="add_edit_reminder_card_threshold_label" comment="Label of the field setting the minimum number of due cards needed before a review reminder fires.">Kart eşiği:</string>
-    <string name="add_edit_reminder_card_threshold_description" comment="Explanation shown under the card threshold field.">Çalışılacak bundan az sayıda kart varsa bildirim gönderme</string>
-    <string name="add_edit_reminder_only_notify_if_no_reviews_label" comment="Label of the switch suppressing a review reminder on days which have already had reviews.">Sadece bugün hiç çalışmadıysam bildirim gönder</string>
     <string name="add_edit_reminder_card_threshold_error_not_a_number" comment="Validation error shown when the review reminder card threshold field does not hold a whole number.">Lütfen tam bir kart sayısı girin</string>
     <string name="add_edit_reminder_card_threshold_error_negative" comment="Validation error shown when the review reminder card threshold field holds a negative number.">Eşik en az 0 olmalıdır</string>
-    <string name="add_edit_reminder_count_toward_threshold_heading" comment="Heading above the advanced review reminder options for choosing which kinds of cards (new / learning / to review) count toward the reminder\'s card threshold.">Count these cards toward the threshold:</string>
     <string name="add_edit_reminder_delete_confirmation_title" comment="Title of the dialog confirming deletion of a review reminder.">Bu hatırlatıcı silinsin mi?</string>
     <string name="add_edit_reminder_delete_confirmation_message" comment="Body of the dialog confirming deletion of a review reminder.">Bu eylem geri alınamaz.</string>
     <!-- Reminder troubleshooting screen -->
     <string name="reminder_troubleshooting_summary_error" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when reminders cannot be delivered at all.">Hatırlatıcılar kullanılamıyor.</string>
-    <string name="reminder_troubleshooting_summary_warning" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when reminders may be delayed or suppressed.">Hatırlatıcılar doğru çalışmayabilir.</string>
     <string name="reminder_troubleshooting_summary_ok" comment="Overall verdict shown at the top of the review reminder troubleshooting screen when no issues are found.">Hatırlatıcılarınız beklendiği gibi çalışıyor olmalı.</string>
-    <string name="reminder_troubleshooting_footer" comment="Closing advice at the bottom of the review reminder troubleshooting screen.">Farklı cihazların farklı bildirim kısıtlama ayarları olur. Sistem ayarlarınızı kontrol edin veya sorunlar devam ederse internette araştırın.</string>
     <!-- Troubleshooting check titles -->
-    <string name="reminder_troubleshooting_check_notification_permission" comment="Name of a review reminder troubleshooting check: whether the app may post notifications.">Bildirim izni</string>
-    <string name="reminder_troubleshooting_check_notification_channel" comment="Name of a review reminder troubleshooting check: whether the review reminders notification channel is turned on.">Bildirim kanalı</string>
-    <string name="reminder_troubleshooting_check_do_not_disturb" comment="Name of a review reminder troubleshooting check: whether the system Do Not Disturb mode is active.">Rahatsız etme</string>
-    <string name="reminder_troubleshooting_check_battery_optimization" comment="Name of a review reminder troubleshooting check: whether the system restricts the app\'s background battery usage.">Pil optimizasyonu</string>
-    <string name="reminder_troubleshooting_check_power_saving_mode" comment="Name of a review reminder troubleshooting check: whether the system power saving mode is active.">Güç tasarruf modu</string>
-    <string name="reminder_troubleshooting_check_exact_alarm_permission" comment="Name of a review reminder troubleshooting check: whether the app has permission to schedule alarms at exact times.">Alarmlar ve hatırlatıcılar izni</string>
     <!-- Troubleshooting check statuses -->
-    <string name="reminder_troubleshooting_status_granted" comment="Status of a review reminder troubleshooting check: the permission has been given.">Verilmiş</string>
-    <string name="reminder_troubleshooting_status_denied" comment="Status of a review reminder troubleshooting check: the permission has not been given.">Reddedilmiş</string>
     <string name="reminder_troubleshooting_status_on" comment="Status of a review reminder troubleshooting check: the system setting is active.">Açık</string>
     <string name="reminder_troubleshooting_status_off" comment="Status of a review reminder troubleshooting check: the system setting is not active.">Kapalı</string>
     <string name="reminder_troubleshooting_status_unrestricted" comment="Status of the review reminder battery optimization check: the app may run freely in the background.">Kısıtsız</string>
@@ -284,27 +196,17 @@
     <!-- Troubleshooting check explanations -->
     <string name="reminder_troubleshooting_explanation_notification_channel" comment="Explains why review reminders need notification permissions to work correctly.">Çalışma hatırlatıcısı bildirim kanalı açık olmalıdır</string>
     <string name="reminder_troubleshooting_explanation_do_not_disturb" comment="Explains why review reminders may need Do Not Disturb to be disabled to work correctly.">Rahatsız Etme hatırlatıcı bildirimlerini sessizleştirebilir</string>
-    <string name="reminder_troubleshooting_explanation_battery_optimized" comment="Explains to the user that AnkiDroid\'s battery usage is optimized, and that battery usage may need to be enabled for review reminders to work correctly.">Pil optimizasyonu hatırlatıcıları geciktirebilir</string>
     <string name="reminder_troubleshooting_explanation_battery_restricted" comment="Explains to the user that AnkiDroid\'s battery usage is restricted, and that battery usage may need to be enabled for review reminders to work correctly.">Arka plan kullanımı kapalı. Hatırlatıcılar gönderilemeyebilir</string>
     <string name="reminder_troubleshooting_explanation_power_saving_mode" comment="Explains why review reminders may need power saving mode to be disabled to work correctly.">Enerji tasarrufu modu hatırlatıcıların zamanında gelmesini önleyebilir</string>
     <string name="reminder_troubleshooting_explanation_exact_alarm" comment="Explains that AnkiDroid cannot schedule alarms at exact times unless the exact-alarm permission is granted.">Kesin zamanlı hatırlatıcılar kurmak için gerekir</string>
     <!-- Troubleshooting check actions -->
     <string name="reminder_troubleshooting_action_grant_permission" comment="Button resolving a failing review reminder troubleshooting check by asking for a permission.">İzin ver</string>
     <string name="reminder_troubleshooting_action_enable_notification_channel" comment="Button resolving a failing review reminder troubleshooting check by opening the operating system notification settings screen.">Bildirim kanalını aç</string>
-    <string name="reminder_troubleshooting_action_disable_battery_optimization" comment="Button resolving a failing review reminder troubleshooting check by asking the user to exempt the app from battery optimization.">Pil optimizasyonunu kapat</string>
     <string name="reminder_troubleshooting_action_open_battery_settings" comment="Button resolving a failing review reminder troubleshooting check by opening the operating system battery settings screen.">Pil ayarlarını aç</string>
     <!-- Notification content -->
-    <string name="review_reminder_notification_title_all_decks" comment="Title of a review reminder notification which is attached to the whole app rather than a single deck.">Kartlarınızı çalışma zamanı</string>
-    <string name="review_reminder_notification_title_deck" comment="Title of a review reminder notification for one deck. The parameter is the deck name; the quotation marks are to clearly separate the user-chosen name from the app\'s own text.">\"%s\" çalışma zamanı</string>
-    <string name="review_reminder_notification_snooze_button" comment="Notification button postponing a review reminder by a certain amount of time. The parameter is a duration like \'1h\', \'5m\', etc.">%s ertele</string>
-    <plurals name="review_reminder_notification_cards_due" comment="Body of a review reminder notification. The parameter is the number of cards due.">
-        <item quantity="one">%d kartın sırası geldi</item>
-        <item quantity="other">%d kartın sırası geldi</item>
-    </plurals>
     <!-- studyoptions -->
     <string name="studyoptions_limit_select_tags">Etiketleri Seçin</string>
     <!-- Deck configurations -->
-    <string name="deck_conf_general" maxLength="41" comment="Label of the submenu for the general options of new deck">Genel</string>
     <string name="deck_conf_cram_search" maxLength="41" comment="Label of a text field that contains a search query.">Arama</string>
     <!-- analytics options -->
     <string name="analytics_dialog_title">AnkiDroid\'in iyileştirilmesine yardım et!</string>
@@ -320,7 +222,6 @@
     <string name="license">Lisans</string>
     <string name="license_description"><![CDATA[Hayaki <a href=\"%1$s\">GPL-3.0</a> ve <a href=\"%2$s\">AGPL-3.0</a> lisansları altında yayınlanmaktadır, kaynak kodu <a href=\"%3$s\">GitHub\'da</a> mevcuttur]]></string>
     <string name="other_licenses"><![CDATA[Hayaki çeşitli açık kaynaklı <a href=\"%1$s\">lisanslar</a> altında üçüncü parti kütüphaneler ve simgeler de kullanır.]]></string>
-    <string name="donate_description"><![CDATA[AnkiDroid\'in geliştirilmesine <a href=\"%1$s\">bağış yaparak</a> destek olabilirsiniz. Miktarı ne olursa olsun içten teşekkürlerimizi kazanırsınız.]]></string>
     <!-- Controls -->
     <string name="binding_add_gesture">Hareket ekle</string>
     <string name="binding_add_key">Anahtar ekle</string>
@@ -355,7 +256,6 @@
     <string name="bindings_already_bound">%s bileşenine bağlı zaten</string>
     <!-- Advanced -->
     <string name="pref_cat_experimental" maxLength="41" tools:ignore="UnusedResources">Deneysel</string>
-    <string name="readtext_deprecation_warn">Hayaki diğer Anki istemcileriyle uyumlu, daha fazla ses ve dil seslendirmesine geliştirmeler içeren daha iyi bir metin okuma mekanizması getirdi!\n\nLütfen mümkün olan en yakın zamanda yeni sisteme geçin, çünkü bu ayar yakında kaldırılacak.</string>
     <string name="readtext_reviewer_warn" tools:ignore="UnusedResources">Lütfen yeni metin okuma formatına geçin</string>
     <string name="allow_templates_to_record_audio" maxLength="41">Şablonların ses kaydetmesine izin ver</string>
     <string name="template_is_trying_to_record_audio">Bu şablon ses kaydetmeye çalışıyor</string>
@@ -441,8 +341,6 @@
     <string name="toolbar" maxLength="41">Araç çubuğu</string>
     <string name="toolbar_actions" maxLength="41">Araç çubuğu eylemleri</string>
     <string name="toolbar_position" maxLength="28">Araç çubuğu konumu</string>
-    <string name="new_study_screen" maxLength="41">Yeni çalışma ekranı</string>
-    <string name="new_study_screen_summ"><![CDATA[Şu anda varolan çalışma ekranının yerine geçecek olan ekran. Eski ekranın belirli özellikleri değiştirilmiş veya silinmiş bulunuyor. Lütfen herhangi bir <a href="%1$s">geri bildiriminizi</a> veya <a href="%2$s">bulduğunuz hataları</a> bildirin.]]></string>
     <string name="show_answer_feedback" maxLength="41">Cevap geribildirimini göster</string>
     <string name="screen" maxLength="41">Ekran</string>
     <string name="also_assign_binding_to_show_answer" comment="Question shown after assigning binding to an \'Answer\' command, asking whether it should also be assigned to the \'Show answer\'; %1$s is \'Show answer\'">\"%1$s\"e de atansın mı?</string>

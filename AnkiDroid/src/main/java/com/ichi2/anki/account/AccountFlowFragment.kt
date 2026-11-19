@@ -44,7 +44,12 @@ class AccountFlowFragment : Fragment() {
                 ComposeView(context).apply {
                     id = R.id.account_flow_step
                     setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-                    val first = if (requireArguments().getBoolean(START_WITH_ADDRESS)) CustomSyncServerSettingsFragment() else LoginFragment()
+                    val first =
+                        if (requireArguments().getBoolean(ARG_START_WITH_ADDRESS)) {
+                            CustomSyncServerSettingsFragment()
+                        } else {
+                            LoginFragment()
+                        }
                     setContent { navigation.Content(first) }
                 },
                 MATCH_PARENT,
@@ -61,19 +66,19 @@ class AccountFlowFragment : Fragment() {
     }
 
     internal fun completeSignIn() {
-        finishScreen(if (requireArguments().getBoolean(FOR_RESULT)) Activity.RESULT_OK else Activity.RESULT_CANCELED)
+        finishScreen(if (requireArguments().getBoolean(ARG_FOR_RESULT)) Activity.RESULT_OK else Activity.RESULT_CANCELED)
     }
 
     companion object {
-        internal const val START_WITH_ADDRESS = "startWithAddress"
-        private const val FOR_RESULT = "START_FOR_RESULT"
+        internal const val ARG_START_WITH_ADDRESS = "startWithAddress"
+        private const val ARG_FOR_RESULT = "START_FOR_RESULT"
 
         internal fun arguments(
             startWithAddress: Boolean,
             forResult: Boolean,
         ) = Bundle().apply {
-            putBoolean(START_WITH_ADDRESS, startWithAddress)
-            putBoolean(FOR_RESULT, forResult)
+            putBoolean(ARG_START_WITH_ADDRESS, startWithAddress)
+            putBoolean(ARG_FOR_RESULT, forResult)
         }
     }
 }

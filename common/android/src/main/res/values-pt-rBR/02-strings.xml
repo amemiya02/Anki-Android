@@ -40,8 +40,6 @@
     <string name="updated_version">Atualizado para a versão %s</string>
     <!-- Reviewer.kt (Study Screen) -->
     <string name="save_whiteboard" maxLength="28">Salvar quadro.</string>
-    <string name="enable_stylus" maxLength="28">Ativar o modo stylus</string>
-    <string name="disable_stylus">Desativar o modo stylus</string>
     <string name="eraser" maxLength="28">Apagar</string>
     <string name="add_brush" maxLength="28">Adicionar pincel</string>
     <string name="whiteboard_align_left" comment="Option to align the whiteboard toolbar on the left" maxLength="28">Esquerda</string>
@@ -56,22 +54,11 @@
     <string name="enable_whiteboard" maxLength="28">Habilitar quadro</string>
     <string name="disable_whiteboard">Desabilitar quadro</string>
     <string name="show_whiteboard">Mostrar quadro</string>
-    <string name="enable_eraser" maxLength="28">Ativar borracha</string>
-    <string name="disable_eraser" maxLength="28">Desativar borracha</string>
     <string name="hide_whiteboard" maxLength="28">Ocultar quadro</string>
     <string name="clear_whiteboard" maxLength="28">Limpar quadro</string>
     <string name="hide_toolbar" maxLength="28">Ocultar barra de ferramentas</string>
     <string name="replay_media" maxLength="28">Repetição de mídia</string>
-    <string name="leech_suspend_notification">Cartão marcado como sanguessuga e suspenso</string>
-    <string name="leech_notification">Cartão marcado como sanguessuga</string>
     <string name="webview_crash_unknown">Erro desconhecido</string>
-    <string name="webview_crash_unknwon_detailed">Isso foi causado por um erro interno no WebView</string>
-    <string name="webview_crash_oom">Memória insuficiente</string>
-    <string name="webview_crash_oom_details">O WebView foi encerrado pelo sistema. Isso normalmente acontece quando o aplicativo fica sem memória, muitas vezes devido a fontes ou mídias grandes.</string>
-    <string name="webview_crash_nonfatal">WebView renderer crashou. Causa: %s</string>
-    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
-    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
-    <string name="webview_crash_loop_dialog_content">O System WebView falhou ao renderizar o card \'%1$s\'.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Deslize para cancelar</string>
     <string name="filter_by_flags" maxLength="41">Bandeiras</string>
     <!-- filtered deck options -->
@@ -79,7 +66,6 @@
     <string name="filtered_option_delay_hard">Difícil</string>
     <string name="filtered_option_delay_good">Bom</string>
     <!-- Custom study options -->
-    <string name="custom_study_loading_tags">Criando lista de tags&#8230;</string>
     <!-- Study options -->
     <plurals name="studyoptions_buried_count">
         <item quantity="one">+%d oculto</item>
@@ -108,26 +94,16 @@
     <string name="image_cropper_action_flip_vertically" maxLength="28" comment="Submenu action in image cropper screen">Virar Verticalmente</string>
     <!-- Timebox -->
     <string name="timebox_reached_title">Caixa do tempo alcançada</string>
-    <plurals name="timebox_reached">
-        <item quantity="one">%1$d card estudado em %2$s</item>
-        <item quantity="other">%1$d cards estudados em %2$s</item>
-    </plurals>
     <!-- minutes used in \'[studied in] x minutes\' context, causing inflexion in some languages -->
-    <plurals name="in_minutes">
-        <item quantity="one">%1$d minuto</item>
-        <item quantity="other">%1$d minutos</item>
-    </plurals>
     <string name="fact_adder_intent_title" comment="Label of the \'Add Note\' window. This title can\'t be seen in AnkiDroid directly.">Cartão Hayaki</string>
     <string name="note_editor_copy_note" maxLength="28">Copiar nota</string>
     <string name="card_editor_reposition_card" comment="reposition a card in the new queue" maxLength="28">Reposicionar</string>
     <string name="card_editor_reset_card" maxLength="28">Redefinir progresso</string>
-    <string name="card_editor_reschedule_card" comment="Action to reschedule a card" maxLength="28">Reagendar</string>
     <string name="card_editor_preview_card" comment="Button offering to preview some card(s)" maxLength="28">Pré-visualizar</string>
     <string name="copy_as_markdown" comment="Copies text to the clipboard as Markdown" maxLength="28">Copiar como Markdown</string>
     <string name="preview_progress_bar_text" comment="What card we are on out of how many in card previewer progress bar">%1$d de %2$d</string>
     <string name="rename" comment="Confirm that the renaming action should be processed." maxLength="28">Renomear</string>
     <string name="checks_action" maxLength="28">Verificar</string>
-    <string name="unknown_type_field_warning">Digite a resposta: campo desconhecido %s</string>
     <string name="delete_deck" comment="Message on a progress bar starting a deck is being deleted.">Excluindo baralho&#8230;</string>
     <string name="info_rate">Avalie o AnkiDroid</string>
     <string name="import_title">Importando</string>
@@ -162,13 +138,11 @@
     <string name="export_choice_save_to">Salvar em</string>
     <string name="export_saving_exported_collection">Salvando arquivo exportado&#8230;</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Opções de estudo</string>
-    <string name="select_tts" maxLength="28">Definir idioma TTS</string>
     <string name="dyn_deck_desc">Esse é um baralho especial para estudar fora do planejamento normal. Os cards retornarão um a um para os baralhos originais após revisá-los. Ao apagar esse baralho os cards restantes retornarão automaticamente à seus baralhos originais.</string>
     <string name="tag_editor_add_feedback">Toque \"%2$s\" para confirmar a adição de \"%1$s\"</string>
     <string name="tag_editor_add_feedback_existing">Tag existente \"%1$s\" selecionada</string>
     <string name="tag_already_exists">Tag já existente</string>
     <string name="error_name_exists">Nome já existente</string>
-    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">Erro ao compartilhar arquivo apkg</string>
@@ -179,14 +153,10 @@
     <string name="web_page_error">Erro ao carregar página: %s</string>
     <!-- The name of the deck which corrupt cards will be moved to -->
     <!-- Deckpicker Background -->
-    <string name="background_image_title" maxLength="41">Plano de fundo</string>
-    <string name="remove_wallpaper_image" maxLength="41">Remover imagem de fundo</string>
     <string name="remove_background_image">Tem certeza de que deseja remover o plano de fundo?</string>
     <!-- Card Template Browser Appearance -->
     <string name="restore_default" maxLength="28">Restaurar padrão</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
-    <string name="white_board_eraser_enabled">Borracha ativada</string>
-    <string name="white_board_eraser_disabled">Borracha desativada</string>
     <string comment="Progress amount e.g. \'28 MB/141 MB\'. %1$s is the current amount, %2$s is the max." name="progress_amount_bytes">%1$s/%2$s</string>
     <string name="media_file_size_warning_title">Mídia muito grande</string>
     <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">O arquivo \"%1$s\" (%2$s) excede o limite de AnkiWeb do %3$s e não pode ser sincronizado. Adicionar mesmo assim?</string>
@@ -194,7 +164,6 @@
     <!-- Whiteboard save image message in the Study Screen -->
     <string name="white_board_image_save_failed">Falha ao salvar imagem do quadro. %s</string>
     <string name="white_board_image_saved">Imagem do quadro branco salva em %s</string>
-    <string name="title_whiteboard_editor" maxLength="28">Editor de quadro branco</string>
     <string name="user_is_a_robot">Teste automático detectado. Se você é humano, entre em contato com o suporte do AnkiDroid</string>
     <!-- JS api -->
     <string name="api_version_developer_contact">Este card usa recursos não suportados pelo AnkiDroid. Entre em contato com o desenvolvedor %1$s, ou veja a wiki. %2$s</string>
@@ -247,7 +216,6 @@
     <string name="create_shortcut_error">Erro ao adicionar atalho: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">Iniciar frases em letra maíuscula</string>
     <!-- Dialog hints -->
-    <string name="dialog_hint_url">URL</string>
     <string name="dialog_hint_certificate">Certificado</string>
     <!-- IncrementNumberRangePreference -->
     <string name="plus_sign" comment="Label for increment button in IncrementerNumberRangePreference">+</string>
@@ -256,7 +224,6 @@
     <string name="maximum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the maximum allowed value">O valor máximo é %d</string>
     <string name="minimum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the minimum allowed value">O valor mínimo é %d</string>
     <!-- Used for credential empty warning message -->
-    <string name="invalid_email">Insira um e-mail válido</string>
     <string name="password_empty">Senha é necessária</string>
     <string name="back_pressed_once">Go back again to exit</string>
     <!-- %% is required to display % symbol. Reference: https://stackoverflow.com/a/16834358 -->
@@ -281,11 +248,6 @@
     <string name="home" maxLength="28">Início</string>
     <!-- Study Screen actions
     Each of these strings ends with a period, following the notation of Anki Desktop -->
-    <string name="card_buried">Cartão enterrado.</string>
-    <plurals name="note_suspended">
-        <item quantity="one">%d Cartão suspenso.</item>
-        <item quantity="other">%d Cartões suspensos.</item>
-    </plurals>
     <!--  Note Editor Toggle Sticky  -->
     <string name="note_editor_toggle_sticky">Fixar o campo %s</string>
     <string name="scoped_storage_learn_more">Saiba mais</string>
@@ -299,20 +261,13 @@
     <!--  Hierarchical Tags  -->
     <string name="expand_tag">Expandir tag \'%s\'</string>
     <!-- Manage note types -->
-    <string name="field_editor_model_not_available">Não foi possível acessar a coleção. Tente novamente!</string>
-    <string name="cd_manage_notetypes_add">Adicionar um novo modelo</string>
     <plurals name="note_types_selected">
         <item quantity="one">Tipo de nota %d selecionado</item>
         <item quantity="other">Tipos de nota %d selecionados</item>
     </plurals>
     <!-- App Intro -->
-    <string name="intro_ankidroid_tagline_one">Estude menos</string>
-    <string name="intro_ankidroid_tagline_two">Lembre mais</string>
-    <string name="intro_short_ankidroid_explanation">O agendador de cartões de Anki economiza tempo, fortalecendo suas memórias mais fracas e preservando suas mais fortes</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">Sincronizar do AnkiWeb</string>
     <!-- IntentHandler -->
-    <string name="app_not_initialized_new">O Hayaki ainda não foi inicializado.  Por favor, abra o Hayaki e tente novamente</string>
     <!-- Deck Creation -->
     <string name="deck_created">Baralho criado</string>
     <string name="deck_renamed">Baralho renomeado</string>
@@ -345,14 +300,11 @@
     <string name="card_template_reposition_template" comment="move a card template to a new position" maxLength="28">Reposicionar</string>
     <string name="previewer_next" comment="Name of the next button in the previewer" maxLength="28">Próximo</string>
     <string name="previewer_back" comment="Name of the back button in the previewer" maxLength="28">Anterior</string>
-    <string name="start_recording">Gravar</string>
     <string name="stop_recording">Parar</string>
     <string name="play_recording">Reproduzir</string>
-    <string name="next_recording" comment="Description of a button to go to the next recording">Próximo</string>
     <!--  AlertDialog in the deleteCardTemplate  -->
     <string name="orphan_note_title">Não é possível excluir tipo de cartão</string>
     <string name="orphan_note_message">Deletar essa categoria de cartão deixará algumas notas sem cartão</string>
-    <string name="voice_not_supported">Voz não suportada. Tente outra ou instale um mecanismo de voz.</string>
     <!--Keyboard shortcuts dialog-->
     <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Deletar baralho sem confirmação</string>

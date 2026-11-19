@@ -63,7 +63,6 @@
     <string name="undo" maxLength="28" comment="When tapping on this text, the last action is undone.">செயல்தவிர்ப்பது</string>
     <string name="redo" maxLength="28" comment="Menu entry that allows to redo action that was just undone.">மீண்டும் செய்</string>
     <!-- flashcard_portrait.xml -->
-    <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">பக்கவாதத்தை செயல்தவிர்க்கவும்</string>
     <string name="move_all_to_deck">அனைத்தையும் தளத்திற்கு நகர்த்து</string>
     <string name="create_shortcut">குறுக்குவழி சேர்</string>
     <string name="browse_cards">அட்டைகளை உலாவவும்</string>
@@ -71,14 +70,9 @@
     <string name="menu_add" comment="A generic add button. Please inform us if you need more specific strings" maxLength="28">கூட்டு</string>
     <string name="menu_add_note" maxLength="28">குறிப்பு சேர்க்க</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">ஒத்திசைக்க</string>
-    <string name="menu_dismiss_note" maxLength="41">மறைக்க/அழி</string>
     <string name="rename_flag">கொடிகளை மறுபெயரிடவும்</string>
     <string name="menu_edit_tags" maxLength="28">Tags-ஐ திருத்து</string>
-    <string name="delete_note_message">உண்மையில் இந்த குறிப்பையும் அதன் அனைத்து அட்டைகளையும் நீக்கவா?\n%s</string>
-    <string name="menu_search" maxLength="28">இங்கே பாருங்கள் %1$s</string>
     <string name="menu_unmark_note">குறிப்பு குறிக்கப்படாது</string>
-    <string name="menu_enable_voice_playback" maxLength="28">குரல் பின்னணியை இயக்கு</string>
-    <string name="menu_disable_voice_playback">குரல் பின்னணியை முடக்கு</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
     <string name="new_dynamic_deck">வடிகட்டப்பட்ட டெக் உருவாக்கவும்</string>
     <string name="directory_inaccessible">Hayaki அடைவு அணுகக்கூடியதாக</string>
@@ -91,7 +85,6 @@
     <string name="empty_cram_label" maxLength="28">காலி</string>
     <string name="create_subdeck">துணைத் தளத்தை உருவாக்கவும்</string>
     <string name="empty_filtered_deck">வடிகட்டிய தளத்தைக் காலி செய்கிறது&#8230;</string>
-    <string name="search_deck" comment="Deck search for selecting it">Deck search</string>
     <string name="empty_deck">இந்த கட்டு காலியாக உள்ளது</string>
     <string name="invalid_deck_name">தவறான தளத்தின் பெயர்</string>
     <string name="studyoptions_congrats_finished">Congratulations! You have finished for today.</string>
@@ -103,7 +96,6 @@
     <string name="continue_sync" tools:ignore="UnusedResources">ஒத்திசைவைத் தொடரவும்</string>
     <string name="sync_cancelled" tools:ignore="UnusedResources">ஒத்திசைவு ரத்துசெய்யப்பட்டது</string>
     <string name="sync_cancel_message" tools:ignore="UnusedResources">ரத்து இது சிறிது நேரம் ஆகலாம்</string>
-    <string name="syncing_media">மீடியாவை ஒத்திசைக்கிறது</string>
     <string name="export_deck" maxLength="28">ஏற்றுமதி டெக்</string>
     <string name="export_collection">ஏற்றுமதி சேகரிப்பு</string>
     <!-- Card template editor -->
@@ -129,12 +121,6 @@
     <string name="card_browser_context_menu" comment="The value which appears in the system context menu.">Card browser</string>
     <string name="context_menu_anki_card_label">Anki card</string>
     <!-- Sync conflict -->
-    <string name="sync_conflict_message_new">சேகரிப்புகளை இணைக்க முடியாது.\nஎந்த தொகுப்பை வைத்திருக்க விரும்புகிறீர்கள்?</string>
-    <string name="sync_conflict_keep_local_new" comment="Select AnkiDroid files to keep while syncing">Hayaki</string>
-    <string name="sync_conflict_keep_remote_new" comment="Select AnkiWeb files to keep while syncing">AnkiWeb</string>
-    <string name="sync_conflict_remote_confirm_new">Hayaki இல் உங்கள் சேகரிப்பை AnkiWeb இலிருந்து உங்கள் சேகரிப்புடன் மாற்றவா?</string>
-    <string name="sync_conflict_local_confirm_new">AnkiWeb இல் உள்ள உங்கள் சேகரிப்பை Hayaki இலிருந்து உங்கள் சேகரிப்புடன் மாற்றவா?</string>
-    <string name="sync_conflict_title_new">வைத்திருக்கச் சேகரிப்பைத் தேர்ந்தெடுக்கவும்</string>
     <string name="sync_conflict_replace_title">சேகரிப்பை மாற்றவும்</string>
     <!-- Generic errors -->
     <string name="error__etc__cannot_write_to_or_create_file">%s கோப்பை எழுதவோ உருவாக்கவோ முடியாது</string>

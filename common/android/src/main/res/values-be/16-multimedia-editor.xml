@@ -45,7 +45,6 @@
     <!-- Message when recording fails -->
     <string name="multimedia_editor_audio_view_recording_failed">Збой запісу</string>
     <string name="multimedia_editor_audio_view_playing_failed">Памылка прайгравання</string>
-    <string name="multimedia_editor_audio_view_create_failed">Немагчыма стварыць панэль інструментаў для кіравання запісам</string>
     <!-- Crop function-->
     <string name="crop_image">Вы сапраўды хочаце абрэзаць гэты відарыс?</string>
     <string name="crop_button" maxLength="28">Абрэзаць</string>
@@ -55,7 +54,4 @@
     <string name="audio_recording_field_list" comment="Displays a list of the field data in the note editor while audio recording is taking place">Змесціва поля</string>
     <string name="crop_image_size_notice">Рэдактар не можа апрацаваць відарыс, бо ён занадта вялікі. Змяніце памер відарыса і паспрабуйце яшчэ раз!</string>
     <string name="reselect" maxLength="28">Выбраць зноў</string>
-    <string name="waveform_button_description">Паказаць гукавы сігнал</string>
-    <string name="field_content_description">Паказаць змесціва поля</string>
-    <string name="delete_audio_button_description">Выдаліць запіс</string>
 </resources>

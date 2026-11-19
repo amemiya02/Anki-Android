@@ -38,13 +38,13 @@ class AppearanceSettingsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        removeDialog = savedInstanceState?.getBoolean(REMOVE_DIALOG) ?: false
+        removeDialog = savedInstanceState?.getBoolean(STATE_REMOVE_DIALOG) ?: false
         updateAppearance()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putBoolean(REMOVE_DIALOG, removeDialog)
+        outState.putBoolean(STATE_REMOVE_DIALOG, removeDialog)
     }
 
     override fun onCreateView(
@@ -175,6 +175,6 @@ class AppearanceSettingsFragment : Fragment() {
         }
 
     companion object {
-        private const val REMOVE_DIALOG = "remove_background_dialog"
+        private const val STATE_REMOVE_DIALOG = "remove_background_dialog"
     }
 }

@@ -3,6 +3,4 @@
   ~ SPDX-License-Identifier: GPL-3.0-or-later
   -->
 <resources>
-    <dimen name="keyline_1">24dp</dimen>
-    <dimen name="deck_picker_right_padding">12dp</dimen>
 </resources>

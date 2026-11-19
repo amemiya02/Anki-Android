@@ -63,7 +63,6 @@
     <string name="undo" maxLength="28" comment="When tapping on this text, the last action is undone.">Anular</string>
     <string name="redo" maxLength="28" comment="Menu entry that allows to redo action that was just undone.">Refazer</string>
     <!-- flashcard_portrait.xml -->
-    <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Desfazer traço</string>
     <string name="move_all_to_deck">Mover todas para o baralho</string>
     <string name="create_shortcut">Criar atalho</string>
     <string name="browse_cards">Explorar fichas</string>
@@ -71,14 +70,9 @@
     <string name="menu_add" comment="A generic add button. Please inform us if you need more specific strings" maxLength="28">Adicionar</string>
     <string name="menu_add_note" maxLength="28">Adicionar nota</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Conta de sincronização</string>
-    <string name="menu_dismiss_note" maxLength="41">Ocultar / Eliminar</string>
     <string name="rename_flag">Renomear bandeiras</string>
     <string name="menu_edit_tags" maxLength="28">Editar etiquetas</string>
-    <string name="delete_note_message">Deseja realmente eliminar esta nota e todas as suas fichas?\n%s</string>
-    <string name="menu_search" maxLength="28">Procurar em %1$s</string>
     <string name="menu_unmark_note">Desmarcar nota</string>
-    <string name="menu_enable_voice_playback" maxLength="28">Ativar reprodução de voz</string>
-    <string name="menu_disable_voice_playback">Desativar reprodução de voz</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
     <string name="new_dynamic_deck">Criar baralho filtrado</string>
     <string name="directory_inaccessible">A diretoria Hayaki está inacessível</string>
@@ -91,7 +85,6 @@
     <string name="empty_cram_label" maxLength="28">Esvaziar</string>
     <string name="create_subdeck">Criar sub-baralho</string>
     <string name="empty_filtered_deck">A esvaziar baralho filtrado&#8230;</string>
-    <string name="search_deck" comment="Deck search for selecting it">Deck search</string>
     <string name="empty_deck">Este baralho está vazio</string>
     <string name="invalid_deck_name">Nome de baralho inválido</string>
     <string name="studyoptions_congrats_finished">Parabéns! Por hoje, acabou.</string>
@@ -103,7 +96,6 @@
     <string name="continue_sync" tools:ignore="UnusedResources">Continuar sincronização</string>
     <string name="sync_cancelled" tools:ignore="UnusedResources">Sincronização cancelada</string>
     <string name="sync_cancel_message" tools:ignore="UnusedResources">A cancelar&#8230;\nPode demorar algum tempo.</string>
-    <string name="syncing_media">A sincronizar ficheiros de multimédia</string>
     <string name="export_deck" maxLength="28">Exportar baralho</string>
     <string name="export_collection">Exportar Colecção</string>
     <!-- Card template editor -->
@@ -129,12 +121,6 @@
     <string name="card_browser_context_menu" comment="The value which appears in the system context menu.">Card browser</string>
     <string name="context_menu_anki_card_label">Anki card</string>
     <!-- Sync conflict -->
-    <string name="sync_conflict_message_new">As colecções não podem ser combinadas.\nQue colecção quer manter?</string>
-    <string name="sync_conflict_keep_local_new" comment="Select AnkiDroid files to keep while syncing">Hayaki</string>
-    <string name="sync_conflict_keep_remote_new" comment="Select AnkiWeb files to keep while syncing">AnkiWeb</string>
-    <string name="sync_conflict_remote_confirm_new">Substituir a sua colecção do Hayaki pela sua colecção do AnkiWeb?</string>
-    <string name="sync_conflict_local_confirm_new">Substituir a sua coleção no AnkiWeb pela sua colecção do Hayaki?</string>
-    <string name="sync_conflict_title_new">Seleccione a colecção a manter</string>
     <string name="sync_conflict_replace_title">Substituir coleção</string>
     <!-- Generic errors -->
     <string name="error__etc__cannot_write_to_or_create_file">Não é possível criar ou escrever no ficheiro %s</string>

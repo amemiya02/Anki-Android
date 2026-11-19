@@ -4,7 +4,6 @@ package com.ichi2.anki.settings.enums
 
 import com.ichi2.anki.common.android.R
 
-/** [R.array.night_theme_values] */
 enum class NightTheme(
     override val entryResId: Int,
     override val styleResId: Int,

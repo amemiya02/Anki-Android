@@ -29,8 +29,6 @@
         <item quantity="other">刪除%1$s的所有卡片嗎？它包含%2$d張卡片。</item>
     </plurals>
     <string name="delete_cram_deck_message">刪除篩選過的牌組 %s 並將所有卡片發回原牌組？</string>
-    <string name="no_tts_available_message">沒有可用的朗讀語言</string>
-    <string name="tts_no_tts">不要發音</string>
     <string name="reposition_card_not_new_error">只有新卡片可以變更位置</string>
     <string name="reset_card_dialog_title">重置卡片進度</string>
     <plurals name="reset_cards_dialog_acknowledge">
@@ -73,13 +71,10 @@
     <string name="dialog_positive_delete" maxLength="28">刪除</string>
     <!-- Currently unsued, should be useful in the future -->
     <string name="dialog_positive_disable" tools:ignore="UnusedResources">關閉</string>
-    <string name="dialog_positive_overwrite">覆蓋</string>
     <string name="dialog_positive_repair">修復</string>
     <string name="dialog_positive_replace">取代</string>
-    <string name="sync_clock_off_with_current_time">%1$s\n\nCorrect the date and time, or enable automatic date and time, then sync again.\n\nYour device’s current time is: %2$s</string>
     <string name="dialog_collection_path_not_dir">所選的路徑不是有效路徑</string>
     <string name="dialog_invalid_custom_certificate">提供的文字無法解析為有效的 PEM 編碼 X509 憑證</string>
-    <string name="dialog_invalid_custom_certificate_title">證書解析錯誤</string>
     <string name="dialog_updated_custom_certificate">證書已更新</string>
     <!-- Media checking -->
     <string name="check_media_warning">由於較大的媒體檔案，這可能會花比較久的時間。確定繼續？</string>
@@ -101,7 +96,6 @@
     <string name="multimedia_editor_audio_permission_refused">無法取得語音權限</string>
     <string name="multimedia_editor_failed">無法開啟多媒體編輯器</string>
     <!-- Multimedia - Audio View -->
-    <string name="multimedia_editor_audio_permission_denied">音訊錄製權限被拒絕</string>
     <string name="permission_denied">權限被拒</string>
     <string name="microphone_permission_denied_message">Microphone permission denied. Please grant it in the app settings.</string>
     <!-- Database Integrity Check -->
@@ -134,8 +128,6 @@
     <string name="boot_service_failed_to_schedule_notifications">排定提醒失敗</string>
     <string name="boot_service_too_many_notifications">已設定太多提醒。部分將不會出現</string>
     <!-- Locale Selection Dialog -->
-    <string name="locale_selection_dialog_title_new">語言</string>
-    <string name="locale_selection_dialog_summary">有些多國語言鍵盤，想是GBoard支援編輯文字時切換語言。\n\n如果您的鍵盤不會切換語言，句請請求您的鍵盤開發人員提供「setImeHintLocales」功能。</string>
     <string name="locale_selection_dialog_unknown_language" comment="Used for the locales whose name is not displayed when selected and placeholder is language tag">Unknown language [%1$s]</string>
     <!-- Help Dialog -->
     <string name="help_title_using_ankidroid">使用 Hayaki</string>
@@ -168,7 +160,6 @@
     <plurals name="sync_automatic_sync_needs_more_time">
         <item quantity="other" comment="Consider keeping the unbreakable space after the digit">%d秒後可能產生自動同步</item>
     </plurals>
-    <string name="metered_sync_data_warning">網路供應商可能會收取資料使用費</string>
     <!-- This description is valid fos
     sched V2. For V1, it was counting the number of repetitions of cards in learning. This approximation is acceptable
     for the sake of simplicity and because V1 will leave.-->
@@ -200,7 +191,6 @@
     <plurals name="set_due_date_current_interval">
         <item quantity="other">當前間隔天數：%d天</item>
     </plurals>
-    <string name="range_delimiter" comment="Placed between two input boxes to denote a range">–</string>
     <string name="set_due_date_range_start" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'minimum\' value of this range (inclusive)">從</string>
     <string name="set_due_date_range_end" comment="\'Set Due Date\' may change the due date of a card to a random number of days in the future. This labels the \'maximum\' value of this range (inclusive)">到</string>
     <!-- Instant Note Editor -->
@@ -230,14 +220,9 @@
     <string name="import_error_resolution_copy_to_device">Copy the file to your device and try again with the local file</string>
     <string name="import_error_resolution_select_file">用你的裝置上的檔案瀏覽器開啟檔案</string>
     <!-- Post-login dialog -->
-    <string name="login_successful">登入成功</string>
-    <string name="sync_now">現在同步？</string>
     <!--Change Note Type Dialog Fragment-->
-    <string name="card_numbers_unchanged">卡片數量將不會改變</string>
     <!-- Subset of TR.changeNotetypeToFromCloze -->
-    <string name="extra_cloze_deletions_removed">If changing to a regular note type, and there are more cloze deletions than available card templates, any extra cards will be removed.</string>
     <string name="different_note_types_selected">Please select notes from only one notetype.</string>
-    <string name="error_no_changes_to_save">No changes to save</string>
     <string name="choose_color">Choose color</string>
     <!-- Special Fields -->
     <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">Fields</string>
@@ -252,8 +237,6 @@
     <string name="special_field_card_help" comment="%s: either blank or \' %s\'">The name of the card template%s</string>
     <string name="special_field_type_help" comment="%s: either blank or \' %s\'">The name of the note type%s</string>
     <!-- Change Note Type Dialog -->
-    <string name="change_note_type_from" comment="Label indicating the original note type before changing it">From</string>
-    <string name="change_note_type_to" comment="Label indicating the new note type to change to">To</string>
     <!-- Add and rename profile dialogs -->
     <string name="rename_profile" comment="Title of the dialog where the user renames a profile">Rename profile</string>
     <string name="profile_name" comment="Label of the text field where the user types the name of a new profile">Profile name</string>

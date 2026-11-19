@@ -26,18 +26,14 @@
     <string name="youre_offline">Anda diluar talian</string>
     <string name="sync_error">Ralat penyegerakan</string>
     <string name="vague_error" comment="Network error dialog title">Ralat</string>
-    <string name="retry">Cuba semula</string>
     <string name="menu_get_shared_decks">Dapatkan dek kongsian</string>
-    <string name="connection_error_message">Ralat rangkaian telah berlaku</string>
     <string name="not_logged_in_title">Log masuk ke AnkiWeb</string>
     <string name="login_create_account_message">Anda hendaklah log masuk ke akaun pihak ketiga untuk menggunakan perkhidmatan penyegerakan awan. Anda boleh membuatnya dalam langkah seterusnya.</string>
     <!-- MyAccount.kt -->
-    <string name="username">Alamat e-mel</string>
     <string name="password">Kata laluan</string>
     <string name="sign_up_description">Tiada akaun AnkiWeb? Ia percuma!</string>
     <string name="sign_up_not_affiliated">Perhatian: AnkiWeb tidak bergabung dengan AnkiDroid</string>
     <string name="sign_up">Daftar</string>
-    <string name="logged_as">Log masuk sebagai</string>
     <string name="reset_password">Tetap semula kata laluan</string>
     <string name="lost_mail_instructions">Terlupa E-mel?</string>
     <string name="sign_in">Signing in</string>
@@ -46,10 +42,7 @@
     <string name="sync_log_uploading_message">Penyegerakan penuh daripada tempatan</string>
     <string name="sync_database_acknowledge">Koleksi telah disegerakkan</string>
     <string name="col_synced_media_in_background">Collection synced. Media is being synced in the background.</string>
-    <string name="sync_corrupt_database">Pangkalan data anda rosak. Sila membaikinya sebelum cuba penyegerakan lagi.\n\nLihat %s untuk maklumat tentang membaiki pangkalan data anda.</string>
     <!-- Please run ‘Check database’ before syncing -->
-    <string name="sync_sanity_local">Tempatan</string>
-    <string name="sync_sanity_remote">Jarak Jauh</string>
     <string name="one_way_sync_title" maxLength="41">One-way sync</string>
     <string name="one_way_sync_confirmation">One way sync requested</string>
     <string name="full_sync_confirmation">perubahan diminta akan memerlukan muat naik penuh pangkalan data apabila anda menyegerakkan koleksi anda. Jika anda mempunyai semakan atau perubahan pada peranti lain yang belum disegerakkan ke sini, maka mereka akan dibuang. Teruskan?</string>

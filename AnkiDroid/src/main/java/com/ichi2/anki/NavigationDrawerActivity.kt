@@ -116,7 +116,7 @@ abstract class NavigationDrawerActivity(
         setContentView(drawer)
     }
 
-    private fun createNavigationView() = TabletDrawer(this, ::onNavigationItemSelected)
+    private fun createNavigationView() = TabletDrawer(this).apply { onItemSelected = ::onNavigationItemSelected }
 
     /** Whether android:fitsSystemWindows="true" should be applied to the navigation drawer  */
     protected open fun fitsSystemWindows(): Boolean = true

@@ -45,7 +45,6 @@
     <!-- Message when recording fails -->
     <string name="multimedia_editor_audio_view_recording_failed">Registrazione non riuscita</string>
     <string name="multimedia_editor_audio_view_playing_failed">Riproduzione non riuscita</string>
-    <string name="multimedia_editor_audio_view_create_failed">Impossibile creare la barra degli strumenti di registrazione</string>
     <!-- Crop function-->
     <string name="crop_image">Vuoi ritagliare questa immagine?</string>
     <string name="crop_button" maxLength="28">Crop</string>
@@ -55,7 +54,4 @@
     <string name="audio_recording_field_list" comment="Displays a list of the field data in the note editor while audio recording is taking place">Contenuti del campo</string>
     <string name="crop_image_size_notice">L\'immagine è troppo grande per essere gestita dall\'editor di ritaglio. Si prega di ridimensionarla e riprovare!</string>
     <string name="reselect" maxLength="28">Seleziona nuovamente</string>
-    <string name="waveform_button_description">Mostra funzione d\'onda dell\'audio</string>
-    <string name="field_content_description">Mostra contenuto del campo</string>
-    <string name="delete_audio_button_description">Elimina registrazione</string>
 </resources>

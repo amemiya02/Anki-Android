@@ -115,7 +115,7 @@ class SyncErrorDialog : AsyncDialogFragment() {
                     errorBody,
                     details = requireArguments().getString(ARG_DIALOG_MESSAGE),
                     onDismissRequest = { activity?.dismissAllDialogFragments() },
-                    primaryAction = DialogAction(getString(CommonString.paper_sync_retry), { syncAndDismissAllDialogFragments() }),
+                    primaryAction = DialogAction(getString(CommonString.try_again), { syncAndDismissAllDialogFragments() }),
                     dismissText = getString(CommonString.paper_sync_not_now),
                     markIcon = R.drawable.symbol_cloud_off,
                 )
