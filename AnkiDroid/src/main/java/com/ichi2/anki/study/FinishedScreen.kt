@@ -115,7 +115,6 @@ fun FinishedScreen(
                     FinishedRow(
                         icon = R.drawable.symbol_auto_stories,
                         title = with(context) { TR.sentenceCase.customStudy },
-                        summary = stringResource(CommonR.string.finished_custom_study_summary),
                         emphasis = state.reason == FinishedReason.DailyLimit,
                         onClick = onCustomStudy,
                     )
@@ -123,14 +122,6 @@ fun FinishedScreen(
                 FinishedRow(
                     icon = R.drawable.symbol_tune,
                     title = with(context) { TR.sentenceCase.deckOptions },
-                    summary =
-                        stringResource(
-                            if (state.isFiltered) {
-                                CommonR.string.finished_filtered_deck_options_summary
-                            } else {
-                                CommonR.string.finished_deck_options_summary
-                            },
-                        ),
                     emphasis = false,
                     onClick = onDeckOptions,
                 )
@@ -265,7 +256,6 @@ private fun UnburyButton(onClick: () -> Unit) {
 private fun FinishedRow(
     @DrawableRes icon: Int,
     title: String,
-    summary: String,
     emphasis: Boolean,
     onClick: () -> Unit,
 ) {
@@ -282,10 +272,7 @@ private fun FinishedRow(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Icon(painter = painterResource(icon), contentDescription = null, tint = accent, modifier = Modifier.size(24.dp))
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
-            Text(text = title, style = foundation.type.rowTitle, color = accent)
-            Text(text = summary, style = foundation.type.caption, color = foundation.colors.onBackgroundMuted)
-        }
+        Text(title, Modifier.weight(1f), style = foundation.type.rowTitle, color = accent)
         Icon(
             painter = painterResource(CommonR.drawable.symbol_chevron_right),
             contentDescription = null,

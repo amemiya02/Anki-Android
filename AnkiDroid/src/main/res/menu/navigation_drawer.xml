@@ -26,8 +26,8 @@
             android:icon="@drawable/symbol_help"
             android:title="@string/help"/>
         <item
-            android:id="@+id/support_ankidroid"
-            android:icon="@drawable/symbol_volunteer_activism"
-            android:title="@string/help_title_support_ankidroid"/>
+            android:id="@+id/nav_about"
+            android:icon="@drawable/symbol_info"
+            android:title="@string/pref_cat_about_title"/>
     </group>
 </menu>

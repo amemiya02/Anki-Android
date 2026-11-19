@@ -42,13 +42,13 @@ import com.ichi2.anki.common.android.R as CommonR
 
 /**
  * More, the bottom bar's last tab on phones: the drawer's lower group (Settings, Help and
- * Support AnkiDroid), then the Fork's name. Each row opens what the drawer's row opened.
+ * About), then the Fork's name. Each row opens what the drawer's row opened.
  */
 @Composable
 fun MoreScreen(
     onSettings: () -> Unit,
     onHelp: () -> Unit,
-    onSupport: () -> Unit,
+    onAbout: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
@@ -63,7 +63,7 @@ fun MoreScreen(
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            MoreRows(onSettings = onSettings, onHelp = onHelp, onSupport = onSupport)
+            MoreRows(onSettings = onSettings, onHelp = onHelp, onAbout = onAbout)
             MoreFooter()
         }
     }
@@ -73,7 +73,7 @@ fun MoreScreen(
 private fun MoreRows(
     onSettings: () -> Unit,
     onHelp: () -> Unit,
-    onSupport: () -> Unit,
+    onAbout: () -> Unit,
 ) {
     val foundation = MaterialTheme.foundation
     val margin = foundation.spacing.screenMargin
@@ -92,23 +92,20 @@ private fun MoreRows(
             MoreRow(
                 icon = R.drawable.symbol_settings,
                 title = stringResource(CommonR.string.settings),
-                summary = stringResource(CommonR.string.more_settings_summary),
                 trailing = CommonR.drawable.symbol_chevron_right,
                 onClick = onSettings,
             )
             MoreRow(
                 icon = CommonR.drawable.symbol_help,
                 title = stringResource(CommonR.string.help),
-                summary = stringResource(CommonR.string.more_help_summary),
-                trailing = R.drawable.symbol_open_in_new,
+                trailing = CommonR.drawable.symbol_chevron_right,
                 onClick = onHelp,
             )
             MoreRow(
-                icon = R.drawable.symbol_volunteer_activism,
-                title = stringResource(CommonR.string.help_title_support_ankidroid),
-                summary = stringResource(CommonR.string.more_support_summary),
-                trailing = R.drawable.symbol_open_in_new,
-                onClick = onSupport,
+                icon = R.drawable.symbol_info,
+                title = stringResource(CommonR.string.pref_cat_about_title),
+                trailing = CommonR.drawable.symbol_chevron_right,
+                onClick = onAbout,
             )
         }
     }
@@ -118,34 +115,19 @@ private fun MoreRows(
 private fun MoreFooter() {
     val foundation = MaterialTheme.foundation
     val margin = foundation.spacing.screenMargin
-    Column(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(start = margin, end = margin, top = 32.dp, bottom = 20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-    ) {
-        Text(
-            text = stringResource(CommonR.string.fork_name),
-            style = foundation.type.rowTitle,
-            color = foundation.colors.onBackground,
-            textAlign = TextAlign.Center,
-        )
-        Text(
-            text = stringResource(CommonR.string.about_fork_title),
-            style = foundation.type.caption,
-            color = foundation.colors.onBackgroundMuted,
-            textAlign = TextAlign.Center,
-        )
-    }
+    Text(
+        text = stringResource(CommonR.string.fork_name),
+        style = foundation.type.rowTitle,
+        color = foundation.colors.onBackground,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth().padding(start = margin, end = margin, top = 32.dp, bottom = 20.dp),
+    )
 }
 
 @Composable
 private fun MoreRow(
     @DrawableRes icon: Int,
     title: String,
-    summary: String,
     @DrawableRes trailing: Int,
     onClick: () -> Unit,
 ) {
@@ -166,13 +148,7 @@ private fun MoreRow(
             tint = foundation.colors.onBackground,
             modifier = Modifier.size(24.dp),
         )
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(1.dp),
-        ) {
-            Text(text = title, style = foundation.type.rowTitle, color = foundation.colors.onBackground)
-            Text(text = summary, style = foundation.type.caption, color = foundation.colors.onBackgroundMuted)
-        }
+        Text(title, Modifier.weight(1f), style = foundation.type.rowTitle, color = foundation.colors.onBackground)
         Icon(
             painter = painterResource(trailing),
             contentDescription = null,

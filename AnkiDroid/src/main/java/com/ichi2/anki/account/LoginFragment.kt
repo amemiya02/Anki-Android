@@ -166,11 +166,7 @@ class LoginFragment : Fragment() {
                 label = { Text(stringResource(CommonString.password)) },
                 textStyle = foundation.type.body,
                 isError = passwordError != null,
-                supportingText = {
-                    Text(
-                        passwordError?.toHumanReadableString(requireContext()) ?: stringResource(CommonString.paper_sync_password_note),
-                    )
-                },
+                supportingText = passwordError?.let { error -> { Text(error.toHumanReadableString(requireContext())) } },
                 trailingIcon = {
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(

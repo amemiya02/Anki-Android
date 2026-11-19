@@ -13,6 +13,7 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import androidx.annotation.CallSuper
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -55,6 +56,9 @@ abstract class PageFragment :
     protected open val save: (() -> Unit)? = null
 
     @Composable
+    protected open fun PageHeading() { }
+
+    @Composable
     protected open fun PageActions() { }
 
     override fun onCreateView(
@@ -68,12 +72,15 @@ abstract class PageFragment :
                 setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
                 setContent {
                     AnkiDroidTheme {
-                        AttachmentAppBar(
-                            title = pageTitle,
-                            onBack = if (showBack) ({ requireActivity().onBackPressedDispatcher.onBackPressed() }) else null,
-                            onSave = save,
-                            onTitleClick = selectDeck,
-                        ) { PageActions() }
+                        Column {
+                            PageHeading()
+                            AttachmentAppBar(
+                                title = pageTitle,
+                                onBack = if (showBack) ({ requireActivity().onBackPressedDispatcher.onBackPressed() }) else null,
+                                onSave = save,
+                                onTitleClick = selectDeck,
+                            ) { PageActions() }
+                        }
                     }
                 }
             }

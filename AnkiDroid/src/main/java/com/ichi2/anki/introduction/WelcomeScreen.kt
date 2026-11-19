@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -98,15 +97,10 @@ private fun WelcomeScreen(
         ) {
             Image(painterResource(R.drawable.hayaki_mark), contentDescription = null, modifier = Modifier.offset(x = (-8).dp).size(88.dp))
             Text(
-                stringResource(CommonString.paper_welcome_title),
+                stringResource(CommonString.fork_name),
                 modifier = Modifier.semantics { heading() },
                 style = foundation.type.screenTitle,
                 color = foundation.colors.onBackground,
-            )
-            Text(
-                stringResource(CommonString.paper_welcome_lead),
-                style = foundation.type.lead,
-                color = foundation.colors.onBackgroundMuted,
             )
             SyncPrimaryButton(
                 stringResource(CommonString.paper_welcome_start_empty),
@@ -127,7 +121,6 @@ private fun WelcomeScreen(
                 )
                 SettingsRow(
                     title = stringResource(CommonString.paper_welcome_sync),
-                    summary = stringResource(CommonString.paper_welcome_sync_hint),
                     icon = R.drawable.symbol_dns,
                     onClick = onSetupSync,
                     trailing = { SettingsChevron() },
@@ -143,12 +136,6 @@ private fun WelcomeScreen(
                 Text(stringResource(CommonString.paper_sync_from_ankiweb), style = foundation.type.rowTitle)
             }
         }
-        Text(
-            stringResource(CommonString.paper_welcome_unofficial),
-            modifier = Modifier.padding(top = 8.dp, bottom = 16.dp),
-            style = foundation.type.caption,
-            color = foundation.colors.onBackgroundMuted,
-        )
     }
 }
 
@@ -166,12 +153,6 @@ private fun MigrationGuide(
         titleBelowNavigation = true,
     ) {
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(top = 8.dp)) {
-            Text(
-                stringResource(CommonString.paper_welcome_migration_lead),
-                style = foundation.type.lead,
-                color = foundation.colors.onBackgroundMuted,
-            )
-            Spacer(Modifier.height(20.dp))
             SettingsDivider()
             MigrationStep(
                 number = 1,

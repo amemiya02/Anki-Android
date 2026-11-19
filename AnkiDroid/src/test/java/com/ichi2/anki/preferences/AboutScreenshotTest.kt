@@ -31,7 +31,7 @@ class AboutScreenshotTest : ComposeScreenshotTest() {
                 onLogo = {},
                 onBack = {},
                 searchTarget = null,
-                onRate = {},
+                onSupportUpstream = {},
                 onChangelog = {},
                 onCopyDebugInfo = {},
             )
@@ -50,7 +50,7 @@ class AboutScreenshotTest : ComposeScreenshotTest() {
                 onLogo = {},
                 onBack = {},
                 searchTarget = null,
-                onRate = {},
+                onSupportUpstream = {},
                 onChangelog = {},
                 onCopyDebugInfo = {},
             )
@@ -64,6 +64,5 @@ class AboutScreenshotTest : ComposeScreenshotTest() {
             "(anki 25.09 / 00000000)",
             "(FSRS 0.6.4)",
             "Copy debug info",
-            true,
         )
 }

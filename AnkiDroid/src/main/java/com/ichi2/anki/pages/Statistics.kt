@@ -8,11 +8,21 @@ import android.print.PrintJob
 import android.print.PrintManager
 import android.view.View
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
@@ -26,6 +36,7 @@ import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.updateBottomNavOnScroll
 import com.ichi2.anki.withProgress
+import com.ichi2.compose.theme.foundation
 import timber.log.Timber
 
 class Statistics : PageFragment() {
@@ -33,6 +44,20 @@ class Statistics : PageFragment() {
     override val scrollToolbar = true
     override val showBack get() = arguments?.getBoolean(ARG_HIDE_BACK_BUTTON) != true
     override val selectDeck: () -> Unit = { startDeckSelection(allowAll = false, allowFiltered = false, skipEmptyDefault = true) }
+
+    @Composable
+    override fun PageHeading() {
+        val foundation = MaterialTheme.foundation
+        Text(
+            text = CollectionManager.TR.statisticsTitle(),
+            style = foundation.type.screenTitle,
+            color = foundation.colors.onBackground,
+            modifier =
+                Modifier
+                    .padding(start = foundation.spacing.screenMargin, end = foundation.spacing.screenMargin, top = 24.dp, bottom = 10.dp)
+                    .semantics { heading() },
+        )
+    }
 
     @Composable
     override fun PageActions() {
@@ -51,6 +76,12 @@ class Statistics : PageFragment() {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
+        ViewCompat.setOnApplyWindowInsetsListener(view) { root, insets ->
+            val safe = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            root.updatePadding(left = safe.left, top = safe.top, right = safe.right)
+            insets
+        }
+        ViewCompat.requestApplyInsets(view)
         registerDeckSelectedHandler(action = ::onDeckSelected)
         requireActivity().launchCatchingTask {
             withProgress {

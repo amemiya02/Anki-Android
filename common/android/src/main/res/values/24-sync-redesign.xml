@@ -2,7 +2,6 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <resources>
     <string name="paper_sync_step">Step %1$d of 2</string>
-    <string name="paper_sync_server_lead">Hayaki syncs only with a server you run yourself, such as the one built into desktop Anki. Enter its address, then sign in.</string>
     <string name="paper_sync_server_address">Server address</string>
     <string name="paper_sync_address_hint">Include the port, if it has one.</string>
     <string name="paper_sync_invalid_address">Enter the HTTP or HTTPS address of your own sync server.</string>
@@ -11,13 +10,11 @@
     <string name="paper_sync_configured">Configured</string>
     <string name="paper_sync_server_help">How to run a sync server</string>
     <string name="paper_sync_from_ankiweb">Coming from AnkiWeb?</string>
-    <string name="paper_sync_from_ankiweb_hint">Hayaki cannot sign in to AnkiWeb. See how to bring your Decks over.</string>
-    <string name="paper_sync_import_steps">Sync your collection in AnkiDroid or desktop Anki. Export it as an Anki collection package (.colpkg) with media included. Then choose that file in Hayaki.</string>
+    <string name="paper_sync_import_steps">Export a collection package (.colpkg) with media from Anki, then open it here.</string>
     <string name="paper_sync_choose_file">Choose the file</string>
     <string name="paper_sync_sign_in_title">Sign in to your server</string>
     <string name="paper_sync_username">Username</string>
     <string name="paper_sync_username_required">Enter your username.</string>
-    <string name="paper_sync_password_note">Your password is sent only to this server, which keeps you signed in.</string>
     <string name="paper_sync_show_password">Show password</string>
     <string name="paper_sync_hide_password">Hide password</string>
     <string name="paper_sync_wrong_credentials">The server did not accept your username or password. Check them and try again.</string>

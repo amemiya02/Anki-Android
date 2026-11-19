@@ -2,7 +2,6 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <resources>
     <string name="sync_server_title" maxLength="41">同期サーバー</string>
-    <string name="sync_setup_explanation"><![CDATA[このアプリは、デスクトップ版 Anki に内蔵されているものなど、ご自身で運用する同期サーバーとだけ同期します。そのアドレスを入力してから、ログインしてください。<a href="%s">詳細</a><br><br><b>AnkiWeb をお使いですか？</b>このアプリは AnkiWeb にログインできません。デッキをこちらへ移すには、AnkiDroid またはデスクトップ版 Anki に同期し、そこでコレクションまたはデッキパッケージをエクスポートして、こちらでインポートしてください。]]></string>
     <string name="sync_server_not_set">未設定</string>
     <string name="sync_server_required">先に同期サーバーのアドレスを入力してください</string>
     <string name="sync_server_sign_in_to">%s にログイン</string>
@@ -11,21 +10,15 @@
 
     <string name="intro_import">コレクションまたはデッキをインポート</string>
 
-    <string name="about_fork_title">AnkiDroid の派生版</string>
-    <string name="about_fork_description"><![CDATA[Hayaki は <a href="%1$s">AnkiDroid</a> の非公式フォークです。AnkiDroid チームや Anki の開発者が作成・承認したものではなく、AnkiDroid の<a href="%2$s">貢献者</a>の成果をもとに作られています。]]></string>
+    <string name="about_fork_title">クレジット</string>
+    <string name="about_fork_description"><![CDATA[<a href="%1$s">AnkiDroid</a> · <a href="%2$s">貢献者</a>]]></string>
 
-    <string name="more_settings_summary">外観、学習、操作、バックアップ</string>
-    <string name="more_help_summary">マニュアルとコミュニティフォーラム</string>
-    <string name="more_support_summary">Hayaki のもとになったプロジェクトを支援</string>
 
     <string name="finished_title_later">ひとまず終了</string>
     <string name="finished_title_limit">1日の上限に達しました</string>
     <string name="finished_title_done">今日はここまで</string>
     <string name="finished_next_day">明日の %s から次のカードを学習できます。</string>
     <string name="finished_unbury">非表示を解除して続ける</string>
-    <string name="finished_custom_study_summary">今日の上限を増やす、先取り復習、タグで学習</string>
-    <string name="finished_deck_options_summary">1日の上限、学習ステップ、表示順</string>
-    <string name="finished_filtered_deck_options_summary">検索条件、上限、順序、再構築</string>
     <string name="finished_back_to_decks">デッキ一覧に戻る</string>
 
     <plurals name="deck_list_due_today">
@@ -36,11 +29,8 @@
     </plurals>
     <string name="deck_list_count_description">%1$s：%2$d</string>
     <string name="deck_list_empty_title">デッキがまだありません</string>
-    <string name="deck_list_empty_body">共有デッキを入手すればすぐに学習を始められます。自分のものを使うこともできます：デッキファイルをインポートするか、デッキを作成して + ボタンでノートを追加してください。</string>
     <string name="deck_list_import_file">ファイルをインポート</string>
-    <string name="deck_list_import_file_summary">デッキパッケージ（.apkg）またはコレクション（.colpkg）</string>
     <string name="deck_list_create_deck">デッキを作成</string>
-    <string name="deck_list_create_deck_summary">その後 + ボタンでノートを追加</string>
     <string name="deck_list_deck_actions">デッキの操作</string>
     <string name="export_collection_replaces">コレクションパッケージをインポートすると、もう一方のアプリの内容がすべて置き換わります。そのアプリが AnkiWeb と同期している場合、次の同期は一方向のアップロードとなり、AnkiWeb 上の内容が置き換わります。</string>
     <string name="export_deck_merges">デッキパッケージをインポートすると、もう一方のアプリにある内容に統合されます。ほかの内容は置き換わらず、次の同期は通常どおり行われます。</string>

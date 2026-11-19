@@ -19,11 +19,13 @@ import com.ichi2.anki.R
 import com.ichi2.anki.common.destinations.ChangelogDestination
 import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.utils.android.showThemedToast
+import com.ichi2.anki.dialogs.help.HelpDialog
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.scheduling.Fsrs
 import com.ichi2.anki.servicelayer.DebugInfoService
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.internationalization.sentenceCase
+import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.utils.openUrl
 import com.ichi2.utils.IntentUtil
 import com.ichi2.utils.TruncatedString
@@ -66,7 +68,6 @@ class AboutFragment : Fragment() {
                 backendVersion,
                 Fsrs.displayVersion?.let { "($it)" },
                 TR.sentenceCase.copyDebugInfo,
-                BuildConfig.SHOW_DONATE_LINKS,
             )
         return settingsComposeView(R.id.settings_about) {
             AboutScreen(
@@ -77,7 +78,10 @@ class AboutFragment : Fragment() {
                     if (!Prefs.isDeveloperOptionsEnabled && developerClicks < CLICK_LIMIT) developerClicks++
                 },
                 onLink = { requireContext().openUrl(it) },
-                onRate = { IntentUtil.tryOpenIntent(requireActivity(), AnkiDroidApp.getMarketIntent(requireContext())) },
+                onSupportUpstream = {
+                    val canRate = IntentUtil.canOpenIntent(requireContext(), AnkiDroidApp.getMarketIntent(requireContext()))
+                    showDialogFragment(HelpDialog.newSupportInstance(canRate))
+                },
                 onChangelog = { navigate(ChangelogDestination) },
                 onCopyDebugInfo = ::copyDebugInfo,
             )

@@ -48,7 +48,6 @@ import com.ichi2.anki.common.utils.android.HandlerUtils
 import com.ichi2.anki.dialogs.help.HelpDialog
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.workarounds.FullDraggableContainerFix
-import com.ichi2.utils.IntentUtil
 import timber.log.Timber
 import com.ichi2.anki.common.android.R as CommonR
 
@@ -354,9 +353,9 @@ abstract class NavigationDrawerActivity(
                         openHelp()
                     }
 
-                    R.id.support_ankidroid -> {
-                        Timber.i("Navigating to support AnkiDroid")
-                        openSupport()
+                    R.id.nav_about -> {
+                        Timber.i("Navigating to About")
+                        openAbout()
                     }
                 }
             }
@@ -389,10 +388,8 @@ abstract class NavigationDrawerActivity(
         showDialogFragment(HelpDialog.newHelpInstance())
     }
 
-    /** Opens the ways to support AnkiDroid. Reached from the drawer on large screens and from More on phones. */
-    fun openSupport() {
-        val canRateApp = IntentUtil.canOpenIntent(this, AnkiDroidApp.getMarketIntent(this))
-        showDialogFragment(HelpDialog.newSupportInstance(canRateApp))
+    fun openAbout() {
+        preferencesLauncher.navigate(PreferencesDestination.About)
     }
 
     /**

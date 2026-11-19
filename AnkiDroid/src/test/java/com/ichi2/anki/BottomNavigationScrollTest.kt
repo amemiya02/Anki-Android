@@ -11,13 +11,14 @@ import android.webkit.WebView
 import android.widget.ScrollView
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
@@ -27,14 +28,17 @@ import androidx.core.view.ViewCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.ichi2.anki.BottomNavController.NavigationItem
+import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.pages.Statistics
 import com.ichi2.anki.pages.scrolledUpToBottom
+import com.ichi2.testutils.dispatchInsets
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RuntimeEnvironment
+import kotlin.test.assertTrue
 import com.ichi2.anki.common.android.R as CommonR
 
 @RunWith(AndroidJUnit4::class)
@@ -139,7 +143,7 @@ class BottomNavigationScrollTest : RobolectricTest() {
     @Test
     fun `upward reversal does not repeatedly restore the bar in More`() {
         // More holds three rows: a short screen makes it long enough to scroll
-        RuntimeEnvironment.setQualifiers("w320dp-h320dp")
+        RuntimeEnvironment.setQualifiers("w320dp-h220dp")
         withBottomNavigation { activity ->
             val nav = activity.bottomNav
             activity.selectTab(NavigationItem.MORE)
@@ -180,6 +184,20 @@ class BottomNavigationScrollTest : RobolectricTest() {
             assertThat(behavior.isScrolledOut, equalTo(true))
         }
     }
+
+    @Test
+    fun `Statistics tab heading clears the display cutout`() =
+        withDeckPicker(deckCount = 1) { deckPicker ->
+            deckPicker.selectTab(NavigationItem.STATS)
+            val heading = composeRule.onNodeWithText(CollectionManager.TR.statisticsTitle())
+            heading.assertExists()
+            advanceRobolectricLooper()
+            deckPicker.dispatchInsets(cutoutTop = 64.dp)
+            advanceRobolectricLooper()
+            val title = heading.fetchSemanticsNode()
+            val expectedTop = 64 * deckPicker.resources.displayMetrics.density
+            assertTrue(title.boundsInWindow.top >= expectedTop, "Title at ${title.boundsInWindow.top}, cutout ends at $expectedTop")
+        }
 
     @Test
     fun `scrolling Statistics content hides the bar`() =
@@ -294,7 +312,7 @@ class BottomNavigationScrollTest : RobolectricTest() {
     private fun scrollMoreBy(pixels: Float): Float {
         // the deck list behind More scrolls too
         val more =
-            composeRule.onNode(hasScrollAction() and hasAnyDescendant(hasText(targetContext.getString(CommonR.string.more_help_summary))))
+            composeRule.onNode(hasScrollAction() and hasAnyDescendant(hasText(targetContext.getString(CommonR.string.help))))
         more.performSemanticsAction(SemanticsActions.ScrollBy) { scrollBy -> scrollBy(0f, pixels) }
         composeRule.waitForIdle()
         advanceRobolectricLooper()

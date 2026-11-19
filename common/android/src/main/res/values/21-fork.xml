@@ -7,15 +7,6 @@
 <resources>
     <!-- Sync setup: the Fork syncs only with the owner's own server, never with AnkiWeb (ADR-0001) -->
     <string name="sync_server_title" maxLength="41">Sync server</string>
-    <string name="sync_setup_explanation"><![CDATA[
-        This app syncs only with a sync server you run yourself, such as the one built into desktop Anki.
-        Enter its address, then sign in.
-        <a href="%s">Learn more</a>
-        <br><br>
-        <b>Coming from AnkiWeb?</b> This app cannot sign in to AnkiWeb. To bring your decks here,
-        sync them into AnkiDroid or desktop Anki, export a collection or deck package there,
-        and import it here.
-        ]]></string>
     <string name="sync_server_not_set" comment="Shown in place of the sync server's address while none is set">Not set up</string>
     <string name="sync_server_required">Enter a sync server address first</string>
     <string name="sync_server_sign_in_to">Sign in to %s</string>
@@ -26,21 +17,15 @@
     <string name="intro_import" comment="First-run action which imports a collection or deck package from a file">Import a collection or deck</string>
 
     <!-- About screen: the Fork is not the Official App (ADR-0001) -->
-    <string name="about_fork_title">Based on AnkiDroid</string>
-    <string name="about_fork_description" comment="%1$s is the address of AnkiDroid's source code, %2$s the list of its contributors"><![CDATA[Hayaki is an unofficial fork of <a href="%1$s">AnkiDroid</a>. It is not made or endorsed by the AnkiDroid team or by the makers of Anki, and is built on the work of AnkiDroid\'s <a href="%2$s">contributors</a>.]]></string>
+    <string name="about_fork_title">Credits</string>
+    <string name="about_fork_description" comment="%1$s is the address of AnkiDroid's source code, %2$s the list of its contributors"><![CDATA[<a href="%1$s">AnkiDroid</a> · <a href="%2$s">Contributors</a>]]></string>
     <!-- The More page on phones (ticket 15); its tab labels are the Engine's translations -->
-    <string name="more_settings_summary" comment="Under Settings on the More page">Appearance, studying, controls, backups</string>
-    <string name="more_help_summary" comment="Under Help on the More page">The manual and the community forum</string>
-    <string name="more_support_summary" comment="Under Support AnkiDroid on the More page">Help the project Hayaki is built on</string>
     <!-- The finished screen (ticket 16); the rest of its text is the Engine's -->
     <string name="finished_title_later" comment="Finished screen title: nothing left right now, more later">Finished for now</string>
     <string name="finished_title_limit" comment="Finished screen title: a daily limit stopped the session">Daily limit reached</string>
     <string name="finished_title_done" comment="Finished screen title: nothing left until tomorrow">Done for today</string>
     <string name="finished_next_day" comment="%s is a time of day, e.g. 4:00 AM, when the next day's Cards become available">More cards will be ready tomorrow from %s.</string>
     <string name="finished_unbury" comment="Button on the finished screen which unburies Cards and returns to studying">Unbury and keep studying</string>
-    <string name="finished_custom_study_summary" comment="Under Custom study on the finished screen">Extend today’s limit, review ahead, study by tag</string>
-    <string name="finished_deck_options_summary" comment="Under Deck options on the finished screen">Daily limits, learning steps, display order</string>
-    <string name="finished_filtered_deck_options_summary" comment="Under Deck options on the finished screen, for a filtered deck">Search, limit, order and rebuilding</string>
     <string name="finished_back_to_decks" comment="Primary button on the finished screen which returns to the deck list">Back to decks</string>
     <!-- The deck list (ticket 17); its column headings are the Engine's -->
     <plurals name="deck_list_due_today" comment="The deck list's summary: new, learning and due Cards left today over every Deck">
@@ -53,11 +38,8 @@
     </plurals>
     <string name="deck_list_count_description" comment="Read aloud for a count on the deck list. %1$s is New, Learning or Due; %2$d the count">%1$s: %2$d</string>
     <string name="deck_list_empty_title" comment="Heading of the deck list when there are no Decks">No decks yet</string>
-    <string name="deck_list_empty_body">Get a shared deck to start studying straight away, or bring your own: import a deck file, or create a deck and add notes to it with the + button.</string>
     <string name="deck_list_import_file">Import a file</string>
-    <string name="deck_list_import_file_summary">A deck package (.apkg) or a collection (.colpkg)</string>
     <string name="deck_list_create_deck">Create a deck</string>
-    <string name="deck_list_create_deck_summary">Then add notes with the + button</string>
     <string name="deck_list_deck_actions" comment="Read by screen readers for a long press on a Deck in the deck list, which opens its menu">Deck actions</string>
     <!-- The export dialog (ticket 18): what importing the package does in the other app -->
     <string name="export_collection_replaces" comment="Under the collection package choices in the export dialog">Importing a collection package replaces everything in the other app. If that app syncs with AnkiWeb, its next sync is a one-way upload that replaces what is on AnkiWeb.</string>

@@ -28,8 +28,7 @@ class IntroductionScreenshotTest : ScreenshotTest() {
     @Test
     fun welcomeAndMigration() {
         ActivityScenario.launch(IntroductionActivity::class.java).use {
-            text(CommonString.paper_welcome_title).assertIsDisplayed()
-            text(CommonString.paper_welcome_unofficial).assertIsDisplayed()
+            text(CommonString.fork_name).assertIsDisplayed()
             captureScreen("welcome")
             choice(CommonString.paper_welcome_start_empty).performScrollTo().assertIsDisplayed()
             choice(CommonString.paper_welcome_import).performScrollTo().assertIsDisplayed()

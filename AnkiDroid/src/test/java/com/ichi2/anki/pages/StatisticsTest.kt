@@ -7,13 +7,16 @@ import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.common.destinations.StatisticsDestination
 import com.ichi2.anki.common.destinations.launchActivity
+import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.dialogs.DeckSelectionDialog
+import com.ichi2.testutils.dispatchInsets
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Rule
 import org.junit.Test
@@ -26,6 +29,19 @@ import kotlin.test.assertTrue
 class StatisticsTest : RobolectricTest() {
     @get:Rule
     val compose = createEmptyComposeRule()
+
+    @Test
+    fun `statistics heading and deck selector clear the top cutout`() =
+        runTest {
+            launchActivity<SingleFragmentActivity>(StatisticsDestination).use { scenario ->
+                advanceUntilIdle()
+                scenario.onActivity { it.dispatchInsets(cutoutTop = 64.dp) }
+                val heading = compose.onNodeWithText(TR.statisticsTitle()).assertIsDisplayed().fetchSemanticsNode()
+                val deck = compose.onNodeWithText("Default").assertIsDisplayed().fetchSemanticsNode()
+                assertTrue(heading.boundsInWindow.top >= 64 * targetContext.resources.displayMetrics.density)
+                assertTrue(deck.boundsInWindow.top >= heading.boundsInWindow.bottom)
+            }
+        }
 
     @Test
     fun `shows 'Default' deck when collection is empty`() =

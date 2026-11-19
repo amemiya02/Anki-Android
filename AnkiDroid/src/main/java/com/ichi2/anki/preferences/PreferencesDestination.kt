@@ -10,6 +10,7 @@ import com.ichi2.anki.common.destinations.PreferencesDestination
 fun PreferencesDestination.toIntent(context: Context): Intent =
     when (this) {
         PreferencesDestination.Root -> PreferencesActivity.getIntent(context)
+        PreferencesDestination.About -> PreferencesActivity.getIntent(context, AboutFragment::class)
         PreferencesDestination.Advanced ->
             PreferencesActivity.getIntent(context, AdvancedSettingsFragment::class)
         PreferencesDestination.Accessibility ->

@@ -464,12 +464,6 @@ private fun EmptyDeckList(
             color = foundation.colors.onBackground,
             modifier = Modifier.semantics { heading() },
         )
-        Text(
-            text = stringResource(CommonR.string.deck_list_empty_body),
-            style = foundation.type.lead,
-            color = foundation.colors.onBackgroundMuted,
-            modifier = Modifier.padding(bottom = 6.dp),
-        )
         Button(
             onClick = actions::onGetSharedDecks,
             modifier = Modifier.fillMaxWidth().heightIn(min = foundation.spacing.primaryButton),
@@ -490,13 +484,11 @@ private fun EmptyDeckList(
             EmptyListRow(
                 icon = R.drawable.symbol_file_open,
                 title = stringResource(CommonR.string.deck_list_import_file),
-                summary = stringResource(CommonR.string.deck_list_import_file_summary),
                 onClick = actions::onImport,
             )
             EmptyListRow(
                 icon = R.drawable.symbol_create_new_folder,
                 title = stringResource(CommonR.string.deck_list_create_deck),
-                summary = stringResource(CommonR.string.deck_list_create_deck_summary),
                 onClick = actions::onCreateDeck,
             )
         }
@@ -507,7 +499,6 @@ private fun EmptyDeckList(
 private fun EmptyListRow(
     @DrawableRes icon: Int,
     title: String,
-    summary: String,
     onClick: () -> Unit,
 ) {
     val foundation = MaterialTheme.foundation
@@ -527,10 +518,7 @@ private fun EmptyListRow(
             tint = foundation.colors.onBackground,
             modifier = Modifier.size(24.dp),
         )
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
-            Text(text = title, style = foundation.type.rowTitle, color = foundation.colors.onBackground)
-            Text(text = summary, style = foundation.type.caption, color = foundation.colors.onBackgroundMuted)
-        }
+        Text(title, Modifier.weight(1f), style = foundation.type.rowTitle, color = foundation.colors.onBackground)
         Icon(
             painter = painterResource(CommonR.drawable.symbol_chevron_right),
             contentDescription = null,

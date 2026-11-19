@@ -16,7 +16,7 @@ import com.ichi2.compose.theme.foundation
 
 /**
  * More, the bottom bar's last tab on phones ([MoreScreen]). Its rows open what the side drawer's
- * Settings, Help and Support AnkiDroid opened, through the same [NavigationDrawerActivity] calls.
+ * Settings, Help and About opened, through the same [NavigationDrawerActivity] calls.
  */
 class MoreFragment : Fragment() {
     override fun onCreateView(
@@ -31,7 +31,7 @@ class MoreFragment : Fragment() {
                 MoreScreen(
                     onSettings = { requireNavigationDrawerActivity().openSettings() },
                     onHelp = { requireNavigationDrawerActivity().openHelp() },
-                    onSupport = { requireNavigationDrawerActivity().openSupport() },
+                    onAbout = { requireNavigationDrawerActivity().openAbout() },
                     modifier = Modifier.background(MaterialTheme.foundation.colors.background),
                 )
             }

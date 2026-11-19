@@ -2,7 +2,6 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <resources>
     <string name="paper_sync_step">ステップ %1$d / 2</string>
-    <string name="paper_sync_server_lead">Hayaki は、デスクトップ版 Anki の内蔵サーバーなど、自分で運用するサーバーとのみ同期します。アドレスを入力してからログインしてください。</string>
     <string name="paper_sync_server_address">サーバーのアドレス</string>
     <string name="paper_sync_address_hint">ポート番号がある場合は入力してください。</string>
     <string name="paper_sync_invalid_address">自分の同期サーバーの HTTP または HTTPS アドレスを入力してください。</string>
@@ -11,13 +10,11 @@
     <string name="paper_sync_configured">設定済み</string>
     <string name="paper_sync_server_help">同期サーバーの運用方法</string>
     <string name="paper_sync_from_ankiweb">AnkiWeb からの移行</string>
-    <string name="paper_sync_from_ankiweb_hint">Hayaki では AnkiWeb にログインできません。デッキの移行手順をご覧ください。</string>
-    <string name="paper_sync_import_steps">AnkiDroid またはデスクトップ版 Anki でコレクションを同期します。メディアを含めた Anki コレクションパッケージ（.colpkg）を書き出し、Hayaki でそのファイルを選択してください。</string>
+    <string name="paper_sync_import_steps">Anki からメディアを含むコレクションパッケージ（.colpkg）を書き出し、ここで開きます。</string>
     <string name="paper_sync_choose_file">ファイルを選択</string>
     <string name="paper_sync_sign_in_title">同期サーバーにログイン</string>
     <string name="paper_sync_username">ユーザー名</string>
     <string name="paper_sync_username_required">ユーザー名を入力してください。</string>
-    <string name="paper_sync_password_note">パスワードはログイン状態を維持するため、このサーバーだけに送信されます。</string>
     <string name="paper_sync_show_password">パスワードを表示</string>
     <string name="paper_sync_hide_password">パスワードを隠す</string>
     <string name="paper_sync_wrong_credentials">サーバーがユーザー名またはパスワードを受け付けませんでした。確認して再試行してください。</string>

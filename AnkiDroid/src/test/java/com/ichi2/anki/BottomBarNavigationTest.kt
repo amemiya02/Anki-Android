@@ -3,11 +3,13 @@
 package com.ichi2.anki
 
 import android.view.View
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.core.view.isVisible
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
@@ -110,7 +112,7 @@ class BottomBarNavigationTest : RobolectricTest() {
         }
 
     @Test
-    fun `More lists Settings, Help and Support, each opening what the drawer opened`() =
+    fun `More opens Settings, Help and About`() =
         withDeckPicker(deckCount = 1) { deckPicker ->
             deckPicker.select(NavigationItem.MORE)
 
@@ -133,7 +135,9 @@ class BottomBarNavigationTest : RobolectricTest() {
             assertThat("Help opens the help menu", restoredHost.shownHelpMenuTitle(), equalTo(CommonR.string.help))
             restoredHost.dismissDialogs()
 
-            composeRule.onNodeWithText("Support AnkiDroid").performClick()
+            composeRule.onNodeWithText(targetContext.getString(CommonR.string.pref_cat_about_title)).performClick()
+            composeRule.waitUntil(10_000) { composeRule.onAllNodes(hasText("Support AnkiDroid")).fetchSemanticsNodes().isNotEmpty() }
+            composeRule.onNodeWithText("Support AnkiDroid").performScrollTo().performClick()
             assertThat(
                 "Support opens the support menu",
                 restoredHost.shownHelpMenuTitle(),

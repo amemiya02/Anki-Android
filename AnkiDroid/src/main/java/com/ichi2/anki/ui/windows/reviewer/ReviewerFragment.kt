@@ -40,7 +40,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import anki.scheduler.CardAnswer.Rating
 import com.google.android.material.snackbar.Snackbar
-import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.AnkiDroidJsAPI
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CommonString
@@ -102,7 +101,6 @@ import com.ichi2.anki.utils.ext.window
 import com.ichi2.anki.utils.openUrl
 import com.ichi2.anki.workarounds.SafeWebViewLayout
 import com.ichi2.compose.theme.AnkiDroidTheme
-import com.ichi2.compose.theme.foundation
 import com.ichi2.compose.ui.dialogs.ConfirmationDialog
 import com.ichi2.compose.ui.dialogs.DialogAction
 import com.ichi2.compose.ui.dialogs.DialogChoice
@@ -110,7 +108,6 @@ import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
 import com.ichi2.compose.ui.dialogs.createPaperDialog
 import com.ichi2.themes.Themes
 import com.ichi2.ui.TypeAnswerEditText
-import com.ichi2.utils.IntentUtil
 import com.ichi2.utils.ViewGroupUtils.setRenderWorkaround
 import com.squareup.seismic.ShakeDetector
 import kotlinx.coroutines.Job
@@ -745,7 +742,7 @@ class ReviewerFragment :
                 CollectionManager.TR.qtMiscStats(),
                 getString(CommonString.settings),
                 getString(CommonString.help),
-                getString(CommonString.help_title_support_ankidroid),
+                getString(CommonString.pref_cat_about_title),
             )
         templateNavigationDialog =
             createPaperDialog(requireContext()) { dialog ->
@@ -768,10 +765,7 @@ class ReviewerFragment :
                             2 -> navigate(StatisticsDestination)
                             3 -> navigate(PreferencesDestination.Root)
                             4 -> showDialogFragment(HelpDialog.newHelpInstance())
-                            5 -> {
-                                val canRateApp = IntentUtil.canOpenIntent(requireContext(), AnkiDroidApp.getMarketIntent(requireContext()))
-                                showDialogFragment(HelpDialog.newSupportInstance(canRateApp))
-                            }
+                            5 -> navigate(PreferencesDestination.About)
                         }
                     },
                 )

@@ -45,7 +45,7 @@ class ForkIdentityTest {
 
     @Test
     fun `the launcher shows Hayaki, and the working name only in a debug build`() {
-        val expected = if (BuildConfig.DEBUG) "AnkiDroid Redesign" else "Hayaki"
+        val expected = if (BuildConfig.DEBUG) "Hayaki Debug" else "Hayaki"
         assertEquals(expected, context.applicationInfo.loadLabel(packageManager).toString())
     }
 

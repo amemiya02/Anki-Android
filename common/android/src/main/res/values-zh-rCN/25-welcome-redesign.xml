@@ -1,20 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <resources>
-    <string name="paper_welcome_title">学得更少\n记得更牢</string>
-    <string name="paper_welcome_lead">Anki 的排程会在你快要忘记时展示每张卡片。你想怎样开始？</string>
     <string name="paper_welcome_start_empty">从空白开始</string>
     <string name="paper_welcome_import">导入集合或牌组</string>
-    <string name="paper_welcome_import_hint">来自 AnkiDroid 或桌面版 Anki 的 .colpkg 或 .apkg</string>
+    <string name="paper_welcome_import_hint">.apkg · .colpkg</string>
     <string name="paper_welcome_sync">与自己的服务器同步</string>
-    <string name="paper_welcome_sync_hint">从服务器下载你的集合</string>
-    <string name="paper_welcome_unofficial">Hayaki 是 AnkiDroid 的非官方分支</string>
     <string name="paper_welcome_migration_title">从 AnkiWeb 来</string>
-    <string name="paper_welcome_migration_lead">通过 AnkiDroid 或桌面版 Anki 将牌组从 AnkiWeb 迁入，即可保留排程、复习记录和媒体文件。</string>
-    <string name="paper_welcome_migration_sync">在 AnkiDroid 或桌面版 Anki 中同步</string>
-    <string name="paper_welcome_migration_sync_hint">这样就能获取 AnkiWeb 上的全部内容。</string>
+    <string name="paper_welcome_migration_sync">同步集合</string>
+    <string name="paper_welcome_migration_sync_hint">在电脑上打开 Anki，与 AnkiWeb 同步。</string>
     <string name="paper_welcome_migration_export">导出集合包</string>
-    <string name="paper_welcome_migration_export_hint">在 AnkiDroid 的牌组菜单中选择“导出集合”。在桌面版 Anki 中选择“文件 › 导出 › Anki 集合包（.colpkg）”。请包含媒体文件。</string>
+    <string name="paper_welcome_migration_export_hint">选择「文件 › 导出 › Anki 集合包（.colpkg）」，勾选包含媒体。</string>
     <string name="paper_welcome_migration_import">在这里导入</string>
     <string name="paper_welcome_migration_import_hint">在下方选择 .colpkg 文件。</string>
 </resources>

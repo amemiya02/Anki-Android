@@ -39,7 +39,6 @@ internal data class AboutScreenState(
     val backendVersion: String,
     val fsrsVersion: String?,
     val copyDebugInfoLabel: String,
-    val showsDonation: Boolean,
 )
 
 @Composable
@@ -49,7 +48,7 @@ internal fun AboutScreen(
     onBack: (() -> Unit)?,
     onLogo: () -> Unit,
     onLink: (String) -> Unit,
-    onRate: () -> Unit,
+    onSupportUpstream: () -> Unit,
     onChangelog: () -> Unit,
     onCopyDebugInfo: () -> Unit,
 ) {
@@ -81,7 +80,7 @@ internal fun AboutScreen(
         }
         SettingsDivider()
         AboutSectionHeading(stringResource(CommonString.about_fork_title), searchTarget == "about_contributors_title")
-        AboutDescription(
+        AboutLinks(
             stringResource(
                 CommonString.about_fork_description,
                 stringResource(R.string.link_source),
@@ -92,7 +91,7 @@ internal fun AboutScreen(
         AboutSectionHeading(stringResource(CommonString.license), searchTarget == "about_license_title")
         SettingsSearchTarget(searchTarget == "license_description") { modifier, highlighted ->
             Column(modifier.aboutHighlight(highlighted)) {
-                AboutDescription(
+                AboutLinks(
                     stringResource(
                         CommonString.license_description,
                         stringResource(R.string.licence_wiki),
@@ -103,17 +102,14 @@ internal fun AboutScreen(
                 )
             }
         }
-        AboutDescription(stringResource(CommonString.other_licenses, stringResource(R.string.dependency_license_wiki)), onLink)
-        if (state.showsDonation) {
-            SettingsSectionTitle(stringResource(CommonString.help_item_support_opencollective_donate))
-            AboutDescription(
-                stringResource(CommonString.donate_description, stringResource(R.string.link_opencollective_donate)),
-                onLink,
-            )
-        }
+        AboutLinks(stringResource(CommonString.other_licenses, stringResource(R.string.dependency_license_wiki)), onLink)
+        SettingsRow(
+            stringResource(CommonString.help_title_support_ankidroid),
+            icon = R.drawable.symbol_volunteer_activism,
+            onClick = onSupportUpstream,
+        )
         Column(Modifier.padding(top = 18.dp)) {
             SettingsDivider()
-            SettingsRow(stringResource(CommonString.info_rate), icon = R.drawable.symbol_star, onClick = onRate)
             SettingsSearchTarget(searchTarget == "open_changelog") { modifier, highlighted ->
                 SettingsRow(
                     stringResource(CommonString.open_changelog),
@@ -137,18 +133,12 @@ internal fun AboutScreen(
 }
 
 @Composable
-private fun AboutDescription(
+private fun AboutLinks(
     html: String,
     onLink: (String) -> Unit,
 ) {
     val foundation = MaterialTheme.foundation
     val description = remember(html) { html.parseAsHtml() }
-    Text(
-        description.toString(),
-        Modifier.padding(vertical = 6.dp),
-        style = foundation.type.body,
-        color = foundation.colors.onBackground,
-    )
     description.getSpans(0, description.length, URLSpan::class.java).forEach { link ->
         val label = description.subSequence(description.getSpanStart(link), description.getSpanEnd(link)).toString()
         SettingsRow(

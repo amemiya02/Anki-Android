@@ -1,20 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <resources>
-    <string name="paper_welcome_title">ادرس أقل.\nتذكّر أكثر.</string>
-    <string name="paper_welcome_lead">يعرض Anki كل بطاقة قبيل نسيانها. كيف تريد أن تبدأ؟</string>
     <string name="paper_welcome_start_empty">ابدأ بلا رزم</string>
     <string name="paper_welcome_import">استورد مجموعة أو رزمة</string>
-    <string name="paper_welcome_import_hint">ملف ‎.colpkg أو ‎.apkg من AnkiDroid أو Anki على الحاسوب</string>
+    <string name="paper_welcome_import_hint">‎.apkg · ‎.colpkg</string>
     <string name="paper_welcome_sync">زامن مع خادمك الخاص</string>
-    <string name="paper_welcome_sync_hint">نزّل مجموعتك من الخادم</string>
-    <string name="paper_welcome_unofficial">Hayaki نسخة متفرعة غير رسمية من AnkiDroid</string>
     <string name="paper_welcome_migration_title">الانتقال من AnkiWeb</string>
-    <string name="paper_welcome_migration_lead">انقل رزمك من AnkiWeb عبر AnkiDroid أو Anki على الحاسوب للاحتفاظ بجدولتها وسجل المراجعات والوسائط.</string>
-    <string name="paper_welcome_migration_sync">زامن في AnkiDroid أو Anki على الحاسوب</string>
-    <string name="paper_welcome_migration_sync_hint">هكذا تحصل على كل محتوياتك من AnkiWeb.</string>
+    <string name="paper_welcome_migration_sync">زامن مجموعتك</string>
+    <string name="paper_welcome_migration_sync_hint">زامن Anki على الكمبيوتر مع AnkiWeb.</string>
     <string name="paper_welcome_migration_export">صدّر حزمة مجموعة</string>
-    <string name="paper_welcome_migration_export_hint">في AnkiDroid اختر «تصدير المجموعة» من قائمة الرزم. في Anki على الحاسوب اختر «ملف › تصدير › حزمة مجموعة Anki (‎.colpkg)». أدرج الوسائط عند التصدير.</string>
+    <string name="paper_welcome_migration_export_hint">اختر «ملف › تصدير › حزمة مجموعة Anki (‎.colpkg)» وأدرج ملفات الوسائط.</string>
     <string name="paper_welcome_migration_import">استورد الحزمة هنا</string>
     <string name="paper_welcome_migration_import_hint">اختر ملف ‎.colpkg أدناه.</string>
 </resources>

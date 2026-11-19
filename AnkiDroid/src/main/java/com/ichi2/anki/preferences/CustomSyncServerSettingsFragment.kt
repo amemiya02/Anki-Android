@@ -86,11 +86,6 @@ class CustomSyncServerSettingsFragment : Fragment() {
             onBack = requireActivity().onBackPressedDispatcher::onBackPressed,
             onContinue = ::continueToSignIn,
         ) {
-            Text(
-                stringResource(CommonString.paper_sync_server_lead),
-                style = foundation.type.body,
-                color = foundation.colors.onBackgroundMuted,
-            )
             OutlinedTextField(
                 value = address,
                 onValueChange = { address = it },
@@ -136,7 +131,6 @@ class CustomSyncServerSettingsFragment : Fragment() {
             )
             SettingsRow(
                 title = stringResource(CommonString.paper_sync_from_ankiweb),
-                summary = stringResource(CommonString.paper_sync_from_ankiweb_hint),
                 icon = R.drawable.symbol_cloud_off,
                 onClick = { showImportHelp = true },
                 trailing = { SettingsChevron() },

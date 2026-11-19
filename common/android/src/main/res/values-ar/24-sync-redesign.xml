@@ -2,7 +2,6 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <resources>
     <string name="paper_sync_step">الخطوة %1$d من 2</string>
-    <string name="paper_sync_server_lead">يزامن Hayaki مجموعتك مع خادم تشغّله بنفسك، مثل الخادم المدمج في Anki على الكمبيوتر. أدخل عنوانه ثم سجّل الدخول.</string>
     <string name="paper_sync_server_address">عنوان الخادم</string>
     <string name="paper_sync_address_hint">أدرج رقم المنفذ إن وُجد.</string>
     <string name="paper_sync_invalid_address">أدخل عنوان HTTP أو HTTPS لخادم المزامنة الخاص بك.</string>
@@ -11,13 +10,11 @@
     <string name="paper_sync_configured">تم الإعداد</string>
     <string name="paper_sync_server_help">كيفية تشغيل خادم مزامنة</string>
     <string name="paper_sync_from_ankiweb">هل تنتقل من AnkiWeb؟</string>
-    <string name="paper_sync_from_ankiweb_hint">يتعذّر تسجيل الدخول إلى AnkiWeb عبر Hayaki. اطّلع على خطوات نقل رزمك.</string>
-    <string name="paper_sync_import_steps">زامن مجموعتك في AnkiDroid أو Anki على الكمبيوتر. صدّر حزمة مجموعة Anki ‏(.colpkg) مع ملفات الوسائط، ثم اختر ذلك الملف في Hayaki.</string>
+    <string name="paper_sync_import_steps">صدّر مجموعتك من Anki بصيغة ‎.colpkg مع ملفات الوسائط، ثم افتحها هنا.</string>
     <string name="paper_sync_choose_file">اختر الملف</string>
     <string name="paper_sync_sign_in_title">سجّل الدخول إلى خادمك</string>
     <string name="paper_sync_username">اسم المستخدم</string>
     <string name="paper_sync_username_required">أدخل اسم المستخدم.</string>
-    <string name="paper_sync_password_note">تُرسل كلمة مرورك إلى هذا الخادم وحده لإبقائك مسجّل الدخول.</string>
     <string name="paper_sync_show_password">إظهار كلمة المرور</string>
     <string name="paper_sync_hide_password">إخفاء كلمة المرور</string>
     <string name="paper_sync_wrong_credentials">لم يقبل الخادم اسم المستخدم أو كلمة المرور. تحقّق منهما وحاول مجددًا.</string>

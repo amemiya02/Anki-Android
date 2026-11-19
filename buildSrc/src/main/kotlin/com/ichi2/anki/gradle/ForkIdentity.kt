@@ -26,5 +26,5 @@ object ForkIdentity {
      * The working name shown by the launcher of a debug build, so it is told apart from a release build.
      * It is for development builds only and must never reach another person.
      */
-    const val WORKING_NAME = "AnkiDroid Redesign"
+    const val WORKING_NAME = "Hayaki Debug"
 }
