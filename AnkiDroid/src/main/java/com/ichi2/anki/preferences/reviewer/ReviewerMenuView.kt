@@ -112,9 +112,12 @@ class ReviewerMenuView(
                         }
                     }
                     val opened = openedMenu
-                    DropdownMenu(opened != null, onDismissRequest = { openedMenu = null }) {
-                        for (item in opened?.children?.filter(MenuItem::isVisible).orEmpty()) {
-                            MenuRow(item, version) { select(item) }
+                    // Dispose the popup with its items so it cannot be remeasured during dismissal.
+                    if (opened != null) {
+                        DropdownMenu(expanded = true, onDismissRequest = { openedMenu = null }) {
+                            for (item in opened.children.filter(MenuItem::isVisible)) {
+                                MenuRow(item, version) { select(item) }
+                            }
                         }
                     }
                 }

@@ -81,21 +81,24 @@ internal fun WhiteboardControls(
             IconButton(onClick = { menu = overflowMenu() }) {
                 Icon(painterResource(CommonR.drawable.symbol_more_vert), stringResource(CommonString.whiteboard_more_options))
             }
-            DropdownMenu(expanded = menu != null, onDismissRequest = { menu = null }) {
-                menu?.children?.filter { it.isVisible }?.forEach { item ->
-                    DropdownMenuItem(
-                        text = { Text(item.title.toString()) },
-                        enabled = item.isEnabled,
-                        trailingIcon = if (item.isChecked) ({ Icon(painterResource(R.drawable.symbol_check), null) }) else null,
-                        onClick = {
-                            if (item.hasSubMenu()) {
-                                menu = item.subMenu
-                            } else {
-                                menu = null
-                                onMenuItem(item)
-                            }
-                        },
-                    )
+            val opened = menu
+            if (opened != null) {
+                DropdownMenu(expanded = true, onDismissRequest = { menu = null }) {
+                    for (item in opened.children.filter(MenuItem::isVisible)) {
+                        DropdownMenuItem(
+                            text = { Text(item.title.toString()) },
+                            enabled = item.isEnabled,
+                            trailingIcon = if (item.isChecked) ({ Icon(painterResource(R.drawable.symbol_check), null) }) else null,
+                            onClick = {
+                                if (item.hasSubMenu()) {
+                                    menu = item.subMenu
+                                } else {
+                                    menu = null
+                                    onMenuItem(item)
+                                }
+                            },
+                        )
+                    }
                 }
             }
         }

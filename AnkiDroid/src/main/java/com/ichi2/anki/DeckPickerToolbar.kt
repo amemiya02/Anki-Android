@@ -103,7 +103,18 @@ internal fun DeckPickerToolbar(
     ) {
         if (onNavigate != null || search != null) {
             val closeSearch: () -> Unit = { menu?.findItem(R.id.deck_picker_action_filter)?.collapseActionView() }
-            IconButton(onClick = if (search != null) closeSearch else requireNotNull(onNavigate), modifier = Modifier.size(48.dp), colors = iconColors) {
+            IconButton(
+                onClick =
+                    if (search !=
+                        null
+                    ) {
+                        closeSearch
+                    } else {
+                        requireNotNull(onNavigate)
+                    },
+                modifier = Modifier.size(48.dp),
+                colors = iconColors,
+            ) {
                 Icon(
                     painterResource(if (search == null) R.drawable.symbol_menu else CommonR.drawable.symbol_arrow_back),
                     stringResource(if (search == null) CommonString.drawer_open else AppCompatR.string.abc_action_bar_up_description),
@@ -170,20 +181,23 @@ internal fun DeckPickerToolbar(
                         stringResource(AppCompatR.string.abc_action_menu_overflow_description),
                     )
                 }
-                DropdownMenu(popup != null, onDismissRequest = { popup = null }) {
-                    for (item in popup.orEmpty()) {
-                        DropdownMenuItem(
-                            text = { Text(item.title.toString()) },
-                            enabled = item.isEnabled,
-                            onClick = {
-                                popup =
-                                    item.subMenu
-                                        ?.children
-                                        ?.filter { it.isVisible }
-                                        ?.toList()
-                                if (!item.hasSubMenu()) onAction(item)
-                            },
-                        )
+                val opened = popup
+                if (opened != null) {
+                    DropdownMenu(expanded = true, onDismissRequest = { popup = null }) {
+                        for (item in opened) {
+                            DropdownMenuItem(
+                                text = { Text(item.title.toString()) },
+                                enabled = item.isEnabled,
+                                onClick = {
+                                    popup =
+                                        item.subMenu
+                                            ?.children
+                                            ?.filter { it.isVisible }
+                                            ?.toList()
+                                    if (!item.hasSubMenu()) onAction(item)
+                                },
+                            )
+                        }
                     }
                 }
             }
