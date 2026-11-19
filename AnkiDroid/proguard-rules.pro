@@ -34,6 +34,8 @@
 -keep class androidx.core.app.ActivityCompat$* { *; }
 -keep class androidx.concurrent.futures.** { *; }
 -keep class androidx.appcompat.view.menu.MenuItemImpl { *; } # .utils.ext.MenuItemImpl
+# Named only as the themes' `viewInflaterClass`: AppCompat creates it by reflection
+-keep class com.ichi2.anki.common.android.themes.FoundationViewInflater { <init>(); }
 
 # used via exception.toString()
 -keepnames class * extends java.lang.Throwable
