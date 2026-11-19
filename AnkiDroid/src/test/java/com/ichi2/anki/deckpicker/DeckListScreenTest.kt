@@ -2,22 +2,37 @@
 
 package com.ichi2.anki.deckpicker
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.Density
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import anki.decks.DeckTreeNode
+import anki.decks.deckTreeNode
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.libanki.DeckId
+import com.ichi2.anki.libanki.sched.DeckNode
 import com.ichi2.compose.theme.AnkiDroidTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
+import kotlin.math.abs
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 /** The deck list ([DeckListScreen]), driven by what a person sees */
 @RunWith(AndroidJUnit4::class)
@@ -68,10 +83,15 @@ class DeckListScreenTest : RobolectricTest() {
 
     private fun name(deckId: DeckId) = col.decks.name(deckId)
 
-    private fun show(state: DeckListScreenState) {
+    private fun show(
+        state: DeckListScreenState,
+        fontScale: Float = 1f,
+    ) {
         composeRule.setContent {
-            AnkiDroidTheme {
-                DeckListScreen(state = state, actions = actions)
+            CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, fontScale)) {
+                AnkiDroidTheme {
+                    DeckListScreen(state = state, actions = actions)
+                }
             }
         }
     }
@@ -98,6 +118,90 @@ class DeckListScreenTest : RobolectricTest() {
         composeRule.onNodeWithContentDescription("New: 3", useUnmergedTree = true).assertExists()
         composeRule.onNodeWithContentDescription("Learning: 0", useUnmergedTree = true).assertExists()
         composeRule.onNodeWithContentDescription("Due: 0", useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    @Config(qualifiers = "zh-rCN-w320dp-h880dp-mdpi")
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `a narrow deck list shows the full name of a nested deck with large counts`() {
+        show(nestedDecks("2-N4"))
+
+        assertTextFits("2-N4")
+        assertCountsFitUnderHeadings()
+    }
+
+    @Test
+    @Config(qualifiers = "ar-w320dp-h880dp-mdpi")
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `a narrow right-to-left deck list wraps a long deck name at large text size`() {
+        val name = "مراجعة قواعد اللغة اليابانية"
+        show(nestedDecks(name), fontScale = 2f)
+
+        assertTextFits(name)
+        assertCountsFitUnderHeadings()
+    }
+
+    private fun nestedDecks(leafName: String): DeckListScreenState {
+        val names = listOf("JLPT", "コース", "語彙", "文法", leafName)
+        var child: DeckTreeNode? = null
+        for (index in names.indices.reversed()) {
+            child =
+                deckTreeNode {
+                    name = names[index]
+                    deckId = index.toLong() + 10
+                    level = index + 1
+                    if (index == names.lastIndex) {
+                        newCount = 30
+                        learnCount = 41
+                        reviewCount = 4966
+                    }
+                    child?.let { children.add(it) }
+                }
+        }
+        val decks = DeckNode(checkNotNull(child), names.first()).filterAndFlattenDisplay(DeckFilters.create(""), 0L)
+        return DeckListScreenState(decks = decks, isEmptyCollection = false, dueToday = 5037, studiedToday = 0)
+    }
+
+    private fun assertCountsFitUnderHeadings() {
+        fun centerX(text: String): Float {
+            val bounds = composeRule.onNodeWithText(text, useUnmergedTree = true).getUnclippedBoundsInRoot()
+            return (bounds.left.value + bounds.right.value) / 2
+        }
+
+        val counts = listOf("30", "41", "4966")
+        val headings = listOf(TR.actionsNew(), TR.schedulingLearning(), TR.decksReviewHeader())
+        composeRule.onNodeWithText(counts.last(), useUnmergedTree = true).performScrollTo().assertIsDisplayed()
+        counts.zip(headings).forEach { (count, heading) ->
+            val layout = textLayout(count)
+            assertEquals(1, layout.lineCount, "Count '$count' must fit on one line within ${layout.size}")
+            assertFalse(layout.isLineEllipsized(0), "Count '$count' ends in an ellipsis")
+            assertEquals(count.length, layout.getLineEnd(0, visibleEnd = true))
+            for (digit in count.indices) {
+                val glyph = layout.getBoundingBox(digit)
+                assertTrue(
+                    glyph.left >= -1f && glyph.right <= layout.size.width + 1f && glyph.top >= -1f &&
+                        glyph.bottom <= layout.size.height + 1f,
+                    "Digit $digit of '$count' falls outside the text layout: $glyph within ${layout.size}",
+                )
+            }
+            assertTrue(abs(centerX(heading) - centerX(count)) <= 1f, "The $count count is not centered under its heading")
+        }
+    }
+
+    private fun assertTextFits(text: String) {
+        val layout = textLayout(text)
+        assertTrue(layout.size.width > 0, "'$text' has no space to render")
+        assertFalse(layout.hasVisualOverflow, "'$text' is clipped")
+        val finalLine = layout.lineCount - 1
+        assertFalse(layout.isLineEllipsized(finalLine), "'$text' ends in an ellipsis")
+        assertEquals(text.length, layout.getLineEnd(finalLine, visibleEnd = true))
+    }
+
+    private fun textLayout(text: String): TextLayoutResult {
+        val node = composeRule.onNodeWithText(text, useUnmergedTree = true)
+        val layouts = mutableListOf<TextLayoutResult>()
+        checkNotNull(node.fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action)(layouts)
+        return layouts.single()
     }
 
     @Test

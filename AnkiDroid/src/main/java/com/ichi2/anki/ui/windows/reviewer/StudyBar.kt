@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -28,11 +29,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import com.ichi2.anki.libanki.sched.Counts
 import com.ichi2.anki.utils.remainingTime
@@ -41,6 +46,7 @@ import com.ichi2.anki.common.android.R as CommonR
 
 /** Separates the levels of a Deck path; mirrored in right-to-left text. */
 private const val DECK_PATH_SEPARATOR = " › "
+private const val DECK_PATH_LINES = 3
 
 /**
  * The text of the study bar: the Deck path above the remaining counts and the time-remaining
@@ -58,23 +64,7 @@ fun StudyBarTitles(
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         if (state.deckPath.isNotEmpty()) {
-            Text(
-                text =
-                    buildAnnotatedString {
-                        state.deckPath.forEachIndexed { i, part ->
-                            if (i > 0) {
-                                withStyle(SpanStyle(color = foundation.colors.onBackgroundMuted, fontWeight = FontWeight.Normal)) {
-                                    append(DECK_PATH_SEPARATOR)
-                                }
-                            }
-                            append(part)
-                        }
-                    },
-                style = foundation.type.studyTitle,
-                color = foundation.colors.onBackground,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            StudyBarDeckPath(state.deckPath)
         }
         if (state.counts == null && state.minutesLeft == null) return@Column
         FlowRow(
@@ -90,6 +80,50 @@ fun StudyBarTitles(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun StudyBarDeckPath(deckPath: List<String>) {
+    val foundation = MaterialTheme.foundation
+    val style = foundation.type.studyTitle
+    val separatorStyle = SpanStyle(color = foundation.colors.onBackgroundMuted, fontWeight = FontWeight.Normal)
+    val fullPath =
+        buildAnnotatedString {
+            deckPath.forEachIndexed { index, part ->
+                if (index > 0) withStyle(separatorStyle) { append(DECK_PATH_SEPARATOR) }
+                append(part)
+            }
+        }
+    val measurer = rememberTextMeasurer()
+    BoxWithConstraints {
+        val omitAncestors =
+            deckPath.size > 1 &&
+                measurer
+                    .measure(
+                        fullPath,
+                        style,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = DECK_PATH_LINES,
+                        constraints = Constraints(maxWidth = constraints.maxWidth),
+                    ).didOverflowHeight
+        val visiblePath =
+            if (omitAncestors) {
+                buildAnnotatedString {
+                    withStyle(separatorStyle) { append("…$DECK_PATH_SEPARATOR") }
+                    append(deckPath.last())
+                }
+            } else {
+                fullPath
+            }
+        Text(
+            text = visiblePath,
+            modifier = if (omitAncestors) Modifier.semantics { contentDescription = fullPath.text } else Modifier,
+            style = style,
+            color = foundation.colors.onBackground,
+            maxLines = DECK_PATH_LINES,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 

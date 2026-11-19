@@ -42,7 +42,7 @@ class DeckPickerScreenshotTest : DeckListScreenshotTest() {
         showDeckList("decks") { scrollDeckListToEnd() }
     }
 
-    /** Long names wrap once and are then cut; the counts beside them stay in place */
+    /** Long names wrap, with counts on a second line when they need more room */
     @Test
     fun long_names() {
         studiedToday(31, deck = addDeck("唐诗三百首 · 全本精选（附注释、译文与赏析）"))

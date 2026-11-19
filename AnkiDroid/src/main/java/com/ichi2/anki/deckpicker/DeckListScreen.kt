@@ -15,7 +15,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -174,47 +176,72 @@ private fun Decks(
     contentPadding: PaddingValues,
     modifier: Modifier,
 ) {
-    val columnWidth = countColumnWidth(state.decks)
-    LazyColumn(
-        state = listState,
-        // hands scrolling to the bottom bar's HideViewOnScrollBehavior
-        modifier = modifier.fillMaxSize().nestedScroll(rememberNestedScrollInteropConnection()),
-        contentPadding = contentPadding,
-    ) {
-        // the current Deck, when it has Cards left: the summary offers to study it
-        val current = state.decks.firstOrNull { it.isSelected && it.hasCardsLeft }
-        item(key = "summary") {
-            TodaySummary(
-                dueToday = state.dueToday,
-                studiedToday = state.studiedToday,
-                current = current,
-                onStudy = actions::onDeckClick,
-            )
+    val foundation = MaterialTheme.foundation
+    val layoutDirection = LocalLayoutDirection.current
+    val density = LocalDensity.current
+    val measurer = rememberTextMeasurer()
+    val deepestLevel = remember(state.decks) { state.decks.maxOfOrNull { it.depth }?.coerceAtLeast(1) ?: 1 }
+    val preferredNameWidth = with(density) { (foundation.type.deckName.fontSize * 5).toDp() }
+    BoxWithConstraints(modifier.fillMaxSize()) {
+        val horizontalPadding = contentPadding.calculateLeftPadding(layoutDirection) + contentPadding.calculateRightPadding(layoutDirection)
+        val contentWidth = (maxWidth - horizontalPadding - foundation.spacing.screenMargin * 2 - ROW_END_PADDING).coerceAtLeast(0.dp)
+        val columnWidths = countColumnWidths(state.decks, contentWidth)
+        val countsWidth = columnWidths.reduce(Dp::plus)
+        val nameWidth = contentWidth - foundation.spacing.touchTarget - NAME_END_PADDING
+        val indentPerLevel = minOf(NESTED_INDENT, (nameWidth - preferredNameWidth).coerceAtLeast(0.dp) / deepestLevel)
+        LazyColumn(
+            state = listState,
+            // hands scrolling to the bottom bar's HideViewOnScrollBehavior
+            modifier = Modifier.fillMaxSize().nestedScroll(rememberNestedScrollInteropConnection()),
+            contentPadding = contentPadding,
+        ) {
+            val current = state.decks.firstOrNull { it.isSelected && it.hasCardsLeft }
+            item(key = "summary") {
+                TodaySummary(
+                    dueToday = state.dueToday,
+                    studiedToday = state.studiedToday,
+                    current = current,
+                    onStudy = actions::onDeckClick,
+                )
+            }
+            if (state.decks.any { it.hasCardsLeft }) stickyHeader(key = "headings") { CountHeadings(columnWidths) }
+            itemsIndexed(state.decks, key = { _, deck -> deck.did }) { index, deck ->
+                val next = state.decks.getOrNull(index + 1)
+                val indent = indentPerLevel * deck.depth
+                val inlineNameWidth = nameWidth - indent - countsWidth
+                val nameStyle = if (deck.depth == 0) foundation.type.deckName else foundation.type.deckNameNested
+                // Keep a short name beside its counts wherever it fits. Longer names get a readable line width.
+                val countsInline =
+                    inlineNameWidth >= preferredNameWidth ||
+                        (
+                            inlineNameWidth > 0.dp &&
+                                with(density) {
+                                    val singleLineName = measurer.measure(deck.lastDeckNameComponent, nameStyle, maxLines = 1)
+                                    singleLineName.size.width.toDp() <= inlineNameWidth
+                                }
+                        )
+                DeckRow(
+                    deck = deck,
+                    columnWidths = columnWidths,
+                    countsInline = countsInline,
+                    indent = indent,
+                    actions = actions,
+                    position =
+                        GroupPosition(
+                            isFirst = deck.depth == 0,
+                            isLast = next == null || next.depth == 0,
+                            isFirstGroup = index == 0,
+                        ),
+                    modifier =
+                        Modifier.animateItem(
+                            fadeInSpec = tween(EXPAND_MILLIS),
+                            placementSpec = tween(EXPAND_MILLIS),
+                            fadeOutSpec = tween(EXPAND_MILLIS),
+                        ),
+                )
+            }
+            item(key = "end") { Spacer(Modifier.height(GROUP_GAP)) }
         }
-        // the headings name count columns: with every Deck done there are none to name
-        if (state.decks.any { it.hasCardsLeft }) stickyHeader(key = "headings") { CountHeadings(columnWidth) }
-        itemsIndexed(state.decks, key = { _, deck -> deck.did }) { index, deck ->
-            // a top-level Deck and its open sub-Decks share one container
-            val next = state.decks.getOrNull(index + 1)
-            DeckRow(
-                deck = deck,
-                columnWidth = columnWidth,
-                actions = actions,
-                position =
-                    GroupPosition(
-                        isFirst = deck.depth == 0,
-                        isLast = next == null || next.depth == 0,
-                        isFirstGroup = index == 0,
-                    ),
-                modifier =
-                    Modifier.animateItem(
-                        fadeInSpec = tween(EXPAND_MILLIS),
-                        placementSpec = tween(EXPAND_MILLIS),
-                        fadeOutSpec = tween(EXPAND_MILLIS),
-                    ),
-            )
-        }
-        item(key = "end") { Spacer(Modifier.height(GROUP_GAP)) }
     }
 }
 
@@ -318,24 +345,11 @@ private fun TodaySummary(
     }
 }
 
-/**
- * New, Learning and Due over the count columns. They stay at the top while the Decks scroll.
- * All three share one size: the label size, or smaller when the longest heading would not fit.
- */
+/** New, Learning and Due over the count columns. They stay at the top while the Decks scroll. */
 @Composable
-private fun CountHeadings(columnWidth: Dp) {
+private fun CountHeadings(columnWidths: List<Dp>) {
     val foundation = MaterialTheme.foundation
     val margin = foundation.spacing.screenMargin
-    val headings = countHeadings()
-    val measurer = rememberTextMeasurer()
-    val density = LocalDensity.current
-    val label = foundation.type.label
-    val style =
-        remember(headings, columnWidth, label, density) {
-            val widest = headings.maxOf { measurer.measure(it, label).size.width }
-            val room = with(density) { (columnWidth - HEADING_SIDE_ROOM).toPx() }
-            if (widest <= room) label else label.copy(fontSize = label.fontSize * (room / widest))
-        }
     Row(
         modifier =
             Modifier
@@ -343,16 +357,15 @@ private fun CountHeadings(columnWidth: Dp) {
                 .background(foundation.colors.background)
                 .padding(start = margin, end = margin + ROW_END_PADDING, bottom = 6.dp, top = 2.dp),
         horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        for (heading in headings) {
+        countHeadings().forEachIndexed { index, heading ->
             Text(
                 text = heading,
-                style = style,
+                style = foundation.type.label,
                 color = foundation.colors.onBackgroundMuted,
                 textAlign = TextAlign.Center,
-                maxLines = 1,
-                softWrap = false,
-                modifier = Modifier.width(columnWidth),
+                modifier = Modifier.width(columnWidths[index]),
             )
         }
     }
@@ -371,7 +384,9 @@ private data class GroupPosition(
 @Composable
 private fun DeckRow(
     deck: DisplayDeckNode,
-    columnWidth: Dp,
+    columnWidths: List<Dp>,
+    countsInline: Boolean,
+    indent: Dp,
     actions: DeckListActions,
     position: GroupPosition,
     modifier: Modifier = Modifier,
@@ -386,7 +401,8 @@ private fun DeckRow(
             bottomStart = if (position.isLast) corner else 0.dp,
             bottomEnd = if (position.isLast) corner else 0.dp,
         )
-    Row(
+    val onCountsClick = { actions.onDeckCountsClick(deck.did) }
+    Column(
         modifier =
             modifier
                 .fillMaxWidth()
@@ -414,21 +430,24 @@ private fun DeckRow(
                     onLongClick = { actions.onDeckLongClick(deck.did) },
                     onClick = { actions.onDeckClick(deck.did) },
                 ).semantics { if (deck.isSelected) selected = true }
-                .padding(start = NESTED_INDENT * deck.depth, end = ROW_END_PADDING),
-        verticalAlignment = Alignment.CenterVertically,
+                .padding(end = ROW_END_PADDING),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.End,
     ) {
-        DeckMarker(deck = deck, onToggle = { actions.onToggleExpand(deck.did) })
-        Text(
-            text = deck.lastDeckNameComponent,
-            style = if (deck.depth == 0) foundation.type.deckName else foundation.type.deckNameNested,
-            // a filtered Deck's name is set apart, as the old deck list did; so is the current Deck
-            color = if (deck.filtered || deck.isSelected) foundation.colors.emphasis else foundation.colors.onBackground,
-            // a long name wraps once, then is cut: the counts beside it never move
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f).padding(top = 8.dp, bottom = 8.dp, end = 8.dp),
-        )
-        DeckCounts(deck = deck, columnWidth = columnWidth, onClick = { actions.onDeckCountsClick(deck.did) })
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(start = indent),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            DeckMarker(deck = deck, onToggle = { actions.onToggleExpand(deck.did) })
+            Text(
+                text = deck.lastDeckNameComponent,
+                style = if (deck.depth == 0) foundation.type.deckName else foundation.type.deckNameNested,
+                color = if (deck.filtered || deck.isSelected) foundation.colors.emphasis else foundation.colors.onBackground,
+                modifier = Modifier.weight(1f).padding(top = 8.dp, bottom = 8.dp, end = NAME_END_PADDING),
+            )
+            if (countsInline) DeckCounts(deck, columnWidths, onCountsClick)
+        }
+        if (!countsInline) DeckCounts(deck, columnWidths, onCountsClick)
     }
 }
 
@@ -474,7 +493,7 @@ private fun DeckMarker(
 @Composable
 private fun DeckCounts(
     deck: DisplayDeckNode,
-    columnWidth: Dp,
+    columnWidths: List<Dp>,
     onClick: () -> Unit,
 ) {
     val foundation = MaterialTheme.foundation
@@ -485,7 +504,7 @@ private fun DeckCounts(
             .clickable(role = Role.Button, onClick = onClick)
     if (deck.newCount == 0 && deck.lrnCount == 0 && deck.revCount == 0) {
         Row(
-            modifier = clickable.width(columnWidth * 3).semantics(mergeDescendants = true) { },
+            modifier = clickable.width(columnWidths.reduce(Dp::plus)).semantics(mergeDescendants = true) { },
             horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.End),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -516,7 +535,7 @@ private fun DeckCounts(
         counts.forEachIndexed { index, (count, colour) ->
             val description = stringResource(CommonR.string.deck_list_count_description, headings[index], count)
             Box(
-                modifier = Modifier.width(columnWidth).semantics { contentDescription = description },
+                modifier = Modifier.width(columnWidths[index]).semantics { contentDescription = description },
                 contentAlignment = Alignment.Center,
             ) {
                 Count(count, colour)
@@ -537,33 +556,45 @@ private fun Count(
         style = if (count == 0) foundation.type.count.copy(fontWeight = FontWeight.Normal) else foundation.type.count,
         color = if (count == 0) foundation.colors.onBackgroundMuted else colour,
         textAlign = TextAlign.Center,
-        maxLines = 1,
-        softWrap = false,
         modifier =
             Modifier
+                // Center the text within the pill's measured width.
+                .width(IntrinsicSize.Max)
                 .clip(CircleShape)
                 .then(if (count == 0) Modifier else Modifier.background(colour.copy(alpha = COUNT_TINT)))
                 .padding(horizontal = 8.dp, vertical = 2.dp),
     )
 }
 
-/** Wide enough for the largest count on its pill, so the columns line up */
+/** Share each queue's column width across Decks and reserve space for its heading. */
 @Composable
-private fun countColumnWidth(decks: List<DisplayDeckNode>): Dp {
+private fun countColumnWidths(
+    decks: List<DisplayDeckNode>,
+    availableWidth: Dp,
+): List<Dp> {
     val foundation = MaterialTheme.foundation
     val measurer = rememberTextMeasurer()
     val density = LocalDensity.current
-    val widest = decks.maxOfOrNull { maxOf(it.newCount, it.lrnCount, it.revCount) } ?: 0
-    val style = foundation.type.count
-    return remember(widest, style, density) {
-        val textWidth =
-            with(density) {
-                measurer
-                    .measure(widest.toString(), style)
-                    .size.width
-                    .toDp()
+    val headings = countHeadings()
+    return remember(decks, availableWidth, foundation.type, foundation.spacing.countColumn, density, measurer, headings) {
+        val largestCounts =
+            listOf(
+                decks.maxOfOrNull { it.newCount } ?: 0,
+                decks.maxOfOrNull { it.lrnCount } ?: 0,
+                decks.maxOfOrNull { it.revCount } ?: 0,
+            )
+        val widths =
+            largestCounts.zip(headings).map { (count, heading) ->
+                with(density) {
+                    val countText = measurer.measure(count.toString(), foundation.type.count)
+                    val headingText = measurer.measure(heading, foundation.type.label)
+                    val countWidth = countText.size.width.toDp() + COUNT_SIDE_ROOM
+                    val headingWidth = headingText.size.width.toDp() + HEADING_SIDE_ROOM
+                    maxOf(foundation.spacing.countColumn, countWidth, headingWidth)
+                }
             }
-        maxOf(foundation.spacing.countColumn, textWidth + 20.dp)
+        val scale = (availableWidth / widths.reduce(Dp::plus)).coerceAtMost(1f)
+        widths.map { it * scale }
     }
 }
 
@@ -676,12 +707,16 @@ private val GROUP_CORNER = 16.dp
 /** Room between the last count and the container's edge */
 private val ROW_END_PADDING = 8.dp
 
+/** Room after a Deck name */
+private val NAME_END_PADDING = 8.dp
+
 /** The summary ring: its size, its faint track, and how long it takes to move on */
 private val RING_SIZE = 64.dp
 private const val RING_TRACK_ALPHA = 0.16f
 private const val RING_MILLIS = 400
 
-/** Space kept either side of a column heading */
+/** Combined horizontal space on either side of the text in a count column */
+private val COUNT_SIDE_ROOM = 20.dp
 private val HEADING_SIDE_ROOM = 4.dp
 
 /** The tint behind a count: its own colour, faint enough that the count still reads at AA */
