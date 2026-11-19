@@ -4,8 +4,8 @@
     <string name="paper_welcome_start_empty">Start with no Decks</string>
     <string name="paper_welcome_import">Import a collection or Deck</string>
     <string name="paper_welcome_import_hint">.apkg · .colpkg</string>
-    <string name="paper_welcome_sync">Sync with your own server</string>
-    <string name="paper_welcome_migration_title">Coming from AnkiWeb</string>
+    <string name="paper_welcome_sync">Sync with AnkiWeb</string>
+    <string name="paper_welcome_migration_title">Import from a file</string>
     <string name="paper_welcome_migration_sync">Sync your collection</string>
     <string name="paper_welcome_migration_sync_hint">Open Anki on your computer and sync with AnkiWeb.</string>
     <string name="paper_welcome_migration_export">Export a collection package</string>

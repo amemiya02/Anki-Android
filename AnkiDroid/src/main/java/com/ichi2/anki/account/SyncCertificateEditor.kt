@@ -9,12 +9,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.core.content.edit
-import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CommonString
-import com.ichi2.anki.R
-import com.ichi2.anki.settings.Prefs
 import com.ichi2.compose.ui.dialogs.TextInputDialog
+import java.security.cert.CertificateException
+import java.security.cert.CertificateFactory
 
 @Composable
 internal fun SyncCertificateEditor(
@@ -32,9 +30,8 @@ internal fun SyncCertificateEditor(
         confirmText = stringResource(CommonString.dialog_ok),
         onDismissRequest = onDismiss,
         onConfirm = { certificate ->
-            if (CollectionManager.updateCustomCertificate(certificate)) {
-                Prefs.sharedPrefs.edit { putString(Prefs.key(R.string.custom_sync_certificate_key), certificate) }
-                onSave(certificate)
+            if (isValidCertificate(certificate)) {
+                onSave(certificate.ifBlank { "" })
             } else {
                 invalid = certificate
             }
@@ -45,3 +42,12 @@ internal fun SyncCertificateEditor(
         singleLine = false,
     )
 }
+
+/** Validate the draft without changing TLS trust for the server currently in use. */
+private fun isValidCertificate(certificate: String): Boolean =
+    certificate.isBlank() ||
+        try {
+            CertificateFactory.getInstance("X.509").generateCertificates(certificate.byteInputStream()).isNotEmpty()
+        } catch (_: CertificateException) {
+            false
+        }

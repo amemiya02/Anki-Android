@@ -15,6 +15,7 @@ import com.ichi2.anki.dialogs.SyncErrorDialog
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.utils.ext.DIALOG_FRAGMENT_TAG
 import com.ichi2.testutils.signInToSyncServer
+import com.ichi2.utils.LanguageUtil.withUnicodeIsolation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestDispatcher
@@ -109,7 +110,10 @@ class SyncConflictTest : RobolectricTest() {
 
             assertSame(confirmation, conflictDialog())
             assertTrue(confirmation.isShowing)
-            compose.onNodeWithText(getString(CommonString.paper_sync_keep_phone_hint)).assertIsDisplayed()
+            compose
+                .onNodeWithText(
+                    getString(CommonString.sync_replace_remote, withUnicodeIsolation(requireNotNull(syncServerAddress()))),
+                ).assertIsDisplayed()
         }
 
     @Test
@@ -121,7 +125,10 @@ class SyncConflictTest : RobolectricTest() {
 
             assertSame(confirmation, conflictDialog())
             assertTrue(confirmation.isShowing)
-            compose.onNodeWithText(getString(CommonString.paper_sync_keep_server_hint)).assertIsDisplayed()
+            compose
+                .onNodeWithText(
+                    getString(CommonString.sync_replace_local, withUnicodeIsolation(requireNotNull(syncServerAddress()))),
+                ).assertIsDisplayed()
         }
 
     @Test

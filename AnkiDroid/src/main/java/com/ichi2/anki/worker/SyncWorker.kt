@@ -41,6 +41,7 @@ import com.ichi2.anki.sync.MeteredSyncPolicy
 import com.ichi2.anki.sync.SyncAuth
 import com.ichi2.anki.sync.fullUploadOrDownload
 import com.ichi2.anki.sync.syncCollection
+import com.ichi2.anki.syncCertificate
 import com.ichi2.anki.syncServerDisplayName
 import com.ichi2.anki.utils.ext.trySetForeground
 import kotlinx.coroutines.Dispatchers
@@ -97,6 +98,7 @@ class SyncWorker(
         trySetForeground(getForegroundInfo())
 
         val auth = inputData.toSyncAuth() ?: return Result.failure()
+        if (!CollectionManager.updateCustomCertificate(syncCertificate())) return Result.failure()
         val shouldSyncMedia = inputData.getBoolean(SYNC_MEDIA_KEY, false)
 
         try {
@@ -119,7 +121,7 @@ class SyncWorker(
             Timber.d("SyncWorker: showing failure notification")
             return Result.failure()
         } finally {
-            setLastSyncTimeToNow()
+            if (inputData.isCurrentSyncSession()) setLastSyncTimeToNow()
         }
         Timber.d("SyncWorker: cancelling progress notification (sync completed)")
         notificationManager?.cancel(NotificationId.SYNC)
@@ -152,7 +154,9 @@ class SyncWorker(
                     }
                 try {
                     withCol {
+                        if (!inputData.isCurrentSyncSession()) return@withCol null
                         val response = syncCollection(auth, syncMedia = false)
+                        if (!inputData.isCurrentSyncSession()) return@withCol null
                         val syncAuth = auth.followRedirect(response)
                         Timber.i("Sync required: %s", response.required)
                         // Keep the direction decision and transfer on the queue so the collection
@@ -178,6 +182,7 @@ class SyncWorker(
                     monitor.cancel()
                 }
             } ?: return
+        if (!inputData.isCurrentSyncSession()) return
         setLastSuccessfulSyncTime(auth)
         if (syncMedia) syncMedia(syncAuth)
     }
@@ -221,6 +226,7 @@ class SyncWorker(
                 Timber.i("SyncWorker: Backup skipped before full download: collection unchanged")
             }
         }
+        if (!inputData.isCurrentSyncSession()) return
         close(downgrade = false, forFullSync = true)
         try {
             // Media starts separately so WorkManager can enforce its network constraints.
@@ -232,7 +238,7 @@ class SyncWorker(
 
     private suspend fun syncMedia(auth: SyncAuth) {
         Timber.i("Enqueuing SyncMediaWorker")
-        SyncMediaWorker.start(applicationContext, auth)
+        SyncMediaWorker.start(applicationContext, auth, session = inputData.getString(SYNC_SESSION_KEY).orEmpty())
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {

@@ -42,11 +42,11 @@ import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.performBackupInBackground
 import com.ichi2.anki.progress.HasProgress
 import com.ichi2.anki.progress.ProgressManager
+import com.ichi2.anki.rememberSyncEndpoint
 import com.ichi2.anki.reviewreminders.ScheduleRemindersDestination
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.sync.MeteredSyncPolicy
 import com.ichi2.anki.sync.syncStatus
-import com.ichi2.anki.rememberSyncEndpoint
 import com.ichi2.anki.syncAuth
 import com.ichi2.anki.utils.Destination
 import com.ichi2.utils.NetworkUtils
@@ -99,6 +99,7 @@ class DeckPickerViewModel :
 
     /** Media choice for a metered confirmation waiting for a resumed activity to show it. */
     var deferredMeteredSyncMedia: Boolean? = null
+    var deferredMeteredSyncManual: Boolean = true
 
     /**
      * Keep track of which deck was last given focus in the deck list. If we find that this value
@@ -771,11 +772,13 @@ class DeckPickerViewModel :
      */
     suspend fun fetchSyncIconState(): SyncIconState {
         if (!Prefs.displaySyncStatus) return SyncIconState.Normal
+        val session = Prefs.syncSession
         val auth = syncAuth() ?: return SyncIconState.NotLoggedIn
         return try {
             // Use CollectionManager to ensure that this doesn't block 'deck count' tasks
             // throws if a .colpkg import or similar occurs just before this call
             val output = withContext(Dispatchers.IO) { CollectionManager.getBackend().syncStatus(auth) }
+            if (session != Prefs.syncSession) return SyncIconState.Normal
             if (output.hasNewEndpoint()) rememberSyncEndpoint(output.newEndpoint)
             when (output.required) {
                 SyncStatusResponse.Required.NO_CHANGES -> SyncIconState.Normal

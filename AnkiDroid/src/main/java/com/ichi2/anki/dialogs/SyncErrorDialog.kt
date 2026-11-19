@@ -32,6 +32,7 @@ import com.ichi2.anki.dialogs.SyncErrorDialog.Type.DIALOG_SYNC_SANITY_ERROR_CONF
 import com.ichi2.anki.dialogs.SyncErrorDialog.Type.DIALOG_USER_NOT_LOGGED_IN_SYNC
 import com.ichi2.anki.preferences.SettingsChevron
 import com.ichi2.anki.preferences.SettingsRow
+import com.ichi2.anki.syncServerAddress
 import com.ichi2.anki.syncServerDisplayName
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.dismissAllDialogFragments
@@ -44,6 +45,7 @@ import com.ichi2.compose.ui.dialogs.DialogMark
 import com.ichi2.compose.ui.dialogs.ErrorDialog
 import com.ichi2.compose.ui.dialogs.PaperDialog
 import com.ichi2.compose.ui.dialogs.createPaperDialog
+import com.ichi2.utils.LanguageUtil.withUnicodeIsolation
 import timber.log.Timber
 import java.text.DateFormat
 
@@ -67,7 +69,12 @@ class SyncErrorDialog : AsyncDialogFragment() {
 
     fun requireSyncErrorDialogListener() = activity as SyncErrorDialogListener
 
-    /** The type of the sync error dialog*/
+    private fun replacementMessage(keepLocal: Boolean): String {
+        val destination =
+            syncServerAddress()?.let(::withUnicodeIsolation) ?: syncServerDisplayName() ?: res().getString(CommonString.sync_server_title)
+        return res().getString(if (keepLocal) CommonString.sync_replace_remote else CommonString.sync_replace_local, destination)
+    }
+
     private val dialogType: Type
         get() = Type.fromCode(requireArguments().getInt(ARG_DIALOG_TYPE))
 
@@ -124,7 +131,7 @@ class SyncErrorDialog : AsyncDialogFragment() {
                     DialogBody(errorBody)
                     SettingsRow(
                         title = getString(CommonString.paper_sync_keep_phone),
-                        summary = getString(CommonString.paper_sync_keep_phone_hint),
+                        summary = replacementMessage(true),
                         icon = R.drawable.symbol_smartphone,
                         onClick = {
                             dismiss()
@@ -136,7 +143,7 @@ class SyncErrorDialog : AsyncDialogFragment() {
                     )
                     SettingsRow(
                         title = getString(CommonString.paper_sync_keep_server),
-                        summary = getString(CommonString.paper_sync_keep_server_hint),
+                        summary = replacementMessage(false),
                         icon = R.drawable.symbol_dns,
                         onClick = {
                             dismiss()
@@ -260,6 +267,8 @@ class SyncErrorDialog : AsyncDialogFragment() {
                 }
             val resources = res()
             return when (dialogType) {
+                DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_LOCAL, DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_LOCAL -> replacementMessage(true)
+                DIALOG_SYNC_CONFLICT_CONFIRM_KEEP_REMOTE, DIALOG_SYNC_SANITY_ERROR_CONFIRM_KEEP_REMOTE -> replacementMessage(false)
                 DIALOG_USER_NOT_LOGGED_IN_SYNC, DIALOG_CONNECTION_ERROR ->
                     resources.getString(
                         messageResource,

@@ -9,7 +9,7 @@
     <string name="paper_sync_optional">可选</string>
     <string name="paper_sync_configured">已设置</string>
     <string name="paper_sync_server_help">如何运行同步服务器</string>
-    <string name="paper_sync_from_ankiweb">来自 AnkiWeb？</string>
+    <string name="paper_sync_from_ankiweb">通过文件迁移</string>
     <string name="paper_sync_import_steps">从 Anki 导出包含媒体的集合包（.colpkg），然后在这里打开。</string>
     <string name="paper_sync_choose_file">选择文件</string>
     <string name="paper_sync_sign_in_title">登录到你的服务器</string>
@@ -57,4 +57,14 @@
     <string name="paper_sync_metered_remember">不再询问</string>
     <string name="paper_sync_downloading">正在从 %1$s 下载…</string>
     <string name="paper_sync_uploading">正在上传到 %1$s…</string>
+    <string name="sync_ankiweb_sign_in">登录 AnkiWeb</string>
+    <string name="sync_ankiweb_email">电子邮箱</string>
+    <string name="sync_use_self_hosted">使用自托管服务器</string>
+    <string name="sync_use_ankiweb">使用 AnkiWeb</string>
+    <string name="sync_confirm_server_change">退出 %1$s 并连接到 %2$s？本机的集合将保留。</string>
+    <string name="sync_media_transferring">卡片已同步，正在同步图片和声音…</string>
+    <string name="sync_media_waiting_wifi">卡片已同步，媒体正在等待 Wi-Fi 等非计费网络。</string>
+    <string name="sync_media_queued">卡片已同步，媒体同步已排队。</string>
+    <string name="sync_replace_remote">上传本机集合，替换 %1$s 上的集合。</string>
+    <string name="sync_replace_local">从 %1$s 下载集合，替换本机集合。</string>
 </resources>

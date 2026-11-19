@@ -58,13 +58,13 @@ class DeckPickerImportOnStartTest : RobolectricTest() {
     }
 
     @Test
-    fun `sync setup opens the server address screen inside Decks`() {
+    fun `welcome sync opens AnkiWeb sign-in inside Decks`() {
         setSyncServer(null)
         val intent = DeckPicker.getIntent(targetContext).putExtra(DeckPicker.EXTRA_SYNC_SETUP, true)
         val deckPicker = startActivityNormallyOpenCollectionWithIntent(DeckPicker::class.java, intent)
         advanceRobolectricLooper()
 
-        val label = deckPicker.getString(CommonString.paper_sync_server_address)
+        val label = deckPicker.getString(CommonString.sync_ankiweb_sign_in)
         compose.waitUntil(10_000) { compose.onAllNodes(hasText(label)).fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText(label).assertIsDisplayed()
         assertNull(shadowOf(deckPicker).nextStartedActivityForResult)

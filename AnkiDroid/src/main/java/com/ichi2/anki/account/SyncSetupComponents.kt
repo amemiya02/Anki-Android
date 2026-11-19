@@ -39,7 +39,7 @@ import com.ichi2.compose.theme.foundation
 @Composable
 internal fun SyncStepPage(
     title: String,
-    step: Int,
+    step: Int?,
     button: String,
     canContinue: Boolean,
     bottomCornerClearancePx: Int,
@@ -60,7 +60,7 @@ internal fun SyncStepPage(
                 .padding(top = 10.dp, bottom = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            SyncStepIndicator(step)
+            if (step != null) SyncStepIndicator(step)
             content()
         }
         SyncPrimaryButton(button, onContinue, Modifier.padding(bottom = 12.dp), enabled = canContinue)

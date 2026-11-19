@@ -353,6 +353,8 @@ class LoginFragmentTest : RobolectricTest() {
             }
             setSyncServer(null)
             val login = startLoginScreen(forResult = true)
+            compose.onNodeWithText(targetContext.getString(CommonString.sync_use_self_hosted)).performClick()
+            advanceRobolectricLooper()
             compose
                 .onNode(hasSetTextAction() and hasText(targetContext.getString(CommonString.paper_sync_server_address)))
                 .performTextReplacement(TEST_SYNC_SERVER)

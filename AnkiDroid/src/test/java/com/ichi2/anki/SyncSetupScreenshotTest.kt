@@ -50,10 +50,10 @@ class SyncSetupScreenshotTest : ScreenshotTest() {
     }
 
     @Test
-    fun addressIsTheFirstStepWhenDecksRequestsSync() {
+    fun addressIsTheFirstStepForASelfHostedServer() {
         openWithAppLanguage()
         setSyncServer(null)
-        ActivityScenario.launch<AccountActivity>(AccountActivity.getIntent(targetContext, forResult = true)).use {
+        ActivityScenario.launch<AccountActivity>(AccountActivity.getSetupIntent(targetContext, forResult = true)).use {
             compose.onNodeWithText(targetContext.getString(CommonString.paper_sync_step, 1)).assertIsDisplayed()
             val next = button(CommonString.dialog_continue)
             next.assertIsNotEnabled()

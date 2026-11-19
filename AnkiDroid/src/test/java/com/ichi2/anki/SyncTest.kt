@@ -22,6 +22,8 @@ import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.dialogs.SyncErrorDialog
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.internationalization.sentenceCase
+import com.ichi2.anki.worker.toSyncAuth
+import com.ichi2.anki.worker.toWorkData
 import com.ichi2.testutils.signInToSyncServer
 import kotlinx.coroutines.runBlocking
 import net.ankiweb.rsdroid.Backend
@@ -190,14 +192,19 @@ class SyncTest : RobolectricTest() {
         }
 
     @Test
-    fun `authentication errors still log out`() =
+    fun `authentication errors log out and invalidate queued credentials`() =
         deckPicker {
+            signInToSyncServer()
             Prefs.username = "test user"
-            val message = "authentication failed"
-            failSync(BackendSyncException.BackendSyncAuthFailedException(backendError { this.message = message }))
+            val queued = assertNotNull(syncAuth()).toWorkData()
+            syncFailure = BackendSyncException.BackendSyncAuthFailedException(backendError { message = "authentication failed" })
+            throwOnShowError = false
 
-            assertEquals("", Prefs.hkey)
-            assertEquals("", Prefs.username)
+            handleNewSync(conflict = null, syncMedia = false)
+            advanceRobolectricLooperUntil { Prefs.hkey.isNullOrEmpty() }
+
+            assertTrue(Prefs.username.isNullOrEmpty())
+            assertNull(queued.toSyncAuth())
             compose.onNodeWithText(TR.syncSignIn()).assertIsDisplayed()
         }
 

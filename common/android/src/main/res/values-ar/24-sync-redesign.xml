@@ -9,7 +9,7 @@
     <string name="paper_sync_optional">اختياري</string>
     <string name="paper_sync_configured">تم الإعداد</string>
     <string name="paper_sync_server_help">كيفية تشغيل خادم مزامنة</string>
-    <string name="paper_sync_from_ankiweb">هل تنتقل من AnkiWeb؟</string>
+    <string name="paper_sync_from_ankiweb">النقل باستخدام ملف</string>
     <string name="paper_sync_import_steps">صدّر مجموعتك من Anki بصيغة ‎.colpkg مع ملفات الوسائط، ثم افتحها هنا.</string>
     <string name="paper_sync_choose_file">اختر الملف</string>
     <string name="paper_sync_sign_in_title">سجّل الدخول إلى خادمك</string>
@@ -60,4 +60,14 @@
     <string name="sync_server_title">خادم المزامنة</string>
     <string name="sync_server_required">أدخل عنوان خادم المزامنة أولًا.</string>
     <string name="sync_server_not_logged_in_title">سجّل الدخول إلى خادم المزامنة</string>
+    <string name="sync_ankiweb_sign_in">تسجيل الدخول إلى AnkiWeb</string>
+    <string name="sync_ankiweb_email">البريد الإلكتروني</string>
+    <string name="sync_use_self_hosted">استخدام خادم مستضاف ذاتيًا</string>
+    <string name="sync_use_ankiweb">استخدام AnkiWeb</string>
+    <string name="sync_confirm_server_change">هل تريد تسجيل الخروج من %1$s والاتصال بـ %2$s؟ ستبقى المجموعة على هذا الهاتف.</string>
+    <string name="sync_media_transferring">تمت مزامنة البطاقات. جارٍ مزامنة الصور والأصوات…</string>
+    <string name="sync_media_waiting_wifi">تمت مزامنة البطاقات. تنتظر الوسائط اتصالًا غير محدود.</string>
+    <string name="sync_media_queued">تمت مزامنة البطاقات. مزامنة الوسائط في قائمة الانتظار.</string>
+    <string name="sync_replace_remote">ارفع مجموعة هذا الهاتف واستبدل المجموعة على %1$s.</string>
+    <string name="sync_replace_local">نزّل المجموعة من %1$s واستبدل مجموعة هذا الهاتف.</string>
 </resources>

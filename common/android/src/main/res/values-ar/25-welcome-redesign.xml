@@ -4,8 +4,8 @@
     <string name="paper_welcome_start_empty">ابدأ بلا رزم</string>
     <string name="paper_welcome_import">استورد مجموعة أو رزمة</string>
     <string name="paper_welcome_import_hint">‎.apkg · ‎.colpkg</string>
-    <string name="paper_welcome_sync">زامن مع خادمك الخاص</string>
-    <string name="paper_welcome_migration_title">الانتقال من AnkiWeb</string>
+    <string name="paper_welcome_sync">المزامنة مع AnkiWeb</string>
+    <string name="paper_welcome_migration_title">الاستيراد من ملف</string>
     <string name="paper_welcome_migration_sync">زامن مجموعتك</string>
     <string name="paper_welcome_migration_sync_hint">زامن Anki على الكمبيوتر مع AnkiWeb.</string>
     <string name="paper_welcome_migration_export">صدّر حزمة مجموعة</string>

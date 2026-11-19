@@ -14,21 +14,16 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-/**
- * The Fork never syncs with AnkiWeb (ADR-0001). The Engine falls back to AnkiWeb when it is
- * handed no endpoint, so the app hands it sync credentials only together with the owner's own
- * server address.
- */
-class NoAnkiWebSyncTest : JvmTest() {
+class SyncDestinationTest : JvmTest() {
     @get:Rule(order = 0)
     val preferences = JvmPreferencesRule()
 
     @Test
-    fun `without a server address there are no sync credentials`() {
+    fun `AnkiWeb uses the engine default endpoint`() {
         Prefs.hkey = "test"
 
-        assertNull(syncAuth())
-        assertFalse(isLoggedIn())
+        assertNull(assertNotNull(syncAuth()).endpoint)
+        assertEquals(true, isLoggedIn())
     }
 
     @Test
@@ -49,11 +44,18 @@ class NoAnkiWebSyncTest : JvmTest() {
     }
 
     @Test
-    fun `an endpoint remembered from an earlier sync is not used without a server address`() {
+    fun `AnkiWeb sync follows its own HTTPS shard`() {
         Prefs.hkey = "test"
         Prefs.currentSyncUri = "https://sync9.ankiweb.net/"
 
-        assertNull(syncAuth())
+        assertEquals("https://sync9.ankiweb.net/", assertNotNull(syncAuth()).endpoint)
+    }
+
+    @Test
+    fun `a hosted account never follows an old custom redirect`() {
+        Prefs.hkey = "cloud-key"
+        Prefs.currentSyncUri = TEST_SYNC_SERVER
+        assertNull(assertNotNull(syncAuth()).endpoint)
     }
 
     @Test

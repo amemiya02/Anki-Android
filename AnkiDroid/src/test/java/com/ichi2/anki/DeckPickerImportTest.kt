@@ -9,6 +9,7 @@ import android.database.MatrixCursor
 import android.net.Uri
 import android.os.Looper
 import android.provider.OpenableColumns
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.core.content.edit
 import androidx.core.content.getSystemService
 import androidx.core.net.toUri
@@ -35,6 +36,7 @@ import org.hamcrest.Matchers
 import org.junit.After
 import org.junit.Assert.fail
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
@@ -59,6 +61,9 @@ import kotlin.test.assertTrue
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class DeckPickerImportTest : RobolectricTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     @ParameterizedRobolectricTestRunner.Parameter
     @JvmField
     var qualifiers: String? = null
@@ -118,7 +123,7 @@ class DeckPickerImportTest : RobolectricTest() {
 
             controller.start().resume().visible()
             advanceRobolectricLooper()
-            advanceRobolectricLooperUntil { activity.currentScreenFragment is AnkiPackageImporterFragment }
+            compose.waitUntil(10_000) { activity.currentScreenFragment is AnkiPackageImporterFragment }
             val importer = assertNotNull(activity.currentScreenFragment)
             controller
                 .pause()
@@ -127,6 +132,7 @@ class DeckPickerImportTest : RobolectricTest() {
                 .resume()
                 .visible()
             advanceRobolectricLooper()
+            compose.waitForIdle()
             assertSame(importer, activity.currentScreenFragment)
             assertEquals(1, activity.supportFragmentManager.fragments.count { it is AnkiPackageImporterFragment })
         }

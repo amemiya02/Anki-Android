@@ -4,8 +4,8 @@
     <string name="paper_welcome_start_empty">从空白开始</string>
     <string name="paper_welcome_import">导入集合或牌组</string>
     <string name="paper_welcome_import_hint">.apkg · .colpkg</string>
-    <string name="paper_welcome_sync">与自己的服务器同步</string>
-    <string name="paper_welcome_migration_title">从 AnkiWeb 来</string>
+    <string name="paper_welcome_sync">与 AnkiWeb 同步</string>
+    <string name="paper_welcome_migration_title">从文件导入</string>
     <string name="paper_welcome_migration_sync">同步集合</string>
     <string name="paper_welcome_migration_sync_hint">在电脑上打开 Anki，与 AnkiWeb 同步。</string>
     <string name="paper_welcome_migration_export">导出集合包</string>

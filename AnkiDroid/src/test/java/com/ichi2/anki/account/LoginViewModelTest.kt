@@ -2,16 +2,19 @@
 
 package com.ichi2.anki.account
 
+import androidx.core.content.edit
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.backend.BackendError
 import anki.backend.backendError
 import anki.sync.SyncAuth
 import anki.sync.SyncLoginRequest
 import anki.sync.syncAuth
-import com.ichi2.anki.NoSyncServerException
+import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.progress.ViewModelProgress
 import com.ichi2.anki.settings.Prefs
+import com.ichi2.anki.worker.toSyncAuth
+import com.ichi2.anki.worker.toWorkData
 import com.ichi2.testutils.TEST_SYNC_SERVER
 import com.ichi2.testutils.rules.BackendOverrideRule
 import com.ichi2.testutils.setSyncServer
@@ -25,7 +28,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import com.ichi2.anki.syncAuth as appSyncAuth
 
 @RunWith(AndroidJUnit4::class)
 class LoginViewModelTest : RobolectricTest() {
@@ -56,18 +62,20 @@ class LoginViewModelTest : RobolectricTest() {
         }
 
     @Test
-    fun `login without a sync server sends no credentials`() =
+    fun `AnkiWeb login lets the upstream engine choose its endpoint`() =
         runTest {
             setSyncServer(null)
-            emulateLogin { syncAuth { hkey = TEST_HKEY } }
+            emulateLogin {
+                assertTrue(!it.hasEndpoint())
+                syncAuth { hkey = TEST_HKEY }
+            }
             val viewModel = LoginViewModel()
 
             viewModel.login(USERNAME, PASSWORD)
 
-            assertEquals(0, loginAttempts, "without a server address the Engine would sign in to AnkiWeb")
-            assertEquals(null, Prefs.hkey)
-            val failure = assertIs<LoginMessage.Failed>(viewModel.messages.single())
-            assertIs<NoSyncServerException>(failure.exception)
+            assertEquals(1, loginAttempts)
+            assertEquals(TEST_HKEY, Prefs.hkey)
+            assertEquals(listOf<LoginMessage>(LoginMessage.LoggedIn), viewModel.messages)
         }
 
     @Test
@@ -84,17 +92,57 @@ class LoginViewModelTest : RobolectricTest() {
         }
 
     @Test
+    fun `successful login invalidates queued credentials for the previous account`() =
+        runTest {
+            Prefs.hkey = "previous-hkey"
+            val queued = assertNotNull(appSyncAuth()).toWorkData()
+            val certificate =
+                targetContext.assets
+                    .open("USERTrust_RSA.crt")
+                    .bufferedReader()
+                    .use { it.readText() }
+            Prefs.sharedPrefs.edit { putString(Prefs.key(R.string.custom_sync_certificate_key), certificate) }
+            emulateLogin { syncAuth { hkey = TEST_HKEY } }
+
+            LoginViewModel().login(USERNAME, PASSWORD)
+
+            assertNull(queued.toSyncAuth())
+            assertEquals(TEST_HKEY, appSyncAuth()?.hkey)
+            assertEquals(TEST_SYNC_SERVER, appSyncAuth()?.endpoint)
+            assertEquals(certificate, Prefs.customSyncCertificate)
+        }
+
+    @Test
+    fun `login does not send credentials when the backend rejects the configured certificate`() =
+        runTest {
+            Prefs.sharedPrefs.edit { putString(Prefs.key(R.string.custom_sync_certificate_key), "invalid certificate") }
+            emulateLogin { syncAuth { hkey = TEST_HKEY } }
+            val viewModel = LoginViewModel()
+
+            viewModel.login(USERNAME, PASSWORD)
+
+            assertEquals(0, loginAttempts)
+            assertNull(Prefs.hkey)
+            val failure = assertIs<LoginMessage.Failed>(viewModel.messages.single())
+            assertIs<InvalidSyncCertificateException>(failure.exception)
+        }
+
+    @Test
     fun `failed authentication clears the account`() =
         runTest {
             Prefs.username = "previous@example.com"
             Prefs.hkey = "previous-hkey"
+            val queued = assertNotNull(appSyncAuth()).toWorkData()
+            Prefs.currentSyncUri = TEST_SYNC_SERVER
             emulateLogin { throw authFailure() }
             val viewModel = LoginViewModel()
 
             viewModel.login(USERNAME, PASSWORD)
 
-            assertEquals("", Prefs.username)
-            assertEquals("", Prefs.hkey)
+            assertTrue(Prefs.username.isNullOrEmpty())
+            assertTrue(Prefs.hkey.isNullOrEmpty())
+            assertNull(Prefs.currentSyncUri)
+            assertNull(queued.toSyncAuth())
             val failure = assertIs<LoginMessage.Failed>(viewModel.messages.single())
             assertIs<BackendSyncAuthFailedException>(failure.exception)
         }

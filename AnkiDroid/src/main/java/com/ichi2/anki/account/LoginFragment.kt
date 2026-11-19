@@ -55,6 +55,7 @@ import com.ichi2.anki.progress.observeProgress
 import com.ichi2.anki.showErrorAndAwaitDismissal
 import com.ichi2.anki.syncServerAddress
 import com.ichi2.anki.syncServerDisplayName
+import com.ichi2.anki.usesAnkiWeb
 import com.ichi2.anki.utils.observeMessages
 import com.ichi2.anki.utils.showSnackbarAndAwaitDismissal
 import com.ichi2.compose.theme.foundation
@@ -89,6 +90,7 @@ class LoginFragment : Fragment() {
     private fun SignIn() {
         val flow = requireParentFragment() as AccountFlowFragment
         val server = syncServerAddress()
+        val cloud = usesAnkiWeb()
         var username by rememberSaveable(server) { mutableStateOf("") }
         // Keep credentials out of the activity's saved state.
         var password by remember(server) { mutableStateOf("") }
@@ -104,22 +106,22 @@ class LoginFragment : Fragment() {
         LaunchedEffect(username, password) { viewModel.onTextChanged(username.trim(), password) }
 
         fun signIn() {
-            if (server == null || !canSignIn) return
+            if (!canSignIn) return
             keyboard?.hide()
             viewModel.login(username.trim(), password)
         }
 
         SyncStepPage(
-            title = stringResource(CommonString.paper_sync_sign_in_title),
-            step = 2,
+            title = stringResource(if (cloud) CommonString.sync_ankiweb_sign_in else CommonString.paper_sync_sign_in_title),
+            step = if (cloud) null else 2,
             button = TR.syncSignIn(),
-            canContinue = server != null && canSignIn,
+            canContinue = canSignIn,
             bottomCornerClearancePx = flow.bottomCornerClearancePx,
             onBack = requireActivity().onBackPressedDispatcher::onBackPressed,
             onContinue = ::signIn,
         ) {
             SettingsRow(
-                title = stringResource(CommonString.paper_sync_change_server),
+                title = stringResource(if (cloud) CommonString.sync_use_self_hosted else CommonString.paper_sync_change_server),
                 summary = server?.let(::withUnicodeIsolation),
                 icon = R.drawable.symbol_dns,
                 onClick = flow::changeServer,
@@ -138,11 +140,15 @@ class LoginFragment : Fragment() {
                             }
                             usernameWasFocused = usernameWasFocused || it.isFocused
                         },
-                label = { Text(stringResource(CommonString.paper_sync_username)) },
+                label = { Text(stringResource(if (cloud) CommonString.sync_ankiweb_email else CommonString.paper_sync_username)) },
                 textStyle = foundation.type.body,
                 isError = usernameError != null,
                 supportingText = usernameError?.let { error -> { Text(error.toHumanReadableString(requireContext())) } },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardOptions =
+                    KeyboardOptions(
+                        keyboardType = if (cloud) KeyboardType.Email else KeyboardType.Text,
+                        imeAction = ImeAction.Next,
+                    ),
                 singleLine = true,
                 shape = foundation.shapes.extraSmall,
             )
@@ -195,6 +201,7 @@ class LoginFragment : Fragment() {
                     exception.toCrashReportData(requireContext(), reportException = false),
                 )
             is NoSyncServerException -> showSnackbarAndAwaitDismissal(getString(CommonString.sync_server_required))
+            is InvalidSyncCertificateException -> showSnackbarAndAwaitDismissal(getString(CommonString.dialog_invalid_custom_certificate))
             is BackendNetworkException ->
                 showSnackbarAndAwaitDismissal(
                     getString(

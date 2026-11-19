@@ -263,6 +263,10 @@ open class PrefsRepository protected constructor(
 
     var username by stringPref(R.string.username_key)
     var hkey by stringPref(R.string.hkey_key)
+
+    /** Changes when a profile signs out or changes servers, invalidating pending sync work. */
+    val syncSession by stringPref(R.string.sync_session_key, "")
+    var mediaSyncPaused by booleanPref(R.string.media_sync_paused_key, false)
     var currentSyncUri by stringPref(R.string.current_sync_uri_key)
 
     /**

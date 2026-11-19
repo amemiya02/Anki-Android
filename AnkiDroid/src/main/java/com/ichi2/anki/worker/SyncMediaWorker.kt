@@ -4,7 +4,9 @@ package com.ichi2.anki.worker
 
 import android.app.Notification
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import androidx.annotation.VisibleForTesting
@@ -13,6 +15,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
+import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.ForegroundInfo
 import androidx.work.NetworkType
@@ -21,7 +24,9 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import androidx.work.workDataOf
 import anki.sync.MediaSyncProgress
+import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.NotificationChannel
@@ -32,9 +37,11 @@ import com.ichi2.anki.common.permissions.canPostNotifications
 import com.ichi2.anki.notifications.NotificationId
 import com.ichi2.anki.notifications.hayakiNotification
 import com.ichi2.anki.receiver.CopyToClipboardReceiver
+import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.sync.MeteredSyncPolicy
 import com.ichi2.anki.sync.SyncAuth
 import com.ichi2.anki.sync.syncMedia
+import com.ichi2.anki.syncCertificate
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.trySetForeground
 import com.ichi2.utils.TruncatedString
@@ -43,6 +50,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.ankiweb.rsdroid.Backend
+import net.ankiweb.rsdroid.exceptions.BackendInterruptedException
+import net.ankiweb.rsdroid.exceptions.BackendNetworkException
+import net.ankiweb.rsdroid.exceptions.BackendSyncException
 import timber.log.Timber
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
@@ -55,11 +65,32 @@ import com.ichi2.anki.common.android.R as CommonR
  */
 val mediaSyncLock = Mutex()
 
+private const val MEDIA_SYNC_PROGRESS = "mediaSyncProgress"
+private const val MEDIA_SYNC_ERROR = "mediaSyncError"
+private const val MEDIA_SYNC_INTERRUPTED = "mediaSyncInterrupted"
+
+internal val Data.mediaSyncProgressText: String? get() = getString(MEDIA_SYNC_PROGRESS)
+internal val Data.mediaSyncErrorMessage: String? get() = getString(MEDIA_SYNC_ERROR)
+internal val Data.mediaSyncWasInterrupted: Boolean get() = getBoolean(MEDIA_SYNC_INTERRUPTED, false)
+
 class SyncMediaWorker(
     context: Context,
     parameters: WorkerParameters,
 ) : CoroutineWorker(context, parameters) {
-    private val cancelIntent = WorkManager.getInstance(context).createCancelPendingIntent(id)
+    private val cancelIntent by lazy {
+        val intent =
+            Intent(applicationContext, CancelMediaSyncReceiver::class.java)
+                .setAction(id.toString())
+                .putExtra("session", inputData.getString(SYNC_SESSION_KEY).orEmpty())
+                .putExtra(
+                    "profile",
+                    AnkiDroidApp.instance.profileManager
+                        ?.activeProfileContext
+                        ?.profileId
+                        ?.value,
+                )
+        PendingIntent.getBroadcast(applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+    }
     private val notificationManager: NotificationManagerCompat? =
         if (canPostNotifications(context)) {
             NotificationManagerCompat.from(context)
@@ -76,7 +107,9 @@ class SyncMediaWorker(
 
     private suspend fun doWorkHoldingLock(): Result {
         try {
-            val auth = requireNotNull(inputData.toSyncAuth())
+            val auth = inputData.toSyncAuth() ?: return Result.failure()
+            if (Prefs.mediaSyncPaused) return Result.success()
+            if (!CollectionManager.updateCustomCertificate(syncCertificate())) return Result.failure()
 
             // The collection must be open, but we should not block collection operations while
             // `syncMedia` is executing, the app should be usable during a background media sync
@@ -84,11 +117,7 @@ class SyncMediaWorker(
             backend.syncMedia(auth)
 
             delay(1.seconds) // avoid notifications if sync occurs too quickly
-            if (backend.mediaSyncStatus().active) {
-                Timber.i("Showing SyncMediaWorker's notification")
-                trySetForeground(getForegroundInfo())
-                monitorProgress(backend)
-            }
+            monitorProgress(backend)
         } catch (cancellationException: CancellationException) {
             Timber.w(cancellationException, "SyncMediaWorker cancelled (user tapped Cancel or WorkManager cancelled)")
             notificationManager?.cancel(NotificationId.SYNC_MEDIA)
@@ -96,12 +125,22 @@ class SyncMediaWorker(
             cancelMediaSync(CollectionManager.getBackend())
             throw cancellationException
         } catch (throwable: Throwable) {
+            // The engine wraps a dropped response body in a generic sync error.
+            val droppedResponse =
+                throwable.javaClass == BackendSyncException::class.java &&
+                    throwable.message?.startsWith("HttpError { code: 303, context: \"reading stream\"") == true
+            if ((throwable is BackendNetworkException || droppedResponse) && runAttemptCount < MAX_NETWORK_RETRIES) {
+                Timber.i("Media sync interrupted, retrying after backoff")
+                notificationManager?.cancel(NotificationId.SYNC_MEDIA)
+                return Result.retry()
+            }
             Timber.w(throwable, "SyncMediaWorker failed")
+            val message = throwable.localizedMessage
             notify {
                 // TODO: add a contentIntent, so tapping the notification opens the app
                 //  (ideally showing the media sync log: an AlertDialog in DeckPicker)
                 setContentTitle(notificationContext.getString(R.string.notification_sync_media_failed))
-                throwable.localizedMessage?.let { message ->
+                message?.let {
                     setContentText(message)
                     setStyle(
                         NotificationCompat
@@ -116,7 +155,13 @@ class SyncMediaWorker(
                 }
             }
             Timber.d("SyncMediaWorker: showing failure notification")
-            return Result.failure()
+            return Result.failure(
+                workDataOf(
+                    // Reserve space for UTF-8 encoding and metadata within WorkManager's Data limit.
+                    MEDIA_SYNC_ERROR to message?.take(Data.MAX_DATA_BYTES / 4),
+                    MEDIA_SYNC_INTERRUPTED to (throwable is BackendInterruptedException),
+                ),
+            )
         }
         Timber.d("SyncMediaWorker: cancelling progress notification (sync completed)")
         notificationManager?.cancel(NotificationId.SYNC_MEDIA)
@@ -128,14 +173,19 @@ class SyncMediaWorker(
     private suspend fun monitorProgress(backend: Backend) {
         var syncProgress: MediaSyncProgress? = null
         while (true) {
+            // Reading the engine's terminal result consumes it. UI observes WorkManager instead.
             val status = backend.mediaSyncStatus()
             if (!status.active) {
                 Timber.i("Ended media sync notification updates")
                 break
             }
-            // avoid sending repeated notifications
+            if (syncProgress == null) {
+                Timber.i("Showing SyncMediaWorker's notification")
+                trySetForeground(getForegroundInfo())
+            }
             if (syncProgress != status.progress) {
                 syncProgress = status.progress
+                setProgress(workDataOf(MEDIA_SYNC_PROGRESS to syncProgress.run { "$added\n$removed\n$checked" }))
                 // TODO display better the result. Using setContentText leads to
                 //  truncated text if it has more than two lines.
                 // `added`, `removed` and `checked` already come translated from the
@@ -205,6 +255,7 @@ class SyncMediaWorker(
     }
 
     companion object {
+        private const val MAX_NETWORK_RETRIES = 5
         val NOTIFICATION_UPDATE_RATE = 500.milliseconds
 
         /** Ensure a metered network request approval only affects the intended request. */
@@ -214,6 +265,7 @@ class SyncMediaWorker(
             auth: SyncAuth,
             networkType: NetworkType = MeteredSyncPolicy.getNetworkTypeRequiredForSync(forMedia = true),
             id: UUID = UUID.randomUUID(),
+            session: String = Prefs.syncSession,
         ): OneTimeWorkRequest {
             val constraints =
                 Constraints
@@ -223,7 +275,7 @@ class SyncMediaWorker(
 
             return OneTimeWorkRequestBuilder<SyncMediaWorker>()
                 .setId(id)
-                .setInputData(auth.toWorkData())
+                .setInputData(auth.toWorkData(session))
                 .setConstraints(constraints)
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build()
@@ -237,15 +289,17 @@ class SyncMediaWorker(
             context: Context,
             auth: SyncAuth,
             networkType: NetworkType = MeteredSyncPolicy.getNetworkTypeRequiredForSync(forMedia = true),
+            session: String = Prefs.syncSession,
         ) {
             schedulingLock.withLock {
+                if (session != Prefs.syncSession || Prefs.mediaSyncPaused) return
                 Timber.i("Launching background media sync")
-                val request = getWorkRequest(auth, networkType)
+                val request = getWorkRequest(auth, networkType, session = session)
 
                 val manager = WorkManager.getInstance(context)
                 manager.enqueueUniqueWork(UniqueWorkNames.SYNC_MEDIA, ExistingWorkPolicy.KEEP, request).result.await()
                 if (networkType == NetworkType.CONNECTED) {
-                    manager.allowMeteredMediaSync(auth)
+                    manager.allowMeteredMediaSync(auth, session)
                 }
             }
         }
@@ -258,13 +312,38 @@ class SyncMediaWorker(
          *
          * Call after `enqueueUniqueWork` has completed while holding [schedulingLock].
          */
-        private suspend fun WorkManager.allowMeteredMediaSync(auth: SyncAuth) {
+        private suspend fun WorkManager.allowMeteredMediaSync(
+            auth: SyncAuth,
+            session: String,
+        ) {
             val existing =
                 getWorkInfosForUniqueWork(UniqueWorkNames.SYNC_MEDIA).await().firstOrNull {
                     !it.state.isFinished && it.constraints.requiredNetworkType == NetworkType.UNMETERED
                 } ?: return
-            val result = updateWork(getWorkRequest(auth, NetworkType.CONNECTED, existing.id)).await()
+            if (session != Prefs.syncSession) return
+            val result = updateWork(getWorkRequest(auth, NetworkType.CONNECTED, existing.id, session)).await()
             Timber.i("Allowing metered media sync for work %s: %s", existing.id, result)
         }
+    }
+}
+
+/** Only an explicit Cancel action pauses future automatic media syncs for this profile. */
+class CancelMediaSyncReceiver : BroadcastReceiver() {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
+        if (intent.getStringExtra("session") != Prefs.syncSession ||
+            intent.getStringExtra("profile") !=
+            AnkiDroidApp.instance.profileManager
+                ?.activeProfileContext
+                ?.profileId
+                ?.value
+        ) {
+            return
+        }
+        val id = intent.action?.let(UUID::fromString) ?: return
+        Prefs.mediaSyncPaused = true
+        WorkManager.getInstance(context).cancelWorkById(id)
     }
 }

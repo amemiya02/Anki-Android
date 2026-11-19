@@ -39,7 +39,7 @@ Three claims, confirmed by the owner, that AnkiDroid cannot truthfully make:
 - **Three scripts read as one.** Interface text in Chinese, Japanese and Latin script uses the system sans-serif in the interface language, so Japanese text gets Japanese glyph forms and Chinese text gets Chinese ones. Hierarchy uses size and weight only, so emphasis survives in scripts that have no italics or capitals.
 - **A shorter daily path.** On phones a bottom bar holds Decks, Browse, Stats and More, replacing the drawer. Each step of the Core Loop (choose a Deck, study its Cards, reach the finished screen) is one tap. The finished screen says when to come back.
 
-Engine parity and having no AnkiWeb connection are constraints, not selling points. The owner did not choose them as positioning, so surfaces should not lead with them.
+Hayaki follows the upstream Engine for collection storage, scheduling and sync.
 
 ## Operating Context
 
@@ -51,8 +51,8 @@ Engine parity and having no AnkiWeb connection are constraints, not selling poin
 - **Beside the Official App.** Hayaki has its own app ID and its own data. Data moves in three ways:
   - A Deck package (`.apkg`) merges into the other app's collection.
   - A collection package (`.colpkg`) replaces the other app's collection.
-  - A self-hosted sync server, whose address the person enters.
-- **Arriving from AnkiWeb.** You sync in desktop Anki, export a collection package with media, and import it into Hayaki. The first-run screen and sync setup explain these steps.
+  - AnkiWeb or a self-hosted Anki sync server.
+- **Arriving from AnkiWeb.** Choose Sync on Welcome and sign in with the existing AnkiWeb account. File import is available on the same screen.
 - **Capturing from other apps.** Text shared from a browser or dictionary opens quick Add or the full editor. Afterwards the person returns to the app that shared it.
 - **Beyond the app.** Home-screen widgets (Glance) and review-reminder notifications.
 - **Anki Pages.** Statistics, Deck options, Card info, the importers, Change Note Type and image occlusion are web pages shared with desktop Anki and shown inside the app.
@@ -68,7 +68,7 @@ Engine parity and having no AnkiWeb connection are constraints, not selling poin
 
 **Data and sync:**
 
-- **No AnkiWeb sign-in or sync.** AnkiWeb's terms admit only named clients. Sync works only with a self-hosted server whose address the person enters, with no AnkiWeb default. Browsing and downloading shared Decks from AnkiWeb's website stays, because that is browser access.
+- **Sync destination.** AnkiWeb is the default for a new profile. Existing self-hosted profiles keep their server. Each profile uses one destination for its collection and media. See [ADR-0001](docs/adr/0001-own-fork-no-upstreaming.md).
 - **Data can always leave.** A whole collection or a single Deck, with scheduling, review history and media, must round-trip with the current Official App. The export option that older versions can read stays easy to find. The export screen says whether importing will replace or merge.
 - **No crash reports or usage statistics** are sent anywhere.
 - **Apps that integrate with the Official App's public API do not reach Hayaki.** This is accepted. Ordinary Android text and file sharing does reach it.

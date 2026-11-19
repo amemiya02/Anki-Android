@@ -2,6 +2,7 @@
 
 package com.ichi2.anki
 
+import android.app.Service
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
@@ -11,21 +12,30 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.work.NetworkType
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import androidx.work.testing.TestListenableWorkerBuilder
 import anki.sync.FullUploadOrDownloadRequest
 import anki.sync.SyncCollectionResponse
+import anki.sync.SyncStatusResponse
 import anki.sync.syncCollectionResponse
+import anki.sync.syncStatusResponse
 import com.ichi2.anki.dialogs.SyncErrorDialog
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.enums.ShouldFetchMedia
 import com.ichi2.anki.utils.ext.DIALOG_FRAGMENT_TAG
+import com.ichi2.anki.worker.SyncMediaWorker
 import com.ichi2.anki.worker.UniqueWorkNames
+import com.ichi2.anki.worker.toWorkData
 import com.ichi2.testutils.BackupManagerTestUtilities
 import com.ichi2.testutils.signInToSyncServer
 import com.ichi2.utils.NetworkUtils
 import io.mockk.every
 import io.mockk.mockkObject
+import io.mockk.mockkStatic
 import io.mockk.unmockkObject
+import io.mockk.unmockkStatic
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -38,6 +48,9 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
+import org.robolectric.Shadows.shadowOf
+import java.util.UUID
 import kotlin.test.assertNotNull
 
 @RunWith(AndroidJUnit4::class)
@@ -90,6 +103,73 @@ class ForegroundMediaNetworkTest : RobolectricTest() {
         BackupManagerTestUtilities.reset()
         BackendFactory.setOverride(null)
         unmockkObject(NetworkUtils)
+    }
+
+    @Test
+    fun `reopening respects notification cancellation until a manual sync`() =
+        checkStartupAfterMediaCancellation(SyncStatusResponse.Required.NO_CHANGES)
+
+    @Test
+    fun `reopening after cancelling media still syncs collection changes`() =
+        checkStartupAfterMediaCancellation(SyncStatusResponse.Required.NORMAL_SYNC)
+
+    private fun checkStartupAfterMediaCancellation(required: SyncStatusResponse.Required) {
+        val auth = requireNotNull(syncAuth())
+        val manager = WorkManager.getInstance(targetContext)
+        runBlocking { SyncMediaWorker.start(targetContext, auth, NetworkType.UNMETERED) }
+        val cancelled = manager.getWorkInfosForUniqueWork(UniqueWorkNames.SYNC_MEDIA).get().single()
+        runBlocking { tapMediaNotificationCancel(cancelled.id) }
+        advanceRobolectricLooperUntil { manager.getWorkInfoById(cancelled.id).get()?.state == WorkInfo.State.CANCELLED }
+
+        every { NetworkUtils.isOnline } returns true
+        Prefs.isAutoSyncEnabled = true
+        val backend = CollectionManager.getColUnsafe().backend
+        mockkObject(backend)
+        every { backend.syncStatus(any<anki.sync.SyncAuth>()) } returns syncStatusResponse { this.required = required }
+        // Startup checks the collection on Dispatchers.IO. Wait for the activity's sync decision.
+        val startupTasks = mutableListOf<Job>()
+        mockkStatic("com.ichi2.anki.CoroutineHelpersKt")
+        every { any<DeckPicker>().launchCatchingTask(any(), any(), any()) } answers { callOriginal().also(startupTasks::add) }
+        try {
+            deckPicker {
+                advanceRobolectricLooperUntil { startupTasks.isNotEmpty() && startupTasks.all { it.isCompleted } }
+                verify(atLeast = 1) { backend.syncStatus(any<anki.sync.SyncAuth>()) }
+                verify(exactly = if (required == SyncStatusResponse.Required.NORMAL_SYNC) 1 else 0) {
+                    backend.syncCollection(any<anki.sync.SyncAuth>(), any())
+                }
+                val afterStartup = manager.getWorkInfosForUniqueWork(UniqueWorkNames.SYNC_MEDIA).get()
+                assertThat(afterStartup.filterNot { it.state.isFinished }, equalTo(emptyList()))
+
+                metered = false
+                Prefs.lastSyncTime = 0
+                val manual = syncAndGetMediaWork()
+                assertThat(manual.state, equalTo(WorkInfo.State.ENQUEUED))
+            }
+        } finally {
+            unmockkStatic("com.ichi2.anki.CoroutineHelpersKt")
+            unmockkObject(backend)
+        }
+    }
+
+    private suspend fun tapMediaNotificationCancel(id: UUID) {
+        val worker = TestListenableWorkerBuilder<SyncMediaWorker>(targetContext, requireNotNull(syncAuth()).toWorkData()).setId(id).build()
+        val cancel =
+            worker
+                .getForegroundInfo()
+                .notification.actions
+                .single()
+                .actionIntent
+        cancel.send()
+        // Robolectric records service starts. Deliver the notification's command to its actual service.
+        val intent = shadowOf(cancel).savedIntent
+        val component = Class.forName(requireNotNull(intent.component).className)
+        if (Service::class.java.isAssignableFrom(component)) {
+            Robolectric
+                .buildService(component.asSubclass(Service::class.java), intent)
+                .create()
+                .startCommand(0, 1)
+                .destroy()
+        }
     }
 
     @Test

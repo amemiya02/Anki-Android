@@ -47,7 +47,7 @@ class RemainingSettingsScreenshotTest : ScreenshotTest() {
     ) {
         GENERAL(GeneralSettingsFragment::class, CommonString.language, CommonString.card_browser_hide_media),
         ACCESSIBILITY(AccessibilitySettingsFragment::class, CommonString.card_zoom, CommonString.remove_animations),
-        SYNC(SyncSettingsFragment::class, CommonString.paper_sync_server_title_action, CommonString.one_way_sync_title),
+        SYNC(SyncSettingsFragment::class, CommonString.paper_sync_change_server, CommonString.one_way_sync_title),
         BACKUPS(
             BackupLimitsSettingsFragment::class,
             CommonString.pref__minutes_between_automatic_backups__title,

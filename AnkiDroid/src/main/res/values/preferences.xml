@@ -136,6 +136,8 @@
     <!-- Custom sync server -->
     <string name="pref_custom_sync_server_screen_key">customSyncServerScreen</string>
     <string name="custom_sync_server_collection_url_key">syncBaseUrl</string>
+    <string name="sync_session_key">syncSession</string>
+    <string name="media_sync_paused_key">mediaSyncPaused</string>
     <string name="custom_sync_server_enabled_key">syncBaseUrl_switch</string>
     <string name="custom_sync_certificate_key">customSyncCertificate</string>
     <string name="sync_setup_account_key">syncSetupAccount</string>

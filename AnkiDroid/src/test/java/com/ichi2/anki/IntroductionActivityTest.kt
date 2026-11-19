@@ -62,7 +62,7 @@ class IntroductionActivityTest : RobolectricTest() {
     }
 
     @Test
-    fun `a newcomer can choose to set up a self-hosted server`() =
+    fun `a newcomer can sign in to sync`() =
         withWelcome { scenario ->
             choice(CommonString.paper_welcome_sync).performScrollTo().assertIsDisplayed().performClick()
 

@@ -34,7 +34,7 @@ class SyncWorkerFullSyncTest : RobolectricTest() {
             hkey = "test"
             ioTimeoutSecs = 123
         }
-    private val endpoint = "https://sync.example.com/"
+    private val endpoint = "https://sync9.ankiweb.net/"
     private val redirectedAuth get() = auth.toBuilder().setEndpoint(endpoint).build()
     private var required = ChangesRequired.FULL_UPLOAD
     private var transferError: Exception? = null

@@ -24,7 +24,7 @@ Hayaki brings your Anki collection to Android. Review due cards offline, look up
 2. Open a deck, reveal the answer, and rate your recall. The scheduler uses your rating to plan the next review.
 3. Use **Browse** to search cards and edit notes. Open **Statistics** to see your review history and upcoming workload.
 
-A deck package merges into your collection. Restoring a collection package (`.colpkg`) replaces the collection on the device. To sync across devices, connect Hayaki to your own Anki sync server. For a collection currently on AnkiWeb, sync in desktop Anki first, then export a package with media.
+A deck package merges into your collection. Restoring a collection package (`.colpkg`) replaces the collection on the device. To sync across devices, choose Sync and sign in to AnkiWeb, or enter your self-hosted Anki sync server address.
 
 ## Build and install
 

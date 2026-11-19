@@ -35,10 +35,12 @@ import com.ichi2.anki.account.AccountFlowFragment
 import com.ichi2.anki.account.LoggedInViewModel
 import com.ichi2.anki.account.SyncCertificateEditor
 import com.ichi2.anki.account.SyncStepPage
+import com.ichi2.anki.isLoggedIn
 import com.ichi2.anki.isSelfHostedSyncAddress
 import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.usesAnkiWeb
 import com.ichi2.anki.utils.openUrl
 import com.ichi2.compose.theme.foundation
 import com.ichi2.compose.ui.dialogs.ConfirmationDialog
@@ -62,19 +64,31 @@ class CustomSyncServerSettingsFragment : Fragment() {
         val flow = requireParentFragment() as AccountFlowFragment
         val server by account.server.collectAsStateWithLifecycle()
         var address by rememberSaveable { mutableStateOf(Prefs.customSyncUri.orEmpty()) }
-        var certificate by rememberSaveable { mutableStateOf(Prefs.customSyncCertificate.orEmpty()) }
+        var certificate by rememberSaveable(address.trim()) {
+            mutableStateOf(if (address.trim() == server) Prefs.customSyncCertificate.orEmpty() else "")
+        }
         var showCertificate by rememberSaveable { mutableStateOf(false) }
         var showImportHelp by rememberSaveable { mutableStateOf(false) }
-        var confirmRemove by rememberSaveable { mutableStateOf(false) }
+        var confirmSwitch by rememberSaveable { mutableStateOf(false) }
+        var switchToCloud by rememberSaveable { mutableStateOf(false) }
         val foundation = MaterialTheme.foundation
         val keyboard = LocalSoftwareKeyboardController.current
         val valid = isSelfHostedSyncAddress(address.trim())
 
-        fun continueToSignIn() {
-            if (!valid) return
+        fun selectServer(cloud: Boolean) {
             keyboard?.hide()
-            account.setServer(requireContext(), address.trim())
+            account.setServer(requireContext(), if (cloud) null else address.trim(), if (cloud) "" else certificate)
             flow.showSignIn()
+        }
+
+        fun requestSwitch(cloud: Boolean) {
+            if (!cloud && !valid) return
+            switchToCloud = cloud
+            if (isLoggedIn() && (if (cloud) !usesAnkiWeb() else address.trim() != server)) {
+                confirmSwitch = true
+            } else {
+                selectServer(cloud)
+            }
         }
 
         SyncStepPage(
@@ -84,7 +98,7 @@ class CustomSyncServerSettingsFragment : Fragment() {
             canContinue = valid,
             bottomCornerClearancePx = flow.bottomCornerClearancePx,
             onBack = requireActivity().onBackPressedDispatcher::onBackPressed,
-            onContinue = ::continueToSignIn,
+            onContinue = { requestSwitch(false) },
         ) {
             OutlinedTextField(
                 value = address,
@@ -106,7 +120,7 @@ class CustomSyncServerSettingsFragment : Fragment() {
                 textStyle = foundation.type.body,
                 shape = foundation.shapes.extraSmall,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = { continueToSignIn() }),
+                keyboardActions = KeyboardActions(onNext = { requestSwitch(false) }),
                 singleLine = true,
             )
             SettingsRow(
@@ -135,12 +149,10 @@ class CustomSyncServerSettingsFragment : Fragment() {
                 onClick = { showImportHelp = true },
                 trailing = { SettingsChevron() },
             )
-            if (server != null || !Prefs.customSyncUri.isNullOrEmpty()) {
-                SettingsRow(
-                    title = stringResource(CommonString.paper_sync_remove_server),
-                    onClick = { confirmRemove = true },
-                )
-            }
+            SettingsRow(
+                title = stringResource(CommonString.sync_use_ankiweb),
+                onClick = { requestSwitch(true) },
+            )
         }
         if (showCertificate) {
             SyncCertificateEditor(
@@ -153,21 +165,25 @@ class CustomSyncServerSettingsFragment : Fragment() {
                 },
             )
         }
-        if (confirmRemove) {
+        if (confirmSwitch) {
             ConfirmationDialog(
-                title = stringResource(CommonString.paper_sync_remove_server),
-                message = stringResource(CommonString.paper_sync_sign_out_hint),
+                title = stringResource(CommonString.paper_sync_change_server),
+                message =
+                    stringResource(
+                        CommonString.sync_confirm_server_change,
+                        server ?: "AnkiWeb",
+                        if (switchToCloud) "AnkiWeb" else address.trim(),
+                    ),
                 confirm =
                     DialogAction(
-                        stringResource(CommonString.paper_sync_remove_server),
+                        stringResource(CommonString.dialog_continue),
                         {
-                            account.setServer(requireContext(), null)
-                            address = ""
-                            confirmRemove = false
+                            confirmSwitch = false
+                            selectServer(switchToCloud)
                         },
-                        DialogActionStyle.Destructive,
+                        DialogActionStyle.Filled,
                     ),
-                onDismissRequest = { confirmRemove = false },
+                onDismissRequest = { confirmSwitch = false },
             )
         }
         if (showImportHelp) {

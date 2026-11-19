@@ -447,6 +447,8 @@
                 android:value="true" />
         </service>
         <!-- Copy Sync Error Message to Clipboard -->
+        <receiver android:name=".worker.CancelMediaSyncReceiver" android:exported="false" />
+
         <receiver
             android:name="com.ichi2.anki.receiver.CopyToClipboardReceiver"
             android:exported="false" />

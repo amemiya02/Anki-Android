@@ -4,6 +4,8 @@ Status: ready-for-agent
 
 This spec uses the vocabulary in `GLOSSARY.md` and respects ADR-0001 (own fork, no upstreaming), ADR-0003 (the interface is rebuilt natively in Compose) and ADR-0004 (one study screen: port, then remove the old one).
 
+The sync requirements below record the original milestone. The revised sync decision in [ADR-0001](../../docs/adr/0001-own-fork-no-upstreaming.md) supersedes the self-hosted-only requirements and the indirect AnkiWeb migration flow.
+
 ## Problem Statement
 
 I study with AnkiDroid every day, in Chinese, Japanese and English, and the app is ugly.

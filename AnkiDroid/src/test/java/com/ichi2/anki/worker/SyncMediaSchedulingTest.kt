@@ -19,6 +19,7 @@ import anki.sync.syncAuth
 import com.google.common.util.concurrent.ListenableFuture
 import com.ichi2.anki.sync.SyncAuth
 import com.ichi2.testutils.EmptyApplication
+import com.ichi2.testutils.JvmPreferencesRule
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -29,6 +30,7 @@ import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.not
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -36,6 +38,9 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 @Config(application = EmptyApplication::class)
 class SyncMediaSchedulingTest {
+    @get:Rule
+    val preferences = JvmPreferencesRule()
+
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val auth = SyncAuth(syncAuth { hkey = "test" })
     private lateinit var manager: WorkManager

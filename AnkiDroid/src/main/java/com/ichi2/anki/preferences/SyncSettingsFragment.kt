@@ -40,6 +40,7 @@ import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.syncServerAddress
+import com.ichi2.anki.usesAnkiWeb
 import com.ichi2.compose.theme.foundation
 import com.ichi2.preferences.NumberRangePreferenceCompat
 import com.ichi2.preferences.Preference
@@ -85,7 +86,8 @@ class SyncSettingsFragment : RemainingSettingsFragment(R.id.settings_sync) {
         requirePreference<Preference>(R.string.custom_sync_certificate_key).apply {
             setOnPreferenceClickListener {
                 showSettingsDialog { dismiss ->
-                    SyncCertificateEditor(Prefs.customSyncCertificate.orEmpty(), dismiss) {
+                    SyncCertificateEditor(Prefs.customSyncCertificate.orEmpty(), dismiss) { certificate ->
+                        accountViewModel.setServer(requireContext(), syncServerAddress(), certificate)
                         updateCertificateSummary()
                         dismiss()
                         showSnackbar(CommonString.dialog_updated_custom_certificate)
@@ -126,6 +128,7 @@ class SyncSettingsFragment : RemainingSettingsFragment(R.id.settings_sync) {
     private fun updateAccount() {
         account = readAccount()
         requirePreference<Preference>(R.string.one_way_sync_key).isEnabled = account.signedIn
+        requirePreference<Preference>(R.string.custom_sync_certificate_key).isVisible = syncServerAddress() != null
     }
 
     @Composable
@@ -184,7 +187,7 @@ class SyncSettingsFragment : RemainingSettingsFragment(R.id.settings_sync) {
                     ::syncNow,
                     icon = R.drawable.symbol_sync,
                 )
-            } else if (server != null) {
+            } else if (server != null || usesAnkiWeb()) {
                 SyncPrimaryButton(
                     TR.syncSignIn(),
                     { startActivity(AccountActivity.getIntent(requireContext())) },
@@ -232,7 +235,14 @@ class SyncSettingsFragment : RemainingSettingsFragment(R.id.settings_sync) {
         )
     }
 
-    private fun readAccount() = SyncPageAccount(syncServerAddress(), isLoggedIn(), Prefs.username.orEmpty())
+    private fun readAccount() =
+        SyncPageAccount(
+            syncServerAddress() ?: "AnkiWeb".takeIf {
+                usesAnkiWeb()
+            },
+            isLoggedIn(),
+            Prefs.username.orEmpty(),
+        )
 
     private data class SyncPageAccount(
         val server: String?,

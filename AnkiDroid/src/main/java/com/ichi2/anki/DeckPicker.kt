@@ -41,8 +41,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.widget.SearchView
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -60,6 +62,7 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
+import androidx.compose.ui.unit.dp
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
@@ -207,6 +210,7 @@ import com.ichi2.anki.reviewreminders.ReviewReminderScope
 import com.ichi2.anki.reviewreminders.ReviewRemindersDatabase
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
 import com.ichi2.anki.servicelayer.ScopedStorageService
+import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.uiConfigPrefs
 import com.ichi2.anki.shareddeck.SharedDecksActivity
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
@@ -441,6 +445,7 @@ open class DeckPicker :
                 toolbarSearchItem?.collapseActionView()
             }
         }
+    private val deckMediaStatus = mutableIntStateOf(0)
     private val deckToolbarMediaSync = mutableStateOf(false)
     private val deckToolbarSyncState = mutableStateOf<SyncIconState?>(null)
     private var toolbarSearchItem: MenuItem? = null
@@ -720,7 +725,8 @@ open class DeckPicker :
                 onBackPressedDispatcher.onBackPressed()
             }
         }
-        registerMeteredSyncHandler { syncMedia ->
+        registerMeteredSyncHandler { syncMedia, manual ->
+            if (manual) Prefs.mediaSyncPaused = false
             handleNewSync(
                 conflict = null,
                 syncMedia = syncMedia,
@@ -838,13 +844,22 @@ open class DeckPicker :
                 val state by viewModel.flowOfDeckListScreen.collectAsStateWithLifecycle()
                 val bottom = with(LocalDensity.current) { deckListBottomPadding.intValue.toDp() }
                 state?.let {
-                    DeckListScreen(
-                        state = it,
-                        actions = deckListActions,
-                        listState = deckListState,
-                        contentPadding = PaddingValues(bottom = bottom),
-                        modifier = if (isDeckListBehindAddMenu.value) Modifier.clearAndSetSemantics { } else Modifier,
-                    )
+                    Column(modifier = if (isDeckListBehindAddMenu.value) Modifier.clearAndSetSemantics { } else Modifier) {
+                        if (deckMediaStatus.intValue != 0) {
+                            Text(
+                                text = getString(deckMediaStatus.intValue),
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        DeckListScreen(
+                            state = it,
+                            actions = deckListActions,
+                            listState = deckListState,
+                            contentPadding = PaddingValues(bottom = bottom),
+                        )
+                    }
                 }
             }
         }
@@ -1435,7 +1450,16 @@ open class DeckPicker :
         syncMediaProgressJob =
             lifecycleScope.launch {
                 flow.flowWithLifecycle(lifecycle).collectLatest {
-                    provider.isProgressShown = it.lastOrNull()?.state == WorkInfo.State.RUNNING
+                    val active = it.firstOrNull { work -> !work.state.isFinished }
+                    provider.isProgressShown = active?.state == WorkInfo.State.RUNNING
+                    deckMediaStatus.intValue =
+                        when {
+                            active == null -> 0
+                            provider.isProgressShown -> CommonString.sync_media_transferring
+                            active.constraints.requiredNetworkType == NetworkType.UNMETERED && NetworkUtils.isActiveNetworkMetered() ->
+                                CommonString.sync_media_waiting_wifi
+                            else -> CommonString.sync_media_queued
+                        }
                     deckToolbarMediaSync.value = provider.isProgressShown
                 }
             }
@@ -1768,6 +1792,7 @@ open class DeckPicker :
                 outState.putString("dbRestorationPath", it.newAnkiDroidDirectory.absolutePath)
             }
         }
+        outState.putString("sessionOnSyncConflict", sessionOnSyncConflict)
         outState.putSerializable("mediaUsnOnConflict", mediaUsnOnConflict)
         outState.putSerializable("mediaNetworkTypeOnConflict", mediaNetworkTypeOnConflict)
         floatingActionMenu.showFloatingActionButton()
@@ -1780,6 +1805,7 @@ open class DeckPicker :
             CollectionHelper.ankiDroidDirectoryOverride = path
             importColpkgListener = DatabaseRestorationListener(this, path)
         }
+        sessionOnSyncConflict = savedInstanceState.getString("sessionOnSyncConflict")
         mediaUsnOnConflict = savedInstanceState.getSerializableCompat("mediaUsnOnConflict")
         mediaNetworkTypeOnConflict =
             savedInstanceState.getSerializableCompat<NetworkType>("mediaNetworkTypeOnConflict") ?: NetworkType.UNMETERED
@@ -1825,7 +1851,7 @@ open class DeckPicker :
                     SyncWorker.start(this, auth, shouldFetchMedia())
                 } else {
                     Timber.i("autoSync: starting foreground")
-                    sync()
+                    sync(conflict = null, manual = false)
                 }
                 return true
             }
@@ -2239,6 +2265,7 @@ open class DeckPicker :
     /** In the conflict case, we need to store the USN received from the initial sync, and reuse
      it after the user has decided. */
     var mediaUsnOnConflict: Int? = null
+    var sessionOnSyncConflict: String? = null
 
     /** Preserve the original attempt's network restriction while the user chooses upload/download. */
     var mediaNetworkTypeOnConflict: NetworkType = NetworkType.UNMETERED
@@ -2247,10 +2274,14 @@ open class DeckPicker :
      * The mother of all syncing attempts. This might be called from sync() as first attempt to sync a collection OR
      * from the mSyncConflictResolutionListener if the first attempt determines that a full-sync is required.
      */
-    override fun sync(conflict: ConflictResolution?) {
-        if (syncServerAddress() == null) {
-            // there is nothing to sign in to: the Fork never syncs with AnkiWeb (ADR-0001)
-            Timber.w("No sync server: opening sync setup")
+    override fun sync(conflict: ConflictResolution?) = sync(conflict, manual = true)
+
+    private fun sync(
+        conflict: ConflictResolution?,
+        manual: Boolean,
+    ) {
+        if (!isLoggedIn() && syncServerAddress() == null) {
+            Timber.i("Opening sync account")
             pullToSyncWrapper.isRefreshing = false
             loginToSyncServer()
             return
@@ -2268,12 +2299,13 @@ open class DeckPicker :
             return
         }
 
-        val syncMedia = shouldFetchMedia()
+        val syncMedia = shouldFetchMedia() && (manual || !Prefs.mediaSyncPaused)
         MeteredSyncPolicy.confirmThen(
             // After selecting 'upload/download', the user has already accepted the metered warning.
             skipPrompt = conflict != null,
             onConfirmationRequired = {
                 viewModel.deferredMeteredSyncMedia = syncMedia
+                viewModel.deferredMeteredSyncManual = manual
                 if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
                     showDeferredMeteredSyncConfirmation()
                 }
@@ -2281,6 +2313,7 @@ open class DeckPicker :
                 refreshState()
             },
         ) { permission ->
+            if (manual && conflict == null) Prefs.mediaSyncPaused = false
             handleNewSync(conflict, syncMedia, meteredSyncPermission = permission)
         }
     }
@@ -2292,7 +2325,11 @@ open class DeckPicker :
         val syncMedia = viewModel.deferredMeteredSyncMedia ?: return
         if (supportFragmentManager.isStateSaved) return
         if (supportFragmentManager.findFragmentByTag(MeteredSyncDialog.TAG) == null) {
-            MeteredSyncDialog.newInstance(syncMedia).showNow(supportFragmentManager, MeteredSyncDialog.TAG)
+            MeteredSyncDialog
+                .newInstance(
+                    syncMedia,
+                    viewModel.deferredMeteredSyncManual,
+                ).showNow(supportFragmentManager, MeteredSyncDialog.TAG)
         }
         viewModel.deferredMeteredSyncMedia = null
     }

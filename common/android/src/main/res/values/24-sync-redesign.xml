@@ -9,7 +9,7 @@
     <string name="paper_sync_optional">Optional</string>
     <string name="paper_sync_configured">Configured</string>
     <string name="paper_sync_server_help">How to run a sync server</string>
-    <string name="paper_sync_from_ankiweb">Coming from AnkiWeb?</string>
+    <string name="paper_sync_from_ankiweb">Transfer with a file</string>
     <string name="paper_sync_import_steps">Export a collection package (.colpkg) with media from Anki, then open it here.</string>
     <string name="paper_sync_choose_file">Choose the file</string>
     <string name="paper_sync_sign_in_title">Sign in to your server</string>
@@ -57,4 +57,14 @@
     <string name="paper_sync_metered_remember">Don’t ask again</string>
     <string name="paper_sync_downloading">Downloading from %1$s…</string>
     <string name="paper_sync_uploading">Uploading to %1$s…</string>
+    <string name="sync_ankiweb_sign_in">Sign in to AnkiWeb</string>
+    <string name="sync_ankiweb_email">Email address</string>
+    <string name="sync_use_self_hosted">Use a self-hosted server</string>
+    <string name="sync_use_ankiweb">Use AnkiWeb</string>
+    <string name="sync_confirm_server_change">Sign out of %1$s and connect to %2$s? This phone keeps its collection.</string>
+    <string name="sync_media_transferring">Cards synced. Syncing pictures and sounds…</string>
+    <string name="sync_media_waiting_wifi">Cards synced. Media is waiting for an unmetered network.</string>
+    <string name="sync_media_queued">Cards synced. Media sync is queued.</string>
+    <string name="sync_replace_remote">Upload this phone’s collection and replace the one on %1$s.</string>
+    <string name="sync_replace_local">Download the collection from %1$s and replace the one on this phone.</string>
 </resources>

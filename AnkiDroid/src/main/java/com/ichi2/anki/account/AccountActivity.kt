@@ -12,6 +12,7 @@ import com.ichi2.anki.isLoggedIn
 import com.ichi2.anki.preferences.PreferencesActivity
 import com.ichi2.anki.preferences.SyncSettingsFragment
 import com.ichi2.anki.syncServerAddress
+import com.ichi2.anki.usesAnkiWeb
 
 /** Hosts both steps so the caller receives the sign-in result even when setup starts without a server. */
 class AccountActivity : SingleFragmentActivity() {
@@ -21,7 +22,7 @@ class AccountActivity : SingleFragmentActivity() {
             forResult: Boolean = false,
         ): Intent =
             when {
-                syncServerAddress() == null -> getSetupIntent(context, forResult)
+                !usesAnkiWeb() && syncServerAddress() == null -> getSetupIntent(context, forResult)
                 isLoggedIn() && !forResult -> PreferencesActivity.getIntent(context, SyncSettingsFragment::class)
                 isLoggedIn() -> getSetupIntent(context, forResult)
                 else -> accountIntent(context, false, forResult)

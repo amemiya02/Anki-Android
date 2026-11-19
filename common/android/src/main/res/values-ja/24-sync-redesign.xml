@@ -9,7 +9,7 @@
     <string name="paper_sync_optional">任意</string>
     <string name="paper_sync_configured">設定済み</string>
     <string name="paper_sync_server_help">同期サーバーの運用方法</string>
-    <string name="paper_sync_from_ankiweb">AnkiWeb からの移行</string>
+    <string name="paper_sync_from_ankiweb">ファイルで移行</string>
     <string name="paper_sync_import_steps">Anki からメディアを含むコレクションパッケージ（.colpkg）を書き出し、ここで開きます。</string>
     <string name="paper_sync_choose_file">ファイルを選択</string>
     <string name="paper_sync_sign_in_title">同期サーバーにログイン</string>
@@ -57,4 +57,14 @@
     <string name="paper_sync_metered_remember">今後は確認しない</string>
     <string name="paper_sync_downloading">%1$s からダウンロード中…</string>
     <string name="paper_sync_uploading">%1$s にアップロード中…</string>
+    <string name="sync_ankiweb_sign_in">AnkiWeb にログイン</string>
+    <string name="sync_ankiweb_email">メールアドレス</string>
+    <string name="sync_use_self_hosted">自分の同期サーバーを使う</string>
+    <string name="sync_use_ankiweb">AnkiWeb を使う</string>
+    <string name="sync_confirm_server_change">%1$s からログアウトして %2$s に接続しますか？ この端末のコレクションは保持されます。</string>
+    <string name="sync_media_transferring">カードは同期済みです。画像と音声を同期しています…</string>
+    <string name="sync_media_waiting_wifi">カードは同期済みです。メディアは Wi-Fi などの従量制でない接続を待っています。</string>
+    <string name="sync_media_queued">カードの同期が完了しました。メディアは同期待ちです。</string>
+    <string name="sync_replace_remote">この端末のコレクションをアップロードし、%1$s のコレクションを置き換えます。</string>
+    <string name="sync_replace_local">%1$s からダウンロードし、この端末のコレクションを置き換えます。</string>
 </resources>

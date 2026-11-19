@@ -4,8 +4,8 @@
     <string name="paper_welcome_start_empty">デッキなしで始める</string>
     <string name="paper_welcome_import">コレクションやデッキをインポート</string>
     <string name="paper_welcome_import_hint">.apkg · .colpkg</string>
-    <string name="paper_welcome_sync">自分のサーバーと同期</string>
-    <string name="paper_welcome_migration_title">AnkiWeb からの移行</string>
+    <string name="paper_welcome_sync">AnkiWeb と同期</string>
+    <string name="paper_welcome_migration_title">ファイルからインポート</string>
     <string name="paper_welcome_migration_sync">コレクションを同期</string>
     <string name="paper_welcome_migration_sync_hint">パソコンの Anki で AnkiWeb と同期します。</string>
     <string name="paper_welcome_migration_export">コレクションパッケージをエクスポートする</string>
