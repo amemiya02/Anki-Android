@@ -60,8 +60,8 @@ fun AnkiDroidTheme(content: @Composable () -> Unit) {
 
 /**
  * Reads the [AnkiDroidColors] extras from the active XML theme. The View
- * screens tint their FABs with the fabNormalColor attr and colorOnPrimary, so
- * Compose FABs follow the same pair to match them.
+ * screens tint their FABs with the fabNormalColor attr (the primary container) and
+ * colorOnPrimaryContainer, so Compose FABs follow the same pair to match them.
  */
 @VisibleForTesting
 internal fun Context.toAnkiDroidColors(scheme: ColorScheme): AnkiDroidColors {
@@ -71,7 +71,7 @@ internal fun Context.toAnkiDroidColors(scheme: ColorScheme): AnkiDroidColors {
         colors =
             AnkiDroidColors(
                 fabContainer = color(R.styleable.ComposeTheme_fabNormalColor, defaults.fabContainer),
-                onFab = color(R.styleable.ComposeTheme_foundationOnPrimary, scheme.onPrimary),
+                onFab = color(R.styleable.ComposeTheme_colorOnPrimaryContainer, scheme.onPrimaryContainer),
                 showAnswerButton = color(R.styleable.ComposeTheme_showAnswerButtonBackground, defaults.showAnswerButton),
                 againButton = color(R.styleable.ComposeTheme_againBackgroundColor, defaults.againButton),
                 onAgainButton = color(R.styleable.ComposeTheme_againTextColor, defaults.onAgainButton),
@@ -154,7 +154,7 @@ internal fun Context.toMaterial3ColorScheme(): ColorScheme {
                 surfaceBright = color(R.styleable.ComposeTheme_colorSurfaceBright, base.surfaceBright),
                 background = color(R.styleable.ComposeTheme_android_colorBackground, base.background),
                 onBackground = color(R.styleable.ComposeTheme_colorOnBackground, base.onBackground),
-                // Surfaces are flat: elevation never tints them
+                // Tonal surfaces come from the container roles; elevation never tints them
                 surfaceTint = surface,
             )
     }

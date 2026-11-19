@@ -35,8 +35,8 @@ Success means:
 
 Three claims, confirmed by the owner, that AnkiDroid cannot truthfully make:
 
-- **A calm, coherent interface.** One considered look covers every Native Surface, built to stay restful through long daily sessions. There are no leftover screens from another era and no second study screen.
-- **CJK-first typography.** Chinese, Japanese and Latin typefaces are bundled and chosen together, so mixed-language screens look intentional. The interface language decides between them, so Japanese text gets Japanese glyph forms and Chinese text gets Chinese ones. Hierarchy uses size and weight only, so emphasis survives in scripts that have no italics or capitals.
+- **A calm, coherent interface.** One considered look covers every Native Surface, built to stay restful through long daily sessions. There are no leftover screens from another era and no second study screen. Since [ADR-0006](docs/adr/0006-direction-material-3-standard.md) that look is the Material 3 standard, finished to the level of Google Calendar, Keep and Tasks.
+- **Three scripts read as one.** Interface text in Chinese, Japanese and Latin script uses the system sans-serif in the interface language, so Japanese text gets Japanese glyph forms and Chinese text gets Chinese ones. Hierarchy uses size and weight only, so emphasis survives in scripts that have no italics or capitals.
 - **A shorter daily path.** On phones a bottom bar holds Decks, Browse, Stats and More, replacing the drawer. Each step of the Core Loop (choose a Deck, study its Cards, reach the finished screen) is one tap. The finished screen says when to come back.
 
 Engine parity and having no AnkiWeb connection are constraints, not selling points. The owner did not choose them as positioning, so surfaces should not lead with them.
@@ -88,7 +88,7 @@ Engine parity and having no AnkiWeb connection are constraints, not selling poin
 **Themes, fonts and icons:**
 
 - **Themes:** Light, Dark and Black only, from a fixed palette with no wallpaper-derived dynamic colour. Earlier Plain and E-ink selections migrate to Light.
-- **Fonts:** SIL Open Font License only, because the source is public. Scripts other than Latin, Chinese and Japanese fall back to the system font. The roughly 20–40 MB the fonts add is accepted.
+- **Fonts:** the system sans-serif stack (Roboto and the system's CJK font), chosen by interface language. No interface fonts are bundled since ADR-0006. Any font bundled later must be SIL Open Font License, because the source is public.
 - **Icons:** one Material Symbols style throughout. Only the launcher icon is drawn specially.
 
 **Languages:**
@@ -109,7 +109,7 @@ Engine parity and having no AnkiWeb connection are constraints, not selling poin
 - **Launcher icon.** Icon A, at `docs/redesign/quiet-paper/launcher-icon.svg`. It never reuses AnkiDroid's or Anki's logo.
 - **Provenance.** Hayaki credits AnkiDroid and its contributors and states its licence, GPL-3.0-or-later. It links to its public source at `github.com/amemiya02/Hayaki`. The licence requires source to be offered with any build given to someone else.
   - *Open:* ADR-0001 and the spec require the About screen to call Hayaki an unofficial fork of AnkiDroid. Since commit `3cb77115cd` it shows a "Credits" heading linking to AnkiDroid and its contributors, with no explicit "unofficial fork" wording. Whether that meets the commitment is the owner's call.
-- **Direction.** The owner chose Quiet paper by eye from three Mockups, and it is binding ([ADR-0005](docs/adr/0005-direction-quiet-paper.md)). Its design values are in `docs/redesign/quiet-paper.values.json`. This file does not restate the visual system.
+- **Direction.** On 2026-11-19 the owner replaced Quiet paper with the Material 3 category standard, played straight ([ADR-0006](docs/adr/0006-direction-material-3-standard.md)). The craft bar is Google Calendar, Keep and Tasks. The owner wants it refined, clean and fluid, with no quirks smuggled in. DESIGN.md records the visual system; this file does not restate it.
 - **Voice** (seen in shipped copy, not separately confirmed). Copy uses short plain sentences in the second person. It says what will happen, especially when data can be replaced ("This phone keeps its collection."). Instructions name exact menu paths. There are no exclamation marks and no cheerleading. The last copy pass, `3cb77115cd`, simplified wording further.
 
 ## Evidence on Hand

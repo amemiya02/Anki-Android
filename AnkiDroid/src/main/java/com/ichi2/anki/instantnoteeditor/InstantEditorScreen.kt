@@ -128,7 +128,7 @@ internal fun InstantEditorScreen(
                 }
             }
         }
-        state.warning?.let { Text(it, color = colors.emphasis) }
+        state.warning?.let { Text(it, color = MaterialTheme.colorScheme.error) }
     }
 }
 

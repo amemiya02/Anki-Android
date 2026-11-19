@@ -239,7 +239,7 @@ private fun ReviewReminderRow(
             Text(
                 conditions,
                 style = paper.type.caption,
-                color = if (row.deletedDeck) paper.colors.emphasis else paper.colors.onBackgroundMuted,
+                color = if (row.deletedDeck) MaterialTheme.colorScheme.error else paper.colors.onBackgroundMuted,
             )
         }
         val label = stringResource(R.string.review_reminder_switch, time)

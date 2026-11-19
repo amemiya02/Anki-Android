@@ -129,7 +129,7 @@ internal fun BrowserSearchPage(
                 placeholder = { Text(hint, style = foundation.type.lead) },
                 textStyle = foundation.type.lead,
                 singleLine = true,
-                shape = foundation.shapes.button,
+                shape = foundation.shapes.extraSmall,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { onSubmit() }),
                 colors =

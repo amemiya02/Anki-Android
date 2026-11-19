@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <!--
-  The Foundation: the app-wide base of the chosen Direction (Quiet paper) that every Native Surface
-  inherits. Every value here is copied from docs/redesign/quiet-paper.values.json, the single source;
-  FoundationTest fails if one drifts from it.
+  The Foundation: the app-wide base of the chosen Direction (the Material 3 standard, ADR-0006) that
+  every Native Surface inherits. Every value here is copied from docs/redesign/material-3.values.json,
+  the single source; FoundationTest fails if one drifts from it. The colours are generated into
+  foundation_colors.xml from the same file.
 
   XML reads the colour roles as theme attributes (?attr/foundationPrimary); each theme in
   theme_light.xml, theme_dark.xml and theme_black.xml points them at the colours below, and maps
@@ -66,71 +67,21 @@
         <attr name="foundationProgressFill" />
     </declare-styleable>
 
-    <!-- Light: 白纸 Plain paper, chosen by the owner on 2026-11-18 (it replaced the cream palette) -->
-    <color name="foundation_light_background">#FAFAF8</color>
-    <color name="foundation_light_on_background">#1F1E1C</color>
-    <color name="foundation_light_on_background_muted">#625F59</color>
-    <color name="foundation_light_outline">#E2E0DB</color>
-    <color name="foundation_light_primary">#A63D25</color>
-    <color name="foundation_light_on_primary">#FFFFFF</color>
-    <color name="foundation_light_emphasis">#A63D25</color>
-    <color name="foundation_light_count_new">#2F4A6B</color>
-    <color name="foundation_light_count_learning">#A63D25</color>
-    <color name="foundation_light_count_due">#3E5B34</color>
-    <color name="foundation_light_answer_again">#A63D25</color>
-    <color name="foundation_light_answer_hard">#8A5E10</color>
-    <color name="foundation_light_answer_good">#3E5B34</color>
-    <color name="foundation_light_answer_easy">#2F4A6B</color>
-    <color name="foundation_light_progress_track">#E6E4DF</color>
-    <color name="foundation_light_progress_fill">#1F1E1C</color>
-
-    <!-- Dark -->
-    <color name="foundation_dark_background">#1C1A17</color>
-    <color name="foundation_dark_on_background">#ECE5D8</color>
-    <color name="foundation_dark_on_background_muted">#A9A090</color>
-    <color name="foundation_dark_outline">#3B362E</color>
-    <color name="foundation_dark_primary">#C0492A</color>
-    <color name="foundation_dark_on_primary">#FFF7EF</color>
-    <color name="foundation_dark_emphasis">#E67A5C</color>
-    <color name="foundation_dark_count_new">#93B4DC</color>
-    <color name="foundation_dark_count_learning">#EE8E72</color>
-    <color name="foundation_dark_count_due">#A3C592</color>
-    <color name="foundation_dark_answer_again">#E0694B</color>
-    <color name="foundation_dark_answer_hard">#D6A24A</color>
-    <color name="foundation_dark_answer_good">#8FB57F</color>
-    <color name="foundation_dark_answer_easy">#86A8D4</color>
-    <color name="foundation_light_flag_red">#A63D25</color>
-    <color name="foundation_light_flag_orange">#8A5E10</color>
-    <color name="foundation_light_flag_green">#3E5B34</color>
-    <color name="foundation_light_flag_blue">#2F4A6B</color>
-    <color name="foundation_light_flag_pink">#A3436F</color>
-    <color name="foundation_light_flag_turquoise">#256B66</color>
-    <color name="foundation_light_flag_purple">#6B4A8E</color>
-    <color name="foundation_dark_flag_red">#E0694B</color>
-    <color name="foundation_dark_flag_orange">#D6A24A</color>
-    <color name="foundation_dark_flag_green">#8FB57F</color>
-    <color name="foundation_dark_flag_blue">#86A8D4</color>
-    <color name="foundation_dark_flag_pink">#DB8AB2</color>
-    <color name="foundation_dark_flag_turquoise">#6EBFB5</color>
-    <color name="foundation_dark_flag_purple">#B69AD8</color>
-    <color name="foundation_dark_progress_track">#3B362E</color>
-    <color name="foundation_dark_progress_fill">#ECE5D8</color>
-
-    <!-- Black: Dark on true black. Only the background, outline and progress track differ. -->
-    <color name="foundation_black_background">#000000</color>
-    <color name="foundation_black_outline">#2E2A24</color>
-    <color name="foundation_black_progress_track">#2E2A24</color>
-
-    <!-- Shape: corner radii and rule widths. The icon button's corner is full (a circle). -->
-    <dimen name="foundation_shape_card_sheet">4dp</dimen>
-    <dimen name="foundation_shape_button">6dp</dimen>
-    <dimen name="foundation_shape_dialog">6dp</dimen>
-    <item name="foundation_dialog_scrim_light" type="dimen" format="float">0.45</item>
-    <item name="foundation_dialog_scrim_night" type="dimen" format="float">0.68</item>
+    <!-- Shape: Material 3's corner scale, then the named corners and rule widths. The icon button is a circle. -->
+    <dimen name="foundation_shape_extra_small">4dp</dimen>
+    <dimen name="foundation_shape_small">8dp</dimen>
+    <dimen name="foundation_shape_medium">12dp</dimen>
+    <dimen name="foundation_shape_large">16dp</dimen>
+    <dimen name="foundation_shape_extra_large">28dp</dimen>
+    <dimen name="foundation_shape_card_sheet">12dp</dimen>
+    <dimen name="foundation_shape_button">20dp</dimen>
+    <dimen name="foundation_shape_dialog">28dp</dimen>
     <dimen name="foundation_shape_add_button">16dp</dimen>
     <dimen name="foundation_shape_hairline">1dp</dimen>
-    <dimen name="foundation_shape_current_tab_rule">2dp</dimen>
-    <dimen name="foundation_shape_answer_rule">3dp</dimen>
+    <dimen name="foundation_shape_current_tab_rule">3dp</dimen>
+    <dimen name="foundation_shape_answer_rule">0dp</dimen>
+    <item name="foundation_dialog_scrim_light" type="dimen" format="float">0.32</item>
+    <item name="foundation_dialog_scrim_night" type="dimen" format="float">0.32</item>
 
     <!-- Spacing: the scale, then named sizes -->
     <dimen name="foundation_space_4">4dp</dimen>
@@ -140,29 +91,29 @@
     <dimen name="foundation_space_20">20dp</dimen>
     <dimen name="foundation_space_24">24dp</dimen>
     <dimen name="foundation_space_32">32dp</dimen>
-    <dimen name="foundation_spacing_screen_margin">20dp</dimen>
+    <dimen name="foundation_spacing_screen_margin">16dp</dimen>
     <dimen name="foundation_spacing_study_margin">16dp</dimen>
     <dimen name="foundation_spacing_touch_target">48dp</dimen>
-    <dimen name="foundation_spacing_deck_row">58dp</dimen>
+    <dimen name="foundation_spacing_deck_row">56dp</dimen>
     <dimen name="foundation_spacing_deck_row_nested">48dp</dimen>
-    <dimen name="foundation_spacing_count_column">46dp</dimen>
+    <dimen name="foundation_spacing_count_column">40dp</dimen>
     <dimen name="foundation_spacing_primary_button">56dp</dimen>
-    <dimen name="foundation_spacing_answer_button">66dp</dimen>
+    <dimen name="foundation_spacing_answer_button">56dp</dimen>
     <dimen name="foundation_spacing_add_button">56dp</dimen>
-    <dimen name="foundation_spacing_bottom_bar">78dp</dimen>
-    <dimen name="foundation_spacing_list_row">64dp</dimen>
+    <dimen name="foundation_spacing_bottom_bar">80dp</dimen>
+    <dimen name="foundation_spacing_list_row">56dp</dimen>
     <dimen name="foundation_spacing_settings_row">56dp</dimen>
-    <dimen name="foundation_spacing_secondary_button">52dp</dimen>
+    <dimen name="foundation_spacing_secondary_button">48dp</dimen>
     <dimen name="foundation_spacing_page_mark">56dp</dimen>
     <dimen name="foundation_spacing_empty_mark">96dp</dimen>
 
     <!--
-      Elevation: surfaces are flat and separated by hairlines. Nothing casts a shadow except the
-      add button, whose shadow is the primary colour at 55% opacity.
+      Elevation: surfaces are tonal, set apart by their container colour. Only the add button casts
+      a shadow: Material 3's level 3, in a neutral colour.
     -->
     <dimen name="foundation_elevation_flat">0dp</dimen>
-    <dimen name="foundation_elevation_add_button">8dp</dimen>
-    <item name="foundation_elevation_add_button_shadow_alpha" format="float" type="dimen">0.55</item>
+    <dimen name="foundation_elevation_add_button">6dp</dimen>
+    <item name="foundation_elevation_add_button_shadow_alpha" format="float" type="dimen">0.3</item>
 
     <!--
       Type: the type scale. Each role is a TextAppearance; Compose reads the same styles
@@ -171,8 +122,8 @@
       lineHeight, roomy enough for Chinese and Japanese. Weights 600 and above are also marked bold,
       the only weight Android 7 and 8 can show.
 
-      Every style sets the interface typeface (@font/foundation_interface). On Android 10 and later,
-      text inflated from a layout is redrawn in InterfaceTypeface.kt's fallback chain at the same weight.
+      Every style sets the system sans-serif, which falls back to the system's CJK font in the
+      interface language.
     -->
     <!--
       How Compose reads a type role (Foundation.kt). Android before 9 lacks android:textFontWeight and
@@ -190,158 +141,156 @@
     </declare-styleable>
 
     <style name="TextAppearance.Foundation" parent="TextAppearance.AppCompat">
-        <item name="android:fontFamily">@font/foundation_interface</item>
-        <item name="fontFamily">@font/foundation_interface</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
         <item name="android:textStyle">normal</item>
         <item name="android:letterSpacing">0</item>
         <item name="android:textAllCaps">false</item>
         <item name="textAllCaps">false</item>
     </style>
 
-    <!-- The title of a top-level screen -->
+    <!-- The title of a top-level screen (Material 3 headline large) -->
     <style name="Base.TextAppearance.Foundation.ScreenTitle" parent="TextAppearance.Foundation">
-        <item name="android:textSize">38sp</item>
-        <item name="foundationTextWeight">500</item>
-        <item name="lineHeight">43.7sp</item>
+        <item name="android:textSize">32sp</item>
+        <item name="foundationTextWeight">400</item>
+        <item name="lineHeight">40sp</item>
     </style>
     <style name="TextAppearance.Foundation.ScreenTitle" parent="Base.TextAppearance.Foundation.ScreenTitle" />
 
-    <!-- The heading of the finished screen and of an empty screen -->
+    <!-- The heading of the finished screen and of an empty screen (headline medium) -->
     <style name="Base.TextAppearance.Foundation.PageTitle" parent="TextAppearance.Foundation">
-        <item name="android:textSize">30sp</item>
-        <item name="foundationTextWeight">500</item>
+        <item name="android:textSize">28sp</item>
+        <item name="foundationTextWeight">400</item>
         <item name="lineHeight">36sp</item>
     </style>
     <style name="TextAppearance.Foundation.PageTitle" parent="Base.TextAppearance.Foundation.PageTitle" />
 
-    <!-- A top-level Deck in the deck list -->
+    <!-- The title of a dialog (headline small) -->
     <style name="Base.TextAppearance.Foundation.DialogTitle" parent="TextAppearance.Foundation">
-        <item name="android:textSize">22sp</item>
-        <item name="lineHeight">28.6sp</item>
-        <item name="foundationTextWeight">500</item>
+        <item name="android:textSize">24sp</item>
+        <item name="foundationTextWeight">400</item>
+        <item name="lineHeight">32sp</item>
     </style>
     <style name="TextAppearance.Foundation.DialogTitle" parent="Base.TextAppearance.Foundation.DialogTitle" />
 
+    <!-- A top-level Deck in the deck list (title medium) -->
     <style name="Base.TextAppearance.Foundation.DeckName" parent="TextAppearance.Foundation">
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">16sp</item>
         <item name="foundationTextWeight">500</item>
-        <item name="lineHeight">26sp</item>
+        <item name="lineHeight">24sp</item>
     </style>
     <style name="TextAppearance.Foundation.DeckName" parent="Base.TextAppearance.Foundation.DeckName" />
 
-    <!-- A Deck inside another Deck -->
+    <!-- A Deck inside another Deck (body large) -->
     <style name="Base.TextAppearance.Foundation.DeckNameNested" parent="TextAppearance.Foundation">
-        <item name="android:textSize">17.5sp</item>
+        <item name="android:textSize">16sp</item>
         <item name="foundationTextWeight">400</item>
-        <item name="lineHeight">22.75sp</item>
+        <item name="lineHeight">24sp</item>
     </style>
     <style name="TextAppearance.Foundation.DeckNameNested" parent="Base.TextAppearance.Foundation.DeckNameNested" />
 
-    <!-- The line that says what is due today -->
+    <!-- The line that says what is due today (title large) -->
     <style name="Base.TextAppearance.Foundation.Summary" parent="TextAppearance.Foundation">
-        <item name="android:textSize">18sp</item>
-        <item name="foundationTextWeight">500</item>
-        <item name="lineHeight">25.2sp</item>
+        <item name="android:textSize">22sp</item>
+        <item name="foundationTextWeight">400</item>
+        <item name="lineHeight">28sp</item>
     </style>
     <style name="TextAppearance.Foundation.Summary" parent="Base.TextAppearance.Foundation.Summary" />
 
-    <!-- A new, learning or due count; a zero count uses weight 400 -->
+    <!-- A new, learning or due count (label large) -->
     <style name="Base.TextAppearance.Foundation.Count" parent="TextAppearance.Foundation">
-        <item name="android:textSize">17sp</item>
-        <item name="foundationTextWeight">600</item>
-        <item name="android:textStyle">bold</item>
-        <item name="lineHeight">20.4sp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="foundationTextWeight">500</item>
+        <item name="lineHeight">20sp</item>
         <item name="android:fontFeatureSettings">tnum</item>
     </style>
     <style name="TextAppearance.Foundation.Count" parent="Base.TextAppearance.Foundation.Count" />
 
-    <!-- The Deck name on the study screen -->
+    <!-- The Deck name on the study screen (title medium) -->
     <style name="Base.TextAppearance.Foundation.StudyTitle" parent="TextAppearance.Foundation">
-        <item name="android:textSize">17sp</item>
+        <item name="android:textSize">16sp</item>
         <item name="foundationTextWeight">500</item>
-        <item name="lineHeight">23.8sp</item>
+        <item name="lineHeight">24sp</item>
     </style>
     <style name="TextAppearance.Foundation.StudyTitle" parent="Base.TextAppearance.Foundation.StudyTitle" />
 
-    <!-- The label of a primary button -->
+    <!-- The label of a button (label large) -->
     <style name="Base.TextAppearance.Foundation.Button" parent="TextAppearance.Foundation">
-        <item name="android:textSize">17sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="foundationTextWeight">500</item>
-        <item name="lineHeight">23.8sp</item>
+        <item name="lineHeight">20sp</item>
     </style>
     <style name="TextAppearance.Foundation.Button" parent="Base.TextAppearance.Foundation.Button" />
 
-    <!-- The title of a row in a list of actions or destinations (More, the finished screen) -->
+    <!-- The headline of a row in a list (body large) -->
     <style name="Base.TextAppearance.Foundation.RowTitle" parent="TextAppearance.Foundation">
-        <item name="android:textSize">17sp</item>
-        <item name="foundationTextWeight">500</item>
-        <item name="lineHeight">23.8sp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="foundationTextWeight">400</item>
+        <item name="lineHeight">24sp</item>
     </style>
     <style name="TextAppearance.Foundation.RowTitle" parent="Base.TextAppearance.Foundation.RowTitle" />
 
-    <!-- The explanation under a page title -->
+    <!-- The explanation under a page title (body large) -->
     <style name="Base.TextAppearance.Foundation.Lead" parent="TextAppearance.Foundation">
         <item name="android:textSize">16sp</item>
         <item name="foundationTextWeight">400</item>
-        <item name="lineHeight">24.8sp</item>
+        <item name="lineHeight">24sp</item>
     </style>
     <style name="TextAppearance.Foundation.Lead" parent="Base.TextAppearance.Foundation.Lead" />
 
-    <!-- Again, Hard, Good and Easy -->
+    <!-- Again, Hard, Good and Easy (title medium) -->
     <style name="Base.TextAppearance.Foundation.Answer" parent="TextAppearance.Foundation">
-        <item name="android:textSize">16.5sp</item>
-        <item name="foundationTextWeight">600</item>
-        <item name="android:textStyle">bold</item>
-        <item name="lineHeight">23.1sp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="foundationTextWeight">500</item>
+        <item name="lineHeight">24sp</item>
     </style>
     <style name="TextAppearance.Foundation.Answer" parent="Base.TextAppearance.Foundation.Answer" />
 
-    <!-- Ordinary interface text -->
-    <style name="Base.TextAppearance.Foundation.Body" parent="TextAppearance.Foundation">
-        <item name="android:textSize">15sp</item>
-        <item name="foundationTextWeight">400</item>
-        <item name="lineHeight">21sp</item>
-    </style>
-    <style name="TextAppearance.Foundation.Body" parent="Base.TextAppearance.Foundation.Body" />
-
-    <!-- Field content in the Note Editor -->
+    <!-- Editable field content in the Note Editor (body large) -->
     <style name="Base.TextAppearance.Foundation.EditorField" parent="TextAppearance.Foundation">
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">16sp</item>
         <item name="foundationTextWeight">400</item>
-        <item name="lineHeight">27sp</item>
+        <item name="lineHeight">24sp</item>
     </style>
     <style name="TextAppearance.Foundation.EditorField" parent="Base.TextAppearance.Foundation.EditorField" />
 
-    <!-- Remaining counts on the study screen -->
+    <!-- Ordinary interface text (body medium) -->
+    <style name="Base.TextAppearance.Foundation.Body" parent="TextAppearance.Foundation">
+        <item name="android:textSize">14sp</item>
+        <item name="foundationTextWeight">400</item>
+        <item name="lineHeight">20sp</item>
+    </style>
+    <style name="TextAppearance.Foundation.Body" parent="Base.TextAppearance.Foundation.Body" />
+
+    <!-- Remaining counts on the study screen (label large) -->
     <style name="Base.TextAppearance.Foundation.StudyCount" parent="TextAppearance.Foundation">
-        <item name="android:textSize">14.5sp</item>
-        <item name="foundationTextWeight">600</item>
-        <item name="android:textStyle">bold</item>
-        <item name="lineHeight">17.4sp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="foundationTextWeight">500</item>
+        <item name="lineHeight">20sp</item>
         <item name="android:fontFeatureSettings">tnum</item>
     </style>
     <style name="TextAppearance.Foundation.StudyCount" parent="Base.TextAppearance.Foundation.StudyCount" />
 
-    <!-- Dates and secondary lines -->
+    <!-- Dates and secondary lines (body small) -->
     <style name="Base.TextAppearance.Foundation.Caption" parent="TextAppearance.Foundation">
-        <item name="android:textSize">13sp</item>
+        <item name="android:textSize">12sp</item>
         <item name="foundationTextWeight">400</item>
-        <item name="lineHeight">18.2sp</item>
+        <item name="lineHeight">16sp</item>
         <item name="android:textColor">?android:attr/textColorSecondary</item>
     </style>
     <style name="TextAppearance.Foundation.Caption" parent="Base.TextAppearance.Foundation.Caption" />
 
-    <!-- Column headers, bottom bar labels, answer times; the current bottom bar label uses weight 600 -->
+    <!-- Column headings, navigation labels, answer intervals (label medium) -->
     <style name="Base.TextAppearance.Foundation.Label" parent="TextAppearance.Foundation">
         <item name="android:textSize">12sp</item>
-        <item name="foundationTextWeight">400</item>
-        <item name="lineHeight">16.8sp</item>
+        <item name="foundationTextWeight">500</item>
+        <item name="lineHeight">16sp</item>
     </style>
     <style name="TextAppearance.Foundation.Label" parent="Base.TextAppearance.Foundation.Label" />
 
-    <!-- The current tab's label in the bottom bar: Label at weight 600 -->
+    <!-- The current destination's label in the navigation bar: Label at weight 700 -->
     <style name="Base.TextAppearance.Foundation.Label.Current" parent="TextAppearance.Foundation.Label">
-        <item name="foundationTextWeight">600</item>
+        <item name="foundationTextWeight">700</item>
         <item name="android:textStyle">bold</item>
     </style>
     <style name="TextAppearance.Foundation.Label.Current" parent="Base.TextAppearance.Foundation.Label.Current" />

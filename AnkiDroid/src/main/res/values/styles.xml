@@ -74,7 +74,7 @@
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
         <item name="android:elevation">?attr/studyScreenElevation</item>
-        <item name="cardCornerRadius">@dimen/foundation_shape_button</item>
+        <item name="cardCornerRadius">@dimen/foundation_shape_card_sheet</item>
         <item name="cardUseCompatPadding">false</item>
         <item name="cardBackgroundColor">?popupBackgroundColor</item>
         <item name="strokeWidth">@dimen/foundation_shape_hairline</item>

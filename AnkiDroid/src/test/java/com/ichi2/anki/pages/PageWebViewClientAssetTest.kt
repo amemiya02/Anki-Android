@@ -86,17 +86,17 @@ class PageWebViewClientAssetTest : PageWebViewClientTestBase() {
                 val html = response.data.bufferedReader().use { Jsoup.parse(it.readText()) }
                 assertNotNull(html.selectFirst("meta[name=color-scheme]"), path).remove()
                 assertNotNull(html.selectFirst("link[rel=stylesheet][href=/hayaki/anki-pages.css]"), path).remove()
-                val root = assertNotNull(html.selectFirst("html[data-hayaki-page][data-hayaki-font]"), path)
-                root.removeAttr("data-hayaki-page").removeAttr("data-hayaki-font")
+                val root = assertNotNull(html.selectFirst("html[data-hayaki-page]"), path)
+                root.removeAttr("data-hayaki-page")
                 assertEquals(expected.outerHtml(), html.outerHtml(), path)
             }
         }
 
     @Test
-    fun `page styles and bundled fonts are limited to exact paths on the page origin`() =
+    fun `page styles are limited to an exact path on the page origin, and no font is served`() =
         withStatistics { view, client ->
             val pageUrl = assertNotNull(view.url).toUri()
-            for ((path, mimeType) in listOf("/hayaki/anki-pages.css" to "text/css", "/hayaki/newsreader.ttf" to "font/ttf")) {
+            for ((path, mimeType) in listOf("/hayaki/anki-pages.css" to "text/css")) {
                 val url = pageUrl.buildUpon().path(path).build()
                 val response = assertNotNull(client.shouldInterceptRequest(view, request(url.toString())))
                 assertEquals(mimeType, response.mimeType)
@@ -104,6 +104,7 @@ class PageWebViewClientAssetTest : PageWebViewClientTestBase() {
                 assertNull(client.shouldInterceptRequest(view, request(url.buildUpon().encodedAuthority("example.org").toString())))
             }
             assertNull(client.shouldInterceptRequest(view, request(pageUrl.buildUpon().path("/hayaki/other.ttf").toString())))
+            assertNull(client.shouldInterceptRequest(view, request(pageUrl.buildUpon().path("/hayaki/newsreader.ttf").toString())))
         }
 
     @Test

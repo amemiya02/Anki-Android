@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 
 /**
  * Every interface icon is a Material Symbol in the one style the Foundation names (the `icons`
- * entry of `docs/redesign/quiet-paper.values.json`), coloured by the theme, and mirrored in a
+ * entry of `docs/redesign/material-3.values.json`), coloured by the theme, and mirrored in a
  * right-to-left language when it carries direction.
  *
  * An icon is a vector drawable `symbol_<name>.xml` made by `tools/material-symbols/symbol.py`, which
@@ -128,7 +128,7 @@ class InterfaceIconsAreMaterialSymbolsTest {
     private val builder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
 
     private val style: JSONObject by lazy {
-        JSONObject(File(ROOT, "docs/redesign/quiet-paper.values.json").readText()).getJSONObject("icons")
+        JSONObject(File(ROOT, "docs/redesign/material-3.values.json").readText()).getJSONObject("icons")
     }
 
     private val lock: Lock by lazy {

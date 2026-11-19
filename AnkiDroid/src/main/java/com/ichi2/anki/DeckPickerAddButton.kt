@@ -66,17 +66,20 @@ class DeckPickerAddButton internal constructor(
     override fun Content() {
         AnkiDroidTheme {
             val foundation = MaterialTheme.foundation
+            val scheme = MaterialTheme.colorScheme
             val label = text?.toString().takeIf { isExtended }
             Surface(
                 onClick = { performClick() },
                 shape = foundation.shapes.addButton,
                 modifier =
-                    Modifier.heightIn(min = if (primary) 56.dp else 48.dp)
+                    Modifier
+                        .heightIn(min = if (primary) 56.dp else 48.dp)
                         .widthIn(min = if (primary) 56.dp else 48.dp)
                         .then(if (primary) Modifier.testTag("deck-add") else Modifier),
-                shadowElevation = if (primary) 4.dp else 2.dp,
-                color = if (primary) foundation.colors.primary else foundation.colors.background,
-                contentColor = if (primary) foundation.colors.onPrimary else foundation.colors.onBackground,
+                // Material 3's FAB is the primary container; the actions it opens are secondary containers
+                shadowElevation = if (primary) 6.dp else 3.dp,
+                color = if (primary) scheme.primaryContainer else scheme.secondaryContainer,
+                contentColor = if (primary) scheme.onPrimaryContainer else scheme.onSecondaryContainer,
             ) {
                 Row(
                     Modifier.padding(horizontal = if (label == null) 0.dp else 16.dp),

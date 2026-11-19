@@ -309,14 +309,7 @@ class ReviewerFragment :
 
         binding.backButton.setContent {
             AnkiDroidTheme {
-                androidx.compose.material3.IconButton(onClick = { finishScreen() }) {
-                    androidx.compose.material3.Icon(
-                        androidx.compose.ui.res
-                            .painterResource(com.ichi2.anki.common.android.R.drawable.symbol_arrow_back),
-                        androidx.compose.ui.res
-                            .stringResource(androidx.appcompat.R.string.abc_action_bar_up_description),
-                    )
-                }
+                StudyBackButton(onClick = { finishScreen() })
             }
         }
 

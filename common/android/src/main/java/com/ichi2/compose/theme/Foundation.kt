@@ -3,7 +3,6 @@
 package com.ichi2.compose.theme
 
 import android.content.Context
-import android.os.Build
 import android.util.TypedValue
 import androidx.annotation.DimenRes
 import androidx.annotation.StyleRes
@@ -19,12 +18,10 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.DefaultShadowColor
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.AndroidFont
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontLoadingStrategy
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.Dp
@@ -34,7 +31,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.content.withStyledAttributes
 import com.ichi2.anki.common.android.R
-import com.ichi2.anki.common.android.themes.interfaceTypeface
 
 /**
  * The Foundation as Compose reads it: the chosen Direction's colour roles, shapes, spacing,
@@ -102,7 +98,7 @@ data class FoundationType(
             )
 }
 
-/** The Foundation's colour roles. Names match `docs/redesign/quiet-paper.values.json`. */
+/** The Foundation's colour roles. Names match `docs/redesign/material-3.values.json`. */
 @Immutable
 data class FoundationColors(
     val background: Color,
@@ -134,9 +130,14 @@ data class FoundationColors(
     val progressFill: Color,
 )
 
-/** Corner shapes and rule widths. Small corners and hairlines instead of filled cards. */
+/** Corner shapes and rule widths: Material 3's corner scale, then the named corners. */
 @Immutable
 data class FoundationShapes(
+    val extraSmall: CornerBasedShape,
+    val small: CornerBasedShape,
+    val medium: CornerBasedShape,
+    val large: CornerBasedShape,
+    val extraLarge: CornerBasedShape,
     val cardSheet: CornerBasedShape,
     val button: CornerBasedShape,
     val dialog: CornerBasedShape,
@@ -169,8 +170,8 @@ data class FoundationSpacing(
 )
 
 /**
- * Surfaces are flat and separated by hairlines. Nothing casts a shadow except the add button,
- * whose shadow is [addButtonShadow].
+ * Surfaces are tonal: a group is set apart by its container colour. Nothing casts a shadow except
+ * the add button, whose shadow is [addButtonShadow], a neutral colour.
  */
 @Immutable
 data class FoundationElevation(
@@ -227,6 +228,11 @@ fun Context.toFoundation(): Foundation {
         colors = foundationColors,
         shapes =
             FoundationShapes(
+                extraSmall = RoundedCornerShape(dp(R.dimen.foundation_shape_extra_small)),
+                small = RoundedCornerShape(dp(R.dimen.foundation_shape_small)),
+                medium = RoundedCornerShape(dp(R.dimen.foundation_shape_medium)),
+                large = RoundedCornerShape(dp(R.dimen.foundation_shape_large)),
+                extraLarge = RoundedCornerShape(dp(R.dimen.foundation_shape_extra_large)),
                 cardSheet = RoundedCornerShape(dp(R.dimen.foundation_shape_card_sheet)),
                 button = RoundedCornerShape(dp(R.dimen.foundation_shape_button)),
                 dialog = RoundedCornerShape(dp(R.dimen.foundation_shape_dialog)),
@@ -268,8 +274,9 @@ fun Context.toFoundation(): Foundation {
             FoundationElevation(
                 flat = dp(R.dimen.foundation_elevation_flat),
                 addButton = dp(R.dimen.foundation_elevation_add_button),
+                // Material 3's shadows are the platform's neutral shadow, never a palette colour
                 addButtonShadow =
-                    foundationColors.primary.copy(
+                    DefaultShadowColor.copy(
                         alpha = ResourcesCompat.getFloat(resources, R.dimen.foundation_elevation_add_button_shadow_alpha),
                     ),
             ),
@@ -296,10 +303,7 @@ fun Context.toFoundation(): Foundation {
     )
 }
 
-/**
- * Reads a type role from its XML TextAppearance. Newsreader is drawn at the optical size of the
- * text, as the Mockups' browser does.
- */
+/** Reads a type role from its XML TextAppearance, drawn in the system sans-serif (ADR-0006). */
 private fun Context.textStyle(
     @StyleRes style: Int,
 ): TextStyle {
@@ -313,7 +317,7 @@ private fun Context.textStyle(
         val size = sp(R.styleable.FoundationTextAppearance_android_textSize)
         textStyle =
             TextStyle(
-                fontFamily = interfaceFontFamily(interfaceTypeface(opticalSize = size.value)),
+                fontFamily = FontFamily.SansSerif,
                 fontSize = size,
                 fontWeight = FontWeight(getInt(R.styleable.FoundationTextAppearance_foundationTextWeight, 400)),
                 fontStyle = FontStyle.Normal,
@@ -350,54 +354,16 @@ fun Foundation.toMaterialTypography() =
         labelSmall = type.label,
     )
 
-/** Material 3's corner scale, set from the Foundation: small corners everywhere but the add button. */
+/** Material 3's corner scale, as the Foundation holds it */
 internal fun Foundation.toMaterialShapes() =
     Shapes(
-        extraSmall = shapes.cardSheet,
-        small = shapes.button,
-        medium = shapes.button,
-        large = shapes.addButton,
-        extraLarge = shapes.button,
+        extraSmall = shapes.extraSmall,
+        small = shapes.small,
+        medium = shapes.medium,
+        large = shapes.large,
+        extraLarge = shapes.extraLarge,
     )
 
 private fun Context.dp(
     @DimenRes id: Int,
 ): Dp = (resources.getDimension(id) / resources.displayMetrics.density).dp
-
-/**
- * The interface typeface as a Compose [FontFamily] that answers to each weight the type scale uses.
- *
- * `FontFamily(Typeface(typeface))` hands Compose the one Android typeface whatever weight a style
- * asks for, so every role drew at 400. Here each weight is its own font, derived from the same
- * fallback chain the way XML text derives it (`Typeface.create(typeface, weight, false)`).
- */
-private fun interfaceFontFamily(typeface: android.graphics.Typeface): FontFamily =
-    FontFamily(INTERFACE_WEIGHTS.map { weight -> InterfaceFont(FontWeight(weight), typeface.atWeight(weight)) })
-
-private val INTERFACE_WEIGHTS = listOf(400, 500, 600, 700)
-
-private fun android.graphics.Typeface.atWeight(weight: Int): android.graphics.Typeface =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        android.graphics.Typeface.create(this, weight, false)
-    } else {
-        android.graphics.Typeface.create(this, if (weight >= 600) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
-    }
-
-private class InterfaceFont(
-    override val weight: FontWeight,
-    val typeface: android.graphics.Typeface,
-) : AndroidFont(FontLoadingStrategy.Blocking, InterfaceFontLoader, FontVariation.Settings()) {
-    override val style: FontStyle = FontStyle.Normal
-}
-
-private object InterfaceFontLoader : AndroidFont.TypefaceLoader {
-    override fun loadBlocking(
-        context: Context,
-        font: AndroidFont,
-    ): android.graphics.Typeface = (font as InterfaceFont).typeface
-
-    override suspend fun awaitLoad(
-        context: Context,
-        font: AndroidFont,
-    ): android.graphics.Typeface = loadBlocking(context, font)
-}

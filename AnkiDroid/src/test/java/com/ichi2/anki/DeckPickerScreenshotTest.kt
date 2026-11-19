@@ -37,7 +37,9 @@ class DeckPickerScreenshotTest : DeckListScreenshotTest() {
     @Test
     fun decks() {
         seedMockupDecks()
-        showDeckList("decks")
+        // At 200% the summary and its Study button push the last Deck under the add button; at the
+        // end of the list it clears it (at other sizes the list fits and nothing scrolls)
+        showDeckList("decks") { scrollDeckListToEnd() }
     }
 
     /** Long names wrap once and are then cut; the counts beside them stay in place */

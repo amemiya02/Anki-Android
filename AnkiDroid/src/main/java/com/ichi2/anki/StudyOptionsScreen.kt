@@ -213,7 +213,7 @@ private fun DeckDescription(
                 TextView(context).apply {
                     id = R.id.studyoptions_deck_description
                     setTextAppearance(com.ichi2.anki.common.android.R.style.TextAppearance_Foundation_Body)
-                    typeface = context.interfaceTypeface(paper.type.body.fontSize.value)
+                    typeface = context.interfaceTypeface()
                     movementMethod = LinkMovementMethod.getInstance()
                     text =
                         StudyOptionsFragment.formatDescription(html, mediaDir?.let { CollectionMediaImageGetter(context, this, it, scope) })

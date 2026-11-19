@@ -37,7 +37,7 @@ class FoundationWeightTest {
     @Test
     fun `each role is drawn at its weight`() {
         val type = context.toFoundation().type
-        assertEquals(600, type.answer.drawnWeight(), "answer")
+        assertEquals(500, type.answer.drawnWeight(), "answer")
         assertEquals(500, type.studyTitle.drawnWeight(), "studyTitle")
         assertEquals(400, type.body.drawnWeight(), "body")
     }

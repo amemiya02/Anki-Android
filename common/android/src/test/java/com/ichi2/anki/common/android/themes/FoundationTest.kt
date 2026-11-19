@@ -9,6 +9,7 @@ import android.view.ContextThemeWrapper
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Typography
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -32,7 +33,7 @@ import com.google.android.material.R as MaterialR
 /**
  * The Foundation must not drift from the chosen Direction's design values.
  *
- * `docs/redesign/quiet-paper.values.json` is the single source: this test reads it and compares
+ * `docs/redesign/material-3.values.json` is the single source: this test reads it and compares
  * every colour role, corner shape and spacing value with what the app's themes and resources hold.
  */
 @RunWith(RobolectricTestRunner::class)
@@ -139,13 +140,13 @@ class FoundationTest {
     }
 
     @Test
-    fun `nothing casts a shadow except the add button`() {
+    fun `nothing casts a shadow except the add button, and its shadow is neutral`() {
         for ((name, style) in themes) {
             val context = ContextThemeWrapper(appContext, style)
             val foundation = context.toFoundation()
             assertEquals(0f, foundation.elevation.flat.value, name)
             assertEquals(0f, context.toAnkiDroidDimensions().studyScreenElevation.value, name)
-            assertEquals(foundation.colors.primary.copy(alpha = 0.55f), foundation.elevation.addButtonShadow, name)
+            assertEquals(Color.Black.copy(alpha = 0.3f), foundation.elevation.addButtonShadow, name)
             assertTrue(foundation.elevation.addButton.value > 0f, name)
         }
     }
@@ -194,7 +195,7 @@ class FoundationTest {
                         "weight" to role.getInt("weight").toString(),
                         "lineHeight" to "%.2fsp".format(size * role.getDouble("lineHeight")),
                         "materialLineHeight" to "%.2fsp".format(size * role.getDouble("lineHeight")),
-                        "font" to "foundation_interface",
+                        "font" to "sans-serif",
                         "figures" to if (role.optString("figures") == "tabular") "tnum" else "null",
                     )
                 val actual =
@@ -221,7 +222,7 @@ class FoundationTest {
                                         TypedValue.COMPLEX_UNIT_SP
                                 }
                             },
-                        "font" to styleValue(style, android.R.attr.fontFamily) { appContext.resources.getResourceEntryName(resourceId) },
+                        "font" to styleValue(style, android.R.attr.fontFamily) { string?.toString() },
                         "figures" to (styleValue(style, android.R.attr.fontFeatureSettings) { string.toString() } ?: "null"),
                     )
                 expected.keys.mapNotNull { key ->
@@ -315,7 +316,7 @@ class FoundationTest {
         }
     }
 
-    /** Android 7 loads fonts from resources through AndroidX, which can fail; the app must still start */
+    /** Android 7 reads the type scale too; the app must start there */
     @Test
     @Config(sdk = [24])
     fun `Compose reads the type scale on Android 7`() {
@@ -324,11 +325,11 @@ class FoundationTest {
     }
 
     @Test
-    fun `interface text falls back to the type scale's typeface in every theme`() {
+    fun `interface text falls back to the system sans-serif in every theme`() {
         for ((theme, styleRes) in themes) {
             val value = TypedValue()
             ContextThemeWrapper(appContext, styleRes).theme.resolveAttribute(android.R.attr.fontFamily, value, true)
-            assertEquals(R.font.foundation_interface, value.resourceId, theme)
+            assertEquals("sans-serif", value.string?.toString(), theme)
         }
     }
 
@@ -415,11 +416,11 @@ class FoundationTest {
         fun designValuesFile(): File {
             var dir: File? = File(System.getProperty("user.dir")!!).absoluteFile
             while (dir != null) {
-                val candidate = File(dir, "docs/redesign/quiet-paper.values.json")
+                val candidate = File(dir, "docs/redesign/material-3.values.json")
                 if (candidate.exists()) return candidate
                 dir = dir.parentFile
             }
-            error("docs/redesign/quiet-paper.values.json not found above ${System.getProperty("user.dir")}")
+            error("docs/redesign/material-3.values.json not found above ${System.getProperty("user.dir")}")
         }
     }
 }

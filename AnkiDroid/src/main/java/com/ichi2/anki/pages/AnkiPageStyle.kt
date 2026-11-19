@@ -10,19 +10,11 @@ import com.google.android.material.color.MaterialColors
 import com.ichi2.anki.common.android.R
 import com.ichi2.utils.toRGBHex
 import java.io.SequenceInputStream
-import java.util.Locale
+import com.google.android.material.R as MaterialR
 
-/** Hayaki's colours and fonts, served alongside the bundled Anki Pages. */
+/** Hayaki's colours and typeface, served alongside the bundled Anki Pages. */
 internal object AnkiPageStyle {
     private const val STYLESHEET = "/hayaki/anki-pages.css"
-    private val fonts =
-        mapOf(
-            "/hayaki/newsreader.ttf" to R.font.newsreader,
-            "/hayaki/lxgw-wenkai-regular.ttf" to R.font.lxgw_wenkai_regular,
-            "/hayaki/lxgw-wenkai-medium.ttf" to R.font.lxgw_wenkai_medium,
-            "/hayaki/klee-one-regular.ttf" to R.font.klee_one_regular,
-            "/hayaki/klee-one-semibold.ttf" to R.font.klee_one_semibold,
-        )
 
     fun attachTo(
         html: String,
@@ -33,17 +25,13 @@ internal object AnkiPageStyle {
                 it.getBoolean(R.styleable.ComposeTheme_isLightTheme, true)
             }
         val scheme = if (isLight) "light" else "dark"
-        val isJapanese =
-            context.resources.configuration.locales[0]
-                .language == Locale.JAPANESE.language
-        val language = if (isJapanese) "ja" else "default"
         return html
-            .replaceFirst("<html ", """<html data-hayaki-page="$scheme" data-hayaki-font="$language" """)
+            .replaceFirst("<html ", """<html data-hayaki-page="$scheme" """)
             .replaceFirst("<head>", """<head><meta name="color-scheme" content="$scheme">""")
             .replaceFirst("</head>", """<link rel="stylesheet" href="$STYLESHEET"></head>""")
     }
 
-    /** Exact paths on the page origin, backed by the same font resources as the native interface. */
+    /** The stylesheet, at its exact path on the page origin */
     fun responseFor(
         context: Context,
         path: String,
@@ -55,8 +43,7 @@ internal object AnkiPageStyle {
                 responseHeaders = mapOf("Cache-Control" to "no-store")
             }
         }
-        val font = fonts[path] ?: return null
-        return WebResourceResponse("font/ttf", null, context.resources.openRawResource(font))
+        return null
     }
 
     private fun paletteCss(context: Context): String =
@@ -75,6 +62,7 @@ internal object AnkiPageStyle {
                 }
             }
             color("paper", R.attr.foundationBackground, rgb = true)
+            color("container", MaterialR.attr.colorSurfaceContainerLow)
             color("ink", R.attr.foundationOnBackground, rgb = true)
             color("muted", R.attr.foundationOnBackgroundMuted)
             color("rule", R.attr.foundationOutline)

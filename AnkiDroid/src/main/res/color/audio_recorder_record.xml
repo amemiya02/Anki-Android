@@ -2,5 +2,5 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <!-- The colour of recording, or ready to record -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="?attr/foundationEmphasis" />
+    <item android:color="?attr/colorError" />
 </selector>

@@ -35,10 +35,10 @@ fun DialogField(
         label = { Text(label) },
         modifier = modifier.fillMaxWidth(),
         textStyle = foundation.type.deckNameNested,
-        shape = foundation.shapes.dialog,
+        shape = foundation.shapes.extraSmall,
         colors =
             OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = foundation.colors.onBackground,
+                focusedBorderColor = foundation.colors.primary,
                 unfocusedBorderColor = foundation.colors.onBackgroundMuted,
             ),
         keyboardOptions = keyboardOptions,

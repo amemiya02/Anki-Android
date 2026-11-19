@@ -10,8 +10,7 @@ import android.view.Window
 import android.view.WindowManager
 import androidx.activity.ComponentDialog
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,7 +28,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -41,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
@@ -53,7 +52,6 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.res.ResourcesCompat
 import com.ichi2.anki.common.android.R
@@ -189,10 +187,10 @@ private fun PaperDialogCard(
     val colors = foundation.colors
     Surface(
         modifier = Modifier.widthIn(min = 280.dp, max = 560.dp).fillMaxWidth(),
-        color = colors.background,
+        // Material 3's dialog: a tonal surface container with no outline, in every theme
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
         contentColor = colors.onBackground,
         shape = foundation.shapes.dialog,
-        border = BorderStroke(foundation.shapes.hairline, colors.dialogBorder),
     ) {
         Column(Modifier.padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 16.dp)) {
             val viewport = Modifier.weight(1f, fill = false)
@@ -204,7 +202,7 @@ private fun PaperDialogCard(
                 if (title.isNotEmpty()) {
                     DialogTitle(title)
                 }
-                ProvideTextStyle(foundation.type.body.copy(lineHeight = 23.25.sp)) { content() }
+                ProvideTextStyle(foundation.type.body) { content() }
             }
             if (actions.isNotEmpty()) {
                 DialogActions(actions)
@@ -215,15 +213,20 @@ private fun PaperDialogCard(
 
 @Composable
 private fun PaperDialogMark(mark: DialogMark) {
-    val foundation = MaterialTheme.foundation
+    // a tonal circle, the error container when the dialog warns
+    val scheme = MaterialTheme.colorScheme
     Box(
-        modifier = Modifier.size(44.dp).border(foundation.shapes.hairline, foundation.colors.outline, CircleShape),
+        modifier =
+            Modifier
+                .size(44.dp)
+                .clip(CircleShape)
+                .background(if (mark.warning) scheme.errorContainer else scheme.secondaryContainer),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
             painter = painterResource(mark.icon),
             contentDescription = null,
-            tint = if (mark.warning) foundation.colors.emphasis else foundation.colors.onBackground,
+            tint = if (mark.warning) scheme.onErrorContainer else scheme.onSecondaryContainer,
         )
     }
 }
@@ -303,7 +306,8 @@ private fun DialogActionButton(
     val colors = foundation.colors
     val shape = foundation.shapes.button
     val size = modifier.widthIn(min = 64.dp).heightIn(min = foundation.spacing.touchTarget)
-    val style = foundation.type.button.copy(fontSize = 16.sp, lineHeight = 22.4.sp)
+    val style = foundation.type.button
+    val scheme = MaterialTheme.colorScheme
     val padding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
     when (action.style) {
         DialogActionStyle.Text ->
@@ -313,7 +317,7 @@ private fun DialogActionButton(
                 enabled = action.enabled,
                 shape = shape,
                 contentPadding = padding,
-                colors = ButtonDefaults.textButtonColors(contentColor = colors.onBackground),
+                colors = ButtonDefaults.textButtonColors(contentColor = colors.primary),
             ) { Text(action.label, style = style) }
 
         DialogActionStyle.Filled ->
@@ -327,14 +331,14 @@ private fun DialogActionButton(
             ) { Text(action.label, style = style) }
 
         DialogActionStyle.Destructive ->
-            OutlinedButton(
+            Button(
                 onClick = action.onClick,
                 modifier = size,
                 enabled = action.enabled,
                 shape = shape,
                 contentPadding = padding,
-                border = BorderStroke(foundation.shapes.hairline, colors.emphasis),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = colors.emphasis),
+                // a destructive choice is Material 3's error colour, so it is never mistaken for the safe one
+                colors = ButtonDefaults.buttonColors(containerColor = scheme.error, contentColor = scheme.onError),
             ) {
                 Icon(
                     painterResource(R.drawable.symbol_warning),

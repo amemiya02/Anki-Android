@@ -120,7 +120,7 @@ internal fun BrowserSelectionActionsSheet(
                     if (item.startsGroup) HorizontalDivider(thickness = foundation.shapes.hairline, color = colors.outline)
                     val color =
                         when {
-                            item.destructive -> colors.emphasis
+                            item.destructive -> MaterialTheme.colorScheme.error
                             !item.enabled -> colors.onBackgroundMuted
                             else -> colors.onBackground
                         }
@@ -139,7 +139,7 @@ internal fun BrowserSelectionActionsSheet(
                             painterResource(item.icon),
                             null,
                             Modifier.size(20.dp),
-                            tint = if (item.destructive) colors.emphasis else colors.onBackgroundMuted,
+                            tint = if (item.destructive) MaterialTheme.colorScheme.error else colors.onBackgroundMuted,
                         )
                         Column(Modifier.weight(1f)) {
                             Text(item.label, style = foundation.type.rowTitle, color = color)

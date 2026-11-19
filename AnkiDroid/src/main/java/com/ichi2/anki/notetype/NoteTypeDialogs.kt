@@ -109,7 +109,7 @@ internal fun AddNoteTypeSheet(
             Button(
                 onClick = { onAdd(active, newName) },
                 enabled = newName.isNotEmpty() && !duplicate,
-                shape = paper.shapes.button,
+                shape = paper.shapes.extraSmall,
                 colors = ButtonDefaults.buttonColors(containerColor = paper.colors.primary, contentColor = paper.colors.onPrimary),
             ) {
                 Text(stringResource(CommonString.dialog_add))

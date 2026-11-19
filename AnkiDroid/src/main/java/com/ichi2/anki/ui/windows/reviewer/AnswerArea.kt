@@ -3,11 +3,15 @@
 package com.ichi2.anki.ui.windows.reviewer
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.border
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -24,6 +28,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -34,9 +39,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.stringResource
@@ -166,19 +170,26 @@ fun AnswerArea(
 }
 
 /**
- * A paper button outlined by a hairline, with a rule in the answer's colour along its top edge.
- * The time until the Card comes back sits above the answer's name.
+ * A tonal pill in the surface container, its name in the answer's colour. The time until the Card
+ * comes back sits above the name. A press settles the button slightly, so the thumb feels it land.
  */
 @Composable
 private fun RowScope.RatingButton(
     @StringRes easeName: Int,
     nextTime: String?,
-    ruleColor: Color,
+    answerColor: Color,
     onClick: () -> Unit,
 ) {
     val foundation = MaterialTheme.foundation
     val shape = foundation.shapes.button
     val name = stringResource(easeName)
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) PRESSED_SCALE else 1f,
+        animationSpec = tween(durationMillis = PRESS_MILLIS),
+        label = "answer press",
+    )
     val text =
         buildAnnotatedString {
             if (nextTime != null) {
@@ -198,12 +209,12 @@ private fun RowScope.RatingButton(
             Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .clip(shape)
-                .border(foundation.shapes.hairline, foundation.colors.outline, shape)
-                .drawWithContent {
-                    drawContent()
-                    drawRect(ruleColor, size = Size(size.width, foundation.shapes.answerRule.toPx()))
-                }.clickable(role = Role.Button, onClick = onClick)
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                }.clip(shape)
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                .clickable(interactionSource = interactionSource, indication = ripple(), role = Role.Button, onClick = onClick)
                 .padding(horizontal = 2.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center,
     ) {
@@ -211,11 +222,15 @@ private fun RowScope.RatingButton(
             text = text,
             // each line takes the direction of its own text, so `<10m` reads the same in Arabic
             style = foundation.type.answer.copy(textDirection = TextDirection.Content),
-            color = foundation.colors.onBackground,
+            color = answerColor,
             textAlign = TextAlign.Center,
         )
     }
 }
+
+/** How far a pressed answer button settles, and how fast: well inside the 120ms answering budget */
+private const val PRESSED_SCALE = 0.96f
+private const val PRESS_MILLIS = 90
 
 private fun Modifier.relativeHeight(percentage: Int): Modifier {
     if (percentage <= 100) return this

@@ -1,40 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
-@font-face {
-    font-family: "Newsreader";
-    src: url("/hayaki/newsreader.ttf") format("truetype");
-    font-weight: 400 700;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "LXGW WenKai";
-    src: url("/hayaki/lxgw-wenkai-regular.ttf") format("truetype");
-    font-weight: 400 500;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "LXGW WenKai";
-    src: url("/hayaki/lxgw-wenkai-medium.ttf") format("truetype");
-    font-weight: 600 700;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Klee One";
-    src: url("/hayaki/klee-one-regular.ttf") format("truetype");
-    font-weight: 400 500;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Klee One";
-    src: url("/hayaki/klee-one-semibold.ttf") format("truetype");
-    font-weight: 600 700;
-    font-display: swap;
-}
-
 html:root[data-hayaki-page="light"] {
     color-scheme: light;
 }
@@ -46,9 +11,9 @@ html:root[data-hayaki-page="dark"] {
 /* Map the bundled Anki and Bootstrap roles. This outranks their root rules even when a route
    adds another stylesheet. The form structure, sizing and chart data stay in the bundled pages. */
 html:root[data-hayaki-page] {
-    --hayaki-cjk: "LXGW WenKai", "Klee One";
-    --hayaki-face: "Newsreader", var(--hayaki-cjk), serif;
-    --hayaki-raised-paper: var(--hayaki-paper);
+    /* The system sans-serif, as the native interface uses (ADR-0006) */
+    --hayaki-face: Roboto, system-ui, sans-serif;
+    --hayaki-raised-paper: var(--hayaki-container);
 
     --fg: var(--hayaki-ink);
     --fg-subtle: var(--hayaki-muted);
@@ -105,17 +70,6 @@ html:root[data-hayaki-page] {
     color: var(--hayaki-ink);
     font-family: var(--hayaki-face);
     accent-color: var(--hayaki-primary);
-}
-
-@supports (color: color-mix(in srgb, black, white)) {
-    html:root[data-hayaki-page] {
-        --hayaki-raised-paper: color-mix(in srgb, var(--hayaki-paper) 97%, var(--hayaki-ink));
-    }
-}
-
-/* Prefer the Japanese forms of shared Han characters in the Japanese interface. */
-html:root[data-hayaki-font="ja"] {
-    --hayaki-cjk: "Klee One", "LXGW WenKai";
 }
 
 html[data-hayaki-page] body {

@@ -55,7 +55,8 @@ internal class DeckPickerLayout(
             val bar =
                 DeckBottomBar(context).apply {
                     id = R.id.bottom_navigation
-                    setBackgroundColor(getColorFromAttr(context, CommonR.attr.foundationBackground))
+                    // the system navigation inset below the bar takes the bar's container colour
+                    setBackgroundColor(getColorFromAttr(context, com.google.android.material.R.attr.colorSurfaceContainer))
                     minimumHeight = resources.getDimensionPixelSize(R.dimen.bottom_bar_height)
                     visibility = View.GONE
                 }
@@ -158,6 +159,9 @@ class AddMenuLayout internal constructor(
         }
 
     init {
+        // the add buttons' shadows fall outside their own bounds: let them draw there, not cut square
+        fabLinearLayout.clipChildren = false
+        fabLinearLayout.clipToPadding = false
         val scroll = ScrollView(context).apply { addView(fabLinearLayout, WRAP_CONTENT, WRAP_CONTENT) }
         fabLinearLayout.addView(fabMain, optionLayoutParams(context).apply { bottomMargin = context.layoutDp(16) })
         root.addView(fabBGLayout, MATCH_PARENT, MATCH_PARENT)

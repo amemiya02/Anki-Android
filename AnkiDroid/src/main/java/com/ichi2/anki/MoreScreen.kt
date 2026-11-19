@@ -3,6 +3,7 @@
 package com.ichi2.anki
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -20,13 +21,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
@@ -87,8 +88,13 @@ private fun MoreRows(
                     .padding(start = margin, end = margin, top = 24.dp, bottom = 10.dp)
                     .semantics { heading() },
         )
-        Column(modifier = Modifier.padding(start = margin, end = margin, top = 8.dp)) {
-            MoreDivider()
+        Column(
+            modifier =
+                Modifier
+                    .padding(start = margin, end = margin, top = 8.dp)
+                    .clip(foundation.shapes.large)
+                    .background(MaterialTheme.colorScheme.surfaceContainerLow),
+        ) {
             MoreRow(
                 icon = R.drawable.symbol_settings,
                 title = stringResource(CommonR.string.settings),
@@ -138,14 +144,14 @@ private fun MoreRow(
                 .fillMaxWidth()
                 .heightIn(min = foundation.spacing.listRow)
                 .clickable(role = Role.Button, onClick = onClick)
-                .padding(vertical = 10.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Icon(
             painter = painterResource(icon),
             contentDescription = null,
-            tint = foundation.colors.onBackground,
+            tint = foundation.colors.onBackgroundMuted,
             modifier = Modifier.size(24.dp),
         )
         Text(title, Modifier.weight(1f), style = foundation.type.rowTitle, color = foundation.colors.onBackground)
@@ -156,13 +162,4 @@ private fun MoreRow(
             modifier = Modifier.size(20.dp),
         )
     }
-    MoreDivider()
-}
-
-@Composable
-private fun MoreDivider() {
-    HorizontalDivider(
-        thickness = MaterialTheme.foundation.shapes.hairline,
-        color = MaterialTheme.foundation.colors.outline,
-    )
 }

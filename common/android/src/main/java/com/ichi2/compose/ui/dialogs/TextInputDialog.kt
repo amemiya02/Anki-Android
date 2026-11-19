@@ -128,13 +128,13 @@ fun TextInputDialog(
             },
             modifier = Modifier.fillMaxWidth().focusRequester(focusRequester).semantics { text = AnnotatedString(label) },
             textStyle = foundation.type.deckNameNested,
-            shape = foundation.shapes.dialog,
+            shape = foundation.shapes.extraSmall,
             colors =
                 OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colors.onBackground,
+                    focusedBorderColor = colors.primary,
                     unfocusedBorderColor = colors.onBackgroundMuted,
-                    errorBorderColor = colors.emphasis,
-                    errorSupportingTextColor = colors.emphasis,
+                    errorBorderColor = MaterialTheme.colorScheme.error,
+                    errorSupportingTextColor = MaterialTheme.colorScheme.error,
                     unfocusedSupportingTextColor = colors.onBackgroundMuted,
                     focusedSupportingTextColor = colors.onBackgroundMuted,
                 ),

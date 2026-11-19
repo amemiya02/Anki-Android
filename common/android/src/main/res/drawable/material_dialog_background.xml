@@ -22,10 +22,8 @@
     android:insetBottom="16dp">
 
     <shape android:shape="rectangle">
-        <corners android:radius="@dimen/foundation_shape_button"/>
+        <corners android:radius="@dimen/foundation_shape_dialog"/>
         <solid android:color="?attr/colorSurfaceContainerHigh"/>
-        <!-- A hairline bounds the dialog: surfaces are flat, so it is the same colour as the page -->
-        <stroke android:width="?attr/widgetStrokeWidth" android:color="?attr/widgetStrokeColor"/>
     </shape>
 
 </inset>

@@ -8,8 +8,9 @@
     <!-- Matches the single-pane activity_homescreen layout. Phones navigate with the bottom bar and have no side drawer. -->
     <bool name="bottom_navigation_available">true</bool>
 
-    <!-- The bottom bar per the Core Loop Mockup: 78dp in the values JSON includes the 16dp gesture area,
-         which the system navigation inset supplies on a device -->
-    <dimen name="bottom_bar_height">62dp</dimen>
-    <dimen name="bottom_bar_current_rule_width">28dp</dimen>
+    <!-- Material 3's navigation bar: 80dp above the system navigation inset, and the pill that marks
+         the current destination -->
+    <dimen name="bottom_bar_height">80dp</dimen>
+    <dimen name="bottom_bar_indicator_width">64dp</dimen>
+    <dimen name="bottom_bar_indicator_height">32dp</dimen>
 </resources>

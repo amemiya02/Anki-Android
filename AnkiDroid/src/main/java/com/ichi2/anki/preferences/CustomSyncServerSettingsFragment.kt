@@ -104,7 +104,7 @@ class CustomSyncServerSettingsFragment : Fragment() {
                 },
                 isError = address.isNotBlank() && !valid,
                 textStyle = foundation.type.body,
-                shape = foundation.shapes.button,
+                shape = foundation.shapes.extraSmall,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(onNext = { continueToSignIn() }),
                 singleLine = true,

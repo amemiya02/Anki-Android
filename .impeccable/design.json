@@ -1,0 +1,709 @@
+{
+    "schemaVersion": 2,
+    "generatedAt": "2026-11-19T07:20:33Z",
+    "title": "Design System: Hayaki",
+    "extensions": {
+        "colorMeta": {
+            "primary": {
+                "role": "primary",
+                "displayName": "Baseline Violet",
+                "tonalRamp": [
+                    "#21005D",
+                    "#381E72",
+                    "#4F378B",
+                    "#6750A4",
+                    "#9A82DB",
+                    "#D0BCFF",
+                    "#EADDFF",
+                    "#F6EDFF"
+                ]
+            },
+            "on-primary": {
+                "role": "primary",
+                "displayName": "On Violet"
+            },
+            "primary-container": {
+                "role": "primary",
+                "displayName": "Lavender Container",
+                "tonalRamp": [
+                    "#21005D",
+                    "#381E72",
+                    "#4F378B",
+                    "#6750A4",
+                    "#9A82DB",
+                    "#D0BCFF",
+                    "#EADDFF",
+                    "#F6EDFF"
+                ]
+            },
+            "on-primary-container": {
+                "role": "primary",
+                "displayName": "On Lavender",
+                "tonalRamp": [
+                    "#21005D",
+                    "#381E72",
+                    "#4F378B",
+                    "#6750A4",
+                    "#9A82DB",
+                    "#D0BCFF",
+                    "#EADDFF",
+                    "#F6EDFF"
+                ]
+            },
+            "secondary-container": {
+                "role": "secondary",
+                "displayName": "Lilac Tonal",
+                "tonalRamp": [
+                    "#1D192B",
+                    "#332D41",
+                    "#4A4458",
+                    "#625B71",
+                    "#958DA5",
+                    "#CCC2DC",
+                    "#E8DEF8",
+                    "#F6EDFF"
+                ]
+            },
+            "on-secondary-container": {
+                "role": "secondary",
+                "displayName": "On Lilac",
+                "tonalRamp": [
+                    "#1D192B",
+                    "#332D41",
+                    "#4A4458",
+                    "#625B71",
+                    "#958DA5",
+                    "#CCC2DC",
+                    "#E8DEF8",
+                    "#F6EDFF"
+                ]
+            },
+            "error": {
+                "role": "error",
+                "displayName": "Error Red",
+                "tonalRamp": [
+                    "#410E0B",
+                    "#601410",
+                    "#8C1D18",
+                    "#B3261E",
+                    "#E46962",
+                    "#F2B8B5",
+                    "#F9DEDC",
+                    "#FCEEEE"
+                ]
+            },
+            "on-error": {
+                "role": "error",
+                "displayName": "On Error"
+            },
+            "error-container": {
+                "role": "error",
+                "displayName": "Error Container",
+                "tonalRamp": [
+                    "#410E0B",
+                    "#601410",
+                    "#8C1D18",
+                    "#B3261E",
+                    "#E46962",
+                    "#F2B8B5",
+                    "#F9DEDC",
+                    "#FCEEEE"
+                ]
+            },
+            "on-error-container": {
+                "role": "error",
+                "displayName": "On Error Container",
+                "tonalRamp": [
+                    "#410E0B",
+                    "#601410",
+                    "#8C1D18",
+                    "#B3261E",
+                    "#E46962",
+                    "#F2B8B5",
+                    "#F9DEDC",
+                    "#FCEEEE"
+                ]
+            },
+            "surface": {
+                "role": "neutral",
+                "displayName": "Violet-White Surface",
+                "tonalRamp": [
+                    "#322F35",
+                    "#DED8E1",
+                    "#E6E0E9",
+                    "#ECE6F0",
+                    "#F3EDF7",
+                    "#F7F2FA",
+                    "#FEF7FF",
+                    "#FFFFFF"
+                ]
+            },
+            "on-surface": {
+                "role": "neutral",
+                "displayName": "Ink",
+                "tonalRamp": [
+                    "#1D1B20",
+                    "#322F35",
+                    "#48464C",
+                    "#605D64",
+                    "#938F96",
+                    "#CAC5CD",
+                    "#E6E0E9",
+                    "#F5EFF7"
+                ]
+            },
+            "on-surface-variant": {
+                "role": "neutral",
+                "displayName": "Muted Ink",
+                "tonalRamp": [
+                    "#1D1A22",
+                    "#322F37",
+                    "#49454F",
+                    "#605D66",
+                    "#79747E",
+                    "#CAC4D0",
+                    "#E7E0EC",
+                    "#F5EEFA"
+                ]
+            },
+            "outline": {
+                "role": "neutral",
+                "displayName": "Outline",
+                "tonalRamp": [
+                    "#1D1A22",
+                    "#322F37",
+                    "#49454F",
+                    "#605D66",
+                    "#79747E",
+                    "#CAC4D0",
+                    "#E7E0EC",
+                    "#F5EEFA"
+                ]
+            },
+            "outline-variant": {
+                "role": "neutral",
+                "displayName": "Hairline",
+                "tonalRamp": [
+                    "#1D1A22",
+                    "#322F37",
+                    "#49454F",
+                    "#605D66",
+                    "#79747E",
+                    "#CAC4D0",
+                    "#E7E0EC",
+                    "#F5EEFA"
+                ]
+            },
+            "surface-container-low": {
+                "role": "neutral",
+                "displayName": "Group Tint",
+                "tonalRamp": [
+                    "#322F35",
+                    "#DED8E1",
+                    "#E6E0E9",
+                    "#ECE6F0",
+                    "#F3EDF7",
+                    "#F7F2FA",
+                    "#FEF7FF",
+                    "#FFFFFF"
+                ]
+            },
+            "surface-container": {
+                "role": "neutral",
+                "displayName": "Bar Tint",
+                "tonalRamp": [
+                    "#322F35",
+                    "#DED8E1",
+                    "#E6E0E9",
+                    "#ECE6F0",
+                    "#F3EDF7",
+                    "#F7F2FA",
+                    "#FEF7FF",
+                    "#FFFFFF"
+                ]
+            },
+            "surface-container-high": {
+                "role": "neutral",
+                "displayName": "Raised Tint",
+                "tonalRamp": [
+                    "#322F35",
+                    "#DED8E1",
+                    "#E6E0E9",
+                    "#ECE6F0",
+                    "#F3EDF7",
+                    "#F7F2FA",
+                    "#FEF7FF",
+                    "#FFFFFF"
+                ]
+            },
+            "progress-track": {
+                "role": "secondary",
+                "displayName": "Progress Track (Lilac Tonal)",
+                "tonalRamp": [
+                    "#1D192B",
+                    "#332D41",
+                    "#4A4458",
+                    "#625B71",
+                    "#958DA5",
+                    "#CCC2DC",
+                    "#E8DEF8",
+                    "#F6EDFF"
+                ]
+            },
+            "count-new": {
+                "role": "signal",
+                "displayName": "New Blue",
+                "tonalRamp": [
+                    "#0B2A66",
+                    "#133D8F",
+                    "#1F5BC4",
+                    "#3D76D9",
+                    "#6E99E6",
+                    "#A8C7FA",
+                    "#D3E3FD",
+                    "#ECF2FE"
+                ]
+            },
+            "count-learning": {
+                "role": "signal",
+                "displayName": "Learning Red",
+                "tonalRamp": [
+                    "#410E0B",
+                    "#601410",
+                    "#8C1D18",
+                    "#B3261E",
+                    "#E46962",
+                    "#F2B8B5",
+                    "#F9DEDC",
+                    "#FCEEEE"
+                ]
+            },
+            "count-due": {
+                "role": "signal",
+                "displayName": "Due Green",
+                "tonalRamp": [
+                    "#072711",
+                    "#0E4A24",
+                    "#1B6E3A",
+                    "#2E8B50",
+                    "#5BAE75",
+                    "#8BD8A0",
+                    "#C2EDCC",
+                    "#E5F7E9"
+                ]
+            },
+            "answer-again": {
+                "role": "signal",
+                "displayName": "Again (Learning Red), pending owner confirmation",
+                "tonalRamp": [
+                    "#410E0B",
+                    "#601410",
+                    "#8C1D18",
+                    "#B3261E",
+                    "#E46962",
+                    "#F2B8B5",
+                    "#F9DEDC",
+                    "#FCEEEE"
+                ]
+            },
+            "answer-hard": {
+                "role": "signal",
+                "displayName": "Hard Amber, pending owner confirmation",
+                "tonalRamp": [
+                    "#2A1E00",
+                    "#4D3800",
+                    "#7A5900",
+                    "#9C7300",
+                    "#C79A2E",
+                    "#F0C36D",
+                    "#FCE3AE",
+                    "#FFF3D9"
+                ]
+            },
+            "answer-good": {
+                "role": "signal",
+                "displayName": "Good (Due Green), pending owner confirmation",
+                "tonalRamp": [
+                    "#072711",
+                    "#0E4A24",
+                    "#1B6E3A",
+                    "#2E8B50",
+                    "#5BAE75",
+                    "#8BD8A0",
+                    "#C2EDCC",
+                    "#E5F7E9"
+                ]
+            },
+            "answer-easy": {
+                "role": "signal",
+                "displayName": "Easy (New Blue), pending owner confirmation",
+                "tonalRamp": [
+                    "#0B2A66",
+                    "#133D8F",
+                    "#1F5BC4",
+                    "#3D76D9",
+                    "#6E99E6",
+                    "#A8C7FA",
+                    "#D3E3FD",
+                    "#ECF2FE"
+                ]
+            },
+            "flag-red": {
+                "role": "signal",
+                "displayName": "Flag Red"
+            },
+            "flag-orange": {
+                "role": "signal",
+                "displayName": "Flag Orange"
+            },
+            "flag-green": {
+                "role": "signal",
+                "displayName": "Flag Green"
+            },
+            "flag-blue": {
+                "role": "signal",
+                "displayName": "Flag Blue"
+            },
+            "flag-pink": {
+                "role": "signal",
+                "displayName": "Flag Pink"
+            },
+            "flag-turquoise": {
+                "role": "signal",
+                "displayName": "Flag Turquoise"
+            },
+            "flag-purple": {
+                "role": "signal",
+                "displayName": "Flag Purple"
+            }
+        },
+        "typographyMeta": {
+            "screen-title": {
+                "displayName": "Screen title",
+                "purpose": "The title of a top-level screen (Material 3 headline large)."
+            },
+            "page-title": {
+                "displayName": "Page title",
+                "purpose": "The heading of the finished screen and of an empty screen (headline medium)."
+            },
+            "dialog-title": {
+                "displayName": "Dialog title",
+                "purpose": "The title of a dialog (headline small)."
+            },
+            "summary": {
+                "displayName": "Summary",
+                "purpose": "The line that says what is due today (title large)."
+            },
+            "deck-name": {
+                "displayName": "Deck name",
+                "purpose": "A top-level Deck in the deck list (title medium)."
+            },
+            "deck-name-nested": {
+                "displayName": "Nested Deck name",
+                "purpose": "A Deck inside another Deck (body large)."
+            },
+            "study-title": {
+                "displayName": "Study title",
+                "purpose": "The Deck path on the study bar (title medium)."
+            },
+            "answer": {
+                "displayName": "Answer",
+                "purpose": "Again, Hard, Good and Easy (title medium)."
+            },
+            "row-title": {
+                "displayName": "Row title",
+                "purpose": "The headline of a row in a list (body large)."
+            },
+            "lead": {
+                "displayName": "Lead",
+                "purpose": "The explanation under a page title (body large)."
+            },
+            "editor-field": {
+                "displayName": "Editor field",
+                "purpose": "Editable field content in the Note Editor (body large)."
+            },
+            "body": {
+                "displayName": "Body",
+                "purpose": "Ordinary interface text and dialog content (body medium)."
+            },
+            "button": {
+                "displayName": "Button",
+                "purpose": "The label of a button (label large)."
+            },
+            "count": {
+                "displayName": "Count",
+                "purpose": "A new, learning or due count on the deck list, tabular figures (label large)."
+            },
+            "study-count": {
+                "displayName": "Study count",
+                "purpose": "Remaining counts on the study bar, tabular figures (label large)."
+            },
+            "caption": {
+                "displayName": "Caption",
+                "purpose": "Dates, secondary lines, the time-remaining estimate (body small)."
+            },
+            "label": {
+                "displayName": "Label",
+                "purpose": "Column headings, navigation labels, answer intervals (label medium)."
+            },
+            "label-current": {
+                "displayName": "Label, current",
+                "purpose": "The current navigation destination's label (label medium at 700)."
+            }
+        },
+        "shadows": [
+            {
+                "name": "add-button",
+                "value": "0 1px 3px rgba(0,0,0,0.3), 0 4px 8px 3px rgba(0,0,0,0.15)",
+                "purpose": "Material 3 level 3 (6dp), neutral shadow at 30%: the add-Note FAB only."
+            },
+            {
+                "name": "add-button-action",
+                "value": "0 1px 2px rgba(0,0,0,0.3), 0 2px 6px 2px rgba(0,0,0,0.15)",
+                "purpose": "Material 3 level 2 (3dp): the extended actions the add button opens."
+            },
+            {
+                "name": "dialog-scrim",
+                "value": "rgba(0,0,0,0.32)",
+                "purpose": "Black at 32% behind every dialog, in every theme; dialogs themselves cast no shadow."
+            }
+        ],
+        "motion": [
+            {
+                "name": "emphasized-decelerate",
+                "value": "cubic-bezier(0.05, 0.7, 0.1, 1)",
+                "purpose": "Things arriving at rest: the summary ring moving on after a session."
+            },
+            {
+                "name": "ring-duration",
+                "value": "400ms",
+                "purpose": "The summary ring animating from its last value to the new one."
+            },
+            {
+                "name": "fast-out-slow-in",
+                "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+                "purpose": "Compose's default tween easing, used by expand, navigation indicator and study progress."
+            },
+            {
+                "name": "expand-duration",
+                "value": "200ms",
+                "purpose": "A Deck opening or closing: chevron turn and sub-Decks settling."
+            },
+            {
+                "name": "nav-indicator-duration",
+                "value": "200ms",
+                "purpose": "The navigation pill growing behind a newly current destination."
+            },
+            {
+                "name": "study-progress-duration",
+                "value": "300ms",
+                "purpose": "The study progress gliding forward as Cards leave the session."
+            },
+            {
+                "name": "answer-press",
+                "value": "scale(0.96) over 90ms",
+                "purpose": "An answer button settling under the thumb."
+            },
+            {
+                "name": "answer-budget",
+                "value": "120ms",
+                "purpose": "Upper bound for any motion between an answer and the next Card."
+            },
+            {
+                "name": "dialog-fade",
+                "value": "platform config_shortAnimTime alpha fade",
+                "purpose": "Dialog windows entering and leaving."
+            },
+            {
+                "name": "reduced-motion",
+                "value": "instant",
+                "purpose": "With system animations turned off, every motion is instant."
+            }
+        ],
+        "breakpoints": [
+            {
+                "name": "phone",
+                "value": "smallest width < 600dp: bottom navigation bar, single column"
+            },
+            {
+                "name": "tablet",
+                "value": "smallest width >= 600dp (values-sw600dp): no bottom bar; navigation drawer and two-pane layouts"
+            },
+            {
+                "name": "dialog-max",
+                "value": "560dp card, 608dp window"
+            }
+        ]
+    },
+    "components": [
+        {
+            "name": "Filled Button",
+            "kind": "button",
+            "refersTo": "button-filled",
+            "description": "The one page action on a screen: 56dp, full width, Baseline Violet, 20dp corners, flat.",
+            "html": "<button class=\"ds-btn-filled\">Back to decks</button>",
+            "css": ".ds-btn-filled { font: 500 14px/20px Roboto, 'Noto Sans SC', 'Noto Sans JP', system-ui, sans-serif; letter-spacing: 0; min-height: 56px; min-width: 280px; padding: 8px 16px; border: none; border-radius: 20px; background-color: #6750A4; color: #FFFFFF; cursor: pointer; transition: background-image 150ms; } .ds-btn-filled:hover { background-image: linear-gradient(rgba(255,255,255,0.08), rgba(255,255,255,0.08)); } .ds-btn-filled:focus-visible { outline: none; background-image: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)); } .ds-btn-filled:active { background-image: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)); }"
+        },
+        {
+            "name": "Tonal Button",
+            "kind": "button",
+            "refersTo": "button-tonal",
+            "description": "A secondary action beside the page action: 48dp, Lilac Tonal, leading 20dp icon.",
+            "html": "<button class=\"ds-btn-tonal\"><svg viewBox=\"0 -960 960 960\" width=\"20\" height=\"20\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-100q-70.77 0-132.61-26.77-61.85-26.77-107.85-72.77-46-46-72.77-107.85Q140-369.23 140-440h60q0 117 81.5 198.5T480-160q117 0 198.5-81.5T760-440q0-117-81.5-198.5T480-720h-10.62l63.54 63.54-42.15 43.38-136.92-137.3 137.69-137.31 42.15 43.38L469.38-780H480q70.77 0 132.61 26.77 61.85 26.77 107.85 72.77 46 46 72.77 107.85Q820-510.77 820-440q0 70.77-26.77 132.61-26.77 61.85-72.77 107.85-46 46-107.85 72.77Q550.77-100 480-100Z\"/></svg><span>Unbury and keep studying</span></button>",
+            "css": ".ds-btn-tonal { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: 500 14px/20px Roboto, 'Noto Sans SC', 'Noto Sans JP', system-ui, sans-serif; letter-spacing: 0; min-height: 48px; min-width: 280px; padding: 8px 16px; border: none; border-radius: 20px; background-color: #E8DEF8; color: #4A4458; cursor: pointer; } .ds-btn-tonal:hover { background-image: linear-gradient(rgba(74,68,88,0.08), rgba(74,68,88,0.08)); } .ds-btn-tonal:focus-visible { outline: none; background-image: linear-gradient(rgba(74,68,88,0.1), rgba(74,68,88,0.1)); } .ds-btn-tonal:active { background-image: linear-gradient(rgba(74,68,88,0.1), rgba(74,68,88,0.1)); }"
+        },
+        {
+            "name": "Answer Buttons",
+            "kind": "custom",
+            "refersTo": "answer-button",
+            "description": "Again, Hard, Good, Easy: tonal pills in Raised Tint, interval above the name, names in Anki's colours (pending owner confirmation); a press settles to 96% in 90ms.",
+            "html": "<div class=\"ds-answers\"><button class=\"ds-answer\"><span class=\"ds-answer-time\">&lt;1m</span><span class=\"ds-answer-name ds-answer-again\">Again</span></button><button class=\"ds-answer\"><span class=\"ds-answer-time\">&lt;6m</span><span class=\"ds-answer-name ds-answer-hard\">Hard</span></button><button class=\"ds-answer\"><span class=\"ds-answer-time\">&lt;10m</span><span class=\"ds-answer-name ds-answer-good\">Good</span></button><button class=\"ds-answer\"><span class=\"ds-answer-time\">4d</span><span class=\"ds-answer-name ds-answer-easy\">Easy</span></button></div>",
+            "css": ".ds-answers { display: flex; gap: 8px; width: 360px; } .ds-answer { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 56px; padding: 6px 2px; border: none; border-radius: 20px; background-color: #ECE6F0; font-family: Roboto, 'Noto Sans SC', 'Noto Sans JP', system-ui, sans-serif; letter-spacing: 0; cursor: pointer; transition: transform 90ms, background-image 90ms; } .ds-answer:hover { background-image: linear-gradient(rgba(29,27,32,0.08), rgba(29,27,32,0.08)); } .ds-answer:focus-visible { outline: none; background-image: linear-gradient(rgba(29,27,32,0.1), rgba(29,27,32,0.1)); } .ds-answer:active { transform: scale(0.96); background-image: linear-gradient(rgba(29,27,32,0.1), rgba(29,27,32,0.1)); } .ds-answer-time { font-size: 12px; line-height: 16px; font-weight: 500; color: #49454F; } .ds-answer-name { font-size: 16px; line-height: 24px; font-weight: 500; } .ds-answer-again { color: #B3261E; } .ds-answer-hard { color: #7A5900; } .ds-answer-good { color: #1B6E3A; } .ds-answer-easy { color: #1F5BC4; }"
+        },
+        {
+            "name": "Count Pills",
+            "kind": "chip",
+            "refersTo": "count-pill-new",
+            "description": "New, learning and due counts in aligned 40dp columns; a count above zero sits on a 10% tint of its colour, a zero is muted and bare.",
+            "html": "<div class=\"ds-counts\" role=\"button\" tabindex=\"0\"><span class=\"ds-count-col\"><span class=\"ds-count ds-count-new\">12</span></span><span class=\"ds-count-col\"><span class=\"ds-count ds-count-zero\">0</span></span><span class=\"ds-count-col\"><span class=\"ds-count ds-count-due\">11</span></span></div>",
+            "css": ".ds-counts { display: inline-flex; align-items: center; min-height: 48px; border-radius: 9999px; cursor: pointer; } .ds-counts:hover { background-image: linear-gradient(rgba(29,27,32,0.08), rgba(29,27,32,0.08)); } .ds-counts:focus-visible { outline: none; background-image: linear-gradient(rgba(29,27,32,0.1), rgba(29,27,32,0.1)); } .ds-count-col { width: 44px; display: flex; justify-content: center; } .ds-count { font: 500 14px/20px Roboto, 'Noto Sans SC', 'Noto Sans JP', system-ui, sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 0; padding: 2px 8px; border-radius: 9999px; } .ds-count-new { color: #1F5BC4; background-color: rgba(31,91,196,0.10); } .ds-count-learning { color: #B3261E; background-color: rgba(179,38,30,0.10); } .ds-count-due { color: #1B6E3A; background-color: rgba(27,110,58,0.10); } .ds-count-zero { color: #49454F; font-weight: 400; background-color: transparent; }"
+        },
+        {
+            "name": "Today's Summary",
+            "kind": "card",
+            "refersTo": "today-summary",
+            "description": "Lavender Container, 28dp corners: a 64dp progress ring beside what is due today, with the compact Study button for the current Deck.",
+            "html": "<div class=\"ds-summary\"><div class=\"ds-ring\"><svg viewBox=\"0 0 64 64\" width=\"64\" height=\"64\" aria-hidden=\"true\"><circle cx=\"32\" cy=\"32\" r=\"29\" fill=\"none\" stroke=\"rgba(79,55,139,0.16)\" stroke-width=\"6\"/><circle cx=\"32\" cy=\"32\" r=\"29\" fill=\"none\" stroke=\"#6750A4\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-dasharray=\"23.7 182.2\" transform=\"rotate(-90 32 32)\"/></svg><span class=\"ds-ring-label\">13%</span></div><div class=\"ds-summary-text\"><div class=\"ds-summary-line\">58 cards to study today</div><div class=\"ds-summary-sub\">9 studied so far</div><button class=\"ds-summary-btn\">Study · N3 語彙</button></div></div>",
+            "css": ".ds-summary { display: flex; align-items: center; gap: 18px; width: 328px; padding: 18px 20px; border-radius: 28px; background-color: #EADDFF; color: #4F378B; font-family: Roboto, 'Noto Sans SC', 'Noto Sans JP', system-ui, sans-serif; letter-spacing: 0; } .ds-ring { position: relative; flex: none; width: 64px; height: 64px; display: grid; place-items: center; } .ds-ring svg { position: absolute; inset: 0; } .ds-ring-label { font-size: 12px; line-height: 16px; font-weight: 500; } .ds-summary-text { display: flex; flex-direction: column; gap: 2px; } .ds-summary-line { font-size: 22px; line-height: 28px; font-weight: 400; } .ds-summary-sub { font-size: 14px; line-height: 20px; } .ds-summary-btn { align-self: flex-start; margin-top: 10px; min-height: 48px; padding: 8px 20px; border: none; border-radius: 20px; background-color: #6750A4; color: #FFFFFF; font: 500 14px/20px Roboto, 'Noto Sans SC', 'Noto Sans JP', system-ui, sans-serif; cursor: pointer; } .ds-summary-btn:hover { background-image: linear-gradient(rgba(255,255,255,0.08), rgba(255,255,255,0.08)); } .ds-summary-btn:focus-visible { outline: none; background-image: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)); } .ds-summary-btn:active { background-image: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)); }"
+        },
+        {
+            "name": "Deck Group",
+            "kind": "card",
+            "refersTo": "deck-group",
+            "description": "A top-level Deck and its open sub-Decks in one Group Tint container, 16dp outer corners, no inner dividers; the current Deck in Baseline Violet with a dot.",
+            "html": "<div class=\"ds-group\"><div class=\"ds-row ds-row-top\" tabindex=\"0\"><span class=\"ds-mark\"><svg class=\"ds-chev ds-chev-open\" viewBox=\"0 -960 960 960\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"m517.85-480-184-184L376-706.15 602.15-480 376-253.85 333.85-296l184-184Z\"/></svg></span><span class=\"ds-name\">日本語</span><span class=\"ds-count-col\"><span class=\"ds-count ds-count-new\">12</span></span><span class=\"ds-count-col\"><span class=\"ds-count ds-count-learning\">3</span></span><span class=\"ds-count-col\"><span class=\"ds-count ds-count-due\">11</span></span></div><div class=\"ds-row ds-row-nested ds-row-current\" tabindex=\"0\"><span class=\"ds-mark\"><span class=\"ds-dot\"></span></span><span class=\"ds-name\">N3 語彙</span><span class=\"ds-count-col\"><span class=\"ds-count ds-count-new\">6</span></span><span class=\"ds-count-col\"><span class=\"ds-count ds-count-learning\">3</span></span><span class=\"ds-count-col\"><span class=\"ds-count ds-count-due\">7</span></span></div><div class=\"ds-row ds-row-nested\" tabindex=\"0\"><span class=\"ds-mark\"></span><span class=\"ds-name\">文法</span><span class=\"ds-count-col\"><span class=\"ds-count ds-count-new\">6</span></span><span class=\"ds-count-col\"><span class=\"ds-count ds-count-zero\">0</span></span><span class=\"ds-count-col\"><span class=\"ds-count ds-count-due\">4</span></span></div></div>",
+            "css": ".ds-group { width: 360px; border-radius: 16px; overflow: hidden; background-color: #F7F2FA; color: #1D1B20; font-family: Roboto, 'Noto Sans SC', 'Noto Sans JP', system-ui, sans-serif; letter-spacing: 0; } .ds-row { display: flex; align-items: center; padding-right: 8px; cursor: pointer; } .ds-row:hover { background-image: linear-gradient(rgba(29,27,32,0.08), rgba(29,27,32,0.08)); } .ds-row:focus-visible { outline: none; background-image: linear-gradient(rgba(29,27,32,0.1), rgba(29,27,32,0.1)); } .ds-row-top { min-height: 56px; } .ds-row-nested { min-height: 48px; padding-left: 24px; } .ds-mark { flex: none; width: 48px; height: 48px; display: grid; place-items: center; color: #49454F; } .ds-chev-open { transform: rotate(90deg); transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-dot { width: 6px; height: 6px; border-radius: 50%; background-color: #6750A4; } .ds-name { flex: 1; padding: 8px 8px 8px 0; font-size: 16px; line-height: 24px; } .ds-row-top .ds-name { font-weight: 500; } .ds-row-nested .ds-name { font-weight: 400; } .ds-row-current .ds-name { color: #6750A4; } .ds-count-col { width: 44px; display: flex; justify-content: center; } .ds-count { font: 500 14px/20px Roboto, 'Noto Sans SC', 'Noto Sans JP', system-ui, sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 0; padding: 2px 8px; border-radius: 9999px; } .ds-count-new { color: #1F5BC4; background-color: rgba(31,91,196,0.10); } .ds-count-learning { color: #B3261E; background-color: rgba(179,38,30,0.10); } .ds-count-due { color: #1B6E3A; background-color: rgba(27,110,58,0.10); } .ds-count-zero { color: #49454F; font-weight: 400; background-color: transparent; }"
+        },
+        {
+            "name": "Navigation Bar",
+            "kind": "nav",
+            "refersTo": "nav-bar",
+            "description": "Material 3 navigation bar: Bar Tint, 80dp, a 64x32dp Lilac Tonal pill behind the current icon, its label at weight 700.",
+            "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-item ds-nav-current\" href=\"#\" aria-current=\"page\"><span class=\"ds-nav-pill\"><svg viewBox=\"0 -960 960 960\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M480-412.31 60.39-636.15 480-860l420 223.85-420 223.84Zm0 156.15L83.39-467.38l62.84-34.47L480-324.46l334.15-177.39L877-467.38 480-256.16ZM480-100 83.39-311.23l62.84-34.46L480-168.31l334.15-177.38L877-311.23 480-100Zm0-380.61 294.92-155.54L480-791.69 185.46-636.15 480-480.61Zm.38-155.54Z\"/></svg></span><span class=\"ds-nav-label\">Decks</span></a><a class=\"ds-nav-item\" href=\"#\"><span class=\"ds-nav-pill\"><svg viewBox=\"0 -960 960 960\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M781.69-136.92 530.46-388.16q-30 24.77-69 38.77-39 14-80.69 14-102.55 0-173.58-71.01-71.03-71.01-71.03-173.54 0-102.52 71.01-173.6 71.01-71.07 173.54-71.07 102.52 0 173.6 71.03 71.07 71.03 71.07 173.58 0 42.85-14.38 81.85-14.39 39-38.39 67.84l251.23 251.23-42.15 42.16ZM380.77-395.38q77.31 0 130.96-53.66 53.66-53.65 53.66-130.96t-53.66-130.96q-53.65-53.66-130.96-53.66t-130.96 53.66Q196.15-657.31 196.15-580t53.66 130.96q53.65 53.66 130.96 53.66Z\"/></svg></span><span class=\"ds-nav-label\">Browse</span></a><a class=\"ds-nav-item\" href=\"#\"><span class=\"ds-nav-pill\"><svg viewBox=\"0 -960 960 960\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M640-180v-236.15h140V-180H640Zm-230 0v-600h140v600H410Zm-230 0v-403.84h140V-180H180Z\"/></svg></span><span class=\"ds-nav-label\">Stats</span></a><a class=\"ds-nav-item\" href=\"#\"><span class=\"ds-nav-pill\"><svg viewBox=\"0 -960 960 960\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M249.23-420q-24.75 0-42.37-17.63-17.63-17.62-17.63-42.37 0-24.75 17.63-42.37Q224.48-540 249.23-540q24.75 0 42.38 17.63 17.62 17.62 17.62 42.37 0 24.75-17.62 42.37Q273.98-420 249.23-420ZM480-420q-24.75 0-42.37-17.63Q420-455.25 420-480q0-24.75 17.63-42.37Q455.25-540 480-540q24.75 0 42.37 17.63Q540-504.75 540-480q0 24.75-17.63 42.37Q504.75-420 480-420Zm230.77 0q-24.75 0-42.38-17.63-17.62-17.62-17.62-42.37 0-24.75 17.62-42.37Q686.02-540 710.77-540q24.75 0 42.37 17.63 17.63 17.62 17.63 42.37 0 24.75-17.63 42.37Q735.52-420 710.77-420Z\"/></svg></span><span class=\"ds-nav-label\">More</span></a></nav>",
+            "css": ".ds-nav { display: flex; width: 360px; min-height: 80px; background-color: #F3EDF7; font-family: Roboto, 'Noto Sans SC', 'Noto Sans JP', system-ui, sans-serif; letter-spacing: 0; } .ds-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 12px 3px; text-decoration: none; color: #49454F; } .ds-nav-pill { width: 64px; height: 32px; display: grid; place-items: center; border-radius: 9999px; transition: background-color 200ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-nav-item:hover .ds-nav-pill { background-image: linear-gradient(rgba(29,27,32,0.08), rgba(29,27,32,0.08)); } .ds-nav-item:focus-visible { outline: none; } .ds-nav-item:focus-visible .ds-nav-pill { background-image: linear-gradient(rgba(29,27,32,0.1), rgba(29,27,32,0.1)); } .ds-nav-label { font-size: 12px; line-height: 16px; font-weight: 500; } .ds-nav-current .ds-nav-pill { background-color: #E8DEF8; color: #4A4458; } .ds-nav-current .ds-nav-label { color: #1D1B20; font-weight: 700; }"
+        },
+        {
+            "name": "Add Button",
+            "kind": "button",
+            "refersTo": "add-button",
+            "description": "Material 3 primary-container FAB: 56dp, 16dp corners, level 3 shadow; the only surface family that casts one.",
+            "html": "<button class=\"ds-fab\" aria-label=\"Add\"><svg viewBox=\"0 -960 960 960\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M450-450H220v-60h230v-230h60v230h230v60H510v230h-60v-230Z\"/></svg></button>",
+            "css": ".ds-fab { width: 56px; height: 56px; display: grid; place-items: center; border: none; border-radius: 16px; background-color: #EADDFF; color: #4F378B; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 8px 3px rgba(0,0,0,0.15); transition: box-shadow 150ms; } .ds-fab:hover { background-image: linear-gradient(rgba(79,55,139,0.08), rgba(79,55,139,0.08)); box-shadow: 0 2px 3px rgba(0,0,0,0.3), 0 6px 10px 4px rgba(0,0,0,0.15); } .ds-fab:focus-visible { outline: none; background-image: linear-gradient(rgba(79,55,139,0.1), rgba(79,55,139,0.1)); } .ds-fab:active { background-image: linear-gradient(rgba(79,55,139,0.1), rgba(79,55,139,0.1)); }"
+        },
+        {
+            "name": "Outlined Text Field",
+            "kind": "input",
+            "refersTo": "text-field",
+            "description": "Material 3 outlined field: 4dp corners, Muted Ink outline at rest, Baseline Violet on focus, Error Red with a message on error.",
+            "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Deck name</span><input class=\"ds-field-input\" value=\"Japanese\"></label>",
+            "css": ".ds-field { position: relative; display: block; width: 312px; font-family: Roboto, 'Noto Sans SC', 'Noto Sans JP', system-ui, sans-serif; letter-spacing: 0; } .ds-field-label { position: absolute; top: -8px; left: 12px; padding: 0 4px; background-color: #FEF7FF; font-size: 12px; line-height: 16px; color: #49454F; } .ds-field-input { box-sizing: border-box; width: 100%; height: 56px; padding: 0 16px; border: 1px solid #49454F; border-radius: 4px; background: transparent; font-size: 16px; line-height: 24px; color: #1D1B20; caret-color: #6750A4; } .ds-field-input:hover { border-color: #1D1B20; } .ds-field-input:focus-visible { outline: none; border: 2px solid #6750A4; padding: 0 15px; } .ds-field:focus-within .ds-field-label { color: #6750A4; } .ds-field-input:invalid { border-color: #B3261E; }"
+        },
+        {
+            "name": "Dialog",
+            "kind": "card",
+            "refersTo": "dialog",
+            "description": "Raised Tint, 28dp corners, no outline or shadow; optional round mark (error container when warning), end-aligned actions, destructive action in Error Red.",
+            "html": "<div class=\"ds-dialog\" role=\"dialog\" aria-labelledby=\"ds-dialog-title\"><div class=\"ds-dialog-mark\"><svg viewBox=\"0 -960 960 960\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M74.62-140 480-840l405.38 700H74.62ZM178-200h604L480-720 178-200Zm302-47.69q13.73 0 23.02-9.29t9.29-23.02q0-13.73-9.29-23.02T480-312.31q-13.73 0-23.02 9.29T447.69-280q0 13.73 9.29 23.02t23.02 9.29Zm-30-104.62h60v-200h-60v200ZM480-460Z\"/></svg></div><div class=\"ds-dialog-title\" id=\"ds-dialog-title\">Delete this deck?</div><div class=\"ds-dialog-body\">Its Cards and their review history will be deleted.</div><div class=\"ds-dialog-actions\"><button class=\"ds-dialog-text\">Cancel</button><button class=\"ds-dialog-destructive\"><svg viewBox=\"0 -960 960 960\" width=\"20\" height=\"20\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M74.62-140 480-840l405.38 700H74.62ZM178-200h604L480-720 178-200Zm302-47.69q13.73 0 23.02-9.29t9.29-23.02q0-13.73-9.29-23.02T480-312.31q-13.73 0-23.02 9.29T447.69-280q0 13.73 9.29 23.02t23.02 9.29Zm-30-104.62h60v-200h-60v200ZM480-460Z\"/></svg><span>Delete</span></button></div></div>",
+            "css": ".ds-dialog { width: 312px; padding: 24px 24px 16px; border-radius: 28px; background-color: #ECE6F0; color: #1D1B20; font-family: Roboto, 'Noto Sans SC', 'Noto Sans JP', system-ui, sans-serif; letter-spacing: 0; display: flex; flex-direction: column; gap: 12px; } .ds-dialog-mark { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background-color: #F9DEDC; color: #8C1D18; } .ds-dialog-title { font-size: 24px; line-height: 32px; font-weight: 400; } .ds-dialog-body { font-size: 14px; line-height: 20px; } .ds-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 8px; } .ds-dialog-text, .ds-dialog-destructive { display: inline-flex; align-items: center; gap: 6px; min-width: 64px; min-height: 48px; padding: 8px 14px; border: none; border-radius: 20px; font: 500 14px/20px Roboto, 'Noto Sans SC', 'Noto Sans JP', system-ui, sans-serif; cursor: pointer; } .ds-dialog-text { background: transparent; color: #6750A4; } .ds-dialog-text:hover { background-image: linear-gradient(rgba(103,80,164,0.08), rgba(103,80,164,0.08)); } .ds-dialog-text:focus-visible { outline: none; background-image: linear-gradient(rgba(103,80,164,0.1), rgba(103,80,164,0.1)); } .ds-dialog-destructive { background-color: #B3261E; color: #FFFFFF; } .ds-dialog-destructive:hover { background-image: linear-gradient(rgba(255,255,255,0.08), rgba(255,255,255,0.08)); } .ds-dialog-destructive:focus-visible { outline: none; background-image: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)); } .ds-dialog-destructive:active { background-image: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)); }"
+        }
+    ],
+    "narrative": {
+        "northStar": "The Standard, Played Straight",
+        "overview": "Hayaki is a stock Material 3 Android app, finished to the level of Google Calendar, Keep and Tasks. Its look is the category standard and nothing more: one fixed baseline scheme seeded from Baseline Violet, tonal surface containers that group the work, Material's type scale set in the system sans-serif, and the stock control a fluent Android user already trusts wherever one exists. Character comes from finish rather than costume: counts that line up exactly, a progress ring that moves on when a session ends, answer buttons that settle under the thumb.\n\nThe density serves someone who studies every day. Many Decks fit on one screen (56dp top-level rows, 48dp nested rows, 8dp between groups), counts never move when a Chinese or Japanese Deck name runs long, and on the study screen the Card Frame recedes so Card Content leads. Anki's own signal colours survive exactly where Anki uses them, on the new, learning and due counts and on the names of the four answers; everything else stays inside the scheme.\n\nThe system rejects the paper-and-serif costume of the earlier Quiet paper direction and AnkiDroid's flat table of numbers. It also refuses gamification, a generic template look, few Decks per screen, and motion that slows answering.",
+        "keyCharacteristics": [
+            "One fixed Material 3 scheme seeded from #6750A4, in Light, Dark and Black (true-black surfaces); never wallpaper colour.",
+            "Tonal grouping: related rows share one surface container, and groups are separated by space, not lines.",
+            "The system sans-serif (Roboto, with the system CJK font for the interface language); hierarchy by size and weight only.",
+            "Stock Material 3 controls with the Foundation's shapes and type; custom drawing only for Anki's counts and answers.",
+            "Flat at rest: only the add button casts a shadow.",
+            "Short, functional motion; nothing between an answer and the next Card takes longer than 120ms."
+        ],
+        "rules": [
+            {
+                "name": "The Fixed Seed Rule",
+                "body": "One Material 3 scheme seeded from #6750A4, in Light, Dark and Black. Wallpaper dynamic colour is never used, and no surface writes a hex value; it reads a role.",
+                "section": "colors"
+            },
+            {
+                "name": "The Anki Signal Rule",
+                "body": "Blue, red, green and amber carry Anki's meanings: new, learning and due, the four answers, and flags. They never decorate. Accents and emphasis stay in the violet scheme.",
+                "section": "colors"
+            },
+            {
+                "name": "The Earned Pill Rule",
+                "body": "A count wears its colour and a tinted pill only when there is work to do. A zero is Muted Ink at weight 400 with no pill.",
+                "section": "colors"
+            },
+            {
+                "name": "The Size-and-Weight Rule",
+                "body": "Hierarchy comes from size and weight only. No style is italic, set in capitals or letter-spaced, and every role sets letter-spacing to 0 in place of Material's default tracking, because Chinese and Japanese have no italics or capitals to fall back on.",
+                "section": "typography"
+            },
+            {
+                "name": "The System Face Rule",
+                "body": "Interface text uses the system sans-serif. Any font bundled later must carry the SIL Open Font License, and no interface font ever reaches Card Content.",
+                "section": "typography"
+            },
+            {
+                "name": "The Group-Not-Hairline Rule",
+                "body": "Related rows share one surface container with rounded outer corners. Groups are set apart by 8dp of space, and rows inside a group have no dividers.",
+                "section": "layout"
+            },
+            {
+                "name": "The Still Counts Rule",
+                "body": "Counts hold their columns whatever the Deck name, language or font size. The name wraps or ends in an ellipsis first.",
+                "section": "layout"
+            },
+            {
+                "name": "The One Shadow Rule",
+                "body": "The add button and the actions it opens are the only things that cast a shadow. Cards, groups, bars, dialogs and buttons are flat.",
+                "section": "elevation"
+            },
+            {
+                "name": "The Card Frame Rule",
+                "body": "On the study screen the Card sits on the plain surface inside a flat frame with 12dp corners and a 1dp Hairline stroke. It is the one outlined container, so the Card Frame recedes and Card Content leads.",
+                "section": "elevation"
+            },
+            {
+                "name": "The Stock Control Rule",
+                "body": "Where Material 3 has the control, use it (Button, FilledTonalButton, TextButton, OutlinedTextField, IconButton, the progress indicators) with the Foundation's shapes and type. Custom drawing is kept for what Anki has and Material does not: count pills and answer buttons.",
+                "section": "components"
+            },
+            {
+                "name": "The 120ms Answer Rule",
+                "body": "Nothing between an answer and the next Card takes longer than 120ms, and an answer press settles in 90ms. With animations turned off in system settings, every motion is instant.",
+                "section": "components"
+            }
+        ],
+        "dos": [
+            "**Do** read every colour by role (`MaterialTheme.colorScheme`, `MaterialTheme.foundation.colors`, `?attr/...`), so Light, Dark and Black all stay right.",
+            "**Do** put related rows in one Group Tint container with 16dp outer corners, 8dp from the next group.",
+            "**Do** give a screen one filled Baseline Violet button for its main action; other actions are tonal or text buttons.",
+            "**Do** keep counts in fixed, aligned columns with tabular figures, and let a long name wrap once, then end in an ellipsis.",
+            "**Do** check every surface in English, Simplified Chinese and Japanese; in Light, Dark and Black; right to left; and at 200% font size, with 48dp touch targets and WCAG AA text contrast.",
+            "**Do** use Material 3's emphasized decelerate easing (cubic-bezier(0.05, 0.7, 0.1, 1)) for things coming to rest, and keep state changes near 200ms."
+        ],
+        "donts": [
+            "**Don't** use wallpaper dynamic colour, add a fourth theme, or write a hex value into a surface.",
+            "**Don't** let italics, capitals or letter-spacing carry meaning, and don't carry Material's default tracking onto labels.",
+            "**Don't** bundle an interface typeface, and don't restyle Card Content.",
+            "**Don't** divide the rows of a group with hairlines; space and container colour do that. Hairlines (1dp) are for dense tables and the card frame.",
+            "**Don't** put shadows on cards, groups, bars, dialogs or buttons.",
+            "**Don't** use Anki's blue, red, green or amber as decoration or accent.",
+            "**Don't** add gamification: streaks, confetti, badges or celebration animation.",
+            "**Don't** spend height on oversized Deck cards; the deck list shows many Decks per screen.",
+            "**Don't** let any motion between an answer and the next Card run longer than 120ms.",
+            "**Don't** bring back the Quiet paper costume: serif or handwritten interface faces, and lists ruled with hairlines instead of grouped."
+        ]
+    }
+}

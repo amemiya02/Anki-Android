@@ -2,7 +2,7 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources,DuplicateCrowdInStrings">
 
-    <dimen name="mtrl_snackbar_background_corner_radius">@dimen/foundation_shape_card_sheet</dimen>
-    <dimen name="popup_corner_radius">@dimen/foundation_shape_card_sheet</dimen>
-    <dimen name="dialog_corner_radius">@dimen/foundation_shape_button</dimen>
+    <dimen name="mtrl_snackbar_background_corner_radius">@dimen/foundation_shape_extra_small</dimen>
+    <dimen name="popup_corner_radius">@dimen/foundation_shape_extra_small</dimen>
+    <dimen name="dialog_corner_radius">@dimen/foundation_shape_dialog</dimen>
 </resources>

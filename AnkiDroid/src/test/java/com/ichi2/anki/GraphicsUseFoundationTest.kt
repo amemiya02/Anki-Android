@@ -79,7 +79,7 @@ class GraphicsUseFoundationTest {
     private val builder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
 
     private val foundationValues: Set<String> by lazy {
-        val colour = JSONObject(File(ROOT, "docs/redesign/quiet-paper.values.json").readText()).getJSONObject("colour")
+        val colour = JSONObject(File(ROOT, "docs/redesign/material-3.values.json").readText()).getJSONObject("colour")
         colour
             .keys()
             .asSequence()

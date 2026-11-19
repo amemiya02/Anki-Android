@@ -58,11 +58,10 @@ class AnkiPageAppearanceTest : InstrumentedTest() {
                         return body.backgroundColor === 'rgb($paper)'
                             && body.color === 'rgb($ink)'
                             && getComputedStyle(document.documentElement).colorScheme === '$browserScheme'
-                            && body.fontFamily.includes('Newsreader')
-                            && [...document.fonts].some(face => face.family === 'Newsreader' && face.status === 'loaded');
+                            && body.fontFamily.includes('sans-serif');
                     })();
                     """.trimIndent(),
-                    "Statistics did not render the selected Hayaki palette and bundled typeface",
+                    "Statistics did not render the selected Hayaki palette and the system sans-serif",
                 )
             }
         } finally {

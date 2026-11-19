@@ -6,12 +6,14 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasScrollToIndexAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.test.performScrollToNode
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.testutils.dispatchInsets
@@ -49,7 +51,11 @@ class CardBrowserInsetsTest : RobolectricTest() {
             val window = composeRule.onNode(isRoot()).getUnclippedBoundsInRoot()
             browser.dispatchInsets(navBarBottom = 48.dp, bottomCornerRadius = 34.dp)
             advanceRobolectricLooper()
-            composeRule.onNode(hasScrollToIndexAction()).performScrollToIndex(30)
+            val results = composeRule.onNode(hasScrollToIndexAction())
+            results.performScrollToIndex(30)
+            // The jump can stop short of the end, leaving the last result uncomposed below the
+            // viewport: scroll on until it is laid out, then check where it sits
+            results.performScrollToNode(hasText("Card 29"))
 
             val last =
                 composeRule

@@ -5,8 +5,7 @@ package com.ichi2.anki.study
 import android.content.Context
 import android.text.format.DateFormat
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,16 +22,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -109,8 +108,13 @@ fun FinishedScreen(
             if (state.hasBuried) {
                 UnburyButton(onUnbury)
             }
-            Column(modifier = Modifier.padding(top = 10.dp)) {
-                FinishedDivider()
+            Column(
+                modifier =
+                    Modifier
+                        .padding(top = 10.dp)
+                        .clip(foundation.shapes.large)
+                        .background(MaterialTheme.colorScheme.surfaceContainerLow),
+            ) {
                 if (!state.isFiltered) {
                     FinishedRow(
                         icon = R.drawable.symbol_auto_stories,
@@ -216,17 +220,19 @@ private fun FinishedMark(
     @DrawableRes icon: Int,
 ) {
     val foundation = MaterialTheme.foundation
+    val scheme = MaterialTheme.colorScheme
     Box(
         modifier =
             Modifier
                 .size(foundation.spacing.pageMark)
-                .border(foundation.shapes.hairline, foundation.colors.outline, CircleShape),
+                .clip(CircleShape)
+                .background(scheme.primaryContainer),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
             painter = painterResource(icon),
             contentDescription = null,
-            tint = foundation.colors.emphasis,
+            tint = scheme.onPrimaryContainer,
             modifier = Modifier.size(28.dp),
         )
     }
@@ -235,18 +241,16 @@ private fun FinishedMark(
 @Composable
 private fun UnburyButton(onClick: () -> Unit) {
     val foundation = MaterialTheme.foundation
-    OutlinedButton(
+    FilledTonalButton(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth().heightIn(min = foundation.spacing.secondaryButton),
         shape = foundation.shapes.button,
-        border = BorderStroke(foundation.shapes.hairline, foundation.colors.outline),
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = foundation.colors.emphasis),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
     ) {
         Icon(
             painter = painterResource(R.drawable.symbol_replay),
             contentDescription = null,
-            modifier = Modifier.padding(end = 8.dp).size(22.dp),
+            modifier = Modifier.padding(end = 8.dp).size(20.dp),
         )
         Text(stringResource(CommonR.string.finished_unbury), style = foundation.type.button, textAlign = TextAlign.Center)
     }
@@ -267,7 +271,7 @@ private fun FinishedRow(
                 .fillMaxWidth()
                 .heightIn(min = foundation.spacing.listRow)
                 .clickable(role = Role.Button, onClick = onClick)
-                .padding(vertical = 10.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
@@ -280,10 +284,4 @@ private fun FinishedRow(
             modifier = Modifier.size(20.dp),
         )
     }
-    FinishedDivider()
-}
-
-@Composable
-private fun FinishedDivider() {
-    HorizontalDivider(thickness = MaterialTheme.foundation.shapes.hairline, color = MaterialTheme.foundation.colors.outline)
 }

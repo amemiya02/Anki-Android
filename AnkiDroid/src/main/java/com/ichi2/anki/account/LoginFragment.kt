@@ -144,7 +144,7 @@ class LoginFragment : Fragment() {
                 supportingText = usernameError?.let { error -> { Text(error.toHumanReadableString(requireContext())) } },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 singleLine = true,
-                shape = foundation.shapes.button,
+                shape = foundation.shapes.extraSmall,
             )
             OutlinedTextField(
                 value = password,
