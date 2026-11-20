@@ -3,6 +3,10 @@ name: 🛠️ Unit Tests
 on:
   workflow_dispatch:
     inputs:
+      core_loop_only:
+        description: "Run the Hayaki daily-study and appearance regression tests."
+        type: boolean
+        default: false
       iterations:
         description: "Number of iterations on each chosen operating system. Default 1. Max 85."
         required: true
@@ -189,7 +193,20 @@ jobs:
           command: ./gradlew robolectricSdkDownload --daemon
 
         # update workflows/README.md when modifying this step
+      - name: Run Hayaki core loop tests
+        if: inputs.core_loop_only
+        run: >
+          ./gradlew :AnkiDroid:testFullDebugUnitTest
+          --tests '*.DailyDecksTest' --tests '*.DeckListScreenTest'
+          --tests '*.AnswerAreaTest' --tests '*.FinishedFragmentTest'
+          --tests '*.ReviewerViewModelTest' --tests '*.CardStudyCanvasTest'
+          --tests '*.SettingsSearchNavigationTest' --tests '*.ThemesTest'
+          :common:android:testDebugUnitTest
+          --tests '*.FoundationTest' --tests '*.ThemeTest'
+          --daemon
+
       - name: Run Unit Tests
+        if: ${{ !inputs.core_loop_only }}
         run: ./gradlew jacocoUnitTestReport --daemon
 
 
@@ -199,7 +216,7 @@ jobs:
       # This is not run on the 'happy' CI path as it's a rare de-flake, and would unnecessarily slow
       #  down CI
       - name: De-flake EmptyApplication Tests (schedule/manual run only)
-        if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && matrix.iteration == 1 && matrix.os == 'ubuntu-latest'
+        if: ${{ !inputs.core_loop_only && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && matrix.iteration == 1 && matrix.os == 'ubuntu-latest' }}
         run: ./gradlew testFullDebugUnitTest -PemptyApplication --daemon
 
       # Compile the extra release variant once per scheduled run, keeping PR checks unchanged.
@@ -220,7 +237,7 @@ jobs:
       - name: Store Logcat as Artifact
         # cancelled() handles test timeouts
         # remove when test timeouts cause a failure()
-        if: failure() || cancelled()
+        if: failure() || cancelled() || inputs.core_loop_only
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: logcat-${{ matrix.name }}-${{ matrix.iteration }}

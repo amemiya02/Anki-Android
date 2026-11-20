@@ -108,6 +108,7 @@ fun AnswerArea(
                     .padding(top = 6.dp, bottom = 8.dp),
         ) {
             val colors = foundation.colors
+
             fun rate(rating: Rating) = guarded { onRatingClicked(rating) }
             val firstRatings: @Composable RowScope.() -> Unit = {
                 RatingButton(CommonR.string.ease_button_again, nextTimes?.again, colors.answerAgain) { rate(Rating.AGAIN) }

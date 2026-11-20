@@ -98,13 +98,14 @@ class ReviewerViewModel(
     private val repository = StudyScreenRepository()
     private var isInputFocused = false
     private val reviewSession = ReviewSession(savedStateHandle)
-    private val _finishResultFlow = MutableStateFlow<FinishResult?>(null)
-    internal val finishResultFlow = _finishResultFlow.asStateFlow()
+    private val mutableFinishResult = MutableStateFlow<FinishResult?>(null)
+    internal val finishResultFlow = mutableFinishResult.asStateFlow()
 
     internal data class FinishResult(
         val code: Int,
         val summary: ReviewSessionSummary? = null,
     )
+
     val isMarkedFlow = MutableStateFlow(false)
     val flagFlow = MutableStateFlow(Flag.NONE)
     val actionFeedbackFlow = MutableSharedFlow<String>()
@@ -207,7 +208,7 @@ class ReviewerViewModel(
         if (isAfterRecreation) {
             launchCatchingIO {
                 if (queueState.await() == null) {
-                    _finishResultFlow.value = FinishResult(RESULT_NO_MORE_CARDS, reviewSession.summary())
+                    mutableFinishResult.value = FinishResult(RESULT_NO_MORE_CARDS, reviewSession.summary())
                     return@launchCatchingIO
                 }
                 if (showingAnswer.value) {
@@ -793,7 +794,7 @@ class ReviewerViewModel(
             }
         val state = queueState.await()
         if (state == null) {
-            _finishResultFlow.value = FinishResult(RESULT_NO_MORE_CARDS, reviewSession.summary())
+            mutableFinishResult.value = FinishResult(RESULT_NO_MORE_CARDS, reviewSession.summary())
             return
         }
         state.timeboxReached?.let {
@@ -1005,7 +1006,7 @@ class ReviewerViewModel(
                     ViewerAction.REPLAY_VOICE -> replayVoiceFlow.emit(Unit)
                     ViewerAction.PAGE_UP -> pageUpFlow.emit(Unit)
                     ViewerAction.PAGE_DOWN -> pageDownFlow.emit(Unit)
-                    ViewerAction.EXIT -> _finishResultFlow.value = FinishResult(RESULT_DEFAULT)
+                    ViewerAction.EXIT -> mutableFinishResult.value = FinishResult(RESULT_DEFAULT)
                     ViewerAction.USER_ACTION_1 -> userAction(1)
                     ViewerAction.USER_ACTION_2 -> userAction(2)
                     ViewerAction.USER_ACTION_3 -> userAction(3)

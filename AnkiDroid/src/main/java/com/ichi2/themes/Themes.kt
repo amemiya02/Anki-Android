@@ -92,7 +92,10 @@ object Themes {
      */
     fun updateCurrentTheme(context: Context) = updateCurrentTheme(context, PrefsRepository(context))
 
-    private fun updateCurrentTheme(context: Context, prefs: PrefsRepository) {
+    private fun updateCurrentTheme(
+        context: Context,
+        prefs: PrefsRepository,
+    ) {
         val appTheme = prefs.appTheme
 
         currentTheme = resolveTheme(context, prefs)

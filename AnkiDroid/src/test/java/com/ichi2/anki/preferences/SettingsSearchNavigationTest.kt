@@ -94,7 +94,8 @@ class SettingsSearchNavigationTest : RobolectricTest() {
 
             // Back clears a search in the left pane before changing the right pane.
             search("distinct search query")
-            compose.onNodeWithContentDescription(targetContext.getString(R.string.settings_search))
+            compose
+                .onNodeWithContentDescription(targetContext.getString(R.string.settings_search))
                 .assertTextContains("distinct search query")
             scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
             studying.assertIsSelected()
