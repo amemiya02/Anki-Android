@@ -199,7 +199,7 @@ jobs:
           ./gradlew :AnkiDroid:testFullDebugUnitTest
           --tests '*.DailyDecksTest' --tests '*.DeckListScreenTest'
           --tests '*.AnswerAreaTest' --tests '*.FinishedFragmentTest'
-          --tests '*.ReviewerViewModelTest' --tests '*.CardStudyCanvasTest'
+          --tests '*.ReviewerViewModelTest' --tests '*.ReviewerFragmentTest' --tests '*.CardStudyCanvasTest'
           --tests '*.SettingsSearchNavigationTest' --tests '*.ThemesTest'
           :common:android:testDebugUnitTest
           --tests '*.FoundationTest' --tests '*.ThemeTest'
