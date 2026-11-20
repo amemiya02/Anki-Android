@@ -5,11 +5,12 @@ package com.ichi2.anki.deckpicker
 import android.provider.Settings
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.hasText
@@ -17,7 +18,6 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
@@ -31,6 +31,7 @@ import anki.decks.deckTreeNode
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
+import com.ichi2.anki.common.android.Animations
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.sched.Counts
 import com.ichi2.anki.libanki.sched.DeckNode
@@ -126,14 +127,12 @@ class DeckListScreenTest : RobolectricTest() {
     ) = DeckListScreenState(decks = decks(), isEmptyCollection = false, queuesToday = Counts(new = dueToday), studiedToday = studiedToday)
 
     @Test
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `Today reaches its new progress without animating in safe display mode`() {
         Prefs.sharedPrefs.edit { putBoolean(Prefs.key(R.string.safe_display_key), true) }
         assertProgressAppearsImmediately()
     }
 
     @Test
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `Today reaches its new progress without animating when the system disables animations`() {
         Settings.Global.putFloat(targetContext.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f)
         assertProgressAppearsImmediately()
@@ -147,15 +146,19 @@ class DeckListScreenTest : RobolectricTest() {
                 DeckListScreen(state = deckListState.value, actions = actions)
             }
         }
+        val indicator =
+            composeRule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo), useUnmergedTree = true)
+        assertEquals(0f, indicator.fetchSemanticsNode().config[SemanticsProperties.ProgressBarRangeInfo].current)
+
         composeRule.mainClock.autoAdvance = false
-        deckListState.value = deckListState.value.copy(queuesToday = Counts(new = 2), studiedToday = 8)
-        composeRule.mainClock.advanceTimeByFrame()
-        val immediate = composeRule.onRoot().captureToImage().asAndroidBitmap()
+        assertFalse(Animations.areAnimationsEnabled(targetContext))
+        composeRule.runOnUiThread {
+            deckListState.value = deckListState.value.copy(queuesToday = Counts(new = 2), studiedToday = 8)
+            Snapshot.sendApplyNotifications()
+        }
+        composeRule.mainClock.advanceTimeBy(32)
 
-        composeRule.mainClock.advanceTimeBy(1_000)
-        val settled = composeRule.onRoot().captureToImage().asAndroidBitmap()
-
-        assertTrue(immediate.sameAs(settled), "Today should draw its final progress on the first updated frame")
+        assertEquals(0.8f, indicator.fetchSemanticsNode().config[SemanticsProperties.ProgressBarRangeInfo].current)
     }
 
     @Test
