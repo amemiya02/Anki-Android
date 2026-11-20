@@ -14,6 +14,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -43,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.SpanStyle
@@ -105,25 +107,29 @@ fun AnswerArea(
                     .relativeHeight(buttonsHeightPercentage)
                     .padding(top = 6.dp, bottom = 8.dp),
         ) {
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Min)
-                        .heightIn(min = spacing.answerButton)
-                        .invisibleIf(!isAnswerShown),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                val colors = foundation.colors
-
-                fun rate(rating: Rating) = guarded { onRatingClicked(rating) }
+            val colors = foundation.colors
+            fun rate(rating: Rating) = guarded { onRatingClicked(rating) }
+            val firstRatings: @Composable RowScope.() -> Unit = {
                 RatingButton(CommonR.string.ease_button_again, nextTimes?.again, colors.answerAgain) { rate(Rating.AGAIN) }
                 if (showHardAndEasyButtons) {
                     RatingButton(CommonR.string.ease_button_hard, nextTimes?.hard, colors.answerHard) { rate(Rating.HARD) }
                 }
+            }
+            val remainingRatings: @Composable RowScope.() -> Unit = {
                 RatingButton(CommonR.string.ease_button_good, nextTimes?.good, colors.answerGood) { rate(Rating.GOOD) }
                 if (showHardAndEasyButtons) {
                     RatingButton(CommonR.string.ease_button_easy, nextTimes?.easy, colors.answerEasy) { rate(Rating.EASY) }
+                }
+            }
+            Column(modifier = Modifier.invisibleIf(!isAnswerShown), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (showHardAndEasyButtons && LocalDensity.current.fontScale >= 1.5f) {
+                    RatingRow(firstRatings)
+                    RatingRow(remainingRatings)
+                } else {
+                    RatingRow {
+                        firstRatings()
+                        remainingRatings()
+                    }
                 }
             }
             Button(
@@ -167,6 +173,15 @@ fun AnswerArea(
             }
         }
     }
+}
+
+@Composable
+private fun RatingRow(content: @Composable RowScope.() -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min).heightIn(min = MaterialTheme.foundation.spacing.answerButton),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        content = content,
+    )
 }
 
 /**
