@@ -531,7 +531,10 @@ open class DeckPicker :
         registerForActivityResult(
             ActivityResultContracts.StartActivityForResult(),
             DeckPickerActivityResultCallback {
-                if (it.resultCode == RESULT_OK) openNextStudyAllDeck(afterFinished = true)
+                if (it.resultCode == RESULT_OK) {
+                    val finishedDeckId = FinishedFragment.studyAllDeckIdFromResult(it.data)
+                    if (finishedDeckId != null) openNextStudyAllDeck(afterFinishedDeckId = finishedDeckId)
+                }
             },
         )
 
@@ -1748,13 +1751,22 @@ open class DeckPicker :
         if (result.resultCode != ReviewerFragment.RESULT_NO_MORE_CARDS) return
         val sessionSummary = ReviewSessionSummary.fromIntent(result.data)
         launchCatchingTask {
-            val state = withCol { currentDeckStudyState() }
-            if (studyAll && state.availability == StudyAvailability.NoCardsAvailable) {
-                studyAllFinishedLauncher.launch(
-                    FinishedFragment.getIntent(this@DeckPicker, studyAll = true, sessionSummary = sessionSummary),
-                )
-            } else {
-                StudyCompletionUi.onReviewsCompleted(this@DeckPicker, state, sessionSummary)
+            when {
+                studyAll -> {
+                    val finishedDeckId = withCol { decks.selected() }
+                    studyAllFinishedLauncher.launch(
+                        FinishedFragment.getIntent(
+                            this@DeckPicker,
+                            studyAllDeckId = finishedDeckId,
+                            sessionSummary = sessionSummary,
+                        ),
+                    )
+                }
+                sessionSummary != null -> StudyCompletionUi.openFinishedScreen(this@DeckPicker, sessionSummary)
+                else -> {
+                    val state = withCol { currentDeckStudyState() }
+                    StudyCompletionUi.onReviewsCompleted(this@DeckPicker, state)
+                }
             }
         }
         fragment?.refreshInterface()
@@ -2663,7 +2675,7 @@ open class DeckPicker :
         }
     }
 
-    private fun openNextStudyAllDeck(afterFinished: Boolean = false) {
+    private fun openNextStudyAllDeck(afterFinishedDeckId: DeckId? = null) {
         if (showsStandaloneScreen || launchStudyAllJob?.isActive == true) return
         launchStudyAllJob =
             launchCatchingTask {
@@ -2671,12 +2683,11 @@ open class DeckPicker :
                     withCol {
                         // The Engine includes each child Deck in the queue of its top-level parent.
                         val dueDecks = sched.deckDueTree().children.filter(DeckNode::hasCardsReadyToStudy)
-                        // If the Deck that just finished became due again, leave the learner on Decks.
-                        if (afterFinished) {
-                            val finishedDeckId = decks.selected()
-                            if (dueDecks.any { it.did == finishedDeckId }) return@withCol null
-                        }
-                        val next = dueDecks.firstOrNull() ?: return@withCol null
+                        // Let other eligible Decks go first if the completed Deck gained more work.
+                        val next =
+                            dueDecks.firstOrNull { it.did != afterFinishedDeckId }
+                                ?: dueDecks.firstOrNull()
+                                ?: return@withCol null
                         decks.select(next.did)
                         next.did
                     } ?: return@launchCatchingTask
