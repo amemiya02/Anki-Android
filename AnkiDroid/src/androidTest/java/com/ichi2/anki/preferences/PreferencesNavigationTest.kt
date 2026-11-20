@@ -63,7 +63,8 @@ class PreferencesNavigationTest {
             val appearance = context.getString(R.string.settings_appearance)
             val search = composeRule.onNodeWithContentDescription(context.getString(R.string.settings_search))
             search.performTextInput(appearance)
-            composeRule.onNode(hasText(appearance) and hasClickAction() and !hasSetTextAction()).assertIsDisplayed().performClick()
+            val appearanceGroup = hasText(appearance) and hasText(context.getString(CommonString.settings)) and hasClickAction()
+            composeRule.onNode(appearanceGroup).assertIsDisplayed().performClick()
             composeRule.onNodeWithText(context.getString(R.string.settings_theme_light)).assertIsDisplayed()
             composeRule.runOnIdle { settings.onBackPressedDispatcher.onBackPressed() }
             search.assertIsDisplayed()

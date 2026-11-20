@@ -11,8 +11,10 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.previewer.CardViewerActivity
+import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.tests.InstrumentedTest
 import com.ichi2.anki.testutil.GrantStoragePermission.storagePermission
+import com.ichi2.anki.testutil.awaitDisplayed
 import com.ichi2.anki.testutil.clickShowAnswer
 import com.ichi2.anki.testutil.ensureWebViewIsSupported
 import com.ichi2.anki.testutil.goodButton
@@ -188,6 +190,8 @@ class ReviewerFragmentScrollTest : InstrumentedTest() {
             val originalScale = pageScale
             if (zoom) zoomIn()
             scrollDown()
+            composeRule.awaitDisplayed(timeout = 30.seconds) { goodButton() }
+            composeRule.mainClock.advanceTimeBy(Prefs.doubleTapInterval.toLong())
             composeRule.goodButton().performClick()
             waitForCloze("[...]")
             waitForScale(originalScale)

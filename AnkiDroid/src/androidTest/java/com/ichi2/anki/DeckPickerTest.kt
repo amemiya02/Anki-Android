@@ -52,6 +52,7 @@ class DeckPickerTest : InstrumentedTest() {
         // For mobile. If it is not a mobile, then test will be ignored.
         assumeTrue(!isTablet)
 
+        activityRule.scenario.onActivity { it.updateDeckList() }
         tapOnCountLayouts("Default")
         composeRule.waitUntil(10_000) {
             composeRule.onAllNodesWithTag("study_deck_title").fetchSemanticsNodes().isNotEmpty()
