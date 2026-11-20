@@ -2,6 +2,7 @@
 
 import argparse
 import csv
+import gzip
 import hashlib
 import json
 import math
@@ -64,8 +65,8 @@ class Device:
         self.package = package
         self.path = "/data/local/tmp/hayaki-perf-window.xml"
 
-    def shell(self, *args):
-        return subprocess.check_output([*self.adb, "shell", shlex.join(args)], text=True, timeout=90).strip()
+    def shell(self, *args, timeout=90):
+        return subprocess.check_output([*self.adb, "shell", shlex.join(args)], text=True, timeout=timeout).strip()
 
     def tap(self, point):
         self.shell("input", "tap", *map(str, point))
@@ -102,7 +103,8 @@ class Device:
         return rows
 
     def screenshot(self):
-        image = subprocess.check_output([*self.adb, "exec-out", "screencap"], timeout=15)
+        capture = subprocess.check_output([*self.adb, "exec-out", "screencap | gzip -1"], timeout=15)
+        image = gzip.decompress(capture)
         if len(image) < 16:
             raise ValueError("Android returned an incomplete screenshot")
         width, height, pixel_format = struct.unpack_from("<3I", image)
@@ -153,7 +155,7 @@ def capture(args):
         raise ValueError(f"Could not resolve launcher activity: {component}")
     args.output.mkdir(parents=True, exist_ok=False)
     (args.output / "display.txt").write_text(display + "\n")
-    compile_output = device.shell("cmd", "package", "compile", "-m", "speed", "-f", args.package)
+    compile_output = device.shell("cmd", "package", "compile", "-m", "speed", "-f", args.package, timeout=300)
     if compile_output != "Success":
         raise ValueError(f"ART speed compilation failed: {compile_output}")
     dexopt = device.shell("dumpsys", "package", "dexopt")
