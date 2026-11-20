@@ -13,8 +13,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.click
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -244,7 +244,7 @@ class AnswerAreaTest : RobolectricTest() {
         }
         val button = composeRule.onNodeWithText(showAnswer)
 
-        button.performClick()
+        button.performTouchInput { click() }
         composeRule.mainClock.advanceTimeBy(1_000)
         assertEquals(0, shown, "a tap does not show the answer")
         assertEquals(1, hints, "a tap says why nothing happened")
