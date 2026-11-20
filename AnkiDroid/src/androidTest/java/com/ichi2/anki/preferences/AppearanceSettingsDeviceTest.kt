@@ -75,7 +75,9 @@ class AppearanceSettingsDeviceTest : InstrumentedTest() {
 
     private fun tile(label: Int) = compose.onNode(hasText(testContext.getString(label)) and isSelectable())
 
-    private fun assertBackground(@ColorRes color: Int) {
+    private fun assertBackground(
+        @ColorRes color: Int,
+    ) {
         val screen = compose.onRoot().captureToImage().toPixelMap()
         // The side margin stays the page background past the controls and system bars.
         assertEquals(testContext.getColor(color), screen[2, screen.height / 2].toArgb())
