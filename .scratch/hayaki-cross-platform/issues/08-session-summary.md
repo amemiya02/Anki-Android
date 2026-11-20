@@ -25,3 +25,5 @@ None - can start immediately
 ## Verification
 
 The installed phone and wide profiles showed three completed reviews, three Easy ratings and the Finished actions after Geography. The unit tests verified the Engine's answer time, Undo and Redo, and recreation. All thirteen Finished fragment tests passed. [JUnit results](https://github.com/amemiya02/Hayaki/actions/runs/44748772663) · [Device screenshots](https://github.com/amemiya02/Hayaki/actions/runs/44748906084)
+
+On both the phone and wide display with TalkBack and 200% text, forward navigation reached Reviewed 3, Easy 3 and Done. A double-tap on Done opened Languages › Spanish. The TalkBack Back gesture returned to Decks with six Cards left and three studied. [Signed-release TalkBack focus trace](https://github.com/amemiya02/Hayaki/blob/redesign/docs/releases/0.2.0-talkback.md)
