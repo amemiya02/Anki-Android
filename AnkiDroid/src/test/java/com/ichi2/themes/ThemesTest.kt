@@ -27,6 +27,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RuntimeEnvironment
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import com.ichi2.testutils.Robolectric as RobolectricActivities
 
