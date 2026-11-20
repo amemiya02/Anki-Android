@@ -2,10 +2,15 @@
 
 package com.ichi2.anki.deckpicker
 
+import android.provider.Settings
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.hasText
@@ -19,14 +24,17 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
+import androidx.core.content.edit
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.decks.DeckTreeNode
 import anki.decks.deckTreeNode
 import com.ichi2.anki.CollectionManager.TR
+import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.sched.Counts
 import com.ichi2.anki.libanki.sched.DeckNode
+import com.ichi2.anki.settings.Prefs
 import com.ichi2.compose.theme.AnkiDroidTheme
 import org.junit.Rule
 import org.junit.Test
