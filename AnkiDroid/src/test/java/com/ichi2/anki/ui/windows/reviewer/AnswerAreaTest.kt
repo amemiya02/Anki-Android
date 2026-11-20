@@ -259,6 +259,30 @@ class AnswerAreaTest : RobolectricTest() {
     }
 
     @Test
+    fun `a screen reader can show the answer with a saved minimum press time`() {
+        Prefs.sharedPrefs.edit { putInt(Prefs.key(R.string.pref_card_minimal_click_time), 500) }
+        var shown = 0
+        var hints = 0
+        composeRule.setContent {
+            AnkiDroidTheme {
+                AnswerArea(
+                    isAnswerShown = false,
+                    nextTimes = null,
+                    onRatingClicked = {},
+                    onShowAnswerClicked = { shown++ },
+                    onShowAnswerPressTooShort = { hints++ },
+                    showAnswerMinimumPressMs = Prefs.showAnswerMinimumPressMs,
+                )
+            }
+        }
+
+        composeRule.onNodeWithText(showAnswer).performClick()
+
+        assertEquals(1, shown)
+        assertEquals(0, hints)
+    }
+
+    @Test
     fun `a second press within the double tap interval is ignored`() {
         var isAnswerShown by mutableStateOf(false)
         val presses = mutableListOf<String>()
