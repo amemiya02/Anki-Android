@@ -10,7 +10,6 @@ import androidx.test.uiautomator.Until
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.ui.internationalization.sentenceCase
-import java.util.regex.Pattern
 
 /**
  * This file contains utility methods to interact with the DeckPicker.
@@ -49,15 +48,6 @@ fun createDeckWithUniqueName(): String {
     val create = InstrumentationRegistry.getInstrumentation().targetContext.getString(CommonString.dialog_positive_create)
     checkNotNull(device.wait(Until.findObject(By.text(create)), DECK_TIMEOUT_MS)).click()
     return deckName
-}
-
-/** Taps the counts of the Deck named [deckName], which open its study options */
-fun tapOnCountLayouts(deckName: String) {
-    val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
-    val deck = By.res(packageName, "deck_name").hasDescendant(By.text(deckName))
-    // Queue descriptions include both the localized queue name and its nonzero count.
-    val queueCount = By.desc(Pattern.compile("(?s).*\\p{Nd}+.*")).hasAncestor(deck)
-    checkNotNull(device.wait(Until.findObject(queueCount), DECK_TIMEOUT_MS)) { "Deck '$deckName' has no queue counts" }.click()
 }
 
 /**
