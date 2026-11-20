@@ -46,10 +46,22 @@ class ThemesTest : RobolectricTest() {
             prefs.nightTheme = nightTheme
             val context = ContextThemeWrapper(targetContext, 0)
             Themes.setTheme(context)
-            assertThat(context.toFoundation().colors.primary.toArgb(), equalTo(accent))
+            assertThat(
+                context
+                    .toFoundation()
+                    .colors.primary
+                    .toArgb(),
+                equalTo(accent),
+            )
             assertThat(MaterialColors.getColor(context, MaterialR.attr.colorPrimary, 0), equalTo(accent))
             if (nightTheme == NightTheme.BLACK) {
-                assertThat(context.toFoundation().colors.background.toArgb(), equalTo(0xFF000000.toInt()))
+                assertThat(
+                    context
+                        .toFoundation()
+                        .colors.background
+                        .toArgb(),
+                    equalTo(0xFF000000.toInt()),
+                )
             }
         }
     }

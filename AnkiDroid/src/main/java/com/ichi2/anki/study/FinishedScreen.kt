@@ -96,7 +96,12 @@ fun FinishedScreen(
                     Modifier
                         .weight(1f)
                         .verticalScroll(rememberScrollState())
-                        .padding(start = foundation.spacing.screenMargin, end = foundation.spacing.screenMargin, top = 28.dp, bottom = 16.dp),
+                        .padding(
+                            start = foundation.spacing.screenMargin,
+                            end = foundation.spacing.screenMargin,
+                            top = 28.dp,
+                            bottom = 16.dp,
+                        ),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
                 if (sessionSummary != null && sessionSummary.reviewCount > 0) {

@@ -14,7 +14,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.os.BundleCompat
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
@@ -85,7 +84,14 @@ class FinishedFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        val sessionSummary = arguments?.let { BundleCompat.getParcelable(it, ReviewSessionSummary.ARG_KEY, ReviewSessionSummary::class.java) }
+        val sessionSummary =
+            arguments?.let {
+                BundleCompat.getParcelable(
+                    it,
+                    ReviewSessionSummary.ARG_KEY,
+                    ReviewSessionSummary::class.java,
+                )
+            }
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
@@ -230,7 +236,11 @@ class FinishedFragment :
             SingleFragmentActivity.getIntent(
                 context,
                 fragmentClass = FinishedFragment::class,
-                arguments = bundleOf(ARG_STUDY_ALL to studyAll, ReviewSessionSummary.ARG_KEY to sessionSummary),
+                arguments =
+                    Bundle().apply {
+                        putBoolean(ARG_STUDY_ALL, studyAll)
+                        putParcelable(ReviewSessionSummary.ARG_KEY, sessionSummary)
+                    },
             )
     }
 }

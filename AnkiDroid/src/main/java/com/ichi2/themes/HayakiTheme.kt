@@ -87,7 +87,8 @@ enum class HayakiTheme(
         CommonR.style.HayakiTheme_Midnight_Light,
         CommonR.style.HayakiTheme_Midnight_Dark,
         CommonR.style.HayakiTheme_Midnight_Black,
-    );
+    ),
+    ;
 
     @StyleRes
     fun styleFor(appearance: Theme): Int =

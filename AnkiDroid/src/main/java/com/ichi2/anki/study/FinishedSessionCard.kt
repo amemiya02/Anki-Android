@@ -128,7 +128,13 @@ private data class RatingCount(
 
 private fun Duration.clock(locale: Locale): String =
     toComponents { hours, minutes, seconds, _ ->
-        if (hours > 0) String.format(locale, "%d:%02d:%02d", hours, minutes, seconds) else String.format(locale, "%d:%02d", minutes, seconds)
+        if (hours >
+            0
+        ) {
+            String.format(locale, "%d:%02d:%02d", hours, minutes, seconds)
+        } else {
+            String.format(locale, "%d:%02d", minutes, seconds)
+        }
     }
 
 private fun Duration.spoken(locale: Locale): String =

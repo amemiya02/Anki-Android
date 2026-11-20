@@ -14,12 +14,14 @@ import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.UndoStepCounter
 import com.ichi2.anki.study.ReviewSessionSummary
 import kotlinx.parcelize.Parcelize
+import timber.log.Timber
 import java.util.UUID
 import java.util.WeakHashMap
-import timber.log.Timber
 
 /** Tracks successful grades and their undo steps for one visit to the reviewer. */
-internal class ReviewSession(savedStateHandle: SavedStateHandle) {
+internal class ReviewSession(
+    savedStateHandle: SavedStateHandle,
+) {
     private val restoredState =
         savedStateHandle.get<Bundle>(KEY)?.let { BundleCompat.getParcelable(it, KEY, State::class.java) }
     private var historyId = restoredState?.historyId
@@ -92,7 +94,10 @@ internal class ReviewSession(savedStateHandle: SavedStateHandle) {
     ) : Parcelable
 
     @Parcelize
-    internal data class State(val historyId: String?, val reviews: List<Review>) : Parcelable
+    internal data class State(
+        val historyId: String?,
+        val reviews: List<Review>,
+    ) : Parcelable
 
     companion object {
         private const val KEY = "reviewSession"
