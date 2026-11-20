@@ -52,7 +52,7 @@ internal class ReviewerLayout(
             id = R.id.reviewer_menu_view
         }
     val studyProgress = ComposeView(context).apply { id = R.id.study_progress }
-    val webViewContainer = card(R.id.web_view_container)
+    val webViewContainer = card(R.id.web_view_container).apply { setCardBackgroundColor(color(CommonR.attr.foundationStudyCanvas)) }
     val webViewLayout = TypeAnswerWebViewLayout(context, null).apply { id = R.id.web_view_layout }
     val cardIndicators = LinearLayout(context).apply { id = R.id.card_indicators }
     val flagIcon =
@@ -93,7 +93,7 @@ internal class ReviewerLayout(
 
     init {
         id = R.id.root_layout
-        setBackgroundColor(color(CommonR.attr.foundationBackground))
+        setBackgroundColor(color(CommonR.attr.foundationStudyCanvas))
         fitsSystemWindows = true
         isFocusableInTouchMode = true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) defaultFocusHighlightEnabled = false

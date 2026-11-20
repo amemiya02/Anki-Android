@@ -8,6 +8,7 @@ import androidx.appcompat.widget.ThemeUtils
 import androidx.core.view.updateLayoutParams
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.shape.ShapeAppearanceModel
+import com.ichi2.anki.common.android.R as CommonR
 import com.ichi2.anki.LanguageUtils
 import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.libanki.CardOrdinal
@@ -38,7 +39,7 @@ fun stdHtml(
     val docClass = if (nightMode) "night-mode" else ""
     val rootNightMode = if (nightMode) "[class*=night-mode]" else ""
 
-    val canvasColor = ThemeUtils.getThemeAttrColor(context, android.R.attr.colorBackground).toRGBHex()
+    val canvasColor = ThemeUtils.getThemeAttrColor(context, CommonR.attr.foundationStudyCanvas).toRGBHex()
     val fgColor = ThemeUtils.getThemeAttrColor(context, android.R.attr.textColor).toRGBHex()
     val colors = ":root$rootNightMode { --canvas: $canvasColor; --fg: $fgColor; }"
     // Preserve the system font size while scaling text and em-based layout together.
