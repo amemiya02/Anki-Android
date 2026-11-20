@@ -21,7 +21,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +39,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
+import com.ichi2.anki.CollectionManager.TR
+import com.ichi2.anki.common.android.Animations
 import com.ichi2.anki.libanki.sched.Counts
 import com.ichi2.anki.utils.remainingTime
 import com.ichi2.compose.theme.foundation
@@ -141,23 +143,26 @@ fun DeckPath(
 @Composable
 private fun StudyBarCounts(counts: StudyCounts) {
     val colors = MaterialTheme.foundation.colors
+    val (new, learning, due) = remember { listOf(TR.actionsNew(), TR.schedulingLearning(), TR.decksReviewHeader()) }
     Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
-        StudyBarCount(counts.new, colors.countNew, isActive = counts.activeQueue == Counts.Queue.NEW)
-        StudyBarCount(counts.learn, colors.countLearning, isActive = counts.activeQueue == Counts.Queue.LRN)
-        StudyBarCount(counts.review, colors.countDue, isActive = counts.activeQueue == Counts.Queue.REV)
+        StudyBarCount(counts.newCount, new, colors.countNew, isActive = counts.activeQueue == Counts.Queue.NEW)
+        StudyBarCount(counts.learnCount, learning, colors.countLearning, isActive = counts.activeQueue == Counts.Queue.LRN)
+        StudyBarCount(counts.reviewCount, due, colors.countDue, isActive = counts.activeQueue == Counts.Queue.REV)
     }
 }
 
 @Composable
 private fun StudyBarCount(
-    count: String,
+    count: Int,
+    label: String,
     color: Color,
     isActive: Boolean,
 ) {
     val foundation = MaterialTheme.foundation
-    val isZero = count == "0"
+    val isZero = count == 0
+    val description = stringResource(CommonR.string.deck_list_count_description, label, count)
     Text(
-        text = count,
+        text = count.toString(),
         style =
             foundation.type.studyCount.copy(
                 fontWeight = if (isZero) FontWeight.Normal else foundation.type.studyCount.fontWeight,
@@ -167,7 +172,8 @@ private fun StudyBarCount(
             Modifier
                 .clip(CircleShape)
                 .then(if (isActive) Modifier.background(color.copy(alpha = ACTIVE_TINT)) else Modifier)
-                .padding(horizontal = 8.dp, vertical = 2.dp),
+                .padding(horizontal = 8.dp, vertical = 2.dp)
+                .semantics { contentDescription = description },
     )
 }
 
@@ -182,13 +188,21 @@ fun StudyProgress(
 ) {
     if (progress == null) return
     val foundation = MaterialTheme.foundation
-    val shown by animateFloatAsState(
-        targetValue = progress.coerceIn(0f, 1f),
-        animationSpec = tween(durationMillis = PROGRESS_MILLIS),
-        label = "study progress",
-    )
+    val context = LocalContext.current
+    val animateProgress = remember(context) { Animations.areAnimationsEnabled(context) }
+    val target = progress.coerceIn(0f, 1f)
+    val animation =
+        if (animateProgress) {
+            animateFloatAsState(
+                targetValue = target,
+                animationSpec = tween(durationMillis = PROGRESS_MILLIS),
+                label = "study progress",
+            )
+        } else {
+            null
+        }
     LinearProgressIndicator(
-        progress = { shown },
+        progress = { animation?.value ?: target },
         modifier =
             modifier
                 .fillMaxWidth()
