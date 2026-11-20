@@ -1,0 +1,734 @@
+{
+    "timestamp_utc": "2026-11-20T13:10:37+00:00",
+    "revision": "fb65dea3ecd23407aab005f9c8a7e7a317bb509f",
+    "journey": "cold_start",
+    "apk_sha256": "132204962388e62cc3cb0bbb085042e2ce31467891566c5181b09346cbbe5e67",
+    "fixture_sha256": "98521cda65c48d402271722a92a45f2ffdc610a7bc4d45237922e46b7ee2db4f",
+    "package": "com.ichi2.anki.redesign",
+    "device": "Android SDK built for arm64",
+    "fingerprint": "Android/sdk_phone64_arm64/emu64a:15/AE3A.240806.019/12368160:userdebug/test-keys",
+    "avd": "hayaki_020_aosp",
+    "display_size": "Physical size: 720x1616",
+    "display_density": "Physical density: 280",
+    "refresh_rate_hz": 60.0,
+    "font_scale": "1.0",
+    "webview": "Current WebView Update Service state\n  Current WebView package (name, version): (com.android.webview, 124.0.6367.219)\n  Minimum targetSdkVersion: 33\n  Minimum WebView version code: 636771901\n  Number of relros started: 1\n  Number of relros finished: 1\n  WebView package dirty: false\n  Any WebView package installed: true\n  Preferred WebView package (name, version): (com.android.webview, 124.0.6367.219)\n  WebView packages:\n    Valid package com.android.webview (versionName: 124.0.6367.219, versionCode: 636771901, targetSdkVersion: 34) is  installed/enabled for all users",
+    "art_compilation": "speed",
+    "renderer": "GLES: Google (Apple), Android Emulator OpenGL ES Translator (Apple M2), OpenGL ES 3.0 (4.1 Metal - 91.7)",
+    "host": "macOS-27.3-arm64-arm-64bit",
+    "run_conditions": "Android Emulator 37.2.13.0, same Pixel 9 Android 15 AOSP arm64 AVD as the local baseline. 4 vCPUs, 2560 MB, headless, host GPU, no snapshots, airplane mode, Light, English, default font and motion scales. Apple M2 with 24 GB RAM. Other task-owned builds and emulators were parked. Shared host load and swap were elevated.",
+    "samples": [
+        {
+            "action": "cold_start",
+            "frame_capture": "cold_start/001-cold_start.gfxinfo.txt",
+            "after_vsync_ns": 0,
+            "host_load_1m": 185.77,
+            "run": 1,
+            "total_time_ms": 3282,
+            "frames": 27,
+            "missed_deadlines": 12,
+            "overrun_refresh_intervals": {
+                "0": 15,
+                "1": 6,
+                "2": 2,
+                "6": 2,
+                "9": 1,
+                "10": 1
+            },
+            "render_ms": {
+                "p50": 34.55,
+                "p95": 245.47,
+                "p99": 273.57
+            }
+        },
+        {
+            "action": "cold_start",
+            "frame_capture": "cold_start/002-cold_start.gfxinfo.txt",
+            "after_vsync_ns": 0,
+            "host_load_1m": 178.1,
+            "run": 2,
+            "total_time_ms": 6515,
+            "frames": 18,
+            "missed_deadlines": 11,
+            "overrun_refresh_intervals": {
+                "0": 7,
+                "1": 4,
+                "2": 1,
+                "3": 2,
+                "9": 1,
+                "11": 1,
+                "13": 1,
+                "17": 1
+            },
+            "render_ms": {
+                "p50": 108.66,
+                "p95": 1155.19,
+                "p99": 1155.19
+            }
+        },
+        {
+            "action": "cold_start",
+            "frame_capture": "cold_start/003-cold_start.gfxinfo.txt",
+            "after_vsync_ns": 0,
+            "host_load_1m": 170.69,
+            "run": 3,
+            "total_time_ms": 3253,
+            "frames": 14,
+            "missed_deadlines": 12,
+            "overrun_refresh_intervals": {
+                "0": 2,
+                "1": 2,
+                "2": 1,
+                "3": 1,
+                "4": 1,
+                "5": 2,
+                "6": 1,
+                "7": 1,
+                "10": 1,
+                "16": 1,
+                "118": 1
+            },
+            "render_ms": {
+                "p50": 121.23,
+                "p95": 2079.67,
+                "p99": 2079.67
+            }
+        },
+        {
+            "action": "scroll",
+            "frame_capture": "browse/001-scroll.gfxinfo.txt",
+            "after_vsync_ns": 721524416158,
+            "host_load_1m": 89.73,
+            "run": 1,
+            "swipe": 1,
+            "frames": 10,
+            "missed_deadlines": 10,
+            "overrun_refresh_intervals": {
+                "1": 4,
+                "2": 2,
+                "3": 4
+            },
+            "render_ms": {
+                "p50": 109.57,
+                "p95": 156.11,
+                "p99": 156.11
+            }
+        },
+        {
+            "action": "scroll",
+            "frame_capture": "browse/002-scroll.gfxinfo.txt",
+            "after_vsync_ns": 726274415968,
+            "host_load_1m": 89.73,
+            "run": 1,
+            "swipe": 2,
+            "frames": 15,
+            "missed_deadlines": 8,
+            "overrun_refresh_intervals": {
+                "0": 7,
+                "1": 5,
+                "2": 1,
+                "3": 2
+            },
+            "render_ms": {
+                "p50": 73.22,
+                "p95": 103.38,
+                "p99": 103.38
+            }
+        },
+        {
+            "action": "scroll",
+            "frame_capture": "browse/003-scroll.gfxinfo.txt",
+            "after_vsync_ns": 727557749250,
+            "host_load_1m": 89.73,
+            "run": 1,
+            "swipe": 3,
+            "frames": 48,
+            "missed_deadlines": 18,
+            "overrun_refresh_intervals": {
+                "0": 30,
+                "1": 17,
+                "4": 1
+            },
+            "render_ms": {
+                "p50": 40.84,
+                "p95": 73.38,
+                "p99": 122.91
+            }
+        },
+        {
+            "action": "scroll",
+            "frame_capture": "browse/004-scroll.gfxinfo.txt",
+            "after_vsync_ns": 728791082534,
+            "host_load_1m": 89.73,
+            "run": 1,
+            "swipe": 4,
+            "frames": 14,
+            "missed_deadlines": 6,
+            "overrun_refresh_intervals": {
+                "0": 8,
+                "1": 5,
+                "4": 1
+            },
+            "render_ms": {
+                "p50": 63.87,
+                "p95": 88.54,
+                "p99": 88.54
+            }
+        },
+        {
+            "action": "scroll",
+            "frame_capture": "browse/005-scroll.gfxinfo.txt",
+            "after_vsync_ns": 730057749150,
+            "host_load_1m": 86.7,
+            "run": 1,
+            "swipe": 5,
+            "frames": 51,
+            "missed_deadlines": 9,
+            "overrun_refresh_intervals": {
+                "0": 42,
+                "1": 7,
+                "2": 2
+            },
+            "render_ms": {
+                "p50": 31.42,
+                "p95": 85.35,
+                "p99": 90.45
+            }
+        },
+        {
+            "action": "scroll",
+            "frame_capture": "browse/006-scroll.gfxinfo.txt",
+            "after_vsync_ns": 731324415766,
+            "host_load_1m": 86.7,
+            "run": 1,
+            "swipe": 6,
+            "frames": 32,
+            "missed_deadlines": 10,
+            "overrun_refresh_intervals": {
+                "0": 22,
+                "1": 4,
+                "2": 3,
+                "3": 1,
+                "11": 1,
+                "14": 1
+            },
+            "render_ms": {
+                "p50": 18.9,
+                "p95": 264.31,
+                "p99": 304.02
+            }
+        },
+        {
+            "action": "scroll",
+            "frame_capture": "browse/007-scroll.gfxinfo.txt",
+            "after_vsync_ns": 732607749048,
+            "host_load_1m": 86.7,
+            "run": 1,
+            "swipe": 7,
+            "frames": 60,
+            "missed_deadlines": 3,
+            "overrun_refresh_intervals": {
+                "0": 57,
+                "1": 3
+            },
+            "render_ms": {
+                "p50": 22.78,
+                "p95": 26.68,
+                "p99": 34.36
+            }
+        },
+        {
+            "action": "scroll",
+            "frame_capture": "browse/008-scroll.gfxinfo.txt",
+            "after_vsync_ns": 733774415668,
+            "host_load_1m": 86.7,
+            "run": 1,
+            "swipe": 8,
+            "frames": 58,
+            "missed_deadlines": 2,
+            "overrun_refresh_intervals": {
+                "0": 56,
+                "1": 2
+            },
+            "render_ms": {
+                "p50": 17.71,
+                "p95": 18.73,
+                "p99": 19.36
+            }
+        },
+        {
+            "action": "scroll",
+            "frame_capture": "browse/009-scroll.gfxinfo.txt",
+            "after_vsync_ns": 734891082290,
+            "host_load_1m": 86.7,
+            "run": 1,
+            "swipe": 9,
+            "frames": 60,
+            "missed_deadlines": 1,
+            "overrun_refresh_intervals": {
+                "0": 59,
+                "1": 1
+            },
+            "render_ms": {
+                "p50": 17.43,
+                "p95": 17.75,
+                "p99": 18.79
+            }
+        },
+        {
+            "action": "scroll",
+            "frame_capture": "browse/010-scroll.gfxinfo.txt",
+            "after_vsync_ns": 736074415576,
+            "host_load_1m": 81.36,
+            "run": 1,
+            "swipe": 10,
+            "frames": 56,
+            "missed_deadlines": 5,
+            "overrun_refresh_intervals": {
+                "0": 51,
+                "1": 4,
+                "4": 1
+            },
+            "render_ms": {
+                "p50": 41.26,
+                "p95": 66.65,
+                "p99": 83.63
+            }
+        },
+        {
+            "action": "reveal",
+            "frame_capture": "study/001-reveal.gfxinfo.txt",
+            "after_vsync_ns": 494741091896,
+            "host_load_1m": 68.89,
+            "run": 1,
+            "card": 1,
+            "visible_lower_ms": 0.0,
+            "visible_upper_ms": 1001.46,
+            "screenshot_samples": 1,
+            "last_screenshot_ms": 679.28,
+            "frames": 4,
+            "missed_deadlines": 3,
+            "overrun_refresh_intervals": {
+                "0": 1,
+                "5": 1,
+                "7": 1,
+                "8": 1
+            },
+            "render_ms": {
+                "p50": 124.5,
+                "p95": 134.87,
+                "p99": 134.87
+            }
+        },
+        {
+            "action": "grade",
+            "frame_capture": "study/002-grade.gfxinfo.txt",
+            "after_vsync_ns": 496407758496,
+            "host_load_1m": 68.89,
+            "run": 1,
+            "card": 1,
+            "visible_lower_ms": 173.68,
+            "visible_upper_ms": 2955.22,
+            "screenshot_samples": 2,
+            "last_screenshot_ms": 1495.04,
+            "frames": 21,
+            "missed_deadlines": 9,
+            "overrun_refresh_intervals": {
+                "0": 12,
+                "1": 1,
+                "2": 1,
+                "4": 2,
+                "6": 1,
+                "8": 1,
+                "11": 2,
+                "15": 1
+            },
+            "render_ms": {
+                "p50": 92.89,
+                "p95": 503.62,
+                "p99": 673.71
+            }
+        },
+        {
+            "action": "reveal",
+            "frame_capture": "study/003-reveal.gfxinfo.txt",
+            "after_vsync_ns": 498924425062,
+            "host_load_1m": 68.66,
+            "run": 1,
+            "card": 2,
+            "visible_lower_ms": 184.77,
+            "visible_upper_ms": 3067.18,
+            "screenshot_samples": 2,
+            "last_screenshot_ms": 507.69,
+            "frames": 2,
+            "missed_deadlines": 2,
+            "overrun_refresh_intervals": {
+                "17": 1,
+                "55": 1
+            },
+            "render_ms": {
+                "p50": 286.84,
+                "p95": 919.03,
+                "p99": 919.03
+            }
+        },
+        {
+            "action": "grade",
+            "frame_capture": "study/004-grade.gfxinfo.txt",
+            "after_vsync_ns": 502024424938,
+            "host_load_1m": 65.32,
+            "run": 1,
+            "card": 2,
+            "visible_lower_ms": 118.98,
+            "visible_upper_ms": 1540.56,
+            "screenshot_samples": 2,
+            "last_screenshot_ms": 336.88,
+            "frames": 17,
+            "missed_deadlines": 12,
+            "overrun_refresh_intervals": {
+                "0": 5,
+                "1": 4,
+                "3": 3,
+                "4": 2,
+                "7": 1,
+                "8": 1,
+                "16": 1
+            },
+            "render_ms": {
+                "p50": 69.42,
+                "p95": 332.53,
+                "p99": 332.53
+            }
+        },
+        {
+            "action": "reveal",
+            "frame_capture": "study/005-reveal.gfxinfo.txt",
+            "after_vsync_ns": 505541091464,
+            "host_load_1m": 65.32,
+            "run": 1,
+            "card": 3,
+            "visible_lower_ms": 0.0,
+            "visible_upper_ms": 898.09,
+            "screenshot_samples": 1,
+            "last_screenshot_ms": 791.54,
+            "frames": 2,
+            "missed_deadlines": 2,
+            "overrun_refresh_intervals": {
+                "2": 1,
+                "15": 1
+            },
+            "render_ms": {
+                "p50": 47.86,
+                "p95": 264.64,
+                "p99": 264.64
+            }
+        },
+        {
+            "action": "grade",
+            "frame_capture": "study/006-grade.gfxinfo.txt",
+            "after_vsync_ns": 506391091430,
+            "host_load_1m": 65.32,
+            "run": 1,
+            "card": 3,
+            "visible_lower_ms": 84.2,
+            "visible_upper_ms": 912.92,
+            "screenshot_samples": 2,
+            "last_screenshot_ms": 398.34,
+            "frames": 39,
+            "missed_deadlines": 10,
+            "overrun_refresh_intervals": {
+                "0": 29,
+                "1": 6,
+                "2": 2,
+                "3": 2
+            },
+            "render_ms": {
+                "p50": 44.07,
+                "p95": 84.54,
+                "p99": 94.69
+            }
+        },
+        {
+            "action": "reveal",
+            "frame_capture": "study/007-reveal.gfxinfo.txt",
+            "after_vsync_ns": 508707758004,
+            "host_load_1m": 65.32,
+            "run": 1,
+            "card": 4,
+            "visible_lower_ms": 0.0,
+            "visible_upper_ms": 296.92,
+            "screenshot_samples": 1,
+            "last_screenshot_ms": 228.68,
+            "frames": 5,
+            "missed_deadlines": 4,
+            "overrun_refresh_intervals": {
+                "0": 1,
+                "1": 4
+            },
+            "render_ms": {
+                "p50": 20.41,
+                "p95": 51.4,
+                "p99": 51.4
+            }
+        },
+        {
+            "action": "grade",
+            "frame_capture": "study/008-grade.gfxinfo.txt",
+            "after_vsync_ns": 509457757974,
+            "host_load_1m": 61.45,
+            "run": 1,
+            "card": 4,
+            "visible_lower_ms": 92.7,
+            "visible_upper_ms": 1320.34,
+            "screenshot_samples": 2,
+            "last_screenshot_ms": 307.93,
+            "frames": 25,
+            "missed_deadlines": 7,
+            "overrun_refresh_intervals": {
+                "0": 18,
+                "1": 3,
+                "2": 1,
+                "4": 2,
+                "30": 1
+            },
+            "render_ms": {
+                "p50": 48.22,
+                "p95": 118.15,
+                "p99": 517.1
+            }
+        },
+        {
+            "action": "reveal",
+            "frame_capture": "study/009-reveal.gfxinfo.txt",
+            "after_vsync_ns": 510957757914,
+            "host_load_1m": 61.45,
+            "run": 1,
+            "card": 5,
+            "visible_lower_ms": 0.0,
+            "visible_upper_ms": 380.13,
+            "screenshot_samples": 1,
+            "last_screenshot_ms": 308.68,
+            "frames": 3,
+            "missed_deadlines": 2,
+            "overrun_refresh_intervals": {
+                "0": 1,
+                "1": 1,
+                "2": 1
+            },
+            "render_ms": {
+                "p50": 36.19,
+                "p95": 57.55,
+                "p99": 57.55
+            }
+        },
+        {
+            "action": "grade",
+            "frame_capture": "study/010-grade.gfxinfo.txt",
+            "after_vsync_ns": 511557757890,
+            "host_load_1m": 61.45,
+            "run": 1,
+            "card": 5,
+            "visible_lower_ms": 141.82,
+            "visible_upper_ms": 1210.48,
+            "screenshot_samples": 2,
+            "last_screenshot_ms": 505.53,
+            "frames": 34,
+            "missed_deadlines": 7,
+            "overrun_refresh_intervals": {
+                "0": 27,
+                "1": 4,
+                "2": 1,
+                "5": 1,
+                "7": 1
+            },
+            "render_ms": {
+                "p50": 32.16,
+                "p95": 222.51,
+                "p99": 231.28
+            }
+        }
+    ],
+    "summary": {
+        "cold_start": {
+            "frames": 59,
+            "missed_deadlines": 35,
+            "overrun_refresh_intervals": {
+                "0": 24,
+                "1": 12,
+                "2": 4,
+                "3": 3,
+                "4": 1,
+                "5": 2,
+                "6": 3,
+                "7": 1,
+                "9": 2,
+                "10": 2,
+                "11": 1,
+                "13": 1,
+                "16": 1,
+                "17": 1,
+                "118": 1
+            },
+            "render_ms": {
+                "p50": 52.59,
+                "p95": 302.56,
+                "p99": 2079.67
+            },
+            "total_time_ms": {
+                "p50": 3282,
+                "p95": 6515,
+                "p99": 6515
+            }
+        },
+        "scroll": {
+            "frames": 404,
+            "missed_deadlines": 72,
+            "overrun_refresh_intervals": {
+                "0": 332,
+                "1": 52,
+                "2": 8,
+                "3": 7,
+                "4": 3,
+                "11": 1,
+                "14": 1
+            },
+            "render_ms": {
+                "p50": 23.32,
+                "p95": 84.41,
+                "p99": 156.11
+            }
+        },
+        "reveal": {
+            "frames": 16,
+            "missed_deadlines": 13,
+            "overrun_refresh_intervals": {
+                "0": 3,
+                "1": 5,
+                "2": 2,
+                "5": 1,
+                "7": 1,
+                "8": 1,
+                "15": 1,
+                "17": 1,
+                "55": 1
+            },
+            "render_ms": {
+                "p50": 51.4,
+                "p95": 919.03,
+                "p99": 919.03
+            },
+            "visible_lower_ms": {
+                "p50": 0.0,
+                "p95": 184.77,
+                "p99": 184.77
+            },
+            "visible_upper_ms": {
+                "p50": 898.09,
+                "p95": 3067.18,
+                "p99": 3067.18
+            }
+        },
+        "grade": {
+            "frames": 136,
+            "missed_deadlines": 45,
+            "overrun_refresh_intervals": {
+                "0": 91,
+                "1": 18,
+                "2": 5,
+                "3": 5,
+                "4": 6,
+                "5": 1,
+                "6": 1,
+                "7": 2,
+                "8": 2,
+                "11": 2,
+                "15": 1,
+                "16": 1,
+                "30": 1
+            },
+            "render_ms": {
+                "p50": 48.22,
+                "p95": 231.28,
+                "p99": 517.1
+            },
+            "visible_lower_ms": {
+                "p50": 118.98,
+                "p95": 173.68,
+                "p99": 173.68
+            },
+            "visible_upper_ms": {
+                "p50": 1320.34,
+                "p95": 2955.22,
+                "p99": 2955.22
+            }
+        }
+    },
+    "capture_status": "complete_candidate_preview",
+    "captures": [
+        {
+            "journey": "cold_start",
+            "timestamp_utc": "2026-11-20T13:10:37+00:00",
+            "run_conditions": "Android Emulator 37.2.13.0, same Pixel 9 Android 15 AOSP arm64 AVD as the local baseline. 4 vCPUs, 2560 MB, headless, host GPU, no snapshots, airplane mode, Light, English, default font and motion scales. Apple M2 with 24 GB RAM. Other task-owned builds and emulators were parked. Shared host load and swap were elevated."
+        },
+        {
+            "journey": "browse",
+            "timestamp_utc": "2026-11-20T13:16:50+00:00",
+            "run_conditions": "Android Emulator 37.2.13.0, same Pixel 9 Android 15 AOSP arm64 AVD as the local baseline. 4 vCPUs, 2560 MB, headless, host GPU, no snapshots, airplane mode, Light, English, default font and motion scales. Apple M2 with 24 GB RAM. Other task-owned builds and emulators were parked. Shared host load and swap were elevated. The original 20-Card study queue was restored with Undo before this Browse replay."
+        },
+        {
+            "journey": "study",
+            "timestamp_utc": "2026-11-20T13:13:03+00:00",
+            "run_conditions": "Android Emulator 37.2.13.0, same Pixel 9 Android 15 AOSP arm64 AVD as the local baseline. 4 vCPUs, 2560 MB, headless, host GPU, no snapshots, airplane mode, Light, English, default font and motion scales. Apple M2 with 24 GB RAM. Other task-owned builds and emulators were parked. Shared host load and swap were elevated."
+        }
+    ],
+    "browse_progress": [
+        {
+            "run": 1,
+            "initial": [
+                "Browser fixture 00000",
+                "Browser fixture 00001",
+                "Browser fixture 00002",
+                "Browser fixture 00003",
+                "Browser fixture 00004",
+                "Browser fixture 00005",
+                "Browser fixture 00006",
+                "Browser fixture 00007",
+                "Browser fixture 00008"
+            ],
+            "warmed": [
+                "Browser fixture 00105",
+                "Browser fixture 00106",
+                "Browser fixture 00107",
+                "Browser fixture 00108",
+                "Browser fixture 00109",
+                "Browser fixture 00110",
+                "Browser fixture 00111",
+                "Browser fixture 00112",
+                "Browser fixture 00113",
+                "Browser fixture 00114",
+                "Browser fixture 00115",
+                "Browser fixture 00116",
+                "Browser fixture 00117",
+                "Browser fixture 00118",
+                "Browser fixture 00119"
+            ],
+            "final": [
+                "Browser fixture 00209",
+                "Browser fixture 00210",
+                "Browser fixture 00211",
+                "Browser fixture 00212",
+                "Browser fixture 00213",
+                "Browser fixture 00214",
+                "Browser fixture 00215",
+                "Browser fixture 00216",
+                "Browser fixture 00217",
+                "Browser fixture 00218",
+                "Browser fixture 00219",
+                "Browser fixture 00220",
+                "Browser fixture 00221",
+                "Browser fixture 00222",
+                "Browser fixture 00223"
+            ]
+        }
+    ]
+}
