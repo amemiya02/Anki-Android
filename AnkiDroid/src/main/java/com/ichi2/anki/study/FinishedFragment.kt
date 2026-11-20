@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
+import androidx.activity.result.ActivityResult
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -62,7 +63,7 @@ class FinishedFragment :
     ChangeManager.Subscriber {
     private val viewModel by viewModels<CongratsViewModel>()
     private val studyAllDeckId: DeckId?
-        get() = arguments?.takeIf { it.containsKey(ARG_STUDY_ALL_DECK_ID) }?.getLong(ARG_STUDY_ALL_DECK_ID)
+        get() = arguments?.takeIf { it.containsKey(EXTRA_STUDY_ALL_DECK_ID) }?.getLong(EXTRA_STUDY_ALL_DECK_ID)
 
     private val sessionSummary: ReviewSessionSummary?
         get() =
@@ -187,9 +188,9 @@ class FinishedFragment :
 
     private fun closeFinished() {
         // Opening Custom Study or Study Options ends Study All.
-        val deckId = studyAllDeckId
-        if (deckId != null) {
-            finishScreen(Activity.RESULT_OK, Intent().putExtra(ARG_STUDY_ALL_DECK_ID, deckId))
+        val result = studyAllDismissalResult(arguments)
+        if (result != null) {
+            finishScreen(result.resultCode, result.data)
         } else {
             finishScreen()
         }
@@ -241,10 +242,16 @@ class FinishedFragment :
     }
 
     companion object {
-        private const val ARG_STUDY_ALL_DECK_ID = "study_all_deck_id"
+        private const val EXTRA_STUDY_ALL_DECK_ID = "study_all_deck_id"
+
+        internal fun studyAllDismissalResult(arguments: Bundle?): ActivityResult? {
+            if (arguments == null || !arguments.containsKey(EXTRA_STUDY_ALL_DECK_ID)) return null
+            val deckId = arguments.getLong(EXTRA_STUDY_ALL_DECK_ID)
+            return ActivityResult(Activity.RESULT_OK, Intent().putExtra(EXTRA_STUDY_ALL_DECK_ID, deckId))
+        }
 
         internal fun studyAllDeckIdFromResult(data: Intent?): DeckId? =
-            data?.takeIf { it.hasExtra(ARG_STUDY_ALL_DECK_ID) }?.getLongExtra(ARG_STUDY_ALL_DECK_ID, 0)
+            data?.takeIf { it.hasExtra(EXTRA_STUDY_ALL_DECK_ID) }?.getLongExtra(EXTRA_STUDY_ALL_DECK_ID, 0)
 
         fun getIntent(
             context: Context,
@@ -256,7 +263,7 @@ class FinishedFragment :
                 fragmentClass = FinishedFragment::class,
                 arguments =
                     Bundle().apply {
-                        if (studyAllDeckId != null) putLong(ARG_STUDY_ALL_DECK_ID, studyAllDeckId)
+                        if (studyAllDeckId != null) putLong(EXTRA_STUDY_ALL_DECK_ID, studyAllDeckId)
                         putParcelable(ReviewSessionSummary.EXTRA_SESSION_SUMMARY, sessionSummary)
                     },
             )

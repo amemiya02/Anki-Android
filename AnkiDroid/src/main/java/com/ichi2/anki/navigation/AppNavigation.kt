@@ -197,7 +197,15 @@ internal class AppNavigation(
             deckPicker.moveTaskToBack(true)
         }
         val defaultResult = entry.arguments?.getInt(DEFAULT_RESULT, Activity.RESULT_CANCELED) ?: Activity.RESULT_CANCELED
-        val result = completedResults.remove(entry.id) ?: ActivityResult(defaultResult, null)
+        // System Back can pop a restored Finished entry directly through the NavHost.
+        val result =
+            completedResults.remove(entry.id)
+                ?: if (entry.destination.route == FinishedFragment::class.java.name) {
+                    FinishedFragment.studyAllDismissalResult(entry.arguments?.getBundle(SCREEN_ARGUMENTS))
+                } else {
+                    null
+                }
+                ?: ActivityResult(defaultResult, null)
         val requestCode = entry.arguments?.getInt(RESULT_REQUEST_CODE, NO_RESULT) ?: NO_RESULT
         if (requestCode != NO_RESULT) deckPicker.activityResultRegistry.dispatchResult(requestCode, result.resultCode, result.data)
     }

@@ -99,7 +99,7 @@ class DailyDecksTest : RobolectricTest() {
             tap(deckPicker.getString(CommonString.finished_done))
 
             awaitText("1 studied so far")
-            composeRule.onNodeWithText("1 card to study today").assertIsDisplayed()
+            composeRule.onNodeWithText("1 card to study today").performScrollTo().assertIsDisplayed()
             composeRule.onNodeWithText("New: 1").assertIsDisplayed()
             composeRule.onNodeWithText("Study · N3").assertDoesNotExist()
         }
