@@ -69,6 +69,9 @@ run_profile() {
 }
 
 failed=0
+# A cached AVD may retain the wide display override from its last run.
+adb shell wm size 320x640
+adb shell wm density 160
 run_profile phone-en en-US 1.0 "$core_loop" || failed=1
 run_profile phone-webview en-US 1.0 "$webview_tests" || failed=1
 adb shell cmd uimode night yes
