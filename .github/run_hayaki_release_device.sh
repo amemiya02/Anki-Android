@@ -71,6 +71,9 @@ run_profile() {
 failed=0
 run_profile phone-en en-US 1.0 "$core_loop" || failed=1
 run_profile phone-webview en-US 1.0 "$webview_tests" || failed=1
+adb shell cmd uimode night yes
+run_profile phone-appearance en-US 1.0 com.ichi2.anki.preferences.AppearanceSettingsDeviceTest || failed=1
+adb shell cmd uimode night no
 
 adb shell wm size 1600x1200
 adb shell wm density 160
