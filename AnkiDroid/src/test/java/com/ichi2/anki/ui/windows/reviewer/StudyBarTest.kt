@@ -6,9 +6,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasProgressBarRangeInfo
@@ -22,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
+import com.ichi2.anki.common.android.Animations
 import com.ichi2.anki.libanki.sched.Counts
 import com.ichi2.compose.theme.AnkiDroidTheme
 import org.junit.Rule
@@ -126,11 +130,15 @@ class StudyBarTest : RobolectricTest() {
         }
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo(0.25f, 0f..1f))).assertIsDisplayed()
         composeRule.mainClock.autoAdvance = false
-        composeRule.runOnIdle { progress = 0.5f }
-        // Allow the state write and recomposition to reach semantics, before an animated transition could finish.
+        assertFalse(Animations.areAnimationsEnabled(targetContext))
+        composeRule.runOnUiThread {
+            progress = 0.5f
+            Snapshot.sendApplyNotifications()
+        }
         composeRule.mainClock.advanceTimeBy(32)
-
-        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo(0.5f, 0f..1f))).assertIsDisplayed()
+        val indicator = composeRule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+        assertEquals(0.5f, indicator.fetchSemanticsNode().config[SemanticsProperties.ProgressBarRangeInfo].current)
+        indicator.assertIsDisplayed()
     }
 
     @Test
