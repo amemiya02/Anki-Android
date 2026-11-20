@@ -1,43 +1,39 @@
-<p align="center">
-  <img src="docs/redesign/quiet-paper/launcher-icon.svg" width="88" height="88" alt="Hayaki">
-</p>
-<h1 align="center">Hayaki</h1>
-<p align="center">Spaced-repetition flashcards for Android</p>
-<p align="center">
-  <img src="https://img.shields.io/badge/Android-7.0%2B-A63D25" alt="Android 7.0+">
-  <img src="https://img.shields.io/badge/UI-Jetpack%20Compose-47645A" alt="Jetpack Compose">
-  <a href="COPYING"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-655950" alt="GPL-3.0-or-later"></a>
-</p>
-<p align="center">English · <a href="README.zh-CN.md" lang="zh-CN">简体中文</a></p>
+<p align="center"><img src="AnkiDroid/src/main/res/mipmap-xxxhdpi/ic_launcher.png" width="96" height="96" alt="Hayaki’s smiling folded-card icon"></p>
 
-Hayaki brings your Anki collection to Android. Review due cards offline, look up a note mid-session, and edit it on the same device. The interface pairs serif type with light, dark and black themes.
+<h1 align="center">Hayaki for Android</h1>
 
-<p align="center">
-  <img src="docs/images/en-decks.png" width="30%" alt="Deck list with due counts">
-  <img src="docs/images/en-study-answer.png" width="30%" alt="Reviewing a card with its answer revealed">
-  <img src="docs/images/en-card-browser.png" width="30%" alt="Browsing cards in a collection">
-</p>
+<p align="center">An offline flashcard app for your Anki collection.</p>
+<p align="center"><a href="README.zh-CN.md">简体中文</a> · <a href="https://github.com/amemiya02/Hayaki-iOS">Hayaki for iPhone and iPad</a> · <a href="docs/releases/0.2.0.md">0.2.0 release notes</a></p>
 
-## Start studying
+Open Hayaki to see what’s due across your decks. Pick one deck or tap **Study All** to work through them in sequence. Reveal the answer, then rate how well you remembered it. The Anki scheduler uses that rating to decide when the card comes back.
 
-1. Open Hayaki and import an Anki deck package (`.apkg`), or start with an empty collection and create your first deck.
-2. Open a deck, reveal the answer, and rate your recall. The scheduler uses your rating to plan the next review.
-3. Use **Browse** to search cards and edit notes. Open **Statistics** to see your review history and upcoming workload.
+| Today’s decks | Reveal and rate | Session summary |
+| :---: | :---: | :---: |
+| [<img src="docs/images/en-decks.png" width="260" alt="Nine cards to study across Geography, Languages and Vocabulary">](docs/images/en-decks.png) | [<img src="docs/images/en-study-answer.png" width="260" alt="A geography answer with four ratings and their next review intervals">](docs/images/en-study-answer.png) | [<img src="docs/images/en-finished.png" width="260" alt="Geography finished with three reviews in 25 seconds">](docs/images/en-finished.png) |
 
-A deck package merges into your collection. Restoring a collection package (`.colpkg`) replaces the collection on the device. To sync across devices, choose Sync and sign in to AnkiWeb, or enter your self-hosted Anki sync server address.
+## Study with your own cards
 
-## Build and install
+- **Bring a deck.** Import an Anki deck package (`.apkg`) to add its cards to your collection, or create a deck and write your first note. Restoring a full collection package (`.colpkg`) replaces the collection on this device.
+- **Look up a card.** Browse lets you search your collection, filter by deck, card state, flag or tag, and edit the underlying note. Statistics shows your review history and upcoming workload. [See the card browser](docs/images/en-card-browser.png)
+- **Read comfortably.** Choose from ten colour themes, independently of System, Light, Dark or Black appearance. Cards keep their authored formatting, images, audio and maths. On phones and wide screens you can reveal and rate with TalkBack and enlarged text.
+- **Move between devices.** Study offline, then sync when you choose with AnkiWeb or a self-hosted Anki sync server.
 
-Use JDK 21 and the Android SDK with platform 37. Set `ANDROID_HOME` or configure `sdk.dir` in `local.properties`.
+## Install or build
+
+Hayaki runs on **Android 7.0 or later** and can be installed alongside AnkiDroid. The 0.2.0 release notes link the signed APKs from GitHub Actions. While the artifact is available, sign in to GitHub, download the archive, extract it and install the universal APK. [Release files and upgrade notes](docs/releases/0.2.0.md)
+
+To build 0.2.0 yourself, install JDK 21 and Android SDK Platform 37. Point `ANDROID_HOME` at the SDK, or set `sdk.dir` in `local.properties`. With USB debugging enabled on a connected device, run
 
 ```sh
-git clone https://github.com/amemiya02/Hayaki.git
+git clone --branch v0.2.0 --depth 1 https://github.com/amemiya02/Hayaki.git
 cd Hayaki
-./gradlew :AnkiDroid:assemblePlayDebug
+./gradlew :AnkiDroid:installPlayDebug
 ```
 
-Debug APKs are written to `AnkiDroid/build/outputs/apk/play/debug/`. To install directly on a connected Android 7.0+ device with USB debugging enabled, run `./gradlew :AnkiDroid:installPlayDebug`. Hayaki uses a separate application ID and can be installed alongside AnkiDroid.
+To produce debug APKs without installing them, run `./gradlew :AnkiDroid:assemblePlayDebug`. The files are in `AnkiDroid/build/outputs/apk/play/debug/`.
 
 ## Project and license
 
-Hayaki is independently maintained and builds on [AnkiDroid](https://github.com/ankidroid/Anki-Android) and the [Anki engine](https://github.com/ankitects/anki). The Android app is licensed under GPL-3.0-or-later. Engine components, the public API and bundled assets carry their respective licenses. [License](COPYING) · [License notices](LICENSES/) · [Android walkthrough](docs/redesign/milestone-5/README.md)
+Hayaki is independently maintained. The Android app builds on AnkiDroid and the Anki engine, with a Kotlin, Jetpack Compose and Material 3 interface. Android and iOS share their icon, themes and public version. Android development takes place on the `redesign` branch. [AnkiDroid](https://github.com/ankidroid/Anki-Android) · [Anki](https://github.com/ankitects/anki) · [Cross-platform maintenance](docs/adr/0007-shared-hayaki-product.md)
+
+The Android app is licensed under GPL-3.0-or-later. Engine components, the public API and bundled assets carry their respective licenses. [License](COPYING) · [License notices](LICENSES/)

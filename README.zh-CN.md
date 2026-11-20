@@ -1,43 +1,39 @@
-<p align="center">
-  <img src="docs/redesign/quiet-paper/launcher-icon.svg" width="88" height="88" alt="Hayaki">
-</p>
-<h1 align="center">Hayaki</h1>
-<p align="center">Android 上的间隔重复记忆卡片应用</p>
-<p align="center">
-  <img src="https://img.shields.io/badge/Android-7.0%2B-A63D25" alt="Android 7.0+">
-  <img src="https://img.shields.io/badge/UI-Jetpack%20Compose-47645A" alt="Jetpack Compose">
-  <a href="COPYING"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-655950" alt="GPL-3.0-or-later"></a>
-</p>
-<p align="center"><a href="README.md" lang="en">English</a> · 简体中文</p>
+<p align="center"><img src="AnkiDroid/src/main/res/mipmap-xxxhdpi/ic_launcher.png" width="96" height="96" alt="Hayaki 微笑折角卡片图标"></p>
 
-用 Hayaki 在 Android 上学习已有的 Anki 牌组。你可以离线复习到期卡片，在学习途中查找和编辑笔记。界面使用衬线字体，提供浅色、深色和纯黑三种主题。
+<h1 align="center">Hayaki 安卓版</h1>
 
-<p align="center">
-  <img src="docs/images/zh-decks.png" width="30%" alt="显示到期数量的牌组列表">
-  <img src="docs/images/zh-study-answer.png" width="30%" alt="翻开答案后的复习界面">
-  <img src="docs/images/zh-card-browser.png" width="30%" alt="浏览集合中的卡片">
-</p>
+<p align="center">用自己的 Anki 牌组，离线学习和复习。</p>
+<p align="center"><a href="README.md">English</a> · <a href="https://github.com/amemiya02/Hayaki-iOS">iPhone 与 iPad 版</a> · <a href="docs/releases/0.2.0.md">0.2.0 版本说明</a></p>
 
-## 开始学习
+打开 Hayaki，就能看到今天每个牌组有多少张新卡、多少张待复习。可以选一副牌，也可以点「全部学习」，依次学完多个牌组。先回忆，再翻开答案，按记忆程度评分。Anki 调度器会据此安排下次复习。
 
-1. 打开 Hayaki，导入 Anki 牌组包（`.apkg`），也可以从空集合开始，创建第一个牌组。
-2. 进入牌组，回忆答案后翻开卡片，再按记忆程度评分。调度器会据此安排下次复习。
-3. 在「浏览」中搜索卡片、编辑笔记，在「统计」中查看复习记录和未来的学习量。
+| 今天学什么 | 翻开答案并评分 | 看本次学习记录 |
+| :---: | :---: | :---: |
+| [<img src="docs/images/zh-decks.png" width="260" alt="牌组首页列出地理、科学常识和语言，今天有 9 张卡片要学">](docs/images/zh-decks.png) | [<img src="docs/images/zh-study-answer.png" width="260" alt="地理卡片翻开答案，底部列出四个评分及对应的复习间隔">](docs/images/zh-study-answer.png) | [<img src="docs/images/zh-finished.png" width="260" alt="地理牌组学完后显示本次复习张数、用时和评分分布">](docs/images/zh-finished.png) |
 
-导入牌组包会把内容合并到当前集合。恢复集合包（`.colpkg`）会替换本机集合。要跨设备同步，点「同步」并登录 AnkiWeb，或选择自托管并输入自己的 Anki 同步服务器地址。
+## 用自己的牌组学习
 
-## 构建与安装
+- **导入或制卡。** 导入 Anki 牌组包（`.apkg`），就能把卡片加入现有集合，也可以新建牌组，写下第一条笔记。恢复完整集合包（`.colpkg`）会替换本机集合。
+- **查卡和改笔记。** 在浏览页搜索卡片，按牌组、卡片状态、旗标或标签筛选，点进卡片即可编辑笔记。统计页可以查看复习历史和未来的学习量。[查看卡片浏览页截图](docs/images/zh-card-browser.png)
+- **调整阅读体验。** 十套配色可与跟随系统、浅色、深色或纯黑外观自由搭配。卡片保留制作者设置的排版、图片、音频和数学公式。手机和大屏都支持放大字号，也可以用 TalkBack 读屏完成翻面和评分。
+- **跨设备接着学。** 平时可以全程离线。需要同步时，登录 AnkiWeb，或连接自托管的 Anki 同步服务器。
 
-准备 JDK 21 和 Android SDK（平台 37），设置 `ANDROID_HOME`，或在 `local.properties` 中配置 `sdk.dir`。
+## 安装与构建
+
+Hayaki 支持 **Android 7.0 及以上版本**，可与 AnkiDroid 同时安装。0.2.0 版本说明中附有 GitHub Actions 的签名 APK。构建产物有效期内，登录 GitHub 下载压缩包，解压后安装文件名含 `universal` 的 APK 即可。[安装包与升级说明](docs/releases/0.2.0.md)
+
+要从源码构建 0.2.0，请安装 JDK 21 和 Android SDK Platform 37，用 `ANDROID_HOME` 指定 SDK 目录，或在 `local.properties` 中设置 `sdk.dir`。连接已开启 USB 调试的设备后运行
 
 ```sh
-git clone https://github.com/amemiya02/Hayaki.git
+git clone --branch v0.2.0 --depth 1 https://github.com/amemiya02/Hayaki.git
 cd Hayaki
-./gradlew :AnkiDroid:assemblePlayDebug
+./gradlew :AnkiDroid:installPlayDebug
 ```
 
-调试版 APK 位于 `AnkiDroid/build/outputs/apk/play/debug/`。连接已启用 USB 调试的 Android 7.0 或更高版本设备后，也可以运行 `./gradlew :AnkiDroid:installPlayDebug` 直接安装。Hayaki 使用独立的应用 ID，可以与 AnkiDroid 同时安装。
+只需生成调试版 APK 时，运行 `./gradlew :AnkiDroid:assemblePlayDebug`，产物位于 `AnkiDroid/build/outputs/apk/play/debug/`。
 
 ## 项目与许可
 
-Hayaki 独立维护，基于 [AnkiDroid](https://github.com/ankidroid/Anki-Android) 和 [Anki 引擎](https://github.com/ankitects/anki) 开发。Android 应用采用 GPL-3.0-or-later 许可。引擎组件、公共 API 和内置资源分别遵循各自的许可证。[许可证](COPYING) · [许可声明](LICENSES/) · [Android 界面实录](docs/redesign/milestone-5/README.md)
+Hayaki 独立维护。安卓版基于 AnkiDroid 和 Anki 引擎，界面使用 Kotlin、Jetpack Compose 和 Material 3。Android 和 iOS 共用图标、主题和对外版本号。安卓日常开发在 `redesign` 分支进行。[AnkiDroid](https://github.com/ankidroid/Anki-Android) · [Anki](https://github.com/ankitects/anki) · [双端维护约定](docs/adr/0007-shared-hayaki-product.md)
+
+安卓应用采用 GPL-3.0-or-later 许可。引擎组件、公共 API 和内置资源各自遵循相应的许可证。[许可证](COPYING) · [许可声明](LICENSES/)
