@@ -31,3 +31,11 @@ Use the same study collection on both installed release candidates and record ev
 - [08 · Finish a session with its results and next action](08-session-summary.md)
 - [09 · Measure the daily study path on a repeatable baseline](09-performance.md)
 - [10 · Expose 0.2.0 while preserving the install upgrade path](10-release-version.md)
+
+## Verification record
+
+Both device tests import the same collection package (SHA-256 `63ba3eba14a180e13bcb50300009e0e9d2961e8cee93a193af40facf95bf1612`). They begin at Decks, choose Study All, grade Geography Easy until Finished, use Done to continue to the next eligible Deck, and exit that Deck with work remaining. The fixture contains 8 notes, 9 cards and 4 earlier reviews. [Android scenario and fixture provenance](../../../AnkiDroid/src/androidTest/assets/hayaki-release/README.md) · [iOS scenario](https://github.com/amemiya02/Hayaki-iOS/blob/3b63786da4de44d253d201b7ffc05d4ac216732c/UITests/StudyUITests.swift)
+
+The Android performance comparison uses a separate 100,000-card fixture with SHA-256 `98521cda65c48d402271722a92a45f2ffdc610a7bc4d45237922e46b7ee2db4f`. Its pre-change ARM64 release at `5336449995` has APK SHA-256 `7c0ba4df1453fbe2b7ba32393aa71e65ab89e064a28f68210eb6d6fe38f39a38`. [Measurement procedure](../../../tools/core-loop-benchmark/README.md)
+
+The Android skin imports ten theme IDs, twenty accent colours and four Paper/Midnight canvas colours from the pinned iOS sources. All twenty-four values agree with iOS. Regenerating the Android resources produced a clean diff, and the Foundation generator passed its text contrast checks. [Pinned iOS palette](https://github.com/amemiya02/Hayaki-iOS/blob/d4ea53cf04dc104dc36983cb9aff5d75c0b079fc/Packages/HayakiAppearance/Sources/HayakiAppearance/Theme.swift)
