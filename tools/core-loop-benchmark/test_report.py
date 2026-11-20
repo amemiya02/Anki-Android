@@ -6,9 +6,18 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
+
+from run import Device
 
 
 class ReportTest(unittest.TestCase):
+    def test_browse_rows_remain_measurable_after_the_result_count_scrolls_away(self):
+        snapshot = '<hierarchy><node package="com.ichi2.anki.redesign.perf" text="Browser fixture 00117" /></hierarchy>'
+        with patch("subprocess.check_output", side_effect=["UI hierarchy dumped to: /data/local/tmp/window.xml", snapshot]):
+            rows = Device("emulator-5554", "com.ichi2.anki.redesign.perf").browsing()
+        self.assertEqual(rows, ["Browser fixture 00117"])
+
     def test_reports_only_new_valid_frames_and_uses_androids_deadline(self):
         with tempfile.TemporaryDirectory() as directory:
             capture = Path(directory) / "capture.txt"
