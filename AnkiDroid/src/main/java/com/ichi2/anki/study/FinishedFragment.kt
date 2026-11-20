@@ -36,6 +36,7 @@ import com.ichi2.anki.common.destinations.toIntent
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyAction
 import com.ichi2.anki.launchCatchingTask
+import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.navigation.finishScreen
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.pages.CongratsRefreshState
@@ -60,8 +61,17 @@ class FinishedFragment :
     Fragment(),
     ChangeManager.Subscriber {
     private val viewModel by viewModels<CongratsViewModel>()
-    private val studyAll: Boolean
-        get() = arguments?.getBoolean(ARG_STUDY_ALL) == true
+    private val studyAllDeckId: DeckId?
+        get() = arguments?.takeIf { it.containsKey(ARG_STUDY_ALL_DECK_ID) }?.getLong(ARG_STUDY_ALL_DECK_ID)
+
+    private val sessionSummary: ReviewSessionSummary?
+        get() = arguments?.let {
+            BundleCompat.getParcelable(
+                it,
+                ReviewSessionSummary.EXTRA_SESSION_SUMMARY,
+                ReviewSessionSummary::class.java,
+            )
+        }
 
     init {
         ChangeManager.subscribe(this)
@@ -84,14 +94,7 @@ class FinishedFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        val sessionSummary =
-            arguments?.let {
-                BundleCompat.getParcelable(
-                    it,
-                    ReviewSessionSummary.EXTRA_SESSION_SUMMARY,
-                    ReviewSessionSummary::class.java,
-                )
-            }
+        val sessionSummary = sessionSummary
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
@@ -118,7 +121,7 @@ class FinishedFragment :
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-        if (studyAll) {
+        if (studyAllDeckId != null) {
             requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) { closeFinished() }
         }
 
@@ -160,7 +163,13 @@ class FinishedFragment :
                 viewModel.congratsRefreshState.collect { state ->
                     when (state) {
                         CongratsRefreshState.ReloadPage -> viewModel.loadFinishedState()
-                        CongratsRefreshState.DeckHasCardsToStudy -> openStudyOptionsAndFinish()
+                        CongratsRefreshState.DeckHasCardsToStudy -> {
+                            if (studyAllDeckId != null || sessionSummary != null) {
+                                viewModel.loadFinishedState()
+                            } else {
+                                openStudyOptionsAndFinish()
+                            }
+                        }
                     }
                 }
             }
@@ -177,7 +186,12 @@ class FinishedFragment :
 
     private fun closeFinished() {
         // Opening Custom Study or Study Options ends Study All.
-        finishScreen(if (studyAll) Activity.RESULT_OK else Activity.RESULT_CANCELED)
+        val deckId = studyAllDeckId
+        if (deckId != null) {
+            finishScreen(Activity.RESULT_OK, Intent().putExtra(ARG_STUDY_ALL_DECK_ID, deckId))
+        } else {
+            finishScreen()
+        }
     }
 
     private fun showUnburyModes() {
@@ -226,11 +240,14 @@ class FinishedFragment :
     }
 
     companion object {
-        private const val ARG_STUDY_ALL = "study_all"
+        private const val ARG_STUDY_ALL_DECK_ID = "study_all_deck_id"
+
+        internal fun studyAllDeckIdFromResult(data: Intent?): DeckId? =
+            data?.takeIf { it.hasExtra(ARG_STUDY_ALL_DECK_ID) }?.getLongExtra(ARG_STUDY_ALL_DECK_ID, 0)
 
         fun getIntent(
             context: Context,
-            studyAll: Boolean = false,
+            studyAllDeckId: DeckId? = null,
             sessionSummary: ReviewSessionSummary? = null,
         ): Intent =
             SingleFragmentActivity.getIntent(
@@ -238,7 +255,7 @@ class FinishedFragment :
                 fragmentClass = FinishedFragment::class,
                 arguments =
                     Bundle().apply {
-                        putBoolean(ARG_STUDY_ALL, studyAll)
+                        if (studyAllDeckId != null) putLong(ARG_STUDY_ALL_DECK_ID, studyAllDeckId)
                         putParcelable(ReviewSessionSummary.EXTRA_SESSION_SUMMARY, sessionSummary)
                     },
             )
