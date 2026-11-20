@@ -105,6 +105,20 @@ internal class ReviewerLayout(
         addAnswerControls()
     }
 
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        if (MeasureSpec.getMode(widthMeasureSpec) != MeasureSpec.UNSPECIFIED) {
+            val available = MeasureSpec.getSize(widthMeasureSpec) - paddingLeft - paddingRight
+            centreWithin(webViewContainer.layoutParams as LinearLayout.LayoutParams, available, maxWidthDp = 820)
+            centreWithin(bottomLayout.layoutParams as LinearLayout.LayoutParams, available, maxWidthDp = 640)
+        }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+    }
+
+    private fun centreWithin(params: LinearLayout.LayoutParams, available: Int, maxWidthDp: Int) {
+        params.width = (available - params.marginStart - params.marginEnd).coerceIn(0, dp(maxWidthDp))
+        params.gravity = Gravity.CENTER_HORIZONTAL
+    }
+
     private fun addStudyBar() {
         val parent = ConstraintLayout.LayoutParams.PARENT_ID
         toolsLayout.minimumHeight = dp(56)
