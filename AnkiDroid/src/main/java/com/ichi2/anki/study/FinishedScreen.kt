@@ -5,7 +5,6 @@ package com.ichi2.anki.study
 import android.content.Context
 import android.text.format.DateFormat
 import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +18,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -58,9 +59,7 @@ import kotlin.math.roundToInt
 import com.ichi2.anki.common.android.R as CommonR
 
 /**
- * The finished screen: a Deck has nothing left to study now. It leads with the reason
- * ([FinishedState.reason]), says when more Cards become available, offers to unbury Cards,
- * custom study and Deck options, and closes with one button back to the deck list.
+ * The session's results, when more Cards become available, and the actions for the Deck.
  */
 @Composable
 fun FinishedScreen(
@@ -71,98 +70,118 @@ fun FinishedScreen(
     onDeckOptions: () -> Unit,
     onBackToDecks: () -> Unit,
     modifier: Modifier = Modifier,
-    @StringRes closeLabel: Int = CommonR.string.finished_back_to_decks,
+    sessionSummary: ReviewSessionSummary? = null,
 ) {
     val foundation = MaterialTheme.foundation
     val context = LocalContext.current
-    Column(modifier = modifier.fillMaxSize().safeDrawingPadding()) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    painter = painterResource(CommonR.drawable.symbol_arrow_back),
-                    contentDescription = stringResource(androidx.appcompat.R.string.abc_action_bar_up_description),
-                    tint = foundation.colors.onBackground,
-                )
+    val pinsDone = LocalDensity.current.fontScale < 1.5f
+    Box(modifier.fillMaxSize().safeDrawingPadding(), contentAlignment = Alignment.TopCenter) {
+        Column(Modifier.widthIn(max = 820.dp).fillMaxSize()) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        painter = painterResource(CommonR.drawable.symbol_arrow_back),
+                        contentDescription = stringResource(androidx.appcompat.R.string.abc_action_bar_up_description),
+                        tint = foundation.colors.onBackground,
+                    )
+                }
+                StudyBarTitles(StudyBarState(deckPath = state.deckPath), modifier = Modifier.weight(1f))
             }
-            StudyBarTitles(StudyBarState(deckPath = state.deckPath), modifier = Modifier.weight(1f))
-        }
 
-        Column(
-            modifier =
-                Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
-                    .padding(start = foundation.spacing.screenMargin, end = foundation.spacing.screenMargin, top = 28.dp, bottom = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            FinishedMark(state.reason.mark)
-            Text(
-                text = stringResource(state.titleRes),
-                style = foundation.type.pageTitle,
-                color = foundation.colors.onBackground,
-                modifier = Modifier.padding(top = 6.dp).semantics { heading() },
-            )
-            for (paragraph in remember(state) { state.paragraphs(context) }) {
-                Text(text = paragraph, style = foundation.type.lead, color = foundation.colors.onBackground)
-            }
-            if (state.hasBuried) {
-                UnburyButton(onUnbury)
-            }
             Column(
                 modifier =
                     Modifier
-                        .padding(top = 10.dp)
-                        .clip(foundation.shapes.large)
-                        .background(MaterialTheme.colorScheme.surfaceContainerLow),
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
+                        .padding(start = foundation.spacing.screenMargin, end = foundation.spacing.screenMargin, top = 28.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
-                if (!state.isFiltered) {
+                if (sessionSummary != null && sessionSummary.reviewCount > 0) {
+                    FinishedSessionCard(sessionSummary)
+                }
+                FinishedMark(state.reason.mark)
+                Text(
+                    text = stringResource(state.titleRes),
+                    style = foundation.type.pageTitle,
+                    color = foundation.colors.onBackground,
+                    modifier = Modifier.padding(top = 6.dp).semantics { heading() },
+                )
+                for (paragraph in remember(state) { state.paragraphs(context) }) {
+                    Text(text = paragraph, style = foundation.type.lead, color = foundation.colors.onBackground)
+                }
+                if (state.hasBuried) {
+                    UnburyButton(onUnbury)
+                }
+                Column(
+                    modifier =
+                        Modifier
+                            .padding(top = 10.dp)
+                            .clip(foundation.shapes.large)
+                            .background(MaterialTheme.colorScheme.surfaceContainerLow),
+                ) {
+                    if (!state.isFiltered) {
+                        FinishedRow(
+                            icon = R.drawable.symbol_auto_stories,
+                            title = with(context) { TR.sentenceCase.customStudy },
+                            emphasis = state.reason == FinishedReason.DailyLimit,
+                            onClick = onCustomStudy,
+                        )
+                    }
                     FinishedRow(
-                        icon = R.drawable.symbol_auto_stories,
-                        title = with(context) { TR.sentenceCase.customStudy },
-                        emphasis = state.reason == FinishedReason.DailyLimit,
-                        onClick = onCustomStudy,
+                        icon = R.drawable.symbol_tune,
+                        title = with(context) { TR.sentenceCase.deckOptions },
+                        emphasis = false,
+                        onClick = onDeckOptions,
                     )
                 }
-                FinishedRow(
-                    icon = R.drawable.symbol_tune,
-                    title = with(context) { TR.sentenceCase.deckOptions },
-                    emphasis = false,
-                    onClick = onDeckOptions,
-                )
+                if (state.deckDescription.isNotBlank()) {
+                    Text(
+                        text = remember(state.deckDescription) { AnnotatedString.fromHtml(state.deckDescription) },
+                        style = foundation.type.body,
+                        color = foundation.colors.onBackground,
+                    )
+                }
+                if (!pinsDone) FinishedDoneButton(onBackToDecks)
             }
-            if (state.studiedToday.isNotBlank()) {
-                Text(text = state.studiedToday, style = foundation.type.caption, color = foundation.colors.onBackgroundMuted)
-            }
-            if (state.deckDescription.isNotBlank()) {
-                Text(
-                    text = remember(state.deckDescription) { AnnotatedString.fromHtml(state.deckDescription) },
-                    style = foundation.type.body,
-                    color = foundation.colors.onBackground,
-                )
-            }
-        }
 
-        Button(
-            onClick = onBackToDecks,
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(start = foundation.spacing.studyMargin, end = foundation.spacing.studyMargin, top = 6.dp, bottom = 8.dp)
-                    .heightIn(min = foundation.spacing.primaryButton),
-            shape = foundation.shapes.button,
-            colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = foundation.colors.primary,
-                    contentColor = foundation.colors.onPrimary,
-                ),
-            elevation = null,
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-        ) {
-            Text(stringResource(closeLabel), style = foundation.type.button, textAlign = TextAlign.Center)
+            if (pinsDone) {
+                FinishedDoneButton(
+                    onDone = onBackToDecks,
+                    modifier =
+                        Modifier.padding(
+                            start = foundation.spacing.studyMargin,
+                            end = foundation.spacing.studyMargin,
+                            top = 6.dp,
+                            bottom = 8.dp,
+                        ),
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun FinishedDoneButton(
+    onDone: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val foundation = MaterialTheme.foundation
+    Button(
+        onClick = onDone,
+        modifier = modifier.fillMaxWidth().heightIn(min = foundation.spacing.primaryButton),
+        shape = foundation.shapes.button,
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = foundation.colors.primary,
+                contentColor = foundation.colors.onPrimary,
+            ),
+        elevation = null,
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+    ) {
+        Text(stringResource(CommonR.string.finished_done), style = foundation.type.button, textAlign = TextAlign.Center)
     }
 }
 
@@ -170,7 +189,8 @@ private val FinishedState.titleRes: Int
     get() =
         when (reason) {
             FinishedReason.DailyLimit -> CommonR.string.finished_title_limit
-            FinishedReason.LearningLater, FinishedReason.Buried -> CommonR.string.finished_title_later
+            FinishedReason.LearningLater -> CommonR.string.finished_title_learning
+            FinishedReason.Buried -> CommonR.string.finished_title_buried
             // a filtered Deck gets no more Cards by itself tomorrow
             FinishedReason.Done -> if (isFiltered) CommonR.string.finished_title_later else CommonR.string.finished_title_done
         }
@@ -190,14 +210,14 @@ private val FinishedReason.mark: Int
  */
 internal fun FinishedState.paragraphs(context: Context): List<String> =
     buildList<String> {
-        learningLater?.let { add(it.describe()) }
         if (newLimitReached) add(TR.schedulingTodayNewLimitReached())
         if (reviewLimitReached) add(TR.schedulingTodayReviewLimitReached())
+        learningLater?.let { add(it.describe()) }
         if (hasBuried) add(TR.schedulingBuriedCardsFound(TR.schedulingUnburyThem()))
         if (reason == FinishedReason.Done) add(TR.schedulingCongratulationsFinished())
         if (isFiltered) {
             add(TR.studyingThisIsASpecialDeckFor())
-        } else if (learningLater == null) {
+        } else if (learningLater == null || hasBuried || newLimitReached || reviewLimitReached) {
             val time = DateFormat.getTimeFormat(context).format(Date(nextDayStartsAtMillis))
             add(context.getString(CommonR.string.finished_next_day, time))
         }

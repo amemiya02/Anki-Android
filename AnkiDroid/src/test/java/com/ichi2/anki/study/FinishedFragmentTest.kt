@@ -21,6 +21,7 @@ import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
+import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.StudyOptionsActivity
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog
@@ -36,6 +37,7 @@ import com.ichi2.testutils.AnkiFragmentScenario
 import com.ichi2.testutils.EmptyAnkiActivity
 import com.ichi2.testutils.dispatchInsets
 import com.ichi2.testutils.launchFragmentInContainer
+import com.ichi2.testutils.parcelledCopy
 import com.ichi2.testutils.saveState
 import com.ichi2.testutils.uninitializeField
 import com.ichi2.testutils.withFragment
@@ -45,6 +47,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -93,16 +96,53 @@ class FinishedFragmentTest : RobolectricTest() {
         }
 
     @Test
-    fun `back to decks closes the screen`() =
+    fun `Done closes a visit without recording a session`() =
         runTest {
             launchFragmentInContainer<FinishedFragment>().use { scenario ->
                 val activity = scenario.withFragment { requireActivity() }
                 advanceUntilIdle()
 
-                clickText(targetContext.getString(CommonR.string.finished_back_to_decks))
+                composeRule.onNodeWithText("Done for today").assertIsDisplayed()
+                composeRule.onNodeWithText("Reviewed").assertDoesNotExist()
+                composeRule.onNodeWithText("Time spent").assertDoesNotExist()
+                clickText(targetContext.getString(CommonR.string.finished_done))
 
                 assertTrue(activity.isFinishing)
                 assertNull(shadowOf(activity).nextStartedActivity)
+            }
+        }
+
+    @Test
+    fun `Done and session figures are reachable at 200 percent text on phones and tablets`() =
+        runTest {
+            for (size in listOf("w320dp-h600dp", "w1280dp-h800dp")) {
+                RuntimeEnvironment.setQualifiers(size)
+                RuntimeEnvironment.setFontScale(2f)
+                val summary = ReviewSessionSummary(again = 1, hard = 0, good = 3, easy = 2, elapsedMillis = 137_000)
+                val intent = FinishedFragment.getIntent(targetContext, sessionSummary = summary)
+                val savedState =
+                    Robolectric.buildActivity(SingleFragmentActivity::class.java, intent).use { controller ->
+                        controller.setup()
+                        advanceUntilIdle()
+                        controller.saveState().parcelledCopy(SingleFragmentActivity::class.java.classLoader)
+                    }
+
+                val restoredIntent = FinishedFragment.getIntent(targetContext)
+                Robolectric.buildActivity(SingleFragmentActivity::class.java, restoredIntent).use { controller ->
+                    controller.setup(savedState)
+                    advanceUntilIdle()
+                    composeRule.onNodeWithText("Reviewed").performScrollTo().assertIsDisplayed()
+                    composeRule.onNodeWithText("6").assertExists()
+                    composeRule.onNodeWithContentDescription("2 minutes", substring = true).assertExists()
+                    composeRule.onNodeWithText("Again 1").assertExists()
+                    composeRule.onNodeWithText("Hard 0").assertExists()
+                    composeRule.onNodeWithText("Good 3").assertExists()
+                    composeRule.onNodeWithText("Easy 2").assertExists()
+                    val done = composeRule.onNodeWithText("Done").performScrollTo().assertIsDisplayed()
+                    assertTrue(done.fetchSemanticsNode().boundsInRoot.width < 820.dp.toPx(controller.get()))
+                    done.performClick()
+                    assertTrue(controller.get().isFinishing)
+                }
             }
         }
 
@@ -299,7 +339,7 @@ class FinishedFragmentTest : RobolectricTest() {
     private fun clickText(text: String) {
         composeRule.waitForIdle()
         val node = composeRule.onNodeWithText(text)
-        // "Back to decks" sits below the scrolling page, the rest inside it
+        // Done can be pinned below the scrolling content.
         runCatching { node.performScrollTo() }
         node.performClick()
         composeRule.waitForIdle()

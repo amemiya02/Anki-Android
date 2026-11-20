@@ -52,6 +52,7 @@ import com.ichi2.anki.servicelayer.MARKED_TAG
 import com.ichi2.anki.servicelayer.NoteService
 import com.ichi2.anki.servicelayer.isBuryNoteAvailable
 import com.ichi2.anki.servicelayer.isSuspendNoteAvailable
+import com.ichi2.anki.study.ReviewSessionSummary
 import com.ichi2.anki.tryRedo
 import com.ichi2.anki.tryUndo
 import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment.Companion.RESULT_DEFAULT
@@ -70,6 +71,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
@@ -95,7 +97,14 @@ class ReviewerViewModel(
         }
     private val repository = StudyScreenRepository()
     private var isInputFocused = false
-    val finishResultFlow = MutableSharedFlow<Int>()
+    private val reviewSession = ReviewSession(savedStateHandle)
+    private val _finishResultFlow = MutableStateFlow<FinishResult?>(null)
+    internal val finishResultFlow = _finishResultFlow.asStateFlow()
+
+    internal data class FinishResult(
+        val code: Int,
+        val summary: ReviewSessionSummary? = null,
+    )
     val isMarkedFlow = MutableStateFlow(false)
     val flagFlow = MutableStateFlow(Flag.NONE)
     val actionFeedbackFlow = MutableSharedFlow<String>()
@@ -197,7 +206,10 @@ class ReviewerViewModel(
         Timber.v("ReviewerViewModel::onPageFinished %b", isAfterRecreation)
         if (isAfterRecreation) {
             launchCatchingIO {
-                // TODO handle "Don't keep activities"
+                if (queueState.await() == null) {
+                    _finishResultFlow.value = FinishResult(RESULT_NO_MORE_CARDS, reviewSession.summary())
+                    return@launchCatchingIO
+                }
                 if (showingAnswer.value) {
                     showAnswer()
                     // on configuration change: mutationSignal & queueState are retained
@@ -559,12 +571,12 @@ class ReviewerViewModel(
 
     private suspend fun undo() {
         Timber.v("ReviewerViewModel::undo")
-        actionFeedbackFlow.emit(tryUndo())
+        actionFeedbackFlow.emit(tryUndo { result -> reviewSession.recordUndoOrRedo(this, result, redo = false) })
     }
 
     private suspend fun redo() {
         Timber.v("ReviewerViewModel::redo")
-        actionFeedbackFlow.emit(tryRedo())
+        actionFeedbackFlow.emit(tryRedo { result -> reviewSession.recordUndoOrRedo(this, result, redo = true) })
     }
 
     @Retention(AnnotationRetention.SOURCE)
@@ -726,7 +738,9 @@ class ReviewerViewModel(
                 )
             }
 
-        undoableOp(handler = this) { sched.answerCard(answer) }
+        undoableOp(handler = this) {
+            sched.answerCard(answer).also { reviewSession.recordAnswer(this, answer) }
+        }
         answerFeedbackFlow.emit(rating)
         savedStateHandle[KEY_PREVIOUS_CARD_ID] = card.id
 
@@ -779,7 +793,7 @@ class ReviewerViewModel(
             }
         val state = queueState.await()
         if (state == null) {
-            finishResultFlow.emit(RESULT_NO_MORE_CARDS)
+            _finishResultFlow.value = FinishResult(RESULT_NO_MORE_CARDS, reviewSession.summary())
             return
         }
         state.timeboxReached?.let {
@@ -991,7 +1005,7 @@ class ReviewerViewModel(
                     ViewerAction.REPLAY_VOICE -> replayVoiceFlow.emit(Unit)
                     ViewerAction.PAGE_UP -> pageUpFlow.emit(Unit)
                     ViewerAction.PAGE_DOWN -> pageDownFlow.emit(Unit)
-                    ViewerAction.EXIT -> finishResultFlow.emit(RESULT_DEFAULT)
+                    ViewerAction.EXIT -> _finishResultFlow.value = FinishResult(RESULT_DEFAULT)
                     ViewerAction.USER_ACTION_1 -> userAction(1)
                     ViewerAction.USER_ACTION_2 -> userAction(2)
                     ViewerAction.USER_ACTION_3 -> userAction(3)

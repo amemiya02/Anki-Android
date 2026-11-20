@@ -45,7 +45,7 @@ class DeckListTest : RobolectricTest() {
 
         deckPicker {
             composeRule.onNodeWithText("Done for today", useUnmergedTree = true).assertIsDisplayed()
-            tapDeck("Spanish", getString(CommonString.finished_back_to_decks))
+            tapDeck("Spanish", getString(CommonString.finished_done))
         }
     }
 

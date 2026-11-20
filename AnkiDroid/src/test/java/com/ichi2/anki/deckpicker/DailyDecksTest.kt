@@ -80,7 +80,9 @@ class DailyDecksTest : RobolectricTest() {
             tap("Study · N3")
             tap(deckPicker.getString(CommonString.show_answer))
             tap(deckPicker.getString(CommonString.ease_button_easy))
-            tap(deckPicker.getString(CommonString.finished_back_to_decks))
+            awaitText("Easy 1")
+            composeRule.onNodeWithText("Reviewed").assertIsDisplayed()
+            tap(deckPicker.getString(CommonString.finished_done))
 
             awaitText("1 studied so far")
             composeRule.onNodeWithText("1 card to study today").assertIsDisplayed()

@@ -13,6 +13,7 @@ import androidx.activity.addCallback
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.os.BundleCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -83,8 +84,9 @@ class FinishedFragment :
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View =
-        ComposeView(requireContext()).apply {
+    ): View {
+        val sessionSummary = arguments?.let { BundleCompat.getParcelable(it, ReviewSessionSummary.ARG_KEY, ReviewSessionSummary::class.java) }
+        return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 AnkiDroidTheme {
@@ -92,17 +94,18 @@ class FinishedFragment :
                     state?.let {
                         FinishedScreen(
                             state = it,
+                            sessionSummary = sessionSummary,
                             onBack = ::closeFinished,
                             onUnbury = { viewModel.onUnbury() },
                             onCustomStudy = { onCustomStudy() },
                             onDeckOptions = { viewModel.onDeckOptions() },
                             onBackToDecks = ::closeFinished,
-                            closeLabel = if (studyAll) CommonString.finished_done else CommonString.finished_back_to_decks,
                         )
                     }
                 }
             }
         }
+    }
 
     override fun onViewCreated(
         view: View,
@@ -222,11 +225,12 @@ class FinishedFragment :
         fun getIntent(
             context: Context,
             studyAll: Boolean = false,
+            sessionSummary: ReviewSessionSummary? = null,
         ): Intent =
             SingleFragmentActivity.getIntent(
                 context,
                 fragmentClass = FinishedFragment::class,
-                arguments = if (studyAll) bundleOf(ARG_STUDY_ALL to true) else null,
+                arguments = bundleOf(ARG_STUDY_ALL to studyAll, ReviewSessionSummary.ARG_KEY to sessionSummary),
             )
     }
 }

@@ -217,6 +217,7 @@ import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
 import com.ichi2.anki.snackbar.SnackbarBuilder
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.study.FinishedFragment
+import com.ichi2.anki.study.ReviewSessionSummary
 import com.ichi2.anki.study.StudyAvailability
 import com.ichi2.anki.study.StudyCompletionUi
 import com.ichi2.anki.study.currentDeckStudyState
@@ -1745,12 +1746,15 @@ open class DeckPicker :
         studyAll: Boolean = false,
     ) {
         if (result.resultCode != ReviewerFragment.RESULT_NO_MORE_CARDS) return
+        val sessionSummary = ReviewSessionSummary.fromIntent(result.data)
         launchCatchingTask {
             val state = withCol { currentDeckStudyState() }
             if (studyAll && state.availability == StudyAvailability.NoCardsAvailable) {
-                studyAllFinishedLauncher.launch(FinishedFragment.getIntent(this@DeckPicker, studyAll = true))
+                studyAllFinishedLauncher.launch(
+                    FinishedFragment.getIntent(this@DeckPicker, studyAll = true, sessionSummary = sessionSummary),
+                )
             } else {
-                StudyCompletionUi.onReviewsCompleted(this@DeckPicker, state)
+                StudyCompletionUi.onReviewsCompleted(this@DeckPicker, state, sessionSummary)
             }
         }
         fragment?.refreshInterface()

@@ -44,6 +44,7 @@ import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.PrefsRepository
 import com.ichi2.anki.settings.enums.AppTheme
 import com.ichi2.anki.settings.enums.NightTheme
+import com.ichi2.anki.study.ReviewSessionSummary
 import com.ichi2.anki.ui.windows.reviewer.whiteboard.WhiteboardFragment
 import com.ichi2.anki.ui.windows.reviewer.whiteboard.overflowMenu
 import com.ichi2.anki.utils.ext.DIALOG_FRAGMENT_TAG
@@ -51,6 +52,8 @@ import com.ichi2.testutils.RecordingInputMethodManager
 import com.ichi2.testutils.ext.addNoSuggestNote
 import com.ichi2.testutils.ext.createInputConnection
 import com.ichi2.testutils.ext.snackbarText
+import com.ichi2.testutils.parcelledCopy
+import com.ichi2.testutils.saveState
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -90,6 +93,96 @@ class ReviewerFragmentTest : RobolectricTest() {
         Prefs.sharedPrefs.edit {
             remove(Prefs.key(R.string.disable_hardware_render_key))
         }
+    }
+
+    @Test
+    fun `completed reviews travel with the reviewer result`() =
+        runTest {
+            addBasicNote("one")
+            addBasicNote("two")
+            withReviewer { controller ->
+                for (rating in listOf(Rating.AGAIN, Rating.EASY, Rating.EASY)) {
+                    grade(this, rating, minutes = 1)
+                }
+
+                val summary = completedSession(controller)
+                assertEquals(3, summary.reviewCount)
+                assertEquals(ReviewSessionSummary(again = 1, hard = 0, good = 0, easy = 2, elapsedMillis = 180_000), summary)
+            }
+        }
+
+    @Test
+    fun `undo removes a grade and its time and redo puts them back`() =
+        runTest {
+            addBasicNote("one")
+            addBasicNote("two")
+            withReviewer { controller ->
+                grade(this, Rating.EASY, minutes = 1)
+                viewModel.executeAction(ViewerAction.UNDO)
+                advanceUntilIdle()
+                viewModel.executeAction(ViewerAction.REDO)
+                advanceUntilIdle()
+
+                grade(this, Rating.AGAIN, minutes = 1)
+                viewModel.executeAction(ViewerAction.UNDO)
+                advanceUntilIdle()
+                grade(this, Rating.EASY, minutes = 1)
+
+                assertEquals(
+                    ReviewSessionSummary(again = 0, hard = 0, good = 0, easy = 2, elapsedMillis = 120_000),
+                    completedSession(controller),
+                )
+            }
+        }
+
+    @Test
+    fun `completed reviews survive reviewer recreation`() =
+        runTest {
+            addBasicNote("one")
+            addBasicNote("two")
+            val intent = ReviewerFragment.getIntent(targetContext)
+            val state =
+                Robolectric.buildActivity(CardViewerActivity::class.java, intent).use { controller ->
+                    controller.setup().windowFocusChanged(true)
+                    advanceUntilIdle()
+                    val reviewer = controller.get().fragment as ReviewerFragment
+                    reviewer.viewModel.onPageFinished(false)
+                    advanceUntilIdle()
+                    grade(reviewer, Rating.EASY, minutes = 1)
+                    controller.saveState().parcelledCopy(CardViewerActivity::class.java.classLoader)
+                }
+
+            Robolectric.buildActivity(CardViewerActivity::class.java, intent).use { controller ->
+                controller.setup(state).windowFocusChanged(true)
+                advanceUntilIdle()
+                val reviewer = controller.get().fragment as ReviewerFragment
+                reviewer.viewModel.onPageFinished(true)
+                advanceUntilIdle()
+                grade(reviewer, Rating.EASY, minutes = 1)
+
+                assertEquals(
+                    ReviewSessionSummary(again = 0, hard = 0, good = 0, easy = 2, elapsedMillis = 120_000),
+                    completedSession(controller),
+                )
+            }
+        }
+
+    private fun TestScope.grade(
+        reviewer: ReviewerFragment,
+        rating: Rating,
+        minutes: Long,
+    ) {
+        reviewer.viewModel.onShowAnswer()
+        advanceUntilIdle()
+        collectionTime.addM(minutes)
+        reviewer.viewModel.answerCard(rating)
+        advanceUntilIdle()
+    }
+
+    private fun completedSession(controller: ActivityController<CardViewerActivity>): ReviewSessionSummary {
+        val result = shadowOf(controller.get())
+        assertEquals(ReviewerFragment.RESULT_NO_MORE_CARDS, result.resultCode)
+        return assertNotNull(ReviewSessionSummary.fromIntent(result.resultIntent), "Finished needs the session's reviews and time")
     }
 
     @Test
