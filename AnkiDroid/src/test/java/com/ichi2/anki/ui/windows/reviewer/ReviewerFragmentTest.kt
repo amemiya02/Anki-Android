@@ -291,7 +291,7 @@ class ReviewerFragmentTest : RobolectricTest() {
             }
 
             withReviewer {
-                val background = ThemeUtils.getThemeAttrColor(requireContext(), android.R.attr.colorBackground)
+                val background = ThemeUtils.getThemeAttrColor(requireContext(), com.ichi2.anki.common.android.R.attr.foundationStudyCanvas)
                 val webViewLayout = binding.webViewLayout
                 assertEquals(background, shadowOf(assertIs<WebView>(webViewLayout.getChildAt(0))).backgroundColor, "card WebView")
 

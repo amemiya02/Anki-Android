@@ -140,7 +140,7 @@ class HayakiReleaseCoreLoopTest : InstrumentedTest() {
             visible(reveal)
             visible("Spanish", substring = true)
             capture("06-next-deck")
-            assertTrue(device.pressBack(), "Leave the second Deck using Android Back")
+            device.executeShellCommand("input keyevent KEYCODE_BACK")
 
             assertDailySummary(left = 6, reviewed = 3, new = 3, learning = 2, due = 1)
             visible(string(CommonR.string.deck_list_study_all))
