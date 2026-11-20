@@ -87,9 +87,12 @@ class Device:
     def nodes(self):
         last_error = ""
         for _ in range(3):
-            last_error = self.shell("uiautomator", "dump", self.path)
-            if "dumped to" in last_error:
-                return ET.fromstring(self.shell("cat", self.path)).iter("node")
+            try:
+                last_error = self.shell("uiautomator", "dump", self.path, timeout=15)
+                if "dumped to" in last_error:
+                    return ET.fromstring(self.shell("cat", self.path, timeout=5)).iter("node")
+            except (subprocess.SubprocessError, ET.ParseError) as error:
+                last_error = str(error)
         raise ValueError(f"Could not read the Android UI hierarchy: {last_error}")
 
     def control(self, label):

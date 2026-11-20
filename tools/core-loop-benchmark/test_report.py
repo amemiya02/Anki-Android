@@ -14,6 +14,14 @@ from run import Device
 
 
 class ReportTest(unittest.TestCase):
+    def test_ui_observer_recovers_after_a_killed_dump(self):
+        dump = "UI hierarchy dumped to: /data/local/tmp/window.xml"
+        snapshot = '<hierarchy><node text="Decks" /></hierarchy>'
+        killed = subprocess.CalledProcessError(137, ["uiautomator", "dump"])
+        with patch("subprocess.check_output", side_effect=[killed, dump, snapshot]):
+            nodes = list(Device("emulator-5554", "com.ichi2.anki.redesign.perf").nodes())
+        self.assertEqual([node.get("text") for node in nodes], ["Decks"])
+
     def test_browse_rows_remain_measurable_after_the_result_count_scrolls_away(self):
         snapshot = '<hierarchy><node package="com.ichi2.anki.redesign.perf" text="Browser fixture 00117" /></hierarchy>'
         with patch("subprocess.check_output", side_effect=["UI hierarchy dumped to: /data/local/tmp/window.xml", snapshot]):
