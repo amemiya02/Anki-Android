@@ -3,10 +3,14 @@
 package com.ichi2.anki.ui.windows.reviewer
 
 import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -16,6 +20,7 @@ import androidx.compose.ui.test.printToString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.libanki.sched.Counts
 import com.ichi2.compose.theme.AnkiDroidTheme
@@ -25,6 +30,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.GraphicsMode
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class StudyBarTest : RobolectricTest() {
@@ -63,6 +69,17 @@ class StudyBarTest : RobolectricTest() {
     }
 
     @Test
+    fun `the study header names the three queue counts in reading order`() {
+        show(studying)
+
+        val labels = listOf("New: 8", "Learning: 2", "Due: 6")
+        val bounds = labels.map { composeRule.onNodeWithContentDescription(it).assertIsDisplayed().getUnclippedBoundsInRoot() }
+        assertTrue(bounds.zipWithNext().all { (first, second) -> first.right <= second.left })
+        val deckBottom = composeRule.onNodeWithText("中文 › HSK 4").getUnclippedBoundsInRoot().bottom
+        assertTrue(bounds.all { it.top >= deckBottom })
+    }
+
+    @Test
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `a narrow study header shows the current deck at the end of a wrapped path`() {
         val path = listOf("日语", "eggrolls-JLPT10000", "2-N4")
@@ -98,6 +115,22 @@ class StudyBarTest : RobolectricTest() {
         composeRule
             .onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo(0.25f, 0f..1f)))
             .assertIsDisplayed()
+    }
+
+    @Test
+    fun `the progress line updates immediately with Remove animations enabled`() {
+        editPreferences { putBoolean(targetContext.getString(R.string.safe_display_key), true) }
+        var progress by mutableFloatStateOf(0.25f)
+        composeRule.mainClock.autoAdvance = false
+        composeRule.setContent {
+            AnkiDroidTheme { StudyProgress(progress) }
+        }
+        composeRule.mainClock.advanceTimeByFrame()
+
+        progress = 0.5f
+        composeRule.mainClock.advanceTimeByFrame()
+
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo(0.5f, 0f..1f))).assertIsDisplayed()
     }
 
     @Test

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 package com.ichi2.anki.ui.windows.reviewer
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,12 +12,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.scheduler.CardAnswer.Rating
@@ -63,18 +68,45 @@ class AnswerAreaTest : RobolectricTest() {
 
     @Test
     fun `four ratings reflow into reading order at double text size`() {
+        var revealed by mutableStateOf(false)
+        val ratings = mutableListOf<Rating>()
         composeRule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, fontScale = 2f)) {
                 AnkiDroidTheme {
-                    AnswerArea(isAnswerShown = true, nextTimes = null, onRatingClicked = {}, onShowAnswerClicked = {})
+                    Box(Modifier.width(320.dp)) {
+                        AnswerArea(
+                            isAnswerShown = revealed,
+                            nextTimes = AnswerButtonsNextTime(again = "<1m", hard = "6m", good = "10m", easy = "4d"),
+                            onRatingClicked = { ratings += it },
+                            onShowAnswerClicked = { revealed = true },
+                        )
+                    }
                 }
             }
         }
 
-        fun bounds(label: String) = composeRule.onNodeWithText(label).fetchSemanticsNode().boundsInRoot
-        assertEquals(bounds(again).top, bounds(hard).top)
-        assertTrue(bounds(good).top >= bounds(again).bottom, "Good and Easy must be in the second row")
-        assertEquals(bounds(good).top, bounds(easy).top)
+        val reveal = composeRule.onNodeWithText(showAnswer)
+        val revealBounds = reveal.getUnclippedBoundsInRoot()
+        assertTrue(revealBounds.width >= 48.dp && revealBounds.height >= 48.dp)
+        reveal.performTouchInput { click() }
+
+        val actions = listOf("<1m\n$again", "6m\n$hard", "10m\n$good", "4d\n$easy").map { composeRule.onNodeWithText(it) }
+        val (againBounds, hardBounds, goodBounds, easyBounds) =
+            actions.map { action ->
+                action.assertIsDisplayed()
+                action.getUnclippedBoundsInRoot().also {
+                    assertTrue(it.width >= 48.dp && it.height >= 48.dp)
+                }
+            }
+        assertEquals(againBounds.top, hardBounds.top)
+        assertTrue(againBounds.right <= hardBounds.left)
+        assertTrue(goodBounds.top >= againBounds.bottom, "Good and Easy must be in the second row")
+        assertEquals(goodBounds.top, easyBounds.top)
+        assertTrue(goodBounds.right <= easyBounds.left)
+        assertEquals(revealBounds.top, againBounds.top)
+        assertEquals(revealBounds.bottom, goodBounds.bottom)
+        actions[2].performTouchInput { click() }
+        assertEquals(listOf(Rating.GOOD), ratings)
     }
 
     @Test
@@ -149,12 +181,14 @@ class AnswerAreaTest : RobolectricTest() {
 
     @Test
     fun `hard and easy buttons can be hidden`() {
-        setAnswerArea(isAnswerShown = true, showHardAndEasyButtons = false)
+        val ratings = mutableListOf<Rating>()
+        setAnswerArea(isAnswerShown = true, showHardAndEasyButtons = false, onRatingClicked = { ratings += it })
 
         composeRule.onNodeWithText(hard).assertDoesNotExist()
         composeRule.onNodeWithText(easy).assertDoesNotExist()
         composeRule.onNodeWithText(again).assertIsDisplayed()
-        composeRule.onNodeWithText(good).assertIsDisplayed()
+        composeRule.onNodeWithText(good).assertIsDisplayed().performTouchInput { click() }
+        assertEquals(listOf(Rating.GOOD), ratings)
     }
 
     @Test

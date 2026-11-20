@@ -3,6 +3,7 @@
 package com.ichi2.anki.ui.windows.reviewer
 
 import android.graphics.Path
+import android.view.KeyEvent
 import android.webkit.WebView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.RobolectricTest
@@ -10,6 +11,8 @@ import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.preferences.reviewer.WhiteboardAction
 import com.ichi2.anki.previewer.CardViewerActivity
+import com.ichi2.anki.reviewer.Binding
+import com.ichi2.anki.reviewer.CardSide
 import com.ichi2.anki.reviewer.MappableBinding.Companion.toPreferenceString
 import com.ichi2.anki.reviewer.ReviewerBinding
 import com.ichi2.anki.ui.windows.reviewer.whiteboard.WhiteboardFragment
@@ -65,6 +68,43 @@ class ReviewerWhiteboardGestureTest : RobolectricTest() {
             }
         }
 
+    @Test
+    fun `a swipe after drawing on the whiteboard records one Easy review`() =
+        runTest {
+            val swipe = ReviewerBinding(Binding.GestureInput(Gesture.SWIPE_LEFT), CardSide.ANSWER)
+            editPreferences { putString(ViewerAction.ANSWER_EASY.preferenceKey, listOf(swipe).toPreferenceString()) }
+            gradeAfterHidingWhiteboard {
+                sendGesture("gesture://swipe/?x=260&y=180&deltaX=-190&deltaY=0&time=1000")
+            }
+        }
+
+    @Test
+    fun `a hardware key after drawing on the whiteboard records one Easy review`() =
+        runTest {
+            gradeAfterHidingWhiteboard {
+                assertTrue(dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_4)))
+                dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_4))
+            }
+        }
+
+    private suspend fun TestScope.gradeAfterHidingWhiteboard(grade: ReviewerFragment.() -> Unit) =
+        withWhiteboard(bindClear = false) { whiteboard ->
+            val cardId = viewModel.getCardId()
+            whiteboard.viewModel.addPath(Path().apply { lineTo(10f, 10f) })
+            viewModel.executeAction(ViewerAction.TOGGLE_WHITEBOARD)
+            advanceUntilIdle()
+            advanceRobolectricLooper()
+            assertTrue(whiteboard.isHidden)
+
+            sendMultiFingerTap(2)
+            advanceUntilIdle()
+            assertTrue(viewModel.showingAnswer.value)
+            grade()
+            advanceUntilIdle()
+
+            assertEquals(4, col.cardStatsData(cardId).revlogList.single().buttonChosen)
+        }
+
     private fun checkTapClearsWhiteboard(fingerCount: Int) =
         runTest {
             withWhiteboard { whiteboard ->
@@ -80,10 +120,12 @@ class ReviewerWhiteboardGestureTest : RobolectricTest() {
             }
         }
 
-    private fun ReviewerFragment.sendMultiFingerTap(fingerCount: Int) {
+    private fun ReviewerFragment.sendMultiFingerTap(fingerCount: Int) = sendGesture("gesture://multiFingerTap/?touchCount=$fingerCount")
+
+    private fun ReviewerFragment.sendGesture(url: String) {
         val webView = assertIs<WebView>(binding.webViewLayout.getChildAt(0))
         // Robolectric does not execute the touch-detection JavaScript: enter through its URL callback.
-        val request = mockWebResourceRequest("gesture://multiFingerTap/?touchCount=$fingerCount")
+        val request = mockWebResourceRequest(url)
         assertTrue(shadowOf(webView).webViewClient.shouldOverrideUrlLoading(webView, request))
     }
 
