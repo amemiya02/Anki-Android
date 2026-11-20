@@ -12,9 +12,9 @@ import kotlinx.parcelize.Parcelize
  */
 @Parcelize
 data class StudyCounts(
-    private val newCount: Int = 0,
-    private val learnCount: Int = 0,
-    private val reviewCount: Int = 0,
+    val newCount: Int = 0,
+    val learnCount: Int = 0,
+    val reviewCount: Int = 0,
     val activeQueue: Counts.Queue = Counts.Queue.NEW,
 ) : Parcelable {
     constructor(state: CurrentQueueState) : this(
@@ -23,8 +23,4 @@ data class StudyCounts(
         reviewCount = state.counts.rev,
         activeQueue = state.countsIndex,
     )
-
-    val new: String get() = newCount.toString()
-    val learn: String get() = learnCount.toString()
-    val review: String get() = reviewCount.toString()
 }

@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -55,6 +56,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import anki.scheduler.CardAnswer.Rating
+import com.ichi2.anki.common.android.Animations
 import com.ichi2.compose.theme.foundation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -82,6 +84,8 @@ fun AnswerArea(
 ) {
     val foundation = MaterialTheme.foundation
     val spacing = foundation.spacing
+    val context = LocalContext.current
+    val animatePress = remember(context) { Animations.areAnimationsEnabled(context) }
     // "Double tap time interval": a press that follows the last one too soon is a slip, not an answer
     val scope = rememberCoroutineScope()
     var isCoolingDown by remember { mutableStateOf(false) }
@@ -111,15 +115,15 @@ fun AnswerArea(
 
             fun rate(rating: Rating) = guarded { onRatingClicked(rating) }
             val firstRatings: @Composable RowScope.() -> Unit = {
-                RatingButton(CommonR.string.ease_button_again, nextTimes?.again, colors.answerAgain) { rate(Rating.AGAIN) }
+                RatingButton(CommonR.string.ease_button_again, nextTimes?.again, colors.answerAgain, animatePress) { rate(Rating.AGAIN) }
                 if (showHardAndEasyButtons) {
-                    RatingButton(CommonR.string.ease_button_hard, nextTimes?.hard, colors.answerHard) { rate(Rating.HARD) }
+                    RatingButton(CommonR.string.ease_button_hard, nextTimes?.hard, colors.answerHard, animatePress) { rate(Rating.HARD) }
                 }
             }
             val remainingRatings: @Composable RowScope.() -> Unit = {
-                RatingButton(CommonR.string.ease_button_good, nextTimes?.good, colors.answerGood) { rate(Rating.GOOD) }
+                RatingButton(CommonR.string.ease_button_good, nextTimes?.good, colors.answerGood, animatePress) { rate(Rating.GOOD) }
                 if (showHardAndEasyButtons) {
-                    RatingButton(CommonR.string.ease_button_easy, nextTimes?.easy, colors.answerEasy) { rate(Rating.EASY) }
+                    RatingButton(CommonR.string.ease_button_easy, nextTimes?.easy, colors.answerEasy, animatePress) { rate(Rating.EASY) }
                 }
             }
             Column(modifier = Modifier.invisibleIf(!isAnswerShown), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -194,18 +198,28 @@ private fun RowScope.RatingButton(
     @StringRes easeName: Int,
     nextTime: String?,
     answerColor: Color,
+    animatePress: Boolean,
     onClick: () -> Unit,
 ) {
     val foundation = MaterialTheme.foundation
     val shape = foundation.shapes.button
     val name = stringResource(easeName)
     val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) PRESSED_SCALE else 1f,
-        animationSpec = tween(durationMillis = PRESS_MILLIS),
-        label = "answer press",
-    )
+    val pressEffect =
+        if (animatePress) {
+            val isPressed by interactionSource.collectIsPressedAsState()
+            val scale by animateFloatAsState(
+                targetValue = if (isPressed) PRESSED_SCALE else 1f,
+                animationSpec = tween(durationMillis = PRESS_MILLIS),
+                label = "answer press",
+            )
+            Modifier.graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+        } else {
+            Modifier
+        }
     val text =
         buildAnnotatedString {
             if (nextTime != null) {
@@ -225,10 +239,8 @@ private fun RowScope.RatingButton(
             Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .graphicsLayer {
-                    scaleX = scale
-                    scaleY = scale
-                }.clip(shape)
+                .then(pressEffect)
+                .clip(shape)
                 .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                 .clickable(interactionSource = interactionSource, indication = ripple(), role = Role.Button, onClick = onClick)
                 .padding(horizontal = 2.dp, vertical = 6.dp),
