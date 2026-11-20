@@ -87,7 +87,7 @@ class AnswerAreaTest : RobolectricTest() {
 
         val reveal = composeRule.onNodeWithText(showAnswer)
         val revealBounds = reveal.getUnclippedBoundsInRoot()
-        assertTrue(revealBounds.width >= 48.dp && revealBounds.height >= 48.dp)
+        assertTrue(revealBounds.right - revealBounds.left >= 48.dp && revealBounds.bottom - revealBounds.top >= 48.dp)
         reveal.performTouchInput { click() }
 
         val actions = listOf("<1m\n$again", "6m\n$hard", "10m\n$good", "4d\n$easy").map { composeRule.onNodeWithText(it) }
@@ -95,7 +95,7 @@ class AnswerAreaTest : RobolectricTest() {
             actions.map { action ->
                 action.assertIsDisplayed()
                 action.getUnclippedBoundsInRoot().also {
-                    assertTrue(it.width >= 48.dp && it.height >= 48.dp)
+                    assertTrue(it.right - it.left >= 48.dp && it.bottom - it.top >= 48.dp)
                 }
             }
         assertEquals(againBounds.top, hardBounds.top)
