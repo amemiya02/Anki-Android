@@ -88,7 +88,7 @@ class FinishedFragment :
             arguments?.let {
                 BundleCompat.getParcelable(
                     it,
-                    ReviewSessionSummary.ARG_KEY,
+                    ReviewSessionSummary.EXTRA_SESSION_SUMMARY,
                     ReviewSessionSummary::class.java,
                 )
             }
@@ -239,7 +239,7 @@ class FinishedFragment :
                 arguments =
                     Bundle().apply {
                         putBoolean(ARG_STUDY_ALL, studyAll)
-                        putParcelable(ReviewSessionSummary.ARG_KEY, sessionSummary)
+                        putParcelable(ReviewSessionSummary.EXTRA_SESSION_SUMMARY, sessionSummary)
                     },
             )
     }

@@ -18,12 +18,12 @@ data class ReviewSessionSummary(
 ) : Parcelable {
     val reviewCount: Int get() = again + hard + good + easy
 
-    internal fun toIntent(): Intent = Intent().putExtra(ARG_KEY, this)
+    internal fun toIntent(): Intent = Intent().putExtra(EXTRA_SESSION_SUMMARY, this)
 
     companion object {
-        internal const val ARG_KEY = "com.ichi2.anki.reviewSessionSummary"
+        internal const val EXTRA_SESSION_SUMMARY = "com.ichi2.anki.reviewSessionSummary"
 
         fun fromIntent(intent: Intent?): ReviewSessionSummary? =
-            intent?.let { IntentCompat.getParcelableExtra(it, ARG_KEY, ReviewSessionSummary::class.java) }
+            intent?.let { IntentCompat.getParcelableExtra(it, EXTRA_SESSION_SUMMARY, ReviewSessionSummary::class.java) }
     }
 }
