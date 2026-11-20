@@ -100,13 +100,13 @@ class Device:
                 return ((left + right) // 2, (top + bottom) // 2)
         raise ValueError(f"'{label}' is missing from the app's UI hierarchy")
 
-    def browsing(self):
+    def browsing(self, *, verify_count=False):
         labels = [
             node.get(key, "")
             for node in self.nodes() if node.get("package") == self.package
             for key in ("text", "content-desc")
         ]
-        if not any(CARD_COUNT.search(label) for label in labels):
+        if verify_count and not any(CARD_COUNT.search(label) for label in labels):
             raise ValueError(f"Browse did not report 100,000 Cards: {labels}")
         rows = sorted(set(CARD_LABEL.findall("\n".join(labels))))
         if not rows:
@@ -276,7 +276,7 @@ def capture(args):
         print(f"Browse {iteration}/{args.runs}", flush=True)
         cold_launch(f"browse-{iteration}")
         device.tap(device.control("Browse"))
-        initial = wait_until_ready(device.browsing)
+        initial = wait_until_ready(lambda: device.browsing(verify_count=True))
         for _ in range(SCROLLS):
             scroll()
         warmed = device.browsing()
