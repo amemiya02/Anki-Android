@@ -43,6 +43,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -100,6 +101,8 @@ import com.ichi2.anki.common.android.R as CommonR
 
 /** What a person can do on the deck list ([DeckListScreen]) */
 interface DeckListActions {
+    fun onStudyAll()
+
     /** Study the current Deck directly from the daily summary. */
     fun onStudyCurrentDeck(deckId: DeckId)
 
@@ -208,7 +211,8 @@ private fun Decks(
                     queuesToday = state.queuesToday,
                     studiedToday = state.studiedToday,
                     current = state.currentStudyDeck,
-                    onStudy = actions::onStudyCurrentDeck,
+                    onStudyAll = actions::onStudyAll,
+                    onStudyCurrent = actions::onStudyCurrentDeck,
                 )
             }
             if (state.decks.any { it.hasCardsLeft }) stickyHeader(key = "headings") { CountHeadings(columnWidths) }
@@ -255,17 +259,19 @@ private fun Decks(
 
 /**
  * Today at a glance, in a primary container: a ring of how much of the day's study is done beside
- * "58 cards to study today" and "9 studied so far", and a button that studies the current Deck.
+ * "58 cards to study today" and "9 studied so far", with actions to study all or the current Deck.
  * With nothing left the ring is full and checked. Coming back from a session, the ring moves on
  * from where it last stood.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun TodaySummary(
     dueToday: Int,
     queuesToday: Counts,
     studiedToday: Int,
     current: DisplayDeckNode?,
-    onStudy: (DeckId) -> Unit,
+    onStudyAll: () -> Unit,
+    onStudyCurrent: (DeckId) -> Unit,
 ) {
     val foundation = MaterialTheme.foundation
     val scheme = MaterialTheme.colorScheme
@@ -341,21 +347,33 @@ private fun TodaySummary(
             }
         }
         TodayQueueCounts(queuesToday)
-        if (current != null) {
-            Button(
-                onClick = { onStudy(current.did) },
-                modifier = Modifier.heightIn(min = foundation.spacing.touchTarget),
-                shape = foundation.shapes.button,
-                colors = ButtonDefaults.buttonColors(containerColor = scheme.primary, contentColor = scheme.onPrimary),
-                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-            ) {
-                Text(
-                    text = stringResource(CommonR.string.studyoptions_start) + " · " + current.lastDeckNameComponent,
-                    style = foundation.type.button,
-                    textAlign = TextAlign.Center,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
+        if (!nothingDue) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Button(
+                    onClick = onStudyAll,
+                    modifier = Modifier.heightIn(min = foundation.spacing.touchTarget),
+                    shape = foundation.shapes.button,
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+                ) {
+                    Text(stringResource(CommonR.string.deck_list_study_all), style = foundation.type.button)
+                }
+                if (current != null) {
+                    OutlinedButton(
+                        onClick = { onStudyCurrent(current.did) },
+                        modifier = Modifier.heightIn(min = foundation.spacing.touchTarget),
+                        shape = foundation.shapes.button,
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = scheme.onPrimaryContainer),
+                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+                    ) {
+                        Text(
+                            text = stringResource(CommonR.string.studyoptions_start) + " · " + current.lastDeckNameComponent,
+                            style = foundation.type.button,
+                            textAlign = TextAlign.Center,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
             }
         }
     }
