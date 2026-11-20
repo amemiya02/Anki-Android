@@ -181,14 +181,16 @@ private fun Decks(
     val density = LocalDensity.current
     val measurer = rememberTextMeasurer()
     val deepestLevel = remember(state.decks) { state.decks.maxOfOrNull { it.depth }?.coerceAtLeast(1) ?: 1 }
-    val preferredNameWidth = with(density) { (foundation.type.deckName.fontSize * 5).toDp() }
+    val preferredNameWidth = with(density) { (foundation.type.deckName.fontSize * PREFERRED_NAME_EMS).toDp() }
+    val minimumNameWidth = with(density) { (foundation.type.deckName.fontSize * MINIMUM_NAME_EMS).toDp() }
     BoxWithConstraints(modifier.fillMaxSize()) {
         val horizontalPadding = contentPadding.calculateLeftPadding(layoutDirection) + contentPadding.calculateRightPadding(layoutDirection)
         val contentWidth = (maxWidth - horizontalPadding - foundation.spacing.screenMargin * 2 - ROW_END_PADDING).coerceAtLeast(0.dp)
         val columnWidths = countColumnWidths(state.decks, contentWidth)
         val countsWidth = columnWidths.reduce(Dp::plus)
         val nameWidth = contentWidth - foundation.spacing.touchTarget - NAME_END_PADDING
-        val indentPerLevel = minOf(NESTED_INDENT, (nameWidth - preferredNameWidth).coerceAtLeast(0.dp) / deepestLevel)
+        // A deep tree indents less, so its deepest names keep a readable width beside their counts
+        val indentPerLevel = ((nameWidth - countsWidth - preferredNameWidth) / deepestLevel).coerceIn(MIN_NESTED_INDENT, NESTED_INDENT)
         LazyColumn(
             state = listState,
             // hands scrolling to the bottom bar's HideViewOnScrollBehavior
@@ -210,9 +212,10 @@ private fun Decks(
                 val indent = indentPerLevel * deck.depth
                 val inlineNameWidth = nameWidth - indent - countsWidth
                 val nameStyle = if (deck.depth == 0) foundation.type.deckName else foundation.type.deckNameNested
-                // Keep a short name beside its counts wherever it fits. Longer names get a readable line width.
+                // The counts stay beside the name. Only when even the least indent leaves no readable
+                // width (very large text on a narrow screen) do they move under a name that does not fit.
                 val countsInline =
-                    inlineNameWidth >= preferredNameWidth ||
+                    inlineNameWidth >= minimumNameWidth ||
                         (
                             inlineNameWidth > 0.dp &&
                                 with(density) {
@@ -443,6 +446,9 @@ private fun DeckRow(
                 text = deck.lastDeckNameComponent,
                 style = if (deck.depth == 0) foundation.type.deckName else foundation.type.deckNameNested,
                 color = if (deck.filtered || deck.isSelected) foundation.colors.emphasis else foundation.colors.onBackground,
+                // beside the counts a long name wraps once, then is cut; under them it has the row's width
+                maxLines = if (countsInline) INLINE_NAME_LINES else Int.MAX_VALUE,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f).padding(top = 8.dp, bottom = 8.dp, end = NAME_END_PADDING),
             )
             if (countsInline) DeckCounts(deck, columnWidths, onCountsClick)
@@ -697,8 +703,18 @@ private fun EmptyListRow(
     }
 }
 
-/** How far a sub-Deck is indented under its parent */
+/** How far a sub-Deck is indented under its parent; a deep tree on a narrow screen indents less */
 private val NESTED_INDENT = 24.dp
+private val MIN_NESTED_INDENT = 8.dp
+
+/** The width, in ems of the Deck name, the deepest Deck's name keeps beside its counts */
+private const val PREFERRED_NAME_EMS = 5
+
+/** Narrower than this, in ems, a name that does not fit on one line takes the row above its counts */
+private const val MINIMUM_NAME_EMS = 3
+
+/** Beside its counts, a long Deck name wraps once, then ends in an ellipsis */
+private const val INLINE_NAME_LINES = 2
 
 /** The space between Deck containers, and their corners */
 private val GROUP_GAP = 8.dp

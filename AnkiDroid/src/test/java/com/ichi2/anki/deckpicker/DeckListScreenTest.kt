@@ -141,25 +141,68 @@ class DeckListScreenTest : RobolectricTest() {
         assertCountsFitUnderHeadings()
     }
 
-    private fun nestedDecks(leafName: String): DeckListScreenState {
-        val names = listOf("JLPT", "コース", "語彙", "文法", leafName)
+    @Test
+    @Config(qualifiers = "zh-rCN-w340dp-h800dp-mdpi")
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `on a narrow phone every nested deck keeps its counts beside its name`() {
+        show(
+            deckChain(
+                "日语" to Triple(31, 46, 5547),
+                "eggrolls-JLPT10k-v3.5" to Triple(30, 45, 4859),
+                "3-N3" to Triple(29, 44, 484),
+                "1-高频" to Triple(28, 43, 123),
+            ),
+        )
+
+        assertCountsBeside("eggrolls-JLPT10k-v3.5", "4859")
+        assertCountsBeside("3-N3", "484")
+        assertCountsBeside("1-高频", "123")
+        assertTextFits("1-高频")
+    }
+
+    /** The [count] shares a line with the Deck name: the counts did not drop under it */
+    private fun assertCountsBeside(
+        name: String,
+        count: String,
+    ) {
+        composeRule.onNodeWithText(count, useUnmergedTree = true).performScrollTo()
+        val nameBounds = composeRule.onNodeWithText(name, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val countBounds = composeRule.onNodeWithText(count, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertTrue(
+            countBounds.top < nameBounds.bottom && countBounds.bottom > nameBounds.top,
+            "The counts of '$name' ($countBounds) are not beside its name ($nameBounds)",
+        )
+    }
+
+    private fun nestedDecks(leafName: String): DeckListScreenState =
+        deckChain(
+            "JLPT" to null,
+            "コース" to null,
+            "語彙" to null,
+            "文法" to null,
+            leafName to Triple(30, 41, 4966),
+        )
+
+    /** Each Deck is the only sub-Deck of the one before it, with its new, learning and due counts */
+    private fun deckChain(vararg decks: Pair<String, Triple<Int, Int, Int>?>): DeckListScreenState {
         var child: DeckTreeNode? = null
-        for (index in names.indices.reversed()) {
+        for (index in decks.indices.reversed()) {
+            val (deckName, counts) = decks[index]
             child =
                 deckTreeNode {
-                    name = names[index]
+                    name = deckName
                     deckId = index.toLong() + 10
                     level = index + 1
-                    if (index == names.lastIndex) {
-                        newCount = 30
-                        learnCount = 41
-                        reviewCount = 4966
+                    if (counts != null) {
+                        newCount = counts.first
+                        learnCount = counts.second
+                        reviewCount = counts.third
                     }
                     child?.let { children.add(it) }
                 }
         }
-        val decks = DeckNode(checkNotNull(child), names.first()).filterAndFlattenDisplay(DeckFilters.create(""), 0L)
-        return DeckListScreenState(decks = decks, isEmptyCollection = false, dueToday = 5037, studiedToday = 0)
+        val deckList = DeckNode(checkNotNull(child), decks.first().first).filterAndFlattenDisplay(DeckFilters.create(""), 0L)
+        return DeckListScreenState(decks = deckList, isEmptyCollection = false, dueToday = 5037, studiedToday = 0)
     }
 
     private fun assertCountsFitUnderHeadings() {
