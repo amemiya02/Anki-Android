@@ -14,3 +14,56 @@ SPDX-FileCopyrightText = "Contributors to the AnkiDroid project"
 path = "**/src/main/res/drawable/symbol_*.xml"
 SPDX-FileCopyrightText = "Google LLC (https://github.com/google/material-design-icons)"
 SPDX-License-Identifier = "Apache-2.0"
+
+# Android launcher and in-app marks derived from the pinned Hayaki iOS artwork.
+# docs/brand/themes.json records the source revision. The legacy-size launcher files
+# were replaced with new artwork by tools/prepare-icons/import-hayaki.sh as well.
+[[annotations]]
+path = [
+    "AnkiDroid/src/main/res/mipmap-mdpi/ic_launcher.png",
+    "AnkiDroid/src/main/res/mipmap-mdpi/ic_launcher_round.png",
+    "AnkiDroid/src/main/res/mipmap-hdpi/ic_launcher.png",
+    "AnkiDroid/src/main/res/mipmap-hdpi/ic_launcher_round.png",
+    "AnkiDroid/src/main/res/mipmap-xhdpi/ic_launcher.png",
+    "AnkiDroid/src/main/res/mipmap-xhdpi/ic_launcher_round.png",
+    "AnkiDroid/src/main/res/mipmap-xxhdpi/ic_launcher.png",
+    "AnkiDroid/src/main/res/mipmap-xxhdpi/ic_launcher_round.png",
+    "AnkiDroid/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+    "AnkiDroid/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png",
+    "AnkiDroid/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png",
+    "AnkiDroid/src/main/res/mipmap-xxxhdpi/ic_launcher_monochrome.png",
+    "AnkiDroid/src/main/res/mipmap-xxxhdpi/hayaki_mark.png",
+    "AnkiDroid/src/main/res/mipmap-night-xxxhdpi/hayaki_mark.png",
+    "AnkiDroid/src/androidTest/assets/hayaki-release/collection.colpkg",
+    "docs/brand/themes.json",
+]
+SPDX-FileCopyrightText = "Hayaki iOS contributors"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+# The generated Android theme resource combines the GPL Android styles with
+# the palette from the pinned AGPL Hayaki iOS source.
+[[annotations]]
+path = "common/android/src/main/res/values/hayaki_themes.xml"
+precedence = "aggregate"
+SPDX-FileCopyrightText = ["Hayaki Android contributors", "Hayaki iOS contributors"]
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = [
+    ".scratch/hayaki-cross-platform/**",
+    "AnkiDroid/src/androidTest/assets/hayaki-release/README.md",
+    "docs/adr/0007-shared-hayaki-product.md",
+    "docs/releases/0.2.0.md",
+    "tools/core-loop-benchmark/.gitignore",
+    "tools/core-loop-benchmark/README.md",
+    "tools/core-loop-benchmark/baselines/android-5336449995-raw.tar.gz",
+    "tools/core-loop-benchmark/baselines/android-5336449995.json",
+    "tools/core-loop-benchmark/baselines/android-5336449995.md",
+]
+SPDX-FileCopyrightText = "Hayaki Android contributors"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
+[[annotations]]
+path = "tools/core-loop-benchmark/*.py"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Hayaki Android contributors"
