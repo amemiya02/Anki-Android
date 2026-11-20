@@ -25,6 +25,7 @@ import com.ichi2.anki.settings.enums.NightTheme
 import com.ichi2.anki.settings.enums.PrefEnum
 import com.ichi2.anki.settings.enums.ShouldFetchMedia
 import com.ichi2.anki.settings.enums.ToolbarPosition
+import com.ichi2.themes.HayakiTheme
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -408,6 +409,10 @@ open class PrefsRepository protected constructor(
     //region Appearance
 
     var appTheme: AppTheme by enumPref(R.string.app_theme_key, AppTheme.FOLLOW_SYSTEM)
+
+    var hayakiTheme: HayakiTheme
+        get() = HayakiTheme.fromId(getString(R.string.hayaki_theme_key, null))
+        set(value) = putString(R.string.hayaki_theme_key, value.id)
 
     /** The theme for the night side. Black is an explicit choice. */
     var nightTheme: NightTheme by enumPref(R.string.night_theme_key, NightTheme.DARK)

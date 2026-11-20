@@ -73,6 +73,7 @@ class FoundationTest {
                 val actual =
                     mapOf(
                         "background" to colors.background,
+                        "studyCanvas" to colors.studyCanvas,
                         "onBackground" to colors.onBackground,
                         "onBackgroundMuted" to colors.onBackgroundMuted,
                         "outline" to colors.outline,

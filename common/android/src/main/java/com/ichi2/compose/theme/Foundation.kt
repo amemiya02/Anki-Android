@@ -102,6 +102,7 @@ data class FoundationType(
 @Immutable
 data class FoundationColors(
     val background: Color,
+    val studyCanvas: Color,
     val onBackground: Color,
     val onBackgroundMuted: Color,
     /** Hairlines: decoration only, never the only cue */
@@ -198,6 +199,7 @@ fun Context.toFoundation(): Foundation {
         colors =
             FoundationColors(
                 background = color(R.styleable.Foundation_foundationBackground),
+                studyCanvas = color(R.styleable.Foundation_foundationStudyCanvas),
                 onBackground = color(R.styleable.Foundation_foundationOnBackground),
                 onBackgroundMuted = color(R.styleable.Foundation_foundationOnBackgroundMuted),
                 outline = color(R.styleable.Foundation_foundationOutline),

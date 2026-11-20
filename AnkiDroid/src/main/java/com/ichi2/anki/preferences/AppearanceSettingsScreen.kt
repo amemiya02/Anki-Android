@@ -23,9 +23,14 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +39,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -43,14 +49,21 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.google.android.material.color.MaterialColors
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.settings.enums.DayTheme
 import com.ichi2.anki.settings.enums.NightTheme
+import com.ichi2.anki.settings.enums.Theme
 import com.ichi2.compose.theme.foundation
 import com.ichi2.compose.theme.toFoundation
+import com.ichi2.compose.ui.dialogs.DialogAction
+import com.ichi2.compose.ui.dialogs.PaperDialog
+import com.ichi2.themes.HayakiTheme
+import com.ichi2.themes.Themes
+import com.ichi2.anki.common.android.R as CommonR
 
-internal enum class AppearanceTheme(
+internal enum class AppearanceMode(
     @StringRes val label: Int,
 ) {
     SYSTEM(R.string.settings_theme_system),
@@ -60,8 +73,9 @@ internal enum class AppearanceTheme(
 }
 
 internal data class AppearanceSettingsState(
-    val theme: AppearanceTheme,
+    val appearance: AppearanceMode,
     val nightTheme: NightTheme,
+    val theme: HayakiTheme,
     val hasBackground: Boolean,
 )
 
@@ -70,13 +84,30 @@ internal fun AppearanceSettingsScreen(
     state: AppearanceSettingsState,
     searchTarget: String?,
     onBack: (() -> Unit)?,
-    onThemeChange: (AppearanceTheme) -> Unit,
+    onAppearanceChange: (AppearanceMode) -> Unit,
+    onThemeChange: (HayakiTheme) -> Unit,
     onNightThemeChange: (NightTheme) -> Unit,
     onChooseBackground: () -> Unit,
     onRemoveBackground: () -> Unit,
 ) {
     val foundation = MaterialTheme.foundation
+    var choosingTheme by rememberSaveable { mutableStateOf(false) }
     SettingsScrollPage(stringResource(R.string.settings_appearance), onBack) {
+        SettingsSearchTarget(searchTarget == stringResource(R.string.hayaki_theme_key)) { modifier, highlighted ->
+            SettingsRow(
+                title = stringResource(CommonString.app_theme),
+                value = stringResource(state.theme.label),
+                icon = R.drawable.symbol_palette,
+                highlighted = highlighted,
+                modifier = modifier,
+                onClick = { choosingTheme = true },
+                trailing = {
+                    ThemeSwatch(foundation.colors.primary)
+                    SettingsChevron()
+                },
+            )
+        }
+        SettingsDivider()
         SettingsSearchTarget(searchTarget == stringResource(R.string.app_theme_key)) { modifier, highlighted ->
             Column(
                 if (highlighted) {
@@ -89,8 +120,8 @@ internal fun AppearanceSettingsScreen(
                     modifier
                 },
             ) {
-                SettingsSectionTitle(stringResource(CommonString.app_theme))
-                ThemeTiles(state.theme, onThemeChange)
+                SettingsSectionTitle(stringResource(R.string.settings_appearance_mode))
+                AppearanceTiles(state, onAppearanceChange)
             }
         }
         Column {
@@ -130,21 +161,81 @@ internal fun AppearanceSettingsScreen(
             )
         }
     }
+    if (choosingTheme) {
+        ThemePicker(
+            selected = state.theme,
+            onSelect = {
+                choosingTheme = false
+                onThemeChange(it)
+            },
+            onDismiss = { choosingTheme = false },
+        )
+    }
 }
 
 @Composable
-private fun ThemeTiles(
-    selected: AppearanceTheme,
-    onThemeChange: (AppearanceTheme) -> Unit,
+private fun ThemePicker(
+    selected: HayakiTheme,
+    onSelect: (HayakiTheme) -> Unit,
+    onDismiss: () -> Unit,
 ) {
-    val themes = AppearanceTheme.entries
+    val context = LocalContext.current
+    val appearance = Themes.currentTheme
+    val foundation = MaterialTheme.foundation
+    PaperDialog(
+        title = stringResource(CommonString.app_theme),
+        onDismissRequest = onDismiss,
+        actions = listOf(DialogAction(stringResource(CommonString.dialog_cancel), onDismiss)),
+    ) {
+        Column(Modifier.selectableGroup()) {
+            HayakiTheme.entries.forEach { theme ->
+                val accent =
+                    remember(context, theme, appearance) {
+                        val preview = ContextThemeWrapper(context, theme.styleFor(appearance))
+                        Color(MaterialColors.getColor(preview, CommonR.attr.foundationPrimary, "Hayaki Theme"))
+                    }
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = foundation.spacing.touchTarget)
+                        .selectable(theme == selected, role = Role.RadioButton) { onSelect(theme) },
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    RadioButton(selected = theme == selected, onClick = null)
+                    Text(stringResource(theme.label), Modifier.weight(1f), style = foundation.type.body)
+                    ThemeSwatch(accent)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ThemeSwatch(accent: Color) {
+    Box(Modifier.size(18.dp).background(accent, CircleShape))
+}
+
+@Composable
+private fun AppearanceTiles(
+    state: AppearanceSettingsState,
+    onAppearanceChange: (AppearanceMode) -> Unit,
+) {
+    val appearances = AppearanceMode.entries
     BoxWithConstraints(Modifier.fillMaxWidth()) {
-        val columnCount = if (maxWidth / LocalDensity.current.fontScale >= 300.dp) themes.size else 2
+        val columnCount = if (maxWidth / LocalDensity.current.fontScale >= 300.dp) appearances.size else 2
         Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            themes.chunked(columnCount).forEach { row ->
+            appearances.chunked(columnCount).forEach { row ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    row.forEach { theme ->
-                        ThemeTile(theme, selected == theme, { onThemeChange(theme) }, Modifier.weight(1f))
+                    row.forEach { appearance ->
+                        AppearanceTile(
+                            appearance,
+                            state.theme,
+                            state.nightTheme,
+                            state.appearance == appearance,
+                            { onAppearanceChange(appearance) },
+                            Modifier.weight(1f),
+                        )
                     }
                     repeat(columnCount - row.size) { Spacer(Modifier.weight(1f)) }
                 }
@@ -154,8 +245,10 @@ private fun ThemeTiles(
 }
 
 @Composable
-private fun ThemeTile(
-    theme: AppearanceTheme,
+private fun AppearanceTile(
+    appearance: AppearanceMode,
+    theme: HayakiTheme,
+    nightTheme: NightTheme,
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier,
@@ -174,10 +267,10 @@ private fun ThemeTile(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            ThemeThumbnail(theme)
+            AppearanceThumbnail(appearance, theme, nightTheme)
             Box(Modifier.heightIn(min = 34.dp), contentAlignment = Alignment.Center) {
                 Text(
-                    stringResource(theme.label),
+                    stringResource(appearance.label),
                     color = foundation.colors.onBackground,
                     style = foundation.type.body,
                     fontWeight = if (selected) FontWeight.SemiBold else null,
@@ -202,23 +295,27 @@ private fun ThemeTile(
 }
 
 @Composable
-private fun ThemeThumbnail(theme: AppearanceTheme) {
+private fun AppearanceThumbnail(
+    appearance: AppearanceMode,
+    theme: HayakiTheme,
+    nightTheme: NightTheme,
+) {
     val context = LocalContext.current
     val colors =
-        remember(context, theme) {
-            val styles =
-                when (theme) {
-                    AppearanceTheme.SYSTEM -> listOf(DayTheme.LIGHT.styleResId, NightTheme.DARK.styleResId)
-                    AppearanceTheme.LIGHT -> listOf(DayTheme.LIGHT.styleResId)
-                    AppearanceTheme.DARK -> listOf(NightTheme.DARK.styleResId)
-                    AppearanceTheme.BLACK -> listOf(NightTheme.BLACK.styleResId)
+        remember(context, appearance, theme, nightTheme) {
+            val variants: List<Theme> =
+                when (appearance) {
+                    AppearanceMode.SYSTEM -> listOf(DayTheme.LIGHT, nightTheme)
+                    AppearanceMode.LIGHT -> listOf(DayTheme.LIGHT)
+                    AppearanceMode.DARK -> listOf(NightTheme.DARK)
+                    AppearanceMode.BLACK -> listOf(NightTheme.BLACK)
                 }
-            styles.map { ContextThemeWrapper(context, it).toFoundation().colors }
+            variants.map { ContextThemeWrapper(context, theme.styleFor(it)).toFoundation().colors }
         }
     val lightSide = colors.first()
     val darkSide = colors.last()
     val outline =
-        if (theme == AppearanceTheme.DARK || theme == AppearanceTheme.BLACK) {
+        if (appearance == AppearanceMode.DARK || appearance == AppearanceMode.BLACK) {
             darkSide.onBackgroundMuted
         } else {
             lightSide.onBackgroundMuted
@@ -226,7 +323,7 @@ private fun ThemeThumbnail(theme: AppearanceTheme) {
     Canvas(Modifier.size(width = 56.dp, height = 84.dp)) {
         val corner = CornerRadius(4.dp.toPx())
         val background =
-            if (theme == AppearanceTheme.SYSTEM) {
+            if (appearance == AppearanceMode.SYSTEM) {
                 Brush.linearGradient(0.5f to lightSide.background, 0.5f to darkSide.background)
             } else {
                 Brush.linearGradient(listOf(lightSide.background, lightSide.background))
@@ -234,7 +331,7 @@ private fun ThemeThumbnail(theme: AppearanceTheme) {
         drawRoundRect(background, cornerRadius = corner)
         drawRoundRect(outline, cornerRadius = corner, style = Stroke(1.dp.toPx()))
 
-        val detail = if (theme == AppearanceTheme.SYSTEM) darkSide.onBackgroundMuted else lightSide.onBackgroundMuted
+        val detail = Brush.linearGradient(0.5f to lightSide.onBackgroundMuted, 0.5f to darkSide.onBackgroundMuted)
         val inset = 8.dp.toPx()
         val lineCorner = CornerRadius(2.dp.toPx())
         drawRoundRect(detail, Offset(inset, 10.dp.toPx()), Size(28.dp.toPx(), 6.dp.toPx()), lineCorner)
@@ -276,7 +373,7 @@ private fun NightThemeRow(
             Text(stringResource(R.string.settings_night_theme), style = foundation.type.rowTitle, color = foundation.colors.onBackground)
         }
         val options: @Composable () -> Unit = {
-            NightThemeOptions(state.nightTheme, enabled = state.theme == AppearanceTheme.SYSTEM, onChange = onChange)
+            NightThemeOptions(state.nightTheme, enabled = state.appearance == AppearanceMode.SYSTEM, onChange = onChange)
         }
         if (maxWidth / LocalDensity.current.fontScale >= 300.dp) {
             Row(

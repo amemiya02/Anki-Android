@@ -11,37 +11,47 @@ import com.ichi2.anki.settings.enums.NightTheme
 import com.ichi2.anki.tests.InstrumentedTest
 import com.ichi2.anki.testutil.ensureWebViewIsSupported
 import com.ichi2.anki.testutil.waitForPageCondition
+import com.ichi2.themes.HayakiTheme
 import org.junit.Test
 
 class AnkiPageAppearanceTest : InstrumentedTest() {
     @Test
     fun statisticsUsesTheLightPalette() {
-        checkStatistics(AppTheme.DAY, NightTheme.DARK, "250, 250, 248", "31, 30, 28", "light")
+        checkStatistics(AppTheme.DAY, NightTheme.DARK, HayakiTheme.HAYAKI, "242, 245, 244", "29, 29, 29", "#2C776E", "light")
     }
 
     @Test
     fun statisticsUsesTheDarkPalette() {
-        checkStatistics(AppTheme.NIGHT, NightTheme.DARK, "28, 26, 23", "236, 229, 216", "dark")
+        checkStatistics(AppTheme.NIGHT, NightTheme.DARK, HayakiTheme.HAYAKI, "24, 30, 29", "230, 230, 230", "#7ED6CA", "dark")
     }
 
     @Test
     fun statisticsUsesTheBlackPalette() {
-        checkStatistics(AppTheme.NIGHT, NightTheme.BLACK, "0, 0, 0", "236, 229, 216", "dark")
+        checkStatistics(AppTheme.NIGHT, NightTheme.BLACK, HayakiTheme.HAYAKI, "0, 0, 0", "230, 230, 230", "#7ED6CA", "dark")
+    }
+
+    @Test
+    fun statisticsUsesTheSelectedTheme() {
+        checkStatistics(AppTheme.DAY, NightTheme.DARK, HayakiTheme.SAKURA, "247, 243, 244", "29, 29, 29", "#B04663", "light")
     }
 
     private fun checkStatistics(
         appTheme: AppTheme,
         nightTheme: NightTheme,
+        theme: HayakiTheme,
         paper: String,
         ink: String,
+        accent: String,
         browserScheme: String,
     ) {
         ensureWebViewIsSupported()
         val prefs = PrefsRepository(testContext)
         val originalAppTheme = prefs.appTheme
         val originalNightTheme = prefs.nightTheme
+        val originalTheme = prefs.hayakiTheme
         try {
             prefs.nightTheme = nightTheme
+            prefs.hayakiTheme = theme
             prefs.appTheme = appTheme
             val intent = StatisticsDestination.toIntent(testContext)
             ActivityScenario.launch<SingleFragmentActivity>(intent).use { scenario ->
@@ -55,9 +65,11 @@ class AnkiPageAppearanceTest : InstrumentedTest() {
                     """
                     (() => {
                         const body = getComputedStyle(document.body);
+                        const page = getComputedStyle(document.documentElement);
                         return body.backgroundColor === 'rgb($paper)'
                             && body.color === 'rgb($ink)'
-                            && getComputedStyle(document.documentElement).colorScheme === '$browserScheme'
+                            && page.colorScheme === '$browserScheme'
+                            && page.getPropertyValue('--hayaki-primary').trim().toUpperCase() === '$accent'
                             && body.fontFamily.includes('sans-serif');
                     })();
                     """.trimIndent(),
@@ -66,6 +78,7 @@ class AnkiPageAppearanceTest : InstrumentedTest() {
             }
         } finally {
             prefs.appTheme = originalAppTheme
+            prefs.hayakiTheme = originalTheme
             prefs.nightTheme = originalNightTheme
         }
     }

@@ -19,6 +19,16 @@
     <string name="settings_developer_summary">デバッグと試験的な機能</string>
     <string name="settings_switch_profile_summary">コレクションのプロファイルを選択</string>
     <string name="settings_theme_note">システムに合わせる場合、端末がライトモードのときは「ライト」、ダークモードのときは下の夜間テーマが使われます。</string>
+    <string name="settings_appearance_mode">外観モード</string>
+    <string name="settings_brand_theme_sakura">桜</string>
+    <string name="settings_brand_theme_matcha">抹茶</string>
+    <string name="settings_brand_theme_ocean">海</string>
+    <string name="settings_brand_theme_indigo">藍</string>
+    <string name="settings_brand_theme_wisteria">藤</string>
+    <string name="settings_brand_theme_amber">琥珀</string>
+    <string name="settings_brand_theme_sumi">墨</string>
+    <string name="settings_brand_theme_paper">和紙</string>
+    <string name="settings_brand_theme_midnight">夜空</string>
     <string name="settings_theme_system">システムに合わせる</string>
     <string name="settings_theme_light">ライト</string>
     <string name="settings_theme_dark">ダーク</string>

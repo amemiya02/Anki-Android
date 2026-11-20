@@ -34,6 +34,7 @@
     <string name="pref_enable_switch_profile_key">enableSwitchProfile</string>
     <!-- Appearance -->
     <string name="app_theme_key">appTheme</string>
+    <string name="hayaki_theme_key" translatable="false">hayaki.theme</string>
     <string name="night_theme_key">nightTheme</string>
     <string name="pref_deck_picker_background_key">deckPickerBackground</string>
     <string name="pref_remove_wallpaper_key">removeWallPaper</string>

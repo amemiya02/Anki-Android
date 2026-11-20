@@ -19,6 +19,17 @@
     <string name="settings_developer_summary">Debugging and experimental features</string>
     <string name="settings_switch_profile_summary">Choose a collection profile</string>
     <string name="settings_theme_note">Follow system uses Light when the device is set to light and the night theme below when it is set to dark.</string>
+    <string name="settings_appearance_mode">Appearance mode</string>
+    <string name="settings_brand_theme_hayaki" translatable="false">Hayaki</string>
+    <string name="settings_brand_theme_sakura">Sakura</string>
+    <string name="settings_brand_theme_matcha">Matcha</string>
+    <string name="settings_brand_theme_ocean">Ocean</string>
+    <string name="settings_brand_theme_indigo">Indigo</string>
+    <string name="settings_brand_theme_wisteria">Wisteria</string>
+    <string name="settings_brand_theme_amber">Amber</string>
+    <string name="settings_brand_theme_sumi">Sumi</string>
+    <string name="settings_brand_theme_paper">Paper</string>
+    <string name="settings_brand_theme_midnight">Midnight</string>
     <string name="settings_theme_system">@string/theme_follow_system</string>
     <string name="settings_theme_light">@string/day_theme_light</string>
     <string name="settings_theme_dark">@string/night_theme_dark</string>

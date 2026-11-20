@@ -13,7 +13,9 @@ internal object AnkiDroidActivitySetup : ActivitySetup {
     override fun setTheme(
         activity: Activity,
         savedInstanceState: Bundle?,
-    ) = Themes.setTheme(activity, savedInstanceState)
+    ) {
+        Themes.setTheme(activity, savedInstanceState)
+    }
 }
 
 fun initializeActivitySetup() {

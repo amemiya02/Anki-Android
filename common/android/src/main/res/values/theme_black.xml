@@ -7,10 +7,15 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="DuplicateCrowdInStrings">
     <style name="Base.Theme.Dark.Black" parent="Theme_Dark">
         <item name="foundationBackground">@color/foundation_black_background</item>
+        <item name="foundationStudyCanvas">@color/foundation_black_study_canvas</item>
         <item name="foundationOutline">@color/foundation_black_outline</item>
         <item name="foundationProgressTrack">@color/foundation_black_progress_track</item>
 
         <item name="colorSurface">@color/scheme_black_surface</item>
+        <item name="colorPrimaryContainer">@color/scheme_black_primary_container</item>
+        <item name="colorSecondaryContainer">@color/scheme_black_secondary_container</item>
+        <item name="colorTertiaryContainer">@color/scheme_black_tertiary_container</item>
+        <item name="colorSurfaceVariant">@color/scheme_black_surface_variant</item>
         <item name="colorOutlineVariant">@color/scheme_black_outline_variant</item>
         <item name="colorSurfaceContainerLowest">@color/scheme_black_surface_container_lowest</item>
         <item name="colorSurfaceContainerLow">@color/scheme_black_surface_container_low</item>
@@ -20,10 +25,10 @@
         <item name="colorSurfaceDim">@color/scheme_black_surface_dim</item>
         <item name="colorSurfaceBright">@color/scheme_black_surface_bright</item>
 
-        <item name="android:colorBackground">@color/foundation_black_background</item>
-        <item name="android:windowBackground">@color/foundation_black_background</item>
-        <item name="android:statusBarColor">@color/foundation_black_background</item>
-        <item name="android:navigationBarColor">@color/foundation_black_background</item>
+        <item name="android:colorBackground">?attr/foundationBackground</item>
+        <item name="android:windowBackground">?attr/foundationBackground</item>
+        <item name="android:statusBarColor">?attr/foundationBackground</item>
+        <item name="android:navigationBarColor">?attr/foundationBackground</item>
     </style>
 
     <style name="Theme_Dark.Black" parent="Base.Theme.Dark.Black"/>

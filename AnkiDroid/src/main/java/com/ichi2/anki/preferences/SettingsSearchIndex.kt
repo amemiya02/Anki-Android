@@ -11,6 +11,7 @@ import com.ichi2.anki.R
 import com.ichi2.anki.preferences.reviewer.ReviewerMenuSettingsFragment
 import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.ui.internationalization.sentenceCase
+import com.ichi2.themes.HayakiTheme
 import java.text.Normalizer
 import java.util.Locale
 import kotlin.reflect.KClass
@@ -109,7 +110,7 @@ private fun Context.appearanceSearchEntries(path: String): List<SettingsSearchEn
     return buildList {
         add(
             appearance(
-                CommonString.app_theme,
+                R.string.settings_appearance_mode,
                 R.string.app_theme_key,
                 R.string.settings_theme_system,
                 R.string.settings_theme_light,
@@ -117,6 +118,7 @@ private fun Context.appearanceSearchEntries(path: String): List<SettingsSearchEn
                 R.string.settings_theme_black,
             ),
         )
+        add(appearance(CommonString.app_theme, R.string.hayaki_theme_key, *HayakiTheme.entries.map { it.label }.toIntArray()))
         add(appearance(R.string.settings_night_theme, R.string.night_theme_key, R.string.settings_theme_note))
         add(
             appearance(

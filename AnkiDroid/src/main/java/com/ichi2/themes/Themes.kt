@@ -10,6 +10,7 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.util.TypedValue
+import androidx.annotation.StyleRes
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.toDrawable
@@ -36,19 +37,23 @@ object Themes {
     var currentTheme: Theme = DayTheme.LIGHT
     val isNightTheme: Boolean get() = currentTheme is NightTheme
 
-    fun setTheme(context: Context) {
-        updateCurrentTheme(context)
-        // The palette is fixed: wallpaper-derived dynamic colour is never applied
-        context.setTheme(currentTheme.styleResId)
+    @StyleRes
+    fun setTheme(context: Context): Int {
+        val prefs = PrefsRepository(context)
+        updateCurrentTheme(context, prefs)
+        val style = prefs.hayakiTheme.styleFor(currentTheme)
+        context.setTheme(style)
+        return style
     }
 
     /**
      * @param savedInstanceState the bundle provided to [Activity.onCreate]
      */
+    @StyleRes
     fun setTheme(
         activity: Activity,
         savedInstanceState: Bundle?,
-    ) {
+    ): Int {
         val tv = TypedValue()
         activity.theme.resolveAttribute(android.R.attr.windowBackground, tv, true)
         val hadLauncherSplash = tv.resourceId == R.drawable.launch_screen
@@ -65,7 +70,7 @@ object Themes {
             if (BuildConfig.DEBUG) throw IllegalStateException(message) else Timber.w(message)
         }
 
-        setTheme(activity as Context)
+        val style = setTheme(activity as Context)
 
         if (hadLauncherSplash) {
             activity.theme.resolveAttribute(android.R.attr.windowBackground, tv, true)
@@ -77,6 +82,7 @@ object Themes {
                 }
             activity.window.setBackgroundDrawable(replacement)
         }
+        return style
     }
 
     /**
@@ -84,8 +90,9 @@ object Themes {
      * The day side is always Light. The night side (Dark or Black) is used when `Night` is selected,
      * or when `Follow system` (the default) is selected and the system is in dark mode.
      */
-    fun updateCurrentTheme(context: Context) {
-        val prefs = PrefsRepository(context)
+    fun updateCurrentTheme(context: Context) = updateCurrentTheme(context, PrefsRepository(context))
+
+    private fun updateCurrentTheme(context: Context, prefs: PrefsRepository) {
         val appTheme = prefs.appTheme
 
         currentTheme = resolveTheme(context, prefs)
@@ -100,6 +107,13 @@ object Themes {
 
     /** Reads the appearance without changing AppCompat's default mode or any active Activity. */
     fun resolveTheme(context: Context): Theme = resolveTheme(context, PrefsRepository(context))
+
+    /** Which complete style a new Activity would receive, without changing the active Activity. */
+    @StyleRes
+    fun resolveStyle(context: Context): Int {
+        val prefs = PrefsRepository(context)
+        return prefs.hayakiTheme.styleFor(resolveTheme(context, prefs))
+    }
 
     private fun resolveTheme(
         context: Context,
