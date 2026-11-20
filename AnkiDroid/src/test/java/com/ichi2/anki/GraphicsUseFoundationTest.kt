@@ -15,12 +15,12 @@ import kotlin.test.assertEquals
  *
  * - A drawable (other than an interface icon, which `InterfaceIconsAreMaterialSymbolsTest` checks)
  *   colours itself with theme attributes, as layouts do. Transparent is no colour. A hex value or a
- *   fixed `@color/` is allowed only where the graphic is drawn without the app's theme (the launcher
- *   and its shortcuts), and then only a Foundation colour or one of the launcher icon's own colours
- *   (`docs/redesign/quiet-paper/launcher-icon.svg`).
+ *   fixed `@color/` is allowed only for Foundation colours on launcher shortcuts, which the launcher
+ *   draws without the app's theme.
  * - A white or black that only says where to paint is a mask, not a colour: a ripple's mask, a
  *   vector tinted by a theme attribute, or a graphic the system or its user tints ([MASKS]).
- * - No graphic is a bitmap: its colours could not follow the theme.
+ * - Drawables use XML so their colours can follow the theme. The shared Hayaki launcher artwork
+ *   and the brand mark with its Light and Dark variants live in `mipmap`.
  * - Kotlin draws with theme attributes too. A colour that is content (whiteboard ink the person
  *   picks) is listed in [CONTENT_COLOURS].
  */
@@ -94,17 +94,6 @@ class GraphicsUseFoundationTest {
             }.toSet()
     }
 
-    /**
-     * The launcher icon's own colours. Its paper and ink were the Light theme's until the Light
-     * palette changed to Plain paper (2026-11-18); the icon keeps them.
-     */
-    private val launcherIconColours: Set<String> by lazy {
-        HEX_COLOUR
-            .findAll(File(ROOT, "docs/redesign/quiet-paper/launcher-icon.svg").readText())
-            .map { it.value.opaqueHex() }
-            .toSet()
-    }
-
     /** Colour state lists (`res/color/`) by name */
     private val colourStateLists: Map<String, File> by lazy {
         resourceDirs
@@ -114,7 +103,11 @@ class GraphicsUseFoundationTest {
     }
 
     private fun drawableDirs(): List<File> =
-        resourceDirs.flatMap { res -> res.listFiles { dir -> dir.name.startsWith("drawable") }.orEmpty().toList() }
+        resourceDirs.flatMap { res ->
+            checkNotNull(res.listFiles { dir -> dir.isDirectory && dir.name.startsWith("drawable") }) {
+                "cannot list resources in $res: is the working directory the module?"
+            }.toList()
+        }
 
     /** Every XML drawable that is not an interface icon */
     private fun drawables(): List<File> =
@@ -122,7 +115,6 @@ class GraphicsUseFoundationTest {
             .flatMap { dir -> dir.listFiles { file -> file.extension == "xml" }.orEmpty().toList() }
             .filter { !it.name.startsWith("symbol_") }
             .sortedBy { it.path }
-            .also { check(it.size > 30) { "only ${it.size} drawables found: is the working directory the module?" } }
 
     private fun where(file: File) =
         "${file.path.substringBefore("/src/main/res").removePrefix(ROOT.path + "/")}:${file.parentFile?.name}/${file.name}"
@@ -139,7 +131,6 @@ class GraphicsUseFoundationTest {
                     name in MASKS -> null
                     tintedByTheme && value.isWhite() -> null
                     problem == FIXED_FOUNDATION_COLOUR && name in DRAWN_WITHOUT_THE_APP_THEME -> null
-                    name in DRAWN_WITHOUT_THE_APP_THEME && value.opaqueHex() in launcherIconColours -> null
                     else -> "${where(file)}: $attribute=\"$value\"$problem"
                 }
             }.distinct()
@@ -245,14 +236,13 @@ class GraphicsUseFoundationTest {
         private val APP_COLOUR_RESOURCE = Regex("(?:CommonR|R)\\.color\\.(\\w+)")
 
         /**
-         * Graphics drawn by the launcher, not inside the app, so a theme attribute cannot reach them.
-         * They use Foundation colours fixed in place, or the launcher icon's own colours.
+         * The launcher draws these shortcuts without the app's theme, so they use fixed Foundation colours.
          */
         private val DRAWN_WITHOUT_THE_APP_THEME =
             mapOf(
-                "add_shortcut" to "a launcher shortcut, drawn with the launcher icon",
-                "browse_shortcut" to "a launcher shortcut, drawn with the launcher icon",
-                "review_shortcut" to "a launcher shortcut, drawn with the launcher icon",
+                "add_shortcut" to "the launcher's Add shortcut",
+                "browse_shortcut" to "the launcher's Browse shortcut",
+                "review_shortcut" to "the launcher's Review shortcut",
             )
 
         /** Graphics whose colour only says where to paint: the system or the view that shows them tints them */
