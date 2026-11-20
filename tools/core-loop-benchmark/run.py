@@ -59,6 +59,17 @@ def frame_summary(frames, refresh_rate):
     }
 
 
+def wait_until_ready(read):
+    deadline = time.monotonic() + 30
+    while True:
+        try:
+            return read()
+        except ValueError:
+            if time.monotonic() >= deadline:
+                raise
+            time.sleep(0.25)
+
+
 class Device:
     def __init__(self, serial, package):
         self.adb = ["adb", "-s", serial]
@@ -222,8 +233,7 @@ def capture(args):
         elapsed = re.search(r"^TotalTime: (\d+)$", output, re.MULTILINE)
         if measured and ("Status: ok" not in output or "LaunchState: COLD" not in output or not elapsed):
             raise ValueError(f"Android did not report a successful cold launch: {output}")
-        time.sleep(1)
-        device.control("Browser fixture")
+        wait_until_ready(lambda: device.control("Browser fixture"))
         return int(elapsed.group(1)) if elapsed else None
 
     def scroll():
@@ -251,9 +261,9 @@ def capture(args):
         cold_launch(f"study-{iteration}")
         device.tap(device.control("Browser fixture"))
         device.wait_for_face("question", time.monotonic())
-        show_answer = device.control("Show Answer")
+        show_answer = wait_until_ready(lambda: device.control("Show Answer"))
         tap_face(show_answer, "answer")
-        easy = device.control("Easy")
+        easy = wait_until_ready(lambda: device.control("Easy"))
         tap_face(easy, "question")
         latest = max(row[0] for row in frame_rows(device.gfxinfo()))
         for card in range(1, STUDY_CARDS + 1):
@@ -266,7 +276,7 @@ def capture(args):
         print(f"Browse {iteration}/{args.runs}", flush=True)
         cold_launch(f"browse-{iteration}")
         device.tap(device.control("Browse"))
-        initial = device.browsing()
+        initial = wait_until_ready(device.browsing)
         for _ in range(SCROLLS):
             scroll()
         warmed = device.browsing()
