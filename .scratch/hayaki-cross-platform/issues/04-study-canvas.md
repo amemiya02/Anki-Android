@@ -21,3 +21,7 @@ Carry a chosen Theme from Appearance settings into an actual review. Give ordina
 ## Blocked by
 
 - [02 · Choose and keep a Hayaki Theme across screens](02-themes.md)
+
+## Verification
+
+On the API 36 emulator, AndroidJUnitRunner reported success for the installed reviewer’s template and plain-card sequence, including relaunch, local image decoding and MathJax. The Chromium comparison also covered Paper and Midnight in Light, Dark and Black. The authored background failed before the cascade fix and passed after it. [Instrumented results, phone-webview profile](https://github.com/amemiya02/Hayaki/actions/runs/44736135391) · [Cascade fix](https://github.com/amemiya02/Hayaki/commit/7c0f1b9c2c)

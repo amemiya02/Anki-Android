@@ -22,3 +22,7 @@ Let a learner choose any of the ten iOS Themes on Android, independently of Appe
 ## Blocked by
 
 None - can start immediately
+
+## Verification
+
+The pinned iOS source and Android agree on all ten IDs and all 24 accent/canvas values. The resource generator passed its contrast checks and a clean regeneration. The theme, Settings, legacy Activity and Foundation tests passed on Linux. On a Google APIs API 36 emulator, Statistics rendered Light, Dark, Black and Sakura with the expected computed CSS. The deck filter and PDF export continue to use the existing Statistics handlers. [JUnit results](https://github.com/amemiya02/Hayaki/actions/runs/44735930878) · [Installed WebView results, phone-webview profile](https://github.com/amemiya02/Hayaki/actions/runs/44736135391)

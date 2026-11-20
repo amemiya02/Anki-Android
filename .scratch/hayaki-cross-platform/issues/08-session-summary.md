@@ -21,3 +21,7 @@ At Finished, present the completed session’s review count, elapsed time and ra
 ## Blocked by
 
 None - can start immediately
+
+## Verification
+
+The installed phone and wide profiles showed three completed reviews, three Easy ratings and the Finished actions after Geography. The unit tests verified the Engine's answer time, Undo and Redo, and recreation. All thirteen Finished fragment tests passed. [JUnit results](https://github.com/amemiya02/Hayaki/actions/runs/44735930878) · [Device screenshots](https://github.com/amemiya02/Hayaki/actions/runs/44736135391)
