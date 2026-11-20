@@ -3,7 +3,7 @@
 # Regenerate Android assets with ImageMagick 7 from the pinned Hayaki-iOS artwork.
 set -euo pipefail
 ios=${1:?Pass a checkout of amemiya02/Hayaki-iOS}
-revision=6012f691f7c4cedb488dd7475232107376c68b09
+revision=d4ea53cf04dc104dc36983cb9aff5d75c0b079fc
 res="$(git rev-parse --show-toplevel)/AnkiDroid/src/main/res"
 temp=$(mktemp -d)
 trap 'rm -rf "$temp"' EXIT

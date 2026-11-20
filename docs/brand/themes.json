@@ -1,6 +1,6 @@
 {
     "repository": "https://github.com/amemiya02/Hayaki-iOS",
-    "revision": "80e04182620fb73fba5d39f85596163969513ff8",
+    "revision": "d4ea53cf04dc104dc36983cb9aff5d75c0b079fc",
     "manifest": "docs/brand/manifest.json",
     "paletteSource": "Packages/HayakiAppearance/Sources/HayakiAppearance/Theme.swift",
     "appearanceRules": "Packages/HayakiAppearance/Sources/HayakiAppearance/HayakiTheme.swift",
