@@ -10,6 +10,10 @@ on:
         description: "Package the signed Play release APKs for upgrade and joint release verification."
         type: boolean
         default: false
+      release_device_only:
+        description: "Run the Hayaki release checks on one emulator and archive the evidence."
+        type: boolean
+        default: false
       iterations:
         description: "Number of iterations to run. Default 1. Max 256."
         required: true
@@ -30,7 +34,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'schedule' && 'scheduled' || 'ci' }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.release_artifacts_only && 'release-artifacts' || inputs.release_device_only && 'release-device' || github.event_name == 'schedule' && 'scheduled' || 'ci' }}
   cancel-in-progress: true
 
 env:
@@ -76,6 +80,12 @@ jobs:
             // workflow dispatch will be a drop-down of different options
             if (context.eventName === "workflow_dispatch") {
               const inputs = ${{ toJSON(inputs) }}
+              if (inputs.release_device_only) {
+                return { include: [{
+                  "api-level": 36, "arch": "x86_64", "target": "google_apis",
+                  "first-boot-delay": 0, "iteration": 0, "device": "phone"
+                }] };
+              }
               console.log('inputs is: ' + JSON.stringify(inputs))
 
               const iterationInput = inputs.iterations
@@ -211,6 +221,7 @@ jobs:
         run: echo "org.gradle.jvmargs=-Xmx4g -Dfile.encoding=UTF-8" >> "$GRADLE_USER_HOME/gradle.properties"
 
       - name: Warm Gradle Cache
+        if: "${{ !inputs.release_device_only }}"
         # This makes sure we fetch gradle network resources with a retry
         uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
@@ -218,6 +229,10 @@ jobs:
           retry_wait_seconds: 60
           max_attempts: 3
           command: ./gradlew packagePlayRelease packagePlayReleaseAndroidTest :baselineprofile:packageBenchmarkBenchmark --daemon
+
+      - name: Build Hayaki release test APKs
+        if: inputs.release_device_only
+        run: ./gradlew :AnkiDroid:packagePlayRelease :AnkiDroid:packagePlayReleaseAndroidTest -PabiFilter=x86_64 --max-workers=3 --daemon
 
       - name: Install Android Emulator
         # Retry to work around https://github.com/ReactiveCircus/android-emulator-runner/issues/496
@@ -251,7 +266,7 @@ jobs:
       - name: AVD Boot and Snapshot Creation
         # Warm up the uncached 16 KB and tablet emulators on every run; otherwise only on main cache misses.
         # Comment the if out to generate snapshots on branch for performance testing
-        if: "${{ matrix.target == 'google_apis_ps16k' || matrix.device == 'tablet' || (steps.avd-cache.outputs.cache-hit != 'true' && github.ref == 'refs/heads/main') }}"
+        if: "${{ !inputs.release_device_only && (matrix.target == 'google_apis_ps16k' || matrix.device == 'tablet' || (steps.avd-cache.outputs.cache-hit != 'true' && github.ref == 'refs/heads/main')) }}"
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
         with:
           api-level: ${{ matrix.api-level }}
@@ -276,7 +291,7 @@ jobs:
         # Always warm up the 16 KB and tablet emulators. The default emulator only needs it on main cache misses.
         # Switch the if statements via comment if generating snapshots for performance testing
         # if: matrix.first-boot-delay != '0'
-        if: "${{ matrix.target == 'google_apis_ps16k' || matrix.device == 'tablet' || (steps.avd-cache.outputs.cache-hit != 'true' && github.ref == 'refs/heads/main') }}"
+        if: "${{ !inputs.release_device_only && (matrix.target == 'google_apis_ps16k' || matrix.device == 'tablet' || (steps.avd-cache.outputs.cache-hit != 'true' && github.ref == 'refs/heads/main')) }}"
         env:
           FIRST_BOOT_DELAY: ${{ matrix.first-boot-delay }}
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
@@ -302,6 +317,7 @@ jobs:
             echo "First boot warmup completed."
 
       - name: Run Emulator Tests
+        if: "${{ !inputs.release_device_only }}"
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
         timeout-minutes: 30
         with:
@@ -325,14 +341,37 @@ jobs:
             sleep 5
             bash .github/with_emulator_log.sh adb-log.txt python3 .github/run_emulator_tests.py
 
+      - name: Run Hayaki release device checks
+        if: inputs.release_device_only
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        timeout-minutes: 25
+        with:
+          api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          target: ${{ matrix.target }}
+          arch: ${{ matrix.arch }}
+          emulator-options: -no-snapshot -timezone UTC ${{ env.EMULATOR_OPTIONS }}
+          disable-animations: true
+          script: bash .github/run_hayaki_release_device.sh
+
+      - name: Upload Hayaki release device evidence
+        if: always() && inputs.release_device_only
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: hayaki-release-device-${{ github.sha }}
+          path: hayaki-release-evidence/
+          if-no-files-found: warn
+
       - name: Report Emulator Test Results
         if: always() && hashFiles('AnkiDroid/build/outputs/androidTest-results/connected/**/TEST-*.xml') != ''
         run: python3 .github/report_test_failures.py AnkiDroid/build/outputs/androidTest-results/connected adb-log.txt --title "Emulator test failures" --suite ":AnkiDroid:connectedPlayReleaseAndroidTest"
 
       - name: Build Release Smoke Test
+        if: "${{ !inputs.release_device_only }}"
         run: TEST_RELEASE_BUILD=false ./gradlew packagePlayRelease :baselineprofile:packageBenchmarkBenchmark -x lintVitalPlayRelease --daemon --stacktrace
 
       - name: Run Release Smoke Test
+        if: "${{ !inputs.release_device_only }}"
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
         timeout-minutes: 10
         with:
@@ -351,6 +390,7 @@ jobs:
             TEST_RELEASE_BUILD=false bash .github/with_emulator_cleanup.sh python3 .github/run_release_smoke_test.py
 
       - name: Configure NDK tools PATH for alignment checking
+        if: "${{ !inputs.release_device_only }}"
         run: |
           echo "Using pre-installed NDK tools for alignment checking"
           if [ ! -d "$ANDROID_NDK_LATEST_HOME" ]; then
@@ -364,6 +404,7 @@ jobs:
           echo "export PATH=$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH" >> $GITHUB_ENV
 
       - name: Check APK ELF Alignment
+        if: "${{ !inputs.release_device_only }}"
         run: |
           chmod +x .github/check_elf_alignment.sh
           APK_PATH="AnkiDroid/build/outputs/apk/play/release/AnkiDroid-play-arm64-v8a-release.apk"
@@ -378,6 +419,7 @@ jobs:
           .github/check_elf_alignment.sh $APK_PATH
 
       - name: Verify zipalign
+        if: "${{ !inputs.release_device_only }}"
         run: |
           APK_PATH="AnkiDroid/build/outputs/apk/play/release/AnkiDroid-play-arm64-v8a-release.apk"
           echo "Verifying zipalign with 16KB alignment for $APK_PATH"
@@ -400,26 +442,27 @@ jobs:
 
       - name: Upload Test Report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: always()
+        if: always() && !inputs.release_device_only
         with:
           name: ${{ matrix.api-level }}-${{ matrix.arch }}-${{matrix.target}}-${{matrix.first-boot-delay}}-${{matrix.iteration}}-${{ matrix.device }}-jacocoAndroidTestReport
           path: ~/work/Anki-Android/Anki-Android/AnkiDroid/build/reports/jacoco/
 
       - name: Upload Emulator Log
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: always()
+        if: always() && !inputs.release_device_only
         with:
           name: ${{ matrix.api-level }}-${{ matrix.arch }}-${{matrix.target}}-${{matrix.first-boot-delay}}-${{matrix.iteration}}-${{ matrix.device }}-adb_logs
           path: adb-log.txt
 
       - name: Upload Emulator Screen Record
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: always()
+        if: always() && !inputs.release_device_only
         with:
           name: ${{ matrix.api-level }}-${{ matrix.arch }}-${{matrix.target}}-${{matrix.first-boot-delay}}-${{matrix.iteration}}-${{ matrix.device }}-adb_video
           path: video.webm
 
       - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        if: "${{ !inputs.release_device_only }}"
         with:
           verbose: true
           fail_ci_if_error: ${{ github.repository == 'ankidroid/Anki-Android' }} # optional (default = false)
