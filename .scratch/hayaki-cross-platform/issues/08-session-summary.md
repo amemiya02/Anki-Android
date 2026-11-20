@@ -1,6 +1,6 @@
 # Finish a session with its results and next action
 
-Status: ready-for-agent
+Status: done
 Type: AFK
 User stories: 16, 17, 18, 19, 20
 
@@ -14,9 +14,9 @@ At Finished, present the completed session’s review count, elapsed time and ra
 
 ## Acceptance criteria
 
-- [ ] Compare the distribution and count with a known sequence of ratings and the duration with observed session time. Entering an already-finished Deck shows its state without invented session figures.
-- [ ] Exercise a cleared queue, a later learning Card, a daily limit and buried Cards. Verify the next time and applicable Unbury, Custom Study and Deck Options routes.
-- [ ] Done remains reachable with TalkBack and 200% text on a phone and a wide display. Returning to Decks refreshes the counts.
+- [x] Compare the distribution and count with a known sequence of ratings and the duration with observed session time. Entering an already-finished Deck shows its state without invented session figures.
+- [x] Exercise a cleared queue, a later learning Card, a daily limit and buried Cards. Verify the next time and applicable Unbury, Custom Study and Deck Options routes.
+- [x] Done remains reachable with TalkBack and 200% text on a phone and a wide display. Returning to Decks refreshes the counts.
 
 ## Blocked by
 
