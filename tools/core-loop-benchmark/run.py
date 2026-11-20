@@ -115,7 +115,7 @@ class Device:
     def wait_for_face(self, face, action_start):
         last_negative_start = action_start
         capture_count = 0
-        while time.monotonic() - action_start < 15:
+        while time.monotonic() - action_start < 45:
             capture_start = time.monotonic()
             screen = self.screenshot()
             capture_end = time.monotonic()
@@ -155,7 +155,7 @@ def capture(args):
         raise ValueError(f"Could not resolve launcher activity: {component}")
     args.output.mkdir(parents=True, exist_ok=False)
     (args.output / "display.txt").write_text(display + "\n")
-    compile_output = device.shell("cmd", "package", "compile", "-m", "speed", "-f", args.package, timeout=300)
+    compile_output = device.shell("cmd", "package", "compile", "-m", "speed", args.package, timeout=300)
     if compile_output != "Success":
         raise ValueError(f"ART speed compilation failed: {compile_output}")
     dexopt = device.shell("dumpsys", "package", "dexopt")
@@ -164,6 +164,7 @@ def capture(args):
     report = {
         "timestamp_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "revision": args.revision,
+        "journey": args.journey,
         "apk_sha256": device.shell("sha256sum", apk_path).split()[0],
         "fixture_sha256": hashlib.sha256(args.fixture.read_bytes()).hexdigest(),
         "package": args.package,
@@ -212,18 +213,18 @@ def capture(args):
         save()
         return max(row[0] for row in frames)
 
-    def cold_launch(label):
+    def cold_launch(label, *, measured=False):
         device.shell("am", "force-stop", args.package)
         output = device.shell(
             "am", "start", "-W", "-a", "android.intent.action.MAIN", "-c", "android.intent.category.LAUNCHER", "-n", component,
         )
         (args.output / f"launch-{label}.txt").write_text(output + "\n")
         elapsed = re.search(r"^TotalTime: (\d+)$", output, re.MULTILINE)
-        if "Status: ok" not in output or "LaunchState: COLD" not in output or not elapsed:
+        if measured and ("Status: ok" not in output or "LaunchState: COLD" not in output or not elapsed):
             raise ValueError(f"Android did not report a successful cold launch: {output}")
         time.sleep(1)
         device.control("Browser fixture")
-        return int(elapsed.group(1))
+        return int(elapsed.group(1)) if elapsed else None
 
     def scroll():
         device.shell("input", "swipe", str(width // 2), str(height * 76 // 100),
@@ -239,12 +240,13 @@ def capture(args):
 
     # Start from the same Deck list for every launch and every group of study or Browse samples.
     cold_launch("warmup")
-    for iteration in range(1, args.runs + 1):
+    iterations = range(1, args.runs + 1)
+    for iteration in iterations if args.journey in ("all", "cold_start") else ():
         print(f"Cold start {iteration}/{args.runs}", flush=True)
-        elapsed = cold_launch(iteration)
+        elapsed = cold_launch(iteration, measured=True)
         sample("cold_start", run=iteration, total_time_ms=elapsed)
 
-    for iteration in range(1, args.runs + 1):
+    for iteration in iterations if args.journey in ("all", "study") else ():
         print(f"Study {iteration}/{args.runs}", flush=True)
         cold_launch(f"study-{iteration}")
         device.tap(device.control("Browser fixture"))
@@ -260,7 +262,7 @@ def capture(args):
             timing = tap_face(easy, "question")
             latest = sample("grade", latest, run=iteration, card=card, **timing)
 
-    for iteration in range(1, args.runs + 1):
+    for iteration in iterations if args.journey in ("all", "browse") else ():
         print(f"Browse {iteration}/{args.runs}", flush=True)
         cold_launch(f"browse-{iteration}")
         device.tap(device.control("Browse"))
@@ -286,6 +288,8 @@ def capture(args):
         "reveal": ("visible_lower_ms", "visible_upper_ms"),
         "grade": ("visible_lower_ms", "visible_upper_ms"),
     }.items():
+        if action not in report["summary"]:
+            continue
         for field in fields:
             report["summary"][action][field] = percentiles([
                 sample[field] for sample in report["samples"] if sample["action"] == action
@@ -311,6 +315,7 @@ def main():
     run.add_argument("--conditions", required=True, help="renderer, host activity and other runtime settings")
     run.add_argument("--output", type=Path, required=True, help="new directory for report and raw data")
     run.add_argument("--runs", type=int, default=3)
+    run.add_argument("--journey", choices=("all", "cold_start", "study", "browse"), default="all")
     args = parser.parse_args()
     if args.command == "frames":
         if args.refresh_rate <= 0:
