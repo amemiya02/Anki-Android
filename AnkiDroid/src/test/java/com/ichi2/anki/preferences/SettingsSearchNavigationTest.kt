@@ -212,8 +212,15 @@ class SettingsSearchNavigationTest : RobolectricTest() {
         ActivityScenario.launch<PreferencesActivity>(intent).use { scenario ->
             light.assertIsSelected()
             scenario.assertAppearanceBackground(CommonR.color.foundation_light_background)
+            // AppCompat applies forced mode to shared resources under Robolectric.
+            // Reassert the simulated system mode before switching back to it.
+            RuntimeEnvironment.setQualifiers("+night")
             system.performScrollTo().performClick()
             advanceRobolectricLooper()
+            system.assertIsSelected()
+            scenario.assertAppearanceBackground(CommonR.color.foundation_black_background)
+        }
+        ActivityScenario.launch<PreferencesActivity>(intent).use { scenario ->
             system.assertIsSelected()
             scenario.assertAppearanceBackground(CommonR.color.foundation_black_background)
         }
