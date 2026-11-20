@@ -29,6 +29,7 @@ import com.ichi2.anki.previewer.PreviewerAction
 import com.ichi2.anki.reviewer.Binding
 import com.ichi2.anki.reviewer.MappableBinding
 import com.ichi2.anki.reviewer.MappableBinding.Companion.toPreferenceString
+import com.ichi2.anki.servicelayer.PreferenceUpgradeService
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.enums.AppTheme
 import com.ichi2.anki.settings.enums.NightTheme
@@ -144,6 +145,42 @@ class SettingsSearchNavigationTest : RobolectricTest() {
                 val background = TypedValue()
                 activity.theme.resolveAttribute(CommonR.attr.foundationBackground, background, true)
                 assertEquals(activity.getColor(CommonR.color.foundation_black_background), background.data)
+            }
+        }
+    }
+
+    @Test
+    fun historicalAppearanceCodesAreConvertedBeforeOpeningSettings() {
+        // Before preference upgrade 26, "2" meant Plain. Later it meant forced night.
+        // E-ink lived in the separate dayTheme field after that conversion.
+        data class Installed(
+            val upgradeVersion: Int,
+            val appTheme: String,
+            val dayTheme: String?,
+            val expectedTile: Int,
+        )
+        val cases =
+            listOf(
+                Installed(25, "2", null, R.string.settings_theme_light),
+                Installed(25, "3", null, R.string.settings_theme_black),
+                Installed(25, "4", null, R.string.settings_theme_dark),
+                Installed(26, "1", "3", R.string.settings_theme_light),
+            )
+        for (installed in cases) {
+            Prefs.sharedPrefs.edit {
+                putInt("preferenceUpgradeVersion", installed.upgradeVersion)
+                putString("appTheme", installed.appTheme)
+                putString("dayTheme", installed.dayTheme)
+                remove("nightTheme")
+                remove("hayaki.theme")
+            }
+            PreferenceUpgradeService.upgradePreferences(targetContext, 0L)
+            val intent = PreferencesActivity.getIntent(targetContext, AppearanceSettingsFragment::class)
+            ActivityScenario.launch<PreferencesActivity>(intent).use {
+                val tile = hasText(targetContext.getString(installed.expectedTile)) and isSelectable()
+                compose.onAllNodes(tile)[0].assertIsSelected()
+                val themeRow = hasText(targetContext.getString(CommonString.app_theme)) and hasClickAction()
+                compose.onNode(themeRow).assertTextContains("Hayaki")
             }
         }
     }
