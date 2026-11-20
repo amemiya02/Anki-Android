@@ -15,6 +15,6 @@ Android and iOS ship one product from separate repositories. The iOS edition sup
 
 ### Updating the shared brand
 
-Change the artwork or palette in Hayaki-iOS first. In Android, point `docs/brand/themes.json` and `tools/prepare-icons/import-hayaki.sh` to the same iOS commit containing `docs/brand/manifest.json`. Copy the named accents and study canvases into the Android palette file, then run the icon importer with the iOS checkout and run `python3 tools/foundation/generate_colors.py`. Commit the generated resources with the updated pin. The generator checks text contrast for all ten themes in Light, Dark and Black.
+Change the artwork or palette in Hayaki-iOS first. In Android, set the revision in `docs/brand/themes.json` to the iOS commit containing `docs/brand/manifest.json`. The icon importer reads that revision too. Copy the named accents and study canvases into the Android palette file, then run the icon importer with the iOS checkout and run `python3 tools/foundation/generate_colors.py`. Commit the generated resources with the updated pin. The generator checks text contrast for all ten themes in Light, Dark and Black.
 
 For each joint release, the Android release notes identify the shared public version. Verify the previous and candidate APK sets and the iOS app and extensions with `python3 tools/joint-release/verify.py --help`. The release record links the two tested source revisions, their platform build numbers and the device results.

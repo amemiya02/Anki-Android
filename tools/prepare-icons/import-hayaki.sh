@@ -3,8 +3,9 @@
 # Regenerate Android assets with ImageMagick 7 from the pinned Hayaki-iOS artwork.
 set -euo pipefail
 ios=${1:?Pass a checkout of amemiya02/Hayaki-iOS}
-revision=d4ea53cf04dc104dc36983cb9aff5d75c0b079fc
-res="$(git rev-parse --show-toplevel)/AnkiDroid/src/main/res"
+root=$(git rev-parse --show-toplevel)
+revision=$(python3 -c 'import json, sys; print(json.load(sys.stdin)["revision"])' < "$root/docs/brand/themes.json")
+res="$root/AnkiDroid/src/main/res"
 temp=$(mktemp -d)
 trap 'rm -rf "$temp"' EXIT
 
