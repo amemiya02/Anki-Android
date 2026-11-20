@@ -148,6 +148,34 @@ class SettingsSearchNavigationTest : RobolectricTest() {
     }
 
     @Test
+    fun anUpgradeKeepsBlackAtNightAndTheSavedPaletteWhenLightIsSelected() {
+        // Values written by the previous Android release, before the brand Theme picker existed.
+        Prefs.sharedPrefs.edit {
+            putString("appTheme", "0")
+            putString("nightTheme", "3")
+            remove("hayaki.theme")
+        }
+        RuntimeEnvironment.setQualifiers("+night")
+        val intent = PreferencesActivity.getIntent(targetContext, AppearanceSettingsFragment::class)
+        ActivityScenario.launch<PreferencesActivity>(intent).use {
+            val themeRow = hasText(targetContext.getString(CommonString.app_theme)) and hasClickAction()
+            compose.onNode(themeRow).assertTextContains("Hayaki")
+            compose.onNodeWithText(targetContext.getString(R.string.settings_theme_system)).assertIsSelected()
+            val light = hasText(targetContext.getString(R.string.settings_theme_light)) and isSelectable()
+            compose.onNode(light).performScrollTo().performClick()
+            advanceRobolectricLooper()
+            assertEquals(NightTheme.BLACK, Prefs.nightTheme)
+        }
+        ActivityScenario.launch<PreferencesActivity>(intent).use {
+            val system = hasText(targetContext.getString(R.string.settings_theme_system)) and isSelectable()
+            compose.onNode(system).performScrollTo().performClick()
+            advanceRobolectricLooper()
+            assertEquals(AppTheme.FOLLOW_SYSTEM, Prefs.appTheme)
+            assertEquals(NightTheme.BLACK, Prefs.nightTheme)
+        }
+    }
+
+    @Test
     fun choosingAThemeKeepsItAcrossAppearanceChangesAndRelaunch() {
         val intent = PreferencesActivity.getIntent(targetContext, AppearanceSettingsFragment::class)
         val themeRow = hasText(targetContext.getString(CommonString.app_theme)) and hasClickAction()
