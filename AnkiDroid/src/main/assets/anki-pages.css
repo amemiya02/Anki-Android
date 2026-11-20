@@ -143,3 +143,146 @@ html[data-hayaki-page] :is(.icon-button.primary, .tab-buttons .active) {
 html[data-hayaki-page] .active-tool {
     color: var(--hayaki-on-primary) !important;
 }
+
+/* Statistics (the "graphs" route), laid out as a Material 3 screen: a quiet range bar, choice
+   chips for every one-of-a-kind option, an outlined search field, and flat cards in Group Tint
+   titled in the Summary role. Svelte's hashed classes are left alone; the selectors follow the
+   page's structure, so an Engine update that only reorders styles keeps this look. */
+html[data-hayaki-route="graphs"] .range-box {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px 16px 8px;
+    border-bottom: 0;
+    background: var(--hayaki-paper);
+}
+
+/* A row of the range bar: Deck, Collection and the search, then the period */
+html[data-hayaki-route="graphs"] .range-box > div:has(> label) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0 8px;
+    font-size: 14px;
+}
+
+html[data-hayaki-route="graphs"] .range-box > div:has(> label) > * {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+html[data-hayaki-route="graphs"] .range-box-pad {
+    height: 8px;
+}
+
+/* A radio option is a Material 3 filter chip: outlined at rest, tonal with a check when chosen */
+html[data-hayaki-route="graphs"] label:has(> input[type="radio"]) {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 32px;
+    margin: 8px 0;
+    padding: 0 16px;
+    border: 1px solid var(--hayaki-outline);
+    border-radius: 8px;
+    color: var(--hayaki-muted);
+    font: 500 14px/20px var(--hayaki-face);
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+html[data-hayaki-route="graphs"] label:has(> input[type="radio"]:checked) {
+    padding-inline-start: 8px;
+    border-color: var(--hayaki-tonal);
+    background: var(--hayaki-tonal);
+    color: var(--hayaki-on-tonal);
+}
+
+html[data-hayaki-route="graphs"] label:has(> input[type="radio"]:checked)::before {
+    content: "";
+    width: 18px;
+    height: 18px;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960'%3E%3Cpath d='M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960'%3E%3Cpath d='M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+html[data-hayaki-route="graphs"] label:has(> input[type="radio"]:focus-visible) {
+    outline: 2px solid var(--hayaki-primary);
+    outline-offset: 2px;
+}
+
+/* A graph's own options (its period, its toggles) wrap as a row of chips */
+html[data-hayaki-route="graphs"] .container div:has(> label > input[type="radio"]) {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 8px;
+}
+
+/* The radio itself stays in place for touch, keyboard and screen readers, just unseen */
+html[data-hayaki-route="graphs"] label > input[type="radio"] {
+    position: absolute;
+    inset: -8px 0;
+    width: 100%;
+    height: calc(100% + 16px);
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+html[data-hayaki-route="graphs"] #statisticsSearchText {
+    flex: 1 1 140px;
+    min-width: 0;
+    height: 40px;
+    margin: 4px 0;
+    padding: 0 12px;
+    border: 1px solid var(--hayaki-outline);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--hayaki-ink);
+    font: 400 14px/20px var(--hayaki-face);
+}
+
+html[data-hayaki-route="graphs"] #statisticsSearchText:focus {
+    outline: none;
+    border-color: var(--hayaki-primary);
+    box-shadow: inset 0 0 0 1px var(--hayaki-primary);
+}
+
+html[data-hayaki-route="graphs"] .graphs-container {
+    width: auto;
+    margin-left: 16px;
+    margin-right: 16px;
+    gap: 12px;
+}
+
+/* A graph's card: Group Tint, 16dp corners, flat (the One Shadow Rule), no rule under its title */
+html[data-hayaki-route="graphs"] .container:is(.light, .dark) {
+    padding: 16px;
+    border: 0;
+    border-radius: 16px;
+    background: var(--hayaki-container);
+    box-shadow: none;
+}
+
+html[data-hayaki-route="graphs"] .container:is(.light, .dark) h1 {
+    margin: 0 0 8px;
+    padding: 0 32px 0 0;
+    border: 0;
+    color: var(--hayaki-ink);
+    font: 400 22px/28px var(--hayaki-face);
+}
+
+html[data-hayaki-route="graphs"] .container.rtl:is(.light, .dark) h1 {
+    padding: 0 0 0 32px;
+}
+
+html[data-hayaki-route="graphs"] .container:is(.light, .dark) .help-badge {
+    color: var(--hayaki-muted);
+}
+
+html[data-hayaki-route="graphs"] .subtitle {
+    color: var(--hayaki-muted);
+}

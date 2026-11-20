@@ -2,10 +2,12 @@
 
 package com.ichi2.anki.pages
 
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
@@ -16,12 +18,15 @@ import com.ichi2.anki.common.destinations.StatisticsDestination
 import com.ichi2.anki.common.destinations.launchActivity
 import com.ichi2.anki.common.utils.dp
 import com.ichi2.anki.dialogs.DeckSelectionDialog
+import com.ichi2.anki.libanki.Decks
 import com.ichi2.testutils.dispatchInsets
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Rule
 import org.junit.Test
 import org.junit.jupiter.api.assertNotNull
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -40,6 +45,30 @@ class StatisticsTest : RobolectricTest() {
                 val deck = compose.onNodeWithText("Default").assertIsDisplayed().fetchSemanticsNode()
                 assertTrue(heading.boundsInWindow.top >= 64 * targetContext.resources.displayMetrics.density)
                 assertTrue(deck.boundsInWindow.top >= heading.boundsInWindow.bottom)
+            }
+        }
+
+    @Test
+    @Config(qualifiers = "zh-rCN-w360dp-h800dp-mdpi")
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `a long nested deck name wraps between its levels`() =
+        runTest {
+            val name = "日语::eggrolls-JLPT10k-v3.5::3-N3::1-高频"
+            val deck = addDeck(name)
+            withCol { decks.select(deck) }
+            launchActivity<SingleFragmentActivity>(StatisticsDestination).use {
+                advanceUntilIdle()
+                val title = compose.onNodeWithText("1-高频", substring = true, useUnmergedTree = true).assertIsDisplayed()
+                val layouts = mutableListOf<TextLayoutResult>()
+                checkNotNull(title.fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action)(layouts)
+                val layout = layouts.single()
+                val text = layout.layoutInput.text.text
+                val levels = Decks.path(name)
+                assertTrue(layout.lineCount > 1, "'$text' was expected to wrap")
+                for (line in 1 until layout.lineCount) {
+                    val rest = text.substring(layout.getLineStart(line)).removePrefix("› ")
+                    assertTrue(levels.any { rest.startsWith(it) }, "Line $line of '$text' starts inside a level: '$rest'")
+                }
             }
         }
 

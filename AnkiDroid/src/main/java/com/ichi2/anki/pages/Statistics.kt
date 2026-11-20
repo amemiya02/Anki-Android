@@ -46,6 +46,8 @@ class Statistics : PageFragment() {
 
     override val selectDeck: () -> Unit = { startDeckSelection(allowAll = false, allowFiltered = false, skipEmptyDefault = true) }
 
+    override val titleIsDeckName = true
+
     @Composable
     override fun PageHeading() {
         val foundation = MaterialTheme.foundation

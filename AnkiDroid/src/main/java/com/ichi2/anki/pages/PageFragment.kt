@@ -59,6 +59,9 @@ abstract class PageFragment :
     protected open val showBack = true
     protected open val bottomInsetHandledByHost = false
     protected open val selectDeck: (() -> Unit)? = null
+
+    /** Whether [pageTitle] is a Deck name, shown as its path */
+    protected open val titleIsDeckName = false
     protected open val save: (() -> Unit)? = null
 
     @Composable
@@ -85,6 +88,7 @@ abstract class PageFragment :
                                 onBack = if (showBack) ({ requireActivity().onBackPressedDispatcher.onBackPressed() }) else null,
                                 onSave = save,
                                 onTitleClick = selectDeck,
+                                titleIsDeckName = titleIsDeckName,
                             ) { PageActions() }
                         }
                     }

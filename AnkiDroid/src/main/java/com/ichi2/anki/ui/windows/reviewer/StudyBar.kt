@@ -64,7 +64,7 @@ fun StudyBarTitles(
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         if (state.deckPath.isNotEmpty()) {
-            StudyBarDeckPath(state.deckPath)
+            DeckPath(state.deckPath)
         }
         if (state.counts == null && state.minutesLeft == null) return@Column
         FlowRow(
@@ -83,8 +83,18 @@ fun StudyBarTitles(
     }
 }
 
+/**
+ * A Deck's path in the Study title role, its levels split by muted › separators, so a long path
+ * wraps between levels rather than inside a name. When the whole path would take more than
+ * [maxLines], the ancestors give way to "… › " and the Deck's own name; a screen reader still
+ * hears the full path.
+ */
 @Composable
-private fun StudyBarDeckPath(deckPath: List<String>) {
+fun DeckPath(
+    deckPath: List<String>,
+    modifier: Modifier = Modifier,
+    maxLines: Int = DECK_PATH_LINES,
+) {
     val foundation = MaterialTheme.foundation
     val style = foundation.type.studyTitle
     val separatorStyle = SpanStyle(color = foundation.colors.onBackgroundMuted, fontWeight = FontWeight.Normal)
@@ -96,7 +106,7 @@ private fun StudyBarDeckPath(deckPath: List<String>) {
             }
         }
     val measurer = rememberTextMeasurer()
-    BoxWithConstraints {
+    BoxWithConstraints(modifier) {
         val omitAncestors =
             deckPath.size > 1 &&
                 measurer
@@ -104,7 +114,7 @@ private fun StudyBarDeckPath(deckPath: List<String>) {
                         fullPath,
                         style,
                         overflow = TextOverflow.Ellipsis,
-                        maxLines = DECK_PATH_LINES,
+                        maxLines = maxLines,
                         constraints = Constraints(maxWidth = constraints.maxWidth),
                     ).didOverflowHeight
         val visiblePath =
@@ -121,7 +131,7 @@ private fun StudyBarDeckPath(deckPath: List<String>) {
             modifier = if (omitAncestors) Modifier.semantics { contentDescription = fullPath.text } else Modifier,
             style = style,
             color = foundation.colors.onBackground,
-            maxLines = DECK_PATH_LINES,
+            maxLines = maxLines,
             overflow = TextOverflow.Ellipsis,
         )
     }

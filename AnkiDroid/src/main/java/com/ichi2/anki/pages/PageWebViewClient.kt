@@ -78,9 +78,9 @@ open class PageWebViewClient : SafeWebViewClient() {
                 view.context.assets.open(assetPath).let { asset ->
                     when {
                         page?.disableCsp == true -> removeBundledCsp(asset)
-                        page?.harmonised == true -> {
+                        page != null && page.harmonised -> {
                             val html = asset.bufferedReader().use { it.readText() }
-                            AnkiPageStyle.attachTo(html, view.context).byteInputStream()
+                            AnkiPageStyle.attachTo(html, view.context, page).byteInputStream()
                         }
                         else -> asset
                     }

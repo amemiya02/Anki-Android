@@ -16,9 +16,11 @@ import com.google.android.material.R as MaterialR
 internal object AnkiPageStyle {
     private const val STYLESHEET = "/hayaki/anki-pages.css"
 
+    /** Marks [html] with its colour scheme and [page], so the stylesheet can address one route */
     fun attachTo(
         html: String,
         context: Context,
+        page: SvelteKitPage,
     ): String {
         val isLight =
             context.obtainStyledAttributes(R.styleable.ComposeTheme).use {
@@ -26,7 +28,7 @@ internal object AnkiPageStyle {
             }
         val scheme = if (isLight) "light" else "dark"
         return html
-            .replaceFirst("<html ", """<html data-hayaki-page="$scheme" """)
+            .replaceFirst("<html ", """<html data-hayaki-page="$scheme" data-hayaki-route="${page.route}" """)
             .replaceFirst("<head>", """<head><meta name="color-scheme" content="$scheme">""")
             .replaceFirst("</head>", """<link rel="stylesheet" href="$STYLESHEET"></head>""")
     }
@@ -63,6 +65,9 @@ internal object AnkiPageStyle {
             }
             color("paper", R.attr.foundationBackground, rgb = true)
             color("container", MaterialR.attr.colorSurfaceContainerLow)
+            color("outline", MaterialR.attr.colorOutline)
+            color("tonal", MaterialR.attr.colorSecondaryContainer)
+            color("on-tonal", MaterialR.attr.colorOnSecondaryContainer)
             color("ink", R.attr.foundationOnBackground, rgb = true)
             color("muted", R.attr.foundationOnBackgroundMuted)
             color("rule", R.attr.foundationOutline)
