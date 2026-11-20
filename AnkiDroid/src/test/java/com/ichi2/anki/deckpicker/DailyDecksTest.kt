@@ -5,6 +5,7 @@ package com.ichi2.anki.deckpicker
 import android.content.Intent
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -221,14 +222,8 @@ class DailyDecksTest : RobolectricTest() {
         advanceRobolectricLooperUntil(lazyMessage = {
             val visible =
                 composeRule
-                    .onAllNodes(
-                        androidx.compose.ui.test
-                            .hasAnyAncestor(
-                                androidx.compose.ui.test
-                                    .isRoot(),
-                            ),
-                        useUnmergedTree = true,
-                    ).fetchSemanticsNodes()
+                    .onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text), useUnmergedTree = true)
+                    .fetchSemanticsNodes()
                     .flatMap { it.config.getOrNull(SemanticsProperties.Text).orEmpty() }
                     .joinToString()
             "Expected '$text' in: $visible"
