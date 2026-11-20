@@ -25,3 +25,5 @@ Make Study All the primary daily action when work is available. Review the curre
 ## Verification
 
 Android’s restored reviewer and Finished paths passed, including system Back after rotation, skipping an ineligible Deck, preserving the completion summary if the Deck refills, and choosing another eligible top-level Deck first. On iOS the same eligibility regression failed before the fix and passed afterward. The fixture contains Geography and Languages::Spanish. [Android results](https://github.com/amemiya02/Hayaki/actions/runs/44748772663) · [iOS regression before](https://github.com/amemiya02/Hayaki-iOS/actions/runs/44741765551) · [iOS regression after](https://github.com/amemiya02/Hayaki-iOS/actions/runs/44741885985)
+
+The installed iOS candidate at `cc34221` finished Geography after three Easy ratings on both iPhone and iPad. Done opened Languages and early exit returned to the same 3 new, 2 learning, 1 due and 3 studied seen on Android. The iPad next Card was “adiós”. [Device results and screenshots](https://github.com/amemiya02/Hayaki/blob/redesign/docs/releases/0.2.0.md)
