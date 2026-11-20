@@ -36,6 +36,7 @@ path = [
     "AnkiDroid/src/main/res/mipmap-night-xxxhdpi/hayaki_mark.png",
     "AnkiDroid/src/androidTest/assets/hayaki-release/collection.colpkg",
     "docs/brand/themes.json",
+    "docs/releases/0.2.0-ios/*.png",
 ]
 SPDX-FileCopyrightText = "Hayaki iOS contributors"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
