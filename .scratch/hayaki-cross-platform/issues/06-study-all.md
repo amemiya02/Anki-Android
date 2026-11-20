@@ -21,3 +21,7 @@ Make Study All the primary daily action when work is available. Review the curre
 ## Blocked by
 
 - [05 · Read today’s workload and start the current Deck](05-daily-decks.md)
+
+## Verification
+
+Android’s restored reviewer and Finished paths passed, including system Back after rotation, skipping an ineligible Deck, preserving the completion summary if the Deck refills, and choosing another eligible top-level Deck first. On iOS the same eligibility regression failed before the fix and passed afterward. The fixture contains Geography and Languages::Spanish. [Android results](https://github.com/amemiya02/Hayaki/actions/runs/44748772663) · [iOS regression before](https://github.com/amemiya02/Hayaki-iOS/actions/runs/44741765551) · [iOS regression after](https://github.com/amemiya02/Hayaki-iOS/actions/runs/44741885985)

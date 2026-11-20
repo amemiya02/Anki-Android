@@ -21,3 +21,7 @@ Show remaining work, reviews already completed and the three queue counts on Dec
 ## Blocked by
 
 None - can start immediately
+
+## Verification
+
+The 6 DailyDecks and 14 DeckListScreen tests passed. They cover the collapsed current Deck, its direct study action, refreshed counts, an empty collection, a cleared day, nested Chinese and Japanese names, and the large-text layout. The installed shared fixture begins at 5 new, 2 learning and 2 due, then returns with 3 new, 2 learning and 1 due after three Easy ratings. [Regression XML](https://github.com/amemiya02/Hayaki/actions/runs/44748772663) · [Installed phone and wide layouts](https://github.com/amemiya02/Hayaki/actions/runs/44738659025)
