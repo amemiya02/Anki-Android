@@ -1,6 +1,8 @@
 # Hayaki Android Core Loop benchmark
 
-The baseline revision is `53364499959a13d6e9348cd5212cc83c632af73a`. [Recorded baseline](baselines/android-5336449995.md) Capture it and a candidate on the same device with the same release variant, compilation mode, app and device settings, fixture, and run count. The [earlier Browser check](../../.scratch/ankidroid-redesign/issues/26-card-browser-list-search-and-sort.md#controlled-100000-card-scroll-benchmark) used an Android 15 emulator and a different build and collection. It informs the swipe procedure.
+The baseline revision is `53364499959a13d6e9348cd5212cc83c632af73a`. Capture it and a candidate on the same device with the same release variant, compilation mode, app and device settings, fixture, and run count. [Recorded baseline](baselines/android-5336449995.md) · [Paired Hayaki 0.2.0 runs](baselines/android-hosted-0ca35438.md)
+
+The earlier Browser check used an Android 15 emulator and a different build and collection. It informs the swipe procedure. [Earlier Browser check](../../.scratch/ankidroid-redesign/issues/26-card-browser-list-search-and-sort.md#controlled-100000-card-scroll-benchmark)
 
 ## Prepare a run
 
@@ -12,7 +14,7 @@ The baseline revision is `53364499959a13d6e9348cd5212cc83c632af73a`. [Recorded b
    ```
 
 2. Use a dedicated device or a disposable emulator instance. Configure portrait, English, default font scale, Light mode, offline, and no automatic sync. Match the display size, density, refresh rate, motion settings and WebView version between captures. On an emulator, also match the image, emulator version, renderer, assigned cores and RAM. Keep other builds and emulators idle during measurements. Use the same thermal and power conditions for physical-device runs.
-3. Generate the fixture from the benchmark checkout with `uv`. It is one Deck named `Browser fixture` with 100,000 new Cards in due order, one Basic Note Type and no media. Its two Card faces have distinct solid color markers for observing the WebView on screen. Fixed IDs and timestamps let you verify the archive hash.
+3. Generate the fixture from the benchmark checkout with `uv`. It is one Deck named `Browser fixture` with 100,000 new Cards in due order, one Basic Note Type and no media. Its two Card faces have distinct solid color markers for observing the WebView on screen. Use the same archive in each capture. Generating it with a different SQLite version can change the SQLite file layout and therefore the archive hash.
 
    ```sh
    uv run --with genanki==0.13.1 python tools/core-loop-benchmark/make_fixture.py /tmp/Browser-fixture.apkg
