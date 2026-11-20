@@ -28,6 +28,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import com.ichi2.anki.common.android.R as CommonR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.ViewerResourceHandler
@@ -218,7 +219,7 @@ abstract class CardViewerFragment(
         with(webViewLayout) {
             setWebViewClient(onCreateWebViewClient(savedInstanceState))
             setWebChromeClient(CardViewerWebChromeClient().also { cardChromeClient = it })
-            setBackgroundColor(ThemeUtils.getThemeAttrColor(requireContext(), android.R.attr.colorBackground))
+            setBackgroundColor(ThemeUtils.getThemeAttrColor(requireContext(), CommonR.attr.foundationStudyCanvas))
             scrollBars = View.SCROLLBARS_OUTSIDE_OVERLAY
             setAcceptThirdPartyCookies(true)
             with(settings) {
