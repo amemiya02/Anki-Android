@@ -85,7 +85,9 @@ class HayakiReleaseCoreLoopTest : InstrumentedTest() {
                 val config = app.resources.configuration
                 val expectedLocale = Locale.forLanguageTag(checkNotNull(args.getString("hayakiLocale")))
                 assertEquals(expectedLocale.language, config.locales[0].language)
-                assertEquals(args.getString("hayakiFontScale")?.toFloat(), config.fontScale)
+                val expectedFontScale = checkNotNull(args.getString("hayakiFontScale")).toFloat()
+                assertEquals(expectedFontScale, config.fontScale)
+                assertEquals(expectedFontScale == 2f, config.smallestScreenWidthDp >= 600)
                 val direction = if (expectedLocale.language == "ar") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
                 assertEquals(direction, config.layoutDirection)
             }
@@ -142,8 +144,8 @@ class HayakiReleaseCoreLoopTest : InstrumentedTest() {
 
             assertDailySummary(left = 6, reviewed = 3, new = 3, learning = 2, due = 1)
             visible(string(CommonR.string.deck_list_study_all))
-            val deckRows = hasAnyAncestor(hasTestTag("${testContext.packageName}:id/deck_name"))
-            awaitVisible(deckRows and hasText("Geography"))
+            val geographyRow = hasTestTag("${testContext.packageName}:id/deck_name") and hasText("Geography")
+            awaitVisible(hasAnyAncestor(geographyRow) and hasText(finished))
             capture("07-decks-after-exit")
         }
     }
