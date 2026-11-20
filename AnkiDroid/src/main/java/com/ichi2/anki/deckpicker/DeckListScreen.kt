@@ -96,6 +96,9 @@ import com.ichi2.anki.R
 import com.ichi2.anki.common.android.Animations
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.sched.Counts
+import com.ichi2.anki.libanki.sched.Counts.Queue
+import com.ichi2.anki.ui.color
+import com.ichi2.anki.ui.label
 import com.ichi2.compose.theme.foundation
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -404,15 +407,18 @@ private fun TodaySummary(
 private fun TodayQueueCounts(counts: Counts) {
     val foundation = MaterialTheme.foundation
     val scheme = MaterialTheme.colorScheme
-    val headings = countHeadings()
-    val queueCounts = listOf(counts.new, counts.lrn, counts.rev)
-    val queueColors = listOf(foundation.colors.countNew, foundation.colors.countLearning, foundation.colors.countDue)
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        queueCounts.forEachIndexed { index, count ->
+        Queue.entries.forEach { queue ->
+            val count =
+                when (queue) {
+                    Queue.NEW -> counts.new
+                    Queue.LRN -> counts.lrn
+                    Queue.REV -> counts.rev
+                }
             Text(
-                text = stringResource(CommonR.string.deck_list_count_description, headings[index], count),
+                text = stringResource(CommonR.string.deck_list_count_description, queue.label(), count),
                 style = foundation.type.label,
-                color = if (count == 0) scheme.onSurfaceVariant else queueColors[index],
+                color = if (count == 0) scheme.onSurfaceVariant else queue.color(foundation.colors),
                 modifier = Modifier.clip(CircleShape).background(scheme.surfaceContainerLow).padding(horizontal = 8.dp, vertical = 4.dp),
             )
         }
@@ -433,9 +439,9 @@ private fun CountHeadings(columnWidths: List<Dp>) {
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        countHeadings().forEachIndexed { index, heading ->
+        Queue.entries.forEachIndexed { index, queue ->
             Text(
-                text = heading,
+                text = queue.label(),
                 style = foundation.type.label,
                 color = foundation.colors.onBackgroundMuted,
                 textAlign = TextAlign.Center,
@@ -444,9 +450,6 @@ private fun CountHeadings(columnWidths: List<Dp>) {
         }
     }
 }
-
-@Composable
-private fun countHeadings() = remember { listOf(TR.actionsNew(), TR.schedulingLearning(), TR.decksReviewHeader()) }
 
 /** Where a row sits in its Deck's container, which rounds its outer corners */
 private data class GroupPosition(
@@ -607,25 +610,19 @@ private fun DeckCounts(
         }
         return
     }
-    val headings = countHeadings()
     Row(modifier = clickable, verticalAlignment = Alignment.CenterVertically) {
-        val counts =
-            listOf(
-                deck.newCount to foundation.colors.countNew,
-                deck.lrnCount to foundation.colors.countLearning,
-                deck.revCount to foundation.colors.countDue,
-            )
-        counts.forEachIndexed { index, (count, colour) ->
+        Queue.entries.forEachIndexed { index, queue ->
+            val count = deck.count(queue)
             val width = Modifier.width(columnWidths[index])
             if (count == 0) {
                 Spacer(width)
             } else {
-                val description = stringResource(CommonR.string.deck_list_count_description, headings[index], count)
+                val description = stringResource(CommonR.string.deck_list_count_description, queue.label(), count)
                 Box(
                     modifier = width.clearAndSetSemantics { contentDescription = description },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Count(count, colour)
+                    Count(count, queue.color(foundation.colors))
                 }
             }
         }
@@ -663,19 +660,14 @@ private fun countColumnWidths(
     val foundation = MaterialTheme.foundation
     val measurer = rememberTextMeasurer()
     val density = LocalDensity.current
-    val headings = countHeadings()
+    val headings = Queue.entries.map { it.label() }
     return remember(decks, availableWidth, foundation.type, foundation.spacing.countColumn, density, measurer, headings) {
-        val largestCounts =
-            listOf(
-                decks.maxOfOrNull { it.newCount } ?: 0,
-                decks.maxOfOrNull { it.lrnCount } ?: 0,
-                decks.maxOfOrNull { it.revCount } ?: 0,
-            )
         val widths =
-            largestCounts.zip(headings).map { (count, heading) ->
+            Queue.entries.mapIndexed { index, queue ->
+                val count = decks.maxOfOrNull { it.count(queue) } ?: 0
                 with(density) {
                     val countText = measurer.measure(count.toString(), foundation.type.count)
-                    val headingText = measurer.measure(heading, foundation.type.label)
+                    val headingText = measurer.measure(headings[index], foundation.type.label)
                     val countWidth = countText.size.width.toDp() + COUNT_SIDE_ROOM
                     val headingWidth = headingText.size.width.toDp() + HEADING_SIDE_ROOM
                     maxOf(foundation.spacing.countColumn, countWidth, headingWidth)
