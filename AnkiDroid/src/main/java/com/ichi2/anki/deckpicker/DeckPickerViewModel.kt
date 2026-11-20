@@ -32,6 +32,7 @@ import com.ichi2.anki.libanki.CardId
 import com.ichi2.anki.libanki.Consts.DEFAULT_DECK_ID
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.Decks
+import com.ichi2.anki.libanki.sched.Counts
 import com.ichi2.anki.libanki.sched.DeckNode
 import com.ichi2.anki.libanki.undoAvailable
 import com.ichi2.anki.libanki.undoLabel
@@ -138,6 +139,11 @@ class DeckPickerViewModel :
             FlattenedDeckList(
                 data = tree.filterAndFlattenDisplay(DeckFilters.create(query), currentDeckId),
                 hasSubDecks = tree.children.any { it.children.any() },
+                currentStudyDeck =
+                    tree
+                        .find(currentDeckId)
+                        ?.takeIf { it.hasCardsReadyToStudy() }
+                        ?.let { DisplayDeckNode.from(it, matchesSearchOrChild = true, selectedDeckId = currentDeckId) },
             )
         }.stateIn(viewModelScope, SharingStarted.Eagerly, initialValue = FlattenedDeckList.empty)
 
@@ -213,8 +219,14 @@ class DeckPickerViewModel :
                 decks = deckList.data,
                 isEmptyCollection = inInitialState,
                 // Sum the top-level decks: the root's aggregate is capped (see flowOfCardsDue)
-                dueToday = tree.totalCardsDue(),
+                queuesToday =
+                    Counts(
+                        new = tree.children.sumOf { it.newCount },
+                        lrn = tree.children.sumOf { it.lrnCount },
+                        rev = tree.children.sumOf { it.revCount },
+                    ),
                 studiedToday = studiedToday,
+                currentStudyDeck = deckList.currentStudyDeck.takeIf { deckList.data.isNotEmpty() },
             )
         }.stateIn(viewModelScope, SharingStarted.Eagerly, initialValue = null)
 
@@ -761,6 +773,7 @@ class DeckPickerViewModel :
     data class FlattenedDeckList(
         val data: List<DisplayDeckNode>,
         val hasSubDecks: Boolean,
+        val currentStudyDeck: DisplayDeckNode? = null,
     ) {
         companion object {
             val empty = FlattenedDeckList(emptyList(), hasSubDecks = false)
