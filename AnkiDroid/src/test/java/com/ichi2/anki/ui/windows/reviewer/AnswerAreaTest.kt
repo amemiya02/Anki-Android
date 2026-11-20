@@ -16,9 +16,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
+import androidx.core.content.edit
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.scheduler.CardAnswer.Rating
+import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
+import com.ichi2.anki.settings.Prefs
 import com.ichi2.compose.theme.AnkiDroidTheme
 import org.junit.Rule
 import org.junit.Test
@@ -72,6 +75,20 @@ class AnswerAreaTest : RobolectricTest() {
         assertEquals(bounds(again).top, bounds(hard).top)
         assertTrue(bounds(good).top >= bounds(again).bottom, "Good and Easy must be in the second row")
         assertEquals(bounds(good).top, bounds(easy).top)
+    }
+
+    @Test
+    fun `a rating keeps its size when pressed with Remove animations enabled`() {
+        Prefs.sharedPrefs.edit { putBoolean(Prefs.key(R.string.safe_display_key), true) }
+        setAnswerArea(isAnswerShown = true)
+        val button = composeRule.onNodeWithText(good)
+        val restingBounds = button.fetchSemanticsNode().boundsInRoot
+
+        button.performTouchInput { down(center) }
+        composeRule.mainClock.advanceTimeBy(200)
+
+        assertEquals(restingBounds, button.fetchSemanticsNode().boundsInRoot)
+        button.performTouchInput { cancel() }
     }
 
     @Test
