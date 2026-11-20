@@ -21,3 +21,7 @@ Give both editions the joint product version, preserving signed Android update e
 ## Blocked by
 
 None - can start immediately
+
+## Verification
+
+The previous signed build and all five Android 0.2.0 APKs used the same package ID and certificate. Each ABI's effective version code increased by 186, and the installed ARM64 About screen showed 0.2.0 after updating the existing installation. The iOS simulator artifact’s app, Share extension and Widgets extension each report 0.2.0 (7). [Signed Android package set](https://github.com/amemiya02/Hayaki/actions/runs/44738659742) · [Android installed upgrade record](https://github.com/amemiya02/Hayaki/blob/redesign/docs/releases/0.2.0-upgrade.md) · [iOS simulator package](https://github.com/amemiya02/Hayaki-iOS/actions/runs/44739923183/artifacts/14629944496)
