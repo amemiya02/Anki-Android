@@ -20,8 +20,8 @@ if (( ${#app_apks[@]} != 1 || ${#test_apks[@]} != 1 )); then
     echo "Expected one x86_64 Play release APK and one matching instrumentation APK."
     exit 1
 fi
-adb install -r "${app_apks[0]}"
-adb install -r "${test_apks[0]}"
+adb install -r -t "${app_apks[0]}"
+adb install -r -t "${test_apks[0]}"
 adb shell settings put global hide_error_dialogs 1
 adb shell cmd uimode night no
 printf '%s  %s\n' 63ba3eba14a180e13bcb50300009e0e9d2961e8cee93a193af40facf95bf1612 "$fixture" | sha256sum --check
@@ -42,9 +42,9 @@ run_profile() {
     local directory="$evidence/$profile"
     local status=0
     mkdir -p "$directory"
-    adb shell pm clear "$package"
-    adb shell cmd locale set-app-locales "$package" --user 0 --locales "$locale"
-    adb shell settings put system font_scale "$font_scale"
+    adb shell pm clear "$package" || return 1
+    adb shell cmd locale set-app-locales "$package" --user 0 --locales "$locale" || return 1
+    adb shell settings put system font_scale "$font_scale" || return 1
     {
         printf 'Locale: %s\n' "$locale"
         adb shell date -u
@@ -52,6 +52,7 @@ run_profile() {
         adb shell wm density
         adb shell settings get system font_scale
         adb shell settings get global animator_duration_scale
+        adb shell cmd uimode night
         adb shell dumpsys display | grep -m 1 'DisplayInfo' || true
     } > "$directory/configuration.txt"
     adb shell am instrument -w -r \
