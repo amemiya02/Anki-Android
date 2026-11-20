@@ -55,10 +55,9 @@ fun createDeckWithUniqueName(): String {
 fun tapOnCountLayouts(deckName: String) {
     val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
     val deck = By.res(packageName, "deck_name").hasDescendant(By.text(deckName))
-    val row = checkNotNull(device.wait(Until.findObject(deck), DECK_TIMEOUT_MS)) { "Deck '$deckName' not shown" }
-    val number = Pattern.compile("\\p{Nd}+")
-    val count = row.findObject(By.text(number)) ?: row.findObject(By.desc(number))
-    checkNotNull(count) { "Deck '$deckName' has no counts" }.click()
+    // Queue descriptions include both the localized queue name and its nonzero count.
+    val queueCount = By.desc(Pattern.compile("(?s).*\\p{Nd}+.*")).hasAncestor(deck)
+    checkNotNull(device.wait(Until.findObject(queueCount), DECK_TIMEOUT_MS)) { "Deck '$deckName' has no queue counts" }.click()
 }
 
 /**
