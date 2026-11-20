@@ -36,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +49,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -101,7 +104,8 @@ fun AnswerArea(
             }
         }
     }
-    // "Show answer long-press time": Show answer acts once held that long; a tap only says why
+    val reveal by rememberUpdatedState { guarded(onShowAnswerClicked) }
+    // "Show answer long-press time": a physical tap only says why the answer did not show.
     var wasShownByHolding by remember { mutableStateOf(false) }
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
         Box(
@@ -140,7 +144,7 @@ fun AnswerArea(
             Button(
                 onClick = {
                     when {
-                        showAnswerMinimumPressMs <= 0 -> guarded(onShowAnswerClicked)
+                        showAnswerMinimumPressMs <= 0 -> reveal()
                         wasShownByHolding -> wasShownByHolding = false
                         else -> onShowAnswerPressTooShort()
                     }
@@ -150,10 +154,17 @@ fun AnswerArea(
                         .matchParentSize()
                         .padding(top = spacing.answerButton - spacing.primaryButton)
                         .invisibleIf(isAnswerShown)
-                        .pointerInput(showAnswerMinimumPressMs) {
+                        .semantics {
+                            // Screen-reader activation has no physical down event to time.
+                            onClick {
+                                reveal()
+                                true
+                            }
+                        }.pointerInput(showAnswerMinimumPressMs) {
                             if (showAnswerMinimumPressMs <= 0) return@pointerInput
                             awaitEachGesture {
                                 awaitFirstDown(requireUnconsumed = false)
+                                wasShownByHolding = false
                                 val released =
                                     withTimeoutOrNull(showAnswerMinimumPressMs.toLong()) {
                                         waitForUpOrCancellation()
@@ -161,7 +172,7 @@ fun AnswerArea(
                                     }
                                 if (released == null) {
                                     wasShownByHolding = true
-                                    guarded(onShowAnswerClicked)
+                                    reveal()
                                 }
                             }
                         },
