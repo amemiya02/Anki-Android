@@ -35,6 +35,8 @@ class DailyDecksTest : RobolectricTest() {
     @get:Rule
     val composeRule = createEmptyComposeRule()
 
+    override fun getCollectionStorageMode() = CollectionStorageMode.IN_MEMORY_WITH_MEDIA
+
     @After
     override fun tearDown() {
         super.tearDown()
@@ -51,7 +53,7 @@ class DailyDecksTest : RobolectricTest() {
 
         withDeckPicker(deckCount = 0) {
             awaitText("3 cards to study today")
-            composeRule.onNodeWithText("3 cards to study today").assertIsDisplayed()
+            composeRule.onNodeWithText("3 cards to study today").performScrollTo().assertIsDisplayed()
             awaitText("0 studied so far")
             composeRule.onNodeWithText("0 studied so far").performScrollTo().assertIsDisplayed()
             composeRule.onNodeWithText("New: 2").assertIsDisplayed()
@@ -202,15 +204,11 @@ class DailyDecksTest : RobolectricTest() {
         activity: DeckPicker,
         recreated: Boolean = false,
     ) {
-        val fragments = activity.supportFragmentManager
-        advanceRobolectricLooperUntil(lazyMessage = { "Expected an active reviewer" }) {
-            fragments.fragments.filterIsInstance<ReviewerFragment>().any { it.isResumed }
+        composeRule.waitUntil(10_000) {
+            advanceRobolectricLooper()
+            activity.currentScreenFragment is ReviewerFragment
         }
-        fragments.fragments
-            .filterIsInstance<ReviewerFragment>()
-            .single { it.isResumed }
-            .viewModel
-            .onPageFinished(recreated)
+        (activity.currentScreenFragment as ReviewerFragment).viewModel.onPageFinished(recreated)
         advanceRobolectricLooper()
     }
 

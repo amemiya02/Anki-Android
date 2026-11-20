@@ -121,14 +121,14 @@ class StudyBarTest : RobolectricTest() {
     fun `the progress line updates immediately with Remove animations enabled`() {
         editPreferences { putBoolean(targetContext.getString(R.string.safe_display_key), true) }
         var progress by mutableFloatStateOf(0.25f)
-        composeRule.mainClock.autoAdvance = false
         composeRule.setContent {
             AnkiDroidTheme { StudyProgress(progress) }
         }
-        composeRule.mainClock.advanceTimeByFrame()
-
-        progress = 0.5f
-        composeRule.mainClock.advanceTimeByFrame()
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo(0.25f, 0f..1f))).assertIsDisplayed()
+        composeRule.mainClock.autoAdvance = false
+        composeRule.runOnIdle { progress = 0.5f }
+        // Allow the state write and recomposition to reach semantics, well within the 240 ms tween.
+        composeRule.mainClock.advanceTimeBy(32)
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo(0.5f, 0f..1f))).assertIsDisplayed()
     }
