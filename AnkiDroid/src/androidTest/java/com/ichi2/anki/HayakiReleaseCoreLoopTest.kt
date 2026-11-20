@@ -192,6 +192,10 @@ class HayakiReleaseCoreLoopTest : InstrumentedTest() {
     }
 
     private fun capture(name: String) {
+        // Semantics can be ready while the Activity's first surface is still being drawn.
+        compose.waitForIdle()
+        instrumentation.waitForIdleSync()
+        device.waitForIdle()
         val directory = File(checkNotNull(testContext.getExternalFilesDir(null)), "hayaki-release-evidence")
         assertTrue(directory.isDirectory || directory.mkdirs())
         assertTrue(device.takeScreenshot(File(directory, "$name.png")), "Capture $name")
