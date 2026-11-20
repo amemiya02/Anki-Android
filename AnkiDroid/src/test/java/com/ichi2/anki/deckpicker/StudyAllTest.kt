@@ -109,13 +109,19 @@ class StudyAllTest : RobolectricTest() {
         host: DeckPicker,
         deck: DeckId,
     ): ReviewerFragment {
-        advanceRobolectricLooperUntil { host.currentScreenFragment is ReviewerFragment }
+        compose.waitUntil(10_000) {
+            advanceRobolectricLooper()
+            host.currentScreenFragment is ReviewerFragment
+        }
         assertEquals(deck, col.decks.selected())
         return host.currentScreenFragment as ReviewerFragment
     }
 
     private fun awaitFinished(host: DeckPicker) {
-        advanceRobolectricLooperUntil { host.currentScreenFragment is FinishedFragment }
+        compose.waitUntil(10_000) {
+            advanceRobolectricLooper()
+            host.currentScreenFragment is FinishedFragment
+        }
         awaitText("Done")
     }
 
