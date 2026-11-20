@@ -43,14 +43,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.onClick
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -105,8 +104,7 @@ fun AnswerArea(
         }
     }
     val reveal by rememberUpdatedState { guarded(onShowAnswerClicked) }
-    // "Show answer long-press time": a physical tap only says why the answer did not show.
-    var wasShownByHolding by remember { mutableStateOf(false) }
+    val pressTooShort by rememberUpdatedState(onShowAnswerPressTooShort)
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
         Box(
             modifier =
@@ -142,37 +140,28 @@ fun AnswerArea(
                 }
             }
             Button(
-                onClick = {
-                    when {
-                        showAnswerMinimumPressMs <= 0 -> reveal()
-                        wasShownByHolding -> wasShownByHolding = false
-                        else -> onShowAnswerPressTooShort()
-                    }
-                },
+                onClick = reveal,
                 modifier =
                     Modifier
                         .matchParentSize()
                         .padding(top = spacing.answerButton - spacing.primaryButton)
                         .invisibleIf(isAnswerShown)
-                        .semantics {
-                            // Screen-reader activation has no physical down event to time.
-                            onClick {
-                                reveal()
-                                true
-                            }
-                        }.pointerInput(showAnswerMinimumPressMs) {
+                        .pointerInput(showAnswerMinimumPressMs) {
                             if (showAnswerMinimumPressMs <= 0) return@pointerInput
                             awaitEachGesture {
-                                awaitFirstDown(requireUnconsumed = false)
-                                wasShownByHolding = false
-                                val released =
+                                awaitFirstDown(pass = PointerEventPass.Initial)
+                                val endedBeforeMinimum =
                                     withTimeoutOrNull(showAnswerMinimumPressMs.toLong()) {
-                                        waitForUpOrCancellation()
+                                        // Intercept the physical release before Button's tap handler.
+                                        waitForUpOrCancellation(PointerEventPass.Initial)?.let { up ->
+                                            up.consume()
+                                            pressTooShort()
+                                        }
                                         true
                                     }
-                                if (released == null) {
-                                    wasShownByHolding = true
+                                if (endedBeforeMinimum == null) {
                                     reveal()
+                                    waitForUpOrCancellation(PointerEventPass.Initial)?.consume()
                                 }
                             }
                         },
