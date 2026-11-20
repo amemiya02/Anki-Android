@@ -21,3 +21,7 @@ Provide repeatable release-build measurements for the existing app and the redes
 ## Blocked by
 
 None - can start immediately
+
+## Implementation evidence
+
+The replay tool builds a disposable 100,000-Card fixture and captures Android release cold starts, Card reveals, consecutive ratings and Browser swipes. The recorded release `5336449995` was built and exercised on a Pixel 9 Android 15 AOSP emulator. The archived partial run contains three cold starts, two reveal samples and one rating sample. Host contention interrupted the study and Browse replays. [Replay instructions](../../../tools/core-loop-benchmark/README.md) · [Baseline evidence](../../../tools/core-loop-benchmark/baselines/android-5336449995.md)

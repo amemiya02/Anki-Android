@@ -1,0 +1,245 @@
+{
+    "timestamp_utc": "2026-11-20T12:34:23+00:00",
+    "revision": "53364499959a13d6e9348cd5212cc83c632af73a",
+    "apk_sha256": "7c0ba4df1453fbe2b7ba32393aa71e65ab89e064a28f68210eb6d6fe38f39a38",
+    "fixture_sha256": "98521cda65c48d402271722a92a45f2ffdc610a7bc4d45237922e46b7ee2db4f",
+    "package": "com.ichi2.anki.redesign.perf",
+    "device": "Android SDK built for arm64",
+    "fingerprint": "Android/sdk_phone64_arm64/emu64a:15/AE3A.240806.019/12368160:userdebug/test-keys",
+    "avd": "hayaki_020_aosp",
+    "display_size": "Physical size: 720x1616",
+    "display_density": "Physical density: 280",
+    "refresh_rate_hz": 60.0,
+    "font_scale": "1.0",
+    "webview": "Current WebView Update Service state\n  Current WebView package (name, version): (com.android.webview, 124.0.6367.219)\n  Minimum targetSdkVersion: 33\n  Minimum WebView version code: 636771901\n  Number of relros started: 1\n  Number of relros finished: 1\n  WebView package dirty: false\n  Any WebView package installed: true\n  Preferred WebView package (name, version): (com.android.webview, 124.0.6367.219)\n  WebView packages:\n    Valid package com.android.webview (versionName: 124.0.6367.219, versionCode: 636771901, targetSdkVersion: 34) is  installed/enabled for all users",
+    "art_compilation": "speed",
+    "renderer": "GLES: Google (Apple), Android Emulator OpenGL ES Translator (Apple M2), OpenGL ES 3.0 (4.1 Metal - 91.7)",
+    "host": "macOS-27.3-arm64-arm-64bit",
+    "run_conditions": "Android Emulator 37.2.13.0, Pixel 9 profile, Android 15 AOSP arm64, 4 vCPUs, 2560 MB, headless, host GPU, no snapshots, airplane mode, Light, English, default font and motion scales. Apple M2 with 24 GB RAM. This task paused its other builds and iOS simulator. Shared host load and swap were elevated and variable.",
+    "samples": [
+        {
+            "action": "cold_start",
+            "frame_capture": "001-cold_start.gfxinfo.txt",
+            "after_vsync_ns": 0,
+            "host_load_1m": 79.22,
+            "run": 1,
+            "total_time_ms": 1526,
+            "frames": 30,
+            "missed_deadlines": 9,
+            "overrun_refresh_intervals": {
+                "0": 21,
+                "1": 5,
+                "2": 2,
+                "6": 1,
+                "12": 1
+            },
+            "render_ms": {
+                "p50": 31.36,
+                "p95": 307.53,
+                "p99": 519.32
+            }
+        },
+        {
+            "action": "cold_start",
+            "frame_capture": "002-cold_start.gfxinfo.txt",
+            "after_vsync_ns": 0,
+            "host_load_1m": 75.92,
+            "run": 2,
+            "total_time_ms": 1928,
+            "frames": 26,
+            "missed_deadlines": 7,
+            "overrun_refresh_intervals": {
+                "0": 19,
+                "1": 3,
+                "2": 1,
+                "3": 2,
+                "4": 1
+            },
+            "render_ms": {
+                "p50": 19.84,
+                "p95": 132.48,
+                "p99": 151.71
+            }
+        },
+        {
+            "action": "cold_start",
+            "frame_capture": "003-cold_start.gfxinfo.txt",
+            "after_vsync_ns": 0,
+            "host_load_1m": 71.6,
+            "run": 3,
+            "total_time_ms": 1322,
+            "frames": 32,
+            "missed_deadlines": 12,
+            "overrun_refresh_intervals": {
+                "0": 20,
+                "1": 6,
+                "2": 1,
+                "3": 3,
+                "4": 2
+            },
+            "render_ms": {
+                "p50": 50.93,
+                "p95": 133.23,
+                "p99": 402.04
+            }
+        },
+        {
+            "action": "reveal",
+            "frame_capture": "004-reveal.gfxinfo.txt",
+            "after_vsync_ns": 948715648144,
+            "host_load_1m": 52.07,
+            "run": 1,
+            "card": 1,
+            "visible_lower_ms": 0.0,
+            "visible_upper_ms": 1669.26,
+            "screenshot_samples": 1,
+            "last_screenshot_ms": 1528.73,
+            "frames": 2,
+            "missed_deadlines": 2,
+            "overrun_refresh_intervals": {
+                "6": 1,
+                "8": 1
+            },
+            "render_ms": {
+                "p50": 110.02,
+                "p95": 140.87,
+                "p99": 140.87
+            }
+        },
+        {
+            "action": "grade",
+            "frame_capture": "005-grade.gfxinfo.txt",
+            "after_vsync_ns": 950448981408,
+            "host_load_1m": 49.98,
+            "run": 1,
+            "card": 1,
+            "visible_lower_ms": 208.56,
+            "visible_upper_ms": 2720.95,
+            "screenshot_samples": 2,
+            "last_screenshot_ms": 1358.45,
+            "frames": 24,
+            "missed_deadlines": 13,
+            "overrun_refresh_intervals": {
+                "0": 11,
+                "1": 6,
+                "2": 2,
+                "3": 2,
+                "4": 1,
+                "10": 1,
+                "13": 1
+            },
+            "render_ms": {
+                "p50": 60.72,
+                "p95": 304.36,
+                "p99": 323.41
+            }
+        },
+        {
+            "action": "reveal",
+            "frame_capture": "006-reveal.gfxinfo.txt",
+            "after_vsync_ns": 954932314562,
+            "host_load_1m": 53.11,
+            "run": 1,
+            "card": 2,
+            "visible_lower_ms": 0.0,
+            "visible_upper_ms": 2631.21,
+            "screenshot_samples": 1,
+            "last_screenshot_ms": 2325.33,
+            "frames": 5,
+            "missed_deadlines": 5,
+            "overrun_refresh_intervals": {
+                "6": 1,
+                "8": 1,
+                "11": 1,
+                "12": 1,
+                "13": 1
+            },
+            "render_ms": {
+                "p50": 353.16,
+                "p95": 738.62,
+                "p99": 738.62
+            }
+        }
+    ],
+    "capture_status": "partial",
+    "interrupted_at": "The screenshot for the next question after the second measured Easy rating was not observed within 15 seconds. A subsequent screenshot showed that the third Card had been graded and the fourth question was visible.",
+    "summary": {
+        "cold_start": {
+            "frames": 88,
+            "missed_deadlines": 28,
+            "overrun_refresh_intervals": {
+                "0": 60,
+                "1": 14,
+                "2": 4,
+                "3": 5,
+                "4": 3,
+                "6": 1,
+                "12": 1
+            },
+            "render_ms": {
+                "p50": 39.61,
+                "p95": 185.98,
+                "p99": 519.32
+            },
+            "total_time_ms": {
+                "p50": 1526,
+                "p95": 1928,
+                "p99": 1928
+            }
+        },
+        "reveal": {
+            "frames": 7,
+            "missed_deadlines": 7,
+            "overrun_refresh_intervals": {
+                "6": 2,
+                "8": 2,
+                "11": 1,
+                "12": 1,
+                "13": 1
+            },
+            "render_ms": {
+                "p50": 212.65,
+                "p95": 738.62,
+                "p99": 738.62
+            },
+            "visible_lower_ms": {
+                "p50": 0.0,
+                "p95": 0.0,
+                "p99": 0.0
+            },
+            "visible_upper_ms": {
+                "p50": 1669.26,
+                "p95": 2631.21,
+                "p99": 2631.21
+            }
+        },
+        "grade": {
+            "frames": 24,
+            "missed_deadlines": 13,
+            "overrun_refresh_intervals": {
+                "0": 11,
+                "1": 6,
+                "2": 2,
+                "3": 2,
+                "4": 1,
+                "10": 1,
+                "13": 1
+            },
+            "render_ms": {
+                "p50": 60.72,
+                "p95": 304.36,
+                "p99": 323.41
+            },
+            "visible_lower_ms": {
+                "p50": 208.56,
+                "p95": 208.56,
+                "p99": 208.56
+            },
+            "visible_upper_ms": {
+                "p50": 2720.95,
+                "p95": 2720.95,
+                "p99": 2720.95
+            }
+        }
+    }
+}
