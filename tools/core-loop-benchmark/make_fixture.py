@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """Generate the disposable 100,000-Card release benchmark fixture."""
 
 import argparse

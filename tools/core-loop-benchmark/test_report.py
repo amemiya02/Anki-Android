@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """Check the frame report against an Android framestats example."""
 
 import json

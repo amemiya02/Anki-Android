@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """Capture or inspect the Hayaki Android release performance baseline."""
 
 import argparse
