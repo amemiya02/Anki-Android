@@ -20,7 +20,7 @@ The baseline revision is `53364499959a13d6e9348cd5212cc83c632af73a`. Capture it 
    ```
 
 4. Start the `.perf` app with an empty collection. Complete onboarding with **Start with no Decks**. Import `Browser-fixture.apkg` with the Android system file picker. Keep the default study limits, enable the rating buttons, and clear any Browser filter. Before each complete capture, recreate the disposable app's empty collection and reimport the fixture. The benchmark grades up to 18 Cards.
-5. Use the benchmark checkout for the capture, regardless of which APK revision is on the device. Enter the installed APK's full revision and describe the host activity, configuration and renderer used for the run. The capture forces ART `speed` compilation before the unmeasured warm-up.
+5. Use the benchmark checkout for the capture, regardless of which APK revision is on the device. Enter the installed APK's full revision and describe the host activity, configuration and renderer used for the run. The capture forces ART `speed` compilation before the unmeasured warm-up. To use an already packaged release, select its package with `--package` and install it on a disposable device with only the fixture imported.
 
    ```sh
    python3 tools/core-loop-benchmark/run.py capture \
