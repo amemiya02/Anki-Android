@@ -1,6 +1,6 @@
 # Study across eligible Decks and stop on exit
 
-Status: ready-for-agent
+Status: done
 Type: AFK
 User stories: 8, 10, 11
 
@@ -14,9 +14,9 @@ Make Study All the primary daily action when work is available. Review the curre
 
 ## Acceptance criteria
 
-- [ ] With two due top-level Decks and a nested child, Study All covers eligible Cards according to the Engine without scheduling the child twice.
-- [ ] After a Deck finishes, re-read eligibility before opening the next one. Skip a Deck that became ineligible and end when no work remains.
-- [ ] An explicit exit from a running review returns to Decks. Launching only the current Deck never advances to another Deck. Check queue changes against the iOS fixture walkthrough.
+- [x] With two due top-level Decks and a nested child, Study All covers eligible Cards according to the Engine without scheduling the child twice.
+- [x] After a Deck finishes, re-read eligibility before opening the next one. Skip a Deck that became ineligible and end when no work remains.
+- [x] An explicit exit from a running review returns to Decks. Launching only the current Deck never advances to another Deck. Check queue changes against the iOS fixture walkthrough.
 
 ## Blocked by
 
