@@ -39,9 +39,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
-import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.common.android.Animations
-import com.ichi2.anki.libanki.sched.Counts
+import com.ichi2.anki.libanki.sched.Counts.Queue
+import com.ichi2.anki.ui.color
+import com.ichi2.anki.ui.label
 import com.ichi2.anki.utils.remainingTime
 import com.ichi2.compose.theme.foundation
 import com.ichi2.anki.common.android.R as CommonR
@@ -143,11 +144,16 @@ fun DeckPath(
 @Composable
 private fun StudyBarCounts(counts: StudyCounts) {
     val colors = MaterialTheme.foundation.colors
-    val (new, learning, due) = remember { listOf(TR.actionsNew(), TR.schedulingLearning(), TR.decksReviewHeader()) }
     Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
-        StudyBarCount(counts.newCount, new, colors.countNew, isActive = counts.activeQueue == Counts.Queue.NEW)
-        StudyBarCount(counts.learnCount, learning, colors.countLearning, isActive = counts.activeQueue == Counts.Queue.LRN)
-        StudyBarCount(counts.reviewCount, due, colors.countDue, isActive = counts.activeQueue == Counts.Queue.REV)
+        Queue.entries.forEach { queue ->
+            val count =
+                when (queue) {
+                    Queue.NEW -> counts.newCount
+                    Queue.LRN -> counts.learnCount
+                    Queue.REV -> counts.reviewCount
+                }
+            StudyBarCount(count, queue.label(), queue.color(colors), isActive = counts.activeQueue == queue)
+        }
     }
 }
 
