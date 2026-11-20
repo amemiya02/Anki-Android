@@ -7,6 +7,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -22,6 +23,7 @@ import com.ichi2.anki.common.time.MockTime
 import com.ichi2.anki.common.time.SECONDS_PER_DAY
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.setIntroductionSlidesShown
+import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
 import com.ichi2.anki.withDeckPicker
 import com.ichi2.testutils.BackupManagerTestUtilities
@@ -91,7 +93,7 @@ class DailyDecksTest : RobolectricTest() {
             tap("Study · N3")
             reviewerPageLoaded(deckPicker)
             tap(deckPicker.getString(CommonString.show_answer))
-            tap(deckPicker.getString(CommonString.ease_button_easy))
+            tapEasy(deckPicker)
             awaitText("Easy 1")
             composeRule.onNodeWithText("Reviewed").assertIsDisplayed()
             tap(deckPicker.getString(CommonString.finished_done))
@@ -113,14 +115,13 @@ class DailyDecksTest : RobolectricTest() {
 
         withDeckPicker(deckCount = 0) { deckPicker ->
             val showAnswer = deckPicker.getString(CommonString.show_answer)
-            val easy = deckPicker.getString(CommonString.ease_button_easy)
             tap("Study All")
             reviewerPageLoaded(deckPicker)
             awaitText("Geography")
             awaitText(showAnswer)
             composeRule.onNodeWithText("Geography").assertIsDisplayed()
             tap(showAnswer)
-            tap(easy)
+            tapEasy(deckPicker)
             awaitText("Done")
             composeRule.onNodeWithText("Geography").assertIsDisplayed()
             composeRule.onNodeWithText(showAnswer).assertDoesNotExist()
@@ -129,7 +130,7 @@ class DailyDecksTest : RobolectricTest() {
             reviewerPageLoaded(deckPicker)
             awaitText("Languages › Japanese")
             tap(showAnswer)
-            tap(easy)
+            tapEasy(deckPicker)
             awaitText("Done")
             composeRule.onNodeWithText("Languages").assertIsDisplayed()
             tap("Done")
@@ -184,7 +185,7 @@ class DailyDecksTest : RobolectricTest() {
         reviewerPageLoaded(activity.get(), recreated = true)
         awaitText("Geography")
         tap(showAnswer)
-        tap(activity.get().getString(CommonString.ease_button_easy))
+        tapEasy(activity.get())
         awaitText("Done")
         activity.recreate()
         advanceRobolectricLooper()
@@ -228,6 +229,18 @@ class DailyDecksTest : RobolectricTest() {
         }) {
             composeRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()
         }
+
+    private fun tapEasy(activity: DeckPicker) {
+        // The installed button combines the next interval and the rating into a single label.
+        val label = "\n" + activity.getString(CommonString.ease_button_easy)
+        composeRule.mainClock.advanceTimeBy(Prefs.doubleTapInterval.toLong())
+        val button = composeRule.onNodeWithText(label, substring = true)
+        composeRule.waitUntil(10_000) {
+            advanceRobolectricLooper()
+            button.isDisplayed()
+        }
+        button.performClick()
+    }
 
     private fun tap(text: String) {
         awaitText(text)
