@@ -1,6 +1,6 @@
 # Apply Paper and Midnight to the study canvas
 
-Status: ready-for-agent
+Status: done
 Type: AFK
 User stories: 4, 6, 15
 
@@ -14,9 +14,9 @@ Carry a chosen Theme from Appearance settings into an actual review. Give ordina
 
 ## Acceptance criteria
 
-- [ ] Paper and Midnight use the pinned light and dark study colours for Cards with no background of their own. Black uses a pure black default canvas.
-- [ ] A styled Card keeps its authored background. A following unstyled Card uses the selected Theme again.
-- [ ] Review and reveal Cards containing media and formulae after changing Theme and reopening the reviewer. Verify content and contrast.
+- [x] Paper and Midnight use the pinned light and dark study colours for Cards with no background of their own. Black uses a pure black default canvas.
+- [x] A styled Card keeps its authored background. A following unstyled Card uses the selected Theme again.
+- [x] Review and reveal Cards containing media and formulae after changing Theme and reopening the reviewer. Verify content and contrast.
 
 ## Blocked by
 
