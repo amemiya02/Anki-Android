@@ -44,6 +44,20 @@ class GraphicsUseFoundationTest {
     }
 
     @Test
+    fun `content colour exemptions match Windows source paths`() {
+        val source = """AnkiDroid\src\main\java\com\ichi2\anki"""
+        val drawing = """$source\DrawingFragment.kt"""
+        val whiteboard = """$source\ui\windows\reviewer\whiteboard\WhiteboardView.kt"""
+        val reviewer = """$source\ui\windows\reviewer\ReviewerFragment.kt"""
+
+        val exempt =
+            listOf(drawing, whiteboard, reviewer).filter { path ->
+                CONTENT_COLOURS.keys.any { it.covers(path, "Color.BLACK") }
+            }
+        assertEquals(listOf(drawing, whiteboard), exempt)
+    }
+
+    @Test
     fun `the exemptions are still needed`() {
         val unusedMasks = MASKS.keys.filter { name -> drawables().none { it.nameWithoutExtension == name } }
         val unusedOutside = DRAWN_WITHOUT_THE_APP_THEME.keys.filter { name -> drawables().none { it.nameWithoutExtension == name } }
@@ -200,7 +214,7 @@ class GraphicsUseFoundationTest {
     private fun String.covers(
         path: String,
         token: String,
-    ): Boolean = path.contains(substringBefore('#')) && (!contains('#') || substringAfter('#') == token)
+    ): Boolean = path.replace('\\', '/').contains(substringBefore('#')) && (!contains('#') || substringAfter('#') == token)
 
     private fun Element.childElements(): Sequence<Element> =
         (0 until childNodes.length).asSequence().map { childNodes.item(it) }.filterIsInstance<Element>()
