@@ -5,6 +5,7 @@ package com.ichi2.anki.preferences
 import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.View
+import androidx.annotation.ColorRes
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
@@ -141,11 +142,7 @@ class SettingsSearchNavigationTest : RobolectricTest() {
             blackChoices[1].performScrollTo().performClick()
             advanceRobolectricLooper()
             blackChoices[1].assertIsSelected()
-            scenario.onActivity { activity ->
-                val background = TypedValue()
-                activity.theme.resolveAttribute(CommonR.attr.foundationBackground, background, true)
-                assertEquals(activity.getColor(CommonR.color.foundation_black_background), background.data)
-            }
+            scenario.assertAppearanceBackground(CommonR.color.foundation_black_background)
         }
     }
 
@@ -193,23 +190,32 @@ class SettingsSearchNavigationTest : RobolectricTest() {
             putString("nightTheme", "3")
             remove("hayaki.theme")
         }
-        RuntimeEnvironment.setQualifiers("+night")
         val intent = PreferencesActivity.getIntent(targetContext, AppearanceSettingsFragment::class)
-        ActivityScenario.launch<PreferencesActivity>(intent).use {
+        val system = compose.onNodeWithText(targetContext.getString(R.string.settings_theme_system))
+        val light = compose.onNode(hasText(targetContext.getString(R.string.settings_theme_light)) and isSelectable())
+
+        RuntimeEnvironment.setQualifiers("+notnight")
+        ActivityScenario.launch<PreferencesActivity>(intent).use { scenario ->
             val themeRow = hasText(targetContext.getString(CommonString.app_theme)) and hasClickAction()
             compose.onNode(themeRow).assertTextContains("Hayaki")
-            compose.onNodeWithText(targetContext.getString(R.string.settings_theme_system)).assertIsSelected()
-            val light = hasText(targetContext.getString(R.string.settings_theme_light)) and isSelectable()
-            compose.onNode(light).performScrollTo().performClick()
-            advanceRobolectricLooper()
-            assertEquals(NightTheme.BLACK, Prefs.nightTheme)
+            system.assertIsSelected()
+            scenario.assertAppearanceBackground(CommonR.color.foundation_light_background)
         }
-        ActivityScenario.launch<PreferencesActivity>(intent).use {
-            val system = hasText(targetContext.getString(R.string.settings_theme_system)) and isSelectable()
-            compose.onNode(system).performScrollTo().performClick()
+
+        RuntimeEnvironment.setQualifiers("+night")
+        ActivityScenario.launch<PreferencesActivity>(intent).use { scenario ->
+            system.assertIsSelected()
+            scenario.assertAppearanceBackground(CommonR.color.foundation_black_background)
+            light.performScrollTo().performClick()
             advanceRobolectricLooper()
-            assertEquals(AppTheme.FOLLOW_SYSTEM, Prefs.appTheme)
-            assertEquals(NightTheme.BLACK, Prefs.nightTheme)
+        }
+        ActivityScenario.launch<PreferencesActivity>(intent).use { scenario ->
+            light.assertIsSelected()
+            scenario.assertAppearanceBackground(CommonR.color.foundation_light_background)
+            system.performScrollTo().performClick()
+            advanceRobolectricLooper()
+            system.assertIsSelected()
+            scenario.assertAppearanceBackground(CommonR.color.foundation_black_background)
         }
     }
 
@@ -247,6 +253,16 @@ class SettingsSearchNavigationTest : RobolectricTest() {
 
     private fun openSettings(): ActivityScenario<PreferencesActivity> =
         ActivityScenario.launch(PreferencesActivity.getIntent(targetContext))
+
+    private fun ActivityScenario<PreferencesActivity>.assertAppearanceBackground(
+        @ColorRes expected: Int,
+    ) {
+        onActivity { activity ->
+            val background = TypedValue()
+            activity.theme.resolveAttribute(CommonR.attr.foundationBackground, background, true)
+            assertEquals(activity.getColor(expected), background.data)
+        }
+    }
 
     private fun search(query: String) {
         compose.onNodeWithContentDescription(targetContext.getString(R.string.settings_search)).performTextInput(query)
