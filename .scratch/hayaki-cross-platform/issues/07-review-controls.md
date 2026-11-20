@@ -25,3 +25,5 @@ None - can start immediately
 ## Verification
 
 All 13 AnswerArea, 7 StudyBar and 7 whiteboard gesture tests passed, along with the wide reviewer and 25 reviewer fragment tests. The accessibility click reveals the answer with a saved minimum hold, while a physical short tap produces its hint and a hold reveals only once. The installed shared fixture exercises four ratings and math. The signed upgrade walkthrough exercises the saved K binding with Again and Good enabled. [Controls and reviewer tests](https://github.com/amemiya02/Hayaki/actions/runs/44748772663) · [Installed upgrade](https://github.com/amemiya02/Hayaki/blob/redesign/docs/releases/0.2.0-upgrade.md)
+
+On the signed release, TalkBack focus traversed Show Answer and the four ratings in order, each with its interval. Three Easy double-taps produced exactly three completed reviews. Both the phone and wide display used 200% text and disabled animation. [Signed-release TalkBack focus trace](https://github.com/amemiya02/Hayaki/blob/redesign/docs/releases/0.2.0-talkback.md)

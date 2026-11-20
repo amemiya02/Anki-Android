@@ -25,3 +25,5 @@ None - can start immediately
 ## Verification
 
 The 6 DailyDecks and 14 DeckListScreen tests passed. They cover the collapsed current Deck, its direct study action, refreshed counts, an empty collection, a cleared day, nested Chinese and Japanese names, and the large-text layout. The installed shared fixture begins at 5 new, 2 learning and 2 due, then returns with 3 new, 2 learning and 1 due after three Easy ratings. [Regression XML](https://github.com/amemiya02/Hayaki/actions/runs/44748772663) · [Installed phone and wide layouts](https://github.com/amemiya02/Hayaki/actions/runs/44748906084)
+
+On a phone and a wide display at 200% font scale, TalkBack traversed the Today summary, the named new, learning and due queues, then Study All. After the second Deck was left early, Decks reported six Cards left and three studied. [Signed-release TalkBack focus trace](https://github.com/amemiya02/Hayaki/blob/redesign/docs/releases/0.2.0-talkback.md)
