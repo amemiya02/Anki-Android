@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -624,9 +623,9 @@ private fun EmptyDeckList(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Image(
-            painter = painterResource(R.drawable.hayaki_mark),
+            painter = painterResource(R.mipmap.hayaki_mark),
             contentDescription = null,
-            modifier = Modifier.size(foundation.spacing.emptyMark).offset(x = (-8).dp),
+            modifier = Modifier.size(foundation.spacing.emptyMark),
         )
         Text(
             text = stringResource(CommonR.string.deck_list_empty_title),

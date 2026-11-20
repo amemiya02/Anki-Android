@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
@@ -95,7 +94,7 @@ private fun WelcomeScreen(
             Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(top = 40.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Image(painterResource(R.drawable.hayaki_mark), contentDescription = null, modifier = Modifier.offset(x = (-8).dp).size(88.dp))
+            Image(painterResource(R.mipmap.hayaki_mark), contentDescription = null, modifier = Modifier.size(88.dp))
             Text(
                 stringResource(CommonString.fork_name),
                 modifier = Modifier.semantics { heading() },

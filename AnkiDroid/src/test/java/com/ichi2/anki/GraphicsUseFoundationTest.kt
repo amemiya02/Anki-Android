@@ -250,8 +250,6 @@ class GraphicsUseFoundationTest {
          */
         private val DRAWN_WITHOUT_THE_APP_THEME =
             mapOf(
-                "ic_launcher_background" to "the launcher icon",
-                "ic_launcher_foreground" to "the launcher icon",
                 "add_shortcut" to "a launcher shortcut, drawn with the launcher icon",
                 "browse_shortcut" to "a launcher shortcut, drawn with the launcher icon",
                 "review_shortcut" to "a launcher shortcut, drawn with the launcher icon",
@@ -263,7 +261,6 @@ class GraphicsUseFoundationTest {
                 "widget_action" to "a home-screen widget action mask: Glance tints it with the app's primary colour",
                 "widget_sheet" to "a home-screen widget background mask: Glance tints it with the app's theme colours",
                 "widget_sheet_compact" to "a compact home-screen widget background mask: Glance tints it with the app's theme colours",
-                "ic_launcher_monochrome" to "the launcher's themed icon: the launcher tints it",
                 "ic_hayaki_notification" to "the notification's small icon: the system draws only its shape (ticket 47)",
             )
 
