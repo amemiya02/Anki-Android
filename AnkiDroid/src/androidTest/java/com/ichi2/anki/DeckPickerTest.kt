@@ -8,16 +8,17 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.core.content.edit
+import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.ichi2.anki.TestUtils.isTablet
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.tests.InstrumentedTest
 import com.ichi2.anki.testutil.GrantStoragePermission.storagePermission
 import com.ichi2.anki.testutil.disableIntroductionSlide
-import com.ichi2.anki.testutil.discardPreliminaryViews
 import com.ichi2.anki.testutil.grantPermissions
 import com.ichi2.anki.testutil.notificationPermission
 import com.ichi2.anki.testutil.tapOnCountLayouts
@@ -32,58 +33,67 @@ class DeckPickerTest : InstrumentedTest() {
     val composeRule = createEmptyComposeRule()
 
     @get:Rule
-    val activityRule = ActivityScenarioRule(DeckPicker::class.java)
-
-    @get:Rule
     val runtimePermissionRule = grantPermissions(storagePermission, notificationPermission)
 
     @Before
     fun before() {
         addNoteUsingBasicNoteType()
         disableIntroductionSlide()
-        discardPreliminaryViews()
     }
 
     @Test
     fun checkIfClickOnCountsLayoutOpensStudyOptionsOnMobile() {
-        // Run the test only on emulator.
         assumeTrue(isEmulator())
 
-        // For mobile. If it is not a mobile, then test will be ignored.
-        assumeTrue(!isTablet)
+        withDeckPicker { scenario ->
+            assumeTrue(!isTablet)
 
-        activityRule.scenario.onActivity { it.updateDeckList() }
-        tapOnCountLayouts("Default")
-        composeRule.waitUntil(10_000) {
-            composeRule.onAllNodesWithTag("study_deck_title").fetchSemanticsNodes().isNotEmpty()
-        }
-        composeRule.onNodeWithTag("study_deck_title").assertIsDisplayed()
-        activityRule.scenario.onActivity { deckPicker ->
-            check(deckPicker.currentScreenFragment is StudyOptionsFlowFragment)
-            deckPicker.onBackPressedDispatcher.onBackPressed()
+            tapOnCountLayouts("Default")
+            composeRule.waitUntil(10_000) {
+                composeRule.onAllNodesWithTag("study_deck_title").fetchSemanticsNodes().isNotEmpty()
+            }
+            composeRule.onNodeWithTag("study_deck_title").assertIsDisplayed()
+            scenario.onActivity { deckPicker ->
+                check(deckPicker.currentScreenFragment is StudyOptionsFlowFragment)
+                deckPicker.onBackPressedDispatcher.onBackPressed()
+            }
         }
     }
 
     @Test
-    fun bottomBarIsShownWhereverTheLayoutHasNoDrawer() {
-        activityRule.scenario.onActivity { deckPicker ->
-            val hasBottomNavLayout = deckPicker.resources.getBoolean(R.bool.bottom_navigation_available)
-            assertEquals(!deckPicker.fragmented, hasBottomNavLayout)
-            assertEquals(hasBottomNavLayout, deckPicker.bottomNavigationEnabled)
-            assertEquals(hasBottomNavLayout, deckPicker.findViewById<View>(R.id.bottom_navigation) != null)
+    fun bottomBarIsShownWhereverTheLayoutHasNoDrawer() =
+        withDeckPicker { scenario ->
+            scenario.onActivity { deckPicker ->
+                val hasBottomNavLayout = deckPicker.resources.getBoolean(R.bool.bottom_navigation_available)
+                assertEquals(!deckPicker.fragmented, hasBottomNavLayout)
+                assertEquals(hasBottomNavLayout, deckPicker.bottomNavigationEnabled)
+                assertEquals(hasBottomNavLayout, deckPicker.findViewById<View>(R.id.bottom_navigation) != null)
+            }
         }
-    }
 
     @Test
     fun checkIfStudyOptionsIsDisplayedOnTablet() {
-        // Run the test only on emulator.
         assumeTrue(isEmulator())
 
-        // For tablet. If it is not a tablet, then test will be ignored.
-        assumeTrue(isTablet)
+        withDeckPicker {
+            assumeTrue(isTablet)
 
-        // Check if currently open Fragment is StudyOptionsFragment
-        onView(withId(R.id.studyoptions_fragment))
-            .check(ViewAssertions.matches(isDisplayed()))
+            onView(withId(R.id.studyoptions_fragment))
+                .check(ViewAssertions.matches(isDisplayed()))
+        }
+    }
+
+    private fun withDeckPicker(test: (ActivityScenario<DeckPicker>) -> Unit) {
+        val preferences = testContext.sharedPrefs()
+        val backupPromptKey = "backupPromptDisabled"
+        val oldBackupPrompt = preferences.getBoolean(backupPromptKey, false).takeIf { preferences.contains(backupPromptKey) }
+        preferences.edit { putBoolean(backupPromptKey, true) }
+        try {
+            ActivityScenario.launch(DeckPicker::class.java).use(test)
+        } finally {
+            preferences.edit {
+                if (oldBackupPrompt == null) remove(backupPromptKey) else putBoolean(backupPromptKey, oldBackupPrompt)
+            }
+        }
     }
 }
