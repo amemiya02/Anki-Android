@@ -202,6 +202,7 @@ jobs:
           --tests '*.ReviewerViewModelTest' --tests '*.ReviewerFragmentTest' --tests '*.CardStudyCanvasTest'
           --tests '*.StudyBarTest' --tests '*.ReviewerBigScreenTest' --tests '*.ReviewerWhiteboardGestureTest'
           --tests '*.SettingsSearchNavigationTest' --tests '*.ThemesTest'
+          --tests '*.GraphicsUseFoundationTest' --tests '*.StatusBarFollowsThemeTest'
           :common:android:testDebugUnitTest
           --tests '*.FoundationTest' --tests '*.ThemeTest'
           --daemon
