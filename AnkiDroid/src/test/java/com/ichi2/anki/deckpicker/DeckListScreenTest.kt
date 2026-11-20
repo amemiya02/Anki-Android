@@ -7,12 +7,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasScrollToIndexAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
@@ -160,6 +163,7 @@ class DeckListScreenTest : RobolectricTest() {
     fun `a narrow right-to-left deck list wraps a long deck name at large text size`() {
         val name = "مراجعة قواعد اللغة اليابانية"
         show(nestedDecks(name), fontScale = 2f)
+        composeRule.onNode(hasScrollToIndexAction()).performScrollToNode(hasText(name))
 
         assertTextFits(name)
         assertCountsFitUnderHeadings()

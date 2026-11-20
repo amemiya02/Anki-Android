@@ -3,12 +3,15 @@
 package com.ichi2.anki.deckpicker
 
 import android.content.Intent
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.decks.SetDeckCollapsedRequest
 import com.ichi2.anki.CommonString
@@ -18,6 +21,7 @@ import com.ichi2.anki.common.time.MockTime
 import com.ichi2.anki.common.time.SECONDS_PER_DAY
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.setIntroductionSlidesShown
+import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
 import com.ichi2.anki.withDeckPicker
 import com.ichi2.testutils.BackupManagerTestUtilities
 import org.junit.After
@@ -38,14 +42,17 @@ class DailyDecksTest : RobolectricTest() {
 
     @Test
     fun `today's summary counts a subdeck once and shows empty queues`() {
+        setTimeToStartOfStudyDay()
         val nested = addDeck("Japanese::N3")
         col.setDeck(listOf(addBasicNote("Vocabulary").firstCard().id), nested)
         addBasicNote("Anatomy")
         addRevBasicNoteDueToday("Geography", "Answer")
 
         withDeckPicker(deckCount = 0) {
+            awaitText("3 cards to study today")
             composeRule.onNodeWithText("3 cards to study today").assertIsDisplayed()
-            composeRule.onNodeWithText("0 studied so far").assertIsDisplayed()
+            awaitText("0 studied so far")
+            composeRule.onNodeWithText("0 studied so far").performScrollTo().assertIsDisplayed()
             composeRule.onNodeWithText("New: 2").assertIsDisplayed()
             composeRule.onNodeWithText("Learning: 0").assertIsDisplayed()
             composeRule.onNodeWithText("Due: 1").assertIsDisplayed()
@@ -79,6 +86,7 @@ class DailyDecksTest : RobolectricTest() {
         withDeckPicker(deckCount = 0) { deckPicker ->
             composeRule.onNodeWithText("N3").assertDoesNotExist()
             tap("Study · N3")
+            reviewerPageLoaded(deckPicker)
             tap(deckPicker.getString(CommonString.show_answer))
             tap(deckPicker.getString(CommonString.ease_button_easy))
             awaitText("Easy 1")
@@ -104,6 +112,8 @@ class DailyDecksTest : RobolectricTest() {
             val showAnswer = deckPicker.getString(CommonString.show_answer)
             val easy = deckPicker.getString(CommonString.ease_button_easy)
             tap("Study All")
+            reviewerPageLoaded(deckPicker)
+            awaitText("Geography")
             awaitText(showAnswer)
             composeRule.onNodeWithText("Geography").assertIsDisplayed()
             tap(showAnswer)
@@ -113,6 +123,7 @@ class DailyDecksTest : RobolectricTest() {
             composeRule.onNodeWithText(showAnswer).assertDoesNotExist()
             tap("Done")
 
+            reviewerPageLoaded(deckPicker)
             awaitText("Languages › Japanese")
             tap(showAnswer)
             tap(easy)
@@ -140,7 +151,8 @@ class DailyDecksTest : RobolectricTest() {
                 .performClick()
 
             awaitText("2 cards to study today")
-            composeRule.onNodeWithText("0 studied so far").assertIsDisplayed()
+            awaitText("0 studied so far")
+            composeRule.onNodeWithText("0 studied so far").performScrollTo().assertIsDisplayed()
             composeRule.onNodeWithText("Study All").assertIsDisplayed()
         }
     }
@@ -166,6 +178,7 @@ class DailyDecksTest : RobolectricTest() {
         awaitText(showAnswer)
         activity.recreate()
         advanceRobolectricLooper()
+        reviewerPageLoaded(activity.get(), recreated = true)
         awaitText("Geography")
         tap(showAnswer)
         tap(activity.get().getString(CommonString.ease_button_easy))
@@ -176,9 +189,28 @@ class DailyDecksTest : RobolectricTest() {
 
         col.sched.suspendCards(listOf(historyCard.id))
         activity.get().onBackPressedDispatcher.onBackPressed()
+        reviewerPageLoaded(activity.get())
+        awaitText("Languages")
         awaitText(showAnswer)
         composeRule.onNodeWithText("Languages").assertIsDisplayed()
         composeRule.onNodeWithText("History").assertDoesNotExist()
+    }
+
+    // Robolectric does not run WebView JavaScript or dispatch its page-loaded callback.
+    private fun reviewerPageLoaded(
+        activity: DeckPicker,
+        recreated: Boolean = false,
+    ) {
+        val fragments = activity.supportFragmentManager
+        advanceRobolectricLooperUntil(lazyMessage = { "Expected an active reviewer" }) {
+            fragments.fragments.filterIsInstance<ReviewerFragment>().any { it.isResumed }
+        }
+        fragments.fragments
+            .filterIsInstance<ReviewerFragment>()
+            .single { it.isResumed }
+            .viewModel
+            .onPageFinished(recreated)
+        advanceRobolectricLooper()
     }
 
     private fun setTimeToStartOfStudyDay() {
@@ -186,7 +218,21 @@ class DailyDecksTest : RobolectricTest() {
     }
 
     private fun awaitText(text: String) =
-        advanceRobolectricLooperUntil(lazyMessage = { "Expected to find the text '$text'" }) {
+        advanceRobolectricLooperUntil(lazyMessage = {
+            val visible =
+                composeRule
+                    .onAllNodes(
+                        androidx.compose.ui.test
+                            .hasAnyAncestor(
+                                androidx.compose.ui.test
+                                    .isRoot(),
+                            ),
+                        useUnmergedTree = true,
+                    ).fetchSemanticsNodes()
+                    .flatMap { it.config.getOrNull(SemanticsProperties.Text).orEmpty() }
+                    .joinToString()
+            "Expected '$text' in: $visible"
+        }) {
             composeRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()
         }
 
