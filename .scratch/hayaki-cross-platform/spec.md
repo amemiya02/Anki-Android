@@ -1,6 +1,6 @@
 # Hayaki 0.2.0 — shared brand and daily study across Android and iOS
 
-Status: ready-for-agent
+Status: done
 
 ## Problem Statement
 
@@ -70,3 +70,9 @@ Later Milestones cover the Browse and editor flows, wide-screen browsing, sync p
 ## Further Notes
 
 The reference pair used for design review on 2026-11-20 was Android `5336449995` and iOS `fbb380a`. Release notes will identify the revisions that actually pass acceptance. The 0.2.0 release gate covers the icon, all ten Themes, preference migration, the complete Core Loop, accessibility, consecutive-rating performance and installation checks above. [Shared product decision](../../docs/adr/0007-shared-hayaki-product.md) · [Android Quality Bar](../../PRODUCT.md) · [iOS study fixture at the design baseline](https://github.com/amemiya02/Hayaki-iOS/blob/fbb380a/Packages/CollectionStore/Sources/CollectionTesting/Fixtures/collection.colpkg)
+
+## Release acceptance
+
+All eleven implementation and acceptance tickets ([#2](https://github.com/amemiya02/Hayaki/issues/2) through [#12](https://github.com/amemiya02/Hayaki/issues/12)) are complete. Android and iOS share the folded-card brand, ten Themes, public version 0.2.0 and the verified daily study flow. The tagged pair is Android `0ca354386eea699c91a8c34d86bb46084081217d` (universal version code 22600300) and iOS `cc342214d5a1a60ae25363be1d4599228e97cc89` (build 7). [Tested releases and evidence](https://github.com/amemiya02/Hayaki/blob/redesign/docs/releases/0.2.0.md) · [Android tag](https://github.com/amemiya02/Hayaki/tree/v0.2.0) · [iOS tag](https://github.com/amemiya02/Hayaki-iOS/tree/v0.2.0)
+
+The implementation is available for review in [Hayaki Android #13](https://github.com/amemiya02/Hayaki/pull/13) and [Hayaki iOS #61](https://github.com/amemiya02/Hayaki-iOS/pull/61).

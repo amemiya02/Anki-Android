@@ -1,6 +1,6 @@
 # Verify the two release candidates together
 
-Status: ready-for-human
+Status: done
 Type: HITL
 User stories: 1–23
 
@@ -14,10 +14,10 @@ Use the same study collection on both installed release candidates and record ev
 
 ## Acceptance criteria
 
-- [ ] Align the study day and starting queues, perform the same ratings, and compare the complete Decks → Study All → reveal → rate → Finished path, counts and applicable actions.
-- [ ] Inspect the launcher and theme choices and repeat the Android Core Loop with TalkBack, 200% text and reduced motion. Check phone and wide layouts, English, Simplified Chinese, Japanese and RTL mirroring.
-- [ ] Upgrade over the previous signed Android build and verify collection, history and preferences. Repeat the performance measurements on the baseline device and investigate repeatable slowdowns.
-- [ ] Record evidence, tested revisions and build numbers for both editions. Verify release notes and joint release tags identify the tested 0.2.0 pair before marking release acceptance complete.
+- [x] Align the study day and starting queues, perform the same ratings, and compare the complete Decks → Study All → reveal → rate → Finished path, counts and applicable actions.
+- [x] Inspect the launcher and theme choices and repeat the Android Core Loop with TalkBack, 200% text and reduced motion. Check phone and wide layouts, English, Simplified Chinese, Japanese and RTL mirroring.
+- [x] Upgrade over the previous signed Android build and verify collection, history and preferences. Repeat the performance measurements on the baseline device and investigate repeatable slowdowns.
+- [x] Record evidence, tested revisions and build numbers for both editions. Verify release notes and joint release tags identify the tested 0.2.0 pair before marking release acceptance complete.
 
 ## Blocked by
 
@@ -53,3 +53,5 @@ The maintainer approved the Android visuals. The signed release also completed t
 The final iOS source passed the hosted phone and landscape iPad checks. A separate portrait iPad replay installed the archived app and verified all three Easy grades, Done, and the early exit. [iPhone XCTest](https://github.com/amemiya02/Hayaki-iOS/actions/runs/44755687099/artifacts/14640571286) · [iPad XCTest](https://github.com/amemiya02/Hayaki-iOS/actions/runs/44755687099/artifacts/14639617848)
 
 All 210 cases in the final expanded Android suite passed on Linux with zero skips, including Info in Light, Dark and Black. A cold-start release installation also passed the localized Deck-count action. [JUnit XML](https://github.com/amemiya02/Hayaki/actions/runs/44761458950/artifacts/14642007113) · [Cold-start instrumented test](https://github.com/amemiya02/Hayaki/actions/runs/44760561739)
+
+Both annotated v0.2.0 tags were created and read back from the personal repositories. Each annotation records both tested commits and links to the same immutable release notes. [Android tag](https://github.com/amemiya02/Hayaki/tree/v0.2.0) · [iOS tag](https://github.com/amemiya02/Hayaki-iOS/tree/v0.2.0) · [Tagged pair's release notes](https://github.com/amemiya02/Hayaki/blob/441c523ed1dd273750a6c82a957c89e242314448/docs/releases/0.2.0.md)
