@@ -127,7 +127,7 @@ class StudyBarTest : RobolectricTest() {
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo(0.25f, 0f..1f))).assertIsDisplayed()
         composeRule.mainClock.autoAdvance = false
         composeRule.runOnIdle { progress = 0.5f }
-        // Allow the state write and recomposition to reach semantics, well within the 240 ms tween.
+        // Allow the state write and recomposition to reach semantics, before an animated transition could finish.
         composeRule.mainClock.advanceTimeBy(32)
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo(0.5f, 0f..1f))).assertIsDisplayed()

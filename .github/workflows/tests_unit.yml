@@ -197,7 +197,7 @@ jobs:
         if: inputs.core_loop_only
         run: >
           ./gradlew :AnkiDroid:testFullDebugUnitTest
-          --tests '*.DailyDecksTest' --tests '*.DeckListScreenTest'
+          --tests '*.DailyDecksTest' --tests '*.StudyAllTest' --tests '*.DeckListScreenTest'
           --tests '*.AnswerAreaTest' --tests '*.FinishedFragmentTest'
           --tests '*.ReviewerViewModelTest' --tests '*.ReviewerFragmentTest' --tests '*.CardStudyCanvasTest'
           --tests '*.StudyBarTest' --tests '*.ReviewerBigScreenTest' --tests '*.ReviewerWhiteboardGestureTest'
