@@ -188,7 +188,9 @@ def capture(args):
     report_path = args.output / "report.json"
 
     def save():
-        report_path.write_text(json.dumps(report, indent=2) + "\n")
+        temporary_report = report_path.with_suffix(".tmp")
+        temporary_report.write_text(json.dumps(report, indent=2) + "\n")
+        temporary_report.replace(report_path)
 
     save()
     collected = {}
@@ -300,7 +302,10 @@ def main():
     analyze.add_argument("--refresh-rate", type=float, required=True)
     run = commands.add_parser("capture", help="capture a run on a prepared Android device")
     run.add_argument("--serial", required=True)
-    run.add_argument("--package", default="com.ichi2.anki.redesign.perf")
+    run.add_argument(
+        "--package", default="com.ichi2.anki.redesign.perf",
+        help="package whose study progress will change on the disposable device",
+    )
     run.add_argument("--revision", required=True, help="source commit of the installed APK")
     run.add_argument("--fixture", type=Path, required=True, help="imported Anki package (.apkg)")
     run.add_argument("--conditions", required=True, help="renderer, host activity and other runtime settings")
@@ -313,9 +318,8 @@ def main():
         frames = [row for row in frame_rows(args.file.read_text()) if row[0] > args.after]
         print(json.dumps(frame_summary(frames, args.refresh_rate), indent=2))
     else:
-        # The study path grades cards. Restrict it to the dedicated release build.
-        if not args.package.endswith(".perf") or args.runs not in (1, 2, 3):
-            parser.error("use the disposable .perf package and choose 1–3 runs")
+        if args.runs not in (1, 2, 3):
+            parser.error("choose 1–3 runs with the default daily limit")
         capture(args)
 
 
