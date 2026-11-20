@@ -20,7 +20,7 @@ Open Hayaki to see what’s due across your decks. Pick one deck or tap **Study 
 
 ## Install or build
 
-Hayaki runs on **Android 7.0 or later** and can be installed alongside AnkiDroid. The 0.2.0 release notes link the signed APKs from GitHub Actions. While the artifact is available, sign in to GitHub, download the archive, extract it and install the universal APK. [Release files and upgrade notes](docs/releases/0.2.0.md)
+Hayaki runs on **Android 7.0 or later** and can be installed alongside AnkiDroid. For a first install, download the universal APK. If you previously installed an architecture-specific APK, use the same variant to upgrade in place. [Download the universal APK](https://github.com/amemiya02/Hayaki/releases/download/v0.2.0/Hayaki-0.2.0-universal.apk) · [All variants, signing details and checksums](https://github.com/amemiya02/Hayaki/releases/tag/v0.2.0)
 
 To build 0.2.0 yourself, install JDK 21 and Android SDK Platform 37. Point `ANDROID_HOME` at the SDK, or set `sdk.dir` in `local.properties`. With USB debugging enabled on a connected device, run
 
