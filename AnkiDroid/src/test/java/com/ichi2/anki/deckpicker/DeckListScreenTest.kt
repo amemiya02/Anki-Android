@@ -45,6 +45,10 @@ class DeckListScreenTest : RobolectricTest() {
 
     private val actions =
         object : DeckListActions {
+            override fun onStudyAll() {
+                events += "study all"
+            }
+
             override fun onStudyCurrentDeck(deckId: DeckId) {
                 events += "study current ${name(deckId)}"
             }

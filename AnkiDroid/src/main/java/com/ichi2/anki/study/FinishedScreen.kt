@@ -5,6 +5,7 @@ package com.ichi2.anki.study
 import android.content.Context
 import android.text.format.DateFormat
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -70,6 +71,7 @@ fun FinishedScreen(
     onDeckOptions: () -> Unit,
     onBackToDecks: () -> Unit,
     modifier: Modifier = Modifier,
+    @StringRes closeLabel: Int = CommonR.string.finished_back_to_decks,
 ) {
     val foundation = MaterialTheme.foundation
     val context = LocalContext.current
@@ -159,7 +161,7 @@ fun FinishedScreen(
             elevation = null,
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         ) {
-            Text(stringResource(CommonR.string.finished_back_to_decks), style = foundation.type.button, textAlign = TextAlign.Center)
+            Text(stringResource(closeLabel), style = foundation.type.button, textAlign = TextAlign.Center)
         }
     }
 }

@@ -2,15 +2,18 @@
 
 package com.ichi2.anki.study
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
@@ -57,6 +60,8 @@ class FinishedFragment :
     Fragment(),
     ChangeManager.Subscriber {
     private val viewModel by viewModels<CongratsViewModel>()
+    private val studyAll: Boolean
+        get() = arguments?.getBoolean(ARG_STUDY_ALL) == true
 
     init {
         ChangeManager.subscribe(this)
@@ -87,11 +92,12 @@ class FinishedFragment :
                     state?.let {
                         FinishedScreen(
                             state = it,
-                            onBack = { finishScreen() },
+                            onBack = ::closeFinished,
                             onUnbury = { viewModel.onUnbury() },
                             onCustomStudy = { onCustomStudy() },
                             onDeckOptions = { viewModel.onDeckOptions() },
-                            onBackToDecks = { finishScreen() },
+                            onBackToDecks = ::closeFinished,
+                            closeLabel = if (studyAll) CommonString.finished_done else CommonString.finished_back_to_decks,
                         )
                     }
                 }
@@ -103,6 +109,9 @@ class FinishedFragment :
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
+        if (studyAll) {
+            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) { closeFinished() }
+        }
 
         viewModel.onError
             .flowWithLifecycle(lifecycle)
@@ -157,6 +166,11 @@ class FinishedFragment :
         }
     }
 
+    private fun closeFinished() {
+        // Opening Custom Study or Study Options ends Study All.
+        finishScreen(if (studyAll) Activity.RESULT_OK else Activity.RESULT_CANCELED)
+    }
+
     private fun showUnburyModes() {
         val unburyOptions =
             listOf(
@@ -203,6 +217,16 @@ class FinishedFragment :
     }
 
     companion object {
-        fun getIntent(context: Context): Intent = SingleFragmentActivity.getIntent(context, fragmentClass = FinishedFragment::class)
+        private const val ARG_STUDY_ALL = "study_all"
+
+        fun getIntent(
+            context: Context,
+            studyAll: Boolean = false,
+        ): Intent =
+            SingleFragmentActivity.getIntent(
+                context,
+                fragmentClass = FinishedFragment::class,
+                arguments = if (studyAll) bundleOf(ARG_STUDY_ALL to true) else null,
+            )
     }
 }

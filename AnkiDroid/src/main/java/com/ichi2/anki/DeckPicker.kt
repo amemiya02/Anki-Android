@@ -216,6 +216,7 @@ import com.ichi2.anki.shareddeck.SharedDecksActivity
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
 import com.ichi2.anki.snackbar.SnackbarBuilder
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.study.FinishedFragment
 import com.ichi2.anki.study.StudyAvailability
 import com.ichi2.anki.study.StudyCompletionUi
 import com.ichi2.anki.study.currentDeckStudyState
@@ -357,8 +358,12 @@ open class DeckPicker :
     /** Today, as the deck list's title shows it on phones */
     private val deckListDate = mutableStateOf(Date(TimeManager.time.intTimeMS()))
 
+    private var launchStudyAllJob: Job? = null
+
     private val deckListActions =
         object : DeckListActions {
+            override fun onStudyAll() = openNextStudyAllDeck()
+
             override fun onStudyCurrentDeck(deckId: DeckId) = onDeckClick(deckId, DeckSelectionType.SKIP_STUDY_OPTIONS)
 
             override fun onDeckClick(deckId: DeckId) = onDeckClick(deckId, DeckSelectionType.DEFAULT)
@@ -459,7 +464,7 @@ open class DeckPicker :
         registerForActivityResult(
             ActivityResultContracts.StartActivityForResult(),
             DeckPickerActivityResultCallback {
-                processReviewResults(it.resultCode)
+                processReviewResults(it)
             },
         )
 
@@ -511,6 +516,21 @@ open class DeckPicker :
                 if (it.resultCode == RESULT_OK) {
                     onSelectedFileToImport(it.data!!)
                 }
+            },
+        )
+
+    // Use distinct registrations so the restored back stack still knows which result should continue Study All.
+    private val studyAllReviewLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult(),
+            DeckPickerActivityResultCallback { processReviewResults(it, studyAll = true) },
+        )
+
+    private val studyAllFinishedLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult(),
+            DeckPickerActivityResultCallback {
+                if (it.resultCode == RESULT_OK) openNextStudyAllDeck(afterFinished = true)
             },
         )
 
@@ -1720,14 +1740,20 @@ open class DeckPicker :
         ExportDialogFragment.forDeckList().show(supportFragmentManager, "exportDialog")
     }
 
-    private fun processReviewResults(resultCode: Int) {
-        if (resultCode == ReviewerFragment.RESULT_NO_MORE_CARDS) {
-            launchCatchingTask {
-                val state = withCol { currentDeckStudyState() }
+    private fun processReviewResults(
+        result: ActivityResult,
+        studyAll: Boolean = false,
+    ) {
+        if (result.resultCode != ReviewerFragment.RESULT_NO_MORE_CARDS) return
+        launchCatchingTask {
+            val state = withCol { currentDeckStudyState() }
+            if (studyAll && state.availability == StudyAvailability.NoCardsAvailable) {
+                studyAllFinishedLauncher.launch(FinishedFragment.getIntent(this@DeckPicker, studyAll = true))
+            } else {
                 StudyCompletionUi.onReviewsCompleted(this@DeckPicker, state)
             }
-            fragment?.refreshInterface()
         }
+        fragment?.refreshInterface()
     }
 
     override fun onResume() {
@@ -2488,9 +2514,7 @@ open class DeckPicker :
                 decks.select(did)
                 currentDeckStudyState()
             }
-        // Also forget the last deck used by the Browser
-        CardBrowser.clearLastDeckId()
-        viewModel.focusedDeck = did
+        focusSelectedDeck(did)
 
         if (study.availability == StudyAvailability.CardsAvailable) {
             openReviewerOrStudyOptions(selectionType)
@@ -2635,9 +2659,37 @@ open class DeckPicker :
         }
     }
 
-    private fun openReviewer() {
+    private fun openNextStudyAllDeck(afterFinished: Boolean = false) {
+        if (showsStandaloneScreen || launchStudyAllJob?.isActive == true) return
+        launchStudyAllJob =
+            launchCatchingTask {
+                val deckId =
+                    withCol {
+                        // The Engine includes each child Deck in the queue of its top-level parent.
+                        val dueDecks = sched.deckDueTree().children.filter(DeckNode::hasCardsReadyToStudy)
+                        // If the Deck that just finished became due again, leave the learner on Decks.
+                        if (afterFinished) {
+                            val finishedDeckId = decks.selected()
+                            if (dueDecks.any { it.did == finishedDeckId }) return@withCol null
+                        }
+                        val next = dueDecks.firstOrNull() ?: return@withCol null
+                        decks.select(next.did)
+                        next.did
+                    } ?: return@launchCatchingTask
+                focusSelectedDeck(deckId)
+                openReviewer(studyAll = true)
+            }
+    }
+
+    private fun focusSelectedDeck(deckId: DeckId) {
+        CardBrowser.clearLastDeckId()
+        viewModel.focusedDeck = deckId
+    }
+
+    private fun openReviewer(studyAll: Boolean = false) {
         Timber.i("Opening Reviewer")
-        reviewLauncher.navigate(ReviewDeckDestination.CurrentDeck)
+        val launcher = if (studyAll) studyAllReviewLauncher else reviewLauncher
+        launcher.navigate(ReviewDeckDestination.CurrentDeck)
     }
 
     private fun createSubDeckDialog(did: DeckId) {

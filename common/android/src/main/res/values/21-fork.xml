@@ -23,6 +23,7 @@
     <string name="finished_next_day" comment="%s is a time of day, e.g. 4:00 AM, when the next day's Cards become available">More cards will be ready tomorrow from %s.</string>
     <string name="finished_unbury" comment="Button on the finished screen which unburies Cards and returns to studying">Unbury and keep studying</string>
     <string name="finished_back_to_decks" comment="Primary button on the finished screen which returns to the deck list">Back to decks</string>
+    <string name="finished_done" comment="Closes the finished screen at the end of a review session">Done</string>
     <!-- The deck list (ticket 17); its column headings are the Engine's -->
     <plurals name="deck_list_due_today" comment="The deck list's summary: new, learning and due Cards left today over every Deck">
         <item quantity="one">%d card to study today</item>
@@ -34,6 +35,7 @@
     </plurals>
     <string name="deck_list_count_description" comment="A count on the deck list. %1$s is New, Learning or Due; %2$d the count">%1$s: %2$d</string>
     <string name="deck_list_nothing_due" comment="The deck list's summary when no Deck has a Card left to study today">Nothing left to study today</string>
+    <string name="deck_list_study_all" comment="Studies every Deck with cards left today">Study All</string>
     <string name="deck_list_empty_title" comment="Heading of the deck list when there are no Decks">No decks yet</string>
     <string name="deck_list_import_file">Import a file</string>
     <string name="deck_list_create_deck">Create a deck</string>

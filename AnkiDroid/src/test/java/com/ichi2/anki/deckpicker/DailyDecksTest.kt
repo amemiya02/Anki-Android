@@ -2,14 +2,17 @@
 
 package com.ichi2.anki.deckpicker
 
+import android.content.Intent
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.decks.SetDeckCollapsedRequest
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.common.time.MockTime
 import com.ichi2.anki.common.time.SECONDS_PER_DAY
@@ -65,7 +68,7 @@ class DailyDecksTest : RobolectricTest() {
     @Test
     fun `studying the current Deck under a collapsed parent finishes there and refreshes Decks`() {
         // Keep review timestamps on the Engine's current study day.
-        TimeManager.resetWith(MockTime((col.sched.dayCutoff - SECONDS_PER_DAY + 60) * 1000, step = 10))
+        setTimeToStartOfStudyDay()
         val nested = addDeck("Japanese::N3")
         col.setDeck(listOf(addBasicNote("Vocabulary").firstCard().id), nested)
         addBasicNote("Anatomy")
@@ -84,6 +87,99 @@ class DailyDecksTest : RobolectricTest() {
             composeRule.onNodeWithText("New: 1").assertIsDisplayed()
             composeRule.onNodeWithText("Study · N3").assertDoesNotExist()
         }
+    }
+
+    @Test
+    fun `Study All reviews each top-level Deck including its children and advances after Finished closes`() {
+        setTimeToStartOfStudyDay()
+        val geography = addDeck("Geography")
+        val japanese = addDeck("Languages::Japanese")
+        col.setDeck(listOf(addBasicNote("Capitals").firstCard().id), geography)
+        col.setDeck(listOf(addBasicNote("Vocabulary").firstCard().id), japanese)
+
+        withDeckPicker(deckCount = 0) { deckPicker ->
+            val showAnswer = deckPicker.getString(CommonString.show_answer)
+            val easy = deckPicker.getString(CommonString.ease_button_easy)
+            tap("Study All")
+            awaitText(showAnswer)
+            composeRule.onNodeWithText("Geography").assertIsDisplayed()
+            tap(showAnswer)
+            tap(easy)
+            awaitText("Done")
+            composeRule.onNodeWithText("Geography").assertIsDisplayed()
+            composeRule.onNodeWithText(showAnswer).assertDoesNotExist()
+            tap("Done")
+
+            awaitText("Languages › Japanese")
+            tap(showAnswer)
+            tap(easy)
+            awaitText("Done")
+            composeRule.onNodeWithText("Languages").assertIsDisplayed()
+            tap("Done")
+
+            awaitText("2 studied so far")
+            awaitText("Nothing left to study today")
+            composeRule.onNodeWithText("Study All").assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun `Study All stops if the learner backs out of a running review`() {
+        addBasicNote("Geography")
+        val languages = addDeck("Languages")
+        col.setDeck(listOf(addBasicNote("Vocabulary").firstCard().id), languages)
+
+        withDeckPicker(deckCount = 0) { deckPicker ->
+            tap("Study All")
+            awaitText(deckPicker.getString(CommonString.show_answer))
+            composeRule
+                .onNodeWithContentDescription(deckPicker.getString(androidx.appcompat.R.string.abc_action_bar_up_description))
+                .performClick()
+
+            awaitText("2 cards to study today")
+            composeRule.onNodeWithText("0 studied so far").assertIsDisplayed()
+            composeRule.onNodeWithText("Study All").assertIsDisplayed()
+        }
+    }
+
+    @Test
+    fun `Study All restores review and completion and skips a Deck that became ineligible`() {
+        setTimeToStartOfStudyDay()
+        val geography = addDeck("Geography")
+        val history = addDeck("History")
+        val languages = addDeck("Languages")
+        col.setDeck(listOf(addBasicNote("Capitals").firstCard().id), geography)
+        val historyCard = addBasicNote("Timeline").firstCard()
+        col.setDeck(listOf(historyCard.id), history)
+        col.setDeck(listOf(addBasicNote("Vocabulary").firstCard().id), languages)
+
+        ensureCollectionLoadIsSynchronous()
+        setIntroductionSlidesShown(true)
+        BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
+        editPreferences { putBoolean("backupPromptDisabled", true) }
+        val activity = startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, Intent())
+        val showAnswer = activity.get().getString(CommonString.show_answer)
+        tap("Study All")
+        awaitText(showAnswer)
+        activity.recreate()
+        advanceRobolectricLooper()
+        awaitText("Geography")
+        tap(showAnswer)
+        tap(activity.get().getString(CommonString.ease_button_easy))
+        awaitText("Done")
+        activity.recreate()
+        advanceRobolectricLooper()
+        awaitText("Done")
+
+        col.sched.suspendCards(listOf(historyCard.id))
+        activity.get().onBackPressedDispatcher.onBackPressed()
+        awaitText(showAnswer)
+        composeRule.onNodeWithText("Languages").assertIsDisplayed()
+        composeRule.onNodeWithText("History").assertDoesNotExist()
+    }
+
+    private fun setTimeToStartOfStudyDay() {
+        TimeManager.resetWith(MockTime((col.sched.dayCutoff - SECONDS_PER_DAY + 60) * 1000, step = 10))
     }
 
     private fun awaitText(text: String) =
