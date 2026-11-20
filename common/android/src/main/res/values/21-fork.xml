@@ -32,7 +32,7 @@
         <item quantity="one">%d studied so far</item>
         <item quantity="other">%d studied so far</item>
     </plurals>
-    <string name="deck_list_count_description" comment="Read aloud for a count on the deck list. %1$s is New, Learning or Due; %2$d the count">%1$s: %2$d</string>
+    <string name="deck_list_count_description" comment="A count on the deck list. %1$s is New, Learning or Due; %2$d the count">%1$s: %2$d</string>
     <string name="deck_list_nothing_due" comment="The deck list's summary when no Deck has a Card left to study today">Nothing left to study today</string>
     <string name="deck_list_empty_title" comment="Heading of the deck list when there are no Decks">No decks yet</string>
     <string name="deck_list_import_file">Import a file</string>

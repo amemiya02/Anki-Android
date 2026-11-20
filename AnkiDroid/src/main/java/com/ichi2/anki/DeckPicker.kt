@@ -359,6 +359,8 @@ open class DeckPicker :
 
     private val deckListActions =
         object : DeckListActions {
+            override fun onStudyCurrentDeck(deckId: DeckId) = onDeckClick(deckId, DeckSelectionType.SKIP_STUDY_OPTIONS)
+
             override fun onDeckClick(deckId: DeckId) = onDeckClick(deckId, DeckSelectionType.DEFAULT)
 
             override fun onDeckCountsClick(deckId: DeckId) = onDeckClick(deckId, DeckSelectionType.SHOW_STUDY_OPTIONS)

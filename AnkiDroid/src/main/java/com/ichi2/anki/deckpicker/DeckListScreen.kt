@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -75,10 +77,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -89,6 +91,7 @@ import androidx.core.os.ConfigurationCompat
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
 import com.ichi2.anki.libanki.DeckId
+import com.ichi2.anki.libanki.sched.Counts
 import com.ichi2.compose.theme.foundation
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -97,6 +100,9 @@ import com.ichi2.anki.common.android.R as CommonR
 
 /** What a person can do on the deck list ([DeckListScreen]) */
 interface DeckListActions {
+    /** Study the current Deck directly from the daily summary. */
+    fun onStudyCurrentDeck(deckId: DeckId)
+
     /** Study the Deck, or open the finished screen when nothing is left in it */
     fun onDeckClick(deckId: DeckId)
 
@@ -196,13 +202,13 @@ private fun Decks(
             modifier = Modifier.fillMaxSize().nestedScroll(rememberNestedScrollInteropConnection()),
             contentPadding = contentPadding,
         ) {
-            val current = state.decks.firstOrNull { it.isSelected && it.hasCardsLeft }
             item(key = "summary") {
                 TodaySummary(
                     dueToday = state.dueToday,
+                    queuesToday = state.queuesToday,
                     studiedToday = state.studiedToday,
-                    current = current,
-                    onStudy = actions::onDeckClick,
+                    current = state.currentStudyDeck,
+                    onStudy = actions::onStudyCurrentDeck,
                 )
             }
             if (state.decks.any { it.hasCardsLeft }) stickyHeader(key = "headings") { CountHeadings(columnWidths) }
@@ -256,6 +262,7 @@ private fun Decks(
 @Composable
 private fun TodaySummary(
     dueToday: Int,
+    queuesToday: Counts,
     studiedToday: Int,
     current: DisplayDeckNode?,
     onStudy: (DeckId) -> Unit,
@@ -272,7 +279,7 @@ private fun TodaySummary(
         ring.animateTo(done, tween(durationMillis = RING_MILLIS, easing = EmphasizedDecelerate))
         lastShown = done
     }
-    Row(
+    Column(
         modifier =
             Modifier
                 .fillMaxWidth()
@@ -280,69 +287,96 @@ private fun TodaySummary(
                 .clip(foundation.shapes.extraLarge)
                 .background(scheme.primaryContainer)
                 .padding(horizontal = 20.dp, vertical = 18.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(18.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Box(
-            // the counts beside it say it in words
-            modifier = Modifier.size(RING_SIZE).clearAndSetSemantics { },
-            contentAlignment = Alignment.Center,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(18.dp),
         ) {
-            CircularProgressIndicator(
-                progress = { ring.value },
-                modifier = Modifier.fillMaxSize(),
-                color = scheme.primary,
-                trackColor = scheme.onPrimaryContainer.copy(alpha = RING_TRACK_ALPHA),
-                strokeWidth = 6.dp,
-                strokeCap = StrokeCap.Round,
-            )
-            if (nothingDue) {
-                Icon(
-                    painter = painterResource(R.drawable.symbol_check),
-                    contentDescription = null,
-                    tint = scheme.onPrimaryContainer,
-                    modifier = Modifier.size(28.dp),
+            Box(
+                // The total and study count next to the ring convey its meaning.
+                modifier = Modifier.size(RING_SIZE).clearAndSetSemantics { },
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator(
+                    progress = { ring.value },
+                    modifier = Modifier.fillMaxSize(),
+                    color = scheme.primary,
+                    trackColor = scheme.onPrimaryContainer.copy(alpha = RING_TRACK_ALPHA),
+                    strokeWidth = 6.dp,
+                    strokeCap = StrokeCap.Round,
                 )
-            } else {
+                if (nothingDue) {
+                    Icon(
+                        painter = painterResource(R.drawable.symbol_check),
+                        contentDescription = null,
+                        tint = scheme.onPrimaryContainer,
+                        modifier = Modifier.size(28.dp),
+                    )
+                } else {
+                    Text(
+                        text = "${(done * 100).roundToInt()}%",
+                        style = foundation.type.label,
+                        color = scheme.onPrimaryContainer,
+                    )
+                }
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
-                    text = "${(done * 100).roundToInt()}%",
-                    style = foundation.type.label,
+                    text =
+                        if (nothingDue) {
+                            stringResource(CommonR.string.deck_list_nothing_due)
+                        } else {
+                            pluralStringResource(CommonR.plurals.deck_list_due_today, dueToday, dueToday)
+                        },
+                    style = foundation.type.summary,
+                    color = scheme.onPrimaryContainer,
+                    modifier = Modifier.semantics { heading() },
+                )
+                Text(
+                    text = pluralStringResource(CommonR.plurals.deck_list_studied_today, studiedToday, studiedToday),
+                    style = foundation.type.body,
                     color = scheme.onPrimaryContainer,
                 )
             }
         }
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(
-                text =
-                    if (nothingDue) {
-                        stringResource(CommonR.string.deck_list_nothing_due)
-                    } else {
-                        pluralStringResource(CommonR.plurals.deck_list_due_today, dueToday, dueToday)
-                    },
-                style = foundation.type.summary,
-                color = scheme.onPrimaryContainer,
-            )
-            Text(
-                text = pluralStringResource(CommonR.plurals.deck_list_studied_today, studiedToday, studiedToday),
-                style = foundation.type.body,
-                color = scheme.onPrimaryContainer,
-            )
-            if (current != null) {
-                Button(
-                    onClick = { onStudy(current.did) },
-                    modifier = Modifier.padding(top = 10.dp).heightIn(min = foundation.spacing.touchTarget),
-                    shape = foundation.shapes.button,
-                    colors = ButtonDefaults.buttonColors(containerColor = scheme.primary, contentColor = scheme.onPrimary),
-                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-                ) {
-                    Text(
-                        text = stringResource(CommonR.string.studyoptions_start) + " · " + current.lastDeckNameComponent,
-                        style = foundation.type.button,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
+        TodayQueueCounts(queuesToday)
+        if (current != null) {
+            Button(
+                onClick = { onStudy(current.did) },
+                modifier = Modifier.heightIn(min = foundation.spacing.touchTarget),
+                shape = foundation.shapes.button,
+                colors = ButtonDefaults.buttonColors(containerColor = scheme.primary, contentColor = scheme.onPrimary),
+                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+            ) {
+                Text(
+                    text = stringResource(CommonR.string.studyoptions_start) + " · " + current.lastDeckNameComponent,
+                    style = foundation.type.button,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun TodayQueueCounts(counts: Counts) {
+    val foundation = MaterialTheme.foundation
+    val scheme = MaterialTheme.colorScheme
+    val headings = countHeadings()
+    val queueCounts = listOf(counts.new, counts.lrn, counts.rev)
+    val queueColors = listOf(foundation.colors.countNew, foundation.colors.countLearning, foundation.colors.countDue)
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        queueCounts.forEachIndexed { index, count ->
+            Text(
+                text = stringResource(CommonR.string.deck_list_count_description, headings[index], count),
+                style = foundation.type.label,
+                color = if (count == 0) scheme.onSurfaceVariant else queueColors[index],
+                modifier = Modifier.clip(CircleShape).background(scheme.surfaceContainerLow).padding(horizontal = 8.dp, vertical = 4.dp),
+            )
         }
     }
 }
@@ -367,7 +401,7 @@ private fun CountHeadings(columnWidths: List<Dp>) {
                 style = foundation.type.label,
                 color = foundation.colors.onBackgroundMuted,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.width(columnWidths[index]),
+                modifier = Modifier.width(columnWidths[index]).semantics { hideFromAccessibility() },
             )
         }
     }
@@ -445,9 +479,6 @@ private fun DeckRow(
                 text = deck.lastDeckNameComponent,
                 style = if (deck.depth == 0) foundation.type.deckName else foundation.type.deckNameNested,
                 color = if (deck.filtered || deck.isSelected) foundation.colors.emphasis else foundation.colors.onBackground,
-                // beside the counts a long name wraps once, then is cut; under them it has the row's width
-                maxLines = if (countsInline) INLINE_NAME_LINES else Int.MAX_VALUE,
-                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f).padding(top = 8.dp, bottom = 8.dp, end = NAME_END_PADDING),
             )
             if (countsInline) DeckCounts(deck, columnWidths, onCountsClick)
@@ -506,8 +537,12 @@ private fun DeckCounts(
         Modifier
             .heightIn(min = foundation.spacing.touchTarget)
             .clip(CircleShape)
-            .clickable(role = Role.Button, onClick = onClick)
-    if (deck.newCount == 0 && deck.lrnCount == 0 && deck.revCount == 0) {
+            .clickable(
+                role = Role.Button,
+                onClickLabel = stringResource(CommonR.string.menu__study_options),
+                onClick = onClick,
+            )
+    if (!deck.hasCardsLeft) {
         Row(
             modifier = clickable.width(columnWidths.reduce(Dp::plus)).semantics(mergeDescendants = true) { },
             horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.End),
@@ -538,18 +573,23 @@ private fun DeckCounts(
                 deck.revCount to foundation.colors.countDue,
             )
         counts.forEachIndexed { index, (count, colour) ->
-            val description = stringResource(CommonR.string.deck_list_count_description, headings[index], count)
-            Box(
-                modifier = Modifier.width(columnWidths[index]).semantics { contentDescription = description },
-                contentAlignment = Alignment.Center,
-            ) {
-                Count(count, colour)
+            val width = Modifier.width(columnWidths[index])
+            if (count == 0) {
+                Spacer(width)
+            } else {
+                val description = stringResource(CommonR.string.deck_list_count_description, headings[index], count)
+                Box(
+                    modifier = width.clearAndSetSemantics { contentDescription = description },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Count(count, colour)
+                }
             }
         }
     }
 }
 
-/** A count on a tint of its column's colour; nothing to do is a plain muted zero */
+/** A nonzero count on a tint of its column's colour */
 @Composable
 private fun Count(
     count: Int,
@@ -558,15 +598,15 @@ private fun Count(
     val foundation = MaterialTheme.foundation
     Text(
         text = count.toString(),
-        style = if (count == 0) foundation.type.count.copy(fontWeight = FontWeight.Normal) else foundation.type.count,
-        color = if (count == 0) foundation.colors.onBackgroundMuted else colour,
+        style = foundation.type.count,
+        color = colour,
         textAlign = TextAlign.Center,
         modifier =
             Modifier
                 // Center the text within the pill's measured width.
                 .width(IntrinsicSize.Max)
                 .clip(CircleShape)
-                .then(if (count == 0) Modifier else Modifier.background(colour.copy(alpha = COUNT_TINT)))
+                .background(colour.copy(alpha = COUNT_TINT))
                 .padding(horizontal = 8.dp, vertical = 2.dp),
     )
 }
@@ -711,9 +751,6 @@ private const val PREFERRED_NAME_EMS = 5
 
 /** Narrower than this, in ems, a name that does not fit on one line takes the row above its counts */
 private const val MINIMUM_NAME_EMS = 3
-
-/** Beside its counts, a long Deck name wraps once, then ends in an ellipsis */
-private const val INLINE_NAME_LINES = 2
 
 /** The space between Deck containers, and their corners */
 private val GROUP_GAP = 8.dp

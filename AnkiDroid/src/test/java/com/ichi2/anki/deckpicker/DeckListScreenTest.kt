@@ -22,6 +22,7 @@ import anki.decks.deckTreeNode
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.libanki.DeckId
+import com.ichi2.anki.libanki.sched.Counts
 import com.ichi2.anki.libanki.sched.DeckNode
 import com.ichi2.compose.theme.AnkiDroidTheme
 import org.junit.Rule
@@ -44,6 +45,10 @@ class DeckListScreenTest : RobolectricTest() {
 
     private val actions =
         object : DeckListActions {
+            override fun onStudyCurrentDeck(deckId: DeckId) {
+                events += "study current ${name(deckId)}"
+            }
+
             override fun onDeckClick(deckId: DeckId) {
                 events += "study ${name(deckId)}"
             }
@@ -103,10 +108,10 @@ class DeckListScreenTest : RobolectricTest() {
     private fun stateWithDecks(
         dueToday: Int = 0,
         studiedToday: Int = 0,
-    ) = DeckListScreenState(decks = decks(), isEmptyCollection = false, dueToday = dueToday, studiedToday = studiedToday)
+    ) = DeckListScreenState(decks = decks(), isEmptyCollection = false, queuesToday = Counts(new = dueToday), studiedToday = studiedToday)
 
     @Test
-    fun `each Deck shows its new, learning and due counts under the column headings`() {
+    fun `a Deck shows only nonzero counts and names the counts action for a screen reader`() {
         val spanish = addDeck("Spanish")
         repeat(3) { addBasicNote("front $it").firstCard().let { card -> col.setDeck(listOf(card.id), spanish) } }
         show(stateWithDecks())
@@ -115,18 +120,33 @@ class DeckListScreenTest : RobolectricTest() {
         composeRule.onNodeWithText("New").assertIsDisplayed()
         composeRule.onNodeWithText("Learning").assertIsDisplayed()
         composeRule.onNodeWithText("Due").assertIsDisplayed()
-        composeRule.onNodeWithContentDescription("New: 3", useUnmergedTree = true).assertExists()
-        composeRule.onNodeWithContentDescription("Learning: 0", useUnmergedTree = true).assertExists()
-        composeRule.onNodeWithContentDescription("Due: 0", useUnmergedTree = true).assertExists()
+        val counts = composeRule.onNodeWithContentDescription("New: 3").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Learning: 0", useUnmergedTree = true).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription("Due: 0", useUnmergedTree = true).assertDoesNotExist()
+        assertEquals("Study options", counts.fetchSemanticsNode().config[SemanticsActions.OnClick].label)
     }
 
     @Test
     @Config(qualifiers = "zh-rCN-w320dp-h880dp-mdpi")
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun `a narrow deck list shows the full name of a nested deck with large counts`() {
-        show(nestedDecks("2-N4"))
+    fun `a narrow deck list shows a full nested Chinese name beside its counts`() {
+        val name = "固定搭配与例句"
+        show(nestedDecks(name))
 
-        assertTextFits("2-N4")
+        assertTextFits(name)
+        assertCountsBeside(name, "4966")
+        assertCountsFitUnderHeadings()
+    }
+
+    @Test
+    @Config(qualifiers = "ja-w320dp-h880dp-mdpi")
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `a narrow deck list shows a full nested Japanese name beside its counts`() {
+        val name = "複合動詞と敬語の使い分け"
+        show(nestedDecks(name))
+
+        assertTextFits(name)
+        assertCountsBeside(name, "4966")
         assertCountsFitUnderHeadings()
     }
 
@@ -202,7 +222,7 @@ class DeckListScreenTest : RobolectricTest() {
                 }
         }
         val deckList = DeckNode(checkNotNull(child), decks.first().first).filterAndFlattenDisplay(DeckFilters.create(""), 0L)
-        return DeckListScreenState(decks = deckList, isEmptyCollection = false, dueToday = 5037, studiedToday = 0)
+        return DeckListScreenState(decks = deckList, isEmptyCollection = false, queuesToday = Counts(30, 41, 4966), studiedToday = 0)
     }
 
     private fun assertCountsFitUnderHeadings() {
@@ -312,7 +332,7 @@ class DeckListScreenTest : RobolectricTest() {
 
     @Test
     fun `with no Decks, a Newcomer is told what to do first`() {
-        show(DeckListScreenState(decks = decks(), isEmptyCollection = true, dueToday = 0, studiedToday = 0))
+        show(DeckListScreenState(decks = decks(), isEmptyCollection = true, queuesToday = Counts(), studiedToday = 0))
 
         composeRule.onNodeWithText("No decks yet").assertIsDisplayed()
         composeRule.onNodeWithText("Get shared decks").performClick()
