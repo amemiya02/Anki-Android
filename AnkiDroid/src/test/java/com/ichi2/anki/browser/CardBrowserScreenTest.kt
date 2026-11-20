@@ -2,16 +2,21 @@
 
 package com.ichi2.anki.browser
 
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
@@ -25,15 +30,18 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.Flag
+import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.getBrowserWithNotes
 import com.ichi2.anki.previewer.CardViewerActivity
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.withDeckPicker
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 import org.robolectric.shadows.ShadowLooper
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -186,6 +194,35 @@ class CardBrowserScreenTest : RobolectricTest() {
         advanceRobolectricLooper()
         onView(withText("Flower in the second row")).check(matches(isDisplayed()))
         composeRule.onNodeWithText("Ginkgo").assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = "zh-rCN-w360dp-h800dp-mdpi")
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `a long deck name leaves the next filter chip on screen`() {
+        val deck = "日语::eggrolls-JLPT10k-v3.5::3-N3::1-高频"
+        addDeck(deck)
+        getBrowserWithNotes(noteCount = 0)
+
+        composeRule.onNodeWithContentDescription(getResourceString(R.string.browse_search_cards)).performClick()
+        composeRule.onNode(hasSetTextAction()).performTextReplacement("\"deck:$deck\"")
+        composeRule.onNode(hasSetTextAction()).performImeAction()
+        val allDecks = with(targetContext) { TR.sentenceCase.allDecks }
+        val deckChip = hasContentDescription(allDecks) and hasText("1-高频", substring = true)
+        composeRule.waitUntil(10_000) {
+            ShadowLooper.idleMainLooper()
+            composeRule.onAllNodes(deckChip).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        val screenWidth =
+            composeRule
+                .onAllNodes(isRoot())
+                .onFirst()
+                .getUnclippedBoundsInRoot()
+                .right
+        val cardState = composeRule.onNodeWithContentDescription(getResourceString(R.string.browse_card_state)).assertIsDisplayed()
+        val bounds = cardState.getUnclippedBoundsInRoot()
+        assertTrue(bounds.right <= screenWidth, "The card state chip ($bounds) runs off the screen ($screenWidth)")
     }
 
     private fun flaggedNote(

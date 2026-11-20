@@ -47,6 +47,9 @@ import net.ankiweb.rsdroid.BackendException
 import timber.log.Timber
 import anki.search.BrowserRow.Color as EngineRowColor
 
+/** Separates the levels of a Deck path, as the study bar and the deck chip show it */
+private const val DECK_PATH_SEPARATOR = " › "
+
 private val mediaFilenameRegex = Regex("\uD83D\uDD09(.*?)\uD83D\uDD09") // 🔉(.*?)🔉
 
 /**
@@ -73,11 +76,17 @@ internal suspend fun loadBrowserResultRow(
     id: CardOrNoteId,
     mode: CardsOrNotes,
     showMediaFilenames: Boolean,
+    columns: List<CardBrowserColumn> = emptyList(),
 ): BrowserResultRow? =
     withCol {
         try {
             val row = backend.browserRowForId(id.cardOrNoteId)
-            val cells = row.cellsList.map { cell -> removeSounds(cell.text, showMediaFilenames) }
+            val cells =
+                row.cellsList.mapIndexed { index, cell ->
+                    val text = removeSounds(cell.text, showMediaFilenames)
+                    // A Deck reads as its path, which wraps between levels rather than inside a name
+                    if (columns.getOrNull(index) == CardBrowserColumn.DECK) text.replace("::", DECK_PATH_SEPARATOR) else text
+                }
             val base =
                 BrowserResultRow(
                     title = cells.firstOrNull().orEmpty(),

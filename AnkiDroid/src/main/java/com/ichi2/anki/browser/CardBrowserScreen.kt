@@ -5,8 +5,6 @@ package com.ichi2.anki.browser
 import android.util.LruCache
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,8 +18,6 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -29,18 +25,26 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -56,8 +60,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
@@ -65,13 +69,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
@@ -293,12 +296,22 @@ internal fun CardBrowserScreen(
                     ) {
                         item {
                             if (!selectionMode) toolbar()
+                            BrowserSearchLauncher(
+                                text = submittedText,
+                                mode = mode,
+                                modifier = Modifier.padding(horizontal = foundation.spacing.screenMargin),
+                            ) {
+                                if (selectionMode) endSelection()
+                                host.openSearch()
+                            }
+                            // the chips scroll edge to edge, starting on the screen margin
+                            BrowserChips(
+                                filters = displayRequest.filters,
+                                flagNames = flagNames,
+                                onClick = { sheet = it },
+                                contentPadding = PaddingValues(horizontal = foundation.spacing.screenMargin),
+                            )
                             Column(Modifier.padding(horizontal = foundation.spacing.screenMargin)) {
-                                BrowserSearchLauncher(submittedText, mode) {
-                                    if (selectionMode) endSelection()
-                                    host.openSearch()
-                                }
-                                BrowserChips(displayRequest.filters, flagNames, { sheet = it })
                                 BrowserResultControls(
                                     state = state,
                                     mode = mode,
@@ -344,9 +357,11 @@ internal fun CardBrowserScreen(
                         ) { index ->
                             val id = results.ids[index]
                             val row by produceState(rowCache.get(id), id, rowCache) {
-                                value = rowCache.get(id) ?: loadBrowserResultRow(id, results.mode, vm.showMediaFilenames)?.also {
-                                    rowCache.put(id, it)
-                                }
+                                value =
+                                    rowCache.get(id)
+                                        ?: loadBrowserResultRow(id, results.mode, vm.showMediaFilenames, columns.columns)?.also {
+                                            rowCache.put(id, it)
+                                        }
                             }
                             BrowserResult(
                                 row = row,
@@ -380,8 +395,8 @@ internal fun CardBrowserScreen(
                     onClick = host::addNote,
                     modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp).size(foundation.spacing.addButton),
                     shape = foundation.shapes.addButton,
-                    containerColor = colors.primary,
-                    contentColor = colors.onPrimary,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 ) {
                     Icon(painterResource(CommonR.drawable.symbol_add), stringResource(CommonString.menu_add_note))
                 }
@@ -428,6 +443,7 @@ internal fun CardBrowserScreen(
     }
 }
 
+/** The result count and the sort, then the Cards and Notes switch at the end */
 @Composable
 private fun BrowserResultControls(
     state: SearchState,
@@ -439,80 +455,92 @@ private fun BrowserResultControls(
     val foundation = MaterialTheme.foundation
     val colors = foundation.colors
     val context = LocalContext.current
-    FlowRow(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalArrangement = Arrangement.Center,
-        itemVerticalAlignment = Alignment.CenterVertically,
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        if (state is SearchState.Completed) {
-            Text(state.formatCardCount(context.resources), color = colors.onBackgroundMuted, style = foundation.type.caption)
-        } else if (state == SearchState.Searching || state == SearchState.Initializing) {
-            LinearProgressIndicator(
-                modifier = Modifier.size(width = 54.dp, height = 2.dp),
-                color = colors.progressFill,
-                trackColor = colors.progressTrack,
-            )
-        } else {
-            Spacer(Modifier.height(1.dp))
-        }
-        val sortLabel = stringResource(R.string.browse_sort)
-        TextButton(onClick = onSort, modifier = Modifier.semantics { contentDescription = sortLabel }) {
-            val ordering = sort as? SortChangeNotification.CollectionOrdering
-            val icon =
-                when (ordering?.reverse) {
-                    true -> R.drawable.symbol_arrow_downward_alt
-                    false -> R.drawable.symbol_arrow_upward_alt
-                    null -> R.drawable.symbol_sort
-                }
-            Icon(painterResource(icon), null, Modifier.size(20.dp), tint = colors.onBackground)
-            Text(
-                ordering?.columnLabel ?: sortLabel,
-                color = colors.onBackground,
-                style = foundation.type.caption,
-            )
+        // the count and the sort share the start; on a narrow screen the sort wraps under the count
+        FlowRow(
+            modifier = Modifier.weight(1f),
+            itemVerticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (state is SearchState.Completed) {
+                Text(
+                    state.formatCardCount(context.resources),
+                    color = colors.onBackgroundMuted,
+                    style = foundation.type.body,
+                    modifier = Modifier.padding(end = 4.dp),
+                )
+            } else if (state == SearchState.Searching || state == SearchState.Initializing) {
+                LinearProgressIndicator(
+                    modifier = Modifier.padding(end = 8.dp).size(width = 54.dp, height = 2.dp),
+                    color = colors.progressFill,
+                    trackColor = colors.progressTrack,
+                )
+            }
+            val sortLabel = stringResource(R.string.browse_sort)
+            TextButton(
+                onClick = onSort,
+                modifier = Modifier.semantics { contentDescription = sortLabel },
+                contentPadding = ButtonDefaults.TextButtonWithIconContentPadding,
+            ) {
+                val ordering = sort as? SortChangeNotification.CollectionOrdering
+                val icon =
+                    when (ordering?.reverse) {
+                        true -> R.drawable.symbol_arrow_downward_alt
+                        false -> R.drawable.symbol_arrow_upward_alt
+                        null -> R.drawable.symbol_sort
+                    }
+                Icon(painterResource(icon), null, Modifier.size(ButtonDefaults.IconSize), tint = colors.onBackground)
+                Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                Text(
+                    ordering?.columnLabel ?: sortLabel,
+                    color = colors.onBackground,
+                    style = foundation.type.button,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
         BrowserModeSwitch(mode, onMode)
     }
 }
 
+/** Cards or Notes: Material 3's segmented button */
 @Composable
 internal fun BrowserModeSwitch(
     mode: CardsOrNotes,
     onMode: (CardsOrNotes) -> Unit,
 ) {
     val foundation = MaterialTheme.foundation
-    val colors = foundation.colors
-    Row(Modifier.clip(foundation.shapes.button).border(1.dp, colors.onBackgroundMuted, foundation.shapes.button)) {
-        for ((option, label) in listOf(
-            CardsOrNotes.CARDS to R.string.browse_mode_cards,
-            CardsOrNotes.NOTES to R.string.browse_mode_notes,
-        )) {
-            val active = mode == option
-            Text(
-                text = stringResource(label),
-                style = foundation.type.caption,
-                color = if (active) colors.onBackground else colors.onBackgroundMuted,
-                modifier =
-                    Modifier
-                        .background(if (active) colors.progressTrack else colors.background)
-                        .heightIn(min = foundation.spacing.touchTarget)
-                        .semantics { selected = active }
-                        .clickable(role = Role.Tab) { onMode(option) }
-                        .padding(horizontal = 11.dp, vertical = 14.dp),
+    val options = listOf(CardsOrNotes.CARDS to R.string.browse_mode_cards, CardsOrNotes.NOTES to R.string.browse_mode_notes)
+    SingleChoiceSegmentedButtonRow {
+        options.forEachIndexed { index, (option, label) ->
+            SegmentedButton(
+                selected = mode == option,
+                onClick = { onMode(option) },
+                shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                label = { Text(stringResource(label), style = foundation.type.button, maxLines = 1) },
             )
         }
     }
 }
 
+/**
+ * The search's filters as Material 3 filter chips, each opening its choices: Decks, Card state,
+ * Flags and Tags. A chip with a choice is selected and names it; a Deck goes by its own name, as
+ * the search above already shows its path. The row scrolls sideways, inside [contentPadding].
+ */
 @Composable
 internal fun BrowserChips(
     filters: SearchFilters,
     flagNames: Map<Flag, String>,
     onClick: (BrowserSheet) -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
 ) {
     val foundation = MaterialTheme.foundation
-    val colors = foundation.colors
 
     @Composable
     fun chip(
@@ -522,45 +550,41 @@ internal fun BrowserChips(
     ) {
         val checked = value.isNotEmpty()
         val text = value.firstOrNull()?.let { first -> if (value.size == 1) first else "$first +${value.size - 1}" } ?: fallback
-        Row(
-            modifier =
-                Modifier
-                    .heightIn(min = foundation.spacing.touchTarget)
-                    .clip(foundation.shapes.button)
-                    .background(if (checked) colors.progressTrack else colors.background)
-                    .border(1.dp, colors.outline, foundation.shapes.button)
-                    .semantics {
-                        contentDescription = fallback
-                        selected = checked
-                    }.clickable(role = Role.Button) { onClick(sheet) }
-                    .padding(horizontal = 11.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(5.dp),
-        ) {
-            if (checked) {
-                Icon(
-                    painterResource(R.drawable.symbol_check),
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = colors.onBackground,
+        FilterChip(
+            selected = checked,
+            onClick = { onClick(sheet) },
+            label = {
+                Text(
+                    text,
+                    style = foundation.type.button,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.widthIn(max = CHIP_LABEL_MAX_WIDTH),
                 )
-            }
-            Text(text, style = foundation.type.body, maxLines = 1, overflow = TextOverflow.Ellipsis, color = colors.onBackground)
-            Icon(
-                painterResource(R.drawable.symbol_arrow_drop_down),
-                contentDescription = null,
-                modifier = Modifier.size(16.dp),
-                tint = colors.onBackgroundMuted,
-            )
-        }
+            },
+            modifier = Modifier.semantics { contentDescription = fallback },
+            leadingIcon =
+                if (checked) {
+                    { Icon(painterResource(R.drawable.symbol_check), null, Modifier.size(FilterChipDefaults.IconSize)) }
+                } else {
+                    null
+                },
+            trailingIcon = { Icon(painterResource(R.drawable.symbol_arrow_drop_down), null, Modifier.size(FilterChipDefaults.IconSize)) },
+        )
     }
 
     Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 5.dp).horizontalScroll(rememberScrollState()),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+                .horizontalScroll(rememberScrollState())
+                .padding(contentPadding),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         chip(
-            filters.decks.map { it.name.replace("::", " › ") },
+            filters.decks.map { it.name.substringAfterLast("::") },
             with(LocalContext.current) { TR.sentenceCase.allDecks },
             BrowserSheet.DECKS,
         )
@@ -569,6 +593,22 @@ internal fun BrowserChips(
         chip(filters.tags, stringResource(CommonString.card_details_tags), BrowserSheet.TAGS)
     }
 }
+
+/** A chip's label is cut at this width, so one long choice never hides the chips after it */
+private val CHIP_LABEL_MAX_WIDTH = 160.dp
+
+/** Lays the content out [horizontal] wider on each side, over its parent's padding */
+internal fun Modifier.bleed(horizontal: Dp): Modifier =
+    layout { measurable, constraints ->
+        if (!constraints.hasBoundedWidth) {
+            val placeable = measurable.measure(constraints)
+            return@layout layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+        }
+        val extra = horizontal.roundToPx()
+        val wider = constraints.copy(minWidth = constraints.minWidth + extra * 2, maxWidth = constraints.maxWidth + extra * 2)
+        val placeable = measurable.measure(wider)
+        layout(placeable.width - extra * 2, placeable.height) { placeable.place(-extra, 0) }
+    }
 
 @Composable
 internal fun BrowserIcon(

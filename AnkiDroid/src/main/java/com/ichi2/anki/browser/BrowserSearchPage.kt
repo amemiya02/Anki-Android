@@ -2,10 +2,11 @@
 
 package com.ichi2.anki.browser
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.HorizontalDivider
@@ -58,10 +60,12 @@ import com.ichi2.anki.common.android.R as CommonR
 private fun searchHint(mode: CardsOrNotes): String =
     stringResource(if (mode == CardsOrNotes.CARDS) R.string.browse_search_cards else R.string.browse_search_notes)
 
+/** Material 3's search bar: a fully rounded, filled bar that opens the search page */
 @Composable
 internal fun BrowserSearchLauncher(
     text: String,
     mode: CardsOrNotes,
+    modifier: Modifier = Modifier,
     open: () -> Unit,
 ) {
     val foundation = MaterialTheme.foundation
@@ -69,16 +73,16 @@ internal fun BrowserSearchLauncher(
     val hint = searchHint(mode)
     Row(
         modifier =
-            Modifier
+            modifier
                 .fillMaxWidth()
-                .heightIn(min = foundation.spacing.touchTarget)
-                .clip(foundation.shapes.button)
-                .border(1.dp, colors.onBackgroundMuted, foundation.shapes.button)
+                .heightIn(min = SEARCH_BAR_HEIGHT)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                 .semantics { contentDescription = hint }
                 .clickable(role = Role.Button, onClick = open)
-                .padding(horizontal = 14.dp, vertical = 10.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Icon(painterResource(CommonR.drawable.symbol_search), contentDescription = null, tint = colors.onBackgroundMuted)
         Text(
@@ -146,10 +150,17 @@ internal fun BrowserSearchPage(
             )
             BrowserIcon(CommonR.drawable.symbol_search, stringResource(R.string.browse_hide_keyboard), onSubmit)
         }
-        BrowserChips(filters, flagNames) {
-            keyboard?.hide()
-            onChip(it)
-        }
+        // the chips scroll edge to edge, past the page's margins
+        BrowserChips(
+            filters = filters,
+            flagNames = flagNames,
+            onClick = {
+                keyboard?.hide()
+                onChip(it)
+            },
+            contentPadding = PaddingValues(horizontal = foundation.spacing.screenMargin),
+            modifier = Modifier.bleed(foundation.spacing.screenMargin),
+        )
         LazyColumn(Modifier.fillMaxWidth()) {
             if (history.isNotEmpty()) {
                 item {
@@ -272,3 +283,6 @@ private fun BrowserSearchItem(
     }
     HorizontalDivider(color = colors.outline)
 }
+
+/** Material 3's search bar height */
+private val SEARCH_BAR_HEIGHT = 56.dp

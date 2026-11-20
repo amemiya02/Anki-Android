@@ -7,7 +7,6 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
-import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
@@ -41,7 +40,9 @@ class SortOrderBottomSheetFragmentTest : RobolectricTest() {
         val option = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton)
         compose.onNode(hasText("Sort Field") and option).assertIsSelected()
         val descending = getResourceString(CommonString.sort_pill_a11y_descending)
-        compose.onNode(hasScrollToIndexAction() and hasAnyDescendant(option)).performScrollToNode(hasText(descending))
+        // the sheet's list is itself a radio group; the browser behind it scrolls too, with a radio group inside
+        val radioList = hasScrollToIndexAction() and SemanticsMatcher.keyIsDefined(SemanticsProperties.SelectableGroup)
+        compose.onNode(radioList).performScrollToNode(hasText(descending))
         compose.onNodeWithText(descending).assertIsSelected()
     }
 }
