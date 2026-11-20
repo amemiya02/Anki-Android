@@ -19,6 +19,7 @@ import androidx.fragment.app.FragmentActivity
 import com.ichi2.anki.BuildConfig
 import com.ichi2.anki.R
 import com.ichi2.anki.common.utils.android.systemIsInNightMode
+import com.ichi2.anki.servicelayer.PreferenceUpgradeService.PreferenceUpgrade.UpgradeThemes
 import com.ichi2.anki.settings.PrefsRepository
 import com.ichi2.anki.settings.enums.AppTheme
 import com.ichi2.anki.settings.enums.DayTheme
@@ -96,9 +97,8 @@ object Themes {
         context: Context,
         prefs: PrefsRepository,
     ) {
-        val appTheme = prefs.appTheme
-
-        currentTheme = resolveTheme(context, prefs)
+        val (appTheme, theme) = resolveAppearance(context, prefs)
+        currentTheme = theme
         val defaultNightMode =
             when (appTheme) {
                 AppTheme.FOLLOW_SYSTEM -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
@@ -109,22 +109,24 @@ object Themes {
     }
 
     /** Reads the appearance without changing AppCompat's default mode or any active Activity. */
-    fun resolveTheme(context: Context): Theme = resolveTheme(context, PrefsRepository(context))
+    fun resolveTheme(context: Context): Theme = resolveAppearance(context, PrefsRepository(context)).second
 
     /** Which complete style a new Activity would receive, without changing the active Activity. */
     @StyleRes
     fun resolveStyle(context: Context): Int {
         val prefs = PrefsRepository(context)
-        return prefs.hayakiTheme.styleFor(resolveTheme(context, prefs))
+        return prefs.hayakiTheme.styleFor(resolveAppearance(context, prefs).second)
     }
 
-    private fun resolveTheme(
+    private fun resolveAppearance(
         context: Context,
         prefs: PrefsRepository,
-    ): Theme {
-        val mode = prefs.appTheme
+    ): Pair<AppTheme, Theme> {
+        val legacy = UpgradeThemes.pendingLegacyAppearance(prefs.sharedPrefs)
+        val mode = legacy?.appTheme ?: prefs.appTheme
         val dark = mode == AppTheme.NIGHT || (mode == AppTheme.FOLLOW_SYSTEM && systemIsInNightMode(context.applicationContext))
-        return if (dark) prefs.nightTheme else DayTheme.LIGHT
+        val theme = if (dark) legacy?.nightTheme ?: prefs.nightTheme else DayTheme.LIGHT
+        return mode to theme
     }
 }
 

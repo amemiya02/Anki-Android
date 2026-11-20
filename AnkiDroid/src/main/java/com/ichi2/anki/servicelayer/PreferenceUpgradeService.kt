@@ -9,6 +9,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import androidx.core.os.LocaleListCompat
+import com.ichi2.anki.InitialActivity
 import com.ichi2.anki.browser.BrowserColumnCollection
 import com.ichi2.anki.browser.CardBrowserColumn.ANSWER
 import com.ichi2.anki.browser.CardBrowserColumn.CARD
@@ -41,6 +42,8 @@ import com.ichi2.anki.reviewer.MappableBinding
 import com.ichi2.anki.reviewer.MappableBinding.Companion.toPreferenceString
 import com.ichi2.anki.reviewer.ReviewerBinding
 import com.ichi2.anki.reviewer.ReviewerBinding.Companion.fromPreferenceString
+import com.ichi2.anki.settings.enums.AppTheme
+import com.ichi2.anki.settings.enums.NightTheme
 import timber.log.Timber
 import java.util.Locale
 import kotlin.math.round
@@ -800,8 +803,20 @@ object PreferenceUpgradeService {
             }
         }
 
-        internal class UpgradeThemes : PreferenceUpgrade(26) {
+        internal class UpgradeThemes : PreferenceUpgrade(VERSION) {
+            enum class LegacyAppearance(
+                val oldValue: String,
+                val appTheme: AppTheme,
+                val nightTheme: NightTheme? = null,
+            ) {
+                LIGHT(THEME_LIGHT, AppTheme.DAY),
+                PLAIN(THEME_PLAIN, AppTheme.DAY),
+                BLACK(THEME_BLACK, AppTheme.NIGHT, NightTheme.BLACK),
+                DARK(THEME_DARK, AppTheme.NIGHT, NightTheme.DARK),
+            }
+
             companion object {
+                private const val VERSION = 26
                 const val PREF_APP_THEME = "appTheme"
                 const val PREF_DAY_THEME = "dayTheme"
                 const val PREF_NIGHT_THEME = "nightTheme"
@@ -814,25 +829,31 @@ object PreferenceUpgradeService {
 
                 const val THEME_DAY = "1"
                 const val THEME_NIGHT = "2"
+
+                /** Activities apply their theme before the Deck Picker writes pending upgrades. */
+                fun pendingLegacyAppearance(preferences: SharedPreferences): LegacyAppearance? {
+                    if (getPreferenceVersion(preferences) >= VERSION) return null
+                    if (!preferences.contains(PREF_PREFERENCE_UPGRADE_VERSION) && InitialActivity.wasFreshInstall(preferences)) {
+                        return null
+                    }
+                    return readLegacyAppearance(preferences)
+                }
+
+                private fun readLegacyAppearance(preferences: SharedPreferences): LegacyAppearance? {
+                    val oldValue = preferences.getString(PREF_APP_THEME, THEME_FOLLOW_SYSTEM)
+                    return LegacyAppearance.entries.firstOrNull { it.oldValue == oldValue }
+                }
             }
 
-            @Suppress("MoveVariableDeclarationIntoWhen")
             override fun upgrade(preferences: SharedPreferences) {
-                val appTheme = preferences.getString(PREF_APP_THEME, THEME_FOLLOW_SYSTEM)
-
-                when (appTheme) {
-                    THEME_FOLLOW_SYSTEM -> return
-                    THEME_LIGHT, THEME_PLAIN -> {
-                        preferences.edit {
-                            putString(PREF_APP_THEME, THEME_DAY)
-                            putString(PREF_DAY_THEME, appTheme)
-                        }
-                    }
-                    THEME_BLACK, THEME_DARK -> {
-                        preferences.edit {
-                            putString(PREF_APP_THEME, THEME_NIGHT)
-                            putString(PREF_NIGHT_THEME, appTheme)
-                        }
+                val legacy = readLegacyAppearance(preferences) ?: return
+                preferences.edit {
+                    if (legacy.nightTheme == null) {
+                        putString(PREF_APP_THEME, THEME_DAY)
+                        putString(PREF_DAY_THEME, legacy.oldValue)
+                    } else {
+                        putString(PREF_APP_THEME, THEME_NIGHT)
+                        putString(PREF_NIGHT_THEME, legacy.oldValue)
                     }
                 }
             }
