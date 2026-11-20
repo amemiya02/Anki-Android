@@ -109,7 +109,7 @@ class ReviewerViewModelTest : RobolectricTest() {
 
             val studyBar = startStudying().studyBarFlow.value
 
-            assertEquals("6", studyBar.counts?.new)
+            assertEquals(6, studyBar.counts?.newCount)
             // With no review history the estimate assumes 20 seconds a rep: 6 new cards are 2 minutes
             assertEquals(2, studyBar.minutesLeft)
         }
