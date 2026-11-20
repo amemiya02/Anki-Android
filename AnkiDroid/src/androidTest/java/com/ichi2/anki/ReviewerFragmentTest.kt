@@ -2,6 +2,7 @@
 
 package com.ichi2.anki
 
+import android.util.Base64
 import android.view.View
 import android.webkit.WebView
 import androidx.compose.ui.test.assertIsDisplayed
@@ -30,6 +31,8 @@ import com.ichi2.anki.libanki.QueueType
 import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.anki.settings.Prefs
+import com.ichi2.anki.settings.enums.AppTheme
+import com.ichi2.anki.settings.enums.NightTheme
 import com.ichi2.anki.tests.InstrumentedTest
 import com.ichi2.anki.testutil.AvoidDayRolloverRule
 import com.ichi2.anki.testutil.GrantStoragePermission.storagePermission
@@ -43,6 +46,7 @@ import com.ichi2.anki.testutil.grantPermissions
 import com.ichi2.anki.testutil.notificationPermission
 import com.ichi2.anki.testutil.waitUntil
 import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
+import com.ichi2.themes.HayakiTheme
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.json.JSONArray
@@ -53,6 +57,7 @@ import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.File
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -83,6 +88,101 @@ class ReviewerFragmentTest : InstrumentedTest() {
     fun tearDown() {
         col.decks.remove(listOf(testDeckId))
         col.config.cardStateCustomizer = ""
+    }
+
+    @Test
+    fun templatesKeepTheirCanvasAndPlainCardsFollowAppearanceWhenReviewerReopens() {
+        val originalTheme = Prefs.hayakiTheme
+        val originalAppearance = Prefs.appTheme
+        val originalNightTheme = Prefs.nightTheme
+        val basic = assertNotNull(col.notetypes.byName("Basic"))
+        val styled = col.notetypes.copy(basic)
+        val plain = col.notetypes.copy(basic)
+        val image = File(col.media.dir, "study-canvas-${UUID.randomUUID()}.png")
+        try {
+            image.writeBytes(
+                Base64.decode(
+                    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jrgoAAAAASUVORK5CYII=",
+                    Base64.DEFAULT,
+                ),
+            )
+            styled.css = ".card { background-color: #365534; color: white; }"
+            plain.css = ""
+            for (notetype in listOf(styled, plain)) {
+                notetype.templates[0].afmt = "{{Back}}"
+                col.notetypes.save(notetype)
+                val label = if (notetype.id == styled.id) "styled" else "plain"
+                val note = col.newNote(notetype)
+                note.setField(0, """<div id="$label-question"><img src="${image.name}"> \(x^2\)</div>""")
+                note.setField(1, """<div id="$label-answer"><img src="${image.name}"> \(x^3\)</div>""")
+                col.addNote(note, testDeckId)
+            }
+
+            Prefs.hayakiTheme = HayakiTheme.MIDNIGHT
+            Prefs.appTheme = AppTheme.NIGHT
+            Prefs.nightTheme = NightTheme.DARK
+            val authored = "rgb(54, 85, 52)" to "rgb(255, 255, 255)"
+            val darkText = "rgb(230, 230, 230)"
+            withReviewerWebView { webView ->
+                webView.assertCardCanvas("styled-question", authored)
+                clickShowAnswer()
+                webView.assertCardCanvas("styled-answer", authored)
+                ensureAnswerButtonsAreDisplayed()
+                composeRule.mainClock.advanceTimeBy(Prefs.doubleTapInterval.toLong())
+                composeRule.goodButton().performClick()
+                webView.assertCardCanvas("plain-question", "rgb(11, 20, 38)" to darkText)
+            }
+
+            Prefs.hayakiTheme = HayakiTheme.PAPER
+            Prefs.appTheme = AppTheme.DAY
+            val paper = "rgb(246, 241, 231)" to "rgb(29, 29, 29)"
+            withReviewerWebView { webView ->
+                webView.assertCardCanvas("plain-question", paper)
+                clickShowAnswer()
+                webView.assertCardCanvas("plain-answer", paper)
+            }
+
+            Prefs.appTheme = AppTheme.NIGHT
+            Prefs.nightTheme = NightTheme.BLACK
+            val black = "rgb(0, 0, 0)" to darkText
+            withReviewerWebView { webView ->
+                webView.assertCardCanvas("plain-question", black)
+                clickShowAnswer()
+                webView.assertCardCanvas("plain-answer", black)
+            }
+        } finally {
+            Prefs.hayakiTheme = originalTheme
+            Prefs.appTheme = originalAppearance
+            Prefs.nightTheme = originalNightTheme
+            col.notetypes.remove(styled.id)
+            col.notetypes.remove(plain.id)
+            image.delete()
+        }
+    }
+
+    private fun WebView.assertCardCanvas(
+        side: String,
+        expectedColors: Pair<String, String>,
+    ) {
+        awaitJavascript(
+            """
+            document.querySelector('#$side img')?.naturalWidth > 0 &&
+                document.querySelector('#$side mjx-math')?.getBoundingClientRect().height > 0 &&
+                getComputedStyle(document.getElementById('qa')).opacity === '1'
+            """.trimIndent(),
+        )
+        val colors =
+            JSONArray(
+                evaluate(
+                    """
+                    [
+                        getComputedStyle(document.body).backgroundColor,
+                        getComputedStyle(document.querySelector('#$side mjx-math')).color
+                    ]
+                    """.trimIndent(),
+                ),
+            )
+        assertEquals(expectedColors, colors.getString(0) to colors.getString(1), side)
     }
 
     @Test

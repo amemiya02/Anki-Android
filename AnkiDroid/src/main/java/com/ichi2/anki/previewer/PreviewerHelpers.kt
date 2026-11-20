@@ -8,7 +8,6 @@ import androidx.appcompat.widget.ThemeUtils
 import androidx.core.view.updateLayoutParams
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.shape.ShapeAppearanceModel
-import com.ichi2.anki.common.android.R as CommonR
 import com.ichi2.anki.LanguageUtils
 import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.libanki.CardOrdinal
@@ -17,6 +16,7 @@ import com.ichi2.anki.settings.enums.FrameStyle
 import com.ichi2.themes.Themes
 import com.ichi2.utils.toRGBHex
 import org.intellij.lang.annotations.Language
+import com.ichi2.anki.common.android.R as CommonR
 
 /**
  * Not exactly equal to anki's stdHtml. Some differences:
@@ -57,22 +57,26 @@ fun stdHtml(
             """<script src="file:///android_asset/$it"></script>"""
         }
 
+    // Give Card Template styles precedence over the reviewer's body.nightMode defaults.
     return """
         <!DOCTYPE html>
         <html class="$docClass" dir="$languageDirectionality" data-bs-theme="$baseTheme">
         <head>
             <title>AnkiDroid</title>
                 <link rel="stylesheet" type="text/css" href="file:///android_asset/backend/css/root-vars.css">
-                <link rel="stylesheet" type="text/css" href="file:///android_asset/backend/css/reviewer.css">
                 <link rel="stylesheet" type="text/css" href="file:///android_asset/ankidroid.css">
             <style>
+                @import url("file:///android_asset/backend/css/reviewer.css") layer(hayaki-reviewer);
+                @layer hayaki-reviewer {
+                    body { background-color: var(--canvas); color: var(--fg); }
+                }
                 .night-mode button { --canvas: #606060; --fg: #eee; }
                 $colors
                 $fontScaleCss
                 $extraCss
             </style>
         </head>
-        <body class="${bodyClass()}">
+        <body class="${bodyClass(nightMode)}">
             <div id="qa" dir="auto"></div>
             $jsTxt
         </body>

@@ -28,7 +28,6 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import com.ichi2.anki.common.android.R as CommonR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
 import com.ichi2.anki.ViewerResourceHandler
@@ -63,6 +62,7 @@ import com.ichi2.utils.stripDangerousPermissions
 import com.ichi2.utils.usesDangerousScheme
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import com.ichi2.anki.common.android.R as CommonR
 
 abstract class CardViewerFragment(
     @LayoutRes layout: Int = 0,
