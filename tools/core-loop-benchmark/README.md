@@ -1,6 +1,6 @@
 # Hayaki Android Core Loop benchmark
 
-The baseline revision is `53364499959a13d6e9348cd5212cc83c632af73a`. Capture it and a candidate on the same device with the same release variant, compilation mode, app and device settings, fixture, and run count. The [earlier Browser check](../../.scratch/ankidroid-redesign/issues/26-card-browser-list-search-and-sort.md#controlled-100000-card-scroll-benchmark) used an Android 15 emulator and a different build and collection. It informs the swipe procedure.
+The baseline revision is `53364499959a13d6e9348cd5212cc83c632af73a`. [Recorded baseline](baselines/android-5336449995.md) Capture it and a candidate on the same device with the same release variant, compilation mode, app and device settings, fixture, and run count. The [earlier Browser check](../../.scratch/ankidroid-redesign/issues/26-card-browser-list-search-and-sort.md#controlled-100000-card-scroll-benchmark) used an Android 15 emulator and a different build and collection. It informs the swipe procedure.
 
 ## Prepare a run
 
