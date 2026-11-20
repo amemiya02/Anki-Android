@@ -94,7 +94,7 @@ class FinishedFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        val sessionSummary = sessionSummary
+        val summary = sessionSummary
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
@@ -103,7 +103,7 @@ class FinishedFragment :
                     state?.let {
                         FinishedScreen(
                             state = it,
-                            sessionSummary = sessionSummary,
+                            sessionSummary = summary,
                             onBack = ::closeFinished,
                             onUnbury = { viewModel.onUnbury() },
                             onCustomStudy = { onCustomStudy() },

@@ -89,8 +89,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.os.ConfigurationCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
+import com.ichi2.anki.common.android.Animations
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.sched.Counts
 import com.ichi2.compose.theme.foundation
@@ -144,6 +147,11 @@ fun DeckListScreen(
     listState: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(),
 ) {
+    val context = LocalContext.current
+    var animate by remember(context) { mutableStateOf(Animations.areAnimationsEnabled(context)) }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        animate = Animations.areAnimationsEnabled(context)
+    }
     val root = modifier.semantics { testTagsAsResourceId = true }
     if (state.isEmptyCollection) {
         EmptyDeckList(
@@ -152,7 +160,7 @@ fun DeckListScreen(
             modifier = root.testTag("${LocalContext.current.packageName}:id/no_decks_placeholder"),
         )
     } else {
-        Decks(state = state, actions = actions, listState = listState, contentPadding = contentPadding, modifier = root)
+        Decks(state = state, actions = actions, listState = listState, contentPadding = contentPadding, animate = animate, modifier = root)
     }
 }
 
@@ -182,6 +190,7 @@ private fun Decks(
     actions: DeckListActions,
     listState: LazyListState,
     contentPadding: PaddingValues,
+    animate: Boolean,
     modifier: Modifier,
 ) {
     val foundation = MaterialTheme.foundation
@@ -211,6 +220,7 @@ private fun Decks(
                     queuesToday = state.queuesToday,
                     studiedToday = state.studiedToday,
                     current = state.currentStudyDeck,
+                    animate = animate,
                     onStudyAll = actions::onStudyAll,
                     onStudyCurrent = actions::onStudyCurrentDeck,
                 )
@@ -238,6 +248,7 @@ private fun Decks(
                     countsInline = countsInline,
                     indent = indent,
                     actions = actions,
+                    animate = animate,
                     position =
                         GroupPosition(
                             isFirst = deck.depth == 0,
@@ -245,11 +256,15 @@ private fun Decks(
                             isFirstGroup = index == 0,
                         ),
                     modifier =
-                        Modifier.animateItem(
-                            fadeInSpec = tween(EXPAND_MILLIS),
-                            placementSpec = tween(EXPAND_MILLIS),
-                            fadeOutSpec = tween(EXPAND_MILLIS),
-                        ),
+                        if (animate) {
+                            Modifier.animateItem(
+                                fadeInSpec = tween(EXPAND_MILLIS),
+                                placementSpec = tween(EXPAND_MILLIS),
+                                fadeOutSpec = tween(EXPAND_MILLIS),
+                            )
+                        } else {
+                            Modifier
+                        },
                 )
             }
             item(key = "end") { Spacer(Modifier.height(GROUP_GAP)) }
@@ -270,6 +285,7 @@ private fun TodaySummary(
     queuesToday: Counts,
     studiedToday: Int,
     current: DisplayDeckNode?,
+    animate: Boolean,
     onStudyAll: () -> Unit,
     onStudyCurrent: (DeckId) -> Unit,
 ) {
@@ -281,8 +297,12 @@ private fun TodaySummary(
     val done = if (nothingDue) 1f else studiedToday.toFloat() / total
     var lastShown by rememberSaveable { mutableFloatStateOf(0f) }
     val ring = remember { Animatable(lastShown) }
-    LaunchedEffect(done) {
-        ring.animateTo(done, tween(durationMillis = RING_MILLIS, easing = EmphasizedDecelerate))
+    LaunchedEffect(done, animate) {
+        if (animate) {
+            ring.animateTo(done, tween(durationMillis = RING_MILLIS, easing = EmphasizedDecelerate))
+        } else {
+            ring.snapTo(done)
+        }
         lastShown = done
     }
     Column(
@@ -305,7 +325,7 @@ private fun TodaySummary(
                 contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator(
-                    progress = { ring.value },
+                    progress = { if (animate) ring.value else done },
                     modifier = Modifier.fillMaxSize(),
                     color = scheme.primary,
                     trackColor = scheme.onPrimaryContainer.copy(alpha = RING_TRACK_ALPHA),
@@ -442,6 +462,7 @@ private fun DeckRow(
     countsInline: Boolean,
     indent: Dp,
     actions: DeckListActions,
+    animate: Boolean,
     position: GroupPosition,
     modifier: Modifier = Modifier,
 ) {
@@ -492,7 +513,7 @@ private fun DeckRow(
             modifier = Modifier.fillMaxWidth().padding(start = indent),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            DeckMarker(deck = deck, onToggle = { actions.onToggleExpand(deck.did) })
+            DeckMarker(deck = deck, animate = animate, onToggle = { actions.onToggleExpand(deck.did) })
             Text(
                 text = deck.lastDeckNameComponent,
                 style = if (deck.depth == 0) foundation.type.deckName else foundation.type.deckNameNested,
@@ -509,6 +530,7 @@ private fun DeckRow(
 @Composable
 private fun DeckMarker(
     deck: DisplayDeckNode,
+    animate: Boolean,
     onToggle: () -> Unit,
 ) {
     val foundation = MaterialTheme.foundation
@@ -521,11 +543,14 @@ private fun DeckMarker(
         }
     // the chevron points along the reading direction when closed, and down when open
     val open = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -90f else 90f
-    val turn by animateFloatAsState(
-        targetValue = if (deck.collapsed) 0f else open,
-        animationSpec = tween(EXPAND_MILLIS),
-        label = "deck chevron",
-    )
+    val target = if (deck.collapsed) 0f else open
+    val turn =
+        if (animate) {
+            val animatedTurn by animateFloatAsState(targetValue = target, animationSpec = tween(EXPAND_MILLIS), label = "deck chevron")
+            animatedTurn
+        } else {
+            target
+        }
     Box(
         modifier = Modifier.size(foundation.spacing.touchTarget).then(toggle),
         contentAlignment = Alignment.Center,
