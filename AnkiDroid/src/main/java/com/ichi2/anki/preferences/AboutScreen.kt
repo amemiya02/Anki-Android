@@ -7,7 +7,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -60,18 +59,11 @@ internal fun AboutScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Box(
-                Modifier.size(88.dp).clip(foundation.shapes.dialog).clickable(role = Role.Button, onClick = onLogo),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painterResource(R.drawable.ic_launcher_background),
-                    contentDescription = null,
-                    modifier = Modifier.matchParentSize(),
-                    tint = androidx.compose.ui.graphics.Color.Unspecified,
-                )
-                Image(painterResource(R.drawable.ic_launcher_foreground), name, Modifier.matchParentSize())
-            }
+            Image(
+                painterResource(R.mipmap.hayaki_mark),
+                contentDescription = name,
+                modifier = Modifier.size(88.dp).clip(foundation.shapes.dialog).clickable(role = Role.Button, onClick = onLogo),
+            )
             Text(name, style = foundation.type.pageTitle, color = foundation.colors.onBackground)
             AboutValue(state.version, searchTarget == "version")
             AboutValue(state.buildDate, searchTarget == "build_date")

@@ -227,13 +227,9 @@ class InterfaceIconsAreMaterialSymbolsTest {
         /** Vector drawables that are not interface icons, and why */
         private val NOT_INTERFACE_ICONS =
             mapOf(
-                "ic_launcher_background" to "the launcher icon",
-                "ic_launcher_foreground" to "the launcher icon",
-                "ic_launcher_monochrome" to "the launcher icon",
                 "add_shortcut" to "a launcher shortcut, drawn with the launcher icon's colours",
                 "browse_shortcut" to "a launcher shortcut, drawn with the launcher icon's colours",
                 "review_shortcut" to "a launcher shortcut, drawn with the launcher icon's colours",
-                "hayaki_mark" to "Hayaki's mark: the empty deck list, first run, drawer and sync account (GraphicsUseFoundationTest)",
                 "ic_hayaki_notification" to "the notification's small icon (ticket 47)",
                 "widget_add_note_mark" to "a home-screen widget's picture (GraphicsUseFoundationTest)",
                 "widget_small_mark" to "a home-screen widget's picture (GraphicsUseFoundationTest)",

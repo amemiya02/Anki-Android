@@ -73,7 +73,7 @@ internal class TabletDrawer(
             val foundation = MaterialTheme.foundation
             Column(Modifier.fillMaxSize().background(foundation.colors.background).verticalScroll(rememberScrollState())) {
                 Image(
-                    painterResource(R.drawable.hayaki_mark),
+                    painterResource(R.mipmap.hayaki_mark),
                     contentDescription = null,
                     modifier = Modifier.padding(start = 20.dp, top = 24.dp, bottom = 8.dp).size(72.dp).testTag("drawer-mark"),
                 )
