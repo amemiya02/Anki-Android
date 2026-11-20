@@ -5,7 +5,6 @@ package com.ichi2.anki.ui.windows.reviewer
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.core.os.BundleCompat
-import androidx.core.os.bundleOf
 import androidx.lifecycle.SavedStateHandle
 import anki.collection.OpChangesAfterUndo
 import anki.scheduler.CardAnswer
@@ -28,7 +27,7 @@ internal class ReviewSession(
     private val reviews = restoredState?.reviews.orEmpty().toMutableList()
 
     init {
-        savedStateHandle.setSavedStateProvider(KEY) { bundleOf(KEY to saveState()) }
+        savedStateHandle.setSavedStateProvider(KEY) { Bundle().apply { putParcelable(KEY, saveState()) } }
     }
 
     @Synchronized
