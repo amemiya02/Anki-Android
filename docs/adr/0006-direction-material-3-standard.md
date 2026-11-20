@@ -6,7 +6,7 @@ status: accepted
 
 After the Redesign was signed off, the owner found that Hayaki still read as AnkiDroid with a paper skin: the same table of counts, the same study screen, a serif costume over them. A new direction round dealt a grounded direction (manuscript-grid paper), Impeccable's own pick (railway signage) and six catalogue challengers. The owner chose none of them. They took the standing exit, the category standard: a Material 3 app, finished to the level of Google Calendar, Keep and Tasks.
 
-This supersedes [ADR-0005](0005-direction-quiet-paper.md).
+This supersedes [ADR-0005](0005-direction-quiet-paper.md). [ADR-0007](0007-shared-hayaki-product.md) later replaces the fixed palette with the shared Hayaki themes.
 
 ## Considered Options
 
