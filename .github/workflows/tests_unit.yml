@@ -200,6 +200,7 @@ jobs:
           --tests '*.DailyDecksTest' --tests '*.DeckListScreenTest'
           --tests '*.AnswerAreaTest' --tests '*.FinishedFragmentTest'
           --tests '*.ReviewerViewModelTest' --tests '*.ReviewerFragmentTest' --tests '*.CardStudyCanvasTest'
+          --tests '*.StudyBarTest' --tests '*.ReviewerBigScreenTest' --tests '*.ReviewerWhiteboardGestureTest'
           --tests '*.SettingsSearchNavigationTest' --tests '*.ThemesTest'
           :common:android:testDebugUnitTest
           --tests '*.FoundationTest' --tests '*.ThemeTest'
