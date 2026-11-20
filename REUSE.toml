@@ -53,12 +53,11 @@ path = [
     ".scratch/hayaki-cross-platform/**",
     "AnkiDroid/src/androidTest/assets/hayaki-release/README.md",
     "docs/adr/0007-shared-hayaki-product.md",
-    "docs/releases/0.2.0.md",
+    "docs/releases/0.2.0*.md",
+    "tools/joint-release/README.md",
     "tools/core-loop-benchmark/.gitignore",
     "tools/core-loop-benchmark/README.md",
-    "tools/core-loop-benchmark/baselines/android-5336449995-raw.tar.gz",
-    "tools/core-loop-benchmark/baselines/android-5336449995.json",
-    "tools/core-loop-benchmark/baselines/android-5336449995.md",
+    "tools/core-loop-benchmark/baselines/**",
 ]
 SPDX-FileCopyrightText = "Hayaki Android contributors"
 SPDX-License-Identifier = "GPL-3.0-or-later"
