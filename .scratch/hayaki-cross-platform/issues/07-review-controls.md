@@ -1,6 +1,6 @@
 # Reveal and rate Cards from the same thumb area
 
-Status: ready-for-agent
+Status: done
 Type: AFK
 User stories: 7, 13, 14, 15, 16, 17, 20
 
@@ -14,9 +14,9 @@ Rework the Android Card Frame so reveal and grading remain within a stable thumb
 
 ## Acceptance criteria
 
-- [ ] Exercise two- and four-rating configurations and interval visibility. One tap, gesture or hardware grade produces exactly one review.
-- [ ] At 200% text the ratings can wrap to two columns and intervals remain readable. TalkBack identifies each action in order, targets meet 48 dp and reduced motion is respected.
-- [ ] Verify a readable centred width on a wide display. Review media and formulae and exercise the whiteboard, then return to grading.
+- [x] Exercise two- and four-rating configurations and interval visibility. One tap, gesture or hardware grade produces exactly one review.
+- [x] At 200% text the ratings can wrap to two columns and intervals remain readable. TalkBack identifies each action in order, targets meet 48 dp and reduced motion is respected.
+- [x] Verify a readable centred width on a wide display. Review media and formulae and exercise the whiteboard, then return to grading.
 
 ## Blocked by
 
