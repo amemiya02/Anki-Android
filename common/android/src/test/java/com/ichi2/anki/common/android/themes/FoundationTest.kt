@@ -4,8 +4,10 @@ package com.ichi2.anki.common.android.themes
 
 import android.content.Context
 import android.graphics.Typeface
+import android.os.Build
 import android.util.TypedValue
 import android.view.ContextThemeWrapper
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Typography
 import androidx.compose.ui.geometry.Size
@@ -15,6 +17,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
+import androidx.core.content.res.use
 import androidx.test.core.app.ApplicationProvider
 import com.ichi2.anki.common.android.R
 import com.ichi2.compose.theme.toAnkiDroidDimensions
@@ -183,6 +186,8 @@ class FoundationTest {
     }
 
     @Test
+    @Config(sdk = [Config.TARGET_SDK])
+    @RequiresApi(Build.VERSION_CODES.P)
     fun `every type style in XML matches the design value`() {
         val mismatches =
             typeRoles().flatMap { role ->

@@ -3,7 +3,7 @@
 package com.ichi2.compose.ui.dialogs
 
 import android.content.Context
-import android.graphics.drawable.ColorDrawable
+import android.graphics.Color
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import android.view.Window
@@ -54,6 +54,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toDrawable
 import com.ichi2.anki.common.android.R
 import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.compose.theme.foundation
@@ -103,7 +104,7 @@ fun createPaperDialog(
         val dialog = this
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         window?.apply {
-            setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
+            setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
             addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
             setDimAmount(paperScrimAmount(context))
             setWindowAnimations(R.style.Animation_AnkiDroidDialog)
