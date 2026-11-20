@@ -20,7 +20,7 @@
 
 ## 安装与构建
 
-Hayaki 支持 **Android 7.0 及以上版本**，可与 AnkiDroid 同时安装。0.2.0 版本说明中附有 GitHub Actions 的签名 APK。构建产物有效期内，登录 GitHub 下载压缩包，解压后安装文件名含 `universal` 的 APK 即可。[安装包与升级说明](docs/releases/0.2.0.md)
+Hayaki 支持 **Android 7.0 及以上版本**，可与 AnkiDroid 同时安装。首次安装可直接下载通用 APK。若之前安装的是特定架构的 APK，请选择相同架构的包覆盖升级。[下载通用 APK](https://github.com/amemiya02/Hayaki/releases/download/v0.2.0/Hayaki-0.2.0-universal.apk) · [其他架构、签名说明和校验值](https://github.com/amemiya02/Hayaki/releases/tag/v0.2.0)
 
 要从源码构建 0.2.0，请安装 JDK 21 和 Android SDK Platform 37，用 `ANDROID_HOME` 指定 SDK 目录，或在 `local.properties` 中设置 `sdk.dir`。连接已开启 USB 调试的设备后运行
 
