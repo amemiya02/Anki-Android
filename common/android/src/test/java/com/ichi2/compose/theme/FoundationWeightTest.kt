@@ -4,7 +4,9 @@ package com.ichi2.compose.theme
 
 import android.content.Context
 import android.graphics.Typeface
+import android.os.Build
 import android.view.ContextThemeWrapper
+import androidx.annotation.RequiresApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.createFontFamilyResolver
@@ -24,6 +26,7 @@ import kotlin.test.assertEquals
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [Config.TARGET_SDK])
+@RequiresApi(Build.VERSION_CODES.P)
 class FoundationWeightTest {
     private val context: Context =
         ContextThemeWrapper(ApplicationProvider.getApplicationContext<Context>(), R.style.Theme_Light)
