@@ -98,8 +98,7 @@ class ReviewerFragmentTest : RobolectricTest() {
     @Test
     fun `completed reviews travel with the reviewer result`() =
         runTest {
-            addBasicNote("one")
-            addBasicNote("two")
+            addReviewSessionCards()
             withReviewer { controller ->
                 for (rating in listOf(Rating.AGAIN, Rating.EASY, Rating.EASY)) {
                     grade(this, rating, minutes = 1)
@@ -114,8 +113,7 @@ class ReviewerFragmentTest : RobolectricTest() {
     @Test
     fun `undo removes a grade and its time and redo puts them back`() =
         runTest {
-            addBasicNote("one")
-            addBasicNote("two")
+            addReviewSessionCards()
             withReviewer { controller ->
                 grade(this, Rating.EASY, minutes = 1)
                 viewModel.executeAction(ViewerAction.UNDO)
@@ -138,8 +136,7 @@ class ReviewerFragmentTest : RobolectricTest() {
     @Test
     fun `completed reviews survive reviewer recreation`() =
         runTest {
-            addBasicNote("one")
-            addBasicNote("two")
+            addReviewSessionCards()
             val intent = ReviewerFragment.getIntent(targetContext)
             val state =
                 Robolectric.buildActivity(CardViewerActivity::class.java, intent).use { controller ->
@@ -166,6 +163,13 @@ class ReviewerFragmentTest : RobolectricTest() {
                 )
             }
         }
+
+    private fun addReviewSessionCards() {
+        // Keep the simulated review clock independent of the audio playback dispatcher.
+        updateDeckConfig(col.decks.selected()) { autoplay = false }
+        addBasicNote("one")
+        addBasicNote("two")
+    }
 
     private fun TestScope.grade(
         reviewer: ReviewerFragment,
