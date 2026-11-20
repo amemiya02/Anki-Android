@@ -3,8 +3,8 @@
 <!--
   The Foundation: the app-wide base of the chosen Direction (the Material 3 standard, ADR-0006) that
   every Native Surface inherits. Every value here is copied from docs/redesign/material-3.values.json,
-  the single source; FoundationTest fails if one drifts from it. The colours are generated into
-  foundation_colors.xml from the same file.
+  which FoundationTest checks. The colours are generated from the iOS brand palette and the
+  Android Material 3 roles.
 
   XML reads the colour roles as theme attributes (?attr/foundationPrimary); each theme in
   theme_light.xml, theme_dark.xml and theme_black.xml points them at the colours below, and maps
@@ -15,6 +15,7 @@
 <resources>
     <!-- Colour roles, as theme attributes -->
     <attr name="foundationBackground" format="color" />
+    <attr name="foundationStudyCanvas" format="color" />
     <attr name="foundationOnBackground" format="color" />
     <attr name="foundationOnBackgroundMuted" format="color" />
     <attr name="foundationOutline" format="color" />
@@ -42,6 +43,7 @@
     <!-- How Compose reads the colour roles (Foundation.kt) -->
     <declare-styleable name="Foundation">
         <attr name="foundationBackground" />
+        <attr name="foundationStudyCanvas" />
         <attr name="foundationOnBackground" />
         <attr name="foundationOnBackgroundMuted" />
         <attr name="foundationOutline" />

@@ -5,8 +5,11 @@ package com.ichi2.themes
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.TypedValue
+import android.view.ContextThemeWrapper
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.edit
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.android.material.color.MaterialColors
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.StudyOptionsActivity
@@ -15,6 +18,7 @@ import com.ichi2.anki.settings.PrefsRepository
 import com.ichi2.anki.settings.enums.AppTheme
 import com.ichi2.anki.settings.enums.DayTheme
 import com.ichi2.anki.settings.enums.NightTheme
+import com.ichi2.compose.theme.toFoundation
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.equalTo
@@ -24,10 +28,32 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RuntimeEnvironment
 import kotlin.test.assertFailsWith
+import com.google.android.material.R as MaterialR
 import com.ichi2.testutils.Robolectric as RobolectricActivities
 
 @RunWith(AndroidJUnit4::class)
 class ThemesTest : RobolectricTest() {
+    @Test
+    fun `a relaunched screen resolves its saved Theme in Light Dark and Black`() {
+        targetContext.sharedPrefs().edit { putString("hayaki.theme", "sakura") }
+        val prefs = PrefsRepository(targetContext)
+        for ((appearance, nightTheme, accent) in listOf(
+            Triple(AppTheme.DAY, NightTheme.DARK, 0xFFB04663.toInt()),
+            Triple(AppTheme.NIGHT, NightTheme.DARK, 0xFFFF9DB7.toInt()),
+            Triple(AppTheme.NIGHT, NightTheme.BLACK, 0xFFFF9DB7.toInt()),
+        )) {
+            prefs.appTheme = appearance
+            prefs.nightTheme = nightTheme
+            val context = ContextThemeWrapper(targetContext, 0)
+            Themes.setTheme(context)
+            assertThat(context.toFoundation().colors.primary.toArgb(), equalTo(accent))
+            assertThat(MaterialColors.getColor(context, MaterialR.attr.colorPrimary, 0), equalTo(accent))
+            if (nightTheme == NightTheme.BLACK) {
+                assertThat(context.toFoundation().colors.background.toArgb(), equalTo(0xFF000000.toInt()))
+            }
+        }
+    }
+
     /**
      * If the decor view is created before [Themes.setTheme] applies the user's theme, the theme's
      * windowBackground is not applied and night mode renders a white background (issue 21520).

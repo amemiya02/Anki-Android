@@ -12,6 +12,7 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -143,6 +144,38 @@ class SettingsSearchNavigationTest : RobolectricTest() {
                 activity.theme.resolveAttribute(CommonR.attr.foundationBackground, background, true)
                 assertEquals(activity.getColor(CommonR.color.foundation_black_background), background.data)
             }
+        }
+    }
+
+    @Test
+    fun choosingAThemeKeepsItAcrossAppearanceChangesAndRelaunch() {
+        val intent = PreferencesActivity.getIntent(targetContext, AppearanceSettingsFragment::class)
+        val themeRow = hasText(targetContext.getString(CommonString.app_theme)) and hasClickAction()
+        ActivityScenario.launch<PreferencesActivity>(intent).use {
+            compose.onNode(themeRow).performClick()
+            for (label in listOf("Hayaki", "Sakura", "Matcha", "Ocean", "Indigo", "Wisteria", "Amber", "Sumi", "Paper", "Midnight")) {
+                compose.onNode(hasText(label) and isSelectable()).assertExists()
+            }
+            compose.onNode(hasText("Sakura") and isSelectable()).performScrollTo().performClick()
+            advanceRobolectricLooper()
+
+            for (appearance in listOf(
+                R.string.settings_theme_light,
+                R.string.settings_theme_dark,
+                R.string.settings_theme_black,
+                R.string.settings_theme_system,
+            )) {
+                compose
+                    .onAllNodes(hasText(targetContext.getString(appearance)) and hasClickAction())[0]
+                    .performScrollTo()
+                    .performClick()
+                advanceRobolectricLooper()
+                compose.onNode(themeRow).assertTextContains("Sakura")
+            }
+        }
+        ActivityScenario.launch<PreferencesActivity>(intent).use {
+            compose.onNode(themeRow).assertTextContains("Sakura").performClick()
+            compose.onNode(hasText("Sakura") and isSelectable()).assertIsSelected()
         }
     }
 

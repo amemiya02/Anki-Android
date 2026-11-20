@@ -1,0 +1,59 @@
+{
+    "repository": "https://github.com/amemiya02/Hayaki-iOS",
+    "revision": "80e04182620fb73fba5d39f85596163969513ff8",
+    "manifest": "docs/brand/manifest.json",
+    "paletteSource": "Packages/HayakiAppearance/Sources/HayakiAppearance/Theme.swift",
+    "appearanceRules": "Packages/HayakiAppearance/Sources/HayakiAppearance/HayakiTheme.swift",
+    "default": "hayaki",
+    "tintOpacity": {
+        "light": 0.04,
+        "dark": 0.06,
+        "black": 0
+    },
+    "palettes": {
+        "hayaki": {
+            "light": "#2C776E",
+            "dark": "#7ED6CA"
+        },
+        "sakura": {
+            "light": "#B04663",
+            "dark": "#FF9DB7"
+        },
+        "matcha": {
+            "light": "#50743F",
+            "dark": "#A8CF8E"
+        },
+        "ocean": {
+            "light": "#0A6E9E",
+            "dark": "#5EC4F0"
+        },
+        "indigo": {
+            "light": "#3A5BD9",
+            "dark": "#8FA8FF"
+        },
+        "wisteria": {
+            "light": "#745AB9",
+            "dark": "#B9A3F5"
+        },
+        "amber": {
+            "light": "#916019",
+            "dark": "#F5C451"
+        },
+        "sumi": {
+            "light": "#4A4A4F",
+            "dark": "#C7C7CC"
+        },
+        "paper": {
+            "light": "#8A5A2B",
+            "dark": "#D9A86C",
+            "lightCanvas": "#F6F1E7",
+            "darkCanvas": "#1E1A15"
+        },
+        "midnight": {
+            "light": "#1A757F",
+            "dark": "#5EE6EE",
+            "lightCanvas": "#EEF3FA",
+            "darkCanvas": "#0B1426"
+        }
+    }
+}

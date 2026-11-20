@@ -139,6 +139,8 @@ open class AnkiActivity(
      */
     private var broadcastReceiver: BroadcastReceiver? = null
 
+    private var appliedThemeStyle: Int? = null
+
     var importColpkgListener: ImportColpkgListener? = null
 
     val dialogHandler = DialogHandler(this)
@@ -164,7 +166,7 @@ open class AnkiActivity(
         // The hardware buttons should control the music volume
         volumeControlStream = AudioManager.STREAM_MUSIC
         // Set the theme
-        Themes.setTheme(this, savedInstanceState)
+        appliedThemeStyle = Themes.setTheme(this, savedInstanceState)
         disableXiaomiForceDarkMode(this)
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -224,6 +226,11 @@ open class AnkiActivity(
 
     override fun onResume() {
         super.onResume()
+        val appliedStyle = appliedThemeStyle
+        if (appliedStyle != null && appliedStyle != Themes.resolveStyle(this)) {
+            recreate()
+            return
+        }
         Analytics.sendAnalyticsScreenView(analyticsScreenName)
         (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).cancel(
             SIMPLE_NOTIFICATION_ID,
