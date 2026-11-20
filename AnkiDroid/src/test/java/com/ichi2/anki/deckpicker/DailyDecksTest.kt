@@ -17,6 +17,7 @@ import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.common.time.MockTime
 import com.ichi2.anki.common.time.SECONDS_PER_DAY
 import com.ichi2.anki.common.time.TimeManager
+import com.ichi2.anki.setIntroductionSlidesShown
 import com.ichi2.anki.withDeckPicker
 import com.ichi2.testutils.BackupManagerTestUtilities
 import org.junit.After

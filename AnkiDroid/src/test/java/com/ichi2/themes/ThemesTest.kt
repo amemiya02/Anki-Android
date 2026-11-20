@@ -28,7 +28,6 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RuntimeEnvironment
 import kotlin.test.assertFailsWith
-import com.google.android.material.R as MaterialR
 import com.ichi2.testutils.Robolectric as RobolectricActivities
 
 @RunWith(AndroidJUnit4::class)
@@ -53,7 +52,7 @@ class ThemesTest : RobolectricTest() {
                     .toArgb(),
                 equalTo(accent),
             )
-            assertThat(MaterialColors.getColor(context, MaterialR.attr.colorPrimary, 0), equalTo(accent))
+            assertThat(MaterialColors.getColor(context, androidx.appcompat.R.attr.colorPrimary, 0), equalTo(accent))
             if (nightTheme == NightTheme.BLACK) {
                 assertThat(
                     context
