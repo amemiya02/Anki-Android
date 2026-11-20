@@ -8,8 +8,11 @@ import com.ichi2.anki.snackbar.showSnackbar
 
 /** Presents the end of a review session in the activity that owns its result. */
 object StudyCompletionUi {
-    fun openFinishedScreen(activity: FragmentActivity) {
-        activity.startActivity(FinishedFragment.getIntent(activity))
+    fun openFinishedScreen(
+        activity: FragmentActivity,
+        sessionSummary: ReviewSessionSummary? = null,
+    ) {
+        activity.startActivity(FinishedFragment.getIntent(activity, sessionSummary = sessionSummary))
     }
 
     /** A study screen nobody awaits a result from (opened from a shortcut) ran out of Cards. */
@@ -20,9 +23,10 @@ object StudyCompletionUi {
     fun onReviewsCompleted(
         activity: FragmentActivity,
         state: DeckStudyState,
+        sessionSummary: ReviewSessionSummary? = null,
     ) {
         when (state.availability) {
-            StudyAvailability.NoCardsAvailable -> openFinishedScreen(activity)
+            StudyAvailability.NoCardsAvailable -> openFinishedScreen(activity, sessionSummary)
             StudyAvailability.CardsAvailable -> activity.showSnackbar(CommonString.studyoptions_no_cards_due)
         }
     }

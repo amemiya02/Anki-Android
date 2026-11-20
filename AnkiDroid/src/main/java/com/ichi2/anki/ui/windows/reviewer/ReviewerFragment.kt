@@ -112,6 +112,7 @@ import com.ichi2.utils.ViewGroupUtils.setRenderWorkaround
 import com.squareup.seismic.ShakeDetector
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -336,14 +337,13 @@ class ReviewerFragment :
 
         val viewScope = viewLifecycleOwner.lifecycleScope
 
-        viewModel.finishResultFlow
-            .onEach { result ->
-                val host = requireActivity()
-                // The Deck Picker handles completion when it launched this screen for a result.
-                val openFinishedScreen = result == RESULT_NO_MORE_CARDS && !hasScreenResultCaller()
-                finishScreen(result)
-                if (openFinishedScreen) StudyCompletionUi.openFinishedScreen(host)
-            }.launchIn(viewScope)
+        viewModel.finishResultFlow.filterNotNull().collectInViewLifecycle { result ->
+            val host = requireActivity()
+            // The Deck Picker handles completion when it launched this screen for a result.
+            val openFinishedScreen = result.code == RESULT_NO_MORE_CARDS && !hasScreenResultCaller()
+            finishScreen(result.code, result.summary?.toIntent())
+            if (openFinishedScreen) StudyCompletionUi.openFinishedScreen(host, result.summary)
+        }
 
         viewModel.statesMutationEvalFlow
             .onEach { eval ->

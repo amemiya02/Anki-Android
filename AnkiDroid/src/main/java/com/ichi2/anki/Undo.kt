@@ -8,16 +8,17 @@ import androidx.fragment.app.FragmentActivity
 import anki.collection.OpChangesAfterUndo
 import com.google.android.material.snackbar.Snackbar
 import com.ichi2.anki.CollectionManager.TR
+import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.redoAvailable
 import com.ichi2.anki.libanki.undoAvailable
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.snackbar.showSnackbar
 
-suspend fun tryUndo(): String {
+suspend fun tryUndo(onUndo: Collection.(OpChangesAfterUndo) -> Unit = {}): String {
     val changes =
         undoableOp {
             if (undoAvailable()) {
-                undo()
+                undo().also { onUndo(it) }
             } else {
                 OpChangesAfterUndo.getDefaultInstance()
             }
@@ -29,11 +30,11 @@ suspend fun tryUndo(): String {
     }
 }
 
-suspend fun tryRedo(): String {
+suspend fun tryRedo(onRedo: Collection.(OpChangesAfterUndo) -> Unit = {}): String {
     val changes =
         undoableOp {
             if (redoAvailable()) {
-                redo()
+                redo().also { onRedo(it) }
             } else {
                 OpChangesAfterUndo.getDefaultInstance()
             }
