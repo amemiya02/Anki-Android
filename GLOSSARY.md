@@ -63,7 +63,7 @@ Our own copy of Upstream that carries the Redesign, with its own name, icon and 
 _Avoid_: Our version, the new app, the clone
 
 **Hayaki**:
-The Fork's name as the people who use it see it, written the same way in every language.
+The offline study app for Anki collections on Android, iPhone and iPad. Its name is written the same way in every language.
 _Avoid_: AnkiDroid Redesign (the working name for development builds only), AnkiDroid
 
 **Official App**:
@@ -77,6 +77,14 @@ _Avoid_: Style, theme, concept
 **Foundation**:
 The app-wide base of the chosen Direction (colour, type, spacing and shape) that every Native Surface inherits.
 _Avoid_: Design system, tokens, theme
+
+**Theme**:
+The learner's choice of accent colours and, for Paper and Midnight, the default study background.
+_Avoid_: Skin, colour mode
+
+**Appearance**:
+The learner's choice of System, Light, Dark or Black, applied to their chosen Theme.
+_Avoid_: Theme when referring to light or dark mode
 
 **Mockup**:
 A picture of a Native Surface as it is intended to look, agreed before that surface is built.
