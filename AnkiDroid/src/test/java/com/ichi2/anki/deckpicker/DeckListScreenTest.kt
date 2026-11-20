@@ -10,7 +10,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.hasText
@@ -18,6 +17,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
@@ -124,6 +124,39 @@ class DeckListScreenTest : RobolectricTest() {
         dueToday: Int = 0,
         studiedToday: Int = 0,
     ) = DeckListScreenState(decks = decks(), isEmptyCollection = false, queuesToday = Counts(new = dueToday), studiedToday = studiedToday)
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `Today reaches its new progress without animating in safe display mode`() {
+        Prefs.sharedPrefs.edit { putBoolean(Prefs.key(R.string.safe_display_key), true) }
+        assertProgressAppearsImmediately()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `Today reaches its new progress without animating when the system disables animations`() {
+        Settings.Global.putFloat(targetContext.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f)
+        assertProgressAppearsImmediately()
+    }
+
+    private fun assertProgressAppearsImmediately() {
+        addDeck("Spanish")
+        val deckListState = mutableStateOf(stateWithDecks(dueToday = 10))
+        composeRule.setContent {
+            AnkiDroidTheme {
+                DeckListScreen(state = deckListState.value, actions = actions)
+            }
+        }
+        composeRule.mainClock.autoAdvance = false
+        deckListState.value = deckListState.value.copy(queuesToday = Counts(new = 2), studiedToday = 8)
+        composeRule.mainClock.advanceTimeByFrame()
+        val immediate = composeRule.onRoot().captureToImage().asAndroidBitmap()
+
+        composeRule.mainClock.advanceTimeBy(1_000)
+        val settled = composeRule.onRoot().captureToImage().asAndroidBitmap()
+
+        assertTrue(immediate.sameAs(settled), "Today should draw its final progress on the first updated frame")
+    }
 
     @Test
     fun `a Deck shows only nonzero counts and names the counts action for a screen reader`() {

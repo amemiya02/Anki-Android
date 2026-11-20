@@ -149,6 +149,34 @@ class ThemesTest : RobolectricTest() {
     }
 
     @Test
+    fun `the first activity uses the installed appearance before Decks upgrades preferences`() {
+        val prefs = targetContext.sharedPrefs()
+        val appearances =
+            listOf(
+                Triple(25, "2", DayTheme.LIGHT),
+                Triple(25, "3", NightTheme.BLACK),
+                Triple(25, "4", NightTheme.DARK),
+                Triple(26, "1", DayTheme.LIGHT),
+                Triple(26, "2", NightTheme.BLACK),
+            )
+        for ((version, appTheme, expected) in appearances) {
+            prefs.edit {
+                putInt("preferenceUpgradeVersion", version)
+                putString("appTheme", appTheme)
+                putString("dayTheme", "3") // the retired E-ink setting
+                putString("nightTheme", "3")
+            }
+            Robolectric.buildActivity(AnkiActivity::class.java).use { controller ->
+                val activity = controller.create().get()
+                assertEquals(expected, Themes.currentTheme, "appTheme = $appTheme at upgrade $version")
+                assertEquals(HayakiTheme.HAYAKI.styleFor(expected), Themes.resolveStyle(activity))
+            }
+            assertEquals(appTheme, prefs.getString("appTheme", null))
+            assertEquals(version, prefs.getInt("preferenceUpgradeVersion", 0))
+        }
+    }
+
+    @Test
     fun `wallpaper colours are not applied, even if the old developer option was on`() {
         targetContext.sharedPrefs().edit { putBoolean("devMaterialYou", true) }
         assertThat(primaryColorResourceName(), not(containsString("dynamic")))

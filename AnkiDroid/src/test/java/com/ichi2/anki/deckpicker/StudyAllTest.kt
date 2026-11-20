@@ -88,7 +88,10 @@ class StudyAllTest : RobolectricTest() {
         }
     }
 
-    private fun addCardTo(deck: DeckId, front: String) {
+    private fun addCardTo(
+        deck: DeckId,
+        front: String,
+    ) {
         col.setDeck(listOf(addBasicNote(front).firstCard().id), deck)
     }
 
@@ -102,7 +105,10 @@ class StudyAllTest : RobolectricTest() {
         reviewer.finishScreen(ReviewerFragment.RESULT_NO_MORE_CARDS, summary.toIntent())
     }
 
-    private fun awaitReviewer(host: DeckPicker, deck: DeckId): ReviewerFragment {
+    private fun awaitReviewer(
+        host: DeckPicker,
+        deck: DeckId,
+    ): ReviewerFragment {
         advanceRobolectricLooperUntil { host.currentScreenFragment is ReviewerFragment }
         assertEquals(deck, col.decks.selected())
         return host.currentScreenFragment as ReviewerFragment

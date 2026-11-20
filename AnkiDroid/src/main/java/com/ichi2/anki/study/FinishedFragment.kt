@@ -65,13 +65,14 @@ class FinishedFragment :
         get() = arguments?.takeIf { it.containsKey(ARG_STUDY_ALL_DECK_ID) }?.getLong(ARG_STUDY_ALL_DECK_ID)
 
     private val sessionSummary: ReviewSessionSummary?
-        get() = arguments?.let {
-            BundleCompat.getParcelable(
-                it,
-                ReviewSessionSummary.EXTRA_SESSION_SUMMARY,
-                ReviewSessionSummary::class.java,
-            )
-        }
+        get() =
+            arguments?.let {
+                BundleCompat.getParcelable(
+                    it,
+                    ReviewSessionSummary.EXTRA_SESSION_SUMMARY,
+                    ReviewSessionSummary::class.java,
+                )
+            }
 
     init {
         ChangeManager.subscribe(this)
