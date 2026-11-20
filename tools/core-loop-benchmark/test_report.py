@@ -20,6 +20,17 @@ class ReportTest(unittest.TestCase):
             rows = Device("emulator-5554", "com.ichi2.anki.redesign.perf").browsing()
         self.assertEqual(rows, ["Browser fixture 00117"])
 
+    def test_browse_clears_an_empty_deck_filter_before_counting(self):
+        snapshot = """<hierarchy>
+            <node package="com.ichi2.anki.redesign.perf" text="No cards match" />
+            <node package="com.ichi2.anki.redesign.perf" text="Clear" bounds="[20,20][40,40]" />
+        </hierarchy>"""
+        dump = "UI hierarchy dumped to: /data/local/tmp/window.xml"
+        with patch("subprocess.check_output", side_effect=[dump, snapshot, dump, snapshot, ""]) as adb:
+            with self.assertRaisesRegex(ValueError, "Browse did not report 100,000 Cards"):
+                Device("emulator-5554", "com.ichi2.anki.redesign.perf").browsing(verify_count=True)
+        adb.assert_called_with(["adb", "-s", "emulator-5554", "shell", "input tap 30 30"], text=True, timeout=90)
+
     def test_reports_only_new_valid_frames_and_uses_androids_deadline(self):
         with tempfile.TemporaryDirectory() as directory:
             capture = Path(directory) / "capture.txt"

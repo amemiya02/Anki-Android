@@ -109,6 +109,8 @@ class Device:
             for key in ("text", "content-desc")
         ]
         if verify_count and not any(CARD_COUNT.search(label) for label in labels):
+            if "No cards match" in labels and "Clear" in labels:
+                self.tap(self.control("Clear"))
             raise ValueError(f"Browse did not report 100,000 Cards: {labels}")
         rows = sorted(set(CARD_LABEL.findall("\n".join(labels))))
         if not rows:
