@@ -148,6 +148,8 @@ jobs:
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       TEST_RELEASE_BUILD: true
+      # Keep in sync with sdk-installer.ts in the pinned android-emulator-runner action.
+      SDK_BUILD_TOOLS_VERSION: '37.0.0'
       # Capture startup and kernel logs before ADB is ready; -logcat conflicts with -show-kernel.
       EMULATOR_OPTIONS: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -verbose -show-kernel
       # API 37 otherwise defaults to 96 MiB and panics during init with an OOM.
@@ -242,8 +244,6 @@ jobs:
           SDK_API_LEVEL: ${{ matrix.api-level }}
           SDK_TARGET: ${{ matrix.target }}
           SDK_ARCH: ${{ matrix.arch }}
-          # Keep in sync with sdk-installer.ts in the pinned android-emulator-runner action.
-          SDK_BUILD_TOOLS_VERSION: '37.0.0'
         with:
           timeout_minutes: 5
           retry_wait_seconds: 60
@@ -390,63 +390,31 @@ jobs:
             bash .github/adb_retry.sh shell settings put global hide_error_dialogs 1
             TEST_RELEASE_BUILD=false bash .github/with_emulator_cleanup.sh python3 .github/run_release_smoke_test.py
 
-      - name: Configure NDK tools PATH for alignment checking
-        if: "${{ !inputs.release_device_only }}"
-        run: |
-          echo "Using pre-installed NDK tools for alignment checking"
-          if [ ! -d "$ANDROID_NDK_LATEST_HOME" ]; then
-            echo "Error: NDK tools not found at $ANDROID_NDK_LATEST_HOME"
-            echo "The NDK should be pre-installed in the runner image. Failing fast."
-            exit 1
-          fi
-
-          NDK_VERSION=$(basename $ANDROID_NDK_LATEST_HOME)
-          echo "Using NDK version: $NDK_VERSION"
-          echo "export PATH=$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH" >> $GITHUB_ENV
-
       - name: Check APK ELF Alignment
         if: "${{ !inputs.release_device_only }}"
         run: |
-          chmod +x .github/check_elf_alignment.sh
           APK_PATH="AnkiDroid/build/outputs/apk/play/release/AnkiDroid-play-arm64-v8a-release.apk"
-
-          if [ ! -f "$APK_PATH" ]; then
-            echo "Error: APK file not found at $APK_PATH"
-            echo "The APK should have been built in previous steps. Failing fast."
+          ELF_OBJDUMP="${ANDROID_NDK_LATEST_HOME:?}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-objdump"
+          if [ ! -x "$ELF_OBJDUMP" ]; then
+            echo "Error: NDK llvm-objdump not found at $ELF_OBJDUMP"
             exit 1
           fi
 
-          echo "Using APK: $APK_PATH"
-          .github/check_elf_alignment.sh $APK_PATH
+          ELF_OBJDUMP="$ELF_OBJDUMP" bash .github/check_elf_alignment.sh "$APK_PATH"
 
       - name: Verify zipalign
         if: "${{ !inputs.release_device_only }}"
         run: |
           APK_PATH="AnkiDroid/build/outputs/apk/play/release/AnkiDroid-play-arm64-v8a-release.apk"
-          echo "Verifying zipalign with 16KB alignment for $APK_PATH"
-
-          # Find the latest build-tools version dynamically
-          LATEST_BUILD_TOOLS=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -n 1)
-          ZIPALIGN_PATH="$LATEST_BUILD_TOOLS/zipalign"
-          echo "Using zipalign at: $ZIPALIGN_PATH"
-
-          # Verify zipalign exists
-          if [ ! -f "$ZIPALIGN_PATH" ]; then
-            echo "Error: zipalign not found at $ZIPALIGN_PATH"
-            echo "Available build-tools versions:"
-            ls -la $ANDROID_HOME/build-tools/
-            exit 1
-          fi
-
-          # Use the zipalign tool
-          $ZIPALIGN_PATH -c -P 16 -v 4 $APK_PATH
+          ZIPALIGN_PATH="$ANDROID_HOME/build-tools/$SDK_BUILD_TOOLS_VERSION/zipalign"
+          "$ZIPALIGN_PATH" -c -P 16 -v 4 "$APK_PATH"
 
       - name: Upload Test Report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always() && !inputs.release_device_only
         with:
           name: ${{ matrix.api-level }}-${{ matrix.arch }}-${{matrix.target}}-${{matrix.first-boot-delay}}-${{matrix.iteration}}-${{ matrix.device }}-jacocoAndroidTestReport
-          path: ~/work/Anki-Android/Anki-Android/AnkiDroid/build/reports/jacoco/
+          path: AnkiDroid/build/reports/jacoco/
 
       - name: Upload Emulator Log
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

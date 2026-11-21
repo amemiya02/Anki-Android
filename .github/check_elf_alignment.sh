@@ -8,10 +8,10 @@ progname="${progname%.sh}"
 # usage: check_elf_alignment.sh [path to *.so files|path to *.apk]
 
 cleanup_trap() {
-  if [ -n "${tmp}" -a -d "${tmp}" ]; then
-    rm -rf ${tmp}
+  if [[ -n "$tmp" && -d "$tmp" ]]; then
+    rm -rf -- "$tmp"
   fi
-  exit $1
+  exit "$1"
 }
 
 usage() {
@@ -44,7 +44,7 @@ if ! [ -f "${dir}" -o -d "${dir}" ]; then
 fi
 
 if [[ "${dir}" == *.apk ]]; then
-  trap 'cleanup_trap' EXIT
+  trap 'cleanup_trap "$?"' EXIT
 
   echo
   echo "Recursively analyzing $dir"
@@ -63,13 +63,13 @@ if [[ "${dir}" == *.apk ]]; then
   fi
 
   dir_filename=$(basename "${dir}")
-  tmp=$(mktemp -d -t "${dir_filename%.apk}_out_XXXXX")
-  unzip "${dir}" lib/* -d "${tmp}" >/dev/null 2>&1
+  tmp=$(mktemp -d -t "${dir_filename%.apk}_out_XXXXX") || exit 1
+  unzip "${dir}" 'lib/*' -d "${tmp}" >/dev/null || exit 1
   dir="${tmp}"
 fi
 
 if [[ "${dir}" == *.apex ]]; then
-  trap 'cleanup_trap' EXIT
+  trap 'cleanup_trap "$?"' EXIT
 
   echo
   echo "Recursively analyzing $dir"
@@ -90,26 +90,30 @@ unaligned_libs=()
 echo
 echo "=== ELF alignment ==="
 
-matches="$(find "${dir}" -type f)"
+objdump=${ELF_OBJDUMP:-objdump}
+matches="$(find "${dir}" -type f)" || exit 1
 IFS=$'\n'
 for match in $matches; do
   # We could recursively call this script or rewrite it to though.
   [[ "${match}" == *".apk" ]] && echo "WARNING: doesn't recursively inspect .apk file: ${match}"
   [[ "${match}" == *".apex" ]] && echo "WARNING: doesn't recursively inspect .apex file: ${match}"
 
-  [[ $(file "${match}") == *"ELF"* ]] || continue
+  kind="$(file -b "${match}")"
+  [[ "$kind" == "ELF 64-bit"* && ( "$kind" == *"ARM aarch64"* || "$kind" == *"x86-64"* ) ]] || continue
 
-  res="$(objdump -p "${match}" | grep LOAD | awk '{ print $NF }' | head -1)"
-  if [[ $res =~ 2\*\*(1[4-9]|[2-9][0-9]|[1-9][0-9]{2,}) ]]; then
-    echo -e "${match}: ${GREEN}ALIGNED${ENDCOLOR} ($res)"
+  headers="$("$objdump" -p "${match}")" || exit 1
+  alignments="$(awk '$1 == "LOAD" { print $NF }' <<< "$headers")"
+  if [[ -n "$alignments" ]] && ! grep -qvE '^2\*\*(1[4-9]|[2-9][0-9]|[1-9][0-9]{2,})$' <<< "$alignments"; then
+    echo -e "${match}: ${GREEN}ALIGNED${ENDCOLOR}"
   else
-    echo -e "${match}: ${RED}UNALIGNED${ENDCOLOR} ($res)"
+    echo -e "${match}: ${RED}UNALIGNED${ENDCOLOR}"
     unaligned_libs+=("${match}")
   fi
 done
 
 if [ ${#unaligned_libs[@]} -gt 0 ]; then
   echo -e "${RED}Found ${#unaligned_libs[@]} unaligned libs (only arm64-v8a/x86_64 libs need to be aligned).${ENDCOLOR}"
+  exit 1
 elif [ -n "${dir_filename}" ]; then
   echo -e "ELF Verification Successful"
 fi
