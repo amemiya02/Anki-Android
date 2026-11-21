@@ -4,7 +4,6 @@ package com.ichi2.anki
 
 import android.content.Intent
 import androidx.core.net.toUri
-import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -23,7 +22,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.test.assertEquals
+import kotlin.test.assertSame
 
 /**
  * Sending the `anki://x-callback-url/browser?search=` deep link opens Browse in the app host.
@@ -70,8 +69,9 @@ class CardBrowserDeepLinkTest : InstrumentedTest() {
     fun backFromBrowserReturnsToDecksInTheSameActivity() =
         testContext.withBackupPromptDisabled {
             addNoteUsingBasicNoteType("dog", "barks")
-            ActivityScenario.launch(DeckPicker::class.java).use { scenario ->
-                val host = onDecks(scenario)
+            testContext.startActivity(DeckPicker.getIntent(testContext).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            useResumedActivity<DeckPicker> { host ->
+                assertDecksVisible()
                 launchDeepLink("dog")
                 val browser = awaitBrowser(host)
                 waitUntil(message = { "Back did not close the deep-linked Browse screen" }) {
@@ -82,15 +82,13 @@ class CardBrowserDeepLinkTest : InstrumentedTest() {
                         host.currentScreenFragment == null
                     }
                 }
-                assertEquals(host, onDecks(scenario))
+                assertDecksVisible()
+                assertSame(host, TestUtils.activityInstance)
             }
         }
 
-    private fun onDecks(scenario: ActivityScenario<DeckPicker>): DeckPicker {
+    private fun assertDecksVisible() {
         onView(withId(R.id.deck_picker_content)).check(matches(isDisplayed()))
-        lateinit var host: DeckPicker
-        scenario.onActivity { host = it }
-        return host
     }
 
     private fun awaitBrowser(host: DeckPicker): CardBrowserPaneFragment {
