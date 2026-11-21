@@ -9,10 +9,14 @@ import org.robolectric.android.controller.ActivityController
 import org.robolectric.shadows.ShadowChoreographer
 import java.time.Duration
 
-internal fun RobolectricTest.startDeckOptionsController(): ActivityController<SingleFragmentActivity> {
-    // The WebView shadow cannot signal readiness. Advance loading animation frames only when the test clock advances.
+internal fun pauseDeckOptionsAnimationClock() {
+    // The WebView shadow never signals readiness, so the loading indicator keeps requesting animation frames.
     ShadowChoreographer.setPaused(true)
     ShadowChoreographer.setFrameDelay(Duration.ofMillis(16))
+}
+
+internal fun RobolectricTest.startDeckOptionsController(): ActivityController<SingleFragmentActivity> {
+    pauseDeckOptionsAnimationClock()
     return startActivityControllerNormallyOpenCollectionWithIntent(
         SingleFragmentActivity::class.java,
         DeckOptions.getIntent(targetContext, Consts.DEFAULT_DECK_ID),
