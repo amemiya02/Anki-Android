@@ -6,11 +6,11 @@ import android.content.Context
 import android.graphics.Typeface
 import android.os.Build
 import android.view.ContextThemeWrapper
-import androidx.annotation.RequiresApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
 import com.ichi2.anki.common.android.R
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,7 +26,7 @@ import kotlin.test.assertEquals
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [Config.TARGET_SDK])
-@RequiresApi(Build.VERSION_CODES.P)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 class FoundationWeightTest {
     private val context: Context =
         ContextThemeWrapper(ApplicationProvider.getApplicationContext<Context>(), R.style.Theme_Light)
