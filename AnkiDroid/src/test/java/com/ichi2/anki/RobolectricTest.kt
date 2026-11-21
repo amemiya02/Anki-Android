@@ -23,6 +23,7 @@ import com.ichi2.anki.CollectionManager.CollectionOpenFailure
 import com.ichi2.anki.RobolectricTest.CollectionStorageMode.IN_MEMORY_NO_FOLDERS
 import com.ichi2.anki.RobolectricTest.CollectionStorageMode.IN_MEMORY_WITH_MEDIA
 import com.ichi2.anki.RobolectricTest.CollectionStorageMode.ON_DISK
+import com.ichi2.anki.RobolectricTest.CollectionStorageMode.TEMPORARY_ON_DISK
 import com.ichi2.anki.common.android.AdaptionUtil
 import com.ichi2.anki.common.annotations.UseContextParameter
 import com.ichi2.anki.common.preferences.SharedPreferencesTestHook
