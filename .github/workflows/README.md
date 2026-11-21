@@ -30,6 +30,8 @@ The [comparison workflow](screenshot_compare.yml) uses the PR event’s base com
 
 Recording from a historical revision keeps the captured PNGs and publishes that revision’s JUnit report, including any historical assertion failures. It requires PNGs and executed test cases and rejects worker failures. Candidate screenshot tests enforce their assertions and accessibility checks.
 
+For historical revisions with the old Deck Options screenshot fixture, recording pins the Robolectric animation clock before launching the screen. This lets the original loading screen render without waiting for the WebView shadow to finish loading.
+
 ### Merge queue cancellation
 
 GitHub can leave jobs running after their merge group has been removed.

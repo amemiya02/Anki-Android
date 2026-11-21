@@ -100,6 +100,11 @@ jobs:
           baseline=$(mktemp -d)
           git worktree add --detach "$baseline" "$BASE_SHA"
           trap 'git worktree remove --force "$baseline"' EXIT
+          clock_patch="$GITHUB_WORKSPACE/.github/deck_options_baseline_clock.patch"
+          if git -C "$baseline" apply --check "$clock_patch" 2>/dev/null; then
+            echo 'Using a paused loading animation clock for the historical Deck Options screenshot fixture'
+            git -C "$baseline" apply "$clock_patch"
+          fi
           recorder="$GITHUB_WORKSPACE/.github/record_screenshot_baseline.init.gradle"
           (
             cd "$baseline"
