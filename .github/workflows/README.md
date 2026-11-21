@@ -14,7 +14,7 @@ Alternately, you may run the actions on your fork of `Anki-Android`.
 | **Job**                                                                                                    | **Command**                                                          | **Comments**                                                                                                                                             |
 |------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [Lint (Kotlin)](https://github.com/ankidroid/Anki-Android/blob/main/.github/workflows/lint.yml)            | `./gradlew lintAll ktLintCheck lint-rules:test --daemon`             | Android lint rules, formatting and tests for lint rules                                                                                                  |
-| [Lint (JavaScript)](https://github.com/ankidroid/Anki-Android/blob/main/.github/workflows/lint.yml)        | See script                                                           | Prettier, lint & code formatting                                                                                                                         |
+| [Lint (JavaScript)](lint.yml)                                                                            | `node --test .github/*.test.js` and formatting commands in the workflow | Workflow script tests, Prettier, and localization lint                                                                                                    |
 | [Build Logic](https://github.com/ankidroid/Anki-Android/blob/main/.github/workflows/lint.yml)              | `./gradlew -p buildSrc test` and `tools/validate-version-code.sh`    | Version-code bump checks                                                                                                                                 |
 | [Unit Tests](https://github.com/ankidroid/Anki-Android/blob/main/.github/workflows/tests_unit.yml)         | `./gradlew jacocoUnitTestReport --daemon`                            | Unit tests for the Android Project                                                                                                                       |
 | [Emulator Tests](https://github.com/ankidroid/Anki-Android/blob/main/.github/workflows/tests_emulator.yml) | `TEST_RELEASE_BUILD=true ./gradlew jacocoAndroidTestReport --daemon` | Emulator tests for the Android Project.<br/>CI runs `bash .github/disable_art_metrics.sh` and `adb shell settings put global hide_error_dialogs 1` first.<br/>Then runs `ReleaseSmokeTest` from `:baselineprofile` with `TEST_RELEASE_BUILD=false` |
@@ -23,6 +23,10 @@ Alternately, you may run the actions on your fork of `Anki-Android`.
 ## Other Workflows
 
 These are typically run by maintainers. See the [Maintenance guide](https://github.com/ankidroid/Anki-Android/wiki/Maintenance-guide)
+
+### Screenshot comparisons
+
+The [comparison workflow](screenshot_compare.yml) uses the PR event’s base commit or the previous `main` tip on a push. It downloads a baseline recorded for that exact commit when available. If the artifact is missing or expired, it records the baseline from that revision in a separate worktree before comparing.
 
 ### Merge queue cancellation
 

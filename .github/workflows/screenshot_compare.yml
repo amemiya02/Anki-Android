@@ -34,11 +34,11 @@ jobs:
   compare-screenshot-test:
     name: compare
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 70
 
     permissions:
       contents: read # for clone
-      actions: write # for upload-artifact
+      actions: read # for finding and downloading baselines
 
     steps:
       # Work around Ubuntu 26.04's RAM-backed /tmp until the image fix rolls out.
@@ -70,6 +70,50 @@ jobs:
           cache-provider: basic
           gradle-version: wrapper
 
+      - name: Find exact screenshot baseline
+        id: baseline
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const findBaseline = require('./.github/find_screenshot_baseline.js');
+            await findBaseline({ github, context, core });
+
+      - name: Download baseline screenshots
+        id: download
+        if: steps.baseline.outputs.run-id != ''
+        uses: dawidd6/action-download-artifact@eab87c9830c39eff17e5a6eadb20bfb4bc880477 # v27
+        with:
+          name: screenshot
+          run_id: ${{ steps.baseline.outputs.run-id }}
+          if_no_artifact_found: ignore
+
+      - name: Record missing baseline from source
+        if: steps.download.outputs.found_artifact != 'true'
+        shell: bash
+        env:
+          BASE_SHA: ${{ steps.baseline.outputs.sha }}
+        run: |
+          if ! git cat-file -e "${BASE_SHA}^{commit}"; then
+            git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          fi
+          baseline=$(mktemp -d)
+          git worktree add --detach "$baseline" "$BASE_SHA"
+          trap 'git worktree remove --force "$baseline"' EXIT
+          (
+            cd "$baseline"
+            ./gradlew robolectricSdkDownload -Pscreenshot --daemon
+            ./gradlew recordScreenshots -Pscreenshot -Ptheme=light,dark --stacktrace --rerun-tasks
+          )
+          (cd "$baseline" && find . -type f -path '*/build/outputs/roborazzi/*.png' -print0) |
+            rsync --archive --from0 --files-from=- "$baseline/" ./
+
+      - name: Verify baseline contains screenshots
+        run: |
+          if [[ -z $(find . -type f -path '*/build/outputs/roborazzi/*.png' -print -quit) ]]; then
+            echo 'No baseline PNGs were produced' >&2
+            exit 1
+          fi
+
       - name: Warm Gradle Cache
         # Keep compilation here: robolectricSdkDownload only downloads SDK jars.
         # Compiling resolves test dependencies within the retry (Issue 21682).
@@ -79,20 +123,6 @@ jobs:
           retry_wait_seconds: 60
           max_attempts: 3
           command: ./gradlew robolectricSdkDownload compileScreenshotTests -Pscreenshot --daemon
-
-      - name: Wait for matching base screenshots
-        id: baseline
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        with:
-          script: |
-            const waitForBaseline = require('./.github/wait_for_screenshot_baseline.js');
-            return await waitForBaseline({ github, context, core });
-
-      - name: Download base branch screenshots
-        uses: dawidd6/action-download-artifact@eab87c9830c39eff17e5a6eadb20bfb4bc880477 # v27
-        with:
-          name: screenshot
-          run_id: ${{ steps.baseline.outputs.result }}
 
       - name: Compare screenshots
         id: compare-screenshot-test
@@ -151,6 +181,7 @@ jobs:
           mkdir -p ./pr
           echo ${{ github.event.number }} > ./pr/NR
       - name: Persist PR number
+        if: ${{ github.event_name == 'pull_request' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pr  # downloaded by screenshot_comment.yml

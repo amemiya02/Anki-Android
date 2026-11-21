@@ -17,7 +17,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # Each main run must be able to finish even when another trigger is queued.
+  group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 env:
@@ -95,8 +96,11 @@ jobs:
       - name: Prettify AnkiDroid javascript code
         uses: creyD/prettier_action@8c18391fdc98ed0d884c6345f03975edac71b8f0 # v4.6
         with:
-          prettier_options: --check AnkiDroid/**/*.js .github/check_alpha_release.js
+          prettier_options: --check AnkiDroid/**/*.js .github/check_alpha_release.js .github/find_screenshot_baseline.js .github/*.test.js
           dry: True
+
+      - name: Test workflow scripts
+        run: node --test .github/*.test.js
 
       - name: Install Localization
         run: cd tools/localization && yarn
