@@ -34,7 +34,7 @@ jobs:
   compare-screenshot-test:
     name: compare
     runs-on: ubuntu-latest
-    timeout-minutes: 70
+    timeout-minutes: 100
 
     permissions:
       contents: read # for clone
@@ -114,10 +114,15 @@ jobs:
             rsync --archive --from0 --files-from=- "$baseline/" "$reports/"
 
       - name: Verify baseline contains screenshots
+        env:
+          RECORDED_BASELINE: ${{ steps.record-baseline.outcome }}
         run: |
           if [[ -z $(find . -type f -path '*/build/outputs/roborazzi/*.png' -print -quit) ]]; then
             echo 'No baseline PNGs were produced' >&2
             exit 1
+          fi
+          if [[ "$RECORDED_BASELINE" == success ]]; then
+            python3 .github/check_screenshot_baseline.py "$RUNNER_TEMP/screenshot-baseline-test-results"
           fi
 
       - name: Warm Gradle Cache

@@ -50,7 +50,7 @@ jobs:
     # On PRs, this verifies the workflow runs on `main`, it's not a store
     name: ${{ github.event_name == 'push' && 'store' || 'test' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     permissions:
       contents: read # for clone
