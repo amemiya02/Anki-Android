@@ -55,6 +55,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -904,7 +905,11 @@ open class DeckPicker :
                     if (bottomNavigationEnabled) {
                         DeckListTitle(date = deckListDate.value)
                     } else {
-                        Text(getString(R.string.app_name), style = MaterialTheme.typography.titleLarge)
+                        Text(
+                            stringResource(R.string.app_name),
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.foundation.colors.onBackground,
+                        )
                     }
                 }
             }
