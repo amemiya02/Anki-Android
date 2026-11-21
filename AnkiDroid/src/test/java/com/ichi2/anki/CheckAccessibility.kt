@@ -5,8 +5,12 @@ package com.ichi2.anki
 import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
 import com.github.takahirom.roborazzi.RoborazziATFAccessibilityCheckOptions
 import com.github.takahirom.roborazzi.RoborazziATFAccessibilityChecker
+import com.google.android.apps.common.testing.accessibility.framework.AccessibilityHierarchyCheckResult
+import com.google.android.apps.common.testing.accessibility.framework.Parameters
 import com.google.android.apps.common.testing.accessibility.framework.checks.TextContrastCheck
 import com.google.android.apps.common.testing.accessibility.framework.checks.TouchTargetSizeCheck
+import com.google.android.apps.common.testing.accessibility.framework.uielement.AccessibilityHierarchy
+import com.google.android.apps.common.testing.accessibility.framework.uielement.ViewHierarchyElement
 
 /**
  * Every capture in the annotated class runs the accessibility check and fails the test on a
@@ -35,7 +39,7 @@ internal val Any.checksAccessibility: Boolean
 internal fun qualityBarAccessibilityChecks() =
     listOf(
         RoborazziATFAccessibilityCheckOptions(
-            checker = RoborazziATFAccessibilityChecker(checks = setOf(TextContrastCheck())),
+            checker = RoborazziATFAccessibilityChecker(checks = setOf(RenderedTextContrastCheck())),
             failureLevel = RoborazziATFAccessibilityChecker.CheckLevel.Warning,
         ),
         RoborazziATFAccessibilityCheckOptions(
@@ -43,3 +47,47 @@ internal fun qualityBarAccessibilityChecks() =
             failureLevel = RoborazziATFAccessibilityChecker.CheckLevel.Error,
         ),
     )
+
+/**
+ * Robolectric can report just the rightmost pixel of a Compose label as its only character.
+ * ATF normally samples the entire label when character locations are unavailable.
+ */
+private class RenderedTextContrastCheck : TextContrastCheck() {
+    override fun runCheckOnHierarchy(
+        hierarchy: AccessibilityHierarchy,
+        fromRoot: ViewHierarchyElement?,
+        parameters: Parameters?,
+    ): List<AccessibilityHierarchyCheckResult> {
+        val clippedLabels =
+            hierarchy.allWindows.associate { window ->
+                window.id to
+                    window.allViews
+                        .filter { it.hasClippedCharacterBounds() }
+                        .map { it.id }
+                        .toSet()
+            }
+        if (clippedLabels.values.all { it.isEmpty() }) return super.runCheckOnHierarchy(hierarchy, fromRoot, parameters)
+
+        val locations = hierarchy.toProto().toBuilder()
+        locations.windowsList.forEachIndexed { index, window ->
+            val labels = clippedLabels.getValue(window.id)
+            if (labels.isNotEmpty()) {
+                val updated = window.toBuilder()
+                window.viewsList.forEachIndexed { viewIndex, view ->
+                    if (view.id in labels) updated.setViews(viewIndex, view.toBuilder().clearTextCharacterLocations())
+                }
+                locations.setWindows(index, updated)
+            }
+        }
+        val correctedHierarchy = AccessibilityHierarchy.newBuilder(locations.build()).build()
+        val root = fromRoot?.let { correctedHierarchy.getViewById(it.condensedUniqueId) }
+        return super.runCheckOnHierarchy(correctedHierarchy, root, parameters)
+    }
+
+    private fun ViewHierarchyElement.hasClippedCharacterBounds(): Boolean {
+        val glyph = textCharacterLocations.singleOrNull() ?: return false
+        val bounds = boundsInScreen
+        return (text?.length ?: 0) > 1 && glyph.width == 1 &&
+            glyph.right == bounds.right && glyph.top == bounds.top && glyph.bottom == bounds.bottom
+    }
+}
