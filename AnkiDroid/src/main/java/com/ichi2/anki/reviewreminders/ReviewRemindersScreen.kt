@@ -48,6 +48,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.R
@@ -81,7 +82,8 @@ internal fun ReminderPage(
             .padding(horizontal = paper.spacing.screenMargin),
     ) {
         if (onNavigateUp != null) {
-            IconButton(onClick = onNavigateUp) {
+            // Keep the back target above the expanded hit bounds of partially scrolled rows.
+            IconButton(onClick = onNavigateUp, modifier = Modifier.zIndex(1f)) {
                 Icon(
                     painterResource(CommonR.drawable.symbol_arrow_back),
                     contentDescription = stringResource(AppCompatR.string.abc_action_bar_up_description),
