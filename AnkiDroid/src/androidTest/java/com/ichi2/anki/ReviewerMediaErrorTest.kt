@@ -145,7 +145,12 @@ class ReviewerMediaErrorTest : InstrumentedTest() {
         val errors = LinkedBlockingQueue<Pair<String?, Int>>()
         onActivity { reviewer ->
             val webView = reviewer.cardWebView
-            val client = WebViewCompat.getWebViewClient(webView)
+            val client =
+                if (WebViewFeature.isFeatureSupported(WebViewFeature.GET_WEB_VIEW_CLIENT)) {
+                    WebViewCompat.getWebViewClient(webView)
+                } else {
+                    error("This WebView does not expose its client")
+                }
             webView.webViewClient =
                 object : WebViewClient() {
                     override fun shouldInterceptRequest(

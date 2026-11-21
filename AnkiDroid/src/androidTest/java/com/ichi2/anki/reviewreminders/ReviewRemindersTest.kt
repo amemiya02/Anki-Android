@@ -47,7 +47,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.text.DateFormatSymbols
-import java.util.Locale
 
 /** Exercises the reminder dialogs through the UI and checks their persisted results. */
 @RunWith(AndroidJUnit4::class)
@@ -382,7 +381,7 @@ class ReviewRemindersTest : InstrumentedTest() {
         val is24 = DateFormat.is24HourFormat(testContext)
         val hour = if (is24) time.hour else (time.hour + 11) % 12 + 1
         inputs[0].performClick().performTextReplacement(hour.toString())
-        inputs[1].performClick().performTextReplacement("%02d".format(Locale.ROOT, time.minute))
+        inputs[1].performClick().performTextReplacement(time.minute.toString().padStart(2, '0'))
         if (!is24) {
             val period = DateFormatSymbols.getInstance(testContext.resources.configuration.locales[0]).amPmStrings[time.hour / 12]
             compose.onNode(hasText(period, ignoreCase = true) and clock).performClick()

@@ -475,8 +475,8 @@ class ReviewerFragmentTest : InstrumentedTest() {
             ) {
                 instrumentation.runOnMainSync {
                     val frame = webView.rootView
-                    assertThat(frame.requireViewById<View>(R.id.study_bar).isShown, equalTo(toolbarVisible))
-                    assertThat(frame.requireViewById<View>(R.id.answer_area).isShown, equalTo(answersVisible))
+                    assertThat(assertNotNull(frame.findViewById<View>(R.id.study_bar)).isShown, equalTo(toolbarVisible))
+                    assertThat(assertNotNull(frame.findViewById<View>(R.id.answer_area)).isShown, equalTo(answersVisible))
                 }
             }
 
