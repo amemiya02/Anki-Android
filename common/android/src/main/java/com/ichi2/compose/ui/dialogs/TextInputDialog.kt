@@ -131,8 +131,9 @@ fun TextInputDialog(
             shape = foundation.shapes.extraSmall,
             colors =
                 OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colors.primary,
+                    focusedBorderColor = colors.onBackground,
                     unfocusedBorderColor = colors.onBackgroundMuted,
+                    cursorColor = colors.onBackground,
                     errorBorderColor = MaterialTheme.colorScheme.error,
                     errorSupportingTextColor = MaterialTheme.colorScheme.error,
                     unfocusedSupportingTextColor = colors.onBackgroundMuted,
