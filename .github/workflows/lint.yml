@@ -100,7 +100,9 @@ jobs:
           dry: True
 
       - name: Test workflow scripts
-        run: node --test .github/*.test.js
+        run: |
+          node --test .github/*.test.js
+          python3 -m unittest discover -s .github -p 'test_screenshot_baseline.py'
 
       - name: Install Localization
         run: cd tools/localization && yarn
