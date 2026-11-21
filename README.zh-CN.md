@@ -14,9 +14,9 @@
 
 打开 Hayaki，就能看到今天每个牌组有多少张新卡、多少张待复习。可以选一副牌，也可以点「全部学习」，依次学完多个牌组。先回忆，再翻开答案，按记忆程度评分。Anki 调度器会据此安排下次复习。
 
-| 今天学什么 | 翻开答案并评分 | 看本次学习记录 |
-| :---: | :---: | :---: |
-| [<img src="docs/images/zh-decks.png" width="260" alt="牌组首页列出地理、科学常识和语言，今天有 9 张卡片要学">](docs/images/zh-decks.png) | [<img src="docs/images/zh-study-answer.png" width="260" alt="地理卡片翻开答案，底部列出四个评分及对应的复习间隔">](docs/images/zh-study-answer.png) | [<img src="docs/images/zh-finished.png" width="260" alt="地理牌组学完后显示本次复习张数、用时和评分分布">](docs/images/zh-finished.png) |
+<p align="center"><img src="docs/images/zh-showcase.webp" width="820" alt="Hayaki 安卓版界面：牌组首页显示今天要学 72 张卡片，带插画的英语六级单词答案及四个评分，以及深色模式下的卡片浏览页"></p>
+
+<p align="center"><sub>截图来自真实应用，使用示例集合和模拟的学习记录。</sub></p>
 
 ## 用自己的牌组学习
 
@@ -27,7 +27,7 @@
 
 ## 回看复习记录
 
-日历里每一格代表一天。下方柱状图展示了这份示例集合在最近 31 天里完成的 742 次复习。
+日历里每一格代表一天。下方柱状图展示了这份示例集合在最近 31 天里完成的 764 次复习。
 
 <p align="center"><a href="docs/images/zh-statistics.png"><img src="docs/images/zh-statistics.png" width="530" alt="统计页显示全年的学习日历，以及最近一个月每天的复习量"></a></p>
 

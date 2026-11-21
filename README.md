@@ -14,9 +14,9 @@
 
 Open Hayaki to see what’s due across your decks. Pick one deck or tap **Study All** to work through them in sequence. Reveal the answer, then rate how well you remembered it. The Anki scheduler uses that rating to decide when the card comes back.
 
-| Today’s decks | Reveal and rate | Session summary |
-| :---: | :---: | :---: |
-| [<img src="docs/images/en-decks.png" width="260" alt="72 cards left to study today across Japanese, Science and Spanish, with World Capitals done for today">](docs/images/en-decks.png) | [<img src="docs/images/en-study-answer.png" width="260" alt="A Japanese vocabulary answer with furigana, a pronunciation button, an example sentence and four ratings with their next review intervals">](docs/images/en-study-answer.png) | [<img src="docs/images/en-finished.png" width="260" alt="Geography finished with three reviews in 25 seconds">](docs/images/en-finished.png) |
+<p align="center"><img src="docs/images/en-showcase.webp" width="820" alt="Hayaki on Android showing today’s decks with 72 cards to study, an illustrated Japanese vocabulary answer with four ratings, and the card browser in dark mode"></p>
+
+<p align="center"><sub>Screenshots of the app with a sample collection and simulated study history.</sub></p>
 
 ## Study with your own cards
 
