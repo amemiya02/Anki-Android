@@ -56,7 +56,7 @@ class MediaCheckFragmentTest : RobolectricTest() {
     @get:Rule
     val backend = BackendOverrideRule()
 
-    override fun getCollectionStorageMode() = CollectionStorageMode.ON_DISK
+    override fun getCollectionStorageMode() = CollectionStorageMode.TEMPORARY_ON_DISK
 
     @Test
     fun `unused filenames are readable directly in the media report`() =

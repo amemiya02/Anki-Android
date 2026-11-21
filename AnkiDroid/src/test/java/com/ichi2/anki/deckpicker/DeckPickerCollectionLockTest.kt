@@ -20,7 +20,7 @@ import kotlin.test.assertFalse
 
 @RunWith(AndroidJUnit4::class)
 class DeckPickerCollectionLockTest : RobolectricTest() {
-    override fun getCollectionStorageMode() = CollectionStorageMode.ON_DISK
+    override fun getCollectionStorageMode() = CollectionStorageMode.TEMPORARY_ON_DISK
 
     private val viewModels = ViewModelStore()
     private val viewModel by lazy {
