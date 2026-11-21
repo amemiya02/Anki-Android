@@ -13,10 +13,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.ichi2.anki.widgets.R
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.assertNotNull
 
 /** Checks the Android 12 widget-picker previews with the same inflater as widget hosts. */
 @RunWith(AndroidJUnit4::class)
