@@ -75,3 +75,6 @@ hs_err_pid*
 
 # Python bytecode
 __pycache__/
+
+# oh-my-claudecode session state
+/.omc/
