@@ -5,6 +5,7 @@ package com.ichi2.anki.multimedia
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -52,7 +53,7 @@ class AttachmentPlaybackScreenshotTest : ComposeScreenshotTest() {
             },
         ) {
             var isPlaying by remember { mutableStateOf(false) }
-            var speed by remember { mutableStateOf(1f) }
+            var speed by remember { mutableFloatStateOf(1f) }
             MediaPreview(
                 fileSize = "256 kB",
                 preview = { Box(Modifier.fillMaxSize()) },

@@ -6,6 +6,7 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.Drawable
+import android.os.Build
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +27,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
 import org.junit.Test
 import kotlin.math.roundToInt
 
@@ -35,6 +37,7 @@ import kotlin.math.roundToInt
  *
  * `./gradlew :AnkiDroid:recordRoborazziPlayDebug -Pscreenshot -Ptheme=light --tests "com.ichi2.anki.LauncherIconScreenshotTest"`
  */
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 class LauncherIconScreenshotTest : ComposeScreenshotTest() {
     private val icon: AdaptiveIconDrawable
         get() = ContextCompat.getDrawable(ApplicationProvider.getApplicationContext(), R.mipmap.ic_launcher) as AdaptiveIconDrawable

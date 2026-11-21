@@ -21,6 +21,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.browser.CardBrowserPaneFragment
 import com.ichi2.anki.browser.IdsFile
@@ -40,7 +41,6 @@ import com.ichi2.testutils.createTransientDirectory
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -49,6 +49,7 @@ import org.robolectric.Robolectric
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import kotlin.test.assertNull
 
 @RunWith(AndroidJUnit4::class)
 class SingleActivityNavigationTest : RobolectricTest() {
@@ -110,6 +111,7 @@ class SingleActivityNavigationTest : RobolectricTest() {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Config(sdk = [Build.VERSION_CODES.Q])
     fun `leaving a fullscreen preview removes the video and restores system bars`() {
         grantLegacyStorage()
@@ -130,7 +132,7 @@ class SingleActivityNavigationTest : RobolectricTest() {
 
             deckPicker.onBackPressedDispatcher.onBackPressed()
             composeRule.waitUntil(10_000) { deckPicker.currentScreenFragment == null && previewer.view == null }
-            assertNull("fullscreen video removed from the shared window", video.parent)
+            assertNull(video.parent, "fullscreen video removed from the shared window")
             assertEquals(originalFlags, deckPicker.systemBarVisibilityFlags)
         }
     }

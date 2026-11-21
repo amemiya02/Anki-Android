@@ -97,7 +97,7 @@ class CardBrowserFragmentTest : RobolectricTest() {
 
     @Test
     fun `an equivalent saved search keeps the rows and restores its chip`() {
-        col.setUserFlagForCards(listOf(addBasicNote("Blue flower").firstCard().id), Flag.BLUE.code)
+        assertThat(col.setUserFlagForCards(listOf(addBasicNote("Blue flower").firstCard().id), Flag.BLUE.code).count, equalTo(1))
         addBasicNote("White flower")
         runBlocking { SavedSearches.add(SavedSearch("Blue cards", "flag:4")) }
         getBrowserWithNotes(noteCount = 0)

@@ -50,7 +50,7 @@ class StatusBarFollowsThemeTest : RobolectricTest() {
         grantWritePermissions()
         val preferences = targetContext.sharedPrefs()
         // Initialize the current preference schema before writing the selected Appearance.
-        InitialActivity.performSetupFromFreshInstallOrClearedPreferences(preferences)
+        assertThat(InitialActivity.performSetupFromFreshInstallOrClearedPreferences(preferences), equalTo(true))
         preferences.edit { putBoolean(IntroductionActivity.PREF_INTRODUCTION_SLIDES_SHOWN, true) }
         PrefsRepository(targetContext).apply {
             appTheme = if (theme.isNight) AppTheme.NIGHT else AppTheme.DAY

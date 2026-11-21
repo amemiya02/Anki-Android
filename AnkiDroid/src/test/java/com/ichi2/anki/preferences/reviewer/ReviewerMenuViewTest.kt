@@ -2,6 +2,7 @@
 
 package com.ichi2.anki.preferences.reviewer
 
+import android.os.Build
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.WindowManager
@@ -14,6 +15,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
@@ -25,6 +27,7 @@ import kotlin.test.assertTrue
 import androidx.appcompat.R as AppCompatR
 
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
 class ReviewerMenuViewTest : RobolectricTest() {
     @get:Rule
     val compose = createEmptyComposeRule()

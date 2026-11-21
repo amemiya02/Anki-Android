@@ -16,6 +16,7 @@ import org.robolectric.annotation.Config
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
@@ -32,9 +33,9 @@ class ReviewerBigScreenTest : RobolectricTest() {
         ActivityScenario.launch<CardViewerActivity>(intent).use { scenario ->
             composeRule.waitForIdle()
             scenario.onActivity { activity ->
-                val frame = activity.requireViewById<View>(R.id.main_layout)
-                val card = frame.requireViewById<View>(R.id.web_view_container)
-                val controls = frame.requireViewById<View>(R.id.bottom_layout)
+                val frame = assertNotNull(activity.findViewById<View>(R.id.main_layout))
+                val card = assertNotNull(frame.findViewById<View>(R.id.web_view_container))
+                val controls = assertNotNull(frame.findViewById<View>(R.id.bottom_layout))
                 val density = card.resources.displayMetrics.density
                 assertTrue(frame.width > (820 * density).roundToInt())
                 assertEquals((820 * density).roundToInt(), card.width)
