@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -32,7 +33,6 @@ import com.ichi2.anki.reviewer.Axis
 import com.ichi2.anki.reviewer.Binding
 import com.ichi2.compose.theme.foundation
 import com.ichi2.compose.ui.dialogs.DialogBody
-import java.util.Locale
 import kotlin.math.abs
 import com.ichi2.anki.common.android.R as CommonR
 
@@ -99,7 +99,7 @@ private fun AxisBindingRow(
                 )
             }
             Text(
-                String.format(Locale.getDefault(), "%.3f", reading.value),
+                String.format(LocalConfiguration.current.locales[0], "%.3f", reading.value),
                 style = foundation.type.body,
                 color = foundation.colors.onBackground,
             )

@@ -13,7 +13,6 @@ import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.themes.HayakiTheme
 import java.text.Normalizer
-import java.util.Locale
 import kotlin.reflect.KClass
 
 internal data class SettingsSearchEntry(
@@ -46,7 +45,7 @@ private fun String.matches(terms: List<String>): Boolean {
     return terms.all { it.searchable() in text }
 }
 
-private fun String.searchable(): String = Normalizer.normalize(lowercase(Locale.ROOT), Normalizer.Form.NFKD).replace(marks, "")
+private fun String.searchable(): String = Normalizer.normalize(lowercase(), Normalizer.Form.NFKD).replace(marks, "")
 
 /** Indexes setting titles, summaries and choices without opening their screens. */
 internal fun buildSettingsSearchIndex(

@@ -4,6 +4,7 @@ package com.ichi2.anki.preferences
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.Resources
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,9 +18,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import anki.config.Preferences
 import com.ichi2.anki.CollectionManager.TR
@@ -167,12 +170,12 @@ internal enum class StudySetting(
     ),
     ;
 
-    fun label(context: Context): String =
+    fun label(resources: Resources): String =
         when (this) {
             REMAINING -> TR.preferencesShowRemainingCardCount()
             AUDIO -> TR.preferencesShowPlayButtonsOnCardsWith()
             ESTIMATES -> TR.preferencesShowNextReviewTimeAboveAnswer()
-            else -> context.getString(title)
+            else -> resources.getString(title)
         }
 }
 
@@ -185,7 +188,7 @@ internal fun Context.studyingSearchEntries(path: String): List<SettingsSearchEnt
                 else -> null
             }
         SettingsSearchEntry(
-            title = setting.label(this),
+            title = setting.label(resources),
             path = "$path › ${getString(setting.section.title)}",
             destination = subpage ?: StudyingSettingsFragment::class,
             key = if (subpage == null) getString(setting.key) else null,
@@ -214,15 +217,16 @@ private fun StudyingSettings(
     onChangeLearnAhead: (Int) -> Unit,
     onChangeCollectionSwitch: (StudySetting, Boolean) -> Unit,
 ) {
-    val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val resources = LocalResources.current
     var preferencesVersion by remember { mutableIntStateOf(0) }
     var dialog by rememberSaveable { mutableStateOf<StudySetting?>(null) }
     val deviceValues =
-        remember(preferences, preferencesVersion) {
+        remember(preferences, preferencesVersion, configuration, resources) {
             StudySetting.entries.filter { it !in collectionSwitches && it !in collectionOrNavigationRows }.associateWith { setting ->
-                val key = context.getString(setting.key)
+                val key = resources.getString(setting.key)
                 if (setting.values != 0) {
-                    val values = context.resources.getStringArray(setting.values)
+                    val values = resources.getStringArray(setting.values)
                     values.indexOf(preferences.getString(key, values.first())).coerceAtLeast(0)
                 } else {
                     if (preferences.getBoolean(key, setting.defaultChecked)) 1 else 0
@@ -238,7 +242,7 @@ private fun StudyingSettings(
             SettingsDivider()
             for (setting in StudySetting.entries.filter { it.section == section }) {
                 val key = stringResource(setting.key)
-                val title = setting.label(context)
+                val title = setting.label(resources)
                 val openDialog = {
                     Analytics.send(AnalyticsEvent.SettingTapped(key))
                     dialog = setting
@@ -296,7 +300,7 @@ private fun StudyingSettings(
                         StudySetting.FRAME, StudySetting.HIDE_BARS, StudySetting.TOOLBAR_POSITION ->
                             SettingsRow(
                                 title,
-                                value = context.resources.getStringArray(setting.choices)[deviceValues.getValue(setting)],
+                                value = resources.getStringArray(setting.choices)[deviceValues.getValue(setting)],
                                 onClick = openDialog,
                                 highlighted = highlighted,
                                 modifier = modifier,
@@ -326,7 +330,7 @@ private fun StudyingSettings(
                                     if (isCollectionSetting) {
                                         onChangeCollectionSwitch(setting, it)
                                     } else {
-                                        preferences.edit().putBoolean(key, it).apply()
+                                        preferences.edit { putBoolean(key, it) }
                                         preferencesVersion++
                                     }
                                 },
@@ -353,7 +357,7 @@ private fun StudyingSettings(
             if (collection != null) {
                 val hours = (0..23).map { DialogChoice(pluralStringResource(CommonPlurals.day_offset_summ, it, it)) }
                 SingleChoiceDialog(
-                    selected.label(context),
+                    selected.label(resources),
                     hours,
                     selectedIndex = collection.scheduling.rollover,
                     onSelect = {
@@ -368,14 +372,15 @@ private fun StudyingSettings(
                 LearnAheadLimitDialog(collection.scheduling.learnAheadSecs / 60, onChangeLearnAhead, dismiss)
             }
         else -> {
-            val choices = context.resources.getStringArray(selected.choices)
-            val values = context.resources.getStringArray(selected.values)
+            val key = stringResource(selected.key)
+            val choices = resources.getStringArray(selected.choices)
+            val values = resources.getStringArray(selected.values)
             SingleChoiceDialog(
-                selected.label(context),
+                selected.label(resources),
                 choices.map { DialogChoice(it) },
                 selectedIndex = deviceValues.getValue(selected),
-                onSelect = {
-                    preferences.edit().putString(context.getString(selected.key), values[it]).apply()
+                onSelect = { index ->
+                    preferences.edit { putString(key, values[index]) }
                     preferencesVersion++
                     dismiss()
                 },
