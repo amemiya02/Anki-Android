@@ -7,9 +7,9 @@ import android.os.Bundle
 import androidx.core.content.edit
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider
-import com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity
 import com.ichi2.anki.account.AccountActivity
 import com.ichi2.anki.common.preferences.sharedPrefs
+import com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity
 import com.ichi2.anki.multimedia.MultimediaActivity
 import com.ichi2.anki.preferences.PreferencesActivity
 import com.ichi2.anki.previewer.CardViewerActivity

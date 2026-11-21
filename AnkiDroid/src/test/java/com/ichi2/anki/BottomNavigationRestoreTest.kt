@@ -7,11 +7,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.core.view.isVisible
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.BottomNavController.NavigationItem

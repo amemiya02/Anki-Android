@@ -7,7 +7,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
-import androidx.fragment.app.commitNow
 import android.widget.EditText
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -22,6 +21,7 @@ import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.fragment.app.commitNow
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -144,10 +144,11 @@ class CardTemplateEditorTest : RobolectricTest() {
         saveControllerForCleanup(controller)
         controller.setup()
         // Install the guarded model before the editor fragment's initial Back callback update.
-        val guardedEditor = CardTemplateEditorFragment().apply {
-            arguments = intent.extras
-            tempNoteType = CardTemplateNotetype(edited)
-        }
+        val guardedEditor =
+            CardTemplateEditorFragment().apply {
+                arguments = intent.extras
+                tempNoteType = CardTemplateNotetype(edited)
+            }
         controller.get().supportFragmentManager.commitNow {
             replace(R.id.fragment_container, guardedEditor, SingleFragmentActivity.FRAGMENT_TAG)
         }

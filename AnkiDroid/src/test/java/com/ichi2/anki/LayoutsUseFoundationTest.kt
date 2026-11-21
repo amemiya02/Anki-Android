@@ -132,7 +132,11 @@ class LayoutsUseFoundationTest {
             .flatMap { res -> res.listFiles { dir -> dir.name.startsWith("layout") }.orEmpty().toList() }
             .flatMap { dir -> dir.listFiles { file -> file.extension == "xml" }.orEmpty().toList() }
             .sortedBy { it.path }
-            .also { check(File(ROOT, "settings.gradle.kts").isFile && it.isNotEmpty()) { "Missing project root or XML widget layouts under $ROOT" } }
+            .also {
+                check(
+                    File(ROOT, "settings.gradle.kts").isFile && it.isNotEmpty(),
+                ) { "Missing project root or XML widget layouts under $ROOT" }
+            }
 
     /** What is wrong with one layout attribute, if anything: the kind of problem and an explanation ("" when the value says it all) */
     private fun attributeProblems(

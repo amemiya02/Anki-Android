@@ -3,10 +3,10 @@
 package com.ichi2.anki
 
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.test.ext.junit.runners.AndroidJUnit4
