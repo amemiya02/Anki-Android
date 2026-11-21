@@ -14,42 +14,12 @@ Alternately, you may run the actions on your fork of `Anki-Android`.
 | **Job**                                                                                                    | **Command**                                                          | **Comments**                                                                                                                                             |
 |------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [Lint (Kotlin)](https://github.com/ankidroid/Anki-Android/blob/main/.github/workflows/lint.yml)            | `./gradlew lintAll ktLintCheck lint-rules:test --daemon`             | Android lint rules, formatting and tests for lint rules                                                                                                  |
-| [Lint (JavaScript)](lint.yml)                                                                            | `node --test .github/*.test.js` and formatting commands in the workflow | Workflow script tests, Prettier, and localization lint                                                                                                    |
+| [Lint (JavaScript)](lint.yml) | `python3 -m unittest discover -s .github -p 'test_*.py'` and formatting commands in the workflow | Workflow script tests, Prettier, and localization lint |
 | [Build Logic](https://github.com/ankidroid/Anki-Android/blob/main/.github/workflows/lint.yml)              | `./gradlew -p buildSrc test` and `tools/validate-version-code.sh`    | Version-code bump checks                                                                                                                                 |
 | [Unit Tests](https://github.com/ankidroid/Anki-Android/blob/main/.github/workflows/tests_unit.yml)         | `./gradlew jacocoUnitTestReport --daemon`                            | Unit tests for the Android Project                                                                                                                       |
 | [Emulator Tests](https://github.com/ankidroid/Anki-Android/blob/main/.github/workflows/tests_emulator.yml) | `TEST_RELEASE_BUILD=true ./gradlew jacocoAndroidTestReport --daemon` | Emulator tests for the Android Project.<br/>CI runs `bash .github/disable_art_metrics.sh` and `adb shell settings put global hide_error_dialogs 1` first.<br/>Then runs `ReleaseSmokeTest` from `:baselineprofile` with `TEST_RELEASE_BUILD=false` |
-| [CodeQL](https://github.com/ankidroid/Anki-Android/blob/main/.github/workflows/codeql.yml)                 | N/A                                                                  | GitHub-only check.<br/>[Docs](https://codeql.github.com/)                                                                                                |
 
-## Other Workflows
-
-These are typically run by maintainers. See the [Maintenance guide](https://github.com/ankidroid/Anki-Android/wiki/Maintenance-guide)
-
-### Screenshot comparisons
-
-The [comparison workflow](screenshot_compare.yml) uses the PR event’s base commit or the previous `main` tip on a push. It downloads a baseline recorded for that exact commit when available. If the artifact is missing or expired, it records the baseline from that revision in a separate worktree before comparing.
-
-Recording from a historical revision keeps the captured PNGs and publishes that revision’s JUnit report, including any historical assertion failures. It requires PNGs and executed test cases and rejects worker failures. Candidate screenshot tests enforce their assertions and accessibility checks.
-
-For historical revisions with the old Deck Options screenshot fixture, recording pins the Robolectric animation clock before launching the screen. This lets the original loading screen render without waiting for the WebView shadow to finish loading.
-
-### Merge queue cancellation
-
-GitHub can leave jobs running after their merge group has been removed.
-
-`cancel_merge_queue_runs.yml` is triggered when a temporary merge queue branch is deleted.
-The workflow cancels unfinished runs for unmerged groups.
-
-### Automatic publish
-
-An automatic alpha publish is performed every Monday at 04:30 UTC. This publish is skipped if:
-
-* A publish occurred fewer than 7 UTC calendar days ago.
-* The app is not in alpha.
-* There were no commits since the last release.
-
-An alpha published on Monday does not block the following Monday's release, regardless of the time it finished.
-
-### Hayaki release device checks
+## Release checks
 
 On the Hayaki fork, manually run **Emulator Tests** with `release_device_only=true` against the candidate ref. Leave `release_artifacts_only` off for this run.
 

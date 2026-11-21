@@ -96,13 +96,11 @@ jobs:
       - name: Prettify AnkiDroid javascript code
         uses: creyD/prettier_action@8c18391fdc98ed0d884c6345f03975edac71b8f0 # v4.6
         with:
-          prettier_options: --check AnkiDroid/**/*.js .github/check_alpha_release.js .github/find_screenshot_baseline.js .github/*.test.js
+          prettier_options: --check AnkiDroid/**/*.js
           dry: True
 
       - name: Test workflow scripts
-        run: |
-          node --test .github/*.test.js
-          python3 -m unittest discover -s .github -p 'test_screenshot_baseline.py'
+        run: python3 -m unittest discover -s .github -p 'test_*.py'
 
       - name: Install Localization
         run: cd tools/localization && yarn
