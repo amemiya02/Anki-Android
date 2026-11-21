@@ -147,40 +147,40 @@ internal fun SettingsDivider() {
 @Composable
 internal fun SettingsRow(
     title: String,
+    modifier: Modifier = Modifier,
     summary: String? = null,
     value: String? = null,
     @DrawableRes icon: Int? = null,
     onClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     highlighted: Boolean = false,
-    modifier: Modifier = Modifier,
     selected: Boolean = false,
     trailing: @Composable (() -> Unit)? = null,
 ) {
     SettingsRow(
-        AnnotatedString(title),
-        summary?.let(::AnnotatedString),
-        value?.let(::AnnotatedString),
-        icon,
-        onClick,
-        enabled,
-        highlighted,
-        modifier,
-        selected,
-        trailing,
+        title = AnnotatedString(title),
+        modifier = modifier,
+        summary = summary?.let(::AnnotatedString),
+        value = value?.let(::AnnotatedString),
+        icon = icon,
+        onClick = onClick,
+        enabled = enabled,
+        highlighted = highlighted,
+        selected = selected,
+        trailing = trailing,
     )
 }
 
 @Composable
 internal fun SettingsRow(
     title: AnnotatedString,
+    modifier: Modifier = Modifier,
     summary: AnnotatedString? = null,
     value: AnnotatedString? = null,
     @DrawableRes icon: Int? = null,
     onClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     highlighted: Boolean = false,
-    modifier: Modifier = Modifier,
     selected: Boolean = false,
     trailing: @Composable (() -> Unit)? = null,
 ) {
@@ -272,10 +272,10 @@ internal fun SettingsSwitchRow(
     title: String,
     checked: Boolean,
     onChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
     summary: String? = null,
     enabled: Boolean = true,
     highlighted: Boolean = false,
-    modifier: Modifier = Modifier,
     @DrawableRes icon: Int? = null,
 ) {
     val colors = MaterialTheme.foundation.colors
