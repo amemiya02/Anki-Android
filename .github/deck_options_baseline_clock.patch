@@ -1,0 +1,25 @@
+--- a/AnkiDroid/src/test/java/com/ichi2/anki/pages/DeckOptionsScreenshotTest.kt
++++ b/AnkiDroid/src/test/java/com/ichi2/anki/pages/DeckOptionsScreenshotTest.kt
+@@ -5,6 +5,9 @@
+ import android.content.Intent
+ import com.ichi2.anki.SingleFragmentScreenshotTest
+ import com.ichi2.anki.libanki.Consts
++import org.junit.Before
++import org.robolectric.shadows.ShadowChoreographer
++import java.time.Duration
+ 
+ /**
+  * Screenshot tests for [DeckOptions]
+@@ -12,5 +15,12 @@
+  * `./gradlew :AnkiDroid:verifyRoborazziPlayDebug -Pscreenshot --tests "com.ichi2.anki.pages.DeckOptionsScreenshotTest"`
+  */
+ class DeckOptionsScreenshotTest : SingleFragmentScreenshotTest() {
++    @Before
++    fun pauseLoadingAnimation() {
++        // The WebView shadow never signals readiness to stop the loading animation.
++        ShadowChoreographer.setPaused(true)
++        ShadowChoreographer.setFrameDelay(Duration.ofMillis(16))
++    }
++
+     override fun buildIntent(): Intent = DeckOptions.getIntent(targetContext, Consts.DEFAULT_DECK_ID)
+ }
