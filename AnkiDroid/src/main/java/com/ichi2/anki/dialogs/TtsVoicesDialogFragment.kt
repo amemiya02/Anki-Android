@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -82,23 +83,26 @@ class TtsVoicesDialogFragment : DialogFragment() {
                 onCopy = viewModel::copyToClipboard,
                 snackbar = snackbar,
             )
-            LaunchedEffect(snackbar) {
+            val installMessage = stringResource(CommonString.tts_voices_selected_voice_should_be_installed)
+            val useVoiceLabel = stringResource(CommonString.tts_voices_use_selected_voice_without_install)
+            LaunchedEffect(snackbar, installMessage, useVoiceLabel) {
                 viewModel.uninstalledVoicePlayed.collect { voice ->
                     val result =
                         snackbar.showSnackbar(
-                            message = context.getString(CommonString.tts_voices_selected_voice_should_be_installed),
-                            actionLabel = context.getString(CommonString.tts_voices_use_selected_voice_without_install),
+                            message = installMessage,
+                            actionLabel = useVoiceLabel,
                             withDismissAction = true,
                         )
                     if (result == SnackbarResult.ActionPerformed) viewModel.copyToClipboard(voice)
                 }
             }
-            LaunchedEffect(snackbar) {
+            val helpLabel = stringResource(CommonString.help)
+            LaunchedEffect(snackbar, context, helpLabel) {
                 viewModel.ttsPlaybackErrorFlow.collect { error ->
                     val result =
                         snackbar.showSnackbar(
                             message = error.localizedErrorMessage(context),
-                            actionLabel = context.getString(CommonString.help),
+                            actionLabel = helpLabel,
                             withDismissAction = true,
                         )
                     if (result == SnackbarResult.ActionPerformed) context.openUrl(R.string.link_faq_tts)

@@ -293,10 +293,7 @@ internal fun FieldKeyboardDialog(
     onSelect: (Locale?) -> Unit,
 ) {
     val context = LocalContext.current
-    val config = LocalConfiguration.current
-    val language =
-        androidx.core.os.ConfigurationCompat
-            .getLocales(config)[0] ?: Locale.getDefault()
+    val language = LocalConfiguration.current.locales[0]
     val locales =
         remember(language) {
             val ipa = Locale.forLanguageTag("und-fonipa")

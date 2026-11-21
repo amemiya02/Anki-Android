@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -40,7 +41,7 @@ class SyncActionProvider(
 
     var isProgressShown by mutableStateOf(false)
     var icon: Drawable? by mutableStateOf(
-        context.getDrawable(R.drawable.symbol_sync)?.mutate()?.apply {
+        AppCompatResources.getDrawable(context, R.drawable.symbol_sync)?.mutate()?.apply {
             setTint(MaterialColors.getColor(context, CommonR.attr.foundationOnBackground, "Sync"))
         },
     )
