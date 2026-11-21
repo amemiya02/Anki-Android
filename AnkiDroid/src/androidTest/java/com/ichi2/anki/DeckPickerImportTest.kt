@@ -2,18 +2,19 @@
 
 package com.ichi2.anki
 
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.core.content.edit
 import androidx.test.core.app.ActivityScenario
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.dialogs.DialogHandler
+import com.ichi2.anki.servicelayer.PreferenceUpgradeService.setPreferencesUpToDate
 import com.ichi2.anki.tests.InstrumentedTest
 import com.ichi2.anki.testutil.GrantStoragePermission.storagePermission
+import com.ichi2.anki.testutil.awaitDisplayed
 import com.ichi2.anki.testutil.disableIntroductionSlide
 import com.ichi2.anki.testutil.grantPermissions
 import com.ichi2.anki.testutil.notificationPermission
@@ -40,6 +41,9 @@ class DeckPickerImportTest : InstrumentedTest() {
     @get:Rule
     val runtimePermissionRule = grantPermissions(storagePermission, notificationPermission)
 
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     private val preferences get() = testContext.sharedPrefs()
     private val hadBackupPromptPreference = preferences.contains("backupPromptDisabled")
     private val backupPromptDisabled = preferences.getBoolean("backupPromptDisabled", false)
@@ -64,6 +68,7 @@ class DeckPickerImportTest : InstrumentedTest() {
         // The study options side panel is selected by layout-sw600dp.
         assumeTrue("Requires the tablet layout", testContext.resources.configuration.smallestScreenWidthDp >= 600)
         disableIntroductionSlide()
+        setPreferencesUpToDate(preferences)
         InitialActivity.setUpgradedToLatestVersion(preferences)
         preferences.edit { putBoolean("backupPromptDisabled", true) }
         addNoteUsingBasicNoteType()
@@ -132,9 +137,9 @@ class DeckPickerImportTest : InstrumentedTest() {
     }
 
     private fun assertImportConfirmationVisible() {
-        onView(withText(testContext.getString(CommonString.import_dialog_message_add, "deck.apkg")))
-            .check(matches(isDisplayed()))
-        onView(withText(CommonString.import_message_add))
-            .check(matches(isDisplayed()))
+        val message = testContext.getString(CommonString.import_dialog_message_add, "deck.apkg")
+        val import = testContext.getString(CommonString.import_message_add)
+        compose.awaitDisplayed { onNodeWithText(message) }
+        compose.awaitDisplayed { onNodeWithText(import) }.assertHasClickAction()
     }
 }
