@@ -11,8 +11,10 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -151,7 +153,7 @@ class FindAndReplaceDialogFragmentTest : RobolectricTest() {
 internal class FindReplaceTestUi(
     private val compose: SemanticsNodeInteractionsProvider,
 ) {
-    private val fieldRole = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton)
+    private val fieldChoice = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton) and hasAnyAncestor(isDialog())
 
     val ignoreCase get() = compose.onNodeWithText(TR.browsingIgnoreCase())
     val selectedNotes get() = compose.onNodeWithText(TR.browsingSelectedNotesOnly())
@@ -160,9 +162,9 @@ internal class FindReplaceTestUi(
     fun openFields() = compose.onNodeWithText(label(TR.browsingIn())).performScrollTo().performClick()
 
     fun fieldNames(): List<String> =
-        compose.onAllNodes(fieldRole).fetchSemanticsNodes().map { node -> node.config[SemanticsProperties.Text].single().text }
+        compose.onAllNodes(fieldChoice).fetchSemanticsNodes().map { node -> node.config[SemanticsProperties.Text].single().text }
 
-    fun field(name: String) = compose.onNode(hasText(name) and fieldRole)
+    fun field(name: String) = compose.onNode(hasText(name) and fieldChoice)
 
     fun enterText(
         search: String,

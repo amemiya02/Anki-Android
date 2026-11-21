@@ -87,7 +87,9 @@ class PageWebViewClientAssetTest : PageWebViewClientTestBase() {
                 assertNotNull(html.selectFirst("meta[name=color-scheme]"), path).remove()
                 assertNotNull(html.selectFirst("link[rel=stylesheet][href=/hayaki/anki-pages.css]"), path).remove()
                 val root = assertNotNull(html.selectFirst("html[data-hayaki-page]"), path)
+                assertEquals(path.removePrefix("/").substringBefore("/"), root.attr("data-hayaki-route"), path)
                 root.removeAttr("data-hayaki-page")
+                root.removeAttr("data-hayaki-route")
                 assertEquals(expected.outerHtml(), html.outerHtml(), path)
             }
         }
