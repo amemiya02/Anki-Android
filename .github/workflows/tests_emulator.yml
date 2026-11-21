@@ -34,7 +34,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.release_artifacts_only && 'release-artifacts' || inputs.release_device_only && 'release-device' || github.event_name == 'schedule' && 'scheduled' || 'ci' }}
+  # Each main run must be able to finish even when another trigger is queued.
+  group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.ref }}-${{ inputs.release_artifacts_only && 'release-artifacts' || inputs.release_device_only && 'release-device' || github.event_name }}
   cancel-in-progress: true
 
 env:
