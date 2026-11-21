@@ -12,6 +12,7 @@ import android.os.Message
 import androidx.annotation.CheckResult
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.work.WorkManager
 import com.ichi2.anki.browser.toIntent
 import com.ichi2.anki.common.analytics.reportPotentiallyDeadCode
@@ -389,7 +390,7 @@ class IntentHandler : AbstractIntentHandler() {
                 .putExtra(NavigationDrawerActivity.EXTRA_STARTED_WITH_SHORTCUT, true)
 
         internal fun getBrowseShortcutIntent(context: Context): Intent =
-            Intent(Intent.ACTION_VIEW, Uri.parse(BROWSER_DEEP_LINK))
+            Intent(Intent.ACTION_VIEW, BROWSER_DEEP_LINK.toUri())
                 .setComponent(ComponentName(context.packageName, BROWSER_DEEP_LINK_COMPONENT))
                 .putExtra(NavigationDrawerActivity.EXTRA_STARTED_WITH_SHORTCUT, true)
 

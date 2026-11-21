@@ -28,6 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -50,7 +51,6 @@ import com.ichi2.compose.ui.dialogs.DialogMark
 import com.ichi2.compose.ui.dialogs.ErrorDialog
 import com.ichi2.compose.ui.dialogs.PaperDialog
 import com.ichi2.compose.ui.dialogs.SingleChoiceDialog
-import java.util.Locale
 import com.ichi2.anki.common.android.R as CommonR
 
 @Composable
@@ -93,7 +93,8 @@ internal fun FilteredDeckOptionsScreen(
             DeckBuilt -> Unit
             is FilteredDeckOptions -> {
                 var orderFilter by rememberSaveable { mutableStateOf<FilterIndex?>(null) }
-                val orderLabel = TR.decksCardsSelectedBy().replaceFirstChar { it.titlecase(Locale.getDefault()) }
+                val locale = LocalConfiguration.current.locales[0]
+                val orderLabel = TR.decksCardsSelectedBy().replaceFirstChar { it.titlecase(locale) }
                 Column(
                     Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),

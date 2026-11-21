@@ -38,8 +38,8 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -79,7 +79,7 @@ internal fun PronunciationControls(
         finish()
         return true
     }
-    val screen = LocalConfiguration.current
+    val windowSize = LocalWindowInfo.current.containerSize
     val haptics = LocalHapticFeedback.current
     Row(
         Modifier.fillMaxWidth().heightIn(min = paper.spacing.touchTarget).background(paper.colors.background),
@@ -149,9 +149,9 @@ internal fun PronunciationControls(
                     if (it.type == KeyEventType.KeyUp) activate()
                     true
                 }.focusable()
-                .pointerInput(screen.screenWidthDp, screen.screenHeightDp) {
-                    val cancelDistance = maxOf(60.dp.toPx(), (screen.screenWidthDp * .25f).dp.toPx())
-                    val lockDistance = maxOf(80.dp.toPx(), (screen.screenHeightDp * .25f).dp.toPx())
+                .pointerInput(windowSize) {
+                    val cancelDistance = maxOf(60.dp.toPx(), windowSize.width * .25f)
+                    val lockDistance = maxOf(80.dp.toPx(), windowSize.height * .25f)
                     awaitEachGesture {
                         val down = awaitFirstDown()
                         down.consume()

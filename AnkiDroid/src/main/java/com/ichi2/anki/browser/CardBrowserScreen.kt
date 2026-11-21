@@ -63,6 +63,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
@@ -454,7 +455,6 @@ private fun BrowserResultControls(
 ) {
     val foundation = MaterialTheme.foundation
     val colors = foundation.colors
-    val context = LocalContext.current
     Row(
         modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -467,7 +467,7 @@ private fun BrowserResultControls(
         ) {
             if (state is SearchState.Completed) {
                 Text(
-                    state.formatCardCount(context.resources),
+                    state.formatCardCount(LocalResources.current),
                     color = colors.onBackgroundMuted,
                     style = foundation.type.body,
                     modifier = Modifier.padding(end = 4.dp),

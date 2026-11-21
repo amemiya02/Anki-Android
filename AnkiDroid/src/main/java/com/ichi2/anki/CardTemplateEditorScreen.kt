@@ -80,6 +80,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.edit
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.FragmentContainerView
 import com.ichi2.anki.CollectionManager.TR
@@ -456,11 +457,10 @@ private fun TemplateEditorPanes(
                                 fraction = (fraction.coerceIn(minimum, 1f - minimum) + delta / widthPx).coerceIn(minimum, 1f - minimum)
                             },
                         onDragStopped = {
-                            panePreferences
-                                .edit()
-                                .putFloat("cardTemplateEditorPaneWeight", fraction * 5)
-                                .putFloat("cardTemplatePreviewerPaneWeight", (1 - fraction) * 5)
-                                .apply()
+                            panePreferences.edit {
+                                putFloat("cardTemplateEditorPaneWeight", fraction * 5)
+                                putFloat("cardTemplatePreviewerPaneWeight", (1 - fraction) * 5)
+                            }
                         },
                     ),
                 contentAlignment = Alignment.Center,

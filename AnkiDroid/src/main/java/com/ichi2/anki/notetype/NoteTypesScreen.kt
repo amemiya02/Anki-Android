@@ -79,7 +79,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.core.os.ConfigurationCompat
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonPlurals
 import com.ichi2.anki.CommonString
@@ -87,7 +86,6 @@ import com.ichi2.anki.R
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.compose.theme.foundation
 import java.text.NumberFormat
-import java.util.Locale
 import androidx.appcompat.R as AppCompatR
 import com.ichi2.anki.common.android.R as CommonR
 
@@ -537,7 +535,7 @@ private fun noteTypeCounts(
     notes: Int,
     templates: Int,
 ): String {
-    val locale = ConfigurationCompat.getLocales(LocalConfiguration.current)[0] ?: Locale.getDefault()
+    val locale = LocalConfiguration.current.locales[0]
     val number = remember(locale) { NumberFormat.getIntegerInstance(locale) }
     val noteCount = pluralStringResource(R.plurals.note_type_note_count, notes, number.format(notes))
     val templateCount = pluralStringResource(R.plurals.note_type_template_count, templates, number.format(templates))

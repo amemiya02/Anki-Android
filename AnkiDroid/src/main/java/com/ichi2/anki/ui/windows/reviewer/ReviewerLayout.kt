@@ -14,6 +14,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Space
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.compose.ui.platform.ComposeView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -202,7 +203,7 @@ internal class ReviewerLayout(
         )
         bottomLayout.elevation = dp(1).toFloat()
         bottomLayout.clipChildren = false
-        bottomLayout.dividerDrawable = context.getDrawable(R.drawable.vertical_spacer_8dp)
+        bottomLayout.dividerDrawable = AppCompatResources.getDrawable(context, R.drawable.vertical_spacer_8dp)
         bottomLayout.showDividers = LinearLayout.SHOW_DIVIDER_BEGINNING or LinearLayout.SHOW_DIVIDER_MIDDLE or LinearLayout.SHOW_DIVIDER_END
         bottomLayout.addView(typeAnswerContainer, MATCH_PARENT, WRAP_CONTENT)
         val hintInk = ColorStateList.valueOf(color(CommonR.attr.foundationOnBackgroundMuted))
