@@ -102,7 +102,7 @@ def with_brand_palette(values: dict, palette: dict, opacity: dict) -> dict:
             secondaryContainer=secondary_container, onSecondaryContainer=on_background,
             tertiary=accent, onTertiary=on_accent, tertiaryContainer=primary_container,
             onTertiaryContainer=on_background, onSurface=on_background, onSurfaceVariant=muted,
-            outline="#777777" if mode == "light" else "#949494", outlineVariant=outline,
+            outline="#686868" if mode == "light" else "#949494", outlineVariant=outline,
             inverseSurface="#333333" if mode == "light" else "#F5F5F5",
             inverseOnSurface="#F5F5F5" if mode == "light" else "#333333",
             inversePrimary=palette["dark" if mode == "light" else "light"], **surfaces,
@@ -168,7 +168,8 @@ def contrast_failures(values: dict) -> list:
                 failures.append(f"{theme}: {answer} on surfaceContainerHigh")
         for fg, bg in (("onSurfaceVariant", "surfaceContainerHigh"), ("onSurfaceVariant", "surfaceContainerLow"),
                        ("onPrimaryContainer", "primaryContainer"), ("onSecondaryContainer", "secondaryContainer"),
-                       ("onSurface", "surfaceContainerLow"), ("primary", "surfaceContainerLow")):
+                       ("onSurface", "surfaceContainerLow"), ("primary", "surfaceContainerLow"),
+                       ("outline", "surface")):
             if ratio(scheme[fg], scheme[bg]) < 4.5:
                 failures.append(f"{theme}: {fg} on {bg} = {ratio(scheme[fg], scheme[bg]):.2f}")
     return failures
