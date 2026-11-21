@@ -11,8 +11,8 @@ import com.ichi2.anki.instantnoteeditor.InstantNoteEditorFragment
 import com.ichi2.anki.setIntroductionSlidesShown
 import com.ichi2.testutils.BackupManagerTestUtilities
 import org.robolectric.Robolectric
-import org.robolectric.android.controller.ActivityController
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.android.controller.ActivityController
 
 context(test: RobolectricTest)
 internal fun openSharedInstantNote(
@@ -22,9 +22,10 @@ internal fun openSharedInstantNote(
     test.setIntroductionSlidesShown(true)
     test.ensureCollectionLoadIsSynchronous()
     BackupManagerTestUtilities.setupSpaceForBackup(test.targetContext)
-    val entry = Robolectric.buildActivity(InstantNoteEditorActivity::class.java, intent).use { controller ->
-        checkNotNull(shadowOf(controller.create().get()).nextStartedActivity)
-    }
+    val entry =
+        Robolectric.buildActivity(InstantNoteEditorActivity::class.java, intent).use { controller ->
+            checkNotNull(shadowOf(controller.create().get()).nextStartedActivity)
+        }
     return test.startActivityControllerNormallyOpenCollectionWithIntent(DeckPicker::class.java, entry).also { controller ->
         compose.waitUntil(10_000) { controller.get().currentScreenFragment is InstantNoteEditorFragment }
     }

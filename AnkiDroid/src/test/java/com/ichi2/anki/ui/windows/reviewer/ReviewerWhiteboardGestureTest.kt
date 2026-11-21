@@ -102,7 +102,14 @@ class ReviewerWhiteboardGestureTest : RobolectricTest() {
             grade()
             advanceUntilIdle()
 
-            assertEquals(4, col.cardStatsData(cardId).revlogList.single().buttonChosen)
+            assertEquals(
+                4,
+                col
+                    .cardStatsData(cardId)
+                    .revlogList
+                    .single()
+                    .buttonChosen,
+            )
         }
 
     private fun checkTapClearsWhiteboard(fingerCount: Int) =
