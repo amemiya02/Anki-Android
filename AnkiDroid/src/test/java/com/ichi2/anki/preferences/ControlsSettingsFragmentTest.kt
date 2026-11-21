@@ -47,6 +47,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
 import java.time.Duration
+import kotlin.test.assertNotNull
 
 @RunWith(AndroidJUnit4::class)
 class ControlsSettingsFragmentTest : RobolectricTest() {
@@ -211,7 +212,7 @@ class ControlsSettingsFragmentTest : RobolectricTest() {
             lateinit var answerTitle: String
             scenario.onActivity { activity ->
                 val host = activity.fragment as PreferencesFragment
-                val controls = checkNotNull(host.currentPage)
+                val controls = assertNotNull(host.currentPage)
                 answerTitle = controls.controlPreferenceTitle(ViewerAction.ANSWER_GOOD.preferenceKey)!!
             }
             compose.onNodeWithText(answerTitle).performScrollTo().performClick()

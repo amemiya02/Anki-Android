@@ -3,6 +3,7 @@
 package com.ichi2.compose.ui.dialogs
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -92,7 +93,7 @@ class DialogPatternsScreenshotTest : ComposeScreenshotTest() {
                 assertEquals(1, selection)
             },
         ) {
-            var selected by remember { mutableStateOf(0) }
+            var selected by remember { mutableIntStateOf(0) }
             SingleChoiceDialog(
                 title = stringResource(CommonString.export_deck),
                 choices =

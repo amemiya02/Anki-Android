@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -206,7 +207,7 @@ class AnswerAreaTest : RobolectricTest() {
 
     @Test
     fun `buttons height percentage scales the answer area height`() {
-        var percentage by mutableStateOf(100)
+        var percentage by mutableIntStateOf(100)
         composeRule.setContent {
             AnkiDroidTheme {
                 AnswerArea(

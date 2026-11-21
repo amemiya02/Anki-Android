@@ -7,9 +7,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.AdaptiveIconDrawable
+import android.os.Build
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.net.toUri
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import com.ichi2.testutils.EmptyApplication
 import org.junit.Test
 import org.junit.experimental.categories.Category
@@ -50,9 +53,10 @@ class ForkIdentityTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     fun `the launcher icon is adaptive, with a themed form`() {
         for (icon in listOf(R.mipmap.ic_launcher, R.mipmap.ic_launcher_round)) {
-            val adaptive = assertIs<AdaptiveIconDrawable>(context.getDrawable(icon))
+            val adaptive = assertIs<AdaptiveIconDrawable>(AppCompatResources.getDrawable(context, icon))
             assertNotNull(adaptive.monochrome, "no themed icon")
         }
         assertEquals(R.mipmap.ic_launcher, context.applicationInfo.icon)

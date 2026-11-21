@@ -26,6 +26,7 @@ import com.ichi2.testutils.ext.reopenWithLanguage
 import org.junit.Rule
 import org.junit.Test
 import org.robolectric.shadows.ShadowLooper
+import kotlin.test.assertEquals
 
 @CheckAccessibility
 @IncludeLanguages(SIMPLIFIED_CHINESE, JAPANESE, ARABIC)
@@ -49,7 +50,7 @@ class PreviewerScreenshotTest : ScreenshotTest() {
                 col.addNote(note, deck)
                 note.cardIds(col)
             }
-        col.setUserFlagForCards(listOf(ids[2]), Flag.RED.code)
+        assertEquals(1, col.setUserFlagForCards(listOf(ids[2]), Flag.RED.code).count)
         val intent =
             PreviewerFragment.getIntent(
                 targetContext,

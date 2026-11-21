@@ -2,6 +2,7 @@
 
 package com.ichi2.anki.ui.windows.reviewer
 
+import android.os.Build
 import android.view.ContextThemeWrapper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -15,6 +16,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.compose.theme.AnkiDroidTheme
 import com.ichi2.compose.theme.foundation
@@ -28,6 +30,7 @@ import com.ichi2.anki.common.android.R as CommonR
 /** The study bar's Back arrow is drawn in the bar's ink: in Dark it was the default black on the dark bar. */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class StudyBackButtonTest : RobolectricTest() {
     @get:Rule
     val composeRule = createComposeRule()

@@ -28,6 +28,8 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.robolectric.shadows.ShadowLooper
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @CheckAccessibility
 @IncludeLanguages(SIMPLIFIED_CHINESE, JAPANESE, ARABIC)
@@ -41,10 +43,10 @@ class CardBrowserScreenScreenshotTest : ScreenshotTest() {
         runBlocking { col.reopenWithLanguage(language.option) }
         val noteType = col.notetypes.current().name
         val cherry = addNoteUsingNoteTypeName(noteType, "桜 · Cherry blossom", "Spring").firstCard()
-        col.setUserFlagForCards(listOf(cherry.id), Flag.RED.code)
+        assertEquals(1, col.setUserFlagForCards(listOf(cherry.id), Flag.RED.code).count)
         val familiarity = addNoteUsingNoteTypeName(noteType, "熟悉 · Familiar", "Know well")
         familiarity.addTag("marked")
-        col.updateNote(familiarity)
+        assertTrue(col.updateNote(familiarity).note)
         col.sched.suspendCards(listOf(familiarity.firstCard().id))
         addNoteUsingNoteTypeName(noteType, "諦める · Give up", "Recognition")
         val browser = getBrowserWithNotes(noteCount = 0)

@@ -229,7 +229,7 @@ class CardBrowserScreenTest : RobolectricTest() {
         title: String,
         flag: Flag,
     ) {
-        col.setUserFlagForCards(listOf(addBasicNote(title).firstCard().id), flag.code)
+        assertEquals(1, col.setUserFlagForCards(listOf(addBasicNote(title).firstCard().id), flag.code).count)
     }
 
     private fun waitForText(text: String) {
