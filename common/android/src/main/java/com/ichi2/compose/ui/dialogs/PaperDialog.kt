@@ -318,7 +318,7 @@ private fun DialogActionButton(
                 enabled = action.enabled,
                 shape = shape,
                 contentPadding = padding,
-                colors = ButtonDefaults.textButtonColors(contentColor = colors.primary),
+                colors = ButtonDefaults.textButtonColors(contentColor = colors.onBackground),
             ) { Text(action.label, style = style) }
 
         DialogActionStyle.Filled ->
