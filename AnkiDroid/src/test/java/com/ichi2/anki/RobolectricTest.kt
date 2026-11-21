@@ -107,12 +107,13 @@ open class RobolectricTest(
     @get:Rule
     val tempFolder = TemporaryFolder()
 
-    // Run inside tempFolder so in-memory collections can use its media directory.
+    // Resolve test collection paths after the temporary directory has been created.
     @get:Rule(order = 0)
     val collectionStorage =
         CollectionStorageRule {
             when (getCollectionStorageMode()) {
                 ON_DISK -> null
+                TEMPORARY_ON_DISK -> CollectionFiles.FolderBasedCollection(tempFolder.root)
                 IN_MEMORY_WITH_MEDIA -> CollectionFiles.InMemoryWithMedia(tempFolder.newFolder())
                 IN_MEMORY_NO_FOLDERS -> CollectionFiles.InMemory
             }
@@ -135,6 +136,9 @@ open class RobolectricTest(
         IN_MEMORY_NO_FOLDERS,
         IN_MEMORY_WITH_MEDIA,
         ON_DISK,
+
+        /** Real SQLite and media files outside Robolectric’s method-name-based path, which can exceed Windows limits. */
+        TEMPORARY_ON_DISK,
     }
 
     @Before

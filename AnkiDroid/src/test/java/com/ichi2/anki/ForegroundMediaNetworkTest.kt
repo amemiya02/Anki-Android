@@ -62,7 +62,7 @@ class ForegroundMediaNetworkTest : RobolectricTest() {
     private var syncRequired = SyncCollectionResponse.ChangesRequired.NO_CHANGES
     private var fullSyncRequest: FullUploadOrDownloadRequest? = null
 
-    override fun getCollectionStorageMode() = CollectionStorageMode.ON_DISK
+    override fun getCollectionStorageMode() = CollectionStorageMode.TEMPORARY_ON_DISK
 
     override fun setupTestDispatcher(dispatcher: TestDispatcher) {
         super.setupTestDispatcher(dispatcher)
