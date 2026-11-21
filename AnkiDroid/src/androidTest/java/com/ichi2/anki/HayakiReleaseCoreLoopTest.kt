@@ -3,6 +3,7 @@
 package com.ichi2.anki
 
 import android.content.Context
+import android.os.ParcelFileDescriptor.AutoCloseInputStream
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
@@ -140,7 +141,8 @@ class HayakiReleaseCoreLoopTest : InstrumentedTest() {
             visible(reveal)
             visible("Spanish", substring = true)
             capture("06-next-deck")
-            device.executeShellCommand("input keyevent KEYCODE_BACK")
+            val back = instrumentation.uiAutomation.executeShellCommand("input keyevent KEYCODE_BACK")
+            AutoCloseInputStream(back).use { it.readBytes() }
 
             assertDailySummary(left = 6, reviewed = 3, new = 3, learning = 2, due = 1)
             visible(string(CommonR.string.deck_list_study_all))
