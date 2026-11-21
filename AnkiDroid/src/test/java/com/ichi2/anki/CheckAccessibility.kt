@@ -49,7 +49,7 @@ internal fun qualityBarAccessibilityChecks() =
     )
 
 /**
- * Robolectric can report just the rightmost pixel of a Compose label as its only character.
+ * Robolectric can report just a narrow strip at the right edge of a Compose label as its only character.
  * ATF normally samples the entire label when character locations are unavailable.
  */
 private class RenderedTextContrastCheck : TextContrastCheck() {
@@ -86,8 +86,11 @@ private class RenderedTextContrastCheck : TextContrastCheck() {
 
     private fun ViewHierarchyElement.hasClippedCharacterBounds(): Boolean {
         val glyph = textCharacterLocations.singleOrNull() ?: return false
+        val length = text?.length ?: return false
+        if (length <= 1) return false
         val bounds = boundsInScreen
-        return (text?.length ?: 0) > 1 && glyph.width == 1 &&
+        val halfAverageCharacterWidth = bounds.width / length / 2
+        return glyph.width in 1..maxOf(1, halfAverageCharacterWidth) &&
             glyph.right == bounds.right && glyph.top == bounds.top && glyph.bottom == bounds.bottom
     }
 }
