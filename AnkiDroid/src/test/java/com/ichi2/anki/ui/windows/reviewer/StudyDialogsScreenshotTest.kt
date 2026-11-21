@@ -6,12 +6,10 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ActivityScenario
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import com.ichi2.anki.CheckAccessibility
 import com.ichi2.anki.CommonString
 import com.ichi2.anki.ScreenshotTest
@@ -58,7 +56,7 @@ class StudyDialogsScreenshotTest : ScreenshotTest() {
                 ShadowLooper.idleMainLooper()
                 composeRule.onAllNodesWithText("Ginkgo", substring = true).fetchSemanticsNodes().isNotEmpty()
             }
-            onView(withContentDescription(ViewerAction.RESET_PROGRESS.title(targetContext))).perform(click())
+            composeRule.onNodeWithContentDescription(ViewerAction.RESET_PROGRESS.title(targetContext)).performClick()
             val title = targetContext.getString(CommonString.reset_card_dialog_title)
             composeRule.waitUntil(10_000) {
                 ShadowLooper.idleMainLooper()
