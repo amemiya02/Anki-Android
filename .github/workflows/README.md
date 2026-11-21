@@ -28,6 +28,8 @@ These are typically run by maintainers. See the [Maintenance guide](https://gith
 
 The [comparison workflow](screenshot_compare.yml) uses the PR event’s base commit or the previous `main` tip on a push. It downloads a baseline recorded for that exact commit when available. If the artifact is missing or expired, it records the baseline from that revision in a separate worktree before comparing.
 
+Recording from a historical revision keeps the captured PNGs and publishes that revision’s JUnit report, including any historical failures. Candidate screenshot tests enforce their assertions and accessibility checks.
+
 ### Merge queue cancellation
 
 GitHub can leave jobs running after their merge group has been removed.

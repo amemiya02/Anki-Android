@@ -88,6 +88,7 @@ jobs:
           if_no_artifact_found: ignore
 
       - name: Record missing baseline from source
+        id: record-baseline
         if: steps.download.outputs.found_artifact != 'true'
         shell: bash
         env:
@@ -99,13 +100,18 @@ jobs:
           baseline=$(mktemp -d)
           git worktree add --detach "$baseline" "$BASE_SHA"
           trap 'git worktree remove --force "$baseline"' EXIT
+          recorder="$GITHUB_WORKSPACE/.github/record_screenshot_baseline.init.gradle"
           (
             cd "$baseline"
             ./gradlew robolectricSdkDownload -Pscreenshot --daemon
-            ./gradlew recordScreenshots -Pscreenshot -Ptheme=light,dark --stacktrace --rerun-tasks
+            ./gradlew recordScreenshots -Pscreenshot -Ptheme=light,dark --stacktrace --rerun-tasks --init-script "$recorder"
           )
           (cd "$baseline" && find . -type f -path '*/build/outputs/roborazzi/*.png' -print0) |
             rsync --archive --from0 --files-from=- "$baseline/" ./
+          reports="$RUNNER_TEMP/screenshot-baseline-test-results"
+          mkdir -p "$reports"
+          (cd "$baseline" && find . -type f -path '*/build/test-results/*/TEST-*.xml' -print0) |
+            rsync --archive --from0 --files-from=- "$baseline/" "$reports/"
 
       - name: Verify baseline contains screenshots
         run: |
@@ -128,6 +134,15 @@ jobs:
         id: compare-screenshot-test
         run: |
           ./gradlew compareScreenshots -Pscreenshot -Ptheme=light,dark --stacktrace
+
+      - name: Upload recorded baseline test results
+        if: ${{ always() && steps.record-baseline.outcome == 'success' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: screenshot-baseline-test-results
+          path: ${{ runner.temp }}/screenshot-baseline-test-results
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Stage screenshot diffs
         if: ${{ always() }}
