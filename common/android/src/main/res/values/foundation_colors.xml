@@ -51,7 +51,7 @@
     <color name="scheme_light_on_surface">#1D1D1D</color>
     <color name="scheme_light_surface_variant">#DDE0DF</color>
     <color name="scheme_light_on_surface_variant">#484848</color>
-    <color name="scheme_light_outline">#777777</color>
+    <color name="scheme_light_outline">#686868</color>
     <color name="scheme_light_outline_variant">#CACACA</color>
     <color name="scheme_light_surface_container_lowest">#F7FAF9</color>
     <color name="scheme_light_surface_container_low">#F0F3F2</color>
