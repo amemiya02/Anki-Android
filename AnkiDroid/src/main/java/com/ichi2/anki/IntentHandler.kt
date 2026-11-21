@@ -23,7 +23,6 @@ import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.storage.CollectionHelper
 import com.ichi2.anki.common.storage.StorageDecision
 import com.ichi2.anki.common.storage.grantedStoragePermissions
-import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.ext.getParcelableExtraCompat
 import com.ichi2.anki.dialogs.DialogHandler.Companion.storeMessage
 import com.ichi2.anki.dialogs.DialogHandlerMessage

@@ -17,10 +17,9 @@ open class NumberRangePreferenceCompat(
 ) : DialogPreference(context, attrs) {
     private val bounds =
         context.obtainStyledAttributes(attrs, R.styleable.NumberRangePreferenceCompat).use {
-            it.getInt(R.styleable.NumberRangePreferenceCompat_min, 0)..it.getInt(
-                R.styleable.NumberRangePreferenceCompat_max,
-                Int.MAX_VALUE,
-            )
+            val minimum = it.getInt(R.styleable.NumberRangePreferenceCompat_min, 0)
+            val maximum = it.getInt(R.styleable.NumberRangePreferenceCompat_max, Int.MAX_VALUE)
+            minimum..maximum
         }
     var min = bounds.first
         protected set
