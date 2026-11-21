@@ -39,7 +39,6 @@ import com.ichi2.anki.ui.windows.permissions.PermissionsBottomSheet
 import com.ichi2.anki.withDeckPicker
 import com.ichi2.testutils.BackupManagerTestUtilities
 import com.ichi2.testutils.simulateSystemBars
-import com.ichi2.testutils.windowInsetsOf
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -91,10 +90,7 @@ class ReviewRemindersScreenshotTest : ScreenshotTest() {
         RuntimeEnvironment.setQualifiers("+land")
         repeat(12) { insertReminder(ReviewReminderTime(8 + it, 0)) }
         withStandaloneScheduleReminders { activity ->
-            activity.window.simulateSystemBars(
-                with(activity) { windowInsetsOf(cutoutLeft = 32.dp, navBarBottom = 48.dp) },
-                insetTarget = activity.findViewById(android.R.id.content),
-            )
+            activity.simulateSystemBars(cutoutLeft = 32.dp)
             val settings = activity.getString(CommonString.schedule_reminders_notification_settings_menu)
             compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasText(settings))
             compose.onNodeWithText(settings).assertIsDisplayed()
