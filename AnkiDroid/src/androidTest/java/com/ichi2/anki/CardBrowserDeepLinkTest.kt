@@ -3,90 +3,119 @@
 package com.ichi2.anki
 
 import android.content.Intent
-import android.os.SystemClock
 import androidx.core.net.toUri
+import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.ichi2.anki.browser.CardBrowserPaneFragment
+import com.ichi2.anki.model.CardsOrNotes
 import com.ichi2.anki.tests.InstrumentedTest
 import com.ichi2.anki.testutil.GrantStoragePermission
+import com.ichi2.anki.testutil.disableIntroductionSlide
 import com.ichi2.anki.testutil.useResumedActivity
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.instanceOf
-import org.hamcrest.Matchers.not
+import com.ichi2.anki.testutil.waitUntil
+import com.ichi2.anki.testutil.withBackupPromptDisabled
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.time.Duration.Companion.seconds
+import kotlin.test.assertEquals
 
 /**
- * Sending the `anki://x-callback-url/browser?search=` deep link opens a search in [CardBrowser].
+ * Sending the `anki://x-callback-url/browser?search=` deep link opens Browse in the app host.
  */
 @RunWith(AndroidJUnit4::class)
 class CardBrowserDeepLinkTest : InstrumentedTest() {
     @get:Rule
     val storagePermission = GrantStoragePermission.instance
 
-    @Test
-    fun deepLinkOpensCardBrowserWithSearch() {
-        addNoteUsingBasicNoteType("dog", "barks")
-        addNoteUsingBasicNoteType("cat", "meows")
-
-        // implicit VIEW intent, constrained to AnkiDroid so the OS resolves it without a chooser
-        val deepLink =
-            Intent(Intent.ACTION_VIEW, "anki://x-callback-url/browser?search=dog".toUri()).apply {
-                setPackage(testContext.packageName)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-        withCardBrowser(deepLink) { browser ->
-            InstrumentationRegistry.getInstrumentation().runOnMainSync {
-                assertThat(
-                    "the deep link opens the browser on its search",
-                    browser.viewModel.searchTerms,
-                    equalTo("dog"),
-                )
-            }
-        }
+    @Before
+    fun setUp() {
+        disableIntroductionSlide()
     }
 
-    /**
-     * The deep link opens [CardBrowser] standalone, so pressing 'back' closes it.
-     */
     @Test
-    fun backFromBrowserClosesTheActivity() {
-        // TODO: make the 'back' experience consistent once we move to the M3 SearchBar
-        addNoteUsingBasicNoteType("dog", "barks")
+    fun deepLinkOpensCardBrowserWithSearch() =
+        testContext.withBackupPromptDisabled {
+            val query = "deepLinkDog${System.nanoTime()}"
+            val dog = addNoteUsingBasicNoteType(query, "barks")
+            addNoteUsingBasicNoteType("cat", "meows")
+            val dogCard = dog.firstCard(col)
+            val browserDeck = AnkiDroidApp.instance.sharedPrefsLastDeckIdRepository
+            val previousDeck = browserDeck.lastDeckId
+            browserDeck.lastDeckId = dogCard.did
 
-        val deepLink =
-            Intent(Intent.ACTION_VIEW, "anki://x-callback-url/browser?search=dog".toUri()).apply {
-                setPackage(testContext.packageName)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            try {
+                launchDeepLink(query)
+                useResumedActivity<DeckPicker> { host ->
+                    val browser = awaitBrowser(host)
+                    waitUntil(message = { "Browse did not load the matching card for the deep-link search" }) {
+                        onMain {
+                            val model = browser.browserViewModel
+                            val expectedId = if (model.cardsOrNotes == CardsOrNotes.NOTES) dog.id else dogCard.id
+                            model.searchTerms == query && model.cards.singleOrNull()?.cardOrNoteId == expectedId
+                        }
+                    }
+                }
+            } finally {
+                browserDeck.lastDeckId = previousDeck
             }
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-
-        withCardBrowser(deepLink) { browser ->
-            // The SearchBar & keyboard may need to be collapsed before 'back' finishes the activity
-            val deadline = SystemClock.uptimeMillis() + 3.seconds.inWholeMilliseconds
-            while (!browser.isFinishing && SystemClock.uptimeMillis() < deadline) {
-                instrumentation.runOnMainSync { browser.onBackPressedDispatcher.onBackPressed() }
-                instrumentation.waitForIdleSync()
-            }
-
-            assertThat("'back' closes the browser", browser.isFinishing, equalTo(true))
-            assertThat(
-                "'back' does not surface DeckPicker beneath the browser",
-                TestUtils.activityInstance,
-                not(instanceOf(DeckPicker::class.java)),
-            )
         }
+
+    @Test
+    fun backFromBrowserReturnsToDecksInTheSameActivity() =
+        testContext.withBackupPromptDisabled {
+            addNoteUsingBasicNoteType("dog", "barks")
+            ActivityScenario.launch(DeckPicker::class.java).use { scenario ->
+                val host = onDecks(scenario)
+                launchDeepLink("dog")
+                val browser = awaitBrowser(host)
+                waitUntil(message = { "Back did not close the deep-linked Browse screen" }) {
+                    onMain {
+                        if (host.currentScreenFragment === browser) {
+                            host.onBackPressedDispatcher.onBackPressed()
+                        }
+                        host.currentScreenFragment == null
+                    }
+                }
+                assertEquals(host, onDecks(scenario))
+            }
+        }
+
+    private fun onDecks(scenario: ActivityScenario<DeckPicker>): DeckPicker {
+        onView(withId(R.id.deck_picker_content)).check(matches(isDisplayed()))
+        lateinit var host: DeckPicker
+        scenario.onActivity { host = it }
+        return host
     }
 
-    /** Launches [deepLink] and runs [block] on the [CardBrowser] it launched. */
-    private inline fun withCardBrowser(
-        deepLink: Intent,
-        block: (CardBrowser) -> Unit,
-    ) {
-        testContext.startActivity(deepLink)
-        useResumedActivity<CardBrowser>(block)
+    private fun awaitBrowser(host: DeckPicker): CardBrowserPaneFragment {
+        var browser: CardBrowserPaneFragment? = null
+        waitUntil(message = { "The Browse destination did not open in DeckPicker" }) {
+            onMain {
+                browser = host.currentScreenFragment as? CardBrowserPaneFragment
+                browser?.isResumed == true
+            }
+        }
+        return checkNotNull(browser)
+    }
+
+    private fun launchDeepLink(query: String) {
+        // Let Android resolve the app's implicit VIEW entry point.
+        val intent =
+            Intent(Intent.ACTION_VIEW, "anki://x-callback-url/browser?search=$query".toUri())
+                .setPackage(testContext.packageName)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        testContext.startActivity(intent)
+    }
+
+    private fun onMain(condition: () -> Boolean): Boolean {
+        var result = false
+        InstrumentationRegistry.getInstrumentation().runOnMainSync { result = condition() }
+        return result
     }
 }

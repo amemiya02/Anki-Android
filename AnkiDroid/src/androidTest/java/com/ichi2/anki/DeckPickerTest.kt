@@ -15,7 +15,6 @@ import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
-import androidx.core.content.edit
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions
@@ -23,13 +22,13 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.TestUtils.isTablet
-import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.tests.InstrumentedTest
 import com.ichi2.anki.testutil.GrantStoragePermission.storagePermission
 import com.ichi2.anki.testutil.awaitDisplayed
 import com.ichi2.anki.testutil.disableIntroductionSlide
 import com.ichi2.anki.testutil.grantPermissions
 import com.ichi2.anki.testutil.notificationPermission
+import com.ichi2.anki.testutil.withBackupPromptDisabled
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -102,17 +101,8 @@ class DeckPickerTest : InstrumentedTest() {
         }
     }
 
-    private fun withDeckPicker(test: (ActivityScenario<DeckPicker>) -> Unit) {
-        val preferences = testContext.sharedPrefs()
-        val backupPromptKey = "backupPromptDisabled"
-        val oldBackupPrompt = preferences.getBoolean(backupPromptKey, false).takeIf { preferences.contains(backupPromptKey) }
-        preferences.edit { putBoolean(backupPromptKey, true) }
-        try {
+    private fun withDeckPicker(test: (ActivityScenario<DeckPicker>) -> Unit) =
+        testContext.withBackupPromptDisabled {
             ActivityScenario.launch(DeckPicker::class.java).use(test)
-        } finally {
-            preferences.edit {
-                if (oldBackupPrompt == null) remove(backupPromptKey) else putBoolean(backupPromptKey, oldBackupPrompt)
-            }
         }
-    }
 }

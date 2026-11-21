@@ -3,14 +3,14 @@
 
 package com.ichi2.anki.dialogs
 
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.core.content.edit
 import androidx.test.core.app.ActivityScenario
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CommonString
@@ -19,10 +19,11 @@ import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.storage.CollectionHelper
 import com.ichi2.anki.startup.getDefaultAnkiDroidDirectory
 import com.ichi2.anki.tests.InstrumentedTest
+import com.ichi2.anki.testutil.awaitDisplayed
 import com.ichi2.anki.testutil.disableIntroductionSlide
-import com.ichi2.anki.testutil.discardPreliminaryViews
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
@@ -33,6 +34,9 @@ import java.io.File
  */
 @RunWith(AndroidJUnit4::class)
 class CollectionPathMismatchRecoveryTest : InstrumentedTest() {
+    @get:Rule
+    val compose = createEmptyComposeRule()
+
     private lateinit var nonDefaultDir: File
     private lateinit var effectiveCollectionDir: File
     private var savedPath: String? = null
@@ -54,23 +58,20 @@ class CollectionPathMismatchRecoveryTest : InstrumentedTest() {
         effectiveCollectionDir = File(nonDefaultDir, "androidTest").apply { mkdirs() }
         // Use invalid bytes so opening this "collection" fails and triggers the recovery dialog
         File(effectiveCollectionDir, "collection.anki2").writeBytes("not_sqlite".toByteArray())
-
-        ActivityScenario.launch(DeckPicker::class.java)
-        discardPreliminaryViews()
     }
 
     @Test
     fun errorHandlingShowsUseDefaultFolderOption() {
-        onView(withText(CommonString.open_collection_failed_title))
-            .inRoot(isDialog())
-            .check(matches(isDisplayed()))
-        onView(withText(CommonString.error_handling_options)).inRoot(isDialog()).perform(click())
-        onView(withText(CommonString.error_handling_title))
-            .inRoot(isDialog())
-            .check(matches(isDisplayed()))
-        onView(withText(CommonString.backup_use_default_folder))
-            .inRoot(isDialog())
-            .check(matches(isDisplayed()))
+        ActivityScenario.launch(DeckPicker::class.java).use {
+            compose.awaitDisplayed { onNodeWithText(testContext.getString(CommonString.open_collection_failed_title)) }
+            compose.onNodeWithText(testContext.getString(CommonString.error_handling_options)).performClick()
+            compose.awaitDisplayed { onNodeWithText(testContext.getString(CommonString.error_handling_title)) }
+            compose
+                .onNodeWithText(testContext.getString(CommonString.backup_use_default_folder))
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assertHasClickAction()
+        }
     }
 
     @After
