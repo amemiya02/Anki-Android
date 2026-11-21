@@ -4,14 +4,19 @@
 """Run emulator tests and generate the coverage report."""
 
 import hashlib
+import json
 from pathlib import Path
 import subprocess
 import sys
 import time
 
 
+APK_METADATA = Path("AnkiDroid/build/outputs/apk/play/release/output-metadata.json")
+
+
 def read_coverage():
-    shell = ["adb", "shell", "-T", "run-as", "com.ichi2.anki"]
+    application_id = json.loads(APK_METADATA.read_text(encoding="utf-8"))["applicationId"]
+    shell = ["adb", "shell", "-T", "run-as", application_id]
     for attempt in range(1, 6):
         try:
             checksum = subprocess.check_output([*shell, "sha256sum", "coverage.ec"], timeout=30).split()
