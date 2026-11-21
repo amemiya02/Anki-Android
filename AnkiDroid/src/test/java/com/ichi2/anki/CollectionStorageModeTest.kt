@@ -94,10 +94,13 @@ class CollectionStorageModeTest(
                 assertThat(collection.collectionFiles, instanceOf(CollectionFiles.InMemoryWithMedia::class.java))
                 assertThat(collection.collectionFiles.mediaFolder?.isDirectory, equalTo(true))
             }
-            CollectionStorageMode.ON_DISK -> {
+            CollectionStorageMode.ON_DISK, CollectionStorageMode.TEMPORARY_ON_DISK -> {
                 assertThat(collection.collectionFiles, instanceOf(CollectionFiles.FolderBasedCollection::class.java))
                 assertThat(File(databasePath).canonicalPath, equalTo(collection.colDb.canonicalPath))
                 assertThat(collection.colDb.isFile, equalTo(true))
+                if (getCollectionStorageMode() == CollectionStorageMode.TEMPORARY_ON_DISK) {
+                    assertThat(collection.colDb.parentFile?.canonicalFile, equalTo(tempFolder.root.canonicalFile))
+                }
             }
         }
     }
