@@ -16,7 +16,7 @@ Open Hayaki to see what’s due across your decks. Pick one deck or tap **Study 
 
 | Today’s decks | Reveal and rate | Session summary |
 | :---: | :---: | :---: |
-| [<img src="docs/images/en-decks.png" width="260" alt="Nine cards to study across Geography, Languages and Vocabulary">](docs/images/en-decks.png) | [<img src="docs/images/en-study-answer.png" width="260" alt="A geography answer with four ratings and their next review intervals">](docs/images/en-study-answer.png) | [<img src="docs/images/en-finished.png" width="260" alt="Geography finished with three reviews in 25 seconds">](docs/images/en-finished.png) |
+| [<img src="docs/images/en-decks.png" width="260" alt="72 cards left to study today across Japanese, Science and Spanish, with World Capitals done for today">](docs/images/en-decks.png) | [<img src="docs/images/en-study-answer.png" width="260" alt="A Japanese vocabulary answer with furigana, a pronunciation button, an example sentence and four ratings with their next review intervals">](docs/images/en-study-answer.png) | [<img src="docs/images/en-finished.png" width="260" alt="Geography finished with three reviews in 25 seconds">](docs/images/en-finished.png) |
 
 ## Study with your own cards
 
@@ -27,7 +27,7 @@ Open Hayaki to see what’s due across your decks. Pick one deck or tap **Study 
 
 ## Your review history
 
-Each square marks a day in the sample collection. The bars below show how 742 reviews were spread across the last 31 days.
+Each square marks a day in the sample collection. The bars below show how 812 reviews were spread across the last 31 days.
 
 <p align="center"><a href="docs/images/en-statistics.png"><img src="docs/images/en-statistics.png" width="530" alt="Statistics showing a year of study activity and a month of daily review counts"></a></p>
 
