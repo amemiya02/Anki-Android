@@ -3,12 +3,15 @@
 
 package com.ichi2.anki.testutil
 
+import android.content.Context
+import androidx.core.content.edit
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.ui.internationalization.sentenceCase
 
 /**
@@ -31,6 +34,20 @@ fun closeBackupCollectionDialogIfExists() {
 fun discardPreliminaryViews() {
     closeGetStartedScreenIfExists()
     closeBackupCollectionDialogIfExists()
+}
+
+fun Context.withBackupPromptDisabled(test: () -> Unit) {
+    val preferences = sharedPrefs()
+    val key = "backupPromptDisabled"
+    val previous = preferences.getBoolean(key, false).takeIf { preferences.contains(key) }
+    preferences.edit { putBoolean(key, true) }
+    try {
+        test()
+    } finally {
+        preferences.edit {
+            if (previous == null) remove(key) else putBoolean(key, previous)
+        }
+    }
 }
 
 /**
